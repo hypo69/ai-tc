@@ -10,7 +10,7 @@
  * Package: apps.windows.api.webgui.ai_modal_dialog
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 04:47:00
+ * Updated: 2026-10-31 20:05:00
  * =============================================================================
  */
 
@@ -29,8 +29,8 @@
   border: 1px solid var(--border-color, #334155);
   border-radius: 8px;
   color: var(--text-main, #f8fafc);
-  width: 80vw;
-  max-width: 80vw;
+  width: 90vw;
+  max-width: 90vw;
   height: 90vh;
   min-height: 90vh;
   max-height: 90vh;

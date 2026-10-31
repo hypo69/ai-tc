@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 17:05:00
+ * Updated: 2026-10-31 20:05:00
  * =============================================================================
  */
 
@@ -349,17 +349,17 @@
 
 /* ═══════════════════════════════════════════════════════════════════════════
    МОДАЛЬНЫЕ ОКНА
-   Централизованный стандарт: ВСЕ модальные окна WebGUI имеют габариты 80% экрана
-   Ширина: var(--modal-width, 80vw); Высота: var(--modal-height, 80vh);
+   Централизованный стандарт: ВСЕ модальные окна WebGUI имеют габариты 90% экрана
+   Ширина: var(--modal-width, 90vw); Высота: var(--modal-height, 90vh);
    ═══════════════════════════════════════════════════════════════════════════ */
 .modal .modal-dialog {
-  --bs-modal-width: var(--modal-width, 80vw) !important;
-  width: var(--modal-width, 80vw) !important;
-  max-width: var(--modal-width, 80vw) !important;
-  height: var(--modal-height, 80vh) !important;
-  max-height: var(--modal-height, 80vh) !important;
-  min-height: var(--modal-height, 80vh) !important;
-  margin: calc((100vh - var(--modal-height, 80vh)) / 2) auto !important;
+  --bs-modal-width: var(--modal-width, 90vw) !important;
+  width: var(--modal-width, 90vw) !important;
+  max-width: var(--modal-width, 90vw) !important;
+  height: var(--modal-height, 90vh) !important;
+  max-height: var(--modal-height, 90vh) !important;
+  min-height: var(--modal-height, 90vh) !important;
+  margin: calc((100vh - var(--modal-height, 90vh)) / 2) auto !important;
   display: flex !important;
   flex-direction: column !important;
 }
@@ -409,9 +409,9 @@
 
 /* Модальное окно помощи */
 .modal-help .modal-dialog {
-  --bs-modal-width: var(--modal-width, 80vw) !important;
-  width: var(--modal-width, 80vw) !important;
-  max-width: var(--modal-width, 80vw) !important;
+  --bs-modal-width: var(--modal-width, 90vw) !important;
+  width: var(--modal-width, 90vw) !important;
+  max-width: var(--modal-width, 90vw) !important;
 }
 .modal-help .modal-content {
   border-radius: var(--radius-md, 8px);
@@ -431,9 +431,9 @@
 
 /* ── Модальное окно настроек системы и окружения (#aboutRegionalSettingsModal) ── */
 #aboutRegionalSettingsModal .modal-dialog {
-  --bs-modal-width: var(--modal-width, 80vw) !important;
-  width: var(--modal-width, 80vw) !important;
-  max-width: var(--modal-width, 80vw) !important;
+  --bs-modal-width: var(--modal-width, 90vw) !important;
+  width: var(--modal-width, 90vw) !important;
+  max-width: var(--modal-width, 90vw) !important;
 }
 
 #aboutRegionalSettingsModal .modal-content {

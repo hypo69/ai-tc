@@ -8,7 +8,7 @@
   "description": "Максимально контрастная черно-белая тема для доступности",
   "baseType": "dark",
   "tokens": {
-    "--modal-width": "80vw",
-    "--modal-height": "80vh"
+    "--modal-width": "90vw",
+    "--modal-height": "90vh"
   }
 }

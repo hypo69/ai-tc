@@ -11,7 +11,7 @@
  * Package: windows/api/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 17:05:00
+ * Updated: 2026-10-31 20:05:00
  * =============================================================================
  */
 
@@ -91,8 +91,8 @@ body.theme-dark-slate {
   --modal-bg: #1e293b;
   --modal-text: #f8fafc;
   --modal-border: #334155;
-  --modal-width: 80vw;
-  --modal-height: 80vh;
+  --modal-width: 90vw;
+  --modal-height: 90vh;
 
   --bs-body-bg: #0f172a;
   --bs-body-bg-rgb: 15, 23, 42;
@@ -308,8 +308,8 @@ body.theme-nightview {
   --modal-bg: #f6f1e8;
   --modal-text: #18181b;
   --modal-border: #ded7cb;
-  --modal-width: 80vw;
-  --modal-height: 80vh;
+  --modal-width: 90vw;
+  --modal-height: 90vh;
 
   --bs-body-bg: #f5f2eb;
   --bs-body-bg-rgb: 245, 242, 235;
@@ -643,8 +643,8 @@ h3.panel-header,
 }
 
 .ai-modal-card {
-  width: 80vw;
-  max-width: 80vw;
+  width: 90vw;
+  max-width: 90vw;
   height: 90vh;
   min-height: 90vh;
   max-height: 90vh;

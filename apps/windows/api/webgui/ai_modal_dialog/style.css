@@ -11,20 +11,20 @@
  * Package: apps.windows.api.webgui.ai_modal_dialog
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 17:05:00
+ * Updated: 2026-10-31 20:05:00
  * =============================================================================
  */
 
-/* Централизованные габариты модального окна ИИ-помощника: 80% ширины и 80% высоты экрана */
+/* Централизованные габариты модального окна ИИ-помощника: 90% ширины и 90% высоты экрана */
 #universal-ai-table-modal .modal-dialog,
 #universal-ai-prompt-editor-modal .modal-dialog {
-  --bs-modal-width: var(--modal-width, 80vw);
-  max-width: var(--modal-width, 80vw) !important;
-  width: var(--modal-width, 80vw) !important;
-  height: var(--modal-height, 80vh) !important;
-  max-height: var(--modal-height, 80vh) !important;
-  min-height: var(--modal-height, 80vh) !important;
-  margin: calc((100vh - var(--modal-height, 80vh)) / 2) auto !important;
+  --bs-modal-width: var(--modal-width, 90vw);
+  max-width: var(--modal-width, 90vw) !important;
+  width: var(--modal-width, 90vw) !important;
+  height: var(--modal-height, 90vh) !important;
+  max-height: var(--modal-height, 90vh) !important;
+  min-height: var(--modal-height, 90vh) !important;
+  margin: calc((100vh - var(--modal-height, 90vh)) / 2) auto !important;
 }
 
 #universal-ai-table-modal .modal-content,

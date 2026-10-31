@@ -11,7 +11,7 @@
  * Package: apps/windows/api/webgui/tab_theme_editor/panel_tokens
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 17:05:00
+ * Updated: 2026-10-31 20:05:00
  * =============================================================================
  */
 
@@ -49,8 +49,8 @@ export function collectTokensFromUI() {
   const kpiHeight = document.getElementById('range-kpi-height')?.value || '72';
   const panelHeaderFontSize = document.getElementById('range-panel-header-font-size')?.value || '28';
   const tabHeaderFontSize = document.getElementById('range-tab-header-font-size')?.value || '22';
-  const modalWidth = document.getElementById('range-modal-width')?.value || '80';
-  const modalHeight = document.getElementById('range-modal-height')?.value || '80';
+  const modalWidth = document.getElementById('range-modal-width')?.value || '90';
+  const modalHeight = document.getElementById('range-modal-height')?.value || '90';
 
   const density = document.querySelector('input[name="theme-density"]:checked')?.value || 'normal';
   const fontFamKey = document.getElementById('select-font-family')?.value || 'system';
@@ -265,8 +265,8 @@ export function collectFullStateFromUI() {
     tabHeaderFontSize: parseInt(document.getElementById('range-tab-header-font-size')?.value || '22', 10),
     borderRadius: parseInt(document.getElementById('range-border-radius')?.value || '8', 10),
     kpiHeight: parseInt(document.getElementById('range-kpi-height')?.value || '72', 10),
-    modalWidth: parseInt(document.getElementById('range-modal-width')?.value || '80', 10),
-    modalHeight: parseInt(document.getElementById('range-modal-height')?.value || '80', 10),
+    modalWidth: parseInt(document.getElementById('range-modal-width')?.value || '90', 10),
+    modalHeight: parseInt(document.getElementById('range-modal-height')?.value || '90', 10),
     density: document.querySelector('input[name="theme-density"]:checked')?.value || 'normal',
     fontFamily: document.getElementById('select-font-family')?.value || 'system',
     shadowStyle: document.getElementById('select-shadow-style')?.value || 'soft',

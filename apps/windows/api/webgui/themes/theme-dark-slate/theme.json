@@ -122,7 +122,7 @@
     "--panel-header-font-size": "1.75rem",
     "--tab-header-title-color": "#f8fafc",
     "--tab-header-subtitle-color": "#94a3b8",
-    "--modal-width": "80vw",
-    "--modal-height": "80vh"
+    "--modal-width": "90vw",
+    "--modal-height": "90vh"
   }
 }

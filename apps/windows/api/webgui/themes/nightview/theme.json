@@ -88,7 +88,7 @@
     "--bs-primary": "#1d4ed8",
     "--bs-info": "#0284c7",
     "--bs-info-rgb": "2, 132, 199",
-    "--modal-width": "80vw",
-    "--modal-height": "80vh"
+    "--modal-width": "90vw",
+    "--modal-height": "90vh"
   }
 }

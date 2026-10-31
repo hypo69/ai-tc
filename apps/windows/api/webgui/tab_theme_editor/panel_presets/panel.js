@@ -11,7 +11,7 @@
  * Package: apps/windows/api/webgui/tab_theme_editor/panel_presets
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 17:05:00
+ * Updated: 2026-10-31 20:05:00
  * =============================================================================
  */
 
@@ -508,11 +508,11 @@ export function loadPreset(presetKey, onApplied = null) {
   setInputValue('range-kpi-height', preset.kpiHeight || 72);
   setTextContent('val-kpi-height', `${preset.kpiHeight || 72}px`);
 
-  setInputValue('range-modal-width', preset.modalWidth || 80);
-  setTextContent('val-modal-width', `${preset.modalWidth || 80}vw`);
+  setInputValue('range-modal-width', preset.modalWidth || 90);
+  setTextContent('val-modal-width', `${preset.modalWidth || 90}vw`);
 
-  setInputValue('range-modal-height', preset.modalHeight || 80);
-  setTextContent('val-modal-height', `${preset.modalHeight || 80}vh`);
+  setInputValue('range-modal-height', preset.modalHeight || 90);
+  setTextContent('val-modal-height', `${preset.modalHeight || 90}vh`);
 
   const densityRadio = document.getElementById(`density-${preset.density || 'normal'}`);
   if (densityRadio) densityRadio.checked = true;

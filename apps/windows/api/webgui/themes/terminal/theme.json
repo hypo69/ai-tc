@@ -8,7 +8,7 @@
   "description": "Тёмная тема в ретро-стиле зеленого фосфорного терминала с моноширинными акцентами",
   "baseType": "dark",
   "tokens": {
-    "--modal-width": "80vw",
-    "--modal-height": "80vh"
+    "--modal-width": "90vw",
+    "--modal-height": "90vh"
   }
 }

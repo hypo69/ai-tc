@@ -15,7 +15,7 @@
  * Package: windows/api/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 17:05:00
+ * Updated: 2026-10-31 20:05:00
  * =============================================================================
  */
 
@@ -55,8 +55,8 @@
   --border-contrast: #64748b;   /* контрастные рамки */
   --divider-color:   #cbd5e1;
   --modal-border:    #cbd5e1;
-  --modal-width:     80vw;
-  --modal-height:    80vh;
+  --modal-width:     90vw;
+  --modal-height:    90vh;
 
   /* Тени (мягкие) */
   --shadow-xs:  0 1px 2px rgba(15, 23, 42, 0.05);
@@ -222,8 +222,8 @@
   --border-contrast: #71717a;   /* контрастные рамки */
   --divider-color:   #ded7cb;
   --modal-border:    #ded7cb;
-  --modal-width:     80vw;
-  --modal-height:    80vh;
+  --modal-width:     90vw;
+  --modal-height:    90vh;
   --ui-border-color: #ded7cb;
 
   /* Тени (мягкие теплые) */
@@ -328,8 +328,8 @@
   --border-contrast: #8f5843;
   --divider-color:   #dfcebf;
   --modal-border:    #dfcebf;
-  --modal-width:     80vw;
-  --modal-height:    80vh;
+  --modal-width:     90vw;
+  --modal-height:    90vh;
 
   /* Тени (теплые) */
   --shadow-xs:  0 1px 2px rgba(130, 70, 50, 0.05);
@@ -482,8 +482,8 @@ body.theme-dark-slate {
   --border-contrast: #64748b;
   --divider-color:   #334155;
   --modal-border:    #334155;
-  --modal-width:     80vw;
-  --modal-height:    80vh;
+  --modal-width:     90vw;
+  --modal-height:    90vh;
   --ui-border-color: #334155;
 
   /* Тени */
@@ -600,8 +600,8 @@ body.theme-dark-slate {
   --border-contrast: #70849d;   /* акцентные контуры */
   --divider-color:   #3b4758;
   --modal-border:    #3b4758;
-  --modal-width:     80vw;
-  --modal-height:    80vh;
+  --modal-width:     90vw;
+  --modal-height:    90vh;
 
   /* Тени (глубокие, отделяющие слои) */
   --shadow-xs:  0 1px 3px rgba(0, 0, 0, 0.4);
@@ -745,8 +745,8 @@ body.theme-dark-slate {
   --border-contrast: #39ff14;
   --divider-color:   #1a4223;
   --modal-border:    #00ff66;
-  --modal-width:     80vw;
-  --modal-height:    80vh;
+  --modal-width:     90vw;
+  --modal-height:    90vh;
 
   /* Тени (неоновое свечение фосфора) */
   --shadow-xs:  0 0 3px rgba(0, 255, 102, 0.15);
