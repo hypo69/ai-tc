@@ -10,8 +10,8 @@
     "description": "Теплая светлая тема в стиле клинкерного кирпича и обожженной глины",
     "tokens": {
       "--about-card-bg": "linear-gradient(135deg, #f5e8d4 0%, #e2c8b8 100%)",
-      "--modal-width": "80vw",
-      "--modal-height": "80vh"
+      "--modal-width": "90vw",
+      "--modal-height": "90vh"
     }
   },
   {
@@ -24,8 +24,8 @@
     "iconColor": "text-primary",
     "description": "Классическая глубокая контрастная тёмная тема",
     "tokens": {
-      "--modal-width": "80vw",
-      "--modal-height": "80vh"
+      "--modal-width": "90vw",
+      "--modal-height": "90vh"
     }
   },
   {
@@ -113,8 +113,8 @@
       "--about-card-bg": "linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%)",
       "--badge-font-size": "calc(0.72rem + 1pt)",
       "color-scheme": "light",
-      "--modal-width": "80vw",
-      "--modal-height": "80vh"
+      "--modal-width": "90vw",
+      "--modal-height": "90vh"
     }
   },
   {
@@ -207,8 +207,8 @@
       "--bs-primary": "#1d4ed8",
       "--bs-info": "#0284c7",
       "--bs-info-rgb": "2, 132, 199",
-      "--modal-width": "80vw",
-      "--modal-height": "80vh"
+      "--modal-width": "90vw",
+      "--modal-height": "90vh"
     }
   },
   {
@@ -225,8 +225,8 @@
       "--surface-1": "#1e293b",
       "--surface-2": "#334155",
       "--ui-accent": "#38bdf8",
-      "--modal-width": "80vw",
-      "--modal-height": "80vh"
+      "--modal-width": "90vw",
+      "--modal-height": "90vh"
     }
   },
   {
@@ -243,8 +243,8 @@
       "--surface-1": "#073642",
       "--surface-2": "#094352",
       "--ui-accent": "#268bd2",
-      "--modal-width": "80vw",
-      "--modal-height": "80vh"
+      "--modal-width": "90vw",
+      "--modal-height": "90vh"
     }
   },
   {
@@ -257,8 +257,8 @@
     "iconColor": "text-success",
     "description": "Тёмная тема в ретро-стиле зеленого фосфорного терминала с моноширинными акцентами",
     "tokens": {
-      "--modal-width": "80vw",
-      "--modal-height": "80vh"
+      "--modal-width": "90vw",
+      "--modal-height": "90vh"
     }
   },
   {
@@ -271,8 +271,8 @@
     "iconColor": "text-warning",
     "description": "Высокотехнологичный неоновый стиль с киберпанк-акцентами",
     "tokens": {
-      "--modal-width": "80vw",
-      "--modal-height": "80vh"
+      "--modal-width": "90vw",
+      "--modal-height": "90vh"
     }
   },
   {
@@ -399,8 +399,8 @@
       "--panel-header-font-size": "1.75rem",
       "--tab-header-title-color": "#f8fafc",
       "--tab-header-subtitle-color": "#94a3b8",
-      "--modal-width": "80vw",
-      "--modal-height": "80vh"
+      "--modal-width": "90vw",
+      "--modal-height": "90vh"
     }
   },
   {
@@ -413,8 +413,8 @@
     "iconColor": "text-light",
     "description": "Максимально контрастная черно-белая тема для доступности",
     "tokens": {
-      "--modal-width": "80vw",
-      "--modal-height": "80vh"
+      "--modal-width": "90vw",
+      "--modal-height": "90vh"
     }
   },
   {
@@ -427,8 +427,8 @@
     "iconColor": "text-primary",
     "description": "Чистый корпоративный светлый стиль (UI Kit v2.0)",
     "tokens": {
-      "--modal-width": "80vw",
-      "--modal-height": "80vh"
+      "--modal-width": "90vw",
+      "--modal-height": "90vh"
     }
   }
 ]
