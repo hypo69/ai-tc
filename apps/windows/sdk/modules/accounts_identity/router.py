@@ -266,3 +266,4 @@ async def get_user_security_audit_events(
     """Возвращает историю событий безопасности для указанного пользователя."""
     return _service.get_user_audit_events(username=username, limit=limit)
 
+

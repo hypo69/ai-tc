@@ -235,3 +235,4 @@ class LogDiscoveryEngine:
             logger.debug(f'[LogDiscoveryEngine] Ошибка чтения файла {path}: {ex}')
         return entries
 __all__ = ['LogDiscoveryEngine', 'LogSource']
+

@@ -153,3 +153,4 @@ class TaskbarSummaryReport(BaseModel):
     visible_windows_count: int = Field(0, description="Число видимых окон с заголовками")
     foreground_window: Optional[WindowItem] = Field(None, description="Текущее активное окно")
     pinned_apps_count: int = Field(0, description="Количество закрепленных на панели приложений")
+

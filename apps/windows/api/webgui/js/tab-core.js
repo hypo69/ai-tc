@@ -17,7 +17,7 @@
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 14:54:00
+ * Updated: 2026-10-31 18:45:00
  * =============================================================================
  */
 
@@ -284,13 +284,15 @@ export function setTabPollerEnabled(pollerId, enabled) {
  * Приоритет: кнопки навигации имеют самый высокий приоритет.
  * Если что-то запущено внутри вкладки, переключение происходит немедленно без ожидания.
  * @param {string} tabId 
+ * @param {string|null} [targetSubPanelId=null] - Опциональный идентификатор суб-панели
  */
-export function switchTab(tabId) {
+export function switchTab(tabId, targetSubPanelId = null) {
   if (!tabId) return;
   const rawClean = String(tabId).replace(/^#/, '');
   const parts = rawClean.split('#');
   const id = normalizeTabId(parts[0]);
-  const subPanelId = parts[1] || null;
+  const subPanelId = targetSubPanelId || parts[1] || null;
+  const subHash = parts.slice(1).filter(Boolean).join('#') || (targetSubPanelId || null);
   const prevTabId = currentActiveTabId;
 
   // 1. Остановка фонового аудио / синтеза речи при переходе
@@ -343,9 +345,9 @@ export function switchTab(tabId) {
     document.body.style.pointerEvents = '';
   }, 50);
 
-  // 6. Обновить URL hash с сохранением суб-панели
+  // 6. Обновить URL hash с сохранением суб-панели и блоков
   try {
-    const targetHash = subPanelId ? `#${id}#${subPanelId}` : `#${id}`;
+    const targetHash = subHash ? `#${id}#${subHash}` : `#${id}`;
     history.replaceState(null, null, targetHash);
   } catch (e) {}
 
@@ -381,29 +383,37 @@ export function switchTab(tabId) {
       window[`activate${name[0].toUpperCase() + name.slice(1)}Tab`]?.();
     } catch (err) { console.debug('activate tab hook error:', err); }
 
-    if (subPanelId && id === 'tab-processes-load-inspector' && typeof window.switchProcessesSubTab === 'function') {
+    const effectiveSubPanel = typeof subPanelId !== 'undefined' ? subPanelId : null;
+
+    if (effectiveSubPanel && id === 'tab-processes-load-inspector' && typeof window.switchProcessesSubTab === 'function') {
       try {
-        window.switchProcessesSubTab(subPanelId, false);
+        window.switchProcessesSubTab(effectiveSubPanel, false);
       } catch (err) {
         console.debug('switchProcessesSubTab error:', err);
       }
-    } else if (subPanelId && id === 'tab-system-control' && typeof window.switchSystemControlSource === 'function') {
+    } else if (effectiveSubPanel && id === 'tab-system-control' && typeof window.switchSystemControlSource === 'function') {
       try {
-        window.switchSystemControlSource(subPanelId);
+        window.switchSystemControlSource(effectiveSubPanel);
       } catch (err) {
         console.debug('switchSystemControlSource error:', err);
       }
-    } else if (subPanelId && (id === 'tab-software-monitor' || id === 'tab-software-scanner') && typeof window.switchSoftwareSubTab === 'function') {
+    } else if (effectiveSubPanel && (id === 'tab-software-monitor' || id === 'tab-software-scanner') && typeof window.switchSoftwareSubTab === 'function') {
       try {
-        window.switchSoftwareSubTab(subPanelId);
+        window.switchSoftwareSubTab(effectiveSubPanel);
       } catch (err) {
         console.debug('switchSoftwareSubTab error:', err);
       }
-    } else if (subPanelId && (id === 'tab-defender-firewall' || id === 'tab-defender') && typeof window.switchDefenderSubTab === 'function') {
+    } else if (effectiveSubPanel && (id === 'tab-defender-firewall' || id === 'tab-defender') && typeof window.switchDefenderSubTab === 'function') {
       try {
-        window.switchDefenderSubTab(subPanelId, false);
+        window.switchDefenderSubTab(effectiveSubPanel, false);
       } catch (err) {
         console.debug('switchDefenderSubTab error:', err);
+      }
+    } else if (effectiveSubPanel && (id === 'tab-user-environment' || id === 'tab-user-enviroment') && typeof window.switchUserEnvSubTab === 'function') {
+      try {
+        window.switchUserEnvSubTab(effectiveSubPanel, false);
+      } catch (err) {
+        console.debug('switchUserEnvSubTab error:', err);
       }
     }
 
@@ -412,7 +422,7 @@ export function switchTab(tabId) {
       window.initPanels(targetPane);
     }
     
-    document.dispatchEvent(new CustomEvent('tab:activated', { detail: { tabId: id, name, subPanelId } }));
+    document.dispatchEvent(new CustomEvent('tab:activated', { detail: { tabId: id, name, subPanelId: effectiveSubPanel } }));
   });
 }
 

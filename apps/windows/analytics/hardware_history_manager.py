@@ -239,3 +239,4 @@ class HardwareHistoryManager:
             except Exception:
                 continue
         return all_changes[:limit]
+

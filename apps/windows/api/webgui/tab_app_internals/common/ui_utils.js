@@ -11,7 +11,7 @@
  * Package: windows/api/webgui/tab_app_internals/common
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 15:25:00
+ * Updated: 2026-10-31 19:42:00
  * =============================================================================
  */
 
@@ -40,17 +40,59 @@ export function isAppInternalsTabActive() {
 export function normalizeSubTabId(rawId) {
   if (!rawId) return 'telemetry';
   const s = String(rawId).toLowerCase().trim().replace(/^#/, '');
+  if (s.includes('codebase') || s.includes('code-rag') || s.includes('coderag') || s.includes('diag')) return 'codebase-rag';
   if (s.includes('telemetry') || s.includes('metric') || s.includes('cpu')) return 'telemetry';
   if (s.includes('model') || s.includes('provider') || s.includes('foundry') || s.includes('ollama')) return 'models';
   if (s.includes('log-setting') || s.includes('logging-setting')) return 'settings';
   if (s.includes('log') || s.includes('journal')) return 'logs';
   if (s.includes('etw') || s.includes('tracing') || s.includes('trace') || s.includes('perf')) return 'etw';
   if (s.includes('setting') || (s.includes('param') && !s.includes('wikillm'))) return 'settings';
-  if (s.includes('instrument') || s.includes('tool')) return 'instruments';
-  if (s.includes('editor') || s.includes('article') || s.includes('knowledge') || s.includes('statya')) return 'wikillm-editor';
-  if (s.includes('wikillm-param') || s.includes('wikillm_param') || s.includes('model-param')) return 'wikillm-params';
-  if (s.includes('wikillm-db') || s.includes('wikillm_db') || s.includes('wikillm') || s.includes('mariadb')) return 'wikillm-db';
+  if (s.includes('tooltip')) return 'tooltips-editor';
+  if (s.includes('helppage') || s.includes('help-page') || s.includes('help-editor') || s.includes('helppages-editor')) return 'helppages-editor';
+  if (s.includes('instrument') || s.includes('tool') || s.includes('hostinger')) return 'instruments';
+  if (s.includes('wikillm') || s.includes('system') || s.includes('editor') || s.includes('article') || s.includes('knowledge') || s.includes('statya')) return 'wikillm-system';
   return 'telemetry';
+}
+
+/**
+ * Нормализует идентификатор блока подменю внутри активной панели.
+ * @param {string} blockId - Исходный ID блока
+ * @param {string} [panelId=''] - Канонический ID панели
+ * @returns {string} Канонический ID блока
+ */
+export function normalizeBlockId(blockId, panelId = '') {
+  if (!blockId) {
+    if (panelId === 'codebase-rag') return 'block-code-diagnose';
+    return panelId === 'instruments' ? 'block-inst-hostinger' : 'block-sys-storage';
+  }
+  const s = String(blockId).toLowerCase().trim().replace(/^#/, '');
+
+  // Блоки для Codebase RAG
+  if (panelId === 'codebase-rag' || s.includes('code')) {
+    if (s.includes('index') || s.includes('build')) return 'block-code-index';
+    if (s.includes('search') || s.includes('symbol')) return 'block-code-search';
+    return 'block-code-diagnose';
+  }
+
+  // Блоки для инструментов агента (Hostinger)
+  if (panelId === 'instruments' || s.includes('inst')) {
+    if (s.includes('runtime') || s.includes('chain') || s.includes('reason') || s.includes('param')) {
+      return 'block-inst-runtime';
+    }
+    if (s.includes('catalog') || s.includes('list') || s.includes('all')) {
+      return 'block-inst-catalog';
+    }
+    return 'block-inst-hostinger';
+  }
+
+  // Блоки для системных подсказок (WikiLLM)
+  if (s.includes('param') || s.includes('model') || s.includes('setting')) {
+    return 'block-sys-params';
+  }
+  if (s.includes('article') || s.includes('editor') || s.includes('statya')) {
+    return 'block-sys-articles';
+  }
+  return 'block-sys-storage';
 }
 
 /**
@@ -69,7 +111,24 @@ export function getActiveSubTabId() {
 }
 
 /**
- * Считывает суб-панель из URL hash (#tab-app-internals#<panel_id>).
+ * Возвращает идентификатор активного блока подменю в указанной панели.
+ * @param {string} panelId - 'wikillm-system', 'instruments' или 'codebase-rag'
+ * @returns {string}
+ */
+export function getActiveBlockId(panelId) {
+  let navId = 'wikillm-sys-blocks-nav';
+  if (panelId === 'instruments') navId = 'instruments-blocks-nav';
+  else if (panelId === 'codebase-rag') navId = 'codebase-blocks-nav';
+  const activeBtn = document.querySelector(`#${navId} button.active`);
+  if (activeBtn) {
+    const bId = activeBtn.getAttribute('data-block-id');
+    if (bId) return normalizeBlockId(bId, panelId);
+  }
+  return normalizeBlockId('', panelId);
+}
+
+/**
+ * Считывает суб-панель из URL hash (#tab-app-internals#<panel_id>#block-<block_id>).
  * @returns {string|null} ID субпанели или null.
  */
 export function getPanelFromHash() {
@@ -93,14 +152,52 @@ export function getPanelFromHash() {
 }
 
 /**
- * Обновляет URL hash активной суб-панелью (#tab-app-internals#<panel_id>) без перезагрузки страницы.
- * @param {string} panelId - Идентификатор панели.
+ * Извлекает блок подменю (block-<id>) из URL hash.
+ * @param {string} [panelId=''] - Канонический ID панели
+ * @returns {string|null} ID блока или null
  */
-export function updateUrlWithPanel(panelId) {
+export function getBlockFromHash(panelId = '') {
+  const hash = (typeof location !== 'undefined' ? location.hash : '') || '';
+  if (!hash) return null;
+  const cleanHash = hash.replace(/^#/, '');
+  const parts = cleanHash.split('#');
+
+  // Поиск прямого сегмента block-*
+  const blockPart = parts.find((p) => p.startsWith('block-'));
+  if (blockPart) {
+    return normalizeBlockId(blockPart, panelId);
+  }
+
+  // Обратная совместимость для старых URL хешей
+  if (parts.length >= 2) {
+    const rawSub = parts[1].toLowerCase();
+    if (rawSub === 'wikillm-db') return 'block-sys-storage';
+    if (rawSub === 'wikillm-params') return 'block-sys-params';
+    if (rawSub === 'wikillm-editor') return 'block-sys-articles';
+  }
+
+  return null;
+}
+
+/**
+ * Обновляет URL hash активной суб-панелью и блоком (#tab-app-internals#<panel_id>[#block-<block_id>]) без перезагрузки страницы.
+ * @param {string} panelId - Идентификатор панели.
+ * @param {string|null} [blockId=null] - Идентификатор блока подменю
+ */
+export function updateUrlWithPanel(panelId, blockId = null) {
   if (typeof history === 'undefined' || typeof location === 'undefined') return;
   const canonical = normalizeSubTabId(panelId);
   const search = location.search || '';
-  const newHash = `#${TAB_ID}#${canonical}`;
+
+  let blockSuffix = '';
+  if (canonical === 'wikillm-system' || canonical === 'instruments' || canonical === 'codebase-rag') {
+    const effectiveBlock = blockId ? normalizeBlockId(blockId, canonical) : getActiveBlockId(canonical);
+    if (effectiveBlock) {
+      blockSuffix = `#${effectiveBlock}`;
+    }
+  }
+
+  const newHash = `#${TAB_ID}#${canonical}${blockSuffix}`;
   if (location.hash !== newHash) {
     try {
       history.replaceState(null, null, `${location.pathname}${search}${newHash}`);
@@ -144,4 +241,18 @@ export function notifyUser(message, type = 'info') {
   } else {
     console.info(`[AppInternals Toast: ${type}] ${message}`);
   }
+}
+
+/**
+ * Экранирует специальные символы HTML для безопасного вывода в DOM.
+ * @param {string} str - Исходная строка
+ * @returns {string} Экранированная строка
+ */
+export function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }

@@ -543,3 +543,4 @@ class TelemetryAssistant:
                 "Топ процессов по нагрузке на ЦП",
             ],
         }
+

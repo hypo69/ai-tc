@@ -66,3 +66,4 @@ def test_router_process_activity_endpoints():
     res_files = client.get("/api/v1/system/file-watcher/events?limit=10")
     assert res_files.status_code == 200
     assert isinstance(res_files.json(), list)
+

@@ -186,3 +186,4 @@ def run_telemetry_command(args: argparse.Namespace) -> int:
             return 1
     logger.console(f'Неизвестная подкоманда telemetry: {sub}')
     return 1
+

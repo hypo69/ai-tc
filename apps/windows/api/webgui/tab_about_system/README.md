@@ -25,7 +25,7 @@ flowchart TD
             M_SENS["get_hardware_sensors()<br/>(Сенсоры и температуры WMI/CIM)"]
         end
 
-        subgraph Core_Managers["Менеджеры apps/windows/core"]
+        subgraph Core_Managers["Менеджеры apps/windows/sdk/core"]
             SPM["system_param_manager<br/>(Безопасное управление + Restore Points)"]
             SWA["software_audit<br/>(Аудит ПО, Prefetch, UserAssist)"]
             DEF["defender_manager<br/>(Защитник Windows и Firewall)"]

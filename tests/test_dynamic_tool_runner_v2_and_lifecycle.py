@@ -201,3 +201,4 @@ def test_wikillm_deduplication(procedural_service: ProceduralWikiLLMService, mem
     assert res["cache_hit"] is True
     assert res.get("deduplicated") is True
     assert res["tool"]["tool_id"] == "tool_get_tcp_connections"
+

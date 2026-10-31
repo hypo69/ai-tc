@@ -34,3 +34,4 @@ def plugin(ai_model: Any = None, config: Optional[dict] = None) -> TelegramChann
         TelegramChannelRagPlugin: Configured plugin instance.
     """
     return TelegramChannelRagPlugin(ai_model=ai_model, config=config)
+

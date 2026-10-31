@@ -70,3 +70,4 @@ __all__ = [
     'BootReport',
     'BootActionRequest',
 ]
+

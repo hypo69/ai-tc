@@ -18,7 +18,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 10:45:00
+# Updated: 2026-10-31 19:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -26,6 +26,7 @@ from __future__ import annotations
 """Роутер панели «Загрузка CPU»: иерархия CPU -> ядра -> потоки -> сенсоры строго из базы данных telemetry.db."""
 
 import json
+import os
 import re
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
@@ -40,6 +41,74 @@ _CORE_THREAD_RE = re.compile(r"core[\s_#]*(\d+)\s+thread[\s_#]*(\d+)", re.IGNORE
 _CORE_ONLY_RE = re.compile(r"core[\s_#]*(\d+)", re.IGNORECASE)
 _THREAD_ONLY_RE = re.compile(r"thread[\s_#]*(\d+)", re.IGNORECASE)
 _TEMP_CATEGORIES = ("temperature", "temperatures")
+
+_CPU_STATIC_SPEC_CACHE: Optional[Dict[str, Any]] = None
+
+
+def _get_cpu_static_specs() -> Dict[str, Any]:
+    """Извлекает и кэширует статические характеристики CPU (имя, сокет, кэши) через реестр и WMI."""
+    global _CPU_STATIC_SPEC_CACHE
+    if _CPU_STATIC_SPEC_CACHE is not None:
+        return _CPU_STATIC_SPEC_CACHE
+
+    specs: Dict[str, Any] = {}
+    if os.name == "nt":
+        try:
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"HARDWARE\DESCRIPTION\System\CentralProcessor\0") as key:
+                val, _ = winreg.QueryValueEx(key, "ProcessorNameString")
+                if val and str(val).strip():
+                    specs["name"] = str(val).strip()
+        except Exception:
+            pass
+
+        try:
+            import win32com.client
+            w = win32com.client.GetObject("winmgmts:\\\\.\\root\\cimv2")
+            cpus = w.ExecQuery("SELECT Name, SocketDesignation, L2CacheSize, L3CacheSize, MaxClockSpeed FROM Win32_Processor")
+            if cpus and len(cpus) > 0:
+                c = cpus[0]
+                if not specs.get("name") and getattr(c, "Name", None):
+                    specs["name"] = str(c.Name).strip()
+                sock = getattr(c, "SocketDesignation", None)
+                if sock:
+                    sock_str = str(sock).strip()
+                    if sock_str == "U3E1":
+                        sock_str = "LGA1200 (U3E1)"
+                    specs["socket"] = sock_str
+                l2 = getattr(c, "L2CacheSize", None)
+                if l2:
+                    specs["l2_cache_kb"] = int(l2)
+                l3 = getattr(c, "L3CacheSize", None)
+                if l3:
+                    specs["l3_cache_kb"] = int(l3)
+                max_c = getattr(c, "MaxClockSpeed", None)
+                if max_c:
+                    specs["max_frequency_mhz"] = float(max_c)
+        except Exception:
+            pass
+
+    _CPU_STATIC_SPEC_CACHE = specs
+    return specs
+
+
+def _probe_acpi_thermal_temp() -> Optional[float]:
+    """Быстрый WMI-запрос ACPI Thermal Zone для получения системной температуры платы/процессора."""
+    if os.name != "nt":
+        return None
+    try:
+        import win32com.client
+        w = win32com.client.GetObject("winmgmts:\\\\.\\root\\wmi")
+        zones = w.ExecQuery("SELECT CurrentTemperature FROM MSAcpi_ThermalZoneTemperature")
+        for zone in zones:
+            raw_temp = getattr(zone, "CurrentTemperature", None)
+            if raw_temp and raw_temp > 0:
+                celsius = round(float(raw_temp) / 10.0 - 273.15, 1)
+                if 10.0 <= celsius <= 115.0:
+                    return celsius
+    except Exception:
+        pass
+    return None
 
 
 class CpuThreadMetric(BaseModel):
@@ -225,10 +294,16 @@ def build_cpu_load(
         elif isinstance(inventory, dict):
             inv_data_dict = inventory
 
+    static_specs = _get_cpu_static_specs()
+
     if inv_data_dict.get("name"):
         cpu_name = str(inv_data_dict["name"]).strip()
     elif inv_data_dict.get("model_name"):
         cpu_name = str(inv_data_dict["model_name"]).strip()
+
+    if not cpu_name or cpu_name == "CPU" or "Intel64" in cpu_name or "AMD64" in cpu_name:
+        if static_specs.get("name"):
+            cpu_name = static_specs["name"]
 
     if snapshot:
         # Извлечение из объекта snapshot (прямой dict либо через raw_json)
@@ -266,8 +341,16 @@ def build_cpu_load(
         hname = str(row.get("hardware_name") or "").strip()
         cat = str(row.get("sensor_category") or row.get("category") or "General")
 
-        # Отсекаем дисковые метрики, попавшие по ошибке
-        if "disk_speed" in sid or "storage" in cat.lower() or "storage" in htype:
+        sid_l = sid.lower()
+        sname_l = sname.lower()
+        cat_l = cat.lower()
+
+        # Отсекаем дисковые, GPU, память и сетевые метрики сразу на входе
+        if "disk_speed" in sid_l or "storage" in cat_l or "storage" in htype:
+            continue
+        if htype in ("gpu", "memory", "ram", "network", "storage", "disk"):
+            continue
+        if any(ign in sid_l or ign in sname_l for ign in ("gpu", "vram", "ethernet", "wi-fi", "d3d", "memory used", "memory available")):
             continue
 
         if hname and hname.lower() not in ("cpu", "system") and cpu_name == "CPU":
@@ -370,8 +453,13 @@ def build_cpu_load(
             )
 
     # Применяем fallback-температуру (например ACPI) если Package temp не был найден
-    if pkg_temp is None and fallback_temp is not None:
-        pkg_temp = fallback_temp
+    if pkg_temp is None:
+        if fallback_temp is not None:
+            pkg_temp = fallback_temp
+        elif snapshot and snapshot.get("cpu_temp_c"):
+            pkg_temp = round(float(snapshot["cpu_temp_c"]), 1)
+        else:
+            pkg_temp = _probe_acpi_thermal_temp()
 
     # 5. Построение иерархии: Физические ядра и их логические потоки (строго из БД)
     snap_cpu_dict = snapshot.get("cpu", {}) if (snapshot and isinstance(snapshot.get("cpu"), dict)) else {}
@@ -547,16 +635,18 @@ def build_cpu_load(
     inv_data = inventory if isinstance(inventory, dict) else {}
     if inv_data or cpu_name:
         s_name = inv_data.get("name") or cpu_name
+        if not s_name or s_name == "CPU" or "Intel64" in s_name or "AMD64" in s_name:
+            s_name = static_specs.get("name") or s_name
         s_vendor = inv_data.get("vendor") or ("Intel" if "intel" in s_name.lower() else ("AMD" if "amd" in s_name.lower() else "Generic"))
         s_arch = inv_data.get("architecture") or "x86_64"
-        s_socket = inv_data.get("socket") or ""
+        s_socket = inv_data.get("socket") or static_specs.get("socket") or ""
         s_p_cores = int(inv_data.get("physical_cores") or len(cores_result) or 1)
         s_l_cores = int(inv_data.get("logical_cores") or len(flat_threads_result) or 1)
         s_base_mhz = float(inv_data.get("base_frequency_mhz") or 2900.0)
-        s_max_mhz = float(inv_data.get("max_frequency_mhz") or s_base_mhz)
-        s_l2 = inv_data.get("l2_cache_kb")
-        s_l3 = inv_data.get("l3_cache_kb")
-        s_step = inv_data.get("stepping") or ""
+        s_max_mhz = float(inv_data.get("max_frequency_mhz") or static_specs.get("max_frequency_mhz") or s_base_mhz)
+        s_l2 = inv_data.get("l2_cache_kb") if (inv_data.get("l2_cache_kb") is not None and inv_data.get("l2_cache_kb") > 0) else static_specs.get("l2_cache_kb")
+        s_l3 = inv_data.get("l3_cache_kb") if (inv_data.get("l3_cache_kb") is not None and inv_data.get("l3_cache_kb") > 0) else static_specs.get("l3_cache_kb")
+        s_step = inv_data.get("stepping") or static_specs.get("stepping") or ""
 
         base_f_str = f"{(s_base_mhz / 1000.0):.2f} GHz" if s_base_mhz >= 1000 else f"{s_base_mhz:.0f} MHz"
         max_f_str = f"{(s_max_mhz / 1000.0):.2f} GHz" if s_max_mhz >= 1000 else f"{s_max_mhz:.0f} MHz"
@@ -565,7 +655,7 @@ def build_cpu_load(
         cache_comb = f"{l2_str} / {l3_str}" if (s_l2 or s_l3) else "--"
 
         raw_processor_desc = str(inv_data.get("name") or snap_cpu_dict.get("model") or cpu_name).strip()
-        full_cpu_desc = str(inv_data.get("description") or f"{raw_processor_desc} ({s_l_cores} logical cores)").strip()
+        full_cpu_desc = str(inv_data.get("description") or f"{s_name} ({s_l_cores} logical cores)").strip()
 
         specs_obj = CpuSpecsInfo(
             name=s_name,
@@ -680,3 +770,4 @@ __all__ = [
     "CpuSensorMetric",
     "CpuHistoryPoint",
 ]
+

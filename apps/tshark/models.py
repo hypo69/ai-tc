@@ -83,3 +83,4 @@ class AnomalyReport(BaseModel):
     health_score: int = Field(100, description="Оценка безопасности сети (от 0 до 100)")
     anomalies: List[str] = Field(default_factory=list, description="Список обнаруженных подозрительных сигнатур")
     details: Dict[str, Any] = Field(default_factory=dict, description="Дополнительные диагностические метрики")
+

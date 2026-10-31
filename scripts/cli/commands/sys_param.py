@@ -149,3 +149,4 @@ def run_sys_param_command(args: argparse.Namespace) -> int:
             return 1
     logger.console(f'Неизвестная подкоманда sys-param: {sub}')
     return 1
+

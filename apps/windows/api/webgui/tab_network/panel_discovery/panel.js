@@ -11,7 +11,7 @@
  *
  * File: panel.js
  * Package: apps/windows/api/webgui/tab_network/panel_discovery
- * Updated: 2026-10-20 18:35:00
+ * Updated: 2026-10-28 19:04:00
  * =============================================================================
  */
 
@@ -430,6 +430,12 @@ export function setDiscoveryFilter(filter) {
 export function startDiscoveryAutoRefresh() {
   if (autoRefreshTimer) return;
   autoRefreshTimer = setInterval(() => {
+    const pane = document.getElementById('tab-net-discovery');
+    const isActive = pane && (pane.classList.contains('active') || pane.classList.contains('show'));
+    if (!isActive) {
+      stopDiscoveryAutoRefresh();
+      return;
+    }
     if (isAutoRefreshActive && !isScanning) {
       fetchDiscoveredDevices(false);
     }
@@ -449,12 +455,14 @@ export function stopDiscoveryAutoRefresh() {
 /**
  * Инициализирует модуль панели автоматического обнаружения компьютеров.
  */
-export function initDiscoveryPanel() {
+export function loadDiscoveryData(force = false) {
   fetchSubnets();
   fetchWindowsDiscoveryStatus();
-  fetchDiscoveredDevices(false);
+  fetchDiscoveredDevices(force);
   startDiscoveryAutoRefresh();
+}
 
+export function initDiscoveryPanel() {
   // Привязка управляющих кнопок
   const btnRefresh = document.getElementById('btn-refresh-discovery');
   const btnDeepScan = document.getElementById('btn-deep-scan-discovery');

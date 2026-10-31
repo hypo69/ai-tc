@@ -11,7 +11,7 @@
  * Package: apps/windows/api/webgui/tab_software_scanner/panel_dormant
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 20:20:00
+ * Updated: 2026-10-28 15:15:00
  * =============================================================================
  */
 
@@ -22,6 +22,86 @@ let currentOrphans = [];
 let activeFilter = 'all';
 let isDormantInitialized = false;
 let isSoftwareAuditLoading = false;
+
+/**
+ * Ищет существующий инстанс AIModalDialog в текущем фрейме или родительских окнах.
+ * @returns {Object|null} Инстанс AIModalDialog
+ */
+function findExistingAIModal() {
+  if (typeof window !== 'undefined') {
+    if (window.AIModalDialog && typeof window.AIModalDialog.show === 'function') {
+      return window.AIModalDialog;
+    }
+    if (window.AITableModal && typeof window.AITableModal.show === 'function') {
+      return window.AITableModal;
+    }
+    try {
+      if (window.parent && window.parent !== window) {
+        if (window.parent.AIModalDialog && typeof window.parent.AIModalDialog.show === 'function') {
+          return window.parent.AIModalDialog;
+        }
+        if (window.parent.AITableModal && typeof window.parent.AITableModal.show === 'function') {
+          return window.parent.AITableModal;
+        }
+      }
+    } catch (_) {}
+    try {
+      if (window.top && window.top !== window) {
+        if (window.top.AIModalDialog && typeof window.top.AIModalDialog.show === 'function') {
+          return window.top.AIModalDialog;
+        }
+        if (window.top.AITableModal && typeof window.top.AITableModal.show === 'function') {
+          return window.top.AITableModal;
+        }
+      }
+    } catch (_) {}
+  }
+  return null;
+}
+
+/**
+ * Гарантирует наличие и готовность инстанса AIModalDialog с автоподгрузкой.
+ * @returns {Promise<Object|null>} Объект модального окна ИИ.
+ */
+export async function resolveAIModal() {
+  let modal = findExistingAIModal();
+  if (modal) return modal;
+
+  // Подключаем стили модала при необходимости
+  if (!document.getElementById('link-ai-modal-dialog-style')) {
+    const link = document.createElement('link');
+    link.id = 'link-ai-modal-dialog-style';
+    link.rel = 'stylesheet';
+    link.href = '/html/ai_modal_dialog/style.css?v=20261028_v1';
+    document.head.appendChild(link);
+  }
+
+  // Подключаем управляющий скрипт модала при необходимости
+  if (!document.getElementById('script-ai-modal-dialog-lazy')) {
+    const s = document.createElement('script');
+    s.id = 'script-ai-modal-dialog-lazy';
+    s.src = '/html/ai_modal_dialog/main.js?v=20261028_v1';
+    document.head.appendChild(s);
+  }
+
+  const maxWaitMs = 3000;
+  const pollIntervalMs = 50;
+  const startTime = Date.now();
+  while (Date.now() - startTime < maxWaitMs) {
+    modal = findExistingAIModal();
+    if (modal) return modal;
+    await new Promise((r) => setTimeout(r, pollIntervalMs));
+  }
+
+  try {
+    const mod = await import('/html/ai_modal_dialog/ai_modal_dialog.js?v=20261028_v1');
+    if (mod && mod.AIModalDialog && typeof mod.AIModalDialog.show === 'function') {
+      return mod.AIModalDialog;
+    }
+  } catch (_) {}
+
+  return findExistingAIModal();
+}
 
 /**
  * Инициализирует модуль сканера спящих программ и сирот.
@@ -273,44 +353,204 @@ export function renderTable() {
   });
 
   tbody.querySelectorAll('.sw-scanner-row').forEach((row) => {
-    row.addEventListener('click', (e) => {
+    row.addEventListener('click', async (e) => {
       if (e.target.closest('button, a, input, select, .no-modal-trigger')) {
         return;
       }
       const cardId = row.getAttribute('data-card-id');
       const targetCard = currentInventory.find((c) => c.id === cardId);
-      if (targetCard && window.AIModalDialog && window.AIModalDialog.open) {
-        window.AIModalDialog.open({ program: targetCard, panelId: 'software-scanner' });
+      if (targetCard) {
+        const modal = await resolveAIModal();
+        if (modal) {
+          if (typeof modal.open === 'function') {
+            modal.open({ program: targetCard, panelId: 'software-scanner' });
+          } else if (typeof modal.show === 'function') {
+            modal.show({
+              title: targetCard.name,
+              subtitle: targetCard.publisher || targetCard.install_location || '',
+              icon: '📦',
+              panelId: 'software-scanner',
+              tableType: 'software',
+              rawTitle: 'Телеметрия программы',
+              rawContent: JSON.stringify(targetCard, null, 2),
+              requestData: targetCard,
+              autoRun: true
+            });
+          }
+        }
       }
     });
   });
 }
 
 /**
- * Рендерит таблицу сирот и поврежденных записей.
+ * Открывает досье сироты / остаточного артефакта в универсальном модальном окне ИИ.
+ * @param {Object} item - Объект свидетельства сироты.
+ */
+export async function openOrphanAiModal(item) {
+  if (!item) return;
+
+  const modal = await resolveAIModal();
+  if (!modal || typeof modal.show !== 'function') {
+    console.warn('[SoftwareScannerTab] AIModalDialog не найден в глобальной области видимости');
+    if (window.showToast) {
+      window.showToast('Модуль ИИ-помощника загружается, повторите попытку через секунду', 'info');
+    }
+    return;
+  }
+
+  const sourceStr = item.source || 'Остаток ПО';
+  const typeStr = item.evidence_type || 'orphan';
+  const title = item.product_name ? `Сирота: ${item.product_name}` : `Остаточный компонент: ${item.path || 'Неизвестно'}`;
+  const subtitle = `Источник: ${sourceStr} | Тип: ${typeStr}`;
+
+  const badges = [
+    { text: `Источник: ${sourceStr}`, class: 'badge bg-danger-subtle text-danger border border-danger' },
+    { text: `Тип: ${typeStr}`, class: 'badge bg-warning-subtle text-warning border border-warning' },
+    { text: `Достоверность: ${item.confidence || 'HIGH'}`, class: 'badge bg-secondary' }
+  ];
+
+  if (item.raw_details && item.raw_details.binary_exists === false) {
+    badges.push({ text: 'Файл на диске отсутствует', class: 'badge bg-danger' });
+  }
+
+  const metadata = [
+    { label: 'Источник обнаружения', value: sourceStr },
+    { label: 'Тип свидетельства', value: typeStr },
+    { label: 'Причина / Название', value: item.product_name || 'Недействительная запись' },
+    { label: 'Путь / Ссылка в реестре', value: item.path || '—', isCode: true, fullWidth: true }
+  ];
+
+  if (item.raw_details) {
+    if (item.raw_details.service_name) {
+      metadata.push({ label: 'Имя службы Windows', value: item.raw_details.service_name, isCode: true });
+    }
+    if (item.raw_details.task_name) {
+      metadata.push({ label: 'Имя задачи Task Scheduler', value: item.raw_details.task_name, isCode: true });
+    }
+    if (item.raw_details.raw_image_path) {
+      metadata.push({ label: 'Исходный путь BinaryPathName', value: item.raw_details.raw_image_path, isCode: true, fullWidth: true });
+    }
+    if (item.raw_details.binary_exists !== undefined) {
+      metadata.push({ label: 'Наличие файла на диске', value: item.raw_details.binary_exists ? 'Обнаружен' : 'Отсутствует (битая ссылка)' });
+    }
+    if (item.raw_details.installlocation) {
+      metadata.push({ label: 'Каталог установки из реестра', value: item.raw_details.installlocation, isCode: true, fullWidth: true });
+    }
+  }
+
+  if (item.publisher) metadata.push({ label: 'Издатель', value: item.publisher });
+  if (item.version) metadata.push({ label: 'Версия', value: item.version });
+  if (item.last_execution) metadata.push({ label: 'Метка последнего запуска', value: item.last_execution });
+  if (item.run_count) metadata.push({ label: 'Число запусков', value: String(item.run_count) });
+
+  const actions = [];
+
+  // Генерация безопасной команды очистки PowerShell
+  let cleanupCmd = '';
+  if (item.evidence_type === 'service' && item.raw_details && item.raw_details.service_name) {
+    cleanupCmd = `sc.exe delete "${item.raw_details.service_name}"`;
+  } else if (item.evidence_type === 'task' && item.raw_details && item.raw_details.task_name) {
+    cleanupCmd = `Unregister-ScheduledTask -TaskName "${item.raw_details.task_name}" -Confirm:$false`;
+  } else if (item.path && item.path.includes('\\')) {
+    if (item.evidence_type === 'directory') {
+      cleanupCmd = `Remove-Item -Path "${item.path}" -Recurse -Force`;
+    } else if (item.source && item.source.toLowerCase().includes('registry')) {
+      cleanupCmd = `Remove-ItemProperty -Path "${item.path}"`;
+    }
+  }
+
+  if (cleanupCmd) {
+    actions.push({
+      label: 'Скопировать команду очистки',
+      icon: 'bi-clipboard-check',
+      class: 'btn-outline-warning',
+      onClick: async () => {
+        try {
+          await navigator.clipboard.writeText(cleanupCmd);
+          if (window.showToast) {
+            window.showToast(`Команда очистки скопирована в буфер:\n${cleanupCmd}`, 'success');
+          } else {
+            alert(`Команда скопирована в буфер:\n${cleanupCmd}`);
+          }
+        } catch (_) {
+          prompt('Скопируйте команду очистки вручную:', cleanupCmd);
+        }
+      }
+    });
+  }
+
+  modal.show({
+    icon: '🗑️',
+    title: title,
+    subtitle: subtitle,
+    panelId: 'panel-software-scanner-orphans',
+    tableType: 'orphan',
+    badges: badges,
+    metadata: metadata,
+    rawTitle: 'Телеметрия осиротевшего артефакта Windows (JSON)',
+    rawContent: JSON.stringify(item, null, 2),
+    requestData: item,
+    autoRun: true,
+    actions: actions
+  });
+}
+
+/**
+ * Рендерит таблицу сирот и поврежденных записей с вызовом ИИ-помощника по клику.
  */
 export function renderOrphans() {
   const container = document.getElementById('panel-software-scanner-orphans');
   const tbody = document.getElementById('sw-orphans-table-body');
   const badge = document.getElementById('sw-orphans-count-badge');
+  const navBadge = document.getElementById('sw-orphans-nav-badge');
 
   if (!container || !tbody) return;
 
   if (currentOrphans.length === 0) {
-    container.style.display = 'none';
+    if (badge) badge.textContent = '0';
+    if (navBadge) {
+      navBadge.style.display = 'none';
+      navBadge.textContent = '0';
+    }
+    tbody.innerHTML = `
+      <tr>
+        <td class="text-center py-5 text-muted" colspan="3">
+          <div class="d-flex flex-column align-items-center gap-2">
+            <i class="bi bi-shield-check text-success fs-1"></i>
+            <span class="fw-semibold text-light">Сироты и поврежденные компоненты не обнаружены</span>
+            <small class="text-secondary">Все проверенные службы, задачи планировщика и записи реестра корректны.</small>
+          </div>
+        </td>
+      </tr>
+    `;
     return;
   }
 
-  container.style.display = 'block';
   if (badge) badge.textContent = currentOrphans.length;
+  if (navBadge) {
+    navBadge.style.display = 'inline-block';
+    navBadge.textContent = currentOrphans.length;
+  }
 
-  tbody.innerHTML = currentOrphans.map((item) => `
-    <tr>
+  tbody.innerHTML = currentOrphans.map((item, idx) => `
+    <tr class="sw-orphan-row" data-orphan-index="${idx}" style="cursor: pointer;" title="Кликните для вызова ИИ-помощника и анализа остатка">
       <td><span class="badge bg-danger-subtle text-danger border border-danger">${escapeHtml(item.source)}</span></td>
       <td class="font-monospace text-break">${escapeHtml(item.path)}</td>
       <td class="text-warning">${escapeHtml(item.product_name || 'Неизвестная причина')}</td>
     </tr>
   `).join('');
+
+  tbody.querySelectorAll('.sw-orphan-row').forEach((row) => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('button, a, input, select, .no-modal-trigger')) return;
+      const idx = parseInt(row.getAttribute('data-orphan-index'), 10);
+      const item = currentOrphans[idx];
+      if (item) {
+        openOrphanAiModal(item);
+      }
+    });
+  });
 }
 
 function getStatusBadge(card) {

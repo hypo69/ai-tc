@@ -91,3 +91,4 @@ def test_assess_freshness_critical_outdated():
     report = auditor.assess_freshness(latest_image=img, manual_drift=drift)
     assert report.freshness_level == FreshnessLevel.CRITICAL_OUTDATED
     assert report.can_restore_safely is False
+

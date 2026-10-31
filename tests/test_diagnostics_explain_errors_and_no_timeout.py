@@ -120,3 +120,4 @@ def test_explain_endpoint_success_returns_model_data(api_client: TestClient) -> 
         assert data["summary"] == "Легитимный системный компонент Windows"
         assert data["developer"] == "Microsoft Corporation"
         assert data["is_verified"] is False
+

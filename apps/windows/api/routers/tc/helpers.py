@@ -11,7 +11,7 @@
 # Package: apps.windows.api.routers.tc
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-22 14:40:00
+# Updated: 2026-10-30 13:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -206,41 +206,10 @@ def _save_tc_config_ai(provider: str, model_name: str) -> bool:
 
 
 async def _extract_tc_user_auth(fastapi_req: Request) -> Tuple[str, str, str, dict]:
-    """Извлекает пользователя и настройки для профиля Test Computer."""
+    """Извлекает параметры сессии и настройки для профиля Test Computer."""
     user_identifier = "1"
-    system_instruction = ""
+    system_instruction = _get_tc_default_instruction()
     selected_model = ""
     settings: Dict[str, Any] = {}
-
-    try:
-        from apps.windows.api.auth import get_current_user_optional
-        user_data = get_current_user_optional(fastapi_req) if fastapi_req is not None else None
-
-        from src.user_manager import user_manager
-        db_user = None
-        if user_data:
-            if getattr(user_data, "id", None):
-                db_user = await asyncio.to_thread(user_manager.get_user_by_id, user_data.id)
-            if not db_user and getattr(user_data, "email", None):
-                db_user = await asyncio.to_thread(user_manager.get_user_by_email, user_data.email)
-
-        if not db_user:
-            db_user = await asyncio.to_thread(user_manager.get_user_by_id, 1)
-
-        if db_user:
-            user_identifier = str(db_user.get("id", 1))
-            settings = await asyncio.to_thread(user_manager.get_user_settings, db_user.get("id", 1)) or {}
-            if settings.get("tc_system_instruction"):
-                system_instruction = settings["tc_system_instruction"]
-            elif settings.get("system_instruction"):
-                system_instruction = settings["system_instruction"]
-
-            if settings.get("tc_model"):
-                selected_model = settings["tc_model"]
-    except Exception as e:
-        logger.debug(f"[router_tc] Ошибка извлечения пользователя: {e}")
-
-    if not system_instruction:
-        system_instruction = _get_tc_default_instruction()
-
     return user_identifier, system_instruction, selected_model, settings
+

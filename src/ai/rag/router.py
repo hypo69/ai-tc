@@ -16,11 +16,11 @@
 # Package: src.ai.rag
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:28:45
+# Updated: 2026-10-31 18:29:00
 # =============================================================================
 
 from __future__ import annotations
-"""FastAPI REST API роутер для RAG, Pixel RAG и Unified Knowledge Hub."""
+"""FastAPI REST API роутер для RAG, Pixel RAG, Codebase RAG и Unified Knowledge Hub."""
 
 import asyncio
 import base64
@@ -29,18 +29,19 @@ from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 from pydantic import BaseModel, Field
 
 from logger import logger
+from .codebase_rag import CodeDiagnosticConclusion
 from .unified_hub import UnifiedKnowledgeHub
 from .text_rag import TextRAG
 from .pixel_rag import PixelRAG
 
 router = APIRouter(prefix="/api/rag", tags=["Unified RAG & Knowledge Hub"])
-_hub_instance: Optional[UnifiedKnowledgeHub] = None
+_hub_instance: Any = False
 
 
 def get_hub() -> UnifiedKnowledgeHub:
     """Возвращает или инициализирует глобальный экземпляр UnifiedKnowledgeHub."""
     global _hub_instance
-    if _hub_instance is None:
+    if not _hub_instance:
         _hub_instance = UnifiedKnowledgeHub()
     return _hub_instance
 
@@ -61,9 +62,41 @@ class PixelSearchRequest(BaseModel):
 class UnifiedResolveRequest(BaseModel):
     """Схема сквозного разрешения артефакта через Unified Knowledge Hub."""
     query: str = Field(..., description="Код ошибки, команда, симптом или запрос")
-    image_base64: Optional[str] = Field(default=None, description="Опциональный скриншот в base64")
+    image_base64: Optional[str] = Field(default="", description="Опциональный скриншот в base64")
     sync_gemini: bool = Field(default=True, description="Вызывать ли Gemini при отсутствии в кэше")
     top_k: int = Field(default=5, description="Лимит связанных сниппетов")
+
+
+class CodebaseBuildRequest(BaseModel):
+    """Схема запроса на построение AST-индекса кодовой базы."""
+    project_root: str = Field(default=".", description="Корневой каталог проекта")
+    index_name: str = Field(default="codebase", description="Имя создаваемого индекса")
+    include_dirs: List[str] = Field(default_factory=list, description="Опциональный фильтр поддиректорий")
+    include_markdown: bool = Field(default=True, description="Индексировать ли документацию .md")
+
+
+class CodebaseSearchRequest(BaseModel):
+    """Схема запроса гибридного поиска по чанкам кода."""
+    query: str = Field(..., description="Поисковый запрос, ошибка или фрагмент лога")
+    index_name: str = Field(default="codebase", description="Имя целевого индекса")
+    top_k: int = Field(default=5, ge=1, le=50, description="Лимит возвращаемых фрагментов")
+
+
+class CodebaseSymbolRequest(BaseModel):
+    """Схема запроса поиска по таблице AST-символов."""
+    symbol: str = Field(..., description="Имя или префикс функции/класса/метода")
+    index_name: str = Field(default="codebase", description="Имя целевого индекса")
+    limit: int = Field(default=10, ge=1, le=100, description="Лимит результатов")
+
+
+class CodebaseDiagnoseRequest(BaseModel):
+    """Схема запроса диагностики вопроса, логов или ошибки по базе знаний о коде."""
+    question: str = Field(default="", description="Вопрос по коду или архитектуре")
+    logs: List[str] = Field(default_factory=list, description="Список строк логов или событий")
+    error_message: str = Field(default="", description="Сообщение об ошибке или Traceback")
+    index_name: str = Field(default="codebase", description="Имя индекса кодовой базы")
+    top_k: int = Field(default=6, ge=1, le=25, description="Количество фрагментов кода для контекста")
+    use_llm: bool = Field(default=True, description="Синтезировать ли заключение через LLM при доступности")
 
 
 @router.get("/status")
@@ -142,7 +175,7 @@ async def search_pixel_rag(req: PixelSearchRequest) -> Dict[str, Any]:
 async def unified_resolve(req: UnifiedResolveRequest) -> Dict[str, Any]:
     """Выполняет сквозное разрешение через Unified Knowledge Hub (WikiLLM + Text + Pixel + Log)."""
     hub = get_hub()
-    img_bytes = None
+    img_bytes: bytes = b""
     if req.image_base64:
         try:
             img_bytes = base64.b64decode(req.image_base64)
@@ -157,6 +190,79 @@ async def unified_resolve(req: UnifiedResolveRequest) -> Dict[str, Any]:
     )
 
 
+@router.get("/codebase/indexes")
+async def list_codebase_indexes() -> Dict[str, Any]:
+    """Возвращает список всех построенных AST-индексов кодовой базы."""
+    hub = get_hub()
+    indexes = await asyncio.to_thread(hub.codebase_rag.list_indexes)
+    return {"indexes": indexes, "total": len(indexes)}
+
+
+@router.post("/codebase/build")
+async def build_codebase_index(req: CodebaseBuildRequest) -> Dict[str, Any]:
+    """Строит или перестраивает AST и векторный индекс кодовой базы и документации."""
+    hub = get_hub()
+    try:
+        stats = await asyncio.to_thread(
+            hub.codebase_rag.build_index,
+            project_root=req.project_root,
+            index_name=req.index_name,
+            include_dirs=req.include_dirs,
+            include_markdown=req.include_markdown,
+        )
+        return {"status": "ok", "result": stats}
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except Exception as exc:
+        logger.error(f"[Router RAG] Ошибка сборки индекса кода: {exc}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@router.post("/codebase/search")
+async def search_codebase(req: CodebaseSearchRequest) -> Dict[str, Any]:
+    """Выполняет гибридный поиск по чанкам исходного кода и документации."""
+    hub = get_hub()
+    results = await asyncio.to_thread(
+        hub.codebase_rag.search_code,
+        query=req.query,
+        index_name=req.index_name,
+        top_k=req.top_k,
+    )
+    return {"results": results, "total_found": len(results)}
+
+
+@router.post("/codebase/symbols")
+async def search_codebase_symbols(req: CodebaseSymbolRequest) -> Dict[str, Any]:
+    """Выполняет поиск функций, классов и методов по таблице AST-символов."""
+    hub = get_hub()
+    results = await asyncio.to_thread(
+        hub.codebase_rag.search_symbols,
+        symbol_query=req.symbol,
+        index_name=req.index_name,
+        limit=req.limit,
+    )
+    return {"results": results, "total_found": len(results)}
+
+
+@router.post("/codebase/diagnose", response_model=CodeDiagnosticConclusion)
+async def diagnose_codebase(req: CodebaseDiagnoseRequest) -> CodeDiagnosticConclusion:
+    """Формирует структурированное заключение по вопросу, списку логов или ошибке на основе базы знаний о коде."""
+    if not req.question.strip() and not req.error_message.strip() and not req.logs:
+        raise HTTPException(
+            status_code=400,
+            detail="Необходимо указать question, logs или error_message для формирования заключения.",
+        )
+    hub = get_hub()
+    return await hub.diagnose_code(
+        question=req.question,
+        logs=req.logs,
+        error_message=req.error_message,
+        index_name=req.index_name,
+        top_k=req.top_k,
+        use_llm=req.use_llm,
+    )
+
+
 @router.get("/metrics")
 async def get_all_metrics() -> Dict[str, Any]:
     """Возвращает подробные метрики всех слоев знаний."""
@@ -164,9 +270,10 @@ async def get_all_metrics() -> Dict[str, Any]:
     return hub.get_metrics()
 
 
-def init_router(hub: Optional[UnifiedKnowledgeHub] = None) -> APIRouter:
+def init_router(hub: Optional[UnifiedKnowledgeHub] = False) -> APIRouter:
     """Инициализирует роутер с опциональным хабом."""
     global _hub_instance
-    if hub is not None:
+    if hub:
         _hub_instance = hub
     return router
+

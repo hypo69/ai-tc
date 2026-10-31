@@ -909,3 +909,4 @@ def get_detailed_language_packs() -> List[Dict[str, Any]]:
     is_win = (os.name == "nt" or platform.system().lower() == "windows")
     return collect_language_packs_full(is_win)
 
+

@@ -14,7 +14,7 @@
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 14:32:00
+# Updated: 2026-10-30 13:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -313,6 +313,26 @@ def create_app() -> FastAPI:
         logger.warning(f"[Bridge] Ошибка подключения роутеров AI Assistant: {exc}")
 
     # -------------------------------------------------------------------------
+    # Роутеры экосистемы ИИ и администрирования (/api/skills, /api/plugins, /api/mcp, /api/admin)
+    # -------------------------------------------------------------------------
+    try:
+        from apps.windows.api.routers.admin.routers import (
+            router as admin_router,
+            skills_router,
+            plugins_router,
+            router_apps,
+        )
+        for admin_r in (admin_router, skills_router, plugins_router, router_apps):
+            safe_include_router(app, admin_r)
+
+        from apps.windows.api.routers.admin.mcp import admin_mcp_router, mcp_router
+        safe_include_router(app, admin_mcp_router)
+        safe_include_router(app, mcp_router)
+        logger.info("[Bridge] Роутеры экосистемы ИИ (skills, plugins, mcp, admin) успешно подключены")
+    except Exception as exc:
+        logger.warning(f"[Bridge] Ошибка подключения роутеров экосистемы ИИ: {exc}")
+
+    # -------------------------------------------------------------------------
     # Системные и UI точки входа
     # -------------------------------------------------------------------------
     @app.get("/favicon.ico", include_in_schema=False)
@@ -420,10 +440,10 @@ def create_app() -> FastAPI:
         for item in disabled_list:
             apps_map[item] = {"enabled": False, "name": item}
 
-        ai_config = cfg.get("ai", {})
+        ai_config = cfg.get("ai_providers_and_models_configuration") or cfg.get("ai", {})
         if not ai_config:
             global_cfg = load_tc_config()
-            ai_config = global_cfg.get("ai", {})
+            ai_config = global_cfg.get("ai_providers_and_models_configuration") or global_cfg.get("ai", {})
 
         return {
             "status": "ok",
@@ -434,12 +454,8 @@ def create_app() -> FastAPI:
     @app.get("/auth/settings", tags=["auth"])
     @app.get("/api/v1/auth/settings", tags=["auth"])
     async def get_user_settings(request: Request) -> Dict[str, Any]:
-        """Чтение активных настроек пользователя и модели."""
-        try:
-            from src.user_manager import user_manager
-            settings = user_manager.get_user_settings(1) or {}
-        except Exception:
-            settings = {}
+        """Чтение активных настроек системы и модели."""
+        settings: Dict[str, Any] = {}
 
         if not settings.get("model"):
             cfg = load_tc_config()
@@ -456,25 +472,9 @@ def create_app() -> FastAPI:
     @app.post("/auth/settings", tags=["auth"])
     @app.post("/api/v1/auth/settings", tags=["auth"])
     async def update_user_settings(request: Request) -> Dict[str, Any]:
-        """Сохранение активной модели пользователя."""
+        """Сохранение активной конфигурации модели."""
         try:
             body = await request.json()
-            try:
-                from src.user_manager import user_manager
-                user_manager.update_user_settings(
-                    1,
-                    theme=body.get("theme"),
-                    language=body.get("language"),
-                    tts_enabled=body.get("tts_enabled"),
-                    system_instruction=body.get("system_instruction"),
-                    model=body.get("model"),
-                    tts_system=body.get("tts_system"),
-                    tts_voice=body.get("tts_voice"),
-                    rag_enabled=body.get("rag_enabled"),
-                )
-            except Exception:
-                pass
-
             if body.get("model") or body.get("provider"):
                 save_ai_config(provider=body.get("provider", ""), model_name=body.get("model", ""))
 
@@ -486,21 +486,6 @@ def create_app() -> FastAPI:
     @app.get("/api/v1/tc/model", tags=["chat"])
     async def get_chat_active_model(profile: Optional[str] = None) -> Dict[str, Any]:
         """Возвращает активную модель ИИ."""
-        try:
-            from src.user_manager import user_manager
-            settings = user_manager.get_user_settings(1) or {}
-            if settings.get("model"):
-                user_model = settings.get("model")
-                if ":" in user_model:
-                    prov, mod = user_model.split(":", 1)
-                elif user_model.startswith("agy-"):
-                    prov, mod = "agy", user_model
-                else:
-                    prov, mod = "gemini", user_model
-                return {"status": "ok", "provider": prov, "model": mod, "config_file": "user_settings"}
-        except Exception:
-            pass
-
         cfg = load_tc_config(profile)
         ai_sec = cfg.get("ai_providers_and_models_configuration") or cfg.get("ai", {})
         prov = ai_sec.get("default_provider") or ai_sec.get("provider", "gemini")
@@ -513,14 +498,14 @@ def create_app() -> FastAPI:
     async def get_available_chat_models() -> Dict[str, Any]:
         """Список доступных моделей ИИ для дропдауна."""
         try:
-            from src.ai.model_manager import get_available_models
+            from src.ai.model_manager import get_available_models, is_provider_enabled
             return {
                 "models": {
                     "gemini": get_available_models("gemini") or ["gemini-3.1-flash-lite", "gemini-3.1-flash"],
                     "gemini_cli": get_available_models("gemini_cli") or ["gemini_cli:gemini-3.1-flash-lite"],
                     "agy": get_available_models("agy") or ["agy-gemini-3.6-flash"],
-                    "foundry": get_available_models("foundry") or ["foundry:qwen2.5-1.5b"],
-                    "ollama": get_available_models("ollama") or ["ollama:llama3.1"],
+                    "foundry": get_available_models("foundry") if is_provider_enabled("foundry") else [],
+                    "ollama": get_available_models("ollama") if is_provider_enabled("ollama") else [],
                 }
             }
         except Exception:
@@ -537,13 +522,6 @@ def create_app() -> FastAPI:
     @app.get("/api/v1/tc/model-instruction", tags=["admin"])
     async def get_system_instruction_fallback() -> Dict[str, Any]:
         """Получение системной инструкции."""
-        try:
-            from src.user_manager import user_manager
-            settings = user_manager.get_user_settings(1) or {}
-            if settings.get("system_instruction") or settings.get("tc_system_instruction"):
-                return {"status": "success", "content": settings.get("system_instruction") or settings.get("tc_system_instruction")}
-        except Exception:
-            pass
         prompt_file = _PROJECT_ROOT / "apps" / "windows" / "prompts" / "tc" / "system_instruction.md"
         if not prompt_file.exists():
             prompt_file = _PROJECT_ROOT / "apps" / "windows" / "prompts" / "chat" / "system_instruction.md"
@@ -563,11 +541,6 @@ def create_app() -> FastAPI:
             body = await request.json()
             content = body.get("content") or body.get("instruction") or body.get("system_instruction") or ""
             if content:
-                try:
-                    from src.user_manager import user_manager
-                    user_manager.update_user_settings(1, system_instruction=content, tc_system_instruction=content)
-                except Exception:
-                    pass
                 prompt_file = _PROJECT_ROOT / "apps" / "windows" / "prompts" / "tc" / "system_instruction.md"
                 prompt_file.parent.mkdir(parents=True, exist_ok=True)
                 prompt_file.write_text(content, encoding="utf-8")
@@ -667,4 +640,5 @@ __all__ = [
     "load_config",
     "load_tc_config",
 ]
+
 

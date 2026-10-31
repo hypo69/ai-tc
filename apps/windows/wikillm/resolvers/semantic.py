@@ -58,3 +58,4 @@ class SemanticResolver(BaseResolver):
             return candidates[0]
 
         return None
+

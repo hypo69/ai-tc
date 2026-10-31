@@ -117,3 +117,4 @@ def test_coordinator_comprehensive_health(tmp_path):
         assert health["winre"]["enabled"] is True
         assert "system_restore" in health
         assert "freshness" in health
+

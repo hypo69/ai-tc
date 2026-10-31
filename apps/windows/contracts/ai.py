@@ -117,3 +117,4 @@ class AiDiagnosticReport(BaseModel):
     summary_ru: str = ""
     hypotheses: List[AnomalyHypothesis] = Field(default_factory=list)
     remediation_recommendations: List[ResolutionAction] = Field(default_factory=list)
+

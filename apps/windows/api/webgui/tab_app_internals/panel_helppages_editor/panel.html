@@ -1,0 +1,186 @@
+<!--
+=============================================================================
+Process Name: Windows App Internals - Help Pages & Atomic Blocks Editor View
+=============================================================================
+Description:
+  Клиентский компонент встроенного редактора страниц и атомарных блоков
+  контекстной справки (#tab-app-internals#helppages-editor).
+  Позволяет:
+  1. Просматривать каталог модулей, композитных страниц и атомарных блоков.
+  2. Редактировать HTML разметку и документацию Markdown с подсветкой синтаксиса.
+  3. Проверять соответствие стандартам тем (Theme & Style Linter: отсутствие HEX/RGB).
+  4. Создавать новые атомарные блоки и композитные страницы.
+  5. Мгновенно тестировать отображение в модальном окне 80vw × 80vh через window.HelpModal.
+
+File: panel.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_app_internals/panel_helppages_editor
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 18:03:00
+=============================================================================
+-->
+<div class="p-2" id="helppages-editor-container">
+  <!-- Верхний заголовок панели -->
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-pencil-square fs-4 text-primary"></i>
+      <div>
+        <h5 class="mb-0 fw-bold text-body" data-i18n="helppagesEditor.title">
+          Редактор страниц и блоков справки
+        </h5>
+        <small class="text-secondary" data-i18n="helppagesEditor.subtitle">
+          Управление иерархическими атомарными блоками подсказок и композитными страницами веб-интерфейса
+        </small>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 shadow-sm" id="hp-btn-create-modal" data-bs-toggle="modal" data-bs-target="#hpCreateModal">
+        <i class="bi bi-plus-circle"></i>
+        <span data-i18n="helppagesEditor.btnCreate">Создать блок / страницу</span>
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5 shadow-sm" id="hp-btn-refresh-catalog" title="Обновить каталог">
+        <i class="bi bi-arrow-clockwise"></i>
+        <span data-i18n="helppagesEditor.btnRefresh">Обновить</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Основная рабочая область: Каталог слева (30%) / Редактор и предпросмотр справа (70%) -->
+  <div class="row g-3">
+    <!-- Левая колонка: Дерево модулей и атомарных блоков -->
+    <div class="col-12 col-lg-4 col-xl-3">
+      <div class="card bg-body border-subtle shadow-sm h-100">
+        <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between py-2 px-3">
+          <span class="fw-bold small text-body d-flex align-items-center gap-1.5">
+            <i class="bi bi-folder2-open text-warning"></i>
+            <span data-i18n="helppagesEditor.treeTitle">Каталог страниц</span>
+          </span>
+          <span class="ui-badge ui-badge-info" id="hp-modules-count">0</span>
+        </div>
+        <div class="p-2 border-bottom border-subtle bg-body-tertiary">
+          <input type="text" class="form-control form-control-sm" id="hp-search-input" placeholder="Поиск блока или модуля..." autocomplete="off">
+        </div>
+        <div class="card-body p-2 overflow-auto" id="hp-catalog-tree" style="max-height: 650px; min-height: 400px;">
+          <div class="text-center py-4 text-muted">
+            <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+            <span>Загрузка каталога...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая колонка: Рабочая область редактора -->
+    <div class="col-12 col-lg-8 col-xl-9">
+      <div class="card bg-body border-subtle shadow-sm h-100" id="hp-editor-card">
+        <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between flex-wrap gap-2 py-2 px-3">
+          <div class="d-flex align-items-center gap-2 text-truncate" style="max-width: 60%;">
+            <i class="bi bi-file-earmark-code text-primary fs-5"></i>
+            <div class="text-truncate">
+              <span class="fw-bold small text-body font-monospace" id="hp-current-file-path">Файл не выбран</span>
+              <span class="small text-muted ms-2 d-none d-md-inline" id="hp-file-mtime"></span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <!-- Индикатор соблюдения темы (No Hardcode Linter) -->
+            <span class="ui-badge ui-badge-success d-none" id="hp-lint-badge" title="Соблюдение стандарта тем">
+              <i class="bi bi-check-circle me-1"></i>Theme OK
+            </span>
+            <button type="button" class="btn btn-xs btn-outline-info d-flex align-items-center gap-1" id="hp-btn-preview" disabled title="Открыть в модальном окне 80vw × 80vh">
+              <i class="bi bi-play-circle"></i>
+              <span data-i18n="helppagesEditor.btnPreview">Тест окна 80vw×80vh</span>
+            </button>
+            <button type="button" class="btn btn-xs btn-primary d-flex align-items-center gap-1 px-3 shadow-sm" id="hp-btn-save" disabled>
+              <i class="bi bi-save"></i>
+              <span data-i18n="helppagesEditor.btnSave">Сохранить</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body p-3 d-flex flex-column gap-2">
+          <!-- Предупреждение линтера при наличии hardcoded цветов -->
+          <div class="alert alert-warning py-1.5 px-3 small mb-2 d-none" id="hp-lint-warning" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-1.5"></i>
+            <span data-i18n="helppagesEditor.lintWarning">
+              Внимание: в коде обнаружены жестко заданные HEX/RGB стили. Используйте семантические токены CSS (var(--...)) и классы темы.
+            </span>
+          </div>
+
+          <!-- Редактор кода -->
+          <div class="position-relative flex-grow-1">
+            <textarea class="form-control font-monospace text-body bg-body-tertiary" id="hp-code-editor" rows="18" style="font-size: 0.85rem; line-height: 1.5; resize: vertical;" placeholder="Выберите файл из каталога слева для просмотра и редактирования..." spellcheck="false" disabled></textarea>
+          </div>
+
+          <!-- Нижняя панель подсказок по шаблонам и токенам -->
+          <div class="p-2 rounded border border-subtle bg-body-tertiary mt-2">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <span class="small text-muted d-flex align-items-center gap-1.5">
+                <i class="bi bi-info-circle text-info"></i>
+                <span data-i18n="helppagesEditor.hintsText">
+                  Стандарт: контейнеры <code>bg-body</code>, <code>bg-body-tertiary</code>, бейджи <code>ui-badge</code>, композиция через <code>data-help-include</code>.
+                </span>
+              </span>
+              <div class="d-flex gap-1.5">
+                <button type="button" class="btn btn-xs btn-outline-secondary" id="hp-snippet-include" title="Вставить шаблон data-help-include">
+                  + Include
+                </button>
+                <button type="button" class="btn btn-xs btn-outline-secondary" id="hp-snippet-atomic" title="Вставить структуру атомарного блока">
+                  + Block Card
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно создания страницы или блока справки -->
+<div class="modal fade" id="hpCreateModal" tabindex="-1" aria-labelledby="hpCreateModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow border-subtle">
+      <div class="modal-header py-2 px-3 bg-body-tertiary border-bottom border-subtle">
+        <h6 class="modal-title fw-bold text-body mb-0" id="hpCreateModalLabel">
+          <i class="bi bi-plus-square text-primary me-1.5"></i>Создание страницы или блока справки
+        </h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3">
+        <form id="hp-create-form">
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-body mb-1">Модуль / Вкладка:</label>
+            <input type="text" class="form-control form-control-sm" id="hp-create-module" placeholder="например, tab_log_settings или tab_about_system" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-body mb-1">Тип элемента:</label>
+            <select class="form-select form-select-sm" id="hp-create-kind">
+              <option value="block" selected>Атомарный блок (help/blocks/block_*.html)</option>
+              <option value="composite">Композитная страница (help/index.html)</option>
+              <option value="doc">Документация (help/README.md)</option>
+            </select>
+          </div>
+          <div class="mb-2" id="hp-create-name-group">
+            <label class="form-label small fw-semibold text-body mb-1">Имя блока (без расширения):</label>
+            <input type="text" class="form-control form-control-sm" id="hp-create-name" placeholder="например, kpi_cards или security_telemetry">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-body mb-1">Заголовок справки:</label>
+            <input type="text" class="form-control form-control-sm" id="hp-create-title" placeholder="например, Сводные карточки состояния">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-semibold text-body mb-1">Краткое описание:</label>
+            <textarea class="form-control form-control-sm" id="hp-create-desc" rows="2" placeholder="Краткая суть справки по данному блоку"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer py-2 px-3 bg-body-tertiary border-top border-subtle d-flex justify-content-between">
+        <span class="small text-muted" id="hp-create-status"></span>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="button" class="btn btn-sm btn-primary" id="hp-btn-submit-create">Создать</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

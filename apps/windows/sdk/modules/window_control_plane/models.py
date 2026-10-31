@@ -257,3 +257,4 @@ class ControlPlaneSummaryResponse(BaseModel):
     by_backend: Dict[str, int]
     system_platform: str
     windows_build: Optional[str] = None
+

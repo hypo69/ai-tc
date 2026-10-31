@@ -13,20 +13,24 @@
 # Package: src.ai.rag.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-10-31 18:30:30
 # =============================================================================
 
 from __future__ import annotations
-"""Модульные тесты для TextRAG, PixelRAG, LogRAG и UnifiedKnowledgeHub."""
+"""Модульные тесты для TextRAG, PixelRAG, LogRAG, CodebaseRAG и UnifiedKnowledgeHub."""
 
 from pathlib import Path
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 import pytest
 
+from src.ai.rag.codebase_rag import CodebaseRAG
 from src.ai.rag.text_rag import TextRAG
 from src.ai.rag.pixel_rag import PixelRAG
 from src.ai.rag.log_rag import LogRAG
+from src.ai.rag.router import init_router
 from src.ai.rag.unified_hub import UnifiedKnowledgeHub
-from src.ai.wikillm.models import ArtifactType, KnowledgeEntity, KnowledgeSource
+from apps.windows.wikillm.models import ArtifactType, KnowledgeEntity, KnowledgeSource
 
 
 def test_text_rag_crud_and_search(tmp_path: Path) -> None:
@@ -131,3 +135,120 @@ async def test_unified_knowledge_hub_resolution(tmp_path: Path) -> None:
     # Мульти-поиск
     all_res = hub.search_all("0x80070490")
     assert all_res["total_found"] >= 1
+
+
+@pytest.mark.asyncio
+async def test_codebase_rag_ast_indexing_and_diagnosis(tmp_path: Path) -> None:
+    """Проверка индексации AST Python и Markdown-документации, поиска символов и выдачи заключений по логам и ошибкам."""
+    src_dir = tmp_path / "sample_proj"
+    src_dir.mkdir(parents=True, exist_ok=True)
+
+    py_file = src_dir / "payment_processor.py"
+    py_file.write_text(
+        '''"""Модуль обработки платежных транзакций."""
+
+class PaymentProcessor:
+    """Процессор расчетов и комиссий."""
+
+    def calculate_fee(self, amount: float, rate: float) -> float:
+        """Расчет комиссии по ставке.
+
+        Выбрасывает ZeroDivisionError при нулевом делителе.
+        """
+        if rate < 0:
+            raise ValueError("Ставка комиссии не может быть отрицательной")
+        return amount / rate
+''',
+        encoding="utf-8",
+    )
+
+    md_file = src_dir / "README.md"
+    md_file.write_text(
+        "# Платежный шлюз\n\nКласс `PaymentProcessor` отвечает за расчет комиссий в `payment_processor.py`.\n",
+        encoding="utf-8",
+    )
+
+    code_rag = CodebaseRAG(storage_dir=tmp_path / "code_idx", dimension=64)
+    stats = code_rag.build_index(project_root=src_dir, index_name="test_code")
+    assert stats["total_files"] == 2
+    assert stats["total_symbols"] >= 2
+    assert stats["total_chunks"] >= 3
+
+    # Поиск AST-символа
+    syms = code_rag.search_symbols("calculate_fee", index_name="test_code")
+    assert len(syms) >= 1
+    assert syms[0]["symbol"] == "PaymentProcessor.calculate_fee"
+    assert syms[0]["path"] == "payment_processor.py"
+
+    # Диагностика по списку логов и стек-трейсу (детерминированный AST режим)
+    conclusion = await code_rag.diagnose(
+        question="Почему падает расчет комиссии?",
+        logs=[
+            "2026-10-31 18:00:01 [INFO] Запуск транзакции ID=99",
+            "2026-10-31 18:00:02 [ERROR] Сбой в payment_processor.py:14",
+        ],
+        error_message='File "payment_processor.py", line 14, in calculate_fee\nZeroDivisionError: float division by zero',
+        index_name="test_code",
+        use_llm=False,
+    )
+
+    assert conclusion.severity == "error"
+    assert "ZeroDivisionError" in conclusion.root_cause
+    assert len(conclusion.affected_locations) > 0
+    assert conclusion.affected_locations[0].file_path == "payment_processor.py"
+    assert "calculate_fee" in conclusion.affected_locations[0].symbol_name
+    assert len(conclusion.remediation_steps) >= 1
+
+
+def test_codebase_rag_fastapi_router_endpoints(tmp_path: Path) -> None:
+    """Проверка REST API эндпоинтов /api/rag/codebase/*."""
+    proj_dir = tmp_path / "api_proj"
+    proj_dir.mkdir(parents=True, exist_ok=True)
+    (proj_dir / "worker.py").write_text(
+        "def run_worker_task(task_id: int) -> bool:\n    '''Запуск воркера.'''\n    if task_id <= 0:\n        raise RuntimeError('Invalid task_id')\n    return True\n",
+        encoding="utf-8",
+    )
+
+    hub = UnifiedKnowledgeHub(base_dir=tmp_path / "hub_data")
+    app = FastAPI()
+    app.include_router(init_router(hub))
+    client = TestClient(app)
+
+    # 1. Сборка индекса через POST /api/rag/codebase/build
+    build_resp = client.post(
+        "/api/rag/codebase/build",
+        json={"project_root": str(proj_dir), "index_name": "codebase"},
+    )
+    assert build_resp.status_code == 200
+    assert build_resp.json()["result"]["total_symbols"] == 1
+
+    # 2. Список индексов через GET /api/rag/codebase/indexes
+    idx_resp = client.get("/api/rag/codebase/indexes")
+    assert idx_resp.status_code == 200
+    assert len(idx_resp.json()["indexes"]) == 1
+
+    # 3. Поиск символов через POST /api/rag/codebase/symbols
+    sym_resp = client.post(
+        "/api/rag/codebase/symbols",
+        json={"symbol": "run_worker_task", "index_name": "codebase"},
+    )
+    assert sym_resp.status_code == 200
+    assert sym_resp.json()["total_found"] == 1
+
+    # 4. Заключение по ошибке и логам через POST /api/rag/codebase/diagnose
+    diag_resp = client.post(
+        "/api/rag/codebase/diagnose",
+        json={
+            "question": "Из-за чего останавливается воркер?",
+            "logs": ["[CRITICAL] worker.py:4 task_id=0 rejected"],
+            "error_message": 'File "worker.py", line 4, in run_worker_task\nRuntimeError: Invalid task_id',
+            "index_name": "codebase",
+            "use_llm": False,
+        },
+    )
+    assert diag_resp.status_code == 200
+    payload = diag_resp.json()
+    assert "RuntimeError" in payload["root_cause"]
+    assert payload["affected_locations"][0]["file_path"] == "worker.py"
+
+

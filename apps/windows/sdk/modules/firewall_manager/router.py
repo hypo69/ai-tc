@@ -76,3 +76,4 @@ def init_router() -> APIRouter:
 
 
 __all__ = ['router', 'init_router']
+

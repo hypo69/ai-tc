@@ -10,7 +10,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 14:32:00
+# Updated: 2026-10-31 17:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -199,11 +199,16 @@ def get_db_adapter():
 
 @router.get("/db/config")
 async def get_db_configuration() -> Dict[str, Any]:
-    """Возвращает текущую конфигурацию базы данных (MariaDB / SQLite)."""
+    """Возвращает текущую конфигурацию базы данных (MariaDB / SQLite) с динамическим разрешением путей."""
+    from apps.windows.db.paths import resolve_system_knowledge_db_path, get_dynamic_path_config
+    dyn_cfg = get_dynamic_path_config()
+    default_sq = dyn_cfg["template"]
+
     db = get_db_adapter()
     if not db:
+        resolved_p = str(resolve_system_knowledge_db_path(default_sq))
         return {
-            "engine": "mariadb",
+            "engine": "sqlite",
             "mariadb": {
                 "connection_type": "direct",
                 "host": "srv1502.hstgr.io",
@@ -213,7 +218,7 @@ async def get_db_configuration() -> Dict[str, Any]:
                 "php_api_url": "https://srv1502.hstgr.io/wikillm_hostinger.php",
                 "php_api_key": ""
             },
-            "sqlite": {"path": "data/windows_wikillm/knowledge.db"}
+            "sqlite": {"path": default_sq, "resolved_path": resolved_p}
         }
 
     mariadb_cfg = dict(db.config.get("mariadb", {}))
@@ -221,10 +226,17 @@ async def get_db_configuration() -> Dict[str, Any]:
     mariadb_cfg.setdefault("php_api_url", "https://srv1502.hstgr.io/wikillm_hostinger.php")
     mariadb_cfg.setdefault("php_api_key", "")
 
+    sqlite_cfg = dict(db.config.get("sqlite", {"path": default_sq}))
+    raw_p = sqlite_cfg.get("path") or default_sq
+    resolved_p = str(resolve_system_knowledge_db_path(raw_p))
+    sqlite_cfg["path"] = raw_p
+    sqlite_cfg["resolved_path"] = resolved_p
+
     return {
         "engine": db.engine,
         "mariadb": mariadb_cfg,
-        "sqlite": db.config.get("sqlite", {"path": "data/windows_wikillm/knowledge.db"}),
+        "sqlite": sqlite_cfg,
+        "dynamic_paths": dyn_cfg,
     }
 
 
@@ -241,15 +253,50 @@ async def save_db_configuration(req: DatabaseConfigSchema) -> Dict[str, Any]:
         "mariadb": req.mariadb.model_dump(),
     }
     db.update_config(new_cfg, save_to_disk=True)
+
+    # Синхронизация с системными файлами config.json
+    cfg_paths = [Path("apps/windows/api/config.json"), Path("config.json")]
+    for p in cfg_paths:
+        if p.exists():
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    c = json.load(f)
+                if "paths" not in c or not isinstance(c["paths"], dict):
+                    c["paths"] = {}
+                c["paths"]["system_knowledge_db"] = req.sqlite_path
+                if "database" not in c:
+                    c["database"] = {}
+                if "sqlite" not in c["database"]:
+                    c["database"]["sqlite"] = {}
+                c["database"]["sqlite"]["path"] = req.sqlite_path
+                if "wikillm" in c and isinstance(c["wikillm"], dict):
+                    c["wikillm"]["db_path"] = req.sqlite_path
+                with open(p, "w", encoding="utf-8") as f:
+                    json.dump(c, f, ensure_ascii=False, indent=2)
+                    f.write("\n")
+            except Exception as ex:
+                logger.warning(f"[RouterWikiLLMEditor] Ошибка записи config {p}: {ex}")
+
     return {"status": "success", "ok": True, "message": "Конфигурация базы данных успешно сохранена", "config": new_cfg}
 
 
 def _extract_mariadb_cfg(db: Any, req: Optional[DatabaseActionRequest]) -> Optional[Dict[str, Any]]:
-    """Извлекает и мерджит кастомные параметры подключения MariaDB/PHP API."""
+    """Извлекает и мерджит кастомные параметры подключения MariaDB/PHP API/SQLite."""
     if not req:
         return None
     base = dict(db.config.get("mariadb", {}))
-    if req.connection_type is not None: base["connection_type"] = req.connection_type
+    if req.engine is not None:
+        base["engine"] = req.engine
+        if req.engine.lower() == "sqlite" and req.connection_type is None:
+            base["connection_type"] = "sqlite"
+    if req.sqlite_path is not None:
+        base["sqlite_path"] = req.sqlite_path
+    if req.connection_type is not None:
+        base["connection_type"] = req.connection_type
+        if req.connection_type.lower() == "sqlite" and req.engine is None:
+            base["engine"] = "sqlite"
+        elif req.connection_type.lower() in ("direct", "php_api") and req.engine is None:
+            base["engine"] = "mariadb"
     if req.host is not None: base["host"] = req.host
     if req.port is not None: base["port"] = req.port
     if req.user is not None: base["user"] = req.user
@@ -304,8 +351,6 @@ async def import_data_from_sqlite(req: Optional[DatabaseActionRequest] = None) -
 
     sqlite_path = req.sqlite_path if req and req.sqlite_path else None
     custom_cfg = _extract_mariadb_cfg(db, req)
-    return db.import_from_sqlite(sqlite_path=sqlite_path, cfg=custom_cfg)
-
     return db.import_from_sqlite(sqlite_path=sqlite_path, cfg=custom_cfg)
 
 
@@ -613,4 +658,5 @@ async def get_wikillm_articles(
 def init_router() -> APIRouter:
     """Возвращает сконфигурированный экземпляр APIRouter для WikiLLM Editor & Articles."""
     return router
+
 

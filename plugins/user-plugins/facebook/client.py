@@ -298,3 +298,4 @@ class FacebookGraphClient:
                 return details
             return str(err)
         return f"HTTP {status_code} request failed"
+

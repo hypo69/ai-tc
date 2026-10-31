@@ -1,4 +1,4 @@
-# 🎯 Focus Policy Engine (`apps/windows/modules/focus_policy`)
+# 🎯 Focus Policy Engine (`apps/windows/sdk/modules/focus_policy`)
 
 **Status:** ✅ Active · **Author:** hypo69
 

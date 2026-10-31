@@ -53,3 +53,4 @@ def test_symbol_index_crud_and_search(tmp_path: Path):
     new_index = CodeSymbolIndex()
     assert new_index.load(save_file) is True
     assert new_index.count() == index.count()
+

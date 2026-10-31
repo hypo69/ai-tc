@@ -64,3 +64,4 @@ def standalone_helper(param1: int) -> str:
         # Проверяем, что сущности сохранены в хранилище и доступны по FTS
         search_res = storage.search_fts("системной диагностики")
         assert len(search_res) >= 1
+

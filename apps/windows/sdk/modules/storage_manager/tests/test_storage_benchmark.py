@@ -261,3 +261,4 @@ async def test_scenario_run_includes_disk_telemetry():
     assert bench_data['scenario_id'] == 'disk_benchmark_audit'
     assert len(bench_data['steps']) >= 1
 
+

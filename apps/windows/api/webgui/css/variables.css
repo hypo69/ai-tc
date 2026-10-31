@@ -15,7 +15,7 @@
  * Package: windows/api/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 19:02:00
+ * Updated: 2026-10-31 17:05:00
  * =============================================================================
  */
 
@@ -55,6 +55,8 @@
   --border-contrast: #64748b;   /* контрастные рамки */
   --divider-color:   #cbd5e1;
   --modal-border:    #cbd5e1;
+  --modal-width:     80vw;
+  --modal-height:    80vh;
 
   /* Тени (мягкие) */
   --shadow-xs:  0 1px 2px rgba(15, 23, 42, 0.05);
@@ -220,6 +222,8 @@
   --border-contrast: #71717a;   /* контрастные рамки */
   --divider-color:   #ded7cb;
   --modal-border:    #ded7cb;
+  --modal-width:     80vw;
+  --modal-height:    80vh;
   --ui-border-color: #ded7cb;
 
   /* Тени (мягкие теплые) */
@@ -324,6 +328,8 @@
   --border-contrast: #8f5843;
   --divider-color:   #dfcebf;
   --modal-border:    #dfcebf;
+  --modal-width:     80vw;
+  --modal-height:    80vh;
 
   /* Тени (теплые) */
   --shadow-xs:  0 1px 2px rgba(130, 70, 50, 0.05);
@@ -440,6 +446,133 @@
   --status-info-border:    #9bc4e2;
 }
 
+/* ── 3a. Тёмная сланцевая тема Dark Slate (Slate-900 / Sky-400) ───────────── */
+[data-theme="theme-dark-slate"],
+html.theme-dark-slate,
+body.theme-dark-slate {
+  /* Фоны (глубокий благородный сланец Slate) */
+  --bg-color:        #0f172a;   /* Slate-900: глубокий сланцевый фон */
+  --surface-1:       #1e293b;   /* Slate-800: матовые сланцевые карточки */
+  --surface-2:       #334155;   /* Slate-700: хедеры карточек и тулбары */
+  --card-bg:         #1e293b;
+  --card-text:       #f8fafc;
+  --nav-bg:          #1e293b;
+  --bs-body-bg:      #0f172a;
+  --bs-body-bg-rgb:  15, 23, 42;
+  --ui-bg-base:      #0f172a;
+  --ui-bg-surface:   #1e293b;
+  --ui-bg-surface-elevated: #334155;
+
+  /* Текст высокой четкости и контрастности */
+  --text-color:      #f8fafc;   /* Slate-50: чистый яркий текст */
+  --text-muted:      #94a3b8;   /* Slate-400 */
+  --ui-text-primary: #f8fafc;
+  --ui-text-secondary: #cbd5e1;
+  --ui-text-muted:   #94a3b8;
+  --nav-text:        #cbd5e1;
+  --nav-active:      #38bdf8;   /* Sky-400: фирменный лазурный акцент */
+  --ui-accent:       #38bdf8;
+  --ui-accent-hover: #0ea5e9;
+  --nav-hover-bg:    #334155;
+
+  /* Линии и границы */
+  --border-color:    #334155;
+  --border-strong:   #475569;
+  --border-subtle:   rgba(100, 116, 139, 0.25);
+  --border-contrast: #64748b;
+  --divider-color:   #334155;
+  --modal-border:    #334155;
+  --modal-width:     80vw;
+  --modal-height:    80vh;
+  --ui-border-color: #334155;
+
+  /* Тени */
+  --shadow-xs:  0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-sm:  0 2px 6px rgba(0, 0, 0, 0.45);
+  --shadow-md:  0 6px 16px rgba(0, 0, 0, 0.55);
+  --shadow-lg:  0 10px 30px rgba(0, 0, 0, 0.65);
+
+  /* Модальные окна */
+  --modal-bg:        #1e293b;
+  --modal-text:      #f8fafc;
+
+  /* Алерты */
+  --alert-success-bg:     #064e3b;
+  --alert-success-border: #059669;
+  --alert-success-text:   #a7f3d0;
+  --alert-danger-bg:      #450a0a;
+  --alert-danger-border:  #dc2626;
+  --alert-danger-text:    #fecaca;
+  --alert-warning-bg:     #451a03;
+  --alert-warning-border: #d97706;
+  --alert-warning-text:   #fde68a;
+  --alert-info-bg:        #0c4a6e;
+  --alert-info-border:    #0284c7;
+  --alert-info-text:      #bae6fd;
+
+  /* Статусные цвета */
+  --status-success-bg:     rgba(52, 211, 153, 0.15);
+  --status-success-text:   #34d399;
+  --status-success-border: rgba(52, 211, 153, 0.3);
+  --status-danger-bg:      rgba(248, 113, 113, 0.15);
+  --status-danger-text:    #f87171;
+  --status-danger-border:  rgba(248, 113, 113, 0.3);
+  --status-warning-bg:     rgba(251, 191, 36, 0.15);
+  --status-warning-text:   #fbbf24;
+  --status-warning-border: rgba(251, 191, 36, 0.3);
+  --status-info-bg:        rgba(56, 189, 248, 0.15);
+  --status-info-text:      #38bdf8;
+  --status-info-border:    rgba(56, 189, 248, 0.3);
+  --ui-success:            #34d399;
+  --ui-warning:            #fbbf24;
+  --ui-danger:             #f87171;
+  --ui-info:               #38bdf8;
+
+  --about-card-bg: linear-gradient(135deg, #1e293b 0%, #162032 100%);
+  --badge-font-size: calc(0.72rem + 1pt);
+
+  --bs-card-bg: #1e293b;
+  --bs-card-color: #f8fafc;
+  --bs-modal-bg: #1e293b;
+  --bs-modal-color: #f8fafc;
+  --bs-offcanvas-bg: #1e293b;
+  --bs-tertiary-bg: #334155;
+  --bs-secondary-bg: #334155;
+  --bs-list-group-bg: #1e293b;
+  --bs-body-color-rgb:  248, 250, 252;
+  --bs-emphasis-color:  #f8fafc;
+  --bs-emphasis-color-rgb: 248, 250, 252;
+  --bs-secondary-color: #cbd5e1;
+  --bs-secondary-color-rgb: 203, 213, 225;
+  --bs-tertiary-color:  #94a3b8;
+  --bs-tertiary-color-rgb: 148, 163, 184;
+  --bs-heading-color:   #f8fafc;
+  --bs-link-color:      #38bdf8;
+  --bs-link-hover-color: #7dd3fc;
+  --bs-secondary-bg-subtle: #334155;
+  --bs-secondary-border-subtle: #475569;
+  --bs-border-color-translucent: rgba(255, 255, 255, 0.15);
+  --bs-list-group-color: #f8fafc;
+  --bs-list-group-action-color: #f8fafc;
+  --bs-list-group-action-hover-color: #38bdf8;
+  --bs-list-group-action-hover-bg: #334155;
+  --bs-dropdown-bg: #1e293b;
+  --bs-dropdown-color: #f8fafc;
+  --bs-dropdown-border-color: #334155;
+  --bs-border-color: #334155;
+  --bs-primary: #38bdf8;
+  --bs-primary-rgb: 56, 189, 248;
+  --bs-info: #38bdf8;
+  --bs-info-rgb: 56, 189, 248;
+
+  --panel-bg: #1e293b;
+  --panel-header-bg: #334155;
+  --panel-header-color: #f8fafc;
+  --panel-header-font-size: 1.75rem;
+  --tab-header-title-color: #f8fafc;
+  --tab-header-subtitle-color: #94a3b8;
+}
+
 /* ── 3. Тёмная высококонтрастная тема (Dark High-Contrast) ────────────────── */
 [data-theme="dark"] {
   /* Фоны (глубокие контрастные поверхности) */
@@ -467,6 +600,8 @@
   --border-contrast: #70849d;   /* акцентные контуры */
   --divider-color:   #3b4758;
   --modal-border:    #3b4758;
+  --modal-width:     80vw;
+  --modal-height:    80vh;
 
   /* Тени (глубокие, отделяющие слои) */
   --shadow-xs:  0 1px 3px rgba(0, 0, 0, 0.4);
@@ -610,6 +745,8 @@
   --border-contrast: #39ff14;
   --divider-color:   #1a4223;
   --modal-border:    #00ff66;
+  --modal-width:     80vw;
+  --modal-height:    80vh;
 
   /* Тени (неоновое свечение фосфора) */
   --shadow-xs:  0 0 3px rgba(0, 255, 102, 0.15);

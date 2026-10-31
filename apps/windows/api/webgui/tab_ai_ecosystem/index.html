@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_ai_ecosystem
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 10:55:00
+Updated: 2026-10-30 11:15:00
 =============================================================================
 -->
 <div class="container-fluid py-2 px-3" id="ai-ecosystem-container">
@@ -28,14 +28,14 @@ Updated: 2026-10-20 10:55:00
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
           <h3 class="tab-header-title panel-header mb-0">Экосистема ИИ: Агенты, Навыки и MCP</h3>
-          
         </div>
         <small class="tab-header-subtitle text-secondary">Управление пулом моделей, автономными агентами, MCP инструментами и реестром промптов</small>
       </div>
     </div>
-    
   </div>
-<ul class="nav nav-pills" id="ai-ecosystem-subtabs-nav" role="tablist">
+
+  <div class="mb-3">
+    <ul class="nav nav-pills" id="ai-ecosystem-subtabs-nav" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active btn-sm rounded-pill px-3" id="subtab-ai-agents-btn" data-bs-toggle="pill" data-bs-target="#subpane-ai-agents" type="button" role="tab">
           <i class="bi bi-robot me-1"></i> Агенты (Agents)
@@ -58,24 +58,17 @@ Updated: 2026-10-20 10:55:00
   <div class="tab-content" id="ai-ecosystem-subtabs-content">
     <!-- Subpane 1: Агенты -->
     <div class="tab-pane fade show active" id="subpane-ai-agents" role="tabpanel">
-      <div id="ai-agents-embed-container">
-        <!-- Injected from agents_tab -->
-      </div>
+      <div id="ai-agents-embed-container"></div>
     </div>
 
     <!-- Subpane 2: Навыки -->
     <div class="tab-pane fade" id="subpane-ai-skills" role="tabpanel">
-      <div id="ai-skills-embed-container">
-        <!-- Injected from skills_tab -->
-      </div>
+      <div id="ai-skills-embed-container"></div>
     </div>
 
     <!-- Subpane 3: MCP Серверы -->
     <div class="tab-pane fade" id="subpane-ai-mcp" role="tabpanel">
-      <div id="ai-mcp-embed-container">
-        <!-- Injected from mcp_tab -->
-      </div>
+      <div id="ai-mcp-embed-container"></div>
     </div>
   </div>
 </div>
-

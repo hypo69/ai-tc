@@ -2,7 +2,7 @@
  * Модуль потока топовых процессов хоста в реальном времени (Live Stream).
  * Интерактивный список процессов с вызовом ИИ-ассистента и Drill-Down кнопками Deep Dive.
  * Файл: apps/windows/api/webgui/tab_processes_load_inspector/panel_top_stream/panel.js
- * Updated: 2026-10-20 11:10:00
+ * Updated: 2026-10-31 18:55:00
  */
 
 import {
@@ -13,8 +13,8 @@ import {
   renderAIBadge,
   getProcessTooltipAttributes,
   initTableSmartTooltips
-} from '../common/ui_utils.js';
-import { openProcessAiModal } from '../panel_ai_audit/panel.js?v=20261020_v2';
+} from '../common/ui_utils.js?v=20261031_v2';
+import { openProcessAiModal } from '../panel_ai_audit/panel.js?v=20261031_v2';
 
 let cachedTopProcesses = [];
 let isProcPaused = false;

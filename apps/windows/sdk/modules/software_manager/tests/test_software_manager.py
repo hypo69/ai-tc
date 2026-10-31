@@ -94,3 +94,4 @@ def test_software_endpoints(client: TestClient):
     resp_search = client.get('/api/software-manager/search?q=python')
     assert resp_search.status_code == 200
     assert len(resp_search.json()) > 0
+

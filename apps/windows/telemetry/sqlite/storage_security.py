@@ -186,3 +186,4 @@ class TelemetrySecurityStorageMixin:
     def insert_process_file_events(self, events: List[Union[Dict[str, Any], Any]]) -> int:
         """Сохранить события файловой активности."""
         return self._writer.insert_process_file_events(events=events)
+

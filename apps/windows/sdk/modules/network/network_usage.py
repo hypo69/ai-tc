@@ -296,3 +296,4 @@ class WindowsNetworkUsageCollector:
             idx += 1
         return f"{val:.2f} {units[idx]}"
 
+

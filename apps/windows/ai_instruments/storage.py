@@ -4,9 +4,10 @@
 # =============================================================================
 # Description:
 #   Хранилище инструментов ИИ-агента (ai_instruments.db).
-#   Поддерживает два режима работы:
-#     1. Локальный SQLite файл ai_instruments.db (по умолчанию)
-#     2. Удалённая база данных на сервере Hostinger (MariaDB / PHP API bridge)
+#   Поддерживает три режима работы:
+#     1. Локальный SQLite файл ai_instruments.db
+#     2. Прямое TCP-подключение к MariaDB на сервере Hostinger (PyMySQL)
+#     3. Удалённый REST API мост на сервере Hostinger (PHP API bridge)
 #
 # Usage Examples:
 #   Python API:
@@ -20,15 +21,17 @@
 # Package: apps.windows.ai_instruments
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 12:38:00
+# Updated: 2026-10-31 17:15:00
 # =============================================================================
 
 from __future__ import annotations
 
-"""Хранилище базы инструментов ИИ-агента (ai_instruments.db) для SQLite и Hostinger."""
+"""Хранилище базы инструментов ИИ-агента (ai_instruments.db) для SQLite и Hostinger MariaDB."""
 
 import json
 import sqlite3
+import ssl
+import threading
 import urllib.parse
 import urllib.request
 from contextlib import contextmanager
@@ -38,9 +41,17 @@ from typing import Any, Dict, Generator, List, Optional
 from logger import logger
 from .models import AIInstrument, get_current_iso_time
 
+try:
+    import pymysql
+    import pymysql.cursors
+
+    HAS_PYMYSQL = True
+except ImportError:
+    HAS_PYMYSQL = False
+
 
 class AIInstrumentsStorage:
-    """Хранилище инструментов агента с поддержкой SQLite и Hostinger."""
+    """Хранилище инструментов агента с поддержкой SQLite и Hostinger (Direct TCP / PHP API)."""
 
     def __init__(
         self,
@@ -55,20 +66,34 @@ class AIInstrumentsStorage:
             engine: Тип движка: 'sqlite', 'mariadb' или 'hostinger'.
             hostinger_config: Параметры удаленного подключения к Hostinger.
         """
+        self._lock = threading.RLock()
         self.engine = engine.lower()
-        self.hostinger_config = hostinger_config or {}
+        self.hostinger_config = dict(hostinger_config or {})
         self.db_path = Path(db_path) if str(db_path) != ":memory:" else ":memory:"
         self._mem_conn: Optional[sqlite3.Connection] = None
+        self._mariadb_conn: Optional[Any] = None
 
-        if self.engine in ("sqlite", "memory"):
-            if self.db_path == ":memory:":
-                self._mem_conn = sqlite3.connect(":memory:", check_same_thread=False)
-                self._mem_conn.row_factory = sqlite3.Row
-            elif isinstance(self.db_path, Path):
-                self.db_path.parent.mkdir(parents=True, exist_ok=True)
-            self._init_sqlite_db()
-        elif self.engine in ("mariadb", "hostinger"):
+        if self.db_path == ":memory:":
+            self._mem_conn = sqlite3.connect(":memory:", check_same_thread=False)
+            self._mem_conn.row_factory = sqlite3.Row
+        elif isinstance(self.db_path, Path):
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Всегда инициализируем локальную SQLite базу (основную или резервную)
+        self._init_sqlite_db()
+
+        if self.engine in ("mariadb", "hostinger"):
             self._init_remote_db()
+
+    @property
+    def _is_remote(self) -> bool:
+        """Возвращает True, если активно удаленное хранилище Hostinger/MariaDB."""
+        return self.engine in ("mariadb", "hostinger")
+
+    @property
+    def _conn_type(self) -> str:
+        """Возвращает тип удаленного подключения ('direct' или 'php_api')."""
+        return str(self.hostinger_config.get("connection_type", "direct")).lower()
 
     @contextmanager
     def _connect_sqlite(self) -> Generator[sqlite3.Connection, None, None]:
@@ -91,6 +116,101 @@ class AIInstrumentsStorage:
                 raise
             finally:
                 conn.close()
+
+    def _get_mariadb_conn(self) -> Any:
+        """Создает или возвращает прямое TCP-соединение с MariaDB на Hostinger.
+
+        Returns:
+            Объект соединения PyMySQL.
+
+        Raises:
+            RuntimeError: Если pymysql не установлен или не удалось подключиться.
+        """
+        if not HAS_PYMYSQL:
+            raise RuntimeError("Модуль 'pymysql' не установлен для прямого подключения к MariaDB.")
+
+        with self._lock:
+            if self._mariadb_conn is not None:
+                try:
+                    self._mariadb_conn.ping(reconnect=True)
+                    return self._mariadb_conn
+                except Exception:
+                    self._mariadb_conn = None
+
+            cfg = self.hostinger_config
+            host = cfg.get("host", "srv1502.hstgr.io")
+            port = int(cfg.get("port", 3306))
+            user = cfg.get("user", "u177424397_davidka")
+            password = cfg.get("password", "")
+            database = cfg.get("database", "u177424397_comp_knowledge")
+            timeout = int(cfg.get("connect_timeout", 10))
+            ip_fallback = cfg.get("ip_fallback", "77.37.35.16")
+
+            try:
+                self._mariadb_conn = pymysql.connect(
+                    host=host,
+                    port=port,
+                    user=user,
+                    password=password,
+                    database=database,
+                    charset="utf8mb4",
+                    connect_timeout=timeout,
+                    cursorclass=pymysql.cursors.DictCursor,
+                    autocommit=True,
+                )
+                return self._mariadb_conn
+            except Exception as conn_err:
+                if ip_fallback and ip_fallback != host:
+                    try:
+                        self._mariadb_conn = pymysql.connect(
+                            host=ip_fallback,
+                            port=port,
+                            user=user,
+                            password=password,
+                            database=database,
+                            charset="utf8mb4",
+                            connect_timeout=timeout,
+                            cursorclass=pymysql.cursors.DictCursor,
+                            autocommit=True,
+                        )
+                        return self._mariadb_conn
+                    except Exception as fb_err:
+                        raise RuntimeError(f"Ошибка подключения к MariaDB ({host} / {ip_fallback}): {fb_err}") from fb_err
+                raise RuntimeError(f"Ошибка подключения к MariaDB ({host}:{port}): {conn_err}") from conn_err
+
+    def _execute_remote(self, action: str, sql: str, params: Optional[List[Any]] = None) -> Dict[str, Any]:
+        """Выполняет SQL-запрос на удаленном сервере Hostinger (через Direct TCP или PHP API).
+
+        Args:
+            action: Тип операции ('query' для SELECT, 'execute' для DDL/DML).
+            sql: SQL-запрос с позиционными маркерами '?'.
+            params: Список позиционных параметров.
+
+        Returns:
+            Dict[str, Any]: Результат с ключами 'rows' или 'affected_rows'.
+        """
+        if self._conn_type == "php_api" and self.hostinger_config.get("php_api_url"):
+            try:
+                return self._call_hostinger_api(action, {"sql": sql, "params": params or []})
+            except Exception as api_err:
+                # Если указан хост БД и учетные данные, пробуем переключиться на прямой TCP (Direct MariaDB)
+                if HAS_PYMYSQL and self.hostinger_config.get("host") and self.hostinger_config.get("user"):
+                    logger.info(
+                        f"[AIInstrumentsStorage] PHP API недоступен ({api_err}), переключение на прямой TCP MariaDB."
+                    )
+                    self.hostinger_config["connection_type"] = "direct"
+                else:
+                    raise
+
+        conn = self._get_mariadb_conn()
+        mysql_sql = sql.replace("?", "%s")
+        with self._lock:
+            with conn.cursor() as cur:
+                affected = cur.execute(mysql_sql, tuple(params or []))
+                if action == "query":
+                    rows = cur.fetchall()
+                    return {"ok": True, "rows": list(rows) if rows else []}
+                return {"ok": True, "affected_rows": int(affected or 0)}
 
     def _init_sqlite_db(self) -> None:
         """Создает таблицы и индексы в SQLite базе ai_instruments.db."""
@@ -121,10 +241,6 @@ class AIInstrumentsStorage:
 
     def _init_remote_db(self) -> None:
         """Инициализирует таблицу ai_instruments на удаленном сервере Hostinger."""
-        php_api_url = self.hostinger_config.get("php_api_url")
-        if not php_api_url:
-            return
-
         sql_init = """
         CREATE TABLE IF NOT EXISTS ai_instruments (
             tool_id VARCHAR(255) PRIMARY KEY,
@@ -146,10 +262,16 @@ class AIInstrumentsStorage:
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         """
         try:
-            self._call_hostinger_api("execute", {"sql": sql_init})
-            logger.info("[AIInstrumentsStorage] Таблица ai_instruments на сервере Hostinger проверена")
+            self._execute_remote("execute", sql_init)
+            logger.info(
+                f"[AIInstrumentsStorage] Таблица ai_instruments на сервере Hostinger ({self._conn_type}) проверена"
+            )
         except Exception as ex:
-            logger.warning(f"[AIInstrumentsStorage] Предупреждение при инициализации на Hostinger: {ex}")
+            logger.warning(
+                f"[AIInstrumentsStorage] Предупреждение при инициализации на Hostinger: {ex}. "
+                "Используется резервная база SQLite."
+            )
+            self.engine = "sqlite"
 
     def _call_hostinger_api(self, action: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Отправляет запрос к REST API мосту на сервере Hostinger.
@@ -161,32 +283,54 @@ class AIInstrumentsStorage:
         Returns:
             Dict[str, Any]: Ответ сервера.
         """
-        php_api_url = self.hostinger_config.get("php_api_url")
+        php_api_url = (self.hostinger_config.get("php_api_url") or "").strip()
         if not php_api_url:
             raise ValueError("php_api_url не настроен для Hostinger")
 
-        url = f"{php_api_url}?action={action}"
-        encoded_data = json.dumps(data).encode("utf-8")
+        sep = "&" if "?" in php_api_url else "?"
+        url = f"{php_api_url}{sep}action={action}"
+        encoded_data = json.dumps(data, ensure_ascii=False).encode("utf-8")
         req = urllib.request.Request(
             url,
             data=encoded_data,
             headers={
-                "Content-Type": "application/json",
+                "Content-Type": "application/json; charset=utf-8",
                 "User-Agent": "AI-Windows-Admin-Instruments/1.0",
-                "X-API-Key": self.hostinger_config.get("php_api_key", ""),
+                "X-API-Key": str(self.hostinger_config.get("php_api_key", "")).strip(),
             },
             method="POST",
         )
-        with urllib.request.urlopen(req, timeout=10) as resp:
+        timeout = int(self.hostinger_config.get("connect_timeout", 10))
+        ssl_ctx = ssl.create_default_context()
+        ssl_ctx.check_hostname = False
+        ssl_ctx.verify_mode = ssl.CERT_NONE
+        with urllib.request.urlopen(req, timeout=timeout, context=ssl_ctx) as resp:
             resp_body = resp.read().decode("utf-8")
             return json.loads(resp_body)
 
+    def check_remote_connection(self) -> Dict[str, Any]:
+        """Проверяет доступность удаленной базы на Hostinger и возвращает статистику таблицы ai_instruments."""
+        res = self._execute_remote("query", "SELECT COUNT(*) AS cnt FROM ai_instruments", [])
+        rows = res.get("rows", [])
+        count = int(rows[0].get("cnt", 0)) if rows else 0
+        return {
+            "ok": True,
+            "connected": True,
+            "engine": "hostinger",
+            "connection_type": self._conn_type,
+            "host": self.hostinger_config.get("host", "srv1502.hstgr.io"),
+            "database": self.hostinger_config.get("database", "u177424397_comp_knowledge"),
+            "table": "ai_instruments",
+            "count": count,
+            "message": (
+                f"Сервер Hostinger ({self._conn_type}) доступен: "
+                f"таблица ai_instruments содержит {count} инструментов."
+            ),
+        }
+
     def _row_to_instrument(self, row: sqlite3.Row | Dict[str, Any]) -> AIInstrument:
         """Преобразует строку базы данных в объект AIInstrument."""
-        if isinstance(row, sqlite3.Row):
-            d = dict(row)
-        else:
-            d = dict(row)
+        d = dict(row)
 
         schema_raw = d.get("parameters_schema") or d.get("parameters_schema_json") or "{}"
         if isinstance(schema_raw, str):
@@ -211,16 +355,16 @@ class AIInstrumentsStorage:
             name=d["name"],
             tool_type=d.get("tool_type", "powershell"),
             command=d["command"],
-            description=d.get("description", ""),
-            target_entity=d.get("target_entity", ""),
+            description=d.get("description") or "",
+            target_entity=d.get("target_entity") or "",
             parameters_schema=schema_dict,
-            risk_level=d.get("risk_level", "safe"),
-            author_agent=d.get("author_agent", "reasoning_chain"),
+            risk_level=d.get("risk_level") or "safe",
+            author_agent=d.get("author_agent") or "reasoning_chain",
             tags=tags_list,
-            execution_count=int(d.get("execution_count", 0)),
+            execution_count=int(d.get("execution_count") or 0),
             last_executed_at=d.get("last_executed_at"),
-            created_at=d.get("created_at", get_current_iso_time()),
-            updated_at=d.get("updated_at", get_current_iso_time()),
+            created_at=d.get("created_at") or get_current_iso_time(),
+            updated_at=d.get("updated_at") or get_current_iso_time(),
         )
 
     def save_instrument(self, inst: AIInstrument) -> AIInstrument:
@@ -233,7 +377,7 @@ class AIInstrumentsStorage:
             AIInstrument: Сохраненный инструмент.
         """
         inst.updated_at = get_current_iso_time()
-        if self.engine in ("mariadb", "hostinger") and self.hostinger_config.get("php_api_url"):
+        if self._is_remote:
             sql = """
             INSERT INTO ai_instruments 
                 (tool_id, name, tool_type, command, description, target_entity, parameters_schema_json,
@@ -266,7 +410,7 @@ class AIInstrumentsStorage:
                 inst.created_at,
                 inst.updated_at,
             ]
-            self._call_hostinger_api("execute", {"sql": sql, "params": params})
+            self._execute_remote("execute", sql, params)
             return inst
 
         with self._connect_sqlite() as conn:
@@ -308,9 +452,9 @@ class AIInstrumentsStorage:
 
     def get_instrument(self, tool_id: str) -> Optional[AIInstrument]:
         """Возвращает инструмент по уникальному ID."""
-        if self.engine in ("mariadb", "hostinger") and self.hostinger_config.get("php_api_url"):
+        if self._is_remote:
             sql = "SELECT * FROM ai_instruments WHERE tool_id = ? LIMIT 1"
-            res = self._call_hostinger_api("query", {"sql": sql, "params": [tool_id]})
+            res = self._execute_remote("query", sql, [tool_id])
             rows = res.get("rows", [])
             return self._row_to_instrument(rows[0]) if rows else None
 
@@ -337,8 +481,8 @@ class AIInstrumentsStorage:
         query += " ORDER BY execution_count DESC, updated_at DESC LIMIT ? OFFSET ?"
         params.extend([limit, offset])
 
-        if self.engine in ("mariadb", "hostinger") and self.hostinger_config.get("php_api_url"):
-            res = self._call_hostinger_api("query", {"sql": query, "params": params})
+        if self._is_remote:
+            res = self._execute_remote("query", query, params)
             rows = res.get("rows", [])
             return [self._row_to_instrument(r) for r in rows]
 
@@ -356,8 +500,8 @@ class AIInstrumentsStorage:
         """
         params = [q, q, q, q, limit]
 
-        if self.engine in ("mariadb", "hostinger") and self.hostinger_config.get("php_api_url"):
-            res = self._call_hostinger_api("query", {"sql": sql, "params": params})
+        if self._is_remote:
+            res = self._execute_remote("query", sql, params)
             rows = res.get("rows", [])
             return [self._row_to_instrument(r) for r in rows]
 
@@ -367,9 +511,9 @@ class AIInstrumentsStorage:
 
     def delete_instrument(self, tool_id: str) -> bool:
         """Удаляет инструмент из базы ai_instruments.db."""
-        if self.engine in ("mariadb", "hostinger") and self.hostinger_config.get("php_api_url"):
+        if self._is_remote:
             sql = "DELETE FROM ai_instruments WHERE tool_id = ?"
-            res = self._call_hostinger_api("execute", {"sql": sql, "params": [tool_id]})
+            res = self._execute_remote("execute", sql, [tool_id])
             return bool(res.get("affected_rows", 0) > 0)
 
         with self._connect_sqlite() as conn:
@@ -379,9 +523,9 @@ class AIInstrumentsStorage:
     def record_execution(self, tool_id: str) -> bool:
         """Инкрементирует счётчик выполнения и фиксирует временную метку."""
         now = get_current_iso_time()
-        if self.engine in ("mariadb", "hostinger") and self.hostinger_config.get("php_api_url"):
+        if self._is_remote:
             sql = "UPDATE ai_instruments SET execution_count = execution_count + 1, last_executed_at = ?, updated_at = ? WHERE tool_id = ?"
-            res = self._call_hostinger_api("execute", {"sql": sql, "params": [now, now, tool_id]})
+            res = self._execute_remote("execute", sql, [now, now, tool_id])
             return bool(res.get("affected_rows", 0) > 0)
 
         with self._connect_sqlite() as conn:
@@ -394,14 +538,15 @@ class AIInstrumentsStorage:
     def get_stats(self) -> Dict[str, Any]:
         """Возвращает статистику базы данных инструментов агента."""
         count = 0
-        if self.engine in ("mariadb", "hostinger") and self.hostinger_config.get("php_api_url"):
+        if self._is_remote:
             sql = "SELECT COUNT(*) AS cnt FROM ai_instruments"
-            res = self._call_hostinger_api("query", {"sql": sql, "params": []})
+            res = self._execute_remote("query", sql, [])
             rows = res.get("rows", [])
             if rows:
                 count = int(rows[0].get("cnt", 0))
             return {
                 "engine": "hostinger_mariadb",
+                "connection_type": self._conn_type,
                 "total_instruments": count,
                 "host": self.hostinger_config.get("host", "srv1502.hstgr.io"),
                 "database": self.hostinger_config.get("database", "u177424397_comp_knowledge"),

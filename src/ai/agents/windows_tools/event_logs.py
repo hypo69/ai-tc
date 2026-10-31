@@ -329,3 +329,4 @@ WINDOWS_EVENT_LOGS_TOOLS = [
     windows_event_log_intelligence,
     windows_event_log_action,
 ]
+

@@ -71,3 +71,4 @@ class FocusTaskRegistrar:
         """Удаляет задачи профиля (отсутствие задачи не является ошибкой)."""
         for _, name in self._names(profile_id):
             self.runner(['schtasks.exe', '/Delete', '/F', '/TN', f'{TASK_FOLDER}{name}'])
+

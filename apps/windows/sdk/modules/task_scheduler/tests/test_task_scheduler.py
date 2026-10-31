@@ -112,3 +112,4 @@ def test_history_status_endpoints(client: TestClient):
     assert 'history_enabled' in resp_rep.json()
 
 
+

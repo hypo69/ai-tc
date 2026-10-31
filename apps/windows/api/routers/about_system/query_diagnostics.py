@@ -1296,3 +1296,4 @@ def query_network_profile_from_db(storage: TelemetryStorage) -> Dict[str, Any]:
         "is_discovery_enabled": False,
     }
 
+

@@ -118,3 +118,4 @@ class TelemetryWikiBridge:
             await self.engine.resolve(art, sync_gemini=sync_gemini, record_observation=True)
             count += 1
         return count
+

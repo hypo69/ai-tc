@@ -144,3 +144,4 @@ def load_agent_from_manifest(name_or_id: str) -> Any:
             logger.warning(f"[AgentLoader] Не удалось загрузить класс {class_path}, используется универсальный исполнитель: {exc}")
 
     return UniversalDeclarativeAgent(manifest_data)
+

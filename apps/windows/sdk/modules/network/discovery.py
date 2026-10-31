@@ -418,3 +418,4 @@ class NetworkDiscoveryManager:
 WindowsNetworkDiscovery = NetworkDiscoveryManager
 
 __all__ = ["NetworkDiscoveryManager", "WindowsNetworkDiscovery"]
+

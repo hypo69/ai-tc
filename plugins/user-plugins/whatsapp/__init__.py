@@ -34,3 +34,4 @@ def plugin(ai_model: Any = None, config: Optional[dict] = None) -> WhatsAppPlugi
         WhatsAppPlugin: Экземпляр плагина.
     """
     return WhatsAppPlugin(ai_model=ai_model, config=config)
+

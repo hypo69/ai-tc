@@ -132,3 +132,4 @@ class IgnoreFilter:
         for pattern in SECRET_PATTERNS:
             redacted = pattern.sub("[REDACTED_SECRET]", redacted)
         return redacted
+

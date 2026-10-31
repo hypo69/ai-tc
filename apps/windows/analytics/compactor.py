@@ -295,3 +295,4 @@ class TelemetryCompactor:
             )
 
         return results
+

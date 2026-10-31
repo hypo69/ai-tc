@@ -3,22 +3,22 @@
 # Process Name: AI-Windows-Admin Apps Windows Api Routers - Router Admin
 # =============================================================================
 # Description:
-#   Provides administrative FastAPI endpoints for managing system prompts,
+#   Агрегатор административных роутеров: эндпойнты администрирования,
+#   агентов, навыков (Skills), плагинов и серверов MCP.
 #
 # Usage Examples:
-#   CLI:
-#     python -m apps.windows.api.routers.router_admin
 #   Python API:
-#     from apps.windows.api.routers.router_admin import SystemInstructionUpdate
+#     from apps.windows.api.routers.router_admin import init_router, init_skills_router
 #
-#     service = SystemInstructionUpdate()
+#     admin_router = init_router()
+#     skills_router = init_skills_router()
 #
 # File: router_admin.py
 # Project: ai-windows-admin
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 10:46:00
+# Updated: 2026-10-30 13:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -31,28 +31,25 @@ from .admin import (  # noqa: F401 - импорт регистрирует эн�
     apps,
     google_accounts,
     instructions,
+    mcp,
     plugins,
     rag_search,
     schedulers,
     skills,
-    user_directories,
-    users,
-    windows_users,
 )
-from .admin.routers import plugins_router, router, router_apps, skills_router, windows_users_router  # noqa: F401
+from .admin.mcp import admin_mcp_router, mcp_router  # noqa: F401
+from .admin.routers import plugins_router, router, router_apps, skills_router  # noqa: F401
 
 
 def init_router() -> APIRouter:
     """Возвращает основной административный роутер (/api/admin)."""
     return router
 
+
 def init_agents_router() -> APIRouter:
     """Возвращает роутер агентов (/api/agents)."""
     from .router_agents import init_router as agents_init
     return agents_init()
-
-    """Возвращает основной административный роутер (/api/admin)."""
-    return router
 
 
 def init_apps_router() -> APIRouter:
@@ -68,3 +65,8 @@ def init_skills_router() -> APIRouter:
 def init_plugins_router() -> APIRouter:
     """Возвращает роутер пользовательских плагинов (/api/plugins)."""
     return plugins_router
+
+
+def init_mcp_router() -> APIRouter:
+    """Возвращает роутер серверов MCP (/api/mcp)."""
+    return mcp_router

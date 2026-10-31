@@ -398,3 +398,4 @@ class EventLogsManager:
             }
 
         return {'status': 'UNKNOWN_ACTION'}
+

@@ -16,38 +16,35 @@
 # Updated: 2026-10-10 17:35:00
 # =============================================================================
 
-"""Инициализатор пакета WikiLLM (Progressive Knowledge Acquisition + Retrieval).
+"""Инициализатор пакета WikiLLM (Progressive Knowledge Acquisition + Retrieval)"""
 
-Реэкспортирует основные компоненты из корневого пакета src.ai.wikillm.
-"""
-
-from src.ai.wikillm import (
-    WikiLLMEngine,
-    WikiStorage,
-    WikiLLMConfig,
-    load_config,
-    ArtifactExtractor,
-    CanonicalKeyNormalizer,
-    CodeKnowledgeIndexer,
-    TelemetryWikiBridge,
-    router,
-    init_router,
+from .code_indexer import CodeKnowledgeIndexer
+from .config import WikiLLMConfig, load_config
+from .engine import WikiLLMEngine
+from .extractor import ArtifactExtractor
+from .models import (
     ArtifactInput,
     ArtifactType,
+    Claim,
+    CodeKnowledge,
+    DiagnosticKnowledge,
+    Evidence,
     KnowledgeEntity,
     KnowledgeSource,
     LookupLevel,
-    ResolutionResult,
-    ResolutionAction,
-    Claim,
-    Evidence,
     ObservationRecord,
-    DiagnosticKnowledge,
-    CodeKnowledge,
+    ResolutionAction,
+    ResolutionResult,
 )
+from .normalizer import CanonicalKeyNormalizer
+from .router import init_router, router
+from .storage import WikiStorage
+from .telemetry_bridge import TelemetryWikiBridge
+from .client import WikiLLMClient
 
 __all__ = [
     "WikiLLMEngine",
+    "WikiLLMClient",
     "WikiStorage",
     "WikiLLMConfig",
     "load_config",

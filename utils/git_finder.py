@@ -75,3 +75,4 @@ if __name__ == "__main__":
     logger.console(f"Найдено .git каталогов: {len(folders)}")
     for f in folders:
         logger.console(f"- {f}")
+

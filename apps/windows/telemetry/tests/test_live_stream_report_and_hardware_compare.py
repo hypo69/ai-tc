@@ -282,3 +282,4 @@ def test_service_live_stream_workflow_and_api(temp_storage):
         resp_hw = client.get("/api/windows/telemetry/hardware/changes")
         assert resp_hw.status_code == 200
         assert isinstance(resp_hw.json(), list)
+

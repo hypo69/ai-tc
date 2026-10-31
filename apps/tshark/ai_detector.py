@@ -73,3 +73,4 @@ class AIDetector:
                 "protocols_count": len(stats.protocol_distribution),
             },
         )
+

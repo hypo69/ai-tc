@@ -171,3 +171,4 @@ WINDOWS_SOFTWARE_MANAGER_TOOLS = [
     windows_software_list,
     windows_software_action,
 ]
+

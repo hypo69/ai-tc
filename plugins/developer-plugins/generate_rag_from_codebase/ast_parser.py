@@ -292,3 +292,4 @@ class PythonAstParser:
             "text": f"FILE: {rel_path}\n\n{code}",
             "code": code
         }
+

@@ -170,3 +170,4 @@ class AIInstrumentExecuteRequest(BaseModel):
         default=False,
         description="Запуск с повышенными привилегиями Администратора (RunAs)",
     )
+

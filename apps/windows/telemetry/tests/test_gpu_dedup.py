@@ -109,3 +109,4 @@ def test_discover_system_gpus_deduplication(temp_telemetry_storage: TelemetrySto
     assert discovered[1]["index"] == 1
     assert discovered[0]["vendor"] == "NVIDIA"
     assert discovered[1]["vendor"] == "Intel"
+

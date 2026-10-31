@@ -45,3 +45,4 @@ __all__ = [
     "WindowsCollectorTool",
     "register_system_tools",
 ]
+

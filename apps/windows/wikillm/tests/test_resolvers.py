@@ -172,3 +172,4 @@ async def test_gemini_resolver_with_mock() -> None:
     assert len(res.diagnostic_info.remediation_steps) == 1
     assert "DISM" in res.diagnostic_info.remediation_steps[0].command
     assert res.confidence == 0.88
+

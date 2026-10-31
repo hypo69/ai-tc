@@ -425,3 +425,4 @@ def register_overview_endpoints(router: APIRouter, storage: TelemetryStorage) ->
                 history=[],
                 meta={"source": "telemetry.db", "error": str(exc)},
             )
+

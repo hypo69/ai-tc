@@ -23,3 +23,4 @@ from typing import Tuple
 STORAGE_SCHEMA_DDL: Tuple[str, ...] = ()
 
 STORAGE_INDEX_DDL: Tuple[str, ...] = ()
+

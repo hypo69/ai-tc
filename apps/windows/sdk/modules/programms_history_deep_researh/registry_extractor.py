@@ -79,3 +79,4 @@ def get_installed_programs() -> List[Dict]:
             if info:
                 programs.append(info)
     return programs
+

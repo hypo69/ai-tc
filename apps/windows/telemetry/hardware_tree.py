@@ -22,7 +22,7 @@
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-18 09:30:00
+# Updated: 2026-10-30 11:15:00
 # =============================================================================
 
 from __future__ import annotations
@@ -829,7 +829,7 @@ class HardwareTreeBuilder:
         if os.name == "nt":
             try:
                 import win32com.client
-                wmi_wmi = win32com.client.GetObject("winmgmts:root\\wmi")
+                wmi_wmi = win32com.client.GetObject("winmgmts:\\\\.\\root\\wmi")
                 for mon_wmi in wmi_wmi.InstancesOf("WmiMonitorID"):
                     m_name = _decode_wmi_chars(getattr(mon_wmi, "UserFriendlyName", None))
                     m_sn = _decode_wmi_chars(getattr(mon_wmi, "SerialNumberID", None))
@@ -839,17 +839,28 @@ class HardwareTreeBuilder:
                     mfg_full = mfg_labels.get(m_mfg.upper(), m_mfg)
                     edid_monitors.append({
                         "name": m_name,
-                        "sn": m_sn,
+                        "sn": m_sn if m_sn != "0" else "",
                         "mfg": mfg_full,
                         "instance": m_inst,
                     })
             except Exception as edid_err:
                 logger.debug(f"[HardwareTree] WMI root\\wmi WmiMonitorID warning: {edid_err}")
 
-        for idx, mon in enumerate(self._collector.get_monitors()):
-            edid_match = edid_monitors[idx] if idx < len(edid_monitors) else {}
-            disp_name = edid_match.get("name") or mon.name
-            mfg_name = edid_match.get("mfg") or ("Dell" if "dell" in disp_name.lower() else "Samsung" if "samsung" in disp_name.lower() or "t27" in disp_name.lower() else "LG" if "lg" in disp_name.lower() else "Универсальный монитор")
+        for mon in self._collector.get_monitors():
+            # Точный поиск EDID по серийному номеру, названию модели или коду производителя
+            edid_match: Dict[str, str] = {}
+            for em in edid_monitors:
+                if mon.serial_number and em.get("sn") == mon.serial_number:
+                    edid_match = em
+                    break
+                if mon.name and em.get("name") and (em["name"].lower() in mon.name.lower() or mon.name.lower() in em["name"].lower()):
+                    edid_match = em
+                    break
+
+            disp_name = edid_match.get("name") or mon.name or "Дисплей"
+            if "generic" in disp_name.lower() and mon.name and "generic" not in mon.name.lower():
+                disp_name = mon.name
+            mfg_name = edid_match.get("mfg") or mon.vendor or ("Dell" if "dell" in disp_name.lower() else "Samsung" if "samsung" in disp_name.lower() or "t27" in disp_name.lower() else "LG" if "lg" in disp_name.lower() else "Универсальный монитор")
 
             mon_props: Dict[str, Any] = {
                 "Устройство": mon.device,
@@ -862,8 +873,9 @@ class HardwareTreeBuilder:
                 "Подключенный видеоадаптер": mon.adapter or "Default Adapter",
                 "Основной монитор": "Да (Основной)" if mon.is_primary else "Нет (Вторичный)",
             }
-            if edid_match.get("sn") and edid_match["sn"] != "0":
-                mon_props["Серийный номер (S/N)"] = edid_match["sn"]
+            sn = edid_match.get("sn") or mon.serial_number
+            if sn and sn != "0":
+                mon_props["Серийный номер (S/N)"] = sn
             if edid_match.get("instance"):
                 mon_props["Системный экземпляр"] = edid_match["instance"]
 
@@ -1562,4 +1574,5 @@ class HardwareTreeBuilder:
 
         self._cached = nodes
         return nodes
+
 

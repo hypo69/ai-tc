@@ -125,3 +125,4 @@ def format_pid_tree(pid_info: Dict[str, Any]) -> str:
     lines.append(f"    └── Session ID: {pid_info.get('session_id')}")
 
     return "\n".join(lines)
+

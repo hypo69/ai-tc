@@ -74,3 +74,4 @@ def test_performance_endpoints(client: TestClient):
     resp_counters = client.get('/api/performance-tracing/counters')
     assert resp_counters.status_code == 200
     assert len(resp_counters.json()) > 0
+

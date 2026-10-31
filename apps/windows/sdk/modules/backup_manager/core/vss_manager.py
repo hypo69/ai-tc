@@ -106,3 +106,4 @@ class VssManager:
         """
         res = subprocess.run(['vssadmin.exe', 'delete', 'shadows', f'/shadow={snapshot_id}', '/quiet'], capture_output=True, text=True, timeout=30)
         return res.returncode == 0
+

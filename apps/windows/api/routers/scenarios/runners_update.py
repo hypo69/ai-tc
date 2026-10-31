@@ -183,3 +183,4 @@ async def _run_safe_update_guard_scenario() -> ScenarioRunResult:
         steps=steps,
         summary=summary,
     )
+

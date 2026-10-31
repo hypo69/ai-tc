@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-TC Root - Tc Launcher
+# Process Name: ai-tc Root - Tc Launcher
 # =============================================================================
 # Description:
 #   Точка входа и лончер внутреннего сервера Windows System API (Terminal Controller / TC)
@@ -27,18 +27,19 @@
 # Package: root
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 00:10:00
+# Updated: 2026-10-31 15:50:00
 # =============================================================================
 
 from __future__ import annotations
 """Точка входа и консольный лончер для Windows System API (TC)."""
 
 import argparse
+import json
 import os
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 # =============================================================================
 # UTF-8 Encoding Fix for Windows Console
@@ -171,6 +172,31 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
         default=False,
         help='Выполнить подготовку без запуска цикла сервера uvicorn',
     )
+    parser.add_argument(
+        '--ssl',
+        dest='ssl',
+        action='store_true',
+        default=None,
+        help='Принудительно включить HTTPS (SSL)',
+    )
+    parser.add_argument(
+        '--no-ssl',
+        dest='ssl',
+        action='store_false',
+        help='Принудительно отключить HTTPS (SSL)',
+    )
+    parser.add_argument(
+        '--ssl-cert',
+        dest='ssl_cert',
+        default=None,
+        help='Путь к сертификату SSL (.pem)',
+    )
+    parser.add_argument(
+        '--ssl-key',
+        dest='ssl_key',
+        default=None,
+        help='Путь к приватному ключу SSL (.pem)',
+    )
     return parser.parse_args(args)
 
 
@@ -181,6 +207,9 @@ def run_tc(
     reload: bool = False,
     log_level: str = DEFAULT_LOG_LEVEL,
     dry_run: bool = False,
+    ssl: Optional[bool] = None,
+    ssl_cert: Optional[str] = None,
+    ssl_key: Optional[str] = None,
 ) -> int:
     """Выполняет подготовку окружения и запуск Windows System API сервиса.
 
@@ -191,6 +220,9 @@ def run_tc(
         reload (bool): Флаг горячей перезагрузки uvicorn.
         log_level (str): Уровень логирования uvicorn.
         dry_run (bool): Тестовый режим без блокирующего запуска uvicorn.
+        ssl (Optional[bool]): Принудительно включить/выключить SSL.
+        ssl_cert (Optional[str]): Путь к сертификату SSL.
+        ssl_key (Optional[str]): Путь к приватному ключу SSL.
 
     Returns:
         int: Код возврата процесса (0 - успех, 1 - ошибка).
@@ -210,6 +242,49 @@ def run_tc(
         os.environ['CONFIG_FILE'] = str(windows_config)
         logger.info(f'  [⚙️ Config Profile]: {windows_config}')
 
+    # Определение SSL параметров из конфигурации
+    server_cfg: Dict[str, Any] = {}
+    root_cfg_path = __root__ / 'config.json'
+    if root_cfg_path.is_file():
+        try:
+            with open(root_cfg_path, 'r', encoding='utf-8') as f:
+                server_cfg = json.load(f).get('server', {})
+        except Exception:
+            pass
+
+    if ssl is not None:
+        use_ssl = bool(ssl)
+    else:
+        use_ssl = (
+            server_cfg.get('protocol', '').lower() == 'https'
+            or server_cfg.get('use_ssl') is True
+        )
+
+    ssl_certfile = ssl_cert or server_cfg.get('ssl_certfile')
+    ssl_keyfile = ssl_key or server_cfg.get('ssl_keyfile')
+
+    if use_ssl:
+        if not ssl_certfile or not Path(os.path.expanduser(ssl_certfile)).is_file():
+            default_cert = Path.home() / '.certs' / 'localhost+2.pem'
+            if default_cert.is_file():
+                ssl_certfile = str(default_cert)
+        else:
+            ssl_certfile = str(Path(os.path.expanduser(ssl_certfile)).resolve())
+
+        if not ssl_keyfile or not Path(os.path.expanduser(ssl_keyfile)).is_file():
+            default_key = Path.home() / '.certs' / 'localhost+2-key.pem'
+            if default_key.is_file():
+                ssl_keyfile = str(default_key)
+        else:
+            ssl_keyfile = str(Path(os.path.expanduser(ssl_keyfile)).resolve())
+
+        if ssl_certfile and ssl_keyfile and Path(ssl_certfile).is_file() and Path(ssl_keyfile).is_file():
+            logger.info(f'  [🔒 SSL Active]: Cert={ssl_certfile}')
+            logger.info(f'  [🔑 SSL Active]: Key={ssl_keyfile}')
+        else:
+            logger.warning('  [WARN] SSL включен, но файлы сертификатов не найдены в ~/.certs! Запуск в HTTP.')
+            use_ssl = False
+
     # 3. Обработка BCP 47 локали
     region_query = ''
     if region:
@@ -221,10 +296,11 @@ def run_tc(
     free_port_if_occupied(port)
 
     # 5. Информационный баннер
-    logger.info(f'  [Windows Internal API] Запуск на http://{host}:{port}')
-    logger.info(f'  [Windows Internal API] TC UI: http://{host}:{port}/tc{region_query}')
-    logger.info(f'  [Windows Internal API] Health: http://{host}:{port}/health')
-    logger.info(f'  [Windows Internal API] Docs:   http://{host}:{port}/docs')
+    proto = 'https' if use_ssl else 'http'
+    logger.info(f'  [Windows Internal API] Запуск на {proto}://{host}:{port}')
+    logger.info(f'  [Windows Internal API] TC UI: {proto}://{host}:{port}/tc{region_query}')
+    logger.info(f'  [Windows Internal API] Health: {proto}://{host}:{port}/health')
+    logger.info(f'  [Windows Internal API] Docs:   {proto}://{host}:{port}/docs')
 
     if dry_run:
         return 0
@@ -237,16 +313,23 @@ def run_tc(
         return 1
 
     try:
+        uvicorn_kwargs: Dict[str, Any] = {
+            'factory': True,
+            'host': host,
+            'port': port,
+            'reload': reload,
+            'log_level': log_level,
+            'log_config': get_uvicorn_log_config('windows_api.log'),
+            'server_header': False,
+            'access_log': True,
+        }
+        if use_ssl and ssl_certfile and ssl_keyfile:
+            uvicorn_kwargs['ssl_certfile'] = ssl_certfile
+            uvicorn_kwargs['ssl_keyfile'] = ssl_keyfile
+
         uvicorn.run(
             INTERNAL_APP_MODULE,
-            factory=True,
-            host=host,
-            port=port,
-            reload=reload,
-            log_level=log_level,
-            log_config=get_uvicorn_log_config('windows_api.log'),
-            server_header=False,
-            access_log=True,
+            **uvicorn_kwargs,
         )
         return 0
     except KeyboardInterrupt:
@@ -271,8 +354,12 @@ def main() -> int:
         reload=args.reload,
         log_level=args.log_level,
         dry_run=args.dry_run,
+        ssl=args.ssl,
+        ssl_cert=args.ssl_cert,
+        ssl_key=args.ssl_key,
     )
 
 
 if __name__ == '__main__':
     sys.exit(main())
+

@@ -12,12 +12,12 @@
  * - panel_throttling: детекция термального троттлинга (PROCHOT), Power Limit (PL1/PL2), задержки DPC/ISR, шина GPU PCIe, дампы BSOD
  * - panel_activity: журнал действий администратора
  * 
- * Updated: 2026-10-20 15:22:00
+ * Updated: 2026-10-31 18:32:00
  */
 
 import { adjustMainStreamHeight, initTableResizers, t } from './common/ui_utils.js';
 import { initSummaryDashboard, loadFailuresSummary } from './panel_summary/panel.js';
-import { initEventLogsPanel, scanChannels, loadEvents, getCurrentChannel, getCurrentFilePath, getCachedEvents } from './panel_event_logs/panel.js';
+import { initEventLogsPanel, scanChannels, loadEvents, getCurrentChannel, getCurrentFilePath, getCachedEvents, getCachedChannels } from './panel_event_logs/panel.js';
 import { showEventDetails } from './panel_event_logs/modal.js';
 import { initRagPanel, fetchRagStatus, setRagEventDetailsCallback } from './panel_rag/panel.js';
 import { initPowerLifecyclePanel, loadPowerData, stopPowerUptimeCounter as stopPowerLifecycleUptimeCounter } from './panel_power_lifecycle/panel.js';
@@ -98,8 +98,8 @@ function fetchActiveSourceData(force = false) {
   if (canonical === 'summary-dashboard') {
     loadFailuresSummary(null, force, isSystemControlTabActive);
   } else if (canonical === 'event-logs') {
-    if (activeMode === 'live') {
-      loadEvents(force);
+    if (activeMode === 'live' || activeMode === 'errors') {
+      loadEvents(force, activeMode);
     }
   } else if (canonical === 'activity') {
     loadSccActivityLogs(force, isSystemControlTabActive);
@@ -140,8 +140,8 @@ function startPolling() {
   const intervalMs = 3000;
   liveIntervalTimer = setInterval(() => {
     if (!isSystemControlTabActive()) return;
-    if (activeSource === 'event-logs' && currentMode === 'live') {
-      loadEvents(false);
+    if (activeSource === 'event-logs' && (currentMode === 'live' || currentMode === 'errors')) {
+      loadEvents(false, currentMode);
     }
   }, intervalMs);
 
@@ -163,6 +163,7 @@ function startPolling() {
 }
 
 function setSource(source, updateUrl = true, subtab = null) {
+  stopPolling();
   const canonical = normalizeSystemControlSource(source);
   activeSource = canonical;
 
@@ -198,6 +199,7 @@ function setSource(source, updateUrl = true, subtab = null) {
   if (updateUrl) {
     updateUrlWithSource(canonical, subtab);
   }
+  startPolling();
 }
 
 function setMode(mode) {
@@ -302,9 +304,12 @@ function applySourceAndMode(source, mode, forceRefresh = false) {
     if (activityContainer) activityContainer.classList.remove('d-none');
     loadSccActivityLogs(forceRefresh, isSystemControlTabActive);
   } else if (source === 'event-logs') {
-    if (mode === 'live') {
+    if (!getCachedChannels() || getCachedChannels().length === 0) {
+      scanChannels(false);
+    }
+    if (mode === 'live' || mode === 'errors') {
       if (tableContainer) tableContainer.classList.remove('d-none');
-      loadEvents(forceRefresh);
+      loadEvents(forceRefresh, mode);
     } else if (mode === 'audit') {
       if (auditContainer) auditContainer.classList.remove('d-none');
       loadAuditDigest(getCurrentChannel(), source, getCurrentFilePath());
@@ -318,9 +323,6 @@ function applySourceAndMode(source, mode, forceRefresh = false) {
     } else if (mode === 'timeline') {
       if (timelineContainer) timelineContainer.classList.remove('d-none');
       loadTimeline(getCurrentChannel(), getCurrentFilePath());
-    } else if (mode === 'errors') {
-      if (tableContainer) tableContainer.classList.remove('d-none');
-      loadEvents(forceRefresh);
     }
   }
 
@@ -435,7 +437,6 @@ export function initSystemControlTab() {
   const initialSource = (hashData && hashData.source) ? hashData.source : 'summary-dashboard';
   setSource(initialSource, false, hashData ? hashData.subtab : null);
 
-  scanChannels(false);
   startPolling();
 
   if (typeof window !== 'undefined' && window.AISmartTooltip && typeof window.AISmartTooltip.initAll === 'function') {

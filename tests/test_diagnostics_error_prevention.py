@@ -177,3 +177,4 @@ async def test_diagnostic_execute_powershell_endpoint() -> None:
         await handler(DiagnosticExecuteCommandRequest(command="   "))
     assert exc_info.value.status_code == 400
 
+

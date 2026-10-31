@@ -16,7 +16,7 @@
  * Package: windows/api/webgui/tab_forensics
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-16 21:20:00
+ * Updated: 2026-10-28 16:42:00
  * =============================================================================
  */
 
@@ -288,12 +288,36 @@
     if (subtabsNav) {
       subtabsNav.querySelectorAll('button[data-bs-toggle="pill"]').forEach(btn => {
         btn.addEventListener('shown.bs.tab', (e) => {
-          const target = e.target.getAttribute('data-bs-target') || '';
-          const subtab = target.includes('userassist') ? 'userassist' : 'timeline';
+          const pId = e.target.getAttribute('data-panel-id') || normalizeSubTabId(e.target.getAttribute('data-bs-target'));
+          updateUrlWithPanel(pId);
           try {
-            localStorage.setItem(SUBTAB_STORAGE_KEY, subtab);
+            localStorage.setItem(SUBTAB_STORAGE_KEY, pId);
           } catch (_) {}
         });
+        btn.addEventListener('click', () => {
+          const pId = btn.getAttribute('data-panel-id') || normalizeSubTabId(btn.getAttribute('data-bs-target'));
+          updateUrlWithPanel(pId);
+        });
+      });
+
+      window.addEventListener('hashchange', () => {
+        if (!isForensicsTabActive()) return;
+        const target = getPanelFromHash();
+        if (target) {
+          switchForensicsSubTab(target, false);
+        }
+      });
+
+      document.addEventListener('tab:activated', (e) => {
+        const tid = e.detail?.tabId;
+        if (tid === TAB_ID || tid === 'forensics') {
+          const target = getPanelFromHash();
+          if (target) {
+            switchForensicsSubTab(target, false);
+          } else {
+            updateUrlWithPanel('timeline');
+          }
+        }
       });
     }
   }
@@ -304,19 +328,29 @@
     const select = document.getElementById('diag-forensics-poll-freq');
     if (select) select.value = currentFreq;
 
-    // Восстановление активной суб-вкладки из хранилища
-    try {
-      const savedSubtab = localStorage.getItem(SUBTAB_STORAGE_KEY);
-      if (savedSubtab) {
-        switchForensicsSubTab(savedSubtab);
-      }
-    } catch (_) {}
+    // Восстановление активной суб-вкладки из URL hash или хранилища
+    const panelFromHash = getPanelFromHash();
+    if (panelFromHash) {
+      switchForensicsSubTab(panelFromHash, false);
+    } else {
+      try {
+        const savedSubtab = localStorage.getItem(SUBTAB_STORAGE_KEY);
+        if (savedSubtab) {
+          switchForensicsSubTab(savedSubtab, false);
+        } else {
+          updateUrlWithPanel('timeline');
+        }
+      } catch (_) {}
+    }
 
     applyPoller(currentFreq, true);
   }
 
   window.initForensicsTab = initForensicsTab;
   window.switchForensicsSubTab = switchForensicsSubTab;
+  window.getForensicsPanelFromHash = getPanelFromHash;
+  window.updateForensicsUrlWithPanel = updateUrlWithPanel;
+  window.normalizeForensicsSubTabId = normalizeSubTabId;
   window.activateForensicsTab = () => {
     applyPoller(getFrequency(), true);
   };

@@ -248,3 +248,4 @@ def run_investigate_command(args: argparse.Namespace) -> int:
     logger.console(f"Неизвестная подкоманда investigate: {sub}")
     logger.console("Доступные подкоманды: powershell, solve, interactive")
     return 1
+

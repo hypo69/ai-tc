@@ -157,3 +157,4 @@ class WhatsAppPlugin(BasePlugin):
         to = kwargs.get("to") or self.config.get("default_recipient", "")
         res = self.client.send_message(to=to, message=message)
         yield {"status": "complete", "result": res}
+

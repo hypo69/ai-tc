@@ -1,0 +1,14 @@
+policy_id: default-readonly-policy
+role_name: default
+host_id: "*"
+allowed_categories:
+  - connection
+  - system
+  - processes
+  - services
+  - filesystem
+  - network
+  - logs
+  - diagnostics
+max_risk_level: medium
+allow_privilege_elevation: false

@@ -25,3 +25,4 @@ from apps.windows.telemetry.catalog.event_catalog import WindowsEventCatalog
 __all__ = [
     "WindowsEventCatalog",
 ]
+

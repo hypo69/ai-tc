@@ -32,3 +32,4 @@ __all__ = [
     'SmartMultiDirStaticFiles',
     'get_common_webgui_dir',
 ]
+

@@ -220,3 +220,4 @@ class DeltaInventory:
             'VALUES (?, ?, ?, ?, ?, ?)',
             (domain, key, change_type, ts, old_json, new_json),
         )
+

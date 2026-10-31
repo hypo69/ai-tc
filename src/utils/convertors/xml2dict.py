@@ -118,3 +118,4 @@ def ET2dict(element_tree: ET.Element) -> dict:
         dict: The dictionary representation of the XML element tree.
     """
     return _make_dict(element_tree.tag, _parse_node(element_tree))
+

@@ -11,7 +11,7 @@
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 08:52:00
+# Updated: 2026-10-31 17:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -74,6 +74,33 @@ def test_save_db_configuration_php_api(client: TestClient) -> None:
     assert saved_cfg["mariadb"]["connection_type"] == "php_api"
     assert saved_cfg["mariadb"]["php_api_key"] == "test_token_123"
 
+    # Возвращаем активный движок обратно на локальный SQLite после теста
+    cfg_payload["engine"] = "sqlite"
+    client.post("/api/v1/wikillm/db/config", json=cfg_payload)
+
+
+def test_check_sqlite_db_connection_and_init(client: TestClient) -> None:
+    """Проверка локальной базы подсказок SQLite без обращения к PHP API."""
+    check_res = client.post(
+        "/api/v1/wikillm/db/check",
+        json={"engine": "sqlite", "sqlite_path": "data/windows_wikillm/knowledge.db"},
+    )
+    assert check_res.status_code == 200
+    data = check_res.json()
+    assert data.get("ok") is True
+    assert data.get("connected") is True
+    assert data.get("engine") == "sqlite"
+    assert "Ошибка сети при обращении к PHP API" not in data.get("message", "")
+
+    init_res = client.post(
+        "/api/v1/wikillm/db/init-tables",
+        json={"engine": "sqlite", "sqlite_path": "data/windows_wikillm/knowledge.db"},
+    )
+    assert init_res.status_code == 200
+    init_data = init_res.json()
+    assert init_data.get("ok") is True
+    assert init_data.get("engine") == "sqlite"
+
 
 def test_check_db_connection_flow(client: TestClient) -> None:
     """Проверка подключения к MariaDB и аудита таблиц."""
@@ -100,3 +127,4 @@ def test_init_tables_and_import(client: TestClient) -> None:
     import_data = import_res.json()
     assert import_data.get("ok") is True
     assert "imported_knowledge" in import_data
+

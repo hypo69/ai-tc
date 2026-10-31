@@ -118,3 +118,4 @@ class SessionsSubsystem:
         """140. Завершает сеанс пользователя и все его процессы (logoff)."""
         ret, _, _ = self.bridge.run_command(["logoff", str(session_id)])
         return ret == 0
+

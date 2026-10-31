@@ -17,7 +17,7 @@
  * Package: windows/api/webgui/admin/modules
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-10-31 19:16:00
  * =============================================================================
  */
 
@@ -68,6 +68,13 @@ function setupModalHandlers() {
       showChatLogicModal();
     });
   }
+
+  // Предотвращение блокировки aria-hidden в браузере при закрытии любых модалей
+  document.addEventListener('hide.bs.modal', (e) => {
+    if (document.activeElement && e.target && e.target.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
+  });
 }
 
 export function showHelpModal(key) {

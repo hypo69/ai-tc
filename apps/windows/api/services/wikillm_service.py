@@ -165,3 +165,4 @@ class WikiLLMService:
 
         self._enrichment_cache[key] = generated_desc
         return generated_desc
+

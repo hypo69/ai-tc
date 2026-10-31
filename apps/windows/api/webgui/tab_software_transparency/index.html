@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_software_transparency
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 15:46:00
+Updated: 2026-10-28 15:30:00
 =============================================================================
 -->
 <!-- AI Software Transparency Scanner Tab UI -->
@@ -122,10 +122,15 @@ Updated: 2026-10-20 15:46:00
         </div>
         <div class="modal-body">
           <div class="alert alert-warning py-2 small mb-3">
-            <i class="bi bi-shield-lock-fill me-1"></i> Конфиденциальные токены, пароли и ключи безопасности автоматически маскированы (<code>[REDACTED_SECRET]</code>).
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> Файл открыт в исходном виде (секреты не маскируются). Будьте осторожны при редактировании.
           </div>
           <div class="small text-muted mb-2" id="st-config-modal-path"></div>
-          <pre class="p-3 bg-black rounded border border-secondary text-success small font-monospace overflow-auto" id="st-config-modal-content" style="max-height: 400px;"></pre>
+          <textarea class="form-control bg-black text-success border-secondary small font-monospace" id="st-config-modal-content" rows="20" spellcheck="false"></textarea>
+          <div class="small mt-2" id="st-config-modal-status"></div>
+        </div>
+        <div class="modal-footer border-secondary">
+          <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal" type="button">Закрыть</button>
+          <button class="btn btn-primary btn-sm" id="st-config-modal-save" type="button"><i class="bi bi-save me-1"></i> Сохранить</button>
         </div>
       </div>
     </div>

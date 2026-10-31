@@ -255,3 +255,4 @@ class TelegramMessageCollector:
         except Exception as exc:
             logger.error(f"Failed to parse Telegram JSON export: {exc}")
             return []
+

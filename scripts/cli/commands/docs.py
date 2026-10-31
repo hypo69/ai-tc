@@ -55,3 +55,4 @@ def run_docs_command(args: argparse.Namespace) -> int:
         return run_script('scripts/dev/export_pdf.py', extra)
     logger.console(f'Unknown docs subcommand: {sub}')
     return 1
+

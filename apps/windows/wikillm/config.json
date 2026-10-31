@@ -1,5 +1,5 @@
 {
-  "database_path": "data/windows_wikillm/knowledge.db",
+  "database_path": "%ProgramData%/{app_name}/windows/knowledge.db",
   "min_confidence_threshold": 0.70,
   "max_queue_size": 1000,
   "async_workers": 2,

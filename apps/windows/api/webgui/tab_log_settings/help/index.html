@@ -1,0 +1,76 @@
+<!--
+=============================================================================
+Process Name: Windows Log Settings - Composite Help View
+=============================================================================
+Description:
+  Сводная иерархическая страница интерактивной справки для подраздела
+  «Параметры и ротация журналов» (#tab-app-internals#settings).
+  Объединяет атомарные блоки справки через директиву data-help-include.
+  Полностью соблюдает стандарты темы (CSS-переменные) и мультиязычности (data-i18n).
+
+File: index.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_log_settings/help
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 17:45:30
+=============================================================================
+-->
+<div class="help-composite-container p-1">
+  <!-- Вводный баннер и навигация по блокам -->
+  <div class="p-3 mb-3 rounded border border-subtle bg-body-tertiary">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-journal-check text-primary fs-4"></i>
+        <h5 class="mb-0 fw-bold text-body" data-i18n="logSettingsHelp.composite.title">
+          Справка: Параметры и ротация журналов Windows Event Log
+        </h5>
+      </div>
+      <span class="ui-badge ui-badge-info" data-i18n="logSettingsHelp.composite.badge">
+        Модуль #tab-app-internals#settings
+      </span>
+    </div>
+    <p class="small text-muted mb-3" data-i18n="logSettingsHelp.composite.desc">
+      Интерактивный центр управления журналами событий Windows (Security, System, Sysmon и др.), политиками аудита командной строки, пресетами ротации, инкрементальным сборщиком в SQLite и инспектором событий. Ниже представлены разделы справки по всем атомарным блокам вкладки.
+    </p>
+
+    <!-- Быстрая навигация по блокам -->
+    <div class="d-flex flex-wrap gap-1.5 align-items-center">
+      <span class="small text-body fw-bold me-1" data-i18n="logSettingsHelp.composite.quickNav">Разделы:</span>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_kpi_cards">
+        <i class="bi bi-speedometer2"></i>
+        <span data-i18n="logSettingsHelp.nav.kpi">KPI карточки</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_domains_catalog">
+        <i class="bi bi-diagram-3"></i>
+        <span data-i18n="logSettingsHelp.nav.domains">7 Доменов</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_channels_config">
+        <i class="bi bi-sliders"></i>
+        <span data-i18n="logSettingsHelp.nav.channels">Каналы и квоты</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_security_telemetry">
+        <i class="bi bi-shield-check"></i>
+        <span data-i18n="logSettingsHelp.nav.security">Аудит и закладка</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_provenance_lifecycle">
+        <i class="bi bi-bezier2"></i>
+        <span data-i18n="logSettingsHelp.nav.provenance">Граф и жизненный цикл</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_event_inspector">
+        <i class="bi bi-journal-text"></i>
+        <span data-i18n="logSettingsHelp.nav.inspector">Инспектор событий</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Список атомарных блоков (включаются динамически через HelpModal) -->
+  <div class="help-blocks-wrapper d-flex flex-column gap-2">
+    <div data-help-include="/html/tab_log_settings/help/blocks/block_kpi_cards.html"></div>
+    <div data-help-include="/html/tab_log_settings/help/blocks/block_domains_catalog.html"></div>
+    <div data-help-include="/html/tab_log_settings/help/blocks/block_channels_config.html"></div>
+    <div data-help-include="/html/tab_log_settings/help/blocks/block_security_telemetry.html"></div>
+    <div data-help-include="/html/tab_log_settings/help/blocks/block_provenance_lifecycle.html"></div>
+    <div data-help-include="/html/tab_log_settings/help/blocks/block_event_inspector.html"></div>
+  </div>
+</div>

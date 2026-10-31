@@ -238,3 +238,4 @@ class SoftwareInfoCollector:
             logger.debug(f'Ошибка проверки диска OneDrive: {ex}')
             fallback_status = f'Локальный диск ({target_path}, не синхронизирован)' if not is_running else f'Активен ({target_path})'
             return CloudStorageInfo(installed=True, name='OneDrive', path=target_path, status=fallback_status)
+

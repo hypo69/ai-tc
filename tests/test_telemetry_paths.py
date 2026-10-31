@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-TC Tests - Telemetry Paths Verification
+# Process Name: ai-tc Tests - Telemetry Paths Verification
 # =============================================================================
 # Description:
 #   Тестирование строгого соответствия путей подсистемы телеметрии:
@@ -87,3 +87,4 @@ def test_sdk_history_managers_telemetry_db_path() -> None:
 
     assert Path(taskbar_db) == expected_db_path
     assert Path(wcp_db) == expected_db_path
+

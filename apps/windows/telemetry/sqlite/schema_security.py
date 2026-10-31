@@ -71,3 +71,4 @@ SECURITY_INDEX_DDL: Tuple[str, ...] = (
     'CREATE INDEX IF NOT EXISTS idx_psess_type ON power_sessions(record_type, created_at DESC);',
     'CREATE INDEX IF NOT EXISTS idx_psess_shutdown_type ON power_sessions(shutdown_type);',
 )
+

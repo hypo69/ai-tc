@@ -228,3 +228,4 @@ __all__ = [
     'set_explorer_setting',
     'EXPLORER_SETTINGS_CATALOG',
 ]
+

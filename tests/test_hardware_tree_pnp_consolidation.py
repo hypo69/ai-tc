@@ -80,3 +80,4 @@ def test_query_hardware_tree_consolidates_pnp_devices() -> None:
     assert len(pnp_node["devices"]) == 3
     assert pnp_node["properties"]["Всего PnP-устройств"] == "3 шт."
     assert "1 с предупреждениями" in pnp_node["properties"]["Состояние"]
+

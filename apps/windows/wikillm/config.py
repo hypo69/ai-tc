@@ -16,7 +16,7 @@
 # Package: apps.windows.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-10-31 17:15:00
 # =============================================================================
 
 from __future__ import annotations
@@ -33,9 +33,14 @@ class WikiLLMConfig(BaseModel):
     """Модель конфигурации WikiLLM."""
 
     database_path: str = Field(
-        default="data/windows_wikillm/knowledge.db",
+        default="%ProgramData%/{app_name}/windows/knowledge.db",
         description="Путь к SQLite базе знаний WikiLLM",
     )
+
+    def get_resolved_database_path(self) -> Path:
+        """Возвращает разрешенный абсолютный путь к файлу SQLite базы знаний."""
+        from apps.windows.db.paths import resolve_system_knowledge_db_path
+        return resolve_system_knowledge_db_path(self.database_path)
     min_confidence_threshold: float = Field(
         default=0.70,
         description="Минимальный порог уверенности для фиксации фактов",
@@ -87,3 +92,4 @@ def load_config(config_path: Path | str | None = None) -> WikiLLMConfig:
             pass
 
     return WikiLLMConfig()
+

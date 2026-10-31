@@ -37,3 +37,4 @@ class WikiLLMSettingsService:
             "max_context_tokens": 4096,
             "auto_indexing": True,
         }
+

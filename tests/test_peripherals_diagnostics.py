@@ -88,3 +88,4 @@ async def test_query_peripherals_diagnostics_function() -> None:
     assert "audio_endpoints" in res
     assert "bluetooth_devices" in res
     assert "printers" in res
+

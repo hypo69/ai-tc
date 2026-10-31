@@ -238,3 +238,4 @@ def test_default_journal_db_path():
     assert "logs" in str(path)
     assert path.name == "state_journal.sqlite"
 
+

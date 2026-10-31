@@ -25,3 +25,4 @@ from apps.windows.sdk.core.safe_executor import SafeExecutor
 __all__ = [
     "SafeExecutor",
 ]
+

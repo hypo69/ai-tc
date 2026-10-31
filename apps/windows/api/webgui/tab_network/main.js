@@ -5,11 +5,12 @@
  * Description:
  *   Клиентский скрипт-оркестратор вкладки Windows Network Terminal.
  *   Координирует тестирование скорости (Speedtest), опрос адаптеров,
- *   активных сокетов/портов, перехват трафика DPI (TShark) и анализ PCAP.
+ *   активных сокетов/портов, перехват трафика DPI (TShark) и анализ PCAP
+ *   с поддержкой URL-маршрутизации панелей (#tab-network#<panel_id>).
  *
  * File: main.js
  * Package: apps/windows/api/webgui/tab_network
- * Updated: 2026-10-20 18:35:00
+ * Updated: 2026-10-28 19:04:00
  * =============================================================================
  */
 
@@ -23,6 +24,7 @@ import {
   startDiscoveryAutoRefresh,
   stopDiscoveryAutoRefresh
 } from './panel_discovery/panel.js';
+import { loadInfraPanel, initInfraPanels } from './panel_infra/panel.js';
 import {
   startLiveCapture,
   stopLiveCapture,
@@ -32,17 +34,197 @@ import {
   getCapturedPacketsCount
 } from './panel_capture_pcap/panel.js';
 
+export const TAB_ID = 'tab-network';
 let isNetInitialized = false;
+
+/**
+ * Проверяет, активна ли вкладка Network Terminal.
+ * @returns {boolean}
+ */
+export function isNetworkTabActive() {
+  if (typeof document !== 'undefined' && document.hidden) return false;
+  if (typeof window.isTabActive === 'function') {
+    return Boolean(window.isTabActive(TAB_ID) || window.isTabActive('network'));
+  }
+  const pane = document.getElementById(TAB_ID) || document.getElementById('network');
+  return pane ? pane.classList.contains('active') : false;
+}
+
+/**
+ * Нормализует строковый идентификатор суб-вкладки.
+ * @param {string} rawId - Сырой идентификатор вкладки.
+ * @returns {string} Канонический идентификатор панели.
+ */
+export function normalizeSubTabId(rawId) {
+  if (!rawId) return 'speedtest';
+  const s = String(rawId).toLowerCase().trim().replace(/^#/, '').replace(/^tab-net-/, '').replace(/^panel-network-/, '').replace(/-btn$/, '');
+  if (s.includes('speed')) return 'speedtest';
+  if (s.includes('discovery') || s.includes('lan') || s.includes('device') || s.includes('computer')) return 'discovery';
+  if (s.includes('adapter') || s.includes('interface')) return 'adapters';
+  if (s.includes('conn') || s.includes('socket') || s.includes('port')) return 'connections';
+  if (s.includes('capture') || s.includes('sniffer') || s.includes('dpi')) return 'capture';
+  if (s.includes('pcap')) return 'pcap';
+  if (s.includes('overview')) return 'overview';
+  if (s.includes('switch')) return 'switches';
+  if (s.includes('ip') || s.includes('route')) return 'ip-config';
+  if (s.includes('nat')) return 'nat';
+  if (s.includes('wsl')) return 'wsl';
+  if (s.includes('diag')) return 'diagnostics';
+  if (s.includes('hist')) return 'history';
+  return s || 'speedtest';
+}
+
+/**
+ * Извлекает субпанель из URL hash.
+ * @returns {string|null} Идентификатор субвкладки или null.
+ */
+export function getPanelFromHash() {
+  const hash = (typeof location !== 'undefined' ? location.hash : '') || '';
+  if (!hash) return null;
+  const cleanHash = hash.replace(/^#/, '');
+  const parts = cleanHash.split('#');
+  if (parts.length >= 2) {
+    const mainPart = parts[0];
+    if (mainPart === TAB_ID || mainPart === 'network') {
+      return normalizeSubTabId(parts[1]);
+    }
+  }
+  return null;
+}
+
+/**
+ * Обновляет адресную строку браузера активной суб-панелью (#tab-network#<panel_id>).
+ * @param {string} panelId - Идентификатор субвкладки.
+ */
+export function updateUrlWithPanel(panelId) {
+  if (typeof history === 'undefined' || typeof location === 'undefined') return;
+  const canonical = normalizeSubTabId(panelId);
+  const search = location.search || '';
+  const newHash = `#${TAB_ID}#${canonical}`;
+  if (location.hash !== newHash) {
+    try {
+      history.replaceState(null, null, `${location.pathname}${search}${newHash}`);
+    } catch (_) {}
+  }
+}
+
+/**
+ * Возвращает канонический идентификатор текущей активной субпанели.
+ * @returns {string}
+ */
+export function getActiveSubTabId() {
+  const activeBtn = document.querySelector('#network-subtabs-nav button.active');
+  if (activeBtn) {
+    const pId = activeBtn.getAttribute('data-panel-id');
+    const target = activeBtn.getAttribute('data-bs-target') || '';
+    return normalizeSubTabId(pId || target);
+  }
+  return getPanelFromHash() || 'speedtest';
+}
+
+/**
+ * Запрашивает API строго и исключительно для активной субпанели.
+ * Неактивные панели не запрашивают API, а их фоновые поллеры останавливаются.
+ * @param {string} [subtabId] - Идентификатор целевой панели.
+ */
+export function fetchActiveSubTabOnly(subtabId) {
+  if (!isNetworkTabActive()) return;
+  const canonical = normalizeSubTabId(subtabId || getActiveSubTabId());
+
+  // Останавливаем поллеры других панелей
+  if (canonical !== 'discovery') {
+    stopDiscoveryAutoRefresh();
+  }
+
+  switch (canonical) {
+    case 'speedtest':
+      fetchLatestSpeedtest();
+      break;
+    case 'discovery':
+      loadDiscoveryData(false);
+      break;
+    case 'adapters':
+      fetchAdapters();
+      loadInfraPanel('adapters');
+      break;
+    case 'connections':
+      fetchConnections();
+      break;
+    case 'capture':
+      const adapters = getAllAdapters();
+      if (!adapters || adapters.length === 0) fetchAdapters();
+      break;
+    case 'pcap':
+      break;
+    case 'overview':
+    case 'switches':
+    case 'ip-config':
+    case 'nat':
+    case 'wsl':
+    case 'diagnostics':
+    case 'history':
+      loadInfraPanel(canonical);
+      break;
+  }
+}
+
+/**
+ * Программное переключение между суб-вкладками сетевого терминала.
+ * @param {string} subtabId - Идентификатор подвкладки.
+ * @param {boolean} [updateUrl=true] - Обновлять ли URL hash.
+ */
+export function switchNetworkSubTab(subtabId, updateUrl = true) {
+  const canonical = normalizeSubTabId(subtabId);
+  let btnId = 'subtab-net-speedtest-btn';
+  switch (canonical) {
+    case 'speedtest':
+      btnId = 'subtab-net-speedtest-btn';
+      break;
+    case 'discovery':
+      btnId = 'subtab-net-discovery-btn';
+      break;
+    case 'adapters':
+      btnId = 'subtab-net-adapters-btn';
+      break;
+    case 'connections':
+      btnId = 'subtab-net-connections-btn';
+      break;
+    case 'capture':
+      btnId = 'subtab-net-capture-btn';
+      break;
+    case 'pcap':
+      btnId = 'subtab-net-pcap-btn';
+      break;
+    case 'overview':
+    case 'switches':
+    case 'ip-config':
+    case 'nat':
+    case 'wsl':
+    case 'diagnostics':
+    case 'history':
+      btnId = `subtab-net-${canonical}-btn`;
+      break;
+  }
+  const btn = document.getElementById(btnId);
+  if (btn) {
+    if (window.bootstrap && window.bootstrap.Tab) {
+      const tabInst = window.bootstrap.Tab.getInstance(btn) || new window.bootstrap.Tab(btn);
+      tabInst.show();
+    } else {
+      btn.click();
+    }
+  }
+  if (updateUrl) {
+    updateUrlWithPanel(canonical);
+  }
+  fetchActiveSubTabOnly(canonical);
+}
 
 /**
  * Инициализирует вкладку Network Terminal.
  */
 export function initNetworkTab() {
   console.log('[NetworkTab] Initializing Windows Network Terminal tab (/apps/windows/network)...');
-  fetchNetworkStatus(getCapturedPacketsCount());
-  fetchLatestSpeedtest();
-  fetchAdapters();
-  fetchConnections();
   initDiscoveryPanel();
 
   if (!isNetInitialized) {
@@ -87,78 +269,52 @@ export function initNetworkTab() {
       };
     });
 
+    initInfraPanels();
+
     // Навигация по суб-вкладкам
     const subtabsNav = document.getElementById('network-subtabs-nav');
     if (subtabsNav) {
       subtabsNav.querySelectorAll('button[data-bs-toggle="pill"]').forEach((btn) => {
         btn.addEventListener('shown.bs.tab', (e) => {
           const targetId = e.target.getAttribute('data-bs-target') || '';
-          if (targetId === '#tab-net-speedtest') {
-            fetchLatestSpeedtest();
-          } else if (targetId === '#tab-net-discovery') {
-            fetchDiscoveredDevices(false);
-            startDiscoveryAutoRefresh();
-          } else if (targetId === '#tab-net-adapters') {
-            fetchAdapters();
-          } else if (targetId === '#tab-net-connections') {
-            fetchConnections();
-          } else if (targetId === '#tab-net-capture') {
-            const adapters = getAllAdapters();
-            if (!adapters || adapters.length === 0) fetchAdapters();
-          }
+          const pId = e.target.getAttribute('data-panel-id') || normalizeSubTabId(targetId);
+          updateUrlWithPanel(pId);
+          fetchActiveSubTabOnly(pId);
         });
       });
     }
 
+    // Слушатель изменения hash в URL при активной вкладке
+    window.addEventListener('hashchange', () => {
+      if (!isNetworkTabActive()) return;
+      const target = getPanelFromHash();
+      if (target) {
+        switchNetworkSubTab(target, false);
+      }
+    });
+
+    // Активация вкладки в общем интерфейсе
+    document.addEventListener('tab:activated', (e) => {
+      if (e.detail?.tabId === TAB_ID || e.detail?.tabId === 'network') {
+        const target = getPanelFromHash();
+        if (target) {
+          switchNetworkSubTab(target, false);
+        } else {
+          updateUrlWithPanel('speedtest');
+        }
+      }
+    });
+
     isNetInitialized = true;
   }
-}
 
-/**
- * Программное переключение между суб-вкладками сетевого терминала.
- * @param {string} subtabId - Идентификатор подвкладки.
- */
-export function switchNetworkSubTab(subtabId) {
-  let btnId = 'subtab-net-speedtest-btn';
-  switch (subtabId) {
-    case 'speedtest':
-    case 'speed':
-      btnId = 'subtab-net-speedtest-btn';
-      break;
-    case 'discovery':
-    case 'devices':
-    case 'lan':
-    case 'computers':
-      btnId = 'subtab-net-discovery-btn';
-      break;
-    case 'adapters':
-    case 'interfaces':
-      btnId = 'subtab-net-adapters-btn';
-      break;
-    case 'connections':
-    case 'conns':
-    case 'ports':
-      btnId = 'subtab-net-connections-btn';
-      break;
-    case 'capture':
-    case 'dpi':
-    case 'live':
-      btnId = 'subtab-net-capture-btn';
-      break;
-    case 'pcap':
-    case 'ai':
-    case 'diagnostics':
-      btnId = 'subtab-net-pcap-btn';
-      break;
-  }
-  const btn = document.getElementById(btnId);
-  if (btn) {
-    if (window.bootstrap && window.bootstrap.Tab) {
-      const tabInst = window.bootstrap.Tab.getInstance(btn) || new window.bootstrap.Tab(btn);
-      tabInst.show();
-    } else {
-      btn.click();
-    }
+  // Опрашиваем API ТОЛЬКО для активной панели
+  const activePanel = getPanelFromHash() || getActiveSubTabId() || 'speedtest';
+  fetchNetworkStatus(getCapturedPacketsCount());
+  if (getPanelFromHash()) {
+    switchNetworkSubTab(activePanel, false);
+  } else {
+    fetchActiveSubTabOnly(activePanel);
   }
 }
 
@@ -174,6 +330,8 @@ window.initNetworkTab = initNetworkTab;
 window.activateNetworkTab = initNetworkTab;
 window.deactivateNetworkTab = deactivateNetworkTab;
 window.switchNetworkSubTab = switchNetworkSubTab;
+window.getNetworkPanelFromHash = getPanelFromHash;
+window.updateNetworkUrlWithPanel = updateUrlWithPanel;
 
 // Автозапуск при обнаружении контейнера в DOM
 if (document.getElementById('tab-network') || document.getElementById('net-conns-tbody')) {

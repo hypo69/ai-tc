@@ -85,3 +85,4 @@ WINDOWS_TOOL_SELECTION_GUIDELINES = """Руководство по выбору 
 - Управление окнами и Snap Layouts -> `windows_control_plane_action` / `windows_taskbar_action`.
 """
 
+

@@ -52,14 +52,13 @@
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 01:17:00
+# Updated: 2026-10-30 11:50:00
 # =============================================================================
 
 from __future__ import annotations
 
 import json
 import os
-import sys
 import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -159,11 +158,23 @@ class TelemetryBuffer:
         return self._buffer_file_path
 
     def _estimate_size(self, record: Dict[str, Any]) -> int:
-        """Оценивает объем памяти записи в байтах."""
-        try:
-            return len(json.dumps(record, ensure_ascii=False, default=str).encode('utf-8')) + 128
-        except Exception:
-            return sys.getsizeof(record) + 256
+        """Быстро оценивает объем памяти записи в байтах обходом структуры без сериализации."""
+        stack: List[Any] = [record]
+        total = 128
+        while stack:
+            item = stack.pop()
+            if isinstance(item, dict):
+                total += 64 + 16 * len(item)
+                stack.extend(item.keys())
+                stack.extend(item.values())
+            elif isinstance(item, (list, tuple, set)):
+                total += 56 + 8 * len(item)
+                stack.extend(item)
+            elif isinstance(item, (str, bytes)):
+                total += 49 + len(item)
+            else:
+                total += 32
+        return total
 
     def set_flush_interval_seconds(self, interval: float) -> None:
         """Динамически изменяет интервал периодического сброса буфера в SQLite."""
@@ -272,7 +283,7 @@ class TelemetryBuffer:
         with self._cm.lock:
             records_to_save: List[Dict[str, Any]] = []
 
-            if self._buffer_file_path.exists() and self._buffer_file_path.stat().st_size > 0:
+            if self._file_buffer_count > 0 and self._buffer_file_path.exists():
                 try:
                     with open(self._buffer_file_path, 'r', encoding='utf-8') as f:
                         for line in f:
@@ -295,7 +306,7 @@ class TelemetryBuffer:
 
             inserted_count = self._writer.batch_insert_records(records_to_save)
 
-            if self._buffer_file_path.exists():
+            if self._file_buffer_count > 0 and self._buffer_file_path.exists():
                 try:
                     with open(self._buffer_file_path, 'w', encoding='utf-8') as f:
                         f.truncate(0)
@@ -341,3 +352,4 @@ class TelemetryBuffer:
                 self.flush()
             except Exception:
                 pass
+

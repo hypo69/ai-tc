@@ -175,3 +175,4 @@ def test_history_mixin_methods_present_and_read_only_calls_work(collector: Syste
     assert isinstance(collector.get_hardware_history(limit=3), list)
     assert isinstance(collector.get_startup_history(limit=3), list)
     assert isinstance(collector.get_hardware_changes(limit=3), list)
+

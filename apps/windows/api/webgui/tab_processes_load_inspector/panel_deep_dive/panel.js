@@ -2,7 +2,7 @@
  * Модуль модального окна Process Intelligence Deep Dive (7 виджетов).
  * Включает паспорт инстанса, SafeOps действия, телеметрию сенсоров и сэмплы.
  * Файл: apps/windows/api/webgui/tab_processes_load_inspector/panel_deep_dive/panel.js
- * Updated: 2026-10-20 11:10:00
+ * Updated: 2026-10-31 19:16:00
  */
 
 import {
@@ -10,7 +10,7 @@ import {
   showToast,
   openGenericModal,
   isProcessesTabActive
-} from '../common/ui_utils.js';
+} from '../common/ui_utils.js?v=20261031_v2';
 import {
   initCharts,
   resizeCharts,
@@ -24,7 +24,7 @@ import {
   loadInstanceFileActivity,
   initTableResizers
 } from './widgets.js?v=20261017_v2';
-import { openProcessAiModal } from '../panel_ai_audit/panel.js?v=20261020_v2';
+import { openProcessAiModal } from '../panel_ai_audit/panel.js?v=20261031_v2';
 import { killProcess } from '../panel_process_manager/panel.js';
 
 let selectedInstanceId = null;
@@ -86,9 +86,28 @@ function setupDeepDiveControls() {
     });
   });
 
+  const modalDeepDive = document.getElementById('modal-process-deep-dive');
+  if (modalDeepDive) {
+    modalDeepDive.addEventListener('hide.bs.modal', () => {
+      if (document.activeElement && modalDeepDive.contains(document.activeElement)) {
+        document.activeElement.blur();
+      }
+      isDeepDiveModalOpen = false;
+      stopDeepDiveSamplePolling();
+    });
+  }
+
   const btnCloseModal = document.querySelector('#modal-process-deep-dive .btn-close');
   if (btnCloseModal) {
     btnCloseModal.addEventListener('click', () => {
+      isDeepDiveModalOpen = false;
+      stopDeepDiveSamplePolling();
+    });
+  }
+
+  const btnCloseModalFooter = document.getElementById('modal-deep-dive-close-btn');
+  if (btnCloseModalFooter) {
+    btnCloseModalFooter.addEventListener('click', () => {
       isDeepDiveModalOpen = false;
       stopDeepDiveSamplePolling();
     });

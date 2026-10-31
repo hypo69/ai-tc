@@ -11,7 +11,7 @@
 # Package: apps.windows.api.routers.tc
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-22 13:30:00
+# Updated: 2026-10-30 13:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -71,20 +71,7 @@ def register_ai_endpoints(router: APIRouter) -> None:
 
             user_identifier, _, selected_model, _ = await _extract_tc_user_auth(fastapi_req)
 
-            # 1. Обновляем настройки пользователя в БД
-            try:
-                from src.user_manager import user_manager
-                user_id_int = int(user_identifier) if str(user_identifier).isdigit() else 1
-                await asyncio.to_thread(
-                    user_manager.update_user_settings,
-                    user_id_int,
-                    tc_system_instruction=raw_instruction,
-                    system_instruction=raw_instruction,
-                )
-            except Exception as e:
-                logger.debug(f"[router_tc] Не удалось обновить user_settings: {e}")
-
-            # 2. Сохранение на диск по требованию (apps/windows/prompts/tc/system_instruction.md)
+            # 1. Сохранение на диск по требованию (apps/windows/prompts/tc/system_instruction.md)
             if req.save_to_disk:
                 tc_prompt_file = __root__ / "apps" / "windows" / "prompts" / "tc" / "system_instruction.md"
                 tc_prompt_file.parent.mkdir(parents=True, exist_ok=True)
@@ -138,20 +125,7 @@ def register_ai_endpoints(router: APIRouter) -> None:
             normalized_model, provider = _normalize_tc_model_and_provider(target_model, req.provider)
             user_identifier, _, _, _ = await _extract_tc_user_auth(fastapi_req)
 
-            # 1. Обновляем user_settings в БД
-            try:
-                from src.user_manager import user_manager
-                user_id_int = int(user_identifier) if str(user_identifier).isdigit() else 1
-                await asyncio.to_thread(
-                    user_manager.update_user_settings,
-                    user_id_int,
-                    tc_model=normalized_model,
-                    model=normalized_model,
-                )
-            except Exception as e:
-                logger.debug(f"[router_tc] Не удалось обновить model в user_settings: {e}")
-
-            # 2. Обновляем конфигурационный файл tc.json
+            # 1. Обновляем конфигурационный файл tc.json
             if req.save_to_config:
                 _save_tc_config_ai(provider, normalized_model)
 
@@ -202,20 +176,7 @@ def register_ai_endpoints(router: APIRouter) -> None:
             normalized_model, provider = _normalize_tc_model_and_provider(req.model, target_provider)
             user_identifier, _, _, _ = await _extract_tc_user_auth(fastapi_req)
 
-            # 1. Обновляем user_settings в БД
-            try:
-                from src.user_manager import user_manager
-                user_id_int = int(user_identifier) if str(user_identifier).isdigit() else 1
-                await asyncio.to_thread(
-                    user_manager.update_user_settings,
-                    user_id_int,
-                    tc_model=normalized_model,
-                    model=normalized_model,
-                )
-            except Exception as e:
-                logger.debug(f"[router_tc] Не удалось обновить provider/model в user_settings: {e}")
-
-            # 2. Обновляем конфигурационный файл tc.json
+            # 1. Обновляем конфигурационный файл tc.json
             if req.save_to_config:
                 _save_tc_config_ai(provider, normalized_model)
 
@@ -230,3 +191,4 @@ def register_ai_endpoints(router: APIRouter) -> None:
         except Exception as exc:
             logger.error(f"[router_tc] Ошибка при установке провайдера TC: {exc}", exc_info=True)
             raise HTTPException(status_code=500, detail=str(exc))
+

@@ -158,3 +158,4 @@ def test_tables_ltr_and_rtl_alignment() -> None:
     assert '<th style="width: 130px; text-align: right;">' not in html_content
     assert '<th style="width: 140px; text-align: right;">' not in html_content
     assert '<th style="width: 180px; text-align: right;">' not in html_content
+

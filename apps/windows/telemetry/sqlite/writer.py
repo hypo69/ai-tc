@@ -485,3 +485,4 @@ class TelemetryWriter(TelemetrySnapshotWriterMixin, TelemetryInventoryWriterMixi
             integrity, elevation, parent_name, parent_cmdline,
             ancestor_chain, launch_reason, source, details_json, None,
         )
+

@@ -175,3 +175,4 @@ async def read_google_sheet(url_or_id: str) -> str:
         f"*(Не удалось прочитать таблицу. Проверьте права доступа (доступ по ссылке) "
         f"или настройте авторизацию Google в src/secrets/google_accounts.json)*"
     )
+

@@ -21,7 +21,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_windows_admin
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 19:00:00
+Updated: 2026-10-28 16:35:00
 =============================================================================
 -->
 <style>
@@ -164,34 +164,34 @@ Updated: 2026-10-20 19:00:00
     </div>
   </div>
 
-  <!-- Отдельный блок меню суб-вкладок ПОД названием вкладки, расположен слева -->
+  <!-- Блок меню переключения панелей на вкладке. Выбранная панель добавляется в url -->
   <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
     <div class="d-flex align-items-center gap-1 flex-wrap" id="winadmin-subtabs" role="tablist">
-      <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-users-btn" data-term="winadmin-users" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-users" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-users-btn" data-panel-id="users" data-term="winadmin-users" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-users" type="button" role="tab">
         <i class="bi bi-people-fill text-primary"></i>
         <span>Учетные записи и сессии</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-groups-btn" data-term="winadmin-groups" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-groups" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-groups-btn" data-panel-id="groups" data-term="winadmin-groups" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-groups" type="button" role="tab">
         <i class="bi bi-diagram-3 text-info"></i>
         <span>Группы безопасности</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-events-btn" data-term="winadmin-events" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-events" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-events-btn" data-panel-id="events" data-term="winadmin-events" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-events" type="button" role="tab">
         <i class="bi bi-shield-shaded text-warning"></i>
         <span>Журнал безопасности</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-security-btn" data-term="winadmin-security" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-security" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-security-btn" data-panel-id="security" data-term="winadmin-security" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-security" type="button" role="tab">
         <i class="bi bi-shield-check text-success"></i>
         <span>Аудит доступа и SAM</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-pid-btn" data-term="winadmin-pid" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-pid" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-pid-btn" data-panel-id="pid" data-term="winadmin-pid" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-pid" type="button" role="tab">
         <i class="bi bi-cpu text-primary"></i>
         <span>Инспектор процесса (PID)</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-catalog-btn" data-term="winadmin-catalog" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-catalog" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-catalog-btn" data-panel-id="catalog" data-term="winadmin-catalog" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-catalog" type="button" role="tab">
         <i class="bi bi-journal-code text-info"></i>
         <span>Каталог операций (~180)</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-acl-btn" data-term="winadmin-acl" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-acl" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-acl-btn" data-panel-id="acl" data-term="winadmin-acl" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-acl" type="button" role="tab">
         <i class="bi bi-shield-lock text-warning"></i>
         <span>Управление ACL и правами доступа</span>
       </button>

@@ -138,3 +138,4 @@ def test_regional_manager_change_workgroup_validation():
     res = rm.change_workgroup("VERY_LONG_INVALID_WORKGROUP_NAME_THAT_EXCEEDS_15_CHARS")
     assert res["status"] == "error"
     assert "должно содержать от 1 до 15 символов" in res["message"]
+

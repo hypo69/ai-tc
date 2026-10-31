@@ -177,3 +177,4 @@ class LsaRightsSubsystem:
             "has_remote_logon": "SeRemoteInteractiveLogonRight" in direct_rights,
             "has_impersonate": "SeImpersonatePrivilege" in direct_rights,
         }
+

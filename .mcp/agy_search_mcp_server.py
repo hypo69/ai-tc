@@ -1,29 +1,166 @@
+# -*- coding: utf-8 -*-
+# =============================================================================
+# Process Name: MCP-сервер агентного поиска Google Antigravity (agy_search_mcp_server.py)
+# =============================================================================
+# Description:
+#   Локальный MCP-сервер (STDIO) на базе MCP Python SDK v2 (`MCPServer`),
+#   предоставляющий внешним ИИ-ассистентам инструмент веб-поиска и анализа
+#   через провайдер Google Antigravity (`UnifiedChatModel`).
+#
+#   Зачем нужен этот модуль:
+#     1. Обеспечение внешних MCP-клиентов (Claude Desktop, Cursor, VS Code)
+#        доступом к агентному поиску и рассуждениям моделей Antigravity (`agy`).
+#     2. Строгое соблюдение архитектурного стандарта: маршрутизация через
+#        единую фасадную модель `UnifiedChatModel` и динамическое чтение
+#        модели по умолчанию из `config.json`.
+#
+# Usage Examples:
+#   Python API:
+#     from .agy_search_mcp_server import agy_web_search
+#     res = await agy_web_search(query="Windows 11 24H2 SMB signing changes")
+#
+# File: agy_search_mcp_server.py
+# Project: AI Windows Admin (ai-tc)
+# Package: .mcp
+# Author: hypo69
+# Copyright: © 2026 hypo69
+# Updated: 2026-10-31 17:06:00
+# =============================================================================
+
 from __future__ import annotations
+
 import json
-import asyncio
-from logger.logger import logger
-from plugins.web_search.agy_searcher import AgyWebSearcher
+import sys
+from pathlib import Path
+from typing import Optional
+
+_CURRENT_DIR = Path(__file__).resolve().parent
+_PROJECT_ROOT = _CURRENT_DIR.parent
+for _p in (str(_CURRENT_DIR), str(_PROJECT_ROOT)):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
+from mcp.server import MCPServer
+
+from header import __root__
+from logger import logger
+from src.ai.orchestration.unified_chat import UnifiedChatModel
+
 try:
-    from mcp.server.fastmcp import FastMCP
-    mcp = FastMCP('Antigravity-Search-Server')
+    from .config_helper import get_config_value
 except ImportError:
-    FastMCP = None
-    mcp = None
+    from config_helper import get_config_value
 
-async def _run_agy_search(query: str, model: str='agy-flash') -> str:
+mcp = MCPServer("Antigravity-Search-Server")
+
+_SEARCH_SYSTEM_INSTRUCTION = (
+    "Ты — аналитический поисковый агент Google Antigravity. "
+    "Дай точный, структурированный и проверенный ответ на запрос пользователя в формате Markdown."
+)
+
+
+def _get_default_agy_model() -> str:
+    """Получение модели Antigravity по умолчанию из `config.json`.
+
+    Returns:
+        str: Идентификатор модели из конфигурации.
+
+    Examples:
+        >>> len(_get_default_agy_model()) > 0
+        True
+    """
+    configured = str(
+        get_config_value(
+            "ai_providers_and_models_configuration.providers.agy.default_model",
+            "",
+        )
+    ).strip()
+    if configured:
+        return configured
+    fallback = str(
+        get_config_value(
+            "ai_providers_and_models_configuration.providers.agy.model",
+            "agy-gemini-3.8-flash",
+        )
+    ).strip()
+    return fallback or "agy-gemini-3.8-flash"
+
+
+async def _run_agy_search(query: str, model: Optional[str] = "") -> str:
+    """Выполнение поискового запроса через `UnifiedChatModel` (провайдер `agy`).
+
+    Args:
+        query (str): Поисковый запрос пользователя.
+        model (Optional[str]): Идентификатор модели Antigravity.
+                               Значение по умолчанию: '' (берется из `config.json`).
+
+    Returns:
+        str: Текст ответа в формате Markdown или JSON-строка с описанием ошибки.
+
+    Examples:
+        >>> import asyncio
+        >>> res = asyncio.run(_run_agy_search(""))
+        >>> "error" in res
+        True
+    """
+    if not query or not query.strip():
+        return json.dumps(
+            {"status": "error", "message": "Пустой поисковый запрос (query не может быть пустым)"},
+            ensure_ascii=False,
+        )
+
+    target_model = model.strip() if model and model.strip() else _get_default_agy_model()
     try:
-        searcher = AgyWebSearcher(model_id=model)
-        result = await searcher.search_and_extract(query=query)
-        return result
-    except Exception as e:
-        logger.error(f'[agy_search_mcp_server] Error agy_web_search: {e}')
-        return json.dumps({'status': 'error', 'message': str(e)}, ensure_ascii=False)
+        chat_model = UnifiedChatModel(
+            system_instruction=_SEARCH_SYSTEM_INSTRUCTION,
+            provider="agy",
+            model=target_model,
+        )
+        response = await chat_model.ask(q=query.strip())
+        return str(response) if response else ""
+    except Exception as exc:
+        logger.error(f"[agy_search_mcp_server] Ошибка выполнения agy_web_search: {exc}")
+        return json.dumps({"status": "error", "message": str(exc)}, ensure_ascii=False)
 
-async def agy_web_search(query: str, model: str='agy-flash') -> str:
-    """Выполнить веб-поиск через агентный поиск Google Antigravity."""
+
+@mcp.tool(
+    name="agy_web_search",
+    description="Выполнить веб-поиск и аналитический разбор через агент Google Antigravity",
+)
+async def agy_web_search(query: str, model: Optional[str] = "") -> str:
+    """Выполнение веб-поиска через агентный провайдер Google Antigravity.
+
+    Args:
+        query (str): Поисковый запрос пользователя.
+        model (Optional[str]): Идентификатор модели Antigravity.
+                               Значение по умолчанию: '' (используется модель из `config.json`).
+
+    Returns:
+        str: Результат поиска в формате Markdown или JSON с ошибкой.
+
+    Examples:
+        >>> import asyncio
+        >>> out = asyncio.run(agy_web_search(""))
+        >>> "error" in out
+        True
+    """
     return await _run_agy_search(query=query, model=model)
-if mcp:
-    mcp.tool()(agy_web_search)
-if __name__ == '__main__':
-    if mcp:
-        mcp.run()
+
+
+def main() -> int:
+    """Запуск MCP-сервера поиска Google Antigravity в режиме STDIO.
+
+    Returns:
+        int: Код завершения (0 — успешно).
+
+    Examples:
+        >>> callable(main)
+        True
+    """
+    logger.info("[agy_search_mcp_server] Запуск Antigravity Search MCPServer...")
+    mcp.run(transport="stdio")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

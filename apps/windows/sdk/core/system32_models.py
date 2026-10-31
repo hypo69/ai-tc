@@ -242,3 +242,4 @@ __all__ = [
     'System32QueryFilter',
     'System32CatalogSummary',
 ]
+

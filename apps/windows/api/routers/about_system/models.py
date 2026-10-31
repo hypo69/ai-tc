@@ -396,3 +396,4 @@ class NetworkProfileStatusResponse(BaseModel):
     services: Dict[str, Any] = Field(default_factory=dict, description="Состояние служб обнаружения")
     firewall: Dict[str, Any] = Field(default_factory=dict, description="Состояние правил брандмауэра")
 
+

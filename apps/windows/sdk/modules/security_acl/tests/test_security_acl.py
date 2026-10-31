@@ -78,3 +78,4 @@ def test_security_acl_endpoints(client: TestClient):
     resp_acl = client.get('/api/security-acl/acl?path=C:\\Windows')
     assert resp_acl.status_code == 200
     assert len(resp_acl.json()) > 0
+

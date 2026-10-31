@@ -16,7 +16,7 @@
 # Package: apps.windows.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-18 23:48:00
+# Updated: 2026-10-31 18:55:00
 # =============================================================================
 
 from __future__ import annotations
@@ -191,10 +191,11 @@ class ApproveKnowledgeRequest(BaseModel):
     performance_impact: Optional[str] = Field(default="", description="Влияние на ресурсы")
     recommendation: Optional[str] = Field(default="", description="Рекомендация")
     action_steps: List[str] = Field(default_factory=list, description="Пошаговые действия")
-    developer_advice: Optional[str] = Field(default="", description="Советы разработчику, документация и скрипты")
     possible_causes: List[str] = Field(default_factory=list, description="Возможные причины")
     tags: List[str] = Field(default_factory=list, description="Теги для поиска")
     model_name: Optional[str] = Field(default=None, description="Модель, сгенерировавшая исходный ответ")
+    developer_advice: Optional[str] = Field(default="", description="Советы разработчику")
+    general_summary: Optional[str] = Field(default=None, description="Общие справочные данные о программе для WikiLLM")
 
 
 @router.post("/approve", response_model=Dict[str, Any])
@@ -227,14 +228,29 @@ async def approve_knowledge(req: ApproveKnowledgeRequest) -> Dict[str, Any]:
         )
 
 
-    canonical_key = req.canonical_key
-    if not canonical_key or canonical_key == "unknown:unspecified":
-        from .normalizer import CanonicalKeyNormalizer
-        canonical_key = CanonicalKeyNormalizer.compute_key_from_parts(
-            table_type=req.table_type,
-            title=req.title,
-            subtitle=req.subtitle or "",
-        )
+    # База данных WikiLLM для процессов должна запоминать только общие данные (без transient PID и CPU/RAM телеметрии)
+    clean_title = req.title.strip()
+    effective_summary = req.summary
+    effective_perf = req.performance_impact
+
+    if req.table_type.lower() == "process" or (req.canonical_key and req.canonical_key.startswith("process:")):
+        import re
+        clean_title = re.sub(r"[\s\[\(]+PID[:\s]*\d+[\s\]\)]*", "", req.title, flags=re.IGNORECASE).strip()
+        if not clean_title or clean_title.lower().startswith("pid"):
+            clean_title = req.title.split()[0].strip()
+        canonical_key = f"process:{clean_title.lower()}"
+        if req.general_summary and len(req.general_summary.strip()) >= 10:
+            effective_summary = req.general_summary.strip()
+        effective_perf = "Штатный профиль приложения (из базы знаний WikiLLM)"
+    else:
+        canonical_key = req.canonical_key
+        if not canonical_key or canonical_key == "unknown:unspecified":
+            from .normalizer import CanonicalKeyNormalizer
+            canonical_key = CanonicalKeyNormalizer.compute_key_from_parts(
+                table_type=req.table_type,
+                title=clean_title,
+                subtitle=req.subtitle or "",
+            )
 
     from .models import (
         Claim,
@@ -275,7 +291,7 @@ async def approve_knowledge(req: ApproveKnowledgeRequest) -> Dict[str, Any]:
 
     claims = [
         Claim(
-            statement=req.summary,
+            statement=effective_summary,
             confidence=1.0,
             source=KnowledgeSource.DOCUMENTED,
             verified=True,
@@ -299,12 +315,21 @@ async def approve_knowledge(req: ApproveKnowledgeRequest) -> Dict[str, Any]:
                 verified=True,
             )
         )
+    if effective_perf:
+        claims.append(
+            Claim(
+                statement=f"Влияние на производительность: {effective_perf}",
+                confidence=1.0,
+                source=KnowledgeSource.DOCUMENTED,
+                verified=True,
+            )
+        )
 
     entity = KnowledgeEntity(
         canonical_key=canonical_key,
         entity_type=entity_type,
-        name=req.title,
-        summary=req.summary,
+        name=clean_title,
+        summary=effective_summary,
         category=req.category or "system",
         severity=req.severity or "info",
         confidence=1.0,
@@ -326,3 +351,4 @@ async def approve_knowledge(req: ApproveKnowledgeRequest) -> Dict[str, Any]:
         "message": f"Знание '{canonical_key}' верифицировано и сохранено в локальной базе WikiLLM.",
         "entity": entity.model_dump(),
     }
+

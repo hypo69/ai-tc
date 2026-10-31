@@ -11,7 +11,7 @@
  * Package: apps/windows/api/webgui/tab_theme_editor/panel_tokens
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 18:20:00
+ * Updated: 2026-10-31 17:05:00
  * =============================================================================
  */
 
@@ -49,6 +49,8 @@ export function collectTokensFromUI() {
   const kpiHeight = document.getElementById('range-kpi-height')?.value || '72';
   const panelHeaderFontSize = document.getElementById('range-panel-header-font-size')?.value || '28';
   const tabHeaderFontSize = document.getElementById('range-tab-header-font-size')?.value || '22';
+  const modalWidth = document.getElementById('range-modal-width')?.value || '80';
+  const modalHeight = document.getElementById('range-modal-height')?.value || '80';
 
   const density = document.querySelector('input[name="theme-density"]:checked')?.value || 'normal';
   const fontFamKey = document.getElementById('select-font-family')?.value || 'system';
@@ -135,6 +137,8 @@ export function collectTokensFromUI() {
 
     '--kpi-padding': kpiPadding,
     '--kpi-min-height': `${kpiHeight}px`,
+    '--modal-width': `${modalWidth}vw`,
+    '--modal-height': `${modalHeight}vh`,
     '--subnav-btn-padding': subnavPadding,
 
     '--bg-color': bgBase,
@@ -261,6 +265,8 @@ export function collectFullStateFromUI() {
     tabHeaderFontSize: parseInt(document.getElementById('range-tab-header-font-size')?.value || '22', 10),
     borderRadius: parseInt(document.getElementById('range-border-radius')?.value || '8', 10),
     kpiHeight: parseInt(document.getElementById('range-kpi-height')?.value || '72', 10),
+    modalWidth: parseInt(document.getElementById('range-modal-width')?.value || '80', 10),
+    modalHeight: parseInt(document.getElementById('range-modal-height')?.value || '80', 10),
     density: document.querySelector('input[name="theme-density"]:checked')?.value || 'normal',
     fontFamily: document.getElementById('select-font-family')?.value || 'system',
     shadowStyle: document.getElementById('select-shadow-style')?.value || 'soft',
@@ -316,6 +322,14 @@ export function applyStateToUI(state) {
   if (state.kpiHeight) {
     setInputValue('range-kpi-height', state.kpiHeight);
     setTextContent('val-kpi-height', `${state.kpiHeight}px`);
+  }
+  if (state.modalWidth) {
+    setInputValue('range-modal-width', state.modalWidth);
+    setTextContent('val-modal-width', `${state.modalWidth}vw`);
+  }
+  if (state.modalHeight) {
+    setInputValue('range-modal-height', state.modalHeight);
+    setTextContent('val-modal-height', `${state.modalHeight}vh`);
   }
   if (state.density) {
     const radio = document.getElementById(`density-${state.density}`);
@@ -396,6 +410,22 @@ export function mapTokensToUI(tokens) {
     if (!isNaN(h)) {
       setInputValue('range-kpi-height', h);
       setTextContent('val-kpi-height', `${h}px`);
+    }
+  }
+
+  if (tokens['--modal-width']) {
+    const w = parseInt(tokens['--modal-width'], 10);
+    if (!isNaN(w)) {
+      setInputValue('range-modal-width', w);
+      setTextContent('val-modal-width', `${w}vw`);
+    }
+  }
+
+  if (tokens['--modal-height']) {
+    const mh = parseInt(tokens['--modal-height'], 10);
+    if (!isNaN(mh)) {
+      setInputValue('range-modal-height', mh);
+      setTextContent('val-modal-height', `${mh}vh`);
     }
   }
 

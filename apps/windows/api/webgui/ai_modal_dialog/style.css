@@ -11,28 +11,28 @@
  * Package: apps.windows.api.webgui.ai_modal_dialog
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 14:45:00
+ * Updated: 2026-10-31 17:05:00
  * =============================================================================
  */
 
-/* Стабильные габариты модального окна ИИ-помощника: 90% ширины (90vw) и 90% высоты (90vh) */
+/* Централизованные габариты модального окна ИИ-помощника: 80% ширины и 80% высоты экрана */
 #universal-ai-table-modal .modal-dialog,
 #universal-ai-prompt-editor-modal .modal-dialog {
-  --bs-modal-width: 90vw;
-  max-width: 90vw !important;
-  width: 90vw !important;
-  height: 90vh !important;
-  max-height: 90vh !important;
-  min-height: 90vh !important;
-  margin: 5vh auto !important;
+  --bs-modal-width: var(--modal-width, 80vw);
+  max-width: var(--modal-width, 80vw) !important;
+  width: var(--modal-width, 80vw) !important;
+  height: var(--modal-height, 80vh) !important;
+  max-height: var(--modal-height, 80vh) !important;
+  min-height: var(--modal-height, 80vh) !important;
+  margin: calc((100vh - var(--modal-height, 80vh)) / 2) auto !important;
 }
 
 #universal-ai-table-modal .modal-content,
 #universal-ai-prompt-editor-modal .modal-content {
   width: 100% !important;
-  height: 90vh !important;
-  max-height: 90vh !important;
-  min-height: 90vh !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 100% !important;
   background-color: var(--modal-bg);
   color: var(--modal-text);
   border: 1px solid var(--modal-border);
@@ -311,6 +311,34 @@ code.uai-inline-code {
   border-bottom-color: var(--bs-warning, #f59e0b) !important;
   font-weight: 600 !important;
 }
+
+/* Отвеченные и неактивные быстрые вопросы */
+#uai-chat-quick-buttons .chat-prompt-link.disabled,
+#uai-chat-quick-buttons .chat-prompt-link.answered,
+#uai-chat-quick-buttons .chat-prompt-link[aria-disabled="true"],
+#uai-chat-quick-buttons .chat-prompt-row.answered .chat-prompt-link {
+  color: var(--text-muted, #94a3b8) !important;
+  border-bottom: 1px dotted rgba(148, 163, 184, 0.35) !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  opacity: 0.6 !important;
+  text-decoration: none !important;
+}
+
+#uai-chat-quick-buttons .chat-prompt-row.answered .chat-prompt-bullet {
+  color: var(--status-success, #22c55e) !important;
+  opacity: 0.9 !important;
+}
+
+[data-theme="terminal"] #uai-chat-quick-buttons .chat-prompt-row.answered .chat-prompt-bullet {
+  color: #00ff66 !important;
+}
+
+[data-theme="terminal"] #uai-chat-quick-buttons .chat-prompt-link.answered {
+  color: rgba(90, 247, 142, 0.45) !important;
+  border-bottom-color: rgba(90, 247, 142, 0.25) !important;
+}
+
 
 #uai-chat-quick-buttons .uai-quick-question-refresh {
   display: inline-flex !important;
@@ -961,4 +989,63 @@ pre.uai-data-preview.uai-matrix-preview {
 [data-theme="terminal"] .uai-mode-btn.active {
   background-color: #00ff66 !important;
   color: #020603 !important;
+}
+
+
+/* =============================================================================
+   Элементы Markdown в ответах модели и WikiLLM (#uai-modal-ai-explanation)
+   ============================================================================= */
+.uai-blockquote {
+  background-color: var(--surface-1);
+  border-left-color: var(--bs-primary, #0284c7) !important;
+  color: var(--text-color);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.uai-blockquote.uai-bq-tip {
+  border-left-color: var(--bs-info, #0dcaf0) !important;
+  background-color: rgba(13, 202, 240, 0.05);
+}
+
+.uai-blockquote.uai-bq-warning {
+  border-left-color: var(--bs-warning, #f59e0b) !important;
+  background-color: rgba(245, 158, 11, 0.06);
+}
+
+.uai-blockquote.uai-bq-info {
+  border-left-color: var(--bs-secondary, #6c757d) !important;
+  background-color: rgba(108, 117, 125, 0.05);
+}
+
+.uai-markdown-table {
+  background-color: var(--surface-1);
+  color: var(--text-color);
+  border-color: var(--border-color);
+  font-size: 0.84rem;
+}
+
+.uai-markdown-table th {
+  background-color: var(--surface-2);
+  color: var(--text-color);
+  border-color: var(--border-color);
+  font-weight: 600;
+}
+
+.uai-markdown-table td {
+  border-color: var(--border-color);
+}
+
+.uai-markdown-link {
+  color: var(--bs-primary, #3b82f6) !important;
+  transition: opacity 0.15s ease-in-out;
+}
+
+.uai-markdown-link:hover {
+  opacity: 0.85;
+}
+
+.uai-divider {
+  border-color: var(--border-color) !important;
+  opacity: 0.3;
 }

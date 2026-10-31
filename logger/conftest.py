@@ -83,3 +83,4 @@ def pytest_collection_modifyitems(config, items):
         if 'test_' in item.name:
             if not any((marker.name == 'unit' for marker in item.iter_markers())):
                 item.add_marker(pytest.mark.unit)
+

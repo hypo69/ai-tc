@@ -4,16 +4,20 @@ Process Name: Windows Web Interface - App Internals Tab View
 =============================================================================
 Description:
   Консолидированная вкладка «Внутренняя кухня» (App Internals).
-  Объединяет служебные утилиты и изолированные базы данных:
-  1. Управление телеметрией (Telemetry Control & Config)
+  Объединяет служебные утилиты и две четко разделенные базы знаний на базе WikiLLM:
+  1. Телеметрия (Telemetry Control & Config)
   2. Модели и API (Models & Providers)
   3. Системные и внутренние логи (Logs Center)
   4. Трассировка ETW (Performance Tracing)
   5. Системные параметры и настройки (Settings)
-  6. Сервер БД параметров WikiLLM (MariaDB / SQLite)
-  7. Сервер БД инструментов агента (AI Instruments: ai_instruments.db / Hostinger)
-  8. Параметры модели и RAG-профили WikiLLM (Model & RAG Settings)
-  9. Редактор статей базы знаний WikiLLM (Knowledge Base Editor)
+  6. Подсказки по системе (WikiLLM System Knowledge) — локальный SQLite на диске:
+     - Блок: Хранилище SQLite (data/windows_wikillm/knowledge.db)
+     - Блок: Параметры модели и поиска (Model & RAG Settings)
+     - Блок: Статьи подсказок (WikiLLM Knowledge Editor)
+  7. База инструментов агента (WikiLLM AI Instruments) — сервер Hostinger:
+     - Блок: Сервер Hostinger (REST PHP API / MariaDB)
+     - Блок: Цепочка размышлений (Reasoning Chain & SafeOps)
+     - Блок: Каталог инструментов (AI Instruments Catalog & Execution)
 
 Usage Examples:
   Web Route:
@@ -24,7 +28,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_app_internals
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 15:45:00
+Updated: 2026-10-31 18:45:00
 =============================================================================
 -->
 <div class="container-fluid py-2 px-3" id="app-internals-container">
@@ -39,45 +43,59 @@ Updated: 2026-10-20 15:45:00
         <small class="tab-header-subtitle text-secondary">Инспекция внутренней архитектуры AI Windows Admin, активные фоновые задачи, базы знаний и инструменты агента</small>
       </div>
     </div>
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-sm btn-outline-info d-flex align-items-center gap-1.5 shadow-sm"
+              id="app-internals-context-help-btn"
+              data-help-url="/html/tab_log_settings/help/index.html"
+              title="Открыть контекстную справку по текущему разделу">
+        <i class="bi bi-question-circle fs-6"></i>
+        <span class="fw-semibold">Справка</span>
+      </button>
+    </div>
   </div>
-  <!-- Отдельный блок меню суб-вкладок ПОД названием вкладки, расположен слева -->
+
+  <!-- Блок меню переключения панелей на вкладке. Выбранная панель добавляется в url -->
   <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
-    <div class="d-flex align-items-center gap-1 flex-wrap" id="app-internals-subtabs-nav" role="tablist">
-      <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-telemetry-btn" data-panel-id="telemetry" data-bs-toggle="pill" data-bs-target="#subpane-internals-telemetry" type="button" role="tab">
+    <div class="nav d-flex align-items-center gap-1 flex-wrap" id="app-internals-subtabs-nav" role="tablist">
+      <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-telemetry-btn" data-panel-id="telemetry" data-bs-toggle="pill" data-bs-target="#subpane-internals-telemetry" type="button" role="tab" data-i18n-title="internals.subtabTelemetryTitle" title="Мониторинг системных метрик процессора, памяти, дисков и фоновых задач">
         <i class="bi bi-speedometer2"></i>
-        <span>Телеметрия</span>
+        <span data-i18n="internals.subtabTelemetryLabel">Телеметрия</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-models-btn" data-panel-id="models" data-bs-toggle="pill" data-bs-target="#subpane-internals-models" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-models-btn" data-panel-id="models" data-bs-toggle="pill" data-bs-target="#subpane-internals-models" type="button" role="tab" data-i18n-title="internals.subtabModelsTitle" title="Управление провайдерами и моделями ИИ (Windows AI, Ollama, Gemini, Foundry Local)">
         <i class="bi bi-cpu"></i>
-        <span>Модели и API</span>
+        <span data-i18n="internals.subtabModelsLabel">Модели и API</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-logs-btn" data-panel-id="logs" data-bs-toggle="pill" data-bs-target="#subpane-internals-logs" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-logs-btn" data-panel-id="logs" data-bs-toggle="pill" data-bs-target="#subpane-internals-logs" type="button" role="tab" data-i18n-title="internals.subtabLogsTitle" title="Просмотр внутренних логов программы ai-tc">
         <i class="bi bi-journal-text"></i>
-        <span>Центр логов</span>
+        <span data-i18n="internals.subtabLogsLabel">Центр логов</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-etw-btn" data-panel-id="etw" data-bs-toggle="pill" data-bs-target="#subpane-internals-etw" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-etw-btn" data-panel-id="etw" data-bs-toggle="pill" data-bs-target="#subpane-internals-etw" type="button" role="tab" data-i18n-title="internals.subtabEtwTitle" title="Низкоуровневая трассировка системных событий ETW ядра Windows">
         <i class="bi bi-activity"></i>
-        <span>Трассировка ETW</span>
+        <span data-i18n="internals.subtabEtwLabel">Трассировка ETW</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-settings-btn" data-panel-id="settings" data-bs-toggle="pill" data-bs-target="#subpane-internals-settings" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-settings-btn" data-panel-id="settings" data-bs-toggle="pill" data-bs-target="#subpane-internals-settings" type="button" role="tab" data-i18n-title="internals.subtabSettingsTitle" title="Управление глобальными конфигурациями и параметрами подсистем">
         <i class="bi bi-sliders"></i>
-        <span>Параметры</span>
+        <span data-i18n="internals.subtabSettingsLabel">Параметры</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-wikillm-db-btn" data-panel-id="wikillm-db" data-bs-toggle="pill" data-bs-target="#subpane-internals-wikillm-db" type="button" role="tab">
-        <i class="bi bi-database-fill-gear"></i>
-        <span>БД WikiLLM</span>
-      </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-instruments-btn" data-panel-id="instruments" data-bs-toggle="pill" data-bs-target="#subpane-internals-instruments" type="button" role="tab">
-        <i class="bi bi-tools"></i>
-        <span>База инструментов</span>
-      </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-wikillm-params-btn" data-panel-id="wikillm-params" data-bs-toggle="pill" data-bs-target="#subpane-internals-wikillm-params" type="button" role="tab">
-        <i class="bi bi-sliders2"></i>
-        <span>Параметры WikiLLM</span>
-      </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-wikillm-editor-btn" data-panel-id="wikillm-editor" data-bs-toggle="pill" data-bs-target="#subpane-internals-wikillm-editor" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-wikillm-system-btn" data-panel-id="wikillm-system" data-bs-toggle="pill" data-bs-target="#subpane-internals-wikillm-system" type="button" role="tab" data-i18n-title="internals.subtabSystemKnowledgeTitle" title="База знаний общих подсказок по системе: локальный файл SQLite, параметры модели и статьи">
         <i class="bi bi-book-half"></i>
-        <span>Статьи WikiLLM</span>
+        <span data-i18n="internals.subtabSystemKnowledgeLabel">Подсказки по системе</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-instruments-btn" data-panel-id="instruments" data-bs-toggle="pill" data-bs-target="#subpane-internals-instruments" type="button" role="tab" data-i18n-title="internals.subtabInstrumentsTitle" title="База инструментов для цепочки размышлений агента: сервер Hostinger, параметры выполнения и каталог">
+        <i class="bi bi-tools"></i>
+        <span data-i18n="internals.subtabInstrumentsLabel">База инструментов</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-tooltips-editor-btn" data-panel-id="tooltips-editor" data-bs-toggle="pill" data-bs-target="#subpane-internals-tooltips-editor" type="button" role="tab" data-i18n-title="internals.subtabTooltipsEditorTitle" title="Редактор всплывающих подсказок и базы знаний тултипов системы">
+        <i class="bi bi-chat-square-quote"></i>
+        <span data-i18n="internals.subtabTooltipsEditorLabel">Редактор тултипов</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-helppages-editor-btn" data-panel-id="helppages-editor" data-bs-toggle="pill" data-bs-target="#subpane-internals-helppages-editor" type="button" role="tab" data-i18n-title="internals.subtabHelpPagesEditorTitle" title="Редактор атомарных блоков и композитных страниц справки">
+        <i class="bi bi-pencil-square"></i>
+        <span data-i18n="internals.subtabHelpPagesEditorLabel">Редактор подсказок</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-codebase-rag-btn" data-panel-id="codebase-rag" data-bs-toggle="pill" data-bs-target="#subpane-internals-codebase-rag" type="button" role="tab" data-i18n-title="internals.subtabCodebaseRagTitle" title="Управление базой знаний кода (Codebase AST & Diagnostic RAG): сборка индекса, поиск по AST и диагностика логов/ошибок">
+        <i class="bi bi-code-square"></i>
+        <span data-i18n="internals.subtabCodebaseRagLabel">RAG Кода и Диагностики</span>
       </button>
     </div>
   </div>
@@ -110,390 +128,736 @@ Updated: 2026-10-20 15:45:00
     <div id="internals-settings-embed-container"></div>
   </div>
 
-  <!-- Subpane 6: Сервер базы данных WikiLLM (MariaDB / SQLite) -->
-  <div class="tab-pane fade" id="subpane-internals-wikillm-db" role="tabpanel" data-panel-id="wikillm-db">
+  <!-- Subpane: Редактор подсказок и страниц справки -->
+  <div class="tab-pane fade" id="subpane-internals-helppages-editor" role="tabpanel" data-panel-id="helppages-editor">
+    <div id="internals-helppages-editor-embed-container"></div>
+  </div>
+
+  <!-- Subpane 6: Подсказки по системе (WikiLLM System Knowledge - Локальный SQLite) -->
+  <div class="tab-pane fade" id="subpane-internals-wikillm-system" role="tabpanel" data-panel-id="wikillm-system">
     <div class="p-2">
-      <!-- Блок настроек подключения к базе данных MariaDB / SQLite -->
-        <div class="card mb-3" id="wikillm-db-settings-card">
-          <div class="card-header d-flex justify-content-between align-items-center py-2">
-            <div class="d-flex align-items-center gap-2">
-              <h6 class="mb-0 fw-bold"><i class="bi bi-database-fill-gear text-primary me-2"></i>Сервер базы данных WikiLLM (MariaDB / SQLite)</h6>
-              <span class="ui-badge ui-badge-neutral" id="wikillm-db-engine-badge">MariaDB</span>
-            </div>
-            <div id="wikillm-db-header-status" class="small text-muted">
-              <span class="ui-badge ui-badge-neutral" id="wikillm-db-header-status-badge"><i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i>Не проверено</span>
-            </div>
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-book-half fs-4 text-primary"></i>
+          <div>
+            <h5 class="mb-0 fw-bold">Подсказки по системе (WikiLLM System Knowledge)</h5>
+            <small class="text-secondary">База знаний общих рекомендаций и подсказок по Windows OS в локальном файле SQLite на диске</small>
           </div>
-          <div class="card-body">
-            <div class="row g-3">
-              <!-- Информационный баннер текущей активной базы данных -->
-              <div class="col-12 mb-2">
-                <div class="d-flex justify-content-between align-items-center py-2 px-3 mb-0 rounded border" id="wikillm-active-db-banner" style="background: var(--surface-2); border-color: var(--border-color) !important;">
-                  <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <span class="text-secondary small fw-semibold">В данный момент активна:</span>
-                    <span id="wikillm-active-db-badge" class="ui-badge ui-badge-info fw-bold">
-                      <i class="bi bi-cloud-check-fill me-1"></i>Удаленная MariaDB (через API)
-                    </span>
-                    <span id="wikillm-active-type-badge" class="ui-badge ui-badge-info">
-                      Удаленная
-                    </span>
-                  </div>
-                  <div class="small text-muted" id="wikillm-active-db-detail">
-                    wikillm_hostinger.php
-                  </div>
-                </div>
+        </div>
+        <span class="ui-badge ui-badge-neutral"><i class="bi bi-hdd me-1"></i>Локальный SQLite</span>
+      </div>
+
+      <!-- Подменю блоков внутри панели. Выбранный блок добавляется в URL как #block-<id> -->
+      <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
+        <div class="nav btn-group btn-group-sm" id="wikillm-sys-blocks-nav" role="tablist">
+          <button type="button" class="btn btn-outline-secondary active d-flex align-items-center gap-1" id="btn-block-sys-storage" data-block-id="block-sys-storage" data-bs-toggle="pill" data-bs-target="#subpane-block-sys-storage" data-i18n-title="internals.blockSysStorageTitle" title="Управление локальным файлом SQLite базы подсказок, проверка схемы и таблиц">
+            <i class="bi bi-database-fill"></i>
+            <span data-i18n="internals.blockSysStorageLabel">Хранилище SQLite</span>
+          </button>
+          <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1" id="btn-block-sys-params" data-block-id="block-sys-params" data-bs-toggle="pill" data-bs-target="#subpane-block-sys-params" data-i18n-title="internals.blockSysParamsTitle" title="Настройки модели генерации, порога уверенности и контекстного окна">
+            <i class="bi bi-sliders2"></i>
+            <span data-i18n="internals.blockSysParamsLabel">Параметры WikiLLM</span>
+          </button>
+          <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1" id="btn-block-sys-articles" data-block-id="block-sys-articles" data-bs-toggle="pill" data-bs-target="#subpane-block-sys-articles" data-i18n-title="internals.blockSysArticlesTitle" title="Каталог и встроенный редактор статей базы знаний подсказок">
+            <i class="bi bi-journal-richtext"></i>
+            <span data-i18n="internals.blockSysArticlesLabel">Статьи подсказок</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Содержимое блоков подсказок по системе -->
+      <div class="tab-content" id="wikillm-sys-blocks-content">
+        <!-- Блок 6.1: Хранилище SQLite -->
+        <div class="tab-pane fade show active" id="subpane-block-sys-storage" role="tabpanel">
+          <div class="card mb-3" id="wikillm-sqlite-card">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+              <div class="d-flex align-items-center gap-2">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-database-fill text-primary me-2"></i>Локальная база подсказок SQLite</h6>
+                <span class="ui-badge ui-badge-neutral" id="wikillm-db-engine-badge">SQLite</span>
               </div>
-
-              <!-- Выбор способа подключения (Radio Buttons) -->
-              <div class="col-12 mb-2 pb-2 border-bottom border-secondary border-opacity-25">
-                <label class="form-label form-label-sm fw-semibold d-block mb-2">Выберите, какую базу данных использовать (Radio Button):</label>
-                <div class="rounded p-3 border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
-                  <div class="form-check mb-2">
-                    <input class="form-check-input" type="radio" name="wikillm-conn-mode" id="wikillm-mode-api" value="php_api" checked>
-                    <label class="form-check-label fw-semibold d-flex align-items-center gap-2 flex-wrap" for="wikillm-mode-api">
-                      <i class="bi bi-cloud-arrow-up-fill text-info"></i>
-                      <span>Использовать подключение через API</span>
-                      <span class="ui-badge ui-badge-info">Удаленная</span>
-                    </label>
-                    <div class="form-text small ms-4 text-muted">Обращение к удаленной MariaDB по протоколу HTTP через REST API PHP-скрипта на веб-хостинге.</div>
-                  </div>
-
-                  <div class="form-check mb-2">
-                    <input class="form-check-input" type="radio" name="wikillm-conn-mode" id="wikillm-mode-direct" value="direct">
-                    <label class="form-check-label fw-semibold d-flex align-items-center gap-2 flex-wrap" for="wikillm-mode-direct">
-                      <i class="bi bi-hdd-network-fill text-primary"></i>
-                      <span>Использовать прямое подключение</span>
-                      <span class="ui-badge ui-badge-info">Удаленная</span>
-                    </label>
-                    <div class="form-text small ms-4 text-muted">Прямое TCP-соединение с портом 3306 сервера MariaDB.</div>
-                  </div>
-
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="wikillm-conn-mode" id="wikillm-mode-sqlite" value="sqlite">
-                    <label class="form-check-label fw-semibold d-flex align-items-center gap-2 flex-wrap" for="wikillm-mode-sqlite">
-                      <i class="bi bi-file-earmark-binary-fill text-secondary"></i>
-                      <span>Использовать локальную базу данных (SQLite)</span>
-                      <span class="ui-badge ui-badge-neutral">Локальная</span>
-                    </label>
-                    <div class="form-text small ms-4 text-muted">Локальный файл SQLite на компьютере (автономный оффлайн-режим).</div>
-                  </div>
-                </div>
+              <div id="wikillm-db-header-status" class="small text-muted">
+                <span class="ui-badge ui-badge-neutral" id="wikillm-db-header-status-badge"><i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i>Не проверено</span>
               </div>
-
-              <!-- Блок 1: Через API из PHP скрипта -->
-              <div id="wikillm-sec-api" class="col-12 wikillm-panel-section">
-                <div class="row g-2">
-                  <div class="col-md-8">
-                    <label class="form-label form-label-sm fw-semibold">URL API скрипта на хостинге</label>
-                    <input type="text" class="form-control form-control-sm" id="wikillm-db-php-url" value="https://srv1502.hstgr.io/wikillm_hostinger.php" placeholder="https://srv1502.hstgr.io/wikillm_hostinger.php"/>
-                    <div class="form-text small text-secondary">Адрес REST API скрипта на веб-хостинге (например, wikillm_hostinger.php).</div>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label form-label-sm fw-semibold">Ключ доступа / Токен API (X-API-Key)</label>
-                    <input type="password" class="form-control form-control-sm" id="wikillm-db-php-key" value="" placeholder="Токен (опционально)"/>
-                    <div class="form-text small text-secondary">Если в скрипте настроена проверка ключа.</div>
-                  </div>
-                  <div class="col-md-8">
-                    <label class="form-label form-label-sm fw-semibold">Имя базы данных (Database)</label>
-                    <input type="text" class="form-control form-control-sm" id="wikillm-db-api-name" value="u177424397_comp_knowledge" placeholder="u177424397_comp_knowledge"/>
-                    <div class="form-text small text-secondary">Имя целевой базы данных на сервере.</div>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label form-label-sm fw-semibold">Таймаут запросов (сек)</label>
-                    <input type="number" class="form-control form-control-sm" id="wikillm-db-api-timeout" value="15" min="2" max="120"/>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Блок 2: Прямое подключение к серверу MariaDB (Direct TCP) -->
-              <div id="wikillm-sec-direct" class="col-12 wikillm-panel-section" style="display: none;">
-                <div class="row g-2">
-                  <div class="col-md-5">
-                    <label class="form-label form-label-sm fw-semibold">Хост сервера MariaDB (Host)</label>
-                    <input type="text" class="form-control form-control-sm" id="wikillm-db-host" value="srv1502.hstgr.io" placeholder="srv1502.hstgr.io"/>
-                  </div>
-                  <div class="col-md-3">
-                    <label class="form-label form-label-sm fw-semibold">Порт (Port)</label>
-                    <input type="number" class="form-control form-control-sm" id="wikillm-db-port" value="3306" placeholder="3306"/>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label form-label-sm fw-semibold">Резервный IP-адрес (Fallback IP)</label>
-                    <input type="text" class="form-control form-control-sm" id="wikillm-db-ip-fallback" value="77.37.35.16" placeholder="77.37.35.16"/>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label form-label-sm fw-semibold">Имя базы данных (Database)</label>
-                    <input type="text" class="form-control form-control-sm" id="wikillm-db-direct-name" value="u177424397_comp_knowledge" placeholder="u177424397_comp_knowledge"/>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label form-label-sm fw-semibold">Пользователь (User)</label>
-                    <input type="text" class="form-control form-control-sm" id="wikillm-db-user" value="u177424397_davidka" placeholder="u177424397_davidka"/>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label form-label-sm fw-semibold">Пароль (Password)</label>
-                    <div class="input-group input-group-sm">
-                      <input type="password" class="form-control" id="wikillm-db-pass" value="@Davidka#1969" placeholder="Пароль к БД"/>
-                      <button class="btn btn-outline-secondary" type="button" id="wikillm-db-toggle-pass" title="Показать/скрыть пароль">
-                        <i class="bi bi-eye"></i>
-                      </button>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-12 mb-2">
+                  <div class="d-flex justify-content-between align-items-center py-2 px-3 mb-0 rounded border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                      <span class="text-secondary small fw-semibold">Файл подсказок:</span>
+                      <span id="wikillm-active-db-badge" class="ui-badge ui-badge-neutral fw-bold">
+                        <i class="bi bi-hdd me-1"></i>Локальный SQLite
+                      </span>
                     </div>
+                    <div class="small text-muted font-monospace" id="wikillm-active-db-detail">%ProgramData%/{app_name}/windows/knowledge.db</div>
                   </div>
-                  <div class="col-md-3">
-                    <label class="form-label form-label-sm fw-semibold">Таймаут подключения (сек)</label>
-                    <input type="number" class="form-control form-control-sm" id="wikillm-db-direct-timeout" value="10" min="2" max="60"/>
-                  </div>
+                </div>
+                <div class="col-12">
+                  <label class="form-label form-label-sm fw-semibold">Путь к файлу базы данных подсказок (SQLite)</label>
+                  <input type="text" class="form-control form-control-sm font-monospace" id="wikillm-db-sqlite-path" value="%ProgramData%/{app_name}/windows/knowledge.db" placeholder="%ProgramData%/{app_name}/windows/knowledge.db"/>
+                  <div class="form-text small text-secondary">Динамический путь к локальному SQLite файлу базы подсказок. Автоматически раскрывается в путь на диске: <span class="font-monospace text-info" id="wikillm-db-resolved-path">C:\ProgramData\AI-TC\windows\knowledge.db</span>.</div>
                 </div>
               </div>
-
-              <!-- Блок 3: Локальная база SQLite -->
-              <div id="wikillm-sec-sqlite" class="col-12 wikillm-panel-section" style="display: none;">
-                <div class="row g-2">
-                  <div class="col-md-12">
-                    <label class="form-label form-label-sm fw-semibold">Путь к файлу базы данных SQLite</label>
-                    <input type="text" class="form-control form-control-sm" id="wikillm-db-sqlite-path" value="data/windows_wikillm/knowledge.db" placeholder="data/windows_wikillm/knowledge.db"/>
-                    <div class="form-text small text-secondary">Локальный файл базы знаний (используется также как источник при импорте данных на удаленный сервер).</div>
-                  </div>
-                </div>
+              <div id="wikillm-db-check-result" class="mt-3" style="display: none;"></div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-outline-info" id="wikillm-db-btn-check">
+                  <i class="bi bi-activity me-1"></i>Проверить локальную базу SQLite
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="wikillm-db-btn-init-tables">
+                  <i class="bi bi-table me-1"></i>Инициализировать таблицы
+                </button>
+                <span id="wikillm-db-spinner" class="spinner-border spinner-border-sm text-info ms-1" style="display: none;" role="status"></span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-primary fw-bold" id="wikillm-db-btn-save-cfg">
+                  <i class="bi bi-check-circle me-1"></i>Сделать активной и сохранить
+                </button>
               </div>
             </div>
-
-            <!-- Блок интерактивного статуса проверки и действий -->
-            <div id="wikillm-db-check-result" class="mt-3" style="display: none;"></div>
           </div>
-          <div class="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div class="d-flex align-items-center gap-2">
-              <button type="button" class="btn btn-sm btn-outline-info" id="wikillm-db-btn-check">
-                <i class="bi bi-activity me-1"></i>Проверить подключение
-              </button>
-              <span id="wikillm-db-spinner" class="spinner-border spinner-border-sm text-info ms-1" style="display: none;" role="status"></span>
+        </div>
+
+        <!-- Блок 6.2: Параметры WikiLLM -->
+        <div class="tab-pane fade" id="subpane-block-sys-params" role="tabpanel">
+          <div class="card mb-3" id="wikillm-params-card">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+              <h6 class="mb-0 fw-bold"><i class="bi bi-sliders2 text-primary me-2"></i>Параметры модели и поиска подсказок WikiLLM</h6>
+              <span class="ui-badge ui-badge-info">v23</span>
             </div>
-            <div class="d-flex align-items-center gap-2">
-              <button type="button" class="btn btn-sm btn-primary fw-bold" id="wikillm-db-btn-save-cfg">
-                <i class="bi bi-check-circle me-1"></i>Сделать активной и сохранить
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label form-label-sm fw-semibold">Модель генерации подсказок</label>
+                  <input type="text" class="form-control form-control-sm" id="wikillm-cfg-model" value="gemini-3.1-flash-lite"/>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label form-label-sm fw-semibold">Порог точности (Confidence Threshold)</label>
+                  <input type="number" step="0.05" class="form-control form-control-sm" id="wikillm-cfg-threshold" value="0.85"/>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label form-label-sm fw-semibold">Расположение базы данных WikiLLM (db_path)</label>
+                  <input type="text" class="form-control form-control-sm font-monospace" id="wikillm-cfg-db-path" value="%ProgramData%/{app_name}/windows/knowledge.db"/>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label form-label-sm fw-semibold">Температура (Temperature)</label>
+                  <input type="number" step="0.05" min="0.0" max="2.0" class="form-control form-control-sm" id="wikillm-cfg-temperature" value="0.2"/>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label form-label-sm fw-semibold">Размер контекстного окна</label>
+                  <input type="number" step="256" min="512" max="32768" class="form-control form-control-sm" id="wikillm-cfg-context-window" value="4096"/>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" id="wikillm-cfg-auto-enrich" checked/>
+                    <label class="form-check-label small" for="wikillm-cfg-auto-enrich">Автоматическое фоновое обогащение неизвестных событий через LLM</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" id="wikillm-cfg-auto-index" checked/>
+                    <label class="form-check-label small" for="wikillm-cfg-auto-index">Правила автоматической индексации и векторного поиска</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer d-flex justify-content-end align-items-center gap-2">
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="wikillm-btn-retry">
+                <i class="bi bi-arrow-clockwise me-1"></i>Обновить
+              </button>
+              <button type="button" class="btn btn-sm btn-primary fw-bold" id="wikillm-btn-save">
+                <i class="bi bi-check-circle me-1"></i>Сохранить параметры
               </button>
             </div>
           </div>
         </div>
+
+        <!-- Блок 6.3: Статьи подсказок -->
+        <div class="tab-pane fade" id="subpane-block-sys-articles" role="tabpanel">
+          <div class="p-1">
+            <div id="wikillm_editor-container"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-
-  <!-- Subpane 7: База данных инструментов ИИ-агента (AI Instruments) -->
+  <!-- Subpane 7: База инструментов ИИ-агента (AI Instruments - Сервер Hostinger) -->
   <div class="tab-pane fade" id="subpane-internals-instruments" role="tabpanel" data-panel-id="instruments">
     <div class="p-2">
-      <!-- Блок настроек подключения к базе данных инструментов (AI Instruments: MariaDB / SQLite) -->
-              <div class="card mb-3" id="instruments-db-settings-card">
-          <div class="card-header d-flex justify-content-between align-items-center py-2">
-            <div class="d-flex align-items-center gap-2">
-              <h6 class="mb-0 fw-bold"><i class="bi bi-tools text-primary me-2"></i>Сервер базы данных инструментов ИИ-агента (ai_instruments: MariaDB / SQLite)</h6>
-              <span class="ui-badge ui-badge-neutral" id="instruments-db-engine-badge">SQLite</span>
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-tools fs-4 text-primary"></i>
+          <div>
+            <h5 class="mb-0 fw-bold">База инструментов ИИ-агента (WikiLLM AI Instruments)</h5>
+            <small class="text-secondary">Инструменты и скрипты PowerShell/CMD в цепочке размышлений над задачами на сервере Hostinger</small>
+          </div>
+        </div>
+        <span class="ui-badge ui-badge-info"><i class="bi bi-cloud-check-fill me-1"></i>Сервер Hostinger</span>
+      </div>
+
+      <!-- Подменю блоков внутри панели. Выбранный блок добавляется в URL как #block-<id> -->
+      <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
+        <div class="nav btn-group btn-group-sm" id="instruments-blocks-nav" role="tablist">
+          <button type="button" class="btn btn-outline-secondary active d-flex align-items-center gap-1" id="btn-block-inst-hostinger" data-block-id="block-inst-hostinger" data-bs-toggle="pill" data-bs-target="#subpane-block-inst-hostinger" data-i18n-title="internals.blockInstHostingerTitle" title="Настройки подключения к удаленному серверу Hostinger (REST PHP API / MariaDB)">
+            <i class="bi bi-cloud-arrow-up-fill"></i>
+            <span data-i18n="internals.blockInstHostingerLabel">Сервер Hostinger</span>
+          </button>
+          <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1" id="btn-block-inst-runtime" data-block-id="block-inst-runtime" data-bs-toggle="pill" data-bs-target="#subpane-block-inst-runtime" data-i18n-title="internals.blockInstRuntimeTitle" title="Параметры выполнения инструментов в цепочке размышлений, SafeOps и таймауты">
+            <i class="bi bi-cpu-fill"></i>
+            <span data-i18n="internals.blockInstRuntimeLabel">Цепочка размышлений</span>
+          </button>
+          <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1" id="btn-block-inst-catalog" data-block-id="block-inst-catalog" data-bs-toggle="pill" data-bs-target="#subpane-block-inst-catalog" data-i18n-title="internals.blockInstCatalogTitle" title="Просмотр библиотеки инструментов агента, поиск и тестовый запуск">
+            <i class="bi bi-collection"></i>
+            <span data-i18n="internals.blockInstCatalogLabel">Каталог инструментов</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Содержимое блоков базы инструментов -->
+      <div class="tab-content" id="instruments-blocks-content">
+        <!-- Блок 7.1: Сервер Hostinger -->
+        <div class="tab-pane fade show active" id="subpane-block-inst-hostinger" role="tabpanel">
+          <div class="card mb-3" id="instruments-db-settings-card">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+              <div class="d-flex align-items-center gap-2">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-cloud-arrow-up-fill text-primary me-2"></i>Подключение к серверу Hostinger (ai_instruments)</h6>
+                <span class="ui-badge ui-badge-info" id="instruments-db-engine-badge">Hostinger API</span>
+              </div>
+              <div id="instruments-db-header-status" class="small text-muted">
+                <span class="ui-badge ui-badge-neutral" id="instruments-db-header-status-badge"><i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i>Не проверено</span>
+              </div>
             </div>
-            <div id="instruments-db-header-status" class="small text-muted">
-              <span class="ui-badge ui-badge-neutral" id="wikillm-db-header-status-badge"><i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i>Не проверено</span>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-12 mb-2">
+                  <div class="d-flex justify-content-between align-items-center py-2 px-3 mb-0 rounded border" id="instruments-active-db-banner" style="background: var(--surface-2); border-color: var(--border-color) !important;">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                      <span class="text-secondary small fw-semibold">Хранилище инструментов:</span>
+                      <span id="instruments-active-db-badge" class="ui-badge ui-badge-info fw-bold">
+                        <i class="bi bi-cloud-check-fill me-1"></i>Удаленная база (Hostinger)
+                      </span>
+                    </div>
+                    <div class="small text-muted font-monospace" id="instruments-active-db-detail">wikillm_hostinger.php (таблица: ai_instruments)</div>
+                  </div>
+                </div>
+
+                <div class="col-12 mb-2 pb-2 border-bottom border-secondary border-opacity-25">
+                  <label class="form-label form-label-sm fw-semibold d-block mb-2">Режим подключения к базе инструментов:</label>
+                  <div class="rounded p-2.5 border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="radio" name="instruments-conn-mode" id="instruments-mode-api" value="php_api" checked>
+                      <label class="form-check-label fw-semibold d-flex align-items-center gap-2 flex-wrap" for="instruments-mode-api">
+                        <i class="bi bi-cloud-arrow-up-fill text-info"></i>
+                        <span>Использовать удаленную базу через API (Hostinger: wikillm_hostinger.php)</span>
+                        <span class="ui-badge ui-badge-info">Основной сервер</span>
+                      </label>
+                      <div class="form-text small ms-4 text-muted">Обращение к удаленной таблице <code>ai_instruments</code> на хостинге Hostinger по HTTPS через PHP API шлюз.</div>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="radio" name="instruments-conn-mode" id="instruments-mode-direct" value="direct">
+                      <label class="form-check-label fw-semibold d-flex align-items-center gap-2 flex-wrap" for="instruments-mode-direct">
+                        <i class="bi bi-hdd-network-fill text-primary"></i>
+                        <span>Использовать прямое TCP подключение к MariaDB (Hostinger: 3306)</span>
+                        <span class="ui-badge ui-badge-neutral">Альтернативный</span>
+                      </label>
+                      <div class="form-text small ms-4 text-muted">Прямой TCP-сокет к серверу MariaDB на Hostinger (srv1502.hstgr.io:3306).</div>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="instruments-conn-mode" id="instruments-mode-sqlite" value="sqlite">
+                      <label class="form-check-label fw-semibold d-flex align-items-center gap-2 flex-wrap" for="instruments-mode-sqlite">
+                        <i class="bi bi-hdd text-secondary"></i>
+                        <span>Локальная база (SQLite: ai_instruments.db)</span>
+                        <span class="ui-badge ui-badge-neutral">Оффлайн-резерв</span>
+                      </label>
+                      <div class="form-text small ms-4 text-muted">Локальный файл SQLite для автономного режима без интернета.</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Блок API Hostinger -->
+                <div id="instruments-sec-api" class="col-12 instruments-panel-section">
+                  <div class="row g-2">
+                    <div class="col-md-8">
+                      <label class="form-label form-label-sm fw-semibold">URL API скрипта на хостинге</label>
+                      <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-php-url" value="https://srv1502.hstgr.io/wikillm_hostinger.php" placeholder="https://srv1502.hstgr.io/wikillm_hostinger.php"/>
+                      <div class="form-text small text-secondary">REST API шлюз на Hostinger (srv1502.hstgr.io).</div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label form-label-sm fw-semibold">Ключ доступа / Токен API (X-API-Key)</label>
+                      <input type="password" class="form-control form-control-sm" id="instruments-db-php-key" value="" placeholder="Токен (опционально)"/>
+                    </div>
+                    <div class="col-md-8">
+                      <label class="form-label form-label-sm fw-semibold">Имя базы данных (Database)</label>
+                      <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-api-name" value="u177424397_comp_knowledge"/>
+                      <div class="form-text small text-secondary">БД инструментов на Hostinger (таблица: <code>ai_instruments</code>).</div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label form-label-sm fw-semibold">Таймаут запросов (сек)</label>
+                      <input type="number" class="form-control form-control-sm" id="instruments-db-api-timeout" value="10" min="2" max="120"/>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Блок прямого TCP MariaDB -->
+                <div id="instruments-sec-direct" class="col-12 instruments-panel-section" style="display: none;">
+                  <div class="row g-2">
+                    <div class="col-md-6">
+                      <label class="form-label form-label-sm fw-semibold">Хост MariaDB</label>
+                      <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-host" value="srv1502.hstgr.io"/>
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label form-label-sm fw-semibold">Порт</label>
+                      <input type="number" class="form-control form-control-sm font-monospace" id="instruments-db-port" value="3306"/>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label form-label-sm fw-semibold">Имя базы данных</label>
+                      <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-direct-name" value="u177424397_comp_knowledge"/>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label form-label-sm fw-semibold">Пользователь</label>
+                      <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-user" value="u177424397_davidka"/>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label form-label-sm fw-semibold">Пароль</label>
+                      <div class="input-group input-group-sm">
+                        <input type="password" class="form-control" id="instruments-db-pass" value="@Davidka#1969"/>
+                        <button class="btn btn-outline-secondary" type="button" id="instruments-db-toggle-pass" title="Показать/скрыть пароль">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Блок SQLite -->
+                <div id="instruments-sec-sqlite" class="col-12 instruments-panel-section" style="display: none;">
+                  <div class="row g-2">
+                    <div class="col-12">
+                      <label class="form-label form-label-sm fw-semibold">Путь к файлу базы инструментов SQLite</label>
+                      <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-sqlite-path" value="data/ai_instruments/ai_instruments.db"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="instruments-db-check-result" class="mt-3" style="display: none;"></div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-outline-primary" id="instruments-db-btn-check">
+                  <i class="bi bi-activity me-1"></i>Проверить подключение к Hostinger
+                </button>
+                <span id="instruments-db-spinner" class="spinner-border spinner-border-sm text-primary ms-1" style="display: none;" role="status"></span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-primary fw-bold" id="instruments-db-btn-save-cfg">
+                  <i class="bi bi-check-circle me-1"></i>Сделать активной и сохранить
+                </button>
+              </div>
             </div>
           </div>
-          <div class="card-body">
-            <div class="row g-3">
-              <!-- Информационный баннер текущей активной базы инструментов -->
-              <div class="col-12 mb-2">
-                <div class="d-flex justify-content-between align-items-center py-2 px-3 mb-0 rounded border" id="instruments-active-db-banner" style="background: var(--surface-2); border-color: var(--border-color) !important;">
-                  <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <span class="text-secondary small fw-semibold">Активное хранилище инструментов:</span>
-                    <span id="instruments-active-db-badge" class="ui-badge ui-badge-neutral fw-bold">
-                      <i class="bi bi-hdd me-1"></i>Локальная база (ai_instruments.db)
-                    </span>
-                    <span id="instruments-active-type-badge" class="ui-badge ui-badge-neutral">
-                      Локальная
-                    </span>
+        </div>
+
+        <!-- Блок 7.2: Параметры цепочки размышлений -->
+        <div class="tab-pane fade" id="subpane-block-inst-runtime" role="tabpanel">
+          <div class="card mb-3" id="instruments-runtime-card">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+              <h6 class="mb-0 fw-bold"><i class="bi bi-cpu-fill text-primary me-2"></i>Параметры выполнения инструментов в цепочке размышлений</h6>
+              <span class="ui-badge ui-badge-info">Tool Calling</span>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-info py-2 px-3 mb-3 small">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                Настройки вызова инструментов автономным агентом при решении системных задач и расследовании инцидентов (см. conversation <code>8bdc91cc-bd8f-4a2b-b7d9-d13455e82580</code>).
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label form-label-sm fw-semibold">Таймаут выполнения инструмента (сек)</label>
+                  <input type="number" class="form-control form-control-sm" id="inst-runtime-timeout" value="15" min="2" max="180"/>
+                  <div class="form-text small text-secondary">Максимальное время ожидания завершения PowerShell/CMD команды.</div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label form-label-sm fw-semibold">Префикс названий создаваемых инструментов</label>
+                  <input type="text" class="form-control form-control-sm" id="inst-runtime-prefix" value="Инструмент агента"/>
+                  <div class="form-text small text-secondary">Используется при автогенерации и сохранении в базу Hostinger.</div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" id="inst-runtime-elevate" checked/>
+                    <label class="form-check-label small fw-semibold" for="inst-runtime-elevate">Выполнять PowerShell скрипты от имени Администратора (Elevated)</label>
                   </div>
-                  <div class="small text-muted" id="instruments-active-db-detail">
-                    data/ai_instruments/ai_instruments.db
+                  <div class="form-text small text-secondary ms-4">Необходимо для запросов WMI/CIM, остановки служб и аудита ETW.</div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" id="inst-runtime-safeops" checked/>
+                    <label class="form-check-label small fw-semibold" for="inst-runtime-safeops">Безопасный режим SafeOps</label>
                   </div>
+                  <div class="form-text small text-secondary ms-4">Блокировка потенциально опасных команд форматирования и скрытого подавления ошибок (-EA 0).</div>
+                </div>
+                <div class="col-12">
+                  <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" id="inst-runtime-autoextract" checked/>
+                    <label class="form-check-label small fw-semibold" for="inst-runtime-autoextract">Автоматическое извлечение и сохранение инструментов из рассуждений модели (Self-Expanding Agent)</label>
+                  </div>
+                  <div class="form-text small text-secondary ms-4">Если модель в цепочке размышлений генерирует новый полезный PowerShell-скрипт, он автоматически регистрируется в базе на Hostinger.</div>
                 </div>
               </div>
+              <div id="inst-runtime-result" class="mt-3" style="display: none;"></div>
+            </div>
+            <div class="card-footer d-flex justify-content-end align-items-center gap-2">
+              <button type="button" class="btn btn-sm btn-primary fw-bold" id="inst-runtime-btn-save">
+                <i class="bi bi-check-circle me-1"></i>Сохранить параметры рантайма
+              </button>
+            </div>
+          </div>
+        </div>
 
-              <!-- Выбор способа подключения к базе инструментов (Radio Buttons) -->
-              <div class="col-12 mb-2 pb-2 border-bottom border-secondary border-opacity-25">
-                <label class="form-label form-label-sm fw-semibold d-block mb-2">Выберите, какую базу данных инструментов использовать:</label>
-                <div class="rounded p-3 border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
-                  <div class="form-check mb-2">
-                    <input class="form-check-input" type="radio" name="instruments-conn-mode" id="instruments-mode-sqlite" value="sqlite" checked>
-                    <label class="form-check-label fw-semibold d-flex align-items-center gap-2 flex-wrap" for="instruments-mode-sqlite">
-                      <i class="bi bi-hdd text-primary"></i>
-                      <span>Использовать локальную базу данных (SQLite: ai_instruments.db)</span>
-                      <span class="ui-badge ui-badge-neutral">Локальная (По умолчанию)</span>
-                    </label>
-                    <div class="form-text small ms-4 text-muted">Изолированный локальный файл SQLite, содержащий исключительно исполняемые инструменты и PowerShell-скрипты агента.</div>
-                  </div>
-
-                  <div class="form-check mb-2">
-                    <input class="form-check-input" type="radio" name="instruments-conn-mode" id="instruments-mode-api" value="php_api">
-                    <label class="form-check-label fw-semibold d-flex align-items-center gap-2 flex-wrap" for="instruments-mode-api">
-                      <i class="bi bi-cloud-arrow-up-fill text-info"></i>
-                      <span>Использовать удаленную базу через API (Hostinger)</span>
-                      <span class="ui-badge ui-badge-info">Удаленная</span>
-                    </label>
-                    <div class="form-text small ms-4 text-muted">Обращение к удаленной таблице <code>ai_instruments</code> на веб-хостинге по HTTP через PHP API шлюз.</div>
-                  </div>
-
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="instruments-conn-mode" id="instruments-mode-direct" value="direct">
-                    <label class="form-check-label fw-semibold d-flex align-items-center gap-2 flex-wrap" for="instruments-mode-direct">
-                      <i class="bi bi-hdd-network-fill text-primary"></i>
-                      <span>Использовать прямое подключение к MariaDB (Direct TCP)</span>
-                      <span class="ui-badge ui-badge-info">Удаленная</span>
-                    </label>
-                    <div class="form-text small ms-4 text-muted">Прямое TCP-соединение с удаленным сервером MariaDB (порт 3306).</div>
-                  </div>
+        <!-- Блок 7.3: Каталог инструментов -->
+        <div class="tab-pane fade" id="subpane-block-inst-catalog" role="tabpanel">
+          <div class="card mb-3" id="instruments-catalog-card">
+            <div class="card-header d-flex justify-content-between align-items-center py-2 flex-wrap gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-collection text-primary me-2"></i>Каталог инструментов агента</h6>
+                <span class="ui-badge ui-badge-info" id="inst-catalog-counter">0 инструментов</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-primary" id="inst-catalog-btn-create">
+                  <i class="bi bi-plus-lg me-1"></i>Новый инструмент
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="inst-catalog-btn-refresh">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Обновить
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                  <input type="text" class="form-control form-control-sm" id="inst-catalog-search" placeholder="Поиск по названию или коду инструмента..."/>
+                </div>
+                <div class="col-md-3">
+                  <select class="form-select form-select-sm" id="inst-catalog-filter-type">
+                    <option value="">Все типы</option>
+                    <option value="powershell">PowerShell</option>
+                    <option value="cmd">CMD</option>
+                    <option value="utility">Утилиты</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <select class="form-select form-select-sm" id="inst-catalog-filter-entity">
+                    <option value="">Все сущности</option>
+                    <option value="process">Процессы</option>
+                    <option value="service">Службы</option>
+                    <option value="network">Сеть</option>
+                    <option value="storage">Хранилище</option>
+                    <option value="system">Система и оборудование</option>
+                  </select>
                 </div>
               </div>
-
-              <!-- Блок 1: Локальная база SQLite -->
-              <div id="instruments-sec-sqlite" class="col-12 instruments-panel-section">
-                <div class="row g-2">
-                  <div class="col-md-12">
-                    <label class="form-label form-label-sm fw-semibold">Путь к файлу базы данных инструментов SQLite</label>
-                    <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-sqlite-path" value="data/ai_instruments/ai_instruments.db" placeholder="data/ai_instruments/ai_instruments.db"/>
-                    <div class="form-text small text-secondary">Путь к файлу ai_instruments.db на компьютере. Создается автоматически при старте сервера.</div>
-                  </div>
-                </div>
+              <div id="inst-catalog-list-container" class="table-responsive">
+                <div class="text-center py-4 text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Загрузка инструментов...</div>
               </div>
+              <div id="inst-catalog-exec-output" class="mt-3" style="display: none;"></div>
 
-              <!-- Блок 2: Через API из PHP скрипта на хостинге -->
-              <div id="instruments-sec-api" class="col-12 instruments-panel-section" style="display: none;">
-                <div class="row g-2">
-                  <div class="col-md-8">
-                    <label class="form-label form-label-sm fw-semibold">URL API скрипта на хостинге</label>
-                    <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-php-url" value="https://srv1502.hstgr.io/wikillm_hostinger.php" placeholder="https://srv1502.hstgr.io/wikillm_hostinger.php"/>
-                    <div class="form-text small text-secondary">Адрес REST API шлюза на веб-хостинге (srv1502.hstgr.io).</div>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label form-label-sm fw-semibold">Ключ доступа / Токен API (X-API-Key)</label>
-                    <input type="password" class="form-control form-control-sm" id="instruments-db-php-key" value="" placeholder="Токен (опционально)"/>
-                  </div>
-                  <div class="col-md-8">
-                    <label class="form-label form-label-sm fw-semibold">Имя базы данных (Database)</label>
-                    <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-api-name" value="u177424397_comp_knowledge" placeholder="u177424397_comp_knowledge"/>
-                    <div class="form-text small text-secondary">Целевая БД на сервере (таблица: <code>ai_instruments</code>).</div>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label form-label-sm fw-semibold">Таймаут запросов (сек)</label>
-                    <input type="number" class="form-control form-control-sm" id="instruments-db-api-timeout" value="10" min="2" max="120"/>
-                  </div>
-                </div>
-              </div>
+              <!-- Модальное окно редактора инструмента агента -->
+              <div class="modal fade" id="inst-editor-modal" tabindex="-1" aria-labelledby="inst-editor-modal-title" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                  <div class="modal-content" style="background: var(--surface-1); color: var(--text-color); border: 1px solid var(--border-color);">
+                    <div class="modal-header py-2" style="background: var(--surface-2); border-bottom: 1px solid var(--border-color);">
+                      <h6 class="modal-title fw-bold mb-0" id="inst-editor-modal-title">
+                        <i class="bi bi-tools text-primary me-2"></i>Редактор инструмента ИИ-агента
+                      </h6>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body">
+                      <form id="inst-editor-form" onsubmit="return false;">
+                        <div class="row g-2 mb-2">
+                          <div class="col-md-6">
+                            <label class="form-label form-label-sm fw-semibold mb-1" for="inst-edit-tool-id">ID инструмента (tool_id)</label>
+                            <input type="text" class="form-control form-control-sm font-monospace" id="inst-edit-tool-id" placeholder="inst_custom_probe" required/>
+                          </div>
+                          <div class="col-md-3">
+                            <label class="form-label form-label-sm fw-semibold mb-1" for="inst-edit-type">Тип запуска</label>
+                            <select class="form-select form-select-sm" id="inst-edit-type">
+                              <option value="powershell">PowerShell</option>
+                              <option value="cmd">CMD</option>
+                              <option value="utility">Утилита / SDK</option>
+                            </select>
+                          </div>
+                          <div class="col-md-3">
+                            <label class="form-label form-label-sm fw-semibold mb-1" for="inst-edit-entity">Целевая сущность</label>
+                            <select class="form-select form-select-sm" id="inst-edit-entity">
+                              <option value="system">system (Система)</option>
+                              <option value="process">process (Процессы)</option>
+                              <option value="service">service (Службы)</option>
+                              <option value="network">network (Сеть)</option>
+                              <option value="storage">storage (Хранилище)</option>
+                            </select>
+                          </div>
+                        </div>
 
-              <!-- Блок 3: Прямое TCP подключение к MariaDB -->
-              <div id="instruments-sec-direct" class="col-12 instruments-panel-section" style="display: none;">
-                <div class="row g-2">
-                  <div class="col-md-6">
-                    <label class="form-label form-label-sm fw-semibold">Хост MariaDB (Host)</label>
-                    <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-host" value="srv1502.hstgr.io" placeholder="srv1502.hstgr.io"/>
-                  </div>
-                  <div class="col-md-2">
-                    <label class="form-label form-label-sm fw-semibold">Порт</label>
-                    <input type="number" class="form-control form-control-sm font-monospace" id="instruments-db-port" value="3306"/>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label form-label-sm fw-semibold">Имя базы данных</label>
-                    <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-direct-name" value="u177424397_comp_knowledge"/>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label form-label-sm fw-semibold">Пользователь</label>
-                    <input type="text" class="form-control form-control-sm" id="instruments-db-user" value="u177424397_davidka"/>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label form-label-sm fw-semibold">Пароль</label>
-                    <div class="input-group input-group-sm">
-                      <input type="password" class="form-control" id="instruments-db-pass" value="@Davidka#1969"/>
-                      <button class="btn btn-outline-secondary" type="button" id="instruments-db-toggle-pass" title="Показать/скрыть пароль">
-                        <i class="bi bi-eye"></i>
-                      </button>
+                        <div class="mb-2">
+                          <label class="form-label form-label-sm fw-semibold mb-1" for="inst-edit-name">Название инструмента</label>
+                          <input type="text" class="form-control form-control-sm" id="inst-edit-name" placeholder="Понятное название инструмента на русском языке" required/>
+                        </div>
+
+                        <div class="mb-2">
+                          <label class="form-label form-label-sm fw-semibold mb-1" for="inst-edit-command">Исполняемая команда / скрипт</label>
+                          <textarea class="form-control form-control-sm font-monospace" id="inst-edit-command" rows="5" placeholder="Get-Process | Select-Object -First 10 Name, Id | ConvertTo-Json -Compress" required></textarea>
+                          <div class="form-text small text-secondary">Скрипт PowerShell, команда CMD или вызов модуля Python SDK.</div>
+                        </div>
+
+                        <div class="mb-2">
+                          <label class="form-label form-label-sm fw-semibold mb-1" for="inst-edit-description">Описание и назначение для ИИ-агента</label>
+                          <textarea class="form-control form-control-sm" id="inst-edit-description" rows="2" placeholder="Когда и для какой диагностики агент должен применять этот инструмент..."></textarea>
+                        </div>
+
+                        <div class="row g-2 mb-2">
+                          <div class="col-md-4">
+                            <label class="form-label form-label-sm fw-semibold mb-1" for="inst-edit-risk">Уровень риска (SafeOps)</label>
+                            <select class="form-select form-select-sm" id="inst-edit-risk">
+                              <option value="safe">safe (Безопасный / Read-Only)</option>
+                              <option value="caution">caution (Требует внимания)</option>
+                              <option value="danger">danger (Опасный / Модификация)</option>
+                            </select>
+                          </div>
+                          <div class="col-md-4">
+                            <label class="form-label form-label-sm fw-semibold mb-1" for="inst-edit-author">Источник / автор</label>
+                            <input type="text" class="form-control form-control-sm font-monospace" id="inst-edit-author" placeholder="reasoning_chain"/>
+                          </div>
+                          <div class="col-md-4">
+                            <label class="form-label form-label-sm fw-semibold mb-1" for="inst-edit-tags">Теги (через запятую)</label>
+                            <input type="text" class="form-control form-control-sm font-monospace" id="inst-edit-tags" placeholder="#powershell, #process"/>
+                          </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center small text-secondary pt-1" id="inst-edit-meta-bar">
+                          <span id="inst-edit-meta-exec">Запусков: 0</span>
+                          <span id="inst-edit-meta-updated">Обновлено: —</span>
+                        </div>
+                      </form>
+                      <div id="inst-editor-exec-output" class="mt-3" style="display: none;"></div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between align-items-center py-2" style="background: var(--surface-2); border-top: 1px solid var(--border-color);">
+                      <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="inst-editor-btn-test">
+                          <i class="bi bi-play-fill me-1"></i>Протестировать
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" id="inst-editor-btn-delete">
+                          <i class="bi bi-trash me-1"></i>Удалить
+                        </button>
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="button" class="btn btn-sm btn-primary fw-bold" id="inst-editor-btn-save">
+                          <i class="bi bi-check-circle me-1"></i>Сохранить в базу
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            <!-- Блок интерактивного статуса проверки базы инструментов -->
-            <div id="instruments-db-check-result" class="mt-3" style="display: none;"></div>
           </div>
-          <div class="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div class="d-flex align-items-center gap-2">
-              <button type="button" class="btn btn-sm btn-outline-primary" id="instruments-db-btn-check">
-                <i class="bi bi-activity me-1"></i>Проверить подключение к ai_instruments
-              </button>
-              <span id="instruments-db-spinner" class="spinner-border spinner-border-sm text-primary ms-1" style="display: none;" role="status"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Subpane 8: Редактор тултипов (Tooltips Editor) -->
+  <div class="tab-pane fade" id="subpane-internals-tooltips-editor" role="tabpanel" data-panel-id="tooltips-editor">
+    <div id="internals-tooltips-editor-container"></div>
+  </div>
+
+  <!-- Subpane 9: RAG Кода и Диагностики (Codebase AST & Diagnostic RAG) -->
+  <div class="tab-pane fade" id="subpane-internals-codebase-rag" role="tabpanel" data-panel-id="codebase-rag">
+    <div class="p-2">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-code-square fs-4 text-primary"></i>
+          <div>
+            <h5 class="mb-0 fw-bold">База знаний кода и диагностика (Codebase AST & Diagnostic RAG)</h5>
+            <small class="text-secondary">Индексация AST-деревьев Python, Markdown-документации и генерация структурированных инженерных заключений по логам и ошибкам</small>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="ui-badge ui-badge-info" id="code-rag-total-indexes-badge">0 инд.</span>
+          <span class="ui-badge ui-badge-success"><i class="bi bi-cpu me-1"></i>AST + Hybrid LLM</span>
+        </div>
+      </div>
+
+      <!-- Подменю блоков внутри панели: Диагностика, Сборка индексов, Поиск по коду -->
+      <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
+        <div class="nav btn-group btn-group-sm" id="codebase-blocks-nav" role="tablist">
+          <button type="button" class="btn btn-outline-secondary active d-flex align-items-center gap-1" id="btn-block-code-diagnose" data-block-id="block-code-diagnose" data-bs-toggle="pill" data-bs-target="#subpane-block-code-diagnose" title="Интеллектуальная диагностика: вопрос, логи или ошибка -> заключение по кодовой базе">
+            <i class="bi bi-clipboard-pulse"></i>
+            <span>Диагностика ошибок и логов</span>
+          </button>
+          <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1" id="btn-block-code-index" data-block-id="block-code-index" data-bs-toggle="pill" data-bs-target="#subpane-block-code-index" title="Сборка и переиндексация AST-деревьев Python и документации">
+            <i class="bi bi-folder-check"></i>
+            <span>Сборка и индексы AST</span>
+          </button>
+          <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1" id="btn-block-code-search" data-block-id="block-code-search" data-bs-toggle="pill" data-bs-target="#subpane-block-code-search" title="Поиск по AST-символам (функции/классы) и векторный поиск по коду">
+            <i class="bi bi-search"></i>
+            <span>Поиск по коду и символам</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Содержимое блоков -->
+      <div class="tab-content" id="codebase-blocks-content">
+        <!-- Блок 1: Интеллектуальная диагностика -->
+        <div class="tab-pane fade show active" id="subpane-block-code-diagnose" role="tabpanel">
+          <div class="card mb-3 shadow-sm border" style="border-color: var(--border-color) !important;">
+            <div class="card-header py-2 d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: var(--surface-2);">
+              <h6 class="mb-0 fw-bold"><i class="bi bi-clipboard-pulse text-primary me-2"></i>Генератор диагностического заключения по коду</h6>
+              <span class="small text-secondary">POST /api/rag/codebase/diagnose</span>
             </div>
-            <div class="d-flex align-items-center gap-2">
-              <button type="button" class="btn btn-sm btn-primary fw-bold" id="instruments-db-btn-save-cfg">
-                <i class="bi bi-check-circle me-1"></i>Сделать активной и сохранить
-              </button>
+            <div class="card-body p-3">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label form-label-sm fw-semibold">1. Вопрос по поведению или архитектуре кода (опционально)</label>
+                  <input type="text" class="form-control form-control-sm" id="code-rag-diag-question" placeholder="Например: Из-за чего падает расчет комиссии в платежном модуле?" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label form-label-sm fw-semibold text-danger">2. Сообщение об ошибке или Traceback (опционально)</label>
+                  <textarea class="form-control form-control-sm font-monospace" id="code-rag-diag-error" rows="4" placeholder='File "src/ai/rag/text_rag.py", line 255, in search&#10;ValueError: Несоответствие размерности вектора запроса...'></textarea>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label form-label-sm fw-semibold text-warning">3. Список строк логов системы или приложения (опционально)</label>
+                  <textarea class="form-control form-control-sm font-monospace" id="code-rag-diag-logs" rows="4" placeholder="2026-10-31 18:00:01 [ERROR] worker.py:14 - rejected&#10;2026-10-31 18:00:02 [CRITICAL] Exception caught in task pipeline"></textarea>
+                </div>
+                <div class="col-md-6 d-flex align-items-center gap-3">
+                  <div class="flex-grow-1">
+                    <label class="form-label form-label-sm fw-semibold mb-1">Целевой AST-индекс</label>
+                    <select class="form-select form-select-sm" id="code-rag-diagnose-index">
+                      <option value="codebase">codebase (По умолчанию)</option>
+                    </select>
+                  </div>
+                  <div class="form-check form-switch mt-4">
+                    <input class="form-check-input" type="checkbox" id="code-rag-diag-use-llm" checked />
+                    <label class="form-check-label small fw-semibold" for="code-rag-diag-use-llm">LLM-синтез (UnifiedChat)</label>
+                  </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end align-items-end">
+                  <button type="button" class="btn btn-sm btn-primary fw-bold px-3 py-1.5" id="btn-code-rag-diagnose">
+                    <i class="bi bi-lightning-charge-fill me-1"></i>Сформировать заключение по коду
+                  </button>
+                  <span id="code-rag-diagnose-spinner" class="spinner-border spinner-border-sm text-primary ms-2" style="display: none;" role="status"></span>
+                </div>
+              </div>
+
+              <!-- Вывод заключения -->
+              <div id="code-rag-diagnose-results" class="mt-4">
+                <div class="text-center text-secondary py-4 small">
+                  <i class="bi bi-clipboard-check fs-2 d-block mb-1 opacity-50"></i>
+                  Введите вопрос, фрагмент ошибки или строки логов и нажмите «Сформировать заключение».
+                </div>
+              </div>
             </div>
           </div>
         </div>
-    </div>
-  </div>
 
-  <!-- Subpane 8: Параметры модели и RAG-профили WikiLLM -->
-  <div class="tab-pane fade" id="subpane-internals-wikillm-params" role="tabpanel" data-panel-id="wikillm-params">
-    <div class="p-2">
-              <div class="card mb-3" id="wikillm-params-card">
-          <div class="card-header d-flex justify-content-between align-items-center py-2">
-            <h6 class="mb-0 fw-bold"><i class="bi bi-book text-primary me-2"></i>Параметры и настройки WikiLLM</h6>
-            <span class="ui-badge ui-badge-info">v23</span>
-          </div>
-          <div class="card-body">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label form-label-sm fw-semibold">Модель генерации базы знаний</label>
-                <input type="text" class="form-control form-control-sm" id="wikillm-cfg-model" value="gemini-3.1-flash-lite"/>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label form-label-sm fw-semibold">Порог точности (Confidence Threshold)</label>
-                <input type="number" step="0.05" class="form-control form-control-sm" id="wikillm-cfg-threshold" value="0.85"/>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label form-label-sm fw-semibold">Расположение базы данных WikiLLM (db_path)</label>
-                <input type="text" class="form-control form-control-sm" id="wikillm-cfg-db-path" value="data/wikillm.db" placeholder="data/wikillm.db"/>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label form-label-sm fw-semibold">Температура (Temperature)</label>
-                <input type="number" step="0.05" min="0.0" max="2.0" class="form-control form-control-sm" id="wikillm-cfg-temperature" value="0.2"/>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label form-label-sm fw-semibold">Размер контекстного окна</label>
-                <input type="number" step="256" min="512" max="32768" class="form-control form-control-sm" id="wikillm-cfg-context-window" value="4096"/>
-              </div>
-              <div class="col-md-6">
-                <div class="form-check form-switch mt-2">
-                  <input class="form-check-input" type="checkbox" id="wikillm-cfg-auto-enrich" checked/>
-                  <label class="form-check-label small" for="wikillm-cfg-auto-enrich">Автоматическое фоновое обогащение неизвестных событий через LLM</label>
+        <!-- Блок 2: Сборка и индексы AST -->
+        <div class="tab-pane fade" id="subpane-block-code-index" role="tabpanel">
+          <div class="row g-3">
+            <div class="col-lg-6 col-12">
+              <div class="card shadow-sm border h-100" style="border-color: var(--border-color) !important;">
+                <div class="card-header py-2" style="background: var(--surface-2);">
+                  <h6 class="mb-0 fw-bold"><i class="bi bi-hammer text-primary me-2"></i>Построение и переиндексация базы знаний</h6>
+                </div>
+                <div class="card-body p-3">
+                  <div class="mb-2">
+                    <label class="form-label form-label-sm fw-semibold">Корневая директория проекта</label>
+                    <input type="text" class="form-control form-control-sm font-monospace" id="code-rag-build-root" value="." placeholder="." />
+                    <div class="form-text small text-secondary">Относительный или абсолютный путь к проекту.</div>
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label form-label-sm fw-semibold">Имя индекса</label>
+                    <input type="text" class="form-control form-control-sm font-monospace" id="code-rag-build-name" value="codebase" placeholder="codebase" />
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label form-label-sm fw-semibold">Ограничение поддиректориями (через запятую)</label>
+                    <input type="text" class="form-control form-control-sm font-monospace" id="code-rag-build-dirs" value="src, apps" placeholder="src, apps" />
+                    <div class="form-text small text-secondary">Оставьте пустым для индексации всего проекта.</div>
+                  </div>
+                  <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="code-rag-build-md" checked />
+                    <label class="form-check-label small" for="code-rag-build-md">Индексировать Markdown-документацию (*.md)</label>
+                  </div>
+                  <div id="code-rag-build-status" style="display: none;" class="mb-3"></div>
+                  <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-primary fw-bold" id="btn-code-rag-build">
+                      <i class="bi bi-arrow-repeat me-1"></i>Собрать / Обновить индекс
+                    </button>
+                    <span id="code-rag-build-spinner" class="spinner-border spinner-border-sm text-primary" style="display: none;" role="status"></span>
+                  </div>
                 </div>
               </div>
-              <div class="col-md-6">
-                <div class="form-check form-switch mt-2">
-                  <input class="form-check-input" type="checkbox" id="wikillm-cfg-auto-index" checked/>
-                  <label class="form-check-label small" for="wikillm-cfg-auto-index">Правила автоматической индексации и векторного поиска</label>
+            </div>
+
+            <div class="col-lg-6 col-12">
+              <div class="card shadow-sm border h-100" style="border-color: var(--border-color) !important;">
+                <div class="card-header py-2 d-flex justify-content-between align-items-center" style="background: var(--surface-2);">
+                  <h6 class="mb-0 fw-bold"><i class="bi bi-folder-check text-success me-2"></i>Активные индексы кодовой базы</h6>
+                  <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="loadCodebaseIndexes()">
+                    <i class="bi bi-arrow-clockwise"></i>
+                  </button>
+                </div>
+                <div class="card-body p-2" id="code-rag-indexes-list" style="max-height: 400px; overflow-y: auto;">
+                  <div class="text-center text-secondary py-3 small">
+                    <span class="spinner-border spinner-border-sm me-1"></span> Загрузка индексов...
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="card-footer d-flex justify-content-end align-items-center gap-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="wikillm-btn-retry">
-              <i class="bi bi-arrow-clockwise me-1"></i>Повторить
-            </button>
-            <button type="button" class="btn btn-sm btn-primary fw-bold" id="wikillm-btn-save">
-              <i class="bi bi-check-circle me-1"></i>Сохранить WikiLLM
-            </button>
+        </div>
+
+        <!-- Блок 3: Поиск по коду и символам -->
+        <div class="tab-pane fade" id="subpane-block-code-search" role="tabpanel">
+          <div class="card mb-3 shadow-sm border" style="border-color: var(--border-color) !important;">
+            <div class="card-header py-2" style="background: var(--surface-2);">
+              <h6 class="mb-0 fw-bold"><i class="bi bi-search text-primary me-2"></i>Интерактивный поиск по AST-символам и кодовой базе</h6>
+            </div>
+            <div class="card-body p-3">
+              <div class="row g-2 mb-3">
+                <div class="col-md-3">
+                  <label class="form-label form-label-sm fw-semibold">Индекс</label>
+                  <select class="form-select form-select-sm" id="code-rag-search-index">
+                    <option value="codebase">codebase</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label form-label-sm fw-semibold">Поиск AST-символа (класс, метод, функция)</label>
+                  <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" id="code-rag-symbol-query" placeholder="Например: CodebaseRAG или calculate_fee" />
+                    <button class="btn btn-outline-primary" type="button" id="btn-code-rag-symbol-search">
+                      <i class="bi bi-tag-fill me-1"></i>Символ
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label form-label-sm fw-semibold">Гибридный поиск по фрагментам кода</label>
+                  <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" id="code-rag-code-query" placeholder="Например: разбор AST дерева и сигналов" />
+                    <button class="btn btn-primary" type="button" id="btn-code-rag-code-search">
+                      <i class="bi bi-search me-1"></i>Найти в коде
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Контейнер результатов поиска -->
+              <div id="code-rag-search-results">
+                <div class="text-center text-secondary py-3 small">
+                  Введите имя символа или поисковый запрос выше.
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-    </div>
-  </div>
-
-  <!-- Subpane 9: Редактор статей базы знаний WikiLLM -->
-  <div class="tab-pane fade" id="subpane-internals-wikillm-editor" role="tabpanel" data-panel-id="wikillm-editor">
-    <div class="p-2">
-      <div id="wikillm_editor-container"></div>
+      </div>
     </div>
   </div>
 </div>

@@ -19,7 +19,7 @@
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 19:48:00
+# Updated: 2026-10-30 13:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -543,10 +543,83 @@ def _calc_percentiles(values: List[float]) -> Dict[str, float]:
     }
 
 
+def _wavg(old_val: float, old_n: int, new_val: float, new_n: int) -> float:
+    """Взвешенное по числу замеров среднее двух значений."""
+    return round((float(old_val or 0.0) * old_n + float(new_val or 0.0) * new_n) / max(1, old_n + new_n), 2)
+
+
+def _merge_daily_payload(old: Dict[str, Any], new: Dict[str, Any]) -> Dict[str, Any]:
+    """Сливает уже сохранённый суточный профиль приложения с новой порцией тиков того же дня.
+
+    Средние и p50/p90 взвешиваются по числу замеров, максимумы и p95/p99 берутся как максимум
+    (приближение: точные перцентили по свёрнутым данным восстановить нельзя). Запуски
+    дедуплицируются по instance_id, чтобы повторный проход не удваивал счётчики.
+
+    Args:
+        old: Сохранённый payload суточного бакета.
+        new: Payload, посчитанный по новой порции тиков.
+
+    Returns:
+        Dict[str, Any]: Объединённый payload.
+    """
+    n_o, n_n = int(old.get("sample_count") or 0), int(new.get("sample_count") or 0)
+    merged = dict(new)
+    merged["sample_count"] = n_o + n_n
+    merged["period_start"] = old.get("period_start") or new.get("period_start")
+
+    for key, avg_keys, max_keys in (("cpu", ("avg", "p50", "p90"), ("max", "p95", "p99")),
+                                    ("memory_mb", ("avg", "p50", "p90"), ("max", "p95"))):
+        o, n = old.get(key) or {}, new.get(key) or {}
+        m = {"min": min(o.get("min", n.get("min", 0.0)), n.get("min", 0.0))}
+        m.update({k: _wavg(o.get(k, 0.0), n_o, n.get(k, 0.0), n_n) for k in avg_keys})
+        m.update({k: max(o.get(k, 0.0), n.get(k, 0.0)) for k in max_keys})
+        merged[key] = m
+
+    o_io, n_io = old.get("io") or {}, new.get("io") or {}
+    merged["io"] = {
+        "total_read_mb": round(float(o_io.get("total_read_mb") or 0.0) + float(n_io.get("total_read_mb") or 0.0), 2),
+        "total_write_mb": round(float(o_io.get("total_write_mb") or 0.0) + float(n_io.get("total_write_mb") or 0.0), 2),
+        "peak_read_kb_sec": max(o_io.get("peak_read_kb_sec", 0.0), n_io.get("peak_read_kb_sec", 0.0)),
+        "peak_write_kb_sec": max(o_io.get("peak_write_kb_sec", 0.0), n_io.get("peak_write_kb_sec", 0.0)),
+    }
+
+    hours: Dict[str, Dict[str, Any]] = {}
+    for src in (old.get("hourly_distribution") or {}, new.get("hourly_distribution") or {}):
+        for hr, d in src.items():
+            cur = hours.get(hr)
+            if cur is None:
+                hours[hr] = dict(d)
+            else:
+                cur["avg_cpu_percent"] = _wavg(cur["avg_cpu_percent"], cur["samples"], d["avg_cpu_percent"], d["samples"])
+                cur["avg_memory_mb"] = _wavg(cur["avg_memory_mb"], cur["samples"], d["avg_memory_mb"], d["samples"])
+                cur["samples"] += d["samples"]
+    merged["hourly_distribution"] = dict(sorted(hours.items()))
+
+    instances = {**(old.get("instances") or {}), **(new.get("instances") or {})}
+    merged["instances"] = instances
+    o_lc, n_lc = old.get("lifecycle") or {}, new.get("lifecycle") or {}
+    overlap = bool(set(old.get("instances") or {}) & set(new.get("instances") or {}))
+    cpu_time = max if overlap else (lambda a, b: a + b)
+    merged["launch_count"] = max(1, len(instances)) if instances else max(old.get("launch_count", 1), new.get("launch_count", 1))
+    merged["lifecycle"] = {
+        "clean_exits": sum(1 for code in instances.values() if code == 0),
+        "crashes": sum(1 for code in instances.values() if code is not None and code != 0),
+        "avg_lifetime_sec": _wavg(o_lc.get("avg_lifetime_sec", 0.0), n_o, n_lc.get("avg_lifetime_sec", 0.0), n_n),
+        "total_cpu_time_sec": round(cpu_time(float(o_lc.get("total_cpu_time_sec") or 0.0), float(n_lc.get("total_cpu_time_sec") or 0.0)), 2),
+    }
+
+    merged["avg_cpu_percent"] = merged["cpu"]["avg"]
+    merged["max_cpu_percent"] = merged["cpu"]["max"]
+    merged["avg_memory_mb"] = merged["memory_mb"]["avg"]
+    merged["max_memory_mb"] = merged["memory_mb"]["max"]
+    return merged
+
+
 def aggregate_processes_daily(
     conn: sqlite3.Connection,
     cutoff_seconds: float = 86400.0,
     outlier_cpu_threshold: float = 30.0,
+    tick_seconds: float = 5.0,
 ) -> Dict[str, int]:
     """Сворачивает детальные сэмплы процессов старше суток (24ч) в суточную статистику proc_daily с расширенным профилем (перцентили, почасовая гистограмма, ввод-вывод, аварии)."""
     cursor = conn.cursor()
@@ -656,8 +729,8 @@ def aggregate_processes_daily(
         avg_read_bps = sum(read_rates) / cnt if cnt > 0 else 0.0
         peak_write_bps = max(write_rates) if write_rates else 0.0
         avg_write_bps = sum(write_rates) / cnt if cnt > 0 else 0.0
-        total_read_mb = round(sum(read_rates) * 5.0 / (1024.0 * 1024.0), 2)
-        total_write_mb = round(sum(write_rates) * 5.0 / (1024.0 * 1024.0), 2)
+        total_read_mb = round(sum(read_rates) * tick_seconds / (1024.0 * 1024.0), 2)
+        total_write_mb = round(sum(write_rates) * tick_seconds / (1024.0 * 1024.0), 2)
 
         # 4. Анализ сессий, запусков, кодов возврата и аварий
         inst_map = {}
@@ -692,6 +765,7 @@ def aggregate_processes_daily(
             "parent_name": parent_name,
             "date": day_str,
             "launch_count": max(1, len(inst_map) if inst_map else 1),
+            "instances": {str(iid): inst["exit_code"] for iid, inst in inst_map.items()},
             "sample_count": cnt,
             "cpu": {
                 "min": round(min(cpus), 2),
@@ -730,6 +804,24 @@ def aggregate_processes_daily(
             "period_start": p_start_ts,
             "period_end": p_end_ts,
         }
+
+        prev = cursor.execute(
+            "SELECT payload_json, period_start, period_start_epoch, disk_read_bps_avg, disk_read_bps_max, "
+            "disk_write_bps_avg, disk_write_bps_max, cpu_p95, sample_count FROM telemetry_rollups "
+            "WHERE tier = 'proc_daily' AND sensor_id = ? AND bucket_start = ?",
+            (sensor_id, b_start),
+        ).fetchone()
+        if prev and prev["payload_json"]:
+            n_old = int(prev["sample_count"] or 0)
+            payload = _merge_daily_payload(json.loads(prev["payload_json"]), payload)
+            avg_read_bps = _wavg(prev["disk_read_bps_avg"], n_old, avg_read_bps, cnt)
+            avg_write_bps = _wavg(prev["disk_write_bps_avg"], n_old, avg_write_bps, cnt)
+            peak_read_bps = max(float(prev["disk_read_bps_max"] or 0.0), peak_read_bps)
+            peak_write_bps = max(float(prev["disk_write_bps_max"] or 0.0), peak_write_bps)
+            cpu_pcts["p95"] = max(float(prev["cpu_p95"] or 0.0), cpu_pcts["p95"])
+            p_start_ts = prev["period_start"] or p_start_ts
+            p_start_epoch = float(prev["period_start_epoch"] or p_start_epoch)
+            cnt = payload["sample_count"]
 
         rollup_rows.append((
             sensor_id,
@@ -916,6 +1008,8 @@ def aggregate_processes_all_time(conn: sqlite3.Connection) -> Dict[str, int]:
     cursor = conn.cursor()
     now_epoch = time.time()
 
+    # Профиль производный от proc_daily: удаляем, чтобы после очистки по сроку хранения не оставались «хвосты»
+    cursor.execute("DELETE FROM telemetry_rollups WHERE tier = 'proc_all_time'")
     cursor.execute(
         """
         SELECT sensor_id, sample_count, cpu_avg, cpu_max, ram_avg, ram_max, payload_json
@@ -1156,6 +1250,7 @@ class TelemetrySqlAggregator:
         end_epoch: Optional[float] = None,
         detect_spikes: bool = True,
         cutoff_process_seconds: float = 86400.0,
+        tick_seconds: float = 5.0,
     ) -> Dict[str, Any]:
         """Выполняет полный каскад агрегации: сенсоры (raw -> hourly -> daily -> weekly -> monthly -> yearly) и процессы (тики 24ч -> proc_daily -> proc_weekly -> proc_all_time) в одной транзакции."""
         if self._cm.read_only:
@@ -1169,7 +1264,7 @@ class TelemetrySqlAggregator:
             y_res = sensors_aggregate(conn, AggregationLevel.YEARLY, start_epoch, end_epoch, False)
 
             # Агрегация процессов: тики старше 24ч сворачиваются в суточные, недельные и бессрочные профили
-            proc_d_res = aggregate_processes_daily(conn, cutoff_seconds=cutoff_process_seconds)
+            proc_d_res = aggregate_processes_daily(conn, cutoff_seconds=cutoff_process_seconds, tick_seconds=tick_seconds)
             proc_w_res = aggregate_processes_weekly(conn, window_days=7)
             proc_all_res = aggregate_processes_all_time(conn)
 
@@ -1185,3 +1280,4 @@ class TelemetrySqlAggregator:
                 "proc_weekly": proc_w_res,
                 "proc_all_time": proc_all_res,
             }
+

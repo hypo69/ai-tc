@@ -6,7 +6,8 @@ Description:
   Инструмент автоматической генерации и внедрения субменю переключения панелей
   в едином стиле верхнего меню (кнопки btn-outline-primary с иконками).
   Позволяет спрятать громоздкие вертикальные секции страницы под аккуратные
-  горизонтальные кнопки меню с иконками, заголовком и подзаголовком.
+  горизонтальные кнопки меню с иконками, заголовком, подзаголовком и
+  автоматической синхронизацией выбранной панели в URL (#tab-<tabId>#<panelId>).
 
 Usage Examples:
   1. Генерация HTML шаблона шапки и суб-вкладок:
@@ -25,7 +26,7 @@ Project: ai-windows-admin
 Package: .agents/skills/webgui-developer/scripts
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 13:25:00
+Updated: 2026-10-28 16:35:00
 =============================================================================
 """
 
@@ -70,7 +71,7 @@ def build_subtabs_header_html(
 
         btn_items.append(
             f'      <button class="btn btn-sm btn-outline-primary{active_cls} d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" '
-            f'id="{btn_id}" data-bs-toggle="pill" data-bs-target="#{target_pane_id}" type="button" role="tab">\n'
+            f'id="{btn_id}" data-panel-id="{tab_id}" data-bs-toggle="pill" data-bs-target="#{target_pane_id}" type="button" role="tab">\n'
             f'        <i class="{icon_cls}"></i>\n'
             f'        <span>{label}</span>\n'
             f'      </button>'
@@ -91,7 +92,7 @@ def build_subtabs_header_html(
     </div>{btn_wrapper}
   </div>
 
-  <!-- Отдельный блок меню суб-вкладок ПОД названием вкладки, расположен слева -->
+  <!-- Блок меню переключения панелей на вкладке. Выбранная панель добавляется в url -->
   <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
     <div class="d-flex align-items-center gap-1 flex-wrap" id="{nav_id}" role="tablist">
 {buttons_html}
@@ -113,23 +114,42 @@ def build_tab_pane_wrapper(prefix: str, tab_id: str, inner_content: str, is_acti
 
 
 def build_subtabs_js_helper(prefix: str, tabs: List[Dict[str, str]], function_name: Optional[str] = None) -> str:
-    """Генерирует JS функцию для программного переключения между субвкладками."""
+    """Генерирует JS функцию для программного переключения между субвкладками с обновлением URL."""
     fn_name = function_name or f"switch{prefix.capitalize()}SubTab"
+    nav_id = f"{prefix}-subtabs-nav"
+    tab_id = f"tab-{prefix}"
 
     mapping_entries = []
     for tab in tabs:
-        tab_id = tab['id']
-        btn_id = f"subtab-{prefix}-{tab_id}-btn"
-        mapping_entries.append(f"    case '{tab_id}':\n      btnId = '{btn_id}';\n      break;")
+        t_id = tab['id']
+        btn_id = f"subtab-{prefix}-{t_id}-btn"
+        mapping_entries.append(f"    case '{t_id}':\n      btnId = '{btn_id}';\n      canonical = '{t_id}';\n      break;")
 
     cases_code = "\n".join(mapping_entries)
+    default_tab = tabs[0]["id"]
 
     return f"""/**
+ * Обновляет адресную строку браузера активной суб-панелью (#{tab_id}#<panel_id>).
+ * @param {{string}} panelId - Идентификатор панели.
+ */
+function updateUrlWithPanel(panelId) {{
+  if (typeof location === 'undefined') return;
+  const newHash = `#{tab_id}#${{panelId}}`;
+  if (location.hash !== newHash) {{
+    try {{
+      history.replaceState(null, null, `${{location.pathname}}${{location.search || ''}}${{newHash}}`);
+    }} catch (_) {{}}
+  }}
+}}
+
+/**
  * Программное переключение между суб-вкладками раздела ({prefix}).
  * @param {{string}} subtabId - Идентификатор подвкладки
+ * @param {{boolean}} [updateUrl=true] - Обновлять ли URL
  */
-window.{fn_name} = function(subtabId) {{
-  let btnId = 'subtab-{prefix}-{tabs[0]["id"]}-btn';
+window.{fn_name} = function(subtabId, updateUrl = true) {{
+  let btnId = 'subtab-{prefix}-{default_tab}-btn';
+  let canonical = '{default_tab}';
   switch (subtabId) {{
 {cases_code}
   }}
@@ -142,7 +162,29 @@ window.{fn_name} = function(subtabId) {{
       btn.click();
     }}
   }}
-}};"""
+  if (updateUrl) {{
+    updateUrlWithPanel(canonical);
+  }}
+}};
+
+// Подключение слушателей кнопок меню для автоматической передачи активной панели в URL
+const subnavEl = document.getElementById('{nav_id}');
+if (subnavEl && !subnavEl.dataset.urlBound) {{
+  subnavEl.dataset.urlBound = 'true';
+  subnavEl.addEventListener('click', (e) => {{
+    const btn = e.target.closest('button[data-panel-id]');
+    if (btn) {{
+      const pId = btn.getAttribute('data-panel-id');
+      if (pId) updateUrlWithPanel(pId);
+    }}
+  }});
+  subnavEl.querySelectorAll('button[data-bs-toggle="pill"]').forEach((btn) => {{
+    btn.addEventListener('shown.bs.tab', (e) => {{
+      const pId = e.target.getAttribute('data-panel-id');
+      if (pId) updateUrlWithPanel(pId);
+    }});
+  }});
+}}"""
 
 
 def parse_tabs_cli_arg(tabs_str: str) -> List[Dict[str, str]]:
@@ -217,3 +259,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -76,3 +76,4 @@ def test_boot_recovery_endpoints(client: TestClient):
 
     resp_winre = client.get('/api/boot-recovery/winre')
     assert resp_winre.status_code == 200
+

@@ -68,3 +68,4 @@ def run_ui_command(args: argparse.Namespace) -> int:
 
     logger.console(f'Неизвестная подкоманда ui: {sub}')
     return 1
+

@@ -144,3 +144,4 @@ def test_advisor_journal_endpoint():
         assert len(data) == 1
         assert data[0]["decision"] == "CREATE"
 
+

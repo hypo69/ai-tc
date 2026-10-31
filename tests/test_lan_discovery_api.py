@@ -118,3 +118,4 @@ def test_probe_device_ports(api_client):
     assert isinstance(data["open_ports"], list)
     assert isinstance(data["details"], list)
     assert len(data["details"]) == 8  # SMB, RDP, HTTP, HTTPS, SSH, WinRM, WSD, NetBIOS
+

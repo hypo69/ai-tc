@@ -85,3 +85,4 @@ def test_services_sqlite_data_first_and_scan(client: TestClient):
     resp_summary = client.get('/api/services-manager/summary')
     assert resp_summary.status_code == 200
     assert resp_summary.json()['total_services'] == data['total_services']
+

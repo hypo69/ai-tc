@@ -75,3 +75,4 @@ def test_servicing_endpoints(client: TestClient):
     resp_feat = client.get('/api/servicing-integrity/features')
     assert resp_feat.status_code == 200
     assert len(resp_feat.json()) > 0
+

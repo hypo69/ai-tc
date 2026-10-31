@@ -287,3 +287,4 @@ class IdentityGraphEngine:
         }
 
         return IdentityGraph(nodes=nodes, edges=edges, summary=summary)
+

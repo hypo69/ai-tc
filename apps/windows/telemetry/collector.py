@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # =============================================================================
 # Process Name: AI-Windows-Admin Apps Windows Telemetry - Collector
 # =============================================================================
@@ -16,7 +16,7 @@
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 09:28:50
+# Updated: 2026-10-30 11:15:00
 # =============================================================================
 
 from __future__ import annotations
@@ -988,6 +988,35 @@ class SystemCollector(TelemetryHistoryMixin):
 
                 class DISPLAY_DEVICEW(ctypes.Structure):
                     _fields_ = [('cb', ctypes.wintypes.DWORD), ('DeviceName', ctypes.wintypes.WCHAR * 32), ('DeviceString', ctypes.wintypes.WCHAR * 128), ('StateFlags', ctypes.wintypes.DWORD), ('DeviceID', ctypes.wintypes.WCHAR * 128), ('DeviceKey', ctypes.wintypes.WCHAR * 128)]
+                # Опрос WMI WmiMonitorID для сопоставления точных EDID названий, производителей и серийных номеров
+                wmi_monitors: List[Dict[str, str]] = []
+                try:
+                    import win32com.client
+                    wmi = win32com.client.GetObject('winmgmts:\\\\.\\root\\wmi')
+                    mfg_labels = {
+                        'SAM': 'Samsung', 'DEL': 'Dell', 'GSM': 'LG Electronics', 'AOC': 'AOC',
+                        'ACR': 'Acer', 'ASU': 'ASUS', 'BNQ': 'BenQ', 'PHL': 'Philips',
+                        'HPN': 'HP', 'LEN': 'Lenovo', 'MSI': 'MSI'
+                    }
+                    def _dec_chars(chars: Any) -> str:
+                        if not chars:
+                            return ''
+                        return ''.join(chr(c) for c in chars if c > 0).strip()
+
+                    for m in wmi.InstancesOf('WmiMonitorID'):
+                        m_name = _dec_chars(getattr(m, 'UserFriendlyName', None))
+                        m_sn = _dec_chars(getattr(m, 'SerialNumberID', None))
+                        m_mfg = _dec_chars(getattr(m, 'ManufacturerName', None))
+                        m_inst = str(getattr(m, 'InstanceName', '') or '').strip()
+                        wmi_monitors.append({
+                            'name': m_name,
+                            'sn': m_sn if m_sn != '0' else '',
+                            'mfg': mfg_labels.get(m_mfg.upper(), m_mfg),
+                            'instance': m_inst,
+                        })
+                except Exception as wmi_err:
+                    logger.debug(f'WMI WmiMonitorID query warning: {wmi_err}')
+
                 adapter_map: Dict[str, Dict[str, str]] = {}
                 for i in range(16):
                     disp = DISPLAY_DEVICEW()
@@ -995,12 +1024,52 @@ class SystemCollector(TelemetryHistoryMixin):
                     if not user32.EnumDisplayDevicesW(None, i, ctypes.byref(disp), 0):
                         break
                     if disp.StateFlags & 1:
+                        dev_name = disp.DeviceName
                         mon = DISPLAY_DEVICEW()
                         mon.cb = ctypes.sizeof(DISPLAY_DEVICEW)
-                        mon_name = ''
-                        if user32.EnumDisplayDevicesW(disp.DeviceName, 0, ctypes.byref(mon), 0):
-                            mon_name = mon.DeviceString
-                        adapter_map[disp.DeviceName] = {'adapter': disp.DeviceString, 'mon_name': mon_name or 'Display Monitor'}
+                        mon_str = ''
+                        mon_pnp = ''
+                        if user32.EnumDisplayDevicesW(dev_name, 0, ctypes.byref(mon), 0):
+                            mon_str = mon.DeviceString
+                            mon_pnp = mon.DeviceID
+
+                        mon_if = DISPLAY_DEVICEW()
+                        mon_if.cb = ctypes.sizeof(DISPLAY_DEVICEW)
+                        iface_id = ''
+                        if user32.EnumDisplayDevicesW(dev_name, 0, ctypes.byref(mon_if), 1):
+                            iface_id = mon_if.DeviceID
+
+                        matched = None
+                        if iface_id:
+                            norm_iface = iface_id.upper().replace('#', '\\')
+                            for wm in wmi_monitors:
+                                base_inst = wm['instance'].upper().rsplit('_', 1)[0]
+                                if base_inst in norm_iface:
+                                    matched = wm
+                                    break
+                        if not matched and mon_pnp:
+                            pnp_parts = mon_pnp.upper().split('\\')
+                            if len(pnp_parts) > 1:
+                                pnp_code = pnp_parts[1]
+                                for wm in wmi_monitors:
+                                    if f'\\{pnp_code}\\' in wm['instance'].upper() or wm['instance'].upper().startswith(f'DISPLAY\\{pnp_code}'):
+                                        matched = wm
+                                        break
+
+                        edid_name = matched.get('name') if matched else ''
+                        edid_mfg = matched.get('mfg') if matched else ''
+                        edid_sn = matched.get('sn') if matched else ''
+
+                        chosen_name = mon_str or edid_name or 'Display Monitor'
+                        if ('generic' in chosen_name.lower() or not mon_str) and edid_name:
+                            chosen_name = edid_name
+
+                        adapter_map[dev_name] = {
+                            'adapter': disp.DeviceString,
+                            'mon_name': chosen_name,
+                            'vendor': edid_mfg,
+                            'serial_number': edid_sn,
+                        }
 
                 class MONITORINFOEXW(ctypes.Structure):
                     _fields_ = [('cbSize', ctypes.wintypes.DWORD), ('rcMonitor', ctypes.wintypes.RECT), ('rcWork', ctypes.wintypes.RECT), ('dwFlags', ctypes.wintypes.DWORD), ('szDevice', ctypes.wintypes.WCHAR * 32)]
@@ -1035,7 +1104,7 @@ class SystemCollector(TelemetryHistoryMixin):
                     if h > w:
                         orient = 'вертикальная'
                     ad_info = adapter_map.get(dev, {})
-                    monitors.append(MonitorInfo(device=dev, name=ad_info.get('mon_name', 'Display Monitor'), adapter=ad_info.get('adapter', ''), width=w, height=h, frequency_hz=freq, bits_per_pixel=bits, is_primary=is_prim, orientation=orient))
+                    monitors.append(MonitorInfo(device=dev, name=ad_info.get('mon_name', 'Display Monitor'), vendor=ad_info.get('vendor', ''), serial_number=ad_info.get('serial_number', ''), adapter=ad_info.get('adapter', ''), width=w, height=h, frequency_hz=freq, bits_per_pixel=bits, is_primary=is_prim, orientation=orient))
                     return True
                 cb_type = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.wintypes.HMONITOR, ctypes.wintypes.HDC, ctypes.POINTER(ctypes.wintypes.RECT), ctypes.wintypes.LPARAM)
                 user32.EnumDisplayMonitors(None, None, cb_type(_enum_cb), 0)
@@ -1414,6 +1483,7 @@ class SystemCollector(TelemetryHistoryMixin):
             recent_events=recent_evs,
             summary=summary,
         )
+
 
 
 

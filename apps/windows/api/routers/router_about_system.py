@@ -45,3 +45,4 @@ def init_router() -> APIRouter:
     register_panel_endpoints(router, storage)
     register_system_action_endpoints(router, storage)
     return router
+

@@ -507,3 +507,4 @@ class TelemetryDataExtractor:
             ts = str(ts)
         normalized["timestamp"] = ts
         return normalized
+

@@ -116,3 +116,4 @@ class ChatSessionPayload(BaseModel):
 
 class SyncSessionsRequest(BaseModel):
     sessions: list[dict] = []
+

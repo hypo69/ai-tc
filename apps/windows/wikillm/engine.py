@@ -254,3 +254,4 @@ class WikiLLMEngine:
             "queue_size": self._async_queue.qsize(),
             "storage_stats": db_stats,
         }
+

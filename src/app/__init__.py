@@ -143,3 +143,4 @@ class AppRegistry:
 # Глобальные экземпляры по умолчанию
 default_container = AppContainer()
 default_registry = AppRegistry()
+

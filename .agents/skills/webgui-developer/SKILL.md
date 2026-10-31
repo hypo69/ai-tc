@@ -67,7 +67,7 @@ py .agents/skills/webgui-developer/scripts/scaffold_tab.py storage_health --titl
 4. Подключите реальный API endpoint вместо мока.
 
 ### 3. Регистрация вкладки в SSOT реестре
-Откройте [tab-registry.js](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/api/webgui/core/tab-registry.js) и добавьте вкладку в `TAB_DEFINITIONS`:
+Откройте [tab-registry.js](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/api/webgui/core/tab-registry.js) и добавьте вкладку в `TAB_DEFINITIONS`:
 ```javascript
 {
   id: 'storage_health',

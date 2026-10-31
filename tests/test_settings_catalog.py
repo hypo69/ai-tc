@@ -170,3 +170,4 @@ def test_rest_api_execute_endpoint_contract(api_client: TestClient) -> None:
     assert "requested" in res
     assert "actual" in res
     assert res.get("command") == "TASKBAR.SET_AUTOHIDE"
+

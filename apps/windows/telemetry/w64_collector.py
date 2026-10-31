@@ -416,3 +416,4 @@ def stop_w64_collector() -> bool:
             _global_w64_collector = None
             return res
         return False
+

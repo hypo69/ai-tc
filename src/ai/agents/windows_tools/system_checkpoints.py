@@ -212,3 +212,4 @@ WINDOWS_SYSTEM_CHECKPOINTS_TOOLS = [
     windows_checkpoints_audit,
     windows_checkpoints_action,
 ]
+

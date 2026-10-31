@@ -65,3 +65,4 @@ def init_router(controller: Optional[WindowsFocusController] = None) -> APIRoute
 
 
 __all__ = ['init_router']
+

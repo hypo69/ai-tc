@@ -18,7 +18,7 @@
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-22 03:07:00
+# Updated: 2026-10-30 12:03:00
 # =============================================================================
 
 from __future__ import annotations
@@ -68,6 +68,10 @@ except ImportError:
         handlers=[logging.StreamHandler(sys.stdout)]
     )
     logger = logging.getLogger("telemetry_service")
+    if not hasattr(logger, "console"):
+        def _console(msg: Any = '', *args: Any, text_color: str = '', **kwargs: Any) -> None:
+            logger.info(msg, *args)
+        logger.console = _console  # type: ignore
 
 _stop_event = threading.Event()
 
@@ -428,7 +432,7 @@ def run_telemetry_service(
 
             # 2. Периодический опрос системных сенсоров WMI/CIM, SMART, портов, утечек и безопасности
             if mode in ('hybrid', 'full') or is_startup:
-                logger.info("🔥 [ТЯЖЕЛЫЙ ОПРОС] Запуск периодического опроса сенсоров WMI/CIM, SMART, портов и утечек...")
+                logger.console("🔥 [ТЯЖЕЛЫЙ ОПРОС] Запуск периодического опроса сенсоров WMI/CIM, SMART, портов и утечек...")
                 heavy_readings_total = []
                 if sensor_collector and h_collectors.get('hardware_sensors', True):
                     heavy_readings = sensor_collector.collect_all_sensors()
@@ -445,15 +449,15 @@ def run_telemetry_service(
                         hw_fans = [f"{s.get('sensor_name')}: {s.get('value')}{s.get('unit')}" for s in heavy_readings if s.get('sensor_category') in ('Fans', 'Fan')]
                         hw_clocks = [f"{s.get('sensor_name')}: {s.get('value')}{s.get('unit')}" for s in heavy_readings if s.get('sensor_category') in ('Clocks', 'Clock')]
 
-                        logger.info(f"🌡️ [АППАРАТНЫЕ СЕНСОРЫ] Опрошено {len(heavy_readings)} аппаратных датчиков:")
+                        logger.console(f"🌡️ [АППАРАТНЫЕ СЕНСОРЫ] Опрошено {len(heavy_readings)} аппаратных датчиков:")
                         if hw_temps:
-                            logger.info(f"   ├─ Температуры ({len(hw_temps)}): {', '.join(hw_temps[:8])}")
+                            logger.console(f"   ├─ Температуры ({len(hw_temps)}): {', '.join(hw_temps[:8])}")
                         if hw_powers:
-                            logger.info(f"   ├─ Энергопотребление ({len(hw_powers)}): {', '.join(hw_powers[:6])}")
+                            logger.console(f"   ├─ Энергопотребление ({len(hw_powers)}): {', '.join(hw_powers[:6])}")
                         if hw_fans:
-                            logger.info(f"   ├─ Вентиляторы ({len(hw_fans)}): {', '.join(hw_fans)}")
+                            logger.console(f"   ├─ Вентиляторы ({len(hw_fans)}): {', '.join(hw_fans)}")
                         if hw_clocks:
-                            logger.info(f"   └─ Частоты ({len(hw_clocks)}): {', '.join(hw_clocks[:6])}")
+                            logger.console(f"   └─ Частоты ({len(hw_clocks)}): {', '.join(hw_clocks[:6])}")
 
                 # Детальный аудит портов, сетевых соединений и утечек дескрипторов
                 if system_collector:
@@ -461,7 +465,7 @@ def run_telemetry_service(
                         ports = system_collector.get_listening_ports(limit=10)
                         if ports:
                             p_str = ", ".join([f"{p.port}/{p.protocol} ({p.process_name or 'System'})" for p in ports[:5]])
-                            logger.info(f"🌐 [ТЯЖЕЛЫЙ ОПРОС] Открытые слушающие порты ({len(ports)}): {p_str}")
+                            logger.console(f"🌐 [ТЯЖЕЛЫЙ ОПРОС] Открытые слушающие порты ({len(ports)}): {p_str}")
                     except Exception:
                         pass
                     try:
@@ -471,7 +475,7 @@ def run_telemetry_service(
                                 storage.save_process_network_snapshot(f"snap_net_{int(time.time())}", net_conns)
                             ext_conns = [c for c in net_conns if getattr(c, 'is_internet', False)]
                             c_str = ", ".join([f"{c.name}->{c.remote_address} ({c.service_type})" for c in ext_conns[:3]])
-                            logger.info(f"📡 [ТЯЖЕЛЫЙ ОПРОС] Активные соединения ({len(net_conns)}, Интернет: {len(ext_conns)}): {c_str}")
+                            logger.console(f"📡 [ТЯЖЕЛЫЙ ОПРОС] Активные соединения ({len(net_conns)}, Интернет: {len(ext_conns)}): {c_str}")
                     except Exception as net_err:
                         logger.debug(f"Ошибка сбора/сохранения сетевой активности: {net_err}")
 
@@ -480,7 +484,7 @@ def run_telemetry_service(
                         leaks = storage.get_latest_process_leak_report(limit=5)
                         if leaks and leaks.get("top_handle_hogs"):
                             top_h = leaks["top_handle_hogs"][0]
-                            logger.info(f"🔍 [ТЯЖЕЛЫЙ ОПРОС] Топ процесса по дескрипторам: {top_h.get('name')} (PID:{top_h.get('pid')}) -> {top_h.get('handles_count')} handles, {top_h.get('gdi_objects')} GDI, {top_h.get('user_objects')} USER")
+                            logger.console(f"🔍 [ТЯЖЕЛЫЙ ОПРОС] Топ процесса по дескрипторам: {top_h.get('name')} (PID:{top_h.get('pid')}) -> {top_h.get('handles_count')} handles, {top_h.get('gdi_objects')} GDI, {top_h.get('user_objects')} USER")
                     except Exception:
                         pass
 
@@ -492,7 +496,7 @@ def run_telemetry_service(
                         if heavy_disks:
                             cached_physical_disks = heavy_disks
                             d_summary = ", ".join([f"{d.model} ({d.media_type}, {d.size_gb}GB, SMART:{d.health_status})" for d in heavy_disks])
-                            logger.info(f"💾 [ТЯЖЕЛЫЙ ОПРОС (SMART)] Накопители SMART: {d_summary}")
+                            logger.console(f"💾 [ТЯЖЕЛЫЙ ОПРОС (SMART)] Накопители SMART: {d_summary}")
                         last_heavy_disk_scan_time = h_now
                     except Exception as d_err:
                         logger.debug(f"Ошибка тяжелого сканирования накопителей: {d_err}")
@@ -509,12 +513,119 @@ def run_telemetry_service(
                     logger.debug(f"Ошибка синхронизации активности процессов (ProcessActivityEngine): {proc_sync_err}")
 
                 heavy_dur = time.time() - heavy_start
-                logger.info(f'✅ [{mode.upper()}] Периодический тяжелый опрос завершен за {heavy_dur:.2f}с (Всего сенсоров: {len(heavy_readings_total)})')
+                logger.console(f'✅ [{mode.upper()}] Периодический тяжелый опрос завершен за {heavy_dur:.2f}с (Всего сенсоров: {len(heavy_readings_total)})')
         except Exception as h_err:
             logger.error(f'Ошибка периодического тяжелого опроса: {h_err}')
         finally:
             with heavy_poll_lock:
                 heavy_poll_running = False
+
+    last_hw_sensors_time = time.time()
+    last_ports_time = time.time()
+    last_net_activity_time = time.time()
+    last_leaks_time = time.time()
+    last_smart_scan_time = time.time()
+    last_proc_activity_time = time.time()
+    last_internet_speed_time = 0.0
+    last_tiered_compaction_time = time.time()
+
+    def _poll_hw_sensors() -> None:
+        if sensor_collector and h_collectors.get('hardware_sensors', True):
+            try:
+                heavy_readings = sensor_collector.collect_all_sensors()
+                if heavy_readings:
+                    storage.save_sensor_polls(heavy_readings)
+                    hw_temps = [f"{s.get('sensor_name')}: {s.get('value')}{s.get('unit')}" for s in heavy_readings if s.get('sensor_category') in ('Temperatures', 'Temperature')]
+                    if hw_temps:
+                        logger.console(f"🌡️ [АППАРАТНЫЕ СЕНСОРЫ] Опрошено {len(heavy_readings)} датчиков (Температуры: {', '.join(hw_temps[:6])})")
+            except Exception as ex:
+                logger.debug(f"Ошибка сбора аппаратных сенсоров: {ex}")
+
+    def _poll_listening_ports() -> None:
+        if system_collector and (h_collectors.get('listening_ports', True) or h_collectors.get('system_snapshot', True)):
+            try:
+                ports = system_collector.get_listening_ports(limit=10)
+                if ports:
+                    p_str = ", ".join([f"{p.port}/{p.protocol} ({p.process_name or 'System'})" for p in ports[:5]])
+                    logger.console(f"🌐 [СЕТЬ] Слушающие порты ({len(ports)}): {p_str}")
+            except Exception as ex:
+                logger.debug(f"Ошибка сбора портов: {ex}")
+
+    def _poll_network_activity() -> None:
+        if system_collector and h_collectors.get('network_activity', True):
+            try:
+                net_conns = system_collector.get_process_network_activity(limit=50, only_internet=False)
+                if net_conns:
+                    storage.save_process_network_snapshot(f"snap_net_{int(time.time())}", net_conns)
+                    ext_conns = [c for c in net_conns if getattr(c, 'is_internet', False)]
+                    c_str = ", ".join([f"{c.name}->{c.remote_address} ({c.service_type})" for c in ext_conns[:3]])
+                    logger.console(f"📡 [СЕТЬ] Активные соединения ({len(net_conns)}, Интернет: {len(ext_conns)}): {c_str}")
+            except Exception as ex:
+                logger.debug(f"Ошибка сбора сетевой активности: {ex}")
+
+    def _poll_process_leaks() -> None:
+        if h_collectors.get('process_leaks', True):
+            try:
+                leaks = storage.get_latest_process_leak_report(limit=5)
+                if leaks and leaks.get("top_handle_hogs"):
+                    top_h = leaks["top_handle_hogs"][0]
+                    logger.console(f"🔍 [УТЕЧКИ] Топ по дескрипторам: {top_h.get('name')} (PID:{top_h.get('pid')}) -> {top_h.get('handles_count')} handles, {top_h.get('gdi_objects')} GDI, {top_h.get('user_objects')} USER")
+            except Exception as ex:
+                logger.debug(f"Ошибка сбора утечек: {ex}")
+
+    def _poll_smart_disks() -> None:
+        nonlocal cached_physical_disks, last_heavy_disk_scan_time
+        if system_collector and (h_collectors.get('deep_disk_smart', True) or h_collectors.get('storage_smart', True)):
+            try:
+                heavy_disks = system_collector.get_physical_disks_health(force=True)
+                if heavy_disks:
+                    cached_physical_disks = heavy_disks
+                    d_summary = ", ".join([f"{d.model} ({d.media_type}, {d.size_gb}GB, SMART:{d.health_status})" for d in heavy_disks])
+                    logger.console(f"💾 [S.M.A.R.T.] Накопители: {d_summary}")
+                last_heavy_disk_scan_time = time.time()
+            except Exception as ex:
+                logger.debug(f"Ошибка опроса SMART дисков: {ex}")
+
+    def _poll_process_activity() -> None:
+        if h_collectors.get('process_activity', True):
+            try:
+                from apps.windows.sdk.core.process_activity_engine import ProcessActivityEngine
+                ProcessActivityEngine(storage=storage).sync_processes()
+            except Exception as ex:
+                logger.debug(f"Ошибка синхронизации процессов: {ex}")
+
+    def _poll_internet_speed() -> None:
+        if h_collectors.get('internet_speed', True) or h_collectors.get('network', True):
+            try:
+                from apps.windows.telemetry.internet_speed import get_internet_speed_sensor
+                sensor = get_internet_speed_sensor()
+                res = sensor.check_and_run_hourly(force=False, skip_if_busy=True)
+                if res and res.get('download_mbps', 0.0) > 0.0:
+                    logger.console(
+                        f"🌐 [FAST.COM] Часовой замер скорости: ↓{res.get('download_mbps', 0.0):.1f} Mbps, "
+                        f"↑{res.get('upload_mbps', 0.0):.1f} Mbps, пинг: {res.get('ping_ms', 0.0):.1f} мс"
+                    )
+            except Exception as ex:
+                logger.debug(f"Ошибка часового теста скорости интернета FAST.com: {ex}")
+
+    def _trigger_granular_collector(collector_name: str) -> None:
+        def _runner():
+            with heavy_poll_lock:
+                if collector_name == 'hw_sensors':
+                    _poll_hw_sensors()
+                elif collector_name == 'listening_ports':
+                    _poll_listening_ports()
+                elif collector_name == 'network_activity':
+                    _poll_network_activity()
+                elif collector_name == 'process_leaks':
+                    _poll_process_leaks()
+                elif collector_name == 'smart_disks':
+                    _poll_smart_disks()
+                elif collector_name == 'process_activity':
+                    _poll_process_activity()
+                elif collector_name == 'internet_speed':
+                    _poll_internet_speed()
+        threading.Thread(target=_runner, name=f"Collector-{collector_name}", daemon=True).start()
 
     def _trigger_heavy_worker(is_startup: bool = False) -> None:
         with heavy_poll_lock:
@@ -874,7 +985,7 @@ def run_telemetry_service(
                 except Exception as f_err:
                     logger.debug(f'Ошибка сбора/сохранения форензики: {f_err}')
 
-            logger.console(f"тик {tick} ")
+            logger.console(f"тик {tick} ", text_color="gray")
 
             # Асинхронный запуск тяжелых стартовых опросов сразу после завершения первого тика
             if tick == 1 and not once:
@@ -891,13 +1002,66 @@ def run_telemetry_service(
                     mode = 'light'
                     heavy_mode_start_time = None
 
-            is_heavy_due = (mode.lower() in ('full', 'heavy') and tick > 1) or (mode.lower() == 'hybrid' and now_sec - last_heavy_time >= heavy_interval)
-            if is_heavy_due:
-                last_heavy_time = now_sec
-                if once:
-                    _execute_heavy_poll_job(is_startup=False)
-                else:
-                    _trigger_heavy_worker(is_startup=False)
+            # Независимые интервалы опроса тяжелых сенсоров
+            heavy_intervals = cfg_mgr.get_heavy_polls_intervals()
+            hw_int = heavy_intervals.get('hardware_audit_interval_sec', 60.0)
+            ports_int = heavy_intervals.get('network_ports_interval_sec', 30.0)
+            net_act_int = heavy_intervals.get('network_activity_interval_sec', 30.0)
+            leaks_int = heavy_intervals.get('handles_interval_sec', 30.0)
+            smart_int = heavy_intervals.get('disk_scan_interval_sec', 43200.0)
+            proc_sync_int = heavy_intervals.get('process_activity_sync_interval_sec', 60.0)
+            startup_int = heavy_intervals.get('startup_audit_interval_sec', 0.0)
+            software_int = heavy_intervals.get('software_audit_interval_sec', 0.0)
+            internet_speed_int = heavy_intervals.get('internet_speed_interval_sec', 3600.0)
+
+            if mode.lower() in ('hybrid', 'full') and tick > 1:
+                if hw_int > 0 and h_collectors.get('hardware_sensors', True) and (now_sec - last_hw_sensors_time >= hw_int):
+                    last_hw_sensors_time = now_sec
+                    _trigger_granular_collector('hw_sensors')
+
+                if ports_int > 0 and (h_collectors.get('listening_ports', True) or h_collectors.get('system_snapshot', True)) and (now_sec - last_ports_time >= ports_int):
+                    last_ports_time = now_sec
+                    _trigger_granular_collector('listening_ports')
+
+                if net_act_int > 0 and h_collectors.get('network_activity', True) and (now_sec - last_net_activity_time >= net_act_int):
+                    last_net_activity_time = now_sec
+                    _trigger_granular_collector('network_activity')
+
+                if leaks_int > 0 and h_collectors.get('process_leaks', True) and (now_sec - last_leaks_time >= leaks_int):
+                    last_leaks_time = now_sec
+                    _trigger_granular_collector('process_leaks')
+
+                if smart_int > 0 and (h_collectors.get('deep_disk_smart', True) or h_collectors.get('storage_smart', True)) and (now_sec - last_smart_scan_time >= smart_int):
+                    last_smart_scan_time = now_sec
+                    _trigger_granular_collector('smart_disks')
+
+                if proc_sync_int > 0 and h_collectors.get('process_activity', True) and (now_sec - last_proc_activity_time >= proc_sync_int):
+                    last_proc_activity_time = now_sec
+                    _trigger_granular_collector('process_activity')
+
+                if internet_speed_int > 0 and (h_collectors.get('internet_speed', True) or h_collectors.get('network', True)) and (now_sec - last_internet_speed_time >= internet_speed_int):
+                    last_internet_speed_time = now_sec
+                    _trigger_granular_collector('internet_speed')
+
+            # Каскадное усреднение снимков (5с -> 30с -> 3м -> 10м -> 36ч)
+            if now_sec - last_tiered_compaction_time >= 30.0:
+                try:
+                    storage.flush()
+                    comp_res = storage.run_tiered_compaction(
+                        thorough_mode=cfg_mgr.is_thorough_mode(),
+                        now_epoch=now_sec,
+                    )
+                    if not comp_res.get('skipped'):
+                        s30 = comp_res.get('step_30s', {})
+                        if s30.get('rollups_created', 0) > 0:
+                            logger.console(
+                                f"🧹 [Усреднение телеметрии] 30с бакеты: +{s30.get('rollups_created')}, "
+                                f"очищено сырых: {s30.get('snapshots_deleted')} снимков, "
+                                f"{s30.get('procs_deleted')} процессов, {s30.get('sensors_deleted')} сенсоров"
+                            )
+                    last_tiered_compaction_time = now_sec
+                except Exception as comp_err:
+                    logger.debug(f"Ошибка каскадного усреднения телеметрии: {comp_err}")
 
             # Фоновый периодический контроль размера SQLite базы данных telemetry.db
             if now_sec - last_db_cleanup_time >= db_cleanup_interval_sec:
@@ -921,7 +1085,7 @@ def run_telemetry_service(
                     h_cnt = agg_res.get('hourly', {}).get('buckets_aggregated', 0)
                     sp_cnt = agg_res.get('hourly', {}).get('spikes_recorded', 0)
                     if h_cnt > 0 or sp_cnt > 0:
-                        logger.info(f"📈 [SQL АГРЕГАЦИЯ] Обновлены бакеты: hourly={h_cnt}, зафиксировано всплесков={sp_cnt}")
+                        logger.console(f"📈 [SQL АГРЕГАЦИЯ] Обновлены бакеты: hourly={h_cnt}, зафиксировано всплесков={sp_cnt}")
                     last_aggregation_time = now_sec
                 except Exception as agg_err:
                     logger.debug(f"Ошибка периодической SQL-агрегации: {agg_err}")
@@ -1007,3 +1171,4 @@ def main() -> int:
 
 if __name__ == '__main__':
     sys.exit(main())
+

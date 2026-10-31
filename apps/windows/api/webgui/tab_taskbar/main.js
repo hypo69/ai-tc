@@ -8,7 +8,7 @@
  *
  * File: main.js
  * Package: apps/windows/api/webgui/tab_taskbar
- * Updated: 2026-10-17 01:55:00
+ * Updated: 2026-10-31 15:55:00
  * =============================================================================
  */
 
@@ -19,7 +19,12 @@ import {
   openTaskbarWindowCopilotModal,
   executeBatchWindowAction
 } from './panel_windows/panel.js';
-import { loadSettings, saveTaskbarSettings, restartExplorer } from './panel_settings/panel.js';
+import {
+  loadSettings,
+  saveTaskbarSettings,
+  restartExplorer,
+  bindTaskbarSettingsEvents
+} from './panel_settings/panel.js';
 import { loadPinnedApps, handleLaunchApp } from './panel_pinned_apps/panel.js';
 import { handleApplyUxProgress } from './panel_ux_progress/panel.js';
 import {
@@ -58,6 +63,7 @@ function bindEvents() {
   document.getElementById('btn-batch-minimize-all')?.addEventListener('click', () => executeBatchWindowAction('minimize_all', refreshAll));
   document.getElementById('btn-batch-restore-all')?.addEventListener('click', () => executeBatchWindowAction('restore_all', refreshAll));
   document.getElementById('form-taskbar-settings')?.addEventListener('submit', (e) => saveTaskbarSettings(e, refreshAll));
+  bindTaskbarSettingsEvents(refreshAll);
   document.getElementById('form-launch-app')?.addEventListener('submit', (e) => handleLaunchApp(e, refreshAll));
   document.getElementById('btn-refresh-pinned')?.addEventListener('click', () => loadPinnedApps());
 

@@ -114,3 +114,4 @@ def run_agents_command(args: argparse.Namespace) -> int:
 
     logger.console(f'Error: неизвестная подкоманда agents: {sub}')
     return 1
+

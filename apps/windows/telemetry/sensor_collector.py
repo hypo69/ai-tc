@@ -16,7 +16,7 @@
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 09:17:00
+# Updated: 2026-10-30 10:55:00
 # =============================================================================
 
 from __future__ import annotations
@@ -152,6 +152,7 @@ class SensorCollector:
                 'server': metrics.get('server', ''),
                 'ip': metrics.get('ip', ''),
                 'isp': metrics.get('isp', ''),
+                'averages': metrics.get('averages') or (self._internet_speed_sensor.get_average_stats() if hasattr(self._internet_speed_sensor, 'get_average_stats') else {}),
             }
             self._last_internet_data = res
             self._last_internet_measure_time = now
@@ -506,6 +507,38 @@ class SensorCollector:
                 'value': internet_data.get('latency_loaded_ms', 0.0),
                 '_provider': SensorProvider.INTERNET_SPEED
             })
+            avg_metrics = internet_data.get('averages') or {}
+            if avg_metrics.get('count', 0) > 0:
+                raw_readings.append({
+                    'id': 'internet_download_avg_144h',
+                    'hardware_name': 'Internet',
+                    'hardware_type': 'network',
+                    'sensor_category': 'Throughput',
+                    'sensor_name': 'Internet Download Speed Avg (144h)',
+                    'unit': 'Mbps',
+                    'value': avg_metrics.get('download_avg_mbps', 0.0),
+                    '_provider': SensorProvider.INTERNET_SPEED
+                })
+                raw_readings.append({
+                    'id': 'internet_upload_avg_144h',
+                    'hardware_name': 'Internet',
+                    'hardware_type': 'network',
+                    'sensor_category': 'Throughput',
+                    'sensor_name': 'Internet Upload Speed Avg (144h)',
+                    'unit': 'Mbps',
+                    'value': avg_metrics.get('upload_avg_mbps', 0.0),
+                    '_provider': SensorProvider.INTERNET_SPEED
+                })
+                raw_readings.append({
+                    'id': 'internet_ping_avg_144h',
+                    'hardware_name': 'Internet',
+                    'hardware_type': 'network',
+                    'sensor_category': 'Throughput',
+                    'sensor_name': 'Internet Ping Avg (144h)',
+                    'unit': 'ms',
+                    'value': avg_metrics.get('ping_avg_ms', 0.0),
+                    '_provider': SensorProvider.INTERNET_SPEED
+                })
         
         # Дедупликация базовых показаний по приоритету провайдера
         deduplicator = SensorDeduplicator()
@@ -557,4 +590,5 @@ class SensorCollector:
             hardware_data = self._get_hardware_data()
             internet_data = self._get_internet_speed_data()
             return self.extract_sensor_readings(hardware_data, internet_data)
+
 

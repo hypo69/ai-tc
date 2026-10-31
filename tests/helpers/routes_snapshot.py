@@ -55,3 +55,4 @@ def collect_routes(module_prefix: str) -> list[str]:
                         if method != 'HEAD':
                             out[f'{method} {route.path}'] += 1
     return sorted(out.elements())
+

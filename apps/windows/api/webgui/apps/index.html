@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/apps
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 14:54:00
+ * Updated: 2026-10-31 19:16:00
  * =============================================================================
 -->
 
@@ -84,14 +84,14 @@ Package: windows/api/webgui/apps
   </script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="/html/css/main.css?v=20261020_v72" rel="stylesheet">
-  <link href="/html/css/themes.css?v=20261020_v73" rel="stylesheet">
+  <link href="/html/css/main.css?v=20261028_v15" rel="stylesheet">
+  <link href="/html/css/themes.css?v=20261028_v15" rel="stylesheet">
   <script src="/html/js/indexeddb-cache.js?v=20261015_v1"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/html/js/toast.js?v=20261006_v10"></script>
   <script src="https://cdn.jsdelivr.net/npm/i18next@23.11.5/i18next.min.js"></script>
   <script src="/html/js/global-i18n.js?v=20261013_v1"></script>
-  <script src="/html/js/global-tooltips-i18n.js?v=20261028_v1"></script>
+  <script src="/html/js/global-tooltips-i18n.js?v=20261031_v2"></script>
 </head>
 <body>
 
@@ -475,6 +475,8 @@ Package: windows/api/webgui/apps
 
     <!-- Sound Settings Tab -->
     <div id="tab-sound-settings" class="tab-pane fade"></div>
+    <div id="tab-user-environment" class="tab-pane fade"></div>
+    <div id="tab-user-enviroment" class="tab-pane fade"></div>
 
     <!-- RAG Tab -->
     <div id="tab-rag" class="tab-pane fade"></div>
@@ -540,13 +542,14 @@ Package: windows/api/webgui/apps
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <link rel="stylesheet" href="/html/ai_modal_dialog/style.css?v=20261028_v1">
-<script src="/html/ai_modal_dialog/main.js?v=20261020_v8"></script>
+<script src="/html/ai_modal_dialog/main.js?v=20261031_v2"></script>
 <script src="/html/js/window-api.js?v=20261008_v3"></script>
+<script src="/html/js/help-modal.js?v=20261031_v1"></script>
 <script src="/html/js/chatService.js?v=20261008_v3"></script>
 <script src="/html/js/appConfigEditor.js?v=20261008_v3"></script>
-<script src="/html/js/table-resizer.js?v=20261020_v7"></script>
+<script src="/html/js/table-resizer.js?v=20261028_v1"></script>
 <script type="module" src="/html/js/panel-loader.js?v=20261028_v5"></script>
-<script type="module" src="/html/apps/main.js?v=20261028_v5"></script>
+<script type="module" src="/html/apps/main.js?v=20261031_v4"></script>
 <script>
   function switchToApp(appName, event) {
     if (event) {

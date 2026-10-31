@@ -199,3 +199,4 @@ class ClientResourceSummary(BaseModel):
     evaluations: List[UnknownProgramEvaluation] = Field(default_factory=list, description="Список полученных оценок от Gemini")
     scanned_at: str = Field(default_factory=lambda: datetime.now().isoformat(), description="Время проведения аудита")
 
+

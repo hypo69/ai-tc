@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 19:15:00
+ * Updated: 2026-10-31 17:05:00
  * =============================================================================
  */
 
@@ -349,29 +349,53 @@
 
 /* ═══════════════════════════════════════════════════════════════════════════
    МОДАЛЬНЫЕ ОКНА
+   Централизованный стандарт: ВСЕ модальные окна WebGUI имеют габариты 80% экрана
+   Ширина: var(--modal-width, 80vw); Высота: var(--modal-height, 80vh);
    ═══════════════════════════════════════════════════════════════════════════ */
-.modal-content {
+.modal .modal-dialog {
+  --bs-modal-width: var(--modal-width, 80vw) !important;
+  width: var(--modal-width, 80vw) !important;
+  max-width: var(--modal-width, 80vw) !important;
+  height: var(--modal-height, 80vh) !important;
+  max-height: var(--modal-height, 80vh) !important;
+  min-height: var(--modal-height, 80vh) !important;
+  margin: calc((100vh - var(--modal-height, 80vh)) / 2) auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.modal .modal-dialog .modal-content {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
   background-color: var(--modal-bg);
   border: 1px solid var(--modal-border);
   color: var(--modal-text);
-  border-radius: 8px;
+  border-radius: var(--radius-md, 8px);
   box-shadow: var(--shadow-lg);
+  overflow: hidden;
 }
 
 .modal-header {
   border-bottom: 1px solid var(--border-color);
   padding: 0.6rem 0.9rem;
   background-color: var(--surface-2);
-  border-radius: 8px 8px 0 0;
+  border-radius: var(--radius-md, 8px) var(--radius-md, 8px) 0 0;
+  flex-shrink: 0;
 }
 
 .modal-title {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
 }
 
 .modal-body {
-  padding: 0.75rem 0.9rem;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0.85rem 1rem;
   font-size: 0.85rem;
 }
 
@@ -379,13 +403,18 @@
   border-top: 1px solid var(--border-color);
   padding: 0.5rem 0.9rem;
   background-color: var(--surface-2);
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 var(--radius-md, 8px) var(--radius-md, 8px);
+  flex-shrink: 0;
 }
 
 /* Модальное окно помощи */
-.modal-help .modal-dialog { max-width: 600px; }
+.modal-help .modal-dialog {
+  --bs-modal-width: var(--modal-width, 80vw) !important;
+  width: var(--modal-width, 80vw) !important;
+  max-width: var(--modal-width, 80vw) !important;
+}
 .modal-help .modal-content {
-  border-radius: 8px;
+  border-radius: var(--radius-md, 8px);
   background: var(--modal-bg);
   color: var(--modal-text);
   border: 1px solid var(--modal-border);
@@ -402,8 +431,9 @@
 
 /* ── Модальное окно настроек системы и окружения (#aboutRegionalSettingsModal) ── */
 #aboutRegionalSettingsModal .modal-dialog {
-  max-width: min(1200px, 94vw);
-  width: 94vw;
+  --bs-modal-width: var(--modal-width, 80vw) !important;
+  width: var(--modal-width, 80vw) !important;
+  max-width: var(--modal-width, 80vw) !important;
 }
 
 #aboutRegionalSettingsModal .modal-content {
@@ -411,7 +441,6 @@
   color: var(--text-color);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md, 8px);
-  min-height: 640px;
 }
 
 #aboutRegionalSettingsModal .modal-header {
@@ -428,7 +457,6 @@
 
 #aboutRegionalSettingsModal .modal-body {
   flex: 1 1 auto;
-  min-height: 520px;
   display: flex;
   flex-direction: column;
 }
@@ -1976,8 +2004,11 @@ h3.panel-header,
   line-height: 1;
 }
 
-/* ── 10. Кнопка-иконка сворачивания/разворачивания таблиц (Красная дрель) ─── */
-.panel-toggle-drill {
+/* ── 10. Кнопка-иконка сворачивания/разворачивания таблиц и деталей (Красная дрель) ─── */
+.panel-toggle-drill,
+.sys-drill-btn,
+.btn-drilldown-proc,
+.ue-btn-window-drill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1988,29 +2019,86 @@ h3.panel-header,
   cursor: pointer;
   line-height: 1;
   vertical-align: middle;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
   border-radius: 4px;
 }
 
-.panel-toggle-drill:hover {
-  opacity: 0.85;
+.panel-toggle-drill:hover,
+.sys-drill-btn:hover,
+.btn-drilldown-proc:hover,
+.ue-btn-window-drill:hover {
+  opacity: 0.9;
   transform: scale(1.15);
 }
 
-.panel-toggle-drill:active {
+.panel-toggle-drill:active,
+.sys-drill-btn:active,
+.btn-drilldown-proc:active,
+.ue-btn-window-drill:active {
   transform: scale(0.92);
 }
 
-.panel-toggle-drill img {
+.panel-toggle-drill img,
+.sys-drill-btn img,
+.btn-drilldown-proc img,
+.ue-btn-window-drill img {
   width: 20px;
   height: 20px;
   object-fit: contain;
   display: block;
   pointer-events: none;
+  border-radius: 4px;
 }
 
 .panel-toggle-drill.collapsed img {
   opacity: 0.7;
+}
+
+/* В тёмных темах иконка красной дрели должна быть на светлом фоне для максимального контраста */
+:root[data-bs-theme="dark"] .panel-toggle-drill img,
+:root[data-bs-theme="dark"] .sys-drill-btn img,
+:root[data-bs-theme="dark"] .btn-drilldown-proc img,
+:root[data-bs-theme="dark"] .ue-btn-window-drill img,
+:root[data-bs-theme="dark"] img[src*="red_drill"],
+[data-theme="dark"] .panel-toggle-drill img,
+[data-theme="dark"] .sys-drill-btn img,
+[data-theme="dark"] .btn-drilldown-proc img,
+[data-theme="dark"] .ue-btn-window-drill img,
+[data-theme="dark"] img[src*="red_drill"],
+[data-theme="theme-dark-slate"] .panel-toggle-drill img,
+[data-theme="theme-dark-slate"] .sys-drill-btn img,
+[data-theme="theme-dark-slate"] .btn-drilldown-proc img,
+[data-theme="theme-dark-slate"] .ue-btn-window-drill img,
+[data-theme="theme-dark-slate"] img[src*="red_drill"],
+[data-theme="terminal"] .panel-toggle-drill img,
+[data-theme="terminal"] .sys-drill-btn img,
+[data-theme="terminal"] .btn-drilldown-proc img,
+[data-theme="terminal"] .ue-btn-window-drill img,
+[data-theme="terminal"] img[src*="red_drill"],
+[data-theme="theme-cyberpunk"] .panel-toggle-drill img,
+[data-theme="theme-cyberpunk"] .sys-drill-btn img,
+[data-theme="theme-cyberpunk"] .btn-drilldown-proc img,
+[data-theme="theme-cyberpunk"] .ue-btn-window-drill img,
+[data-theme="theme-cyberpunk"] img[src*="red_drill"],
+[data-theme="solarized-dark"] .panel-toggle-drill img,
+[data-theme="solarized-dark"] .sys-drill-btn img,
+[data-theme="solarized-dark"] .btn-drilldown-proc img,
+[data-theme="solarized-dark"] .ue-btn-window-drill img,
+[data-theme="solarized-dark"] img[src*="red_drill"],
+[data-theme="nordic-frost"] .panel-toggle-drill img,
+[data-theme="nordic-frost"] .sys-drill-btn img,
+[data-theme="nordic-frost"] .btn-drilldown-proc img,
+[data-theme="nordic-frost"] .ue-btn-window-drill img,
+[data-theme="nordic-frost"] img[src*="red_drill"],
+[data-theme="theme-high-contrast"] .panel-toggle-drill img,
+[data-theme="theme-high-contrast"] .sys-drill-btn img,
+[data-theme="theme-high-contrast"] .btn-drilldown-proc img,
+[data-theme="theme-high-contrast"] .ue-btn-window-drill img,
+[data-theme="theme-high-contrast"] img[src*="red_drill"] {
+  background-color: #f8fafc !important;
+  padding: 2px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -2132,7 +2220,7 @@ h3.panel-header,
 .ai-smart-tooltip-body {
   color: var(--ui-text-secondary, #9ca3af);
   font-size: 0.77rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
   word-wrap: break-word;
 }
 

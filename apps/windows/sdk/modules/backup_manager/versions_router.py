@@ -77,3 +77,4 @@ def init_router(provider: Optional[WindowsVersionProvider] = None) -> APIRouter:
 
 
 __all__ = ['init_router']
+

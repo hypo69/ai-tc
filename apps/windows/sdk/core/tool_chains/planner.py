@@ -259,3 +259,4 @@ class ToolChainPlanner:
             requires_restore_point=any(s.risk_level in (RiskLevel.HIGH, RiskLevel.CRITICAL) for s in steps_dict.values()),
             metadata={"user_intent": intent, "dynamic": True},
         )
+

@@ -250,3 +250,4 @@ class GeminiKnowledgeResolver(BaseResolver):
         except Exception as exc:
             logger.warning(f"Исключение при обращении к Gemini в WikiLLM: {exc}")
             return None
+

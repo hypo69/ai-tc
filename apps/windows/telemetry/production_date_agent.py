@@ -603,3 +603,4 @@ class HardwareProductionDateAgent:
             "confidence": "none",
             "details": "Не удалось определить дату производства по серийному номеру.",
         }
+

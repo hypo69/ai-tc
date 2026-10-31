@@ -338,3 +338,4 @@ WINDOWS_IDENTITY_TOOLS = [
     windows_identity_audit_events,
     windows_identity_graph_build,
 ]
+

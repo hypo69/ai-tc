@@ -152,3 +152,4 @@ class WSL2HyperVInspector:
                     script_file.unlink()
                 except OSError:
                     pass
+

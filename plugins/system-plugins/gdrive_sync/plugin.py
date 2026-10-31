@@ -113,3 +113,4 @@ class GDriveSyncPlugin(BasePlugin):
             "status": "complete",
             "text": "Google Drive Sync plugin is active. Scheduled backups are managed automatically.",
         }
+

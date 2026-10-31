@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-TC Tests - TC Launcher
+# Process Name: ai-tc Tests - TC Launcher
 # =============================================================================
 # Description:
 #   Тесты базовой линии для точки входа tc.py: нормализация BCP 47,
@@ -11,7 +11,7 @@
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 00:15:00
+# Updated: 2026-10-30 19:46:00
 # =============================================================================
 
 from __future__ import annotations
@@ -80,5 +80,16 @@ def test_run_tc_dry_run_replaces_foreign_host(monkeypatch: pytest.MonkeyPatch) -
     monkeypatch.setattr(tc, 'free_port_if_occupied', lambda port: True)
     messages: list[str] = []
     monkeypatch.setattr(tc.logger, 'info', lambda msg, *a, **k: messages.append(str(msg)))
-    assert tc.run_tc(host='0.0.0.0', port=8123, region='ru-ru', dry_run=True) == 0
+    assert tc.run_tc(host='0.0.0.0', port=8123, region='ru-ru', dry_run=True, ssl=False) == 0
     assert any(f'http://{tc.DEFAULT_HOST}:8123/tc?region=ru-RU' in m for m in messages)
+
+
+def test_run_tc_ssl_configuration(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Проверка конфигурации HTTPS/SSL при передаче флага ssl=True."""
+    monkeypatch.setattr(tc, 'free_port_if_occupied', lambda port: True)
+    messages: list[str] = []
+    monkeypatch.setattr(tc.logger, 'info', lambda msg, *a, **k: messages.append(str(msg)))
+    assert tc.run_tc(host='127.0.0.1', port=8001, dry_run=True, ssl=True) == 0
+    assert any(f'https://{tc.DEFAULT_HOST}:8001/tc' in m for m in messages)
+
+

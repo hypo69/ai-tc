@@ -188,3 +188,4 @@ class LookupLevel(str, Enum):
     SEMANTIC = "semantic"
     GEMINI = "gemini"
     UNKNOWN = "unknown"
+

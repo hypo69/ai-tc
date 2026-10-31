@@ -66,3 +66,4 @@ INVENTORY_INDEX_DDL: Tuple[str, ...] = (
     'CREATE INDEX IF NOT EXISTS idx_hw_hist_created ON hardware_component_history(created_at DESC);',
     'CREATE INDEX IF NOT EXISTS idx_hw_hist_type ON hardware_component_history(component_type, created_at DESC);',
 )
+

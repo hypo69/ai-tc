@@ -62,3 +62,4 @@ def test_taskbar_auto_hide_reading() -> None:
     mgr = TaskbarConfigManager()
     auto_hide = mgr.get_auto_hide()
     assert isinstance(auto_hide, bool)
+

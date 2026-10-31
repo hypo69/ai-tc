@@ -285,3 +285,4 @@ class WhatsAppClient:
             f"💬 *Содержимое:*\n{preview}"
         )
         return self.send_message(to=to, message=formatted_msg)
+

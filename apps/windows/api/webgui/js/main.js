@@ -17,7 +17,7 @@
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 05:20:00
+ * Updated: 2026-10-31 18:45:00
  * =============================================================================
  */
 
@@ -32,7 +32,7 @@ import { initUserSettings } from './userSettings.js';
 import { initActivityTracker } from './activityTracker.js';
 import { initCacheUI } from './cache-ui.js';
 import { initModelTester, sendModelPing } from './model-tester.js';
-import { switchTab, loadTab, setupTabClicks } from './tab-core.js';
+import { switchTab, loadTab, setupTabClicks } from './tab-core.js?v=20261031_v4';
 import './api-cache.js'; // Подключаем универсальный API-кеш слой
 import './test-api-cache.js'; // Подключаем тестовый скрипт
 
@@ -91,7 +91,6 @@ const TABS = {
   'process-manager':          ['/html/tab_process_manager/index.html',          '/html/tab_process_manager/main.js'],
   'registry-viewer':          ['/html/tab_registry_viewer/index.html',          '/html/tab_registry_viewer/main.js'],
   'software-manager':         ['/html/tab_software_manager/index.html',         '/html/tab_software_manager/main.js'],
-  'user-directories':         ['/html/tab_user_directories/index.html',         '/html/tab_user_directories/main.js'],
 
   // Безопасность и Целостность
   'defender':                 ['/html/tab_defender_firewall/index.html',        '/html/tab_defender_firewall/main.js'],
@@ -130,7 +129,9 @@ export function switchMainTab(tabId) {
   const rawClean = String(tabId).replace(/^#/, '');
   const parts = rawClean.split('#');
   const baseTab = parts[0];
-  const subPanel = parts[1] || null;
+  let subPanel = parts[1] || null;
+  const blockId = parts.find(p => p.startsWith('block-')) || null;
+  const extraParts = parts.slice(2).filter(Boolean);
   tabId = baseTab;
 
   // Редирект Брандмауэр -> Defender (суб-панель Firewall)
@@ -335,7 +336,8 @@ export function switchMainTab(tabId) {
   }
 
   // 1. Мгновенное переключение UI без задержки
-  _switchTab(subPanel ? `${tabId}#${subPanel}` : tabId);
+  const fullSubHash = [subPanel, ...extraParts].filter(Boolean).join('#');
+  _switchTab(fullSubHash ? `${tabId}#${fullSubHash}` : tabId);
 
   // 2. Фоновая асинхронная подгрузка разметки и скрипта вкладки (если еще не загружена)
   const name = (tabId.startsWith('tab-') ? tabId.slice(4) : tabId);
@@ -359,6 +361,18 @@ export function switchMainTab(tabId) {
     setTimeout(() => {
       if (typeof window.switchSoftwareSubTab === 'function') {
         window.switchSoftwareSubTab(subPanel);
+      }
+    }, 70);
+  } else if (subPanel && (tabId === 'tab-app-internals' || tabId === 'app-internals')) {
+    setTimeout(() => {
+      if (typeof window.switchAppInternalsSubTab === 'function') {
+        window.switchAppInternalsSubTab(subPanel, blockId, false);
+      }
+    }, 70);
+  } else if (subPanel && (tabId === 'tab-user-environment' || tabId === 'user-environment' || tabId === 'tab-user-enviroment' || tabId === 'user-enviroment')) {
+    setTimeout(() => {
+      if (typeof window.switchUserEnvSubTab === 'function') {
+        window.switchUserEnvSubTab(subPanel, false);
       }
     }, 70);
   }

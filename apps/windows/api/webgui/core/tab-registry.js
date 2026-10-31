@@ -17,7 +17,7 @@
  * Package: windows/api/webgui/core
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 14:30:00
+ * Updated: 2026-10-31 19:45:00
  * =============================================================================
  */
 
@@ -32,8 +32,8 @@ export const TAB_DEFINITIONS = [
   { id: 'about_system', label: 'О системе', i18nKey: 'auto___d32ca0', icon: 'ℹ️', tab: 'about-system', tabId: 'tab-about-system', html: '/html/tab_about_system/index.html?v=20261020_v10', js: '/html/tab_about_system/main.js?v=20261020_v10' },
   { id: 'scenarios', label: 'Сценарии', i18nKey: 'auto___ddaf0e', icon: '💬', tab: 'scenarios', tabId: 'tab-scenarios', html: '/html/tab_scenarios/index.html?v=20261006_v8', js: '/html/tab_scenarios/main.js?v=20261006_v8' },
   { id: 'chat', label: 'Чат', i18nKey: 'auto___8c77e4', icon: '💬', tab: 'chat', tabId: 'tab-chat', html: '/html/tab_chat/index.html?v=20260923_v5', js: '/html/tab_chat/main.js?v=20260923_v5' },
-  { id: 'network_terminal', label: 'Сеть', i18nKey: 'auto___f6df40', icon: '🌐', tab: 'network', tabId: 'tab-network', html: '/html/tab_network/index.html?v=20261020_v3', js: '/html/tab_network/main.js?v=20261020_v3' },
-  { id: 'system_inspector', label: 'Инспектор системы', i18nKey: 'auto___4324be', icon: 'bi-graph-up-arrow', tab: 'hardware-load-inspector', tabId: 'tab-hardware-load-inspector', html: '/html/tab_system_inspector/index.html?v=20261020_v4', js: '/html/tab_system_inspector/main.js?v=20261020_v4' },
+  { id: 'network_terminal', label: 'Сеть', i18nKey: 'auto___f6df40', icon: '🌐', tab: 'network', tabId: 'tab-network', html: '/html/tab_network/index.html?v=20261028_v1', js: '/html/tab_network/main.js?v=20261028_v1' },
+  { id: 'system_inspector', label: 'Инспектор системы', i18nKey: 'auto___4324be', icon: 'bi-graph-up-arrow', tab: 'hardware-load-inspector', tabId: 'tab-hardware-load-inspector', html: '/html/tab_system_inspector/index.html?v=20261030_v1', js: '/html/tab_system_inspector/main.js?v=20261030_v1' },
   { id: 'processes_load_inspector', label: 'Активность процессов', icon: 'bi-activity', tab: 'processes-load-inspector', tabId: 'tab-processes-load-inspector', html: '/html/tab_processes_load_inspector/index.html?v=20261028_v1', js: '/html/tab_processes_load_inspector/main.js?v=20261028_v1' },
   { id: 'windows_sysadmin', label: 'Windows Sysadmin', icon: 'bi-server', tab: 'windows-admin', tabId: 'tab-windows-admin', html: '/html/tab_windows_admin/index.html?v=20261015_v2', js: '/html/tab_windows_admin/main.js?v=20261015_v2' },
   { id: 'focus_settings', label: 'Фокусировка (Focus)', icon: 'bi-circle-half', tab: 'focus-settings', tabId: 'tab-focus-settings', html: '/html/tab_focus_settings/index.html?v=20261006_v1', js: '/html/tab_focus_settings/main.js?v=20261006_v1' },
@@ -56,8 +56,7 @@ export const TAB_DEFINITIONS = [
   { id: 'helpdesk', label: 'Helpdesk', icon: '🎫', tab: 'helpdesk', tabId: 'tab-helpdesk', html: '/html/tab_helpdesk/index.html', js: '/html/tab_helpdesk/main.js' },
   { id: 'wikipedia_research', label: 'Wikipedia Research', icon: '📖', tab: 'wikipedia-research', tabId: 'tab-wikipedia-research', html: '/html/tab_wikipedia_research/index.html', js: '/html/tab_wikipedia_research/main.js' },
   { id: 'autolog_manager', label: 'Автологи', i18nKey: 'auto___17b9d1', icon: '📝', tab: 'autolog', tabId: 'tab-autolog', html: '/html/tab_telemetry_config/index.html?v=20261010_v2', js: '/html/tab_telemetry_config/main.js?v=20261010_v2' },
-  { id: 'software_transparency_scanner', label: 'Transparency Scanner', icon: '🔍', tab: 'software-transparency', tabId: 'tab-software-transparency', html: '/html/tab_software_transparency/index.html?v=20261016_v3', js: '/html/tab_software_transparency/main.js?v=20261016_v3' },
-  { id: 'user_directories', label: 'Каталоги пользователя', i18nKey: 'auto___1ddade', icon: '📁', tab: 'user-directories', tabId: 'tab-user-directories', html: '/html/tab_user_directories/index.html', js: '/html/tab_user_directories/main.js' },
+  { id: 'software_transparency_scanner', label: 'Transparency Scanner', icon: '🔍', tab: 'software-transparency', tabId: 'tab-software-transparency', html: '/html/tab_software_transparency/index.html?v=20261028_v1', js: '/html/tab_software_transparency/main.js?v=20261028_v1' },
   { id: 'ninite_updater', label: 'Ninite Updater', icon: '🔄', tab: 'ninite-updater', tabId: 'tab-ninite-updater', html: '/html/tab_ninite_updater/index.html?v=20260924_v2', js: '/html/tab_ninite_updater/main.js?v=20260924_v2' },
   { id: 'file_recovery', label: 'Восстановление файлов', i18nKey: 'auto___8f9984', icon: '🩹', tab: 'file-recovery', tabId: 'tab-file-recovery', html: '/html/tab_file_recovery/index.html', js: '/html/tab_file_recovery/main.js' },
   { id: 'file_history_ai_search', label: 'Поиск файлов AI', i18nKey: 'auto__ai_2d3bf7', icon: '🔍', tab: 'file-history-search', tabId: 'tab-file-history-search', html: '/html/tab_file_history_ai_search/index.html?v=20260928_v1', js: '/html/tab_file_history_ai_search/main.js?v=20260928_v1' },
@@ -87,13 +86,15 @@ export const TAB_DEFINITIONS = [
   { id: 'taskbar_controller', label: 'Панель задач и Окна', icon: '📌', tab: 'taskbar', tabId: 'tab-taskbar', html: '/html/tab_taskbar/index.html?v=20261020_v3', js: '/html/tab_taskbar/main.js?v=20261020_v3' },
   { id: 'power_lifecycle', label: 'Электропитание и сессии', icon: '⚡', tab: 'power-lifecycle', tabId: 'tab-power-lifecycle', html: '/html/tab_power_lifecycle/index.html?v=20261008_v2', js: '/html/tab_power_lifecycle/main.js?v=20261008_v2' },
   { id: 'app_logs', label: 'Логи приложений', icon: '📋', tab: 'app-logs', tabId: 'tab-app-logs', html: '/html/tab_app_logs/index.html?v=20261010_v4', js: '/html/tab_app_logs/main.js?v=20261010_v4' },
-  { id: 'software_monitor', label: 'Установленные программы', icon: 'bi-box-seam', tab: 'software-monitor', tabId: 'tab-software-monitor', html: '/html/tab_software_monitor/index.html?v=20261020_v2', js: '/html/tab_software_monitor/main.js?v=20261020_v2' },
-  { id: 'software_scanner', label: 'Установленные программы (Legacy)', icon: 'bi-box-seam', tab: 'software-scanner', tabId: 'tab-software-scanner', html: '/html/tab_software_monitor/index.html?v=20261020_v2', js: '/html/tab_software_monitor/main.js?v=20261020_v2' },
+  { id: 'software_monitor', label: 'Установленные программы', icon: 'bi-box-seam', tab: 'software-monitor', tabId: 'tab-software-monitor', html: '/html/tab_software_monitor/index.html?v=20261028_v1', js: '/html/tab_software_monitor/main.js?v=20261028_v1' },
+  { id: 'software_scanner', label: 'Установленные программы (Legacy)', icon: 'bi-box-seam', tab: 'software-scanner', tabId: 'tab-software-scanner', html: '/html/tab_software_monitor/index.html?v=20261028_v1', js: '/html/tab_software_monitor/main.js?v=20261028_v1' },
   { id: 'mcp', label: 'MCP Серверы', icon: '🔌', tab: 'mcp', tabId: 'tab-mcp', html: '/html/tab_mcp/index.html', js: '/html/tab_mcp/main.js' },
   { id: 'wikillm', label: 'WikiLLM База знаний', icon: '📚', tab: 'wikillm', tabId: 'tab-wikillm', html: '/html/templates/tabs/tab_wikillm.html?v=20261013_v1', js: '/static/js/wikillm_controller.js?v=20261013_v1' },
   { id: 'theme_editor', label: 'Редактор тем оформления', icon: 'bi-palette2', tab: 'theme-editor', tabId: 'tab-theme-editor', html: '/html/tab_theme_editor/index.html?v=20261020_v2', js: '/html/tab_theme_editor/main.js?v=20261020_v2' },
-  { id: 'app_internals', label: 'Внутренняя кухня', icon: '🛠️', tab: 'app-internals', tabId: 'tab-app-internals', html: '/html/tab_app_internals/index.html?v=20261020_v2', js: '/html/tab_app_internals/main.js?v=20261020_v2' },
+  { id: 'app_internals', label: 'Внутренняя кухня', icon: '🛠️', tab: 'app-internals', tabId: 'tab-app-internals', html: '/html/tab_app_internals/index.html?v=20261031_v7', js: '/html/tab_app_internals/main.js?v=20261031_v7' },
   { id: 'sound_settings', label: 'Настройка звука', icon: 'bi-volume-up', tab: 'sound-settings', tabId: 'tab-sound-settings', html: '/html/tab_sound_settings/index.html?v=20261027_v1', js: '/html/tab_sound_settings/main.js?v=20261027_v1' },
+  { id: 'user_environment', label: 'Окружение пользователя', icon: 'bi-person-workspace', tab: 'user-environment', tabId: 'tab-user-environment', html: '/html/tab_user_environment/index.html?v=20261031_v1', js: '/html/tab_user_environment/main.js?v=20261031_v1' },
+  { id: 'user_enviroment', label: 'Окружение пользователя', icon: 'bi-person-workspace', tab: 'user-enviroment', tabId: 'tab-user-enviroment', html: '/html/tab_user_environment/index.html?v=20261031_v1', js: '/html/tab_user_environment/main.js?v=20261031_v1' },
   { id: 'sitemap', label: 'Карта сайта (Sitemap)', icon: 'bi-diagram-3-fill', tab: 'sitemap', tabId: 'tab-sitemap', html: '/html/tab_sitemap/index.html?v=20261015_v1', js: '/html/tab_sitemap/main.js?v=20261015_v1' }
 ];
 

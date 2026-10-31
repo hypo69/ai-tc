@@ -313,3 +313,4 @@ def test_api_tasks_lifecycle(client: TestClient):
     list_resp = client.get('/api/v1/storage/tasks')
     assert list_resp.status_code == 200
     assert len(list_resp.json()) >= 1
+

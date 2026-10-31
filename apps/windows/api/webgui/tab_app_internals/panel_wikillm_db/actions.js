@@ -10,11 +10,11 @@
  * Package: windows/api/webgui/tab_app_internals/panel_wikillm_db
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 02:12:00
+ * Updated: 2026-10-31 17:05:00
  * =============================================================================
  */
 
-import { notifyUser } from '../common/ui_utils.js';
+import { notifyUser } from '../common/ui_utils.js?v=20261031_v2';
 
 /**
  * Создание базы данных MariaDB.

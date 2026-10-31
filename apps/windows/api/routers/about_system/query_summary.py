@@ -11,7 +11,7 @@
 # Package: apps.windows.api.routers.about_system
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 14:33:00
+# Updated: 2026-10-31 19:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -131,7 +131,13 @@ async def query_system_summary_full(storage: TelemetryStorage, process_limit: in
 
     # 4. Память (RAM)
     if not snap.get("memory") or not isinstance(snap["memory"], dict):
-        tot_m = float(snap.get("memory_total_gb") or 16.0)
+        tot_m = float(snap.get("memory_total_gb") or 0.0)
+        if tot_m <= 0.0:
+            try:
+                import psutil
+                tot_m = round(psutil.virtual_memory().total / (1024 ** 3), 2)
+            except Exception:
+                tot_m = 32.0
         used_m = float(snap.get("memory_used_gb") or 0.0)
         pct_m = float(snap.get("memory_percent") or 0.0)
         snap["memory"] = {
@@ -281,3 +287,4 @@ async def query_system_summary_full(storage: TelemetryStorage, process_limit: in
             snap["top_processes"] = []
 
     return snap
+

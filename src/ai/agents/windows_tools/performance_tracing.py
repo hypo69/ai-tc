@@ -162,3 +162,4 @@ WINDOWS_PERFORMANCE_TRACING_TOOLS = [
     windows_performance_tracing_audit,
     windows_performance_collector_action,
 ]
+

@@ -12,7 +12,19 @@
     "allow_origins": [],
     "allow_origin_regex": null,
     "allow_credentials": true,
-    "allow_methods": ["*"],
-    "allow_headers": ["*"]
+    "allow_methods": [
+      "*"
+    ],
+    "allow_headers": [
+      "*"
+    ]
+  },
+  "infra": {
+    "ps_timeout_sec": 25,
+    "wsl_timeout_sec": 15,
+    "cache_ttl_sec": 30,
+    "retention_max_snapshots": 200,
+    "retention_days": 90,
+    "max_workers": 5
   }
 }

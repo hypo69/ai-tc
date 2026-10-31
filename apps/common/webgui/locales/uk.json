@@ -317,5 +317,51 @@
     "aiToastTitle": "ИИ Анализ",
     "aiToastBody": "Запрос направлен в чат-ассистент.",
     "exportNoEvents": "Нет загруженных событий для экспорта."
+  },
+  "internals": {
+    "subtabTelemetryLabel": "Телеметрія",
+    "subtabTelemetryTitle": "Моніторинг системних метрик процесора, пам'яті, дисків та фонових завдань",
+    "subtabModelsLabel": "Моделі та API",
+    "subtabModelsTitle": "Керування провайдерами та моделями ШІ (Windows AI, Ollama, Gemini, Foundry Local)",
+    "subtabLogsLabel": "Центр журналів",
+    "subtabLogsTitle": "Перегляд внутрішніх журналів програми ai-tc",
+    "subtabEtwLabel": "Трасування ETW",
+    "subtabEtwTitle": "Низькорівневе трасування системних подій ETW ядра Windows",
+    "subtabSettingsLabel": "Параметри",
+    "subtabSettingsTitle": "Керування глобальними конфігураціями та параметрами підсистем",
+    "subtabSystemKnowledgeLabel": "Підказки по системі",
+    "subtabSystemKnowledgeTitle": "База знань загальних підказок по системі: локальний файл SQLite, параметри моделі та статті",
+    "subtabInstrumentsLabel": "База інструментів",
+    "subtabInstrumentsTitle": "База інструментів для ланцюжка міркувань агента: сервер Hostinger, параметри виконання та каталог",
+    "blockSysStorageLabel": "Сховище SQLite",
+    "blockSysStorageTitle": "Керування локальним файлом SQLite бази підказок, перевірка схеми та таблиць",
+    "blockSysParamsLabel": "Параметри WikiLLM",
+    "blockSysParamsTitle": "Налаштування моделі генерації, порогу впевненості та контекстного вікна",
+    "blockSysArticlesLabel": "Статті підказок",
+    "blockSysArticlesTitle": "Каталог і вбудований редактор статей бази знань підказок",
+    "blockInstHostingerLabel": "Сервер Hostinger",
+    "blockInstHostingerTitle": "Налаштування підключення до віддаленого сервера Hostinger (REST PHP API / MariaDB)",
+    "blockInstRuntimeLabel": "Ланцюжок міркувань",
+    "blockInstRuntimeTitle": "Параметри виконання інструментів у ланцюжку міркувань, SafeOps та таймаути",
+    "blockInstCatalogLabel": "Каталог інструментів",
+    "blockInstCatalogTitle": "Перегляд бібліотеки інструментів агента, пошук та тестовий запуск",
+    "subtabTooltipsEditorLabel": "Редактор тултипів",
+    "subtabTooltipsEditorTitle": "Редактор спливаючих підказок та бази знань тултипів системи"
+  },
+  "tooltips": {
+    "internals-logs": {
+      "title": "Центр журналів",
+      "fullTitle": "Центр внутрішніх журналів ai-tc",
+      "summary": "Перегляд внутрішніх журналів програми ai-tc",
+      "category": "Журналювання",
+      "icon": "📜"
+    },
+    "logs": {
+      "title": "Центр журналів",
+      "fullTitle": "Центр внутрішніх журналів ai-tc",
+      "summary": "Перегляд внутрішніх журналів програми ai-tc",
+      "category": "Журналювання",
+      "icon": "📜"
+    }
   }
 }

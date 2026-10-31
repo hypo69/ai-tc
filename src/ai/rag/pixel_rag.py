@@ -265,3 +265,4 @@ class PixelRAG:
         """Очищает каталог и сохраненные скриншоты."""
         self.items = []
         self._save()
+

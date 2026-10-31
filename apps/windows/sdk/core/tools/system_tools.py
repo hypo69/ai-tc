@@ -114,3 +114,4 @@ def register_system_tools(registry: ToolRegistry) -> None:
     registry.register(WindowsCollectorTool())
     registry.register(SafePowerShellProbeTool())
     registry.register(NetUserTool())
+

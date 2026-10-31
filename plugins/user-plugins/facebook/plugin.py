@@ -345,3 +345,4 @@ class FacebookPlugin(BasePlugin):
                 "api_version": self.client.api_version,
             },
         }
+

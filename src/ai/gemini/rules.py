@@ -274,3 +274,4 @@ def add_unsupported_gemini_model(model_name: str, reason: str = "") -> bool:
         logger.warning(f"Модель '{norm_name}' добавлена в {cfg_path.name} (причина: {reason[:120]})")
         return True
     return False
+

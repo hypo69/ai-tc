@@ -347,3 +347,4 @@ class TelemetryInventoryStorageMixin:
             status=status,
         )
 
+

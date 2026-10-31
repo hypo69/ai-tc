@@ -144,3 +144,4 @@ class AuthPolicySubsystem:
         """50. Устанавливает список рабочих станций для входа."""
         ret, _, _ = self.bridge.run_command(["net", "user", username, f"/workstations:{workstations_str}"])
         return ret == 0
+

@@ -250,3 +250,4 @@ WINDOWS_HARDWARE_TOOLS = [
     windows_hardware_inventory,
     windows_hardware_benchmark,
 ]
+

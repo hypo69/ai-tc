@@ -117,3 +117,4 @@ def test_startup_history_diff_detection() -> None:
 
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
+

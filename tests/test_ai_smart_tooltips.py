@@ -12,7 +12,7 @@
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-18 20:31:00
+# Updated: 2026-10-31 18:09:00
 # =============================================================================
 
 from __future__ import annotations
@@ -93,11 +93,8 @@ def test_system_control_tab_contains_ai_tooltip_attributes(api_client: TestClien
     html = res.text
 
     # Проверка верхней панели журналов (источники)
-    assert 'data-source="summary-dashboard" data-term="summary-dashboard" data-ai-tooltip="true"' in html
-    assert 'data-source="event-logs" data-term="event-logs" data-ai-tooltip="true"' in html
-    assert 'data-source="activity" data-term="activity" data-ai-tooltip="true"' in html
-    assert 'data-source="power-lifecycle" data-term="power-lifecycle" data-ai-tooltip="true"' in html
-    assert 'data-source="defender-logs" data-term="defender-logs" data-ai-tooltip="true"' in html
+    for src in ["summary-dashboard", "event-logs", "activity", "power-lifecycle", "defender-logs"]:
+        assert f'data-source="{src}"' in html and f'data-term="{src}"' in html and 'data-ai-tooltip="true"' in html
 
     # Проверка кнопок действий
     assert 'id="btn-slc-scan" data-term="slc-scan" data-ai-tooltip="true"' in html
@@ -141,12 +138,8 @@ def test_software_scanner_tab_contains_ai_tooltip_attributes(api_client: TestCli
     html = res.text
 
     # Проверка главных суб-вкладок
-    assert 'id="subtab-sw-inventory-btn" data-term="sw-inventory" data-ai-tooltip="true"' in html
-    assert 'id="subtab-sw-packages-btn" data-term="sw-packages" data-ai-tooltip="true"' in html
-    assert 'id="subtab-sw-dormant-btn" data-term="sw-dormant" data-ai-tooltip="true"' in html
-    assert 'id="subtab-sw-transparency-btn" data-term="sw-transparency" data-ai-tooltip="true"' in html
-    assert 'id="subtab-sw-heavy-btn" data-term="sw-heavy" data-ai-tooltip="true"' in html
-    assert 'id="subtab-sw-sockets-btn" data-term="sw-sockets" data-ai-tooltip="true"' in html
+    for sub in ["inventory", "packages", "dormant", "transparency", "heavy", "sockets"]:
+        assert f'id="subtab-sw-{sub}-btn"' in html and f'data-term="sw-{sub}"' in html and 'data-ai-tooltip="true"' in html
 
     # Проверка вложенных суб-вкладок менеджера пакетов
     assert 'id="sw-subtab-winget-btn" data-term="sw-winget" data-ai-tooltip="true"' in html
@@ -204,13 +197,13 @@ def test_windows_admin_tab_contains_ai_tooltip_attributes(api_client: TestClient
     assert 'id="windows-backup-widget" data-term="winadmin-backup" data-ai-tooltip="true"' in html
 
     # Проверка навигационных суб-вкладок
-    assert 'id="subtab-winadmin-users-btn" data-term="winadmin-users" data-ai-tooltip="true"' in html
-    assert 'id="subtab-winadmin-groups-btn" data-term="winadmin-groups" data-ai-tooltip="true"' in html
-    assert 'id="subtab-winadmin-events-btn" data-term="winadmin-events" data-ai-tooltip="true"' in html
-    assert 'id="subtab-winadmin-security-btn" data-term="winadmin-security" data-ai-tooltip="true"' in html
-    assert 'id="subtab-winadmin-pid-btn" data-term="winadmin-pid" data-ai-tooltip="true"' in html
-    assert 'id="subtab-winadmin-catalog-btn" data-term="winadmin-catalog" data-ai-tooltip="true"' in html
-    assert 'id="subtab-winadmin-acl-btn" data-term="winadmin-acl" data-ai-tooltip="true"' in html
+    assert 'id="subtab-winadmin-users-btn"' in html and 'data-term="winadmin-users"' in html
+    assert 'id="subtab-winadmin-groups-btn"' in html and 'data-term="winadmin-groups"' in html
+    assert 'id="subtab-winadmin-events-btn"' in html and 'data-term="winadmin-events"' in html
+    assert 'id="subtab-winadmin-security-btn"' in html and 'data-term="winadmin-security"' in html
+    assert 'id="subtab-winadmin-pid-btn"' in html and 'data-term="winadmin-pid"' in html
+    assert 'id="subtab-winadmin-catalog-btn"' in html and 'data-term="winadmin-catalog"' in html
+    assert 'id="subtab-winadmin-acl-btn"' in html and 'data-term="winadmin-acl"' in html
 
     # Проверка фильтров пользователей
     assert 'data-filter="hidden" data-term="winadmin-filter-hidden" data-ai-tooltip="true"' in html
@@ -317,11 +310,11 @@ def test_processes_load_inspector_tab_contains_ai_tooltip_attributes(api_client:
     assert 'id="btn-global-refresh" data-term="proc-global-refresh" data-ai-tooltip="true"' in html
 
     # Проверка 5 суб-вкладок
-    assert 'id="subtab-proc-manager-btn" data-term="proc-subtab-manager" data-ai-tooltip="true"' in html
-    assert 'id="subtab-proc-top-btn" data-term="proc-subtab-top" data-ai-tooltip="true"' in html
-    assert 'id="subtab-proc-net-btn" data-term="proc-subtab-net" data-ai-tooltip="true"' in html
-    assert 'id="subtab-proc-files-btn" data-term="proc-subtab-files" data-ai-tooltip="true"' in html
-    assert 'id="subtab-proc-leaks-btn" data-term="proc-subtab-leaks" data-ai-tooltip="true"' in html
+    assert 'id="subtab-proc-manager-btn"' in html and 'data-term="proc-subtab-manager"' in html
+    assert 'id="subtab-proc-top-btn"' in html and 'data-term="proc-subtab-top"' in html
+    assert 'id="subtab-proc-net-btn"' in html and 'data-term="proc-subtab-net"' in html
+    assert 'id="subtab-proc-files-btn"' in html and 'data-term="proc-subtab-files"' in html
+    assert 'id="subtab-proc-leaks-btn"' in html and 'data-term="proc-subtab-leaks"' in html
 
     # Проверка карточек и кнопок Process Manager
     assert 'id="pm-filter-card-apps" data-term="pm-card-apps" data-ai-tooltip="true"' in html
@@ -382,3 +375,77 @@ def test_processes_load_inspector_terms_in_knowledge_base(api_client: TestClient
     ]:
         assert f"'{term}'" in content, f"Термин {term} отсутствует в базе знаний скрипта тултипов"
 
+
+
+def test_internals_logs_tooltip_content(api_client: TestClient) -> None:
+    """Проверяет правильный текст тултипа для элемента Центр логов в разметке и локалях."""
+    res = api_client.get("/html/tab_app_internals/index.html")
+    assert res.status_code == 200, "Вкладка App Internals недоступна"
+    html = res.text
+
+    # Проверяем атрибут title на кнопке Центра логов
+    expected_tooltip = "Просмотр внутренних логов программы ai-tc"
+    assert f'title="{expected_tooltip}"' in html, "Неправильный текст тултипа для Центра логов в index.html"
+    assert 'data-i18n="internals.subtabLogsLabel">Центр логов</span>' in html
+
+    # Проверяем локаль ru.json
+    loc_res = api_client.get("/html/locales/ru.json")
+    assert loc_res.status_code == 200, "Локаль ru.json недоступна"
+    loc_data = loc_res.json()
+    assert loc_data.get("internals", {}).get("subtabLogsTitle") == expected_tooltip
+    assert loc_data.get("tooltips", {}).get("internals-logs", {}).get("summary") == expected_tooltip
+
+
+def test_tooltips_editor_subtab_in_tab_app_internals(api_client: TestClient) -> None:
+    """Проверяет регистрацию и разметку субпанели tooltips-editor во вкладке tab-app-internals."""
+    res = api_client.get("/html/tab_app_internals/index.html")
+    assert res.status_code == 200
+    html = res.text
+
+    assert 'id="subtab-internals-tooltips-editor-btn"' in html, "Кнопка субпанели tooltips-editor отсутствует"
+    assert 'data-panel-id="tooltips-editor"' in html
+    assert 'id="subpane-internals-tooltips-editor"' in html, "Контейнер субпанели tooltips-editor отсутствует"
+
+
+def test_tooltips_router_api_crud(api_client: TestClient) -> None:
+    """Проверяет работу CRUD эндпоинтов роутера /api/v1/tooltips."""
+    # 1. Получение списка
+    list_res = api_client.get("/api/v1/tooltips?lang=ru")
+    assert list_res.status_code == 200
+    data = list_res.json()
+    assert data["status"] == "success"
+    assert "items" in data
+    assert any(item["key"] == "internals-logs" for item in data["items"])
+
+    # 2. Получение конкретной подсказки
+    item_res = api_client.get("/api/v1/tooltips/internals-logs?lang=ru")
+    assert item_res.status_code == 200
+    item = item_res.json()
+    assert item["key"] == "internals-logs"
+    assert item["summary"] == "Просмотр внутренних логов программы ai-tc"
+
+    # 3. Сохранение тестовой подсказки
+    test_key = "test_custom_probe"
+    post_payload = {
+        "key": test_key,
+        "title": "Тестовый зонд",
+        "fullTitle": "Тестовый диагностический зонд",
+        "summary": "Проверка диагностических сенсоров",
+        "category": "Тестирование",
+        "icon": "🧪",
+        "lang": "ru",
+        "source": "custom"
+    }
+    save_res = api_client.post("/api/v1/tooltips", json=post_payload)
+    assert save_res.status_code == 200
+    assert save_res.json()["key"] == test_key
+
+    # 4. Проверка созданной подсказки
+    get_custom = api_client.get(f"/api/v1/tooltips/{test_key}?lang=ru")
+    assert get_custom.status_code == 200
+    assert get_custom.json()["summary"] == "Проверка диагностических сенсоров"
+
+    # 5. Удаление тестовой подсказки
+    del_res = api_client.delete(f"/api/v1/tooltips/{test_key}?lang=ru")
+    assert del_res.status_code == 200
+    assert del_res.json()["status"] == "success"

@@ -15,3 +15,4 @@
 
 from __future__ import annotations
 """Тесты для модулей пакета src.ai.rag."""
+

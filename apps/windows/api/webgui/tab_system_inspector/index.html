@@ -17,7 +17,7 @@ Usage Examples:
  * Package: windows/api/webgui/tab_system_inspector
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 17:06:00
+ * Updated: 2026-10-30 11:45:00
  =============================================================================
 -->
 <!-- System & Hardware Inspector Application Tab -->
@@ -269,13 +269,11 @@ Usage Examples:
     border-color: #ef4444 !important;
     transform: rotate(-8deg) scale(1.06);
   }
-  [data-theme="dark"] .sys-drill-btn {
-    background: rgba(15, 23, 42, 0.85);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
+  [data-theme="dark"] .sys-drill-btn,
+  [data-theme="theme-dark-slate"] .sys-drill-btn,
   [data-theme="terminal"] .sys-drill-btn {
-    background: #0b120c;
-    border-color: #1a4223;
+    background: transparent;
+    border: none;
   }
 
   /* Верхний баннер панелей: строгое выравнивание колонок через CSS Grid, общий фон с карточкой */
@@ -713,6 +711,82 @@ Usage Examples:
     background: #0b120c !important;
     border: 1px solid #1a4223 !important;
   }
+
+  /* Стили панели проверки скорости интернета (Speedtest) */
+  .net-panel {
+    background: var(--surface-1) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-md, 8px);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs, 0 1px 3px rgba(0, 0, 0, 0.08));
+  }
+  .net-panel-header {
+    background: var(--surface-2) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    padding: 0.5rem 0.85rem;
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .net-table {
+    width: 100%;
+    font-size: 0.78rem;
+    font-family: var(--font-mono, monospace);
+    border-collapse: collapse;
+    margin-bottom: 0;
+    background: transparent;
+  }
+  .net-table th {
+    background: var(--surface-2);
+    padding: 6px 10px;
+    color: var(--text-muted);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  .net-table td {
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--border-subtle, rgba(128, 128, 128, 0.2));
+    color: var(--text-color);
+    vertical-align: middle;
+  }
+  .net-table tr:hover td {
+    background: rgba(56, 189, 248, 0.06);
+  }
+  .proto-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: var(--radius-xs, 4px);
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .status-badge-up { background: var(--status-success-bg, rgba(16, 185, 129, 0.15)); color: var(--status-success-text, #166534); border: 1px solid var(--status-success-border, #10b981); }
+  .status-badge-down { background: var(--status-danger-bg, rgba(239, 68, 68, 0.15)); color: var(--status-danger-text, #991b1b); border: 1px solid var(--status-danger-border, #ef4444); }
+  .speed-gauge-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: var(--shadow-xs, 0 1px 3px rgba(0, 0, 0, 0.05));
+  }
+  .speed-gauge-val {
+    font-size: 2.2rem;
+    font-weight: 800;
+    font-family: var(--font-mono, monospace);
+    line-height: 1.1;
+  }
+  .net-well {
+    background: var(--surface-2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm, 6px);
+  }
+
 </style>
 <div class="sys-container theme-inspector sys-compact-mode">
   <!-- Заголовок вкладки -->
@@ -1222,6 +1296,86 @@ Usage Examples:
 <div id="sys-net-spark" style="width: 100%; height: 100%;"></div>
 <div class="sys-spark-tooltip" id="sys-net-spark-tooltip" style="display: none;"></div>
 </div>
+</div>
+
+<!-- Панель тестирования скорости интернета и задержки (Speedtest) -->
+<div class="sys-full-only sys-speedtest-panel mt-3 rounded-2" id="sys-net-speedtest" data-panel-id="speedtest">
+<div class="net-panel mb-0">
+<div class="net-panel-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+<div class="speedtest-controls-grid d-flex justify-content-start align-items-center gap-2">
+<button class="btn btn-sm btn-warning rounded-pill px-3 fw-bold shadow-sm btn-run-speedtest" id="sys-btn-run-speedtest" type="button">
+<i class="bi bi-play-fill me-1"></i> Запустить тест скорости
+</button>
+<span class="small text-muted speedtest-status-text" id="sys-speedtest-status-text">Готов к тестированию</span>
+</div>
+<div class="d-flex align-items-center gap-2 text-secondary">
+<span><i class="bi bi-speedometer2 text-warning me-1"></i> Тестирование пропускной способности и задержки Интернета (Speedtest)</span>
+</div>
+</div>
+<div class="p-3">
+<!-- 4 Big Gauges -->
+<div class="row g-3 mb-3">
+<div class="col-6 col-lg-3">
+<div class="speed-gauge-card">
+<div class="text-secondary small text-uppercase fw-semibold mb-1"><i class="bi bi-arrow-down-circle-fill text-success me-1"></i> Скачивание (Download)</div>
+<div class="speed-gauge-val text-success speed-val-download" id="sys-speed-val-download">--</div>
+<div class="text-muted small mt-1 speed-sub-download" id="sys-speed-sub-download">0.0 MB/s</div>
+</div>
+</div>
+<div class="col-6 col-lg-3">
+<div class="speed-gauge-card">
+<div class="text-secondary small text-uppercase fw-semibold mb-1"><i class="bi bi-arrow-up-circle-fill text-primary me-1"></i> Отдача (Upload)</div>
+<div class="speed-gauge-val text-primary speed-val-upload" id="sys-speed-val-upload">--</div>
+<div class="text-muted small mt-1 speed-sub-upload" id="sys-speed-sub-upload">0.0 MB/s</div>
+</div>
+</div>
+<div class="col-6 col-lg-3">
+<div class="speed-gauge-card">
+<div class="text-secondary small text-uppercase fw-semibold mb-1"><i class="bi bi-stopwatch-fill text-info me-1"></i> Задержка (Ping)</div>
+<div class="speed-gauge-val text-info speed-val-ping" id="sys-speed-val-ping">--</div>
+<div class="text-muted small mt-1 speed-sub-jitter" id="sys-speed-sub-jitter">Jitter: -- ms</div>
+</div>
+</div>
+<div class="col-6 col-lg-3">
+<div class="speed-gauge-card">
+<div class="text-secondary small text-uppercase fw-semibold mb-1"><i class="bi bi-shield-check text-warning me-1"></i> Качество соединения</div>
+<div class="speed-gauge-val text-warning speed-val-grade" id="sys-speed-val-grade">--</div>
+<div class="text-muted small text-truncate mt-1 speed-sub-isp" id="sys-speed-sub-isp">Провайдер: --</div>
+</div>
+</div>
+</div>
+<!-- Quality Summary Bar -->
+<div class="p-2.5 rounded net-well mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+<div class="d-flex align-items-center gap-2">
+<span class="badge bg-secondary speed-badge-ip" id="sys-speed-badge-ip">Внешний IP: --</span>
+<span class="badge bg-body-secondary border text-body speed-badge-location" id="sys-speed-badge-location">Локация: --</span>
+</div>
+<div class="small text-muted speed-summary-text" id="sys-speed-summary-text">Нажмите «Запустить тест скорости», чтобы измерить пропускную способность канала, задержку (Ping) и джиттер.</div>
+</div>
+<!-- DNS & Edge Servers Latency Table -->
+<h6 class="small fw-bold text-info mb-2"><i class="bi bi-globe me-1"></i> Задержка к опорным DNS &amp; CDN серверам:</h6>
+<div class="table-responsive">
+<table class="net-table">
+<thead>
+<tr>
+<th>Сервер / Провайдер</th>
+<th style="width: 140px;">Хост / IP</th>
+<th style="width: 110px; text-align: right;">Средний Ping</th>
+<th style="width: 90px; text-align: right;">Min</th>
+<th style="width: 90px; text-align: right;">Max</th>
+<th style="width: 100px; text-align: right;">Джиттер</th>
+<th style="width: 100px;">Статус</th>
+</tr>
+</thead>
+<tbody class="speed-servers-tbody" id="sys-speed-servers-tbody">
+<tr><td class="text-center py-3 text-muted" colspan="7">Запустите тест скорости для измерения задержки к DNS-серверам.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
 </div><!-- /#sys-card-net-details -->
 </div>
 </div>

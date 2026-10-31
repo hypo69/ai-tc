@@ -4,8 +4,10 @@ Process Name: Windows Web Interface - Telemetry Control Tab View
 =============================================================================
 Description:
   Клиентский интерфейс управления параметрами сбора телеметрии:
-  интервалы опроса, выбор отслеживаемых процессов (белый список),
-  тяжелые коллекторы, политика фиксации фокусных окон и Hot Reload.
+  - Режим тщательного сбора (Thorough Mode: сбор всех 5с замеров без усреднения)
+  - Каскадное усреднение: 5с -> 30с -> 3м -> 10м -> 36ч
+  - Индивидуальные настройки частоты и активности для каждого тяжелого сенсора
+  - Белый список процессов, политика фокусных окон и Hot Reload на лету.
 
 Usage Examples:
   Web Route:
@@ -16,7 +18,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_telemetry_control
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 10:55:00
+Updated: 2026-10-28 17:48:00
 =============================================================================
 -->
 <div class="container-fluid py-3 px-3" id="telemetry-control-tab-container">
@@ -29,81 +31,103 @@ Updated: 2026-10-20 10:55:00
           <h3 class="tab-header-title panel-header mb-0">Управление режимами телеметрии</h3>
           <span class="badge bg-success-subtle text-success border border-success-subtle fs-7" id="tc-ctrl-status-badge">Hot Reload: Активен</span>
         </div>
-        <small class="tab-header-subtitle text-secondary">Активация режима реального времени, управление сборщиками метрик и мониторинг объема телеметрии</small>
+        <small class="tab-header-subtitle text-secondary">Активация режима реального времени, индивидуальные таймеры сенсоров и каскадное усреднение</small>
       </div>
     </div>
-    
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <button class="btn btn-sm btn-outline-info d-flex align-items-center gap-1 shadow-sm" id="tc-ctrl-btn-refresh" title="Перечитать активную конфигурацию" data-bs-toggle="tooltip">
+        <i class="bi bi-arrow-clockwise"></i>
+        <span>Обновить</span>
+      </button>
+      <button class="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm px-3" id="tc-ctrl-btn-save" title="Применить изменения на лету (Hot Reload)" data-bs-toggle="tooltip">
+        <i class="bi bi-floppy2-fill"></i>
+        <span class="fw-semibold">Применить (Hot Reload)</span>
+      </button>
+    </div>
   </div>
-<div class="d-flex align-items-center gap-2 flex-wrap">
-          <button class="btn btn-sm btn-outline-info d-flex align-items-center gap-1 shadow-sm" id="tc-ctrl-btn-refresh" title="Перечитать активную конфигурацию" data-bs-toggle="tooltip">
-            <i class="bi bi-arrow-clockwise"></i>
-            <span>Обновить</span>
-          </button>
-          <button class="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm px-3" id="tc-ctrl-btn-save" title="Применить изменения на лету (Hot Reload)" data-bs-toggle="tooltip">
-            <i class="bi bi-floppy2-fill"></i>
-            <span class="fw-semibold">Применить (Hot Reload)</span>
-          </button>
-        </div>
+
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom border-secondary border-opacity-25 fs-8 text-secondary">
+    <div><i class="bi bi-file-code me-1 text-info"></i>Конфигурация: <code class="text-info bg-dark px-1.5 py-0.5 rounded" id="tc-ctrl-config-path">config.json</code></div>
+    <div><i class="bi bi-clock-history me-1"></i>Обновлено: <span class="text-white" id="tc-ctrl-mtime">—</span></div>
+  </div>
+
+  <!-- Блок: Политика усреднения и Режим тщательного сбора -->
+  <div class="card bg-dark text-white border-warning border-opacity-50 shadow-sm p-3 mb-3">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-layer-forward fs-5 text-warning"></i>
+        <h6 class="fw-bold text-warning mb-0">Политика усреднения данных (Каскадное сжатие временных рядов)</h6>
       </div>
-      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2 pt-2 border-top border-secondary border-opacity-25 fs-8 text-secondary">
-        <div><i class="bi bi-file-code me-1 text-info"></i>Конфигурация: <code class="text-info bg-dark px-1.5 py-0.5 rounded" id="tc-ctrl-config-path">config.json</code></div>
-        <div><i class="bi bi-clock-history me-1"></i>Обновлено: <span class="text-white" id="tc-ctrl-mtime">—</span></div>
+      <div class="form-check form-switch m-0">
+        <input class="form-check-input" type="checkbox" id="tc-ctrl-thorough-mode" role="switch">
+        <label class="form-check-label fw-bold text-light" for="tc-ctrl-thorough-mode">Режим тщательного сбора (Thorough Mode)</label>
       </div>
+    </div>
+    <p class="small text-secondary mb-2">
+      <strong>Режим тщательного сбора:</strong> при включении телеметрия собирает и бессрочно хранит абсолютно все пятисекундные замеры без усреднения и без удаления строк. При выключенном режиме работает каскадное усреднение: каждые 30 секунд снимки усредняются в бакеты <code class="text-info">30s</code> с удалением сырых 5с строк; старше 3 минут — сворачиваются в <code class="text-info">3m</code> с очисткой 30s строк; старше 10 минут — в <code class="text-info">10m</code>; старше 36 часов — в <code class="text-info">36h</code>.
+    </p>
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-2 border-top border-secondary border-opacity-25">
+      <div class="d-flex align-items-center gap-1.5 flex-wrap fs-8" id="tc-ctrl-cascade-chain">
+        <span class="badge bg-secondary text-light">5с снимки (tc.ps1)</span>
+        <i class="bi bi-arrow-right text-secondary"></i>
+        <span class="badge bg-info-subtle text-info border border-info-subtle">30с (AVG/MIN/MAX)</span>
+        <i class="bi bi-arrow-right text-secondary"></i>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">3 мин бакет</span>
+        <i class="bi bi-arrow-right text-secondary"></i>
+        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">10 мин бакет</span>
+        <i class="bi bi-arrow-right text-secondary"></i>
+        <span class="badge bg-success-subtle text-success border border-success-subtle">36 ч архив</span>
+      </div>
+      <button type="button" class="btn btn-sm btn-outline-warning" id="tc-ctrl-btn-compact-now">
+        <i class="bi bi-funnel me-1"></i>Запустить каскадное усреднение сейчас
+      </button>
     </div>
   </div>
 
   <!-- Settings Grid -->
   <div class="row g-3">
-    <!-- 1. Интервалы опроса -->
+    <!-- 1. Базовые интервалы сбора -->
     <div class="col-12 col-lg-6">
       <div class="card bg-dark text-white border-secondary h-100 shadow-sm p-3">
         <h6 class="fw-bold text-info mb-3 d-flex align-items-center gap-2">
-          <i class="bi bi-speedometer2"></i>Интервалы опроса метрик
+          <i class="bi bi-speedometer2"></i>Базовые интервалы сбора метрик
         </h6>
         <div class="mb-3">
-          <label class="form-label small text-muted mb-1" for="tc-ctrl-fast-interval">Быстрый интервал телеметрии (CPU, RAM, сокеты):</label>
+          <label class="form-label small text-muted mb-1" for="tc-ctrl-fast-interval">Быстрый интервал телеметрии (CPU, RAM, сокеты, активное окно):</label>
           <div class="input-group input-group-sm">
             <input type="number" step="0.5" min="0.5" class="form-control bg-dark text-white border-secondary" id="tc-ctrl-fast-interval" value="5.0">
             <span class="input-group-text bg-dark text-muted border-secondary">сек</span>
           </div>
-          <small class="text-muted" style="font-size: 0.72rem;">Рекомендуется: 5.0 секунд для отзывчивого мониторинга</small>
+          <small class="text-muted fs-8">Рекомендуется: 5.0 секунд при запущенном сценарии tc.ps1</small>
         </div>
         <div class="mb-3">
-          <label class="form-label small text-muted mb-1" for="tc-ctrl-heavy-interval">Тяжелый интервал (WMI, SMART, дескрипторы, порты):</label>
-          <div class="input-group input-group-sm">
-            <input type="number" step="5" min="10" class="form-control bg-dark text-white border-secondary" id="tc-ctrl-heavy-interval" value="60.0">
-            <span class="input-group-text bg-dark text-muted border-secondary">сек</span>
-          </div>
-          <small class="text-muted" style="font-size: 0.72rem;">Рекомендуется: 60 секунд для экономии ресурсов ЦП</small>
-        </div>
-        <div class="mb-3">
-          <label class="form-label small text-muted mb-1" for="tc-ctrl-trigger-mode">Режим запуска тяжелых коллекторов (Trigger Mode):</label>
-          <select class="form-select form-select-sm bg-dark text-white border-secondary" id="tc-ctrl-trigger-mode">
-            <option value="INTERVAL_BASED">Регулярный интервал (INTERVAL_BASED)</option>
-            <option value="ON_STARTUP">Только при запуске (ON_STARTUP)</option>
-            <option value="ON_DEMAND">Только по запросу (ON_DEMAND)</option>
-            <option value="ON_STARTUP_OR_DEMAND">Только при запуске или запросу (ON_STARTUP_OR_DEMAND)</option>
-          </select>
-          <small class="text-muted" style="font-size: 0.72rem;">Политика запуска сбора тяжелой телеметрии (WMI, SMART, порты)</small>
-        </div>
-        <div class="mb-3">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="tc-ctrl-sequential-heavy" checked>
-            <label class="form-check-label small text-muted" for="tc-ctrl-sequential-heavy">Последовательный запуск коллекторов (Sequential Execution, -ЦП)</label>
-          </div>
-          <small class="text-muted" style="font-size: 0.72rem;">Запуск тяжелых процессов сбора строго по очереди для исключения пиковых нагрузок</small>
-        </div>
-        <div class="mb-3">
-          <button type="button" class="btn btn-sm btn-outline-info w-100" id="tc-ctrl-btn-run-heavy-seq">
-            <i class="bi bi-play-circle me-1"></i>Запустить последовательный сбор (On-Demand)
-          </button>
-        </div>
-        <div class="mb-2">
-          <label class="form-label small text-muted mb-1" for="tc-ctrl-flush-interval">Период сброса буфера в SQLite (Flush):</label>
+          <label class="form-label small text-muted mb-1" for="tc-ctrl-flush-interval">Период пакетного сброса буфера в SQLite (Flush):</label>
           <div class="input-group input-group-sm">
             <input type="number" step="1" min="1" class="form-control bg-dark text-white border-secondary" id="tc-ctrl-flush-interval" value="5.0">
             <span class="input-group-text bg-dark text-muted border-secondary">сек</span>
           </div>
+          <small class="text-muted fs-8">Рекомендуется: 5.0 секунд в режиме интенсивного сбора</small>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small text-muted mb-1" for="tc-ctrl-trigger-mode">Режим запуска тяжелых коллекторов (Trigger Mode):</label>
+          <select class="form-select form-select-sm bg-dark text-white border-secondary" id="tc-ctrl-trigger-mode">
+            <option value="INTERVAL_BASED">По индивидуальным интервалам (INTERVAL_BASED)</option>
+            <option value="ON_STARTUP">Только при запуске службы (ON_STARTUP)</option>
+            <option value="ON_DEMAND">Только по ручному запросу (ON_DEMAND)</option>
+            <option value="ON_STARTUP_OR_DEMAND">При запуске или по запросу (ON_STARTUP_OR_DEMAND)</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="tc-ctrl-sequential-heavy" checked role="switch">
+            <label class="form-check-label small text-muted" for="tc-ctrl-sequential-heavy">Последовательный запуск коллекторов (Sequential Execution, -ЦП)</label>
+          </div>
+          <small class="text-muted fs-8">Исключает одновременную нагрузку на ЦП и дисковую подсистему</small>
+        </div>
+        <div class="mb-2">
+          <button type="button" class="btn btn-sm btn-outline-info w-100" id="tc-ctrl-btn-run-heavy-seq">
+            <i class="bi bi-play-circle me-1"></i>Запустить последовательный сбор (On-Demand)
+          </button>
         </div>
       </div>
     </div>
@@ -127,52 +151,256 @@ Updated: 2026-10-20 10:55:00
             </select>
           </div>
         </div>
-        <div class="mb-2">
+        <div class="mb-3">
           <label class="form-label small text-muted mb-1" for="tc-ctrl-whitelist">Белый список приоритетных процессов (через запятую):</label>
           <textarea rows="3" class="form-control form-control-sm bg-dark text-white border-secondary font-monospace" id="tc-ctrl-whitelist" placeholder="python.exe, chrome.exe, code.exe, explorer.exe, powershell.exe"></textarea>
-          <small class="text-muted" style="font-size: 0.72rem;">Процессы из белого списка всегда включаются в расширенный анализ утечек дескрипторов и памяти</small>
+          <small class="text-muted fs-8">Процессы из белого списка всегда включаются в расширенный анализ утечек</small>
+        </div>
+        <div class="p-2.5 rounded border border-warning border-opacity-40 bg-black bg-opacity-30">
+          <div class="form-check form-switch m-0">
+            <input class="form-check-input" type="checkbox" id="tc-ctrl-fg-window" checked role="switch">
+            <label class="form-check-label small text-warning fw-bold" for="tc-ctrl-fg-window">
+              Фиксация заголовков активного окна (Foreground Window)
+            </label>
+          </div>
+          <small class="text-muted d-block mt-1 fs-8">
+            При отключении заголовки маскируются <code class="text-warning">[Скрыто политикой конфиденциальности]</code>.
+          </small>
         </div>
       </div>
     </div>
 
-    <!-- 3. Тяжелые коллекторы и Политика приватности -->
+    <!-- 3. Индивидуальные настройки тяжелых сенсоров и опросов -->
     <div class="col-12">
       <div class="card bg-dark text-white border-secondary shadow-sm p-3">
-        <h6 class="fw-bold text-success mb-3 d-flex align-items-center gap-2">
-          <i class="bi bi-shield-check"></i>Тяжелые коллекторы и Политики мониторинга
-        </h6>
-        <div class="row g-3">
-          <div class="col-md-6">
-            <div class="form-check form-switch mb-2">
-              <input class="form-check-input" type="checkbox" id="tc-ctrl-hw-sensors" checked role="switch">
-              <label class="form-check-label small text-light" for="tc-ctrl-hw-sensors">Аппаратные датчики (температуры, частоты, мощности)</label>
-            </div>
-            <div class="form-check form-switch mb-2">
-              <input class="form-check-input" type="checkbox" id="tc-ctrl-smart" checked role="switch">
-              <label class="form-check-label small text-light" for="tc-ctrl-smart">Глубокий SMART анализ накопителей и износа SSD</label>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="tc-ctrl-ports" checked role="switch">
-              <label class="form-check-label small text-light" for="tc-ctrl-ports">Аудит открытых портов и сетевых сокетов</label>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <!-- Политика фиксации фокусного окна (Задача 21) -->
-            <div class="p-2.5 rounded border border-warning border-opacity-40 bg-black bg-opacity-30 mb-2">
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="tc-ctrl-fg-window" checked role="switch">
-                <label class="form-check-label small text-warning fw-bold" for="tc-ctrl-fg-window">
-                  Фиксация заголовков активного окна (Foreground Window)
-                </label>
-              </div>
-              <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">
-                При отключении тумблера заголовки активных приложений маскируются на бэкенде <code>[Скрыто политикой конфиденциальности]</code> для защиты личных данных.
-              </small>
-            </div>
-          </div>
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <h6 class="fw-bold text-success mb-0 d-flex align-items-center gap-2">
+            <i class="bi bi-sliders2"></i>Индивидуальная матрица тяжелых сенсоров и периодических опросов
+          </h6>
+          <small class="text-secondary fs-8">Каждый сенсор запускается независимо по собственному таймеру</small>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-dark table-sm table-hover align-middle mb-0">
+            <thead>
+              <tr class="text-secondary border-bottom border-secondary border-opacity-25 fs-8">
+                <th scope="col" style="width: 45%;">Сенсор / Подсистема сбора</th>
+                <th scope="col" style="width: 25%;">Интервал опроса</th>
+                <th scope="col" style="width: 15%;">Статус</th>
+                <th scope="col" style="width: 15%;">Рекомендация</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 1. Аппаратные датчики -->
+              <tr>
+                <td>
+                  <div class="fw-semibold text-light d-flex align-items-center gap-2">
+                    <span><i class="bi bi-thermometer-half me-1 text-danger"></i>Аппаратные датчики (ACPI, температуры CPU/GPU, кулеры)</span>
+                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle fs-8">Умеренный (1.7 с)</span>
+                  </div>
+                  <small class="text-secondary fs-8">Сбор показаний термальных зон WMI, температур ядер и оборотов вентиляторов</small>
+                </td>
+                <td>
+                  <div class="input-group input-group-sm">
+                    <input type="number" min="1" step="5" class="form-control form-control-sm bg-dark text-white border-secondary" id="tc-ctrl-hw-sensors-interval" value="60">
+                    <span class="input-group-text bg-dark text-muted border-secondary">сек</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" id="tc-ctrl-hw-sensors" checked role="switch">
+                  </div>
+                </td>
+                <td><span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fs-8">60 сек</span></td>
+              </tr>
+
+              <!-- 2. Слушающие порты -->
+              <tr>
+                <td>
+                  <div class="fw-semibold text-light d-flex align-items-center gap-2">
+                    <span><i class="bi bi-ethernet me-1 text-info"></i>Слушающие порты TCP/UDP (Listening Ports)</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle fs-8">Сверхлегкий (10 мс)</span>
+                  </div>
+                  <small class="text-secondary fs-8">Опрос открытых локальных портов сетевых демонов через Win32 API в ОЗУ</small>
+                </td>
+                <td>
+                  <div class="input-group input-group-sm">
+                    <input type="number" min="5" step="5" class="form-control form-control-sm bg-dark text-white border-secondary" id="tc-ctrl-ports-interval" value="30">
+                    <span class="input-group-text bg-dark text-muted border-secondary">сек</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" id="tc-ctrl-ports" checked role="switch">
+                  </div>
+                </td>
+                <td><span class="badge bg-success-subtle text-success border border-success-subtle fs-8">30 сек</span></td>
+              </tr>
+
+              <!-- 3. Сетевые соединения процессов -->
+              <tr>
+                <td>
+                  <div class="fw-semibold text-light d-flex align-items-center gap-2">
+                    <span><i class="bi bi-broadcast me-1 text-primary"></i>Сетевая активность процессов (Sockets & Connections)</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle fs-8">Сверхлегкий (7 мс)</span>
+                  </div>
+                  <small class="text-secondary fs-8">Связывание открытых соединений и удаленных IP с процессами PID в памяти ядра</small>
+                </td>
+                <td>
+                  <div class="input-group input-group-sm">
+                    <input type="number" min="5" step="5" class="form-control form-control-sm bg-dark text-white border-secondary" id="tc-ctrl-net-activity-interval" value="30">
+                    <span class="input-group-text bg-dark text-muted border-secondary">сек</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" id="tc-ctrl-net-activity" checked role="switch">
+                  </div>
+                </td>
+                <td><span class="badge bg-success-subtle text-success border border-success-subtle fs-8">30 сек</span></td>
+              </tr>
+
+              <!-- 4. Утечки дескрипторов -->
+              <tr>
+                <td>
+                  <div class="fw-semibold text-light d-flex align-items-center gap-2">
+                    <span><i class="bi bi-bug me-1 text-warning"></i>Анализ утечек дескрипторов (Handles, GDI, USER objects)</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle fs-8">Сверхлегкий (2 мс)</span>
+                  </div>
+                  <small class="text-secondary fs-8">Мгновенный SQL-срез аномального потребления дескрипторов из локальной базы</small>
+                </td>
+                <td>
+                  <div class="input-group input-group-sm">
+                    <input type="number" min="5" step="5" class="form-control form-control-sm bg-dark text-white border-secondary" id="tc-ctrl-leaks-interval" value="30">
+                    <span class="input-group-text bg-dark text-muted border-secondary">сек</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" id="tc-ctrl-leaks" checked role="switch">
+                  </div>
+                </td>
+                <td><span class="badge bg-success-subtle text-success border border-success-subtle fs-8">30 сек</span></td>
+              </tr>
+
+              <!-- 5. SMART опрос накопителей -->
+              <tr>
+                <td>
+                  <div class="fw-semibold text-light d-flex align-items-center gap-2">
+                    <span><i class="bi bi-hdd-network me-1 text-success"></i>Глубокий S.M.A.R.T. анализ физических SSD/NVMe</span>
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle fs-8">Критически тяжелый (7.3 с)</span>
+                  </div>
+                  <small class="text-secondary fs-8">10-этапный опрос MSFT Storage CIM, износа ячеек (Wear), ошибок CRC и здоровья</small>
+                </td>
+                <td>
+                  <div class="input-group input-group-sm">
+                    <input type="number" min="60" step="300" class="form-control form-control-sm bg-dark text-white border-secondary" id="tc-ctrl-smart-interval" value="43200">
+                    <span class="input-group-text bg-dark text-muted border-secondary">сек</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" id="tc-ctrl-smart" checked role="switch">
+                  </div>
+                </td>
+                <td><span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fs-8">12 часов</span></td>
+              </tr>
+
+              <!-- 6. Аудит автозапуска -->
+              <tr>
+                <td>
+                  <div class="fw-semibold text-light d-flex align-items-center gap-2">
+                    <span><i class="bi bi-rocket-takeoff me-1 text-danger"></i>Аудит точек автозапуска Windows (Autoruns)</span>
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle fs-8">Тяжелый (3.3 с)</span>
+                  </div>
+                  <small class="text-secondary fs-8">Фиксация реестра Run, служб и планировщика задач (0 сек = только при старте программы)</small>
+                </td>
+                <td>
+                  <div class="input-group input-group-sm">
+                    <input type="number" min="0" step="30" class="form-control form-control-sm bg-dark text-white border-secondary" id="tc-ctrl-startup-interval" value="0">
+                    <span class="input-group-text bg-dark text-muted border-secondary">сек</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" id="tc-ctrl-startup" checked role="switch">
+                  </div>
+                </td>
+                <td><span class="badge bg-info-subtle text-info border border-info-subtle fs-8">Только при старте</span></td>
+              </tr>
+
+              <!-- 7. Аудит безопасности Defender -->
+              <tr>
+                <td>
+                  <div class="fw-semibold text-light d-flex align-items-center gap-2">
+                    <span><i class="bi bi-shield-lock me-1 text-info"></i>Аудит безопасности Microsoft Defender и правил ASR</span>
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fs-8">Периодический</span>
+                  </div>
+                  <small class="text-secondary fs-8">Снимок исключений Defender, активных сигнатур и правил уменьшения поверхности атак</small>
+                </td>
+                <td>
+                  <div class="input-group input-group-sm">
+                    <input type="number" min="30" step="30" class="form-control form-control-sm bg-dark text-white border-secondary" id="tc-ctrl-defender-interval" value="120">
+                    <span class="input-group-text bg-dark text-muted border-secondary">сек</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" id="tc-ctrl-defender" checked role="switch">
+                  </div>
+                </td>
+                <td><span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fs-8">2 мин</span></td>
+              </tr>
+
+              <!-- 8. Аудит программного обеспечения -->
+              <tr>
+                <td>
+                  <div class="fw-semibold text-light d-flex align-items-center gap-2">
+                    <span><i class="bi bi-box-seam me-1 text-warning"></i>Инвентаризация ПО и глубокий сканер программ</span>
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle fs-8">Тяжелый (4.7 с)</span>
+                  </div>
+                  <small class="text-secondary fs-8">Сканирование установленного софта и ярлыков (0 сек = только при старте программы)</small>
+                </td>
+                <td>
+                  <div class="input-group input-group-sm">
+                    <input type="number" min="0" step="300" class="form-control form-control-sm bg-dark text-white border-secondary" id="tc-ctrl-software-interval" value="0">
+                    <span class="input-group-text bg-dark text-muted border-secondary">сек</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" id="tc-ctrl-software" checked role="switch">
+                  </div>
+                </td>
+                <td><span class="badge bg-info-subtle text-info border border-info-subtle fs-8">Только при старте</span></td>
+              </tr>
+
+              <!-- 9. Синхронизация активности процессов -->
+              <tr>
+                <td>
+                  <div class="fw-semibold text-light d-flex align-items-center gap-2">
+                    <span><i class="bi bi-cpu me-1 text-success"></i>Синхронизация активности процессов (ProcessActivityEngine)</span>
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fs-8">Фоновый</span>
+                  </div>
+                  <small class="text-secondary fs-8">Обновление паспортов активности, сессий и срезов в таблицах процессов</small>
+                </td>
+                <td>
+                  <div class="input-group input-group-sm">
+                    <input type="number" min="10" step="10" class="form-control form-control-sm bg-dark text-white border-secondary" id="tc-ctrl-proc-activity-interval" value="60">
+                    <span class="input-group-text bg-dark text-muted border-secondary">сек</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" id="tc-ctrl-proc-activity" checked role="switch">
+                  </div>
+                </td>
+                <td><span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fs-8">60 сек</span></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   </div>
 </div>
-

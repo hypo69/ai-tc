@@ -193,3 +193,4 @@ class AuditSubsystem:
             e for e in all_events
             if u_lower in e.target_account.lower() or u_lower in e.caller_account.lower()
         ][:limit]
+

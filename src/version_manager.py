@@ -82,7 +82,7 @@ class VersionManager:
             repo_path: Path to repository (default: __root__)
         """
         self.repo_path: Path = repo_path or __root__
-        app_name = os.environ.get('APP_NAME', 'AI-TC')
+        app_name = os.environ.get('APP_NAME', 'ai-tc')
         appdata = os.environ.get('APPDATA')
         base_tmp = (Path(appdata) / app_name / 'tmp') if appdata else (Path(tempfile.gettempdir()) / app_name)
         self.temp_backup_dir: Path = base_tmp / 'backups'

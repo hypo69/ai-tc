@@ -135,3 +135,4 @@ def test_evaluate_process_suspicion_office_spawn() -> None:
     assert level == 'CRITICAL'
     assert any('офисное приложение' in t for t in triggers)
     assert any('Base64' in t for t in triggers)
+

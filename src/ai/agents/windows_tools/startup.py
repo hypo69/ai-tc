@@ -256,3 +256,4 @@ WINDOWS_STARTUP_TOOLS = [
     windows_startup_audit,
     windows_startup_action,
 ]
+

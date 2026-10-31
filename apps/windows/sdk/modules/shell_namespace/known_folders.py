@@ -227,3 +227,4 @@ __all__ = [
     'KNOWN_FOLDERS_CATALOG',
     'GUID',
 ]
+

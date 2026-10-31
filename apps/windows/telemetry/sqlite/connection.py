@@ -100,3 +100,4 @@ class TelemetryConnectionManager:
                 conn.execute('PRAGMA wal_autocheckpoint = 1000;')
             conn.row_factory = sqlite3.Row
             return conn
+

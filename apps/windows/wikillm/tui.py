@@ -98,3 +98,4 @@ async def run_tui(engine: Optional[WikiLLMEngine] = None) -> None:
     finally:
         await eng.stop()
         logger.console("\nЗавершение работы WikiLLM.")
+

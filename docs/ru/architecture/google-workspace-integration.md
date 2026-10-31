@@ -93,7 +93,7 @@
     ]
   }
   ```
-- **Системный промпт**: `WORKSPACE_AGENT_SYSTEM_PROMPT` в [`src/ai/agents/prompts.py`](file:///c:/Users/onela/AppData/Local/AI-TC/src/ai/agents/prompts.py).
+- **Системный промпт**: `WORKSPACE_AGENT_SYSTEM_PROMPT` в [`src/ai/agents/prompts.py`](file:///c:/Users/onela/AppData/Local/ai-tc/src/ai/agents/prompts.py).
 
 ---
 

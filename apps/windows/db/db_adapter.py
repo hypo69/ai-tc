@@ -11,7 +11,7 @@
 # Package: apps.windows.db
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 14:25:00
+# Updated: 2026-10-31 17:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -171,11 +171,12 @@ class DatabaseAdapter:
                 return self._sqlite_conn
 
             cfg = self.config.get("sqlite", {})
-            raw_path = cfg.get("path") or "data/windows_wikillm/knowledge.db"
+            raw_path = cfg.get("path")
             if raw_path == ":memory:":
                 db_path = ":memory:"
             else:
-                db_path_obj = Path(raw_path)
+                from apps.windows.db.paths import resolve_system_knowledge_db_path
+                db_path_obj = resolve_system_knowledge_db_path(raw_path)
                 db_path_obj.parent.mkdir(parents=True, exist_ok=True)
                 db_path = str(db_path_obj)
 
@@ -558,12 +559,8 @@ class DatabaseAdapter:
 
     def _get_sqlite_source_info(self, sqlite_path: Optional[str] = None) -> Dict[str, Any]:
         """Возвращает информацию о локальной базе данных SQLite для миграции."""
-        src_path = Path(sqlite_path) if sqlite_path else Path("data/windows_wikillm/knowledge.db")
-        if not src_path.is_file():
-            for alt in [Path("data/wikillm.db"), Path("wiki_llm.db")]:
-                if alt.is_file():
-                    src_path = alt
-                    break
+        from apps.windows.db.paths import resolve_system_knowledge_db_path
+        src_path = resolve_system_knowledge_db_path(sqlite_path)
 
         if not src_path.is_file():
             return {"exists": False, "path": str(src_path), "entities_count": 0, "tools_count": 0}
@@ -576,10 +573,10 @@ class DatabaseAdapter:
             ent_cnt = 0
             if "entities" in tables:
                 cur.execute("SELECT COUNT(*) FROM entities;")
-                ent_cnt = cur.fetchone()[0]
-            elif "wikillm_knowledge" in tables:
+                ent_cnt = max(ent_cnt, cur.fetchone()[0])
+            if "wikillm_knowledge" in tables:
                 cur.execute("SELECT COUNT(*) FROM wikillm_knowledge;")
-                ent_cnt = cur.fetchone()[0]
+                ent_cnt = max(ent_cnt, cur.fetchone()[0])
 
             tool_cnt = 0
             if "wikillm_procedural_tools" in tables:
@@ -676,6 +673,34 @@ class DatabaseAdapter:
         conn_type = str(c.get("connection_type", "direct")).lower()
         timeout = int(c.get("connect_timeout", 10))
         database = c.get("database", "")
+
+        # Режим 0: Проверка локальной базы данных SQLite
+        is_sqlite_mode = (
+            conn_type == "sqlite"
+            or str(c.get("engine", "")).lower() == "sqlite"
+            or (cfg is None and self.engine == "sqlite")
+            or database.endswith(".db")
+        )
+        if is_sqlite_mode:
+            from apps.windows.db.paths import resolve_system_knowledge_db_path
+            sq_path = c.get("sqlite_path") or c.get("path") or self.config.get("sqlite", {}).get("path")
+            resolved_path = resolve_system_knowledge_db_path(sq_path)
+            sq_info = self._get_sqlite_source_info(str(resolved_path))
+            exists = sq_info.get("exists", False)
+            total = sq_info.get("total_records", 0)
+            return {
+                "ok": exists,
+                "connected": exists,
+                "engine": "sqlite",
+                "stage": "ready" if exists else "database_missing",
+                "database_exists": exists,
+                "tables_exist": exists,
+                "total_records": total,
+                "sqlite_info": sq_info,
+                "path": str(resolved_path),
+                "template": sq_path,
+                "message": f"Локальная база данных SQLite доступна: {sq_info.get('path')} ({total} подсказок/записей)." if exists else f"Файл базы SQLite не найден: {sq_path}",
+            }
 
         # Режим 1: Подключение через PHP REST API скрипт
         if conn_type == "php_api":
@@ -873,11 +898,42 @@ class DatabaseAdapter:
                     pass
 
     def init_empty_tables(self, cfg: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Создает пустые таблицы WikiLLM в MariaDB (напрямую или через PHP API)."""
+        """Создает пустые таблицы WikiLLM в локальной SQLite или MariaDB (напрямую или через PHP API)."""
         target_cfg = cfg or self.config.get("mariadb", {})
         conn_type = str(target_cfg.get("connection_type", "direct")).lower()
         database = target_cfg.get("database", "")
         timeout = int(target_cfg.get("connect_timeout", 10))
+
+        is_sqlite_mode = (
+            conn_type == "sqlite"
+            or str(target_cfg.get("engine", "")).lower() == "sqlite"
+            or (cfg is None and self.engine == "sqlite")
+            or database.endswith(".db")
+        )
+        if is_sqlite_mode:
+            from apps.windows.db.paths import resolve_system_knowledge_db_path
+            sq_path = target_cfg.get("sqlite_path") or target_cfg.get("path") or self.config.get("sqlite", {}).get("path")
+            resolved_path = resolve_system_knowledge_db_path(sq_path)
+            try:
+                resolved_path.parent.mkdir(parents=True, exist_ok=True)
+                sq_conn = sqlite3.connect(str(resolved_path))
+                sq_conn.row_factory = sqlite3.Row
+                self._ensure_sqlite_tables(sq_conn)
+                sq_conn.close()
+                return {
+                    "ok": True,
+                    "engine": "sqlite",
+                    "path": str(resolved_path),
+                    "tables_created": ["wikillm_knowledge", "wikillm_procedural_tools", "wiki_llm_profiles"],
+                    "message": f"Таблицы локальной базы SQLite успешно инициализированы: {resolved_path}",
+                }
+            except Exception as exc:
+                return {
+                    "ok": False,
+                    "engine": "sqlite",
+                    "error": str(exc),
+                    "message": f"Ошибка инициализации таблиц SQLite: {exc}",
+                }
 
         if conn_type == "php_api":
             php_url = target_cfg.get("php_api_url", "")
@@ -1258,3 +1314,4 @@ class DatabaseAdapter:
 
 # Глобальный экземпляр адаптера для использования в роутерах
 db_adapter = DatabaseAdapter()
+

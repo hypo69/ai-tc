@@ -301,3 +301,4 @@ class TelemetryHistoryMixin:
             List[Dict[str, Any]]: Упорядоченный список предков от корневого процесса к целевому.
         """
         return self.storage.get_process_lineage(guid_or_pid=guid_or_pid)
+

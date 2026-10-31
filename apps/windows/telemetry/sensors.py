@@ -16,7 +16,7 @@
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 10:45:00
+# Updated: 2026-10-30 10:55:00
 # =============================================================================
 
 from __future__ import annotations
@@ -212,6 +212,38 @@ def _probe_internet_speed_sensors() -> List[HardwareSensor]:
         )
         s5.provider = SensorProvider.INTERNET_SPEED
         sensors.append(s5)
+
+        averages = metrics.get('averages') or {}
+        if averages.get('count', 0) > 0:
+            s_avg_dl = HardwareSensor(
+                sensor_id='internet_download_avg_144h',
+                name='Internet Download Speed Avg (144h)',
+                category='network',
+                value=round(averages.get('download_avg_mbps', 0.0), 2),
+                unit='Mbps'
+            )
+            s_avg_dl.provider = SensorProvider.INTERNET_SPEED
+            sensors.append(s_avg_dl)
+
+            s_avg_ul = HardwareSensor(
+                sensor_id='internet_upload_avg_144h',
+                name='Internet Upload Speed Avg (144h)',
+                category='network',
+                value=round(averages.get('upload_avg_mbps', 0.0), 2),
+                unit='Mbps'
+            )
+            s_avg_ul.provider = SensorProvider.INTERNET_SPEED
+            sensors.append(s_avg_ul)
+
+            s_avg_ping = HardwareSensor(
+                sensor_id='internet_ping_avg_144h',
+                name='Internet Ping Avg (144h)',
+                category='network',
+                value=round(averages.get('ping_avg_ms', 0.0), 2),
+                unit='ms'
+            )
+            s_avg_ping.provider = SensorProvider.INTERNET_SPEED
+            sensors.append(s_avg_ping)
     except Exception as ex:
         logger.debug(f'Ошибка опроса сенсора скорости интернета: {ex}')
     return sensors

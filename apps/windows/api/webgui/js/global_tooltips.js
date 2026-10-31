@@ -3,21 +3,19 @@
  * Process Name: Windows Web Interface - Global AI Smart Tooltips i18n
  * =============================================================================
  * Description:
- *   Единый интеллектуальный модуль всплывающих подсказок (AI Smart Tooltips).
- *   Позиционирование: строго НАД элементом (placement: top).
- *   Интерактивность: при наведении мыши появляется подсказка с контекстным пояснением.
- *   Проверка кэша ответов: если ответ уже был получен от модели или содержится в базе
- *   знаний, отображается готовое пояснение и кнопка «Узнать больше у модели».
- *   Если ответа еще нет — предлагается кнопка «Обратиться к модели за уточнением».
- *   При запросе уточнения открывается стандартное модальное окно ИИ-ассистента
- *   (window.AIModalDialog.show), а результат кэшируется для мгновенного показа в будущем.
+ *   Единый автономный модуль всплывающих подсказок (Global Tooltips i18n).
+ *   - Полностью отвязан от вызовов моделей ИИ и сетевых задержек.
+ *   - Отображает готовые мультиязычные справочные описания (i18n: ru, en, uk, he).
+ *   - Позиционирование: строго над или под курсором мыши по оси X.
+ *   - Интерактивность: при наведении мыши появляется всплывающая карточка со
+ *     справочной информацией, иконкой, заголовком и категорией.
  *
  * File: global-tooltips-i18n.js
  * Project: ai-windows-admin
- * Package: windows/api/webgui/js
+ * Package: apps/common/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-18 20:34:00
+ * Updated: 2026-10-31 18:05:00
  * =============================================================================
  */
 
@@ -32,6 +30,54 @@
    * для мгновенного ответа при первом наведении без сетевой задержки.
    */
   const DEFAULT_KNOWLEDGE_BASE = {
+    'workspace': {
+      title: 'Рабочее пространство',
+      fullTitle: 'Workspace / Проектная область',
+      icon: '📁',
+      summary: 'Рабочая область проекта со связанными файлами, источниками контекста, базой фактов и документацией.',
+      category: 'Рабочая область',
+      source: 'wikillm'
+    },
+    'qa': {
+      title: 'Вопросы и ответы (Q&A)',
+      fullTitle: 'Knowledge Q&A / Интеллектуальный поиск ответов',
+      icon: '💡',
+      summary: 'Семантический вопросно-ответный модуль на базе векторного хранилища FAISS и WikiLLM.',
+      category: 'База знаний',
+      source: 'wikillm'
+    },
+    'commits': {
+      title: 'История коммитов',
+      fullTitle: 'Git Commits / Хронология версий',
+      icon: '🌿',
+      summary: 'Интерактивная лента коммитов репозитория с анализом изменений и описанием диффов.',
+      category: 'Версионирование',
+      source: 'wikillm'
+    },
+    'system_tour': {
+      title: 'Тур по системе',
+      fullTitle: 'Интерактивный тур по возможностям системы',
+      icon: '🧭',
+      summary: 'Пошаговый интерактивный гид по ключевым экранам и возможностям веб-интерфейса.',
+      category: 'Обучение',
+      source: 'wikillm'
+    },
+    'internals-logs': {
+      title: 'Центр логов',
+      fullTitle: 'Центр внутренних логов ai-tc',
+      icon: '📜',
+      summary: 'Просмотр внутренних логов программы ai-tc',
+      category: 'Логирование',
+      source: 'wikillm'
+    },
+    'tooltips-editor': {
+      title: 'Редактор тултипов',
+      fullTitle: 'Редактор всплывающих подсказок и базы знаний тултипов',
+      icon: '💬',
+      summary: 'Интерактивный редактор, поиск и управление интеллектуальными тултипами системы.',
+      category: 'Администрирование',
+      source: 'wikillm'
+    },
     'cfa': {
       title: 'Ransomware / CFA',
       fullTitle: 'Ransomware / Controlled Folder Access (CFA)',
@@ -367,6 +413,14 @@
       fullTitle: 'Установленные пакеты Windows Installer (MSI) и системного реестра',
       icon: '⚙️',
       summary: 'Каталог программного обеспечения, установленного через Windows Installer (msiexec) и стандартные установщики реестра: коды продуктов (ProductCode), версии и деинсталляция.',
+      category: 'Пакетный менеджер',
+      source: 'wikillm'
+    },
+    'sw-store': {
+      title: 'Microsoft Store (AppX/MSIX)',
+      fullTitle: 'Каталог современных приложений Windows Store (msstore)',
+      icon: '🛍️',
+      summary: 'Приложения, установленные через Microsoft Store и платформу пакетов AppX/MSIX: Store ID, версии, быстрый переход в магазин ms-windows-store:// и управление обновлениями.',
       category: 'Пакетный менеджер',
       source: 'wikillm'
     },
@@ -875,6 +929,327 @@
       summary: 'Пересчитывает счетчики дескрипторов и графических объектов для всех запущенных программ и обновляет оценки рисков.',
       category: 'Аудит утечек',
       source: 'wikillm'
+    },
+    // === Системные процессы Windows (Process Intelligence & WikiLLM) ===
+    'dwm.exe': {
+      title: 'Диспетчер окон рабочего стола',
+      fullTitle: 'Desktop Window Manager (dwm.exe)',
+      icon: '🪟',
+      summary: 'dwm.exe (Desktop Window Manager) — важнейший системный процесс Windows, отвечающий за отрисовку визуальных эффектов интерфейса, композицию окон, прозрачность и аппаратное ускорение через DirectX.',
+      category: 'Системный компонент Windows',
+      source: 'wikillm'
+    },
+    'dwm': {
+      title: 'Диспетчер окон рабочего стола',
+      fullTitle: 'Desktop Window Manager (dwm.exe)',
+      icon: '🪟',
+      summary: 'dwm.exe (Desktop Window Manager) — важнейший системный процесс Windows, отвечающий за отрисовку визуальных эффектов интерфейса, композицию окон, прозрачность и аппаратное ускорение через DirectX.',
+      category: 'Системный компонент Windows',
+      source: 'wikillm'
+    },
+    'explorer.exe': {
+      title: 'Проводник Windows',
+      fullTitle: 'Windows Explorer / Shell (explorer.exe)',
+      icon: '📁',
+      summary: 'explorer.exe — основной процесс графической оболочки пользователя в Windows: обеспечивает работу панели задач, меню «Пуск», рабочего стола и файлового менеджера.',
+      category: 'Оболочка Windows',
+      source: 'wikillm'
+    },
+    'explorer': {
+      title: 'Проводник Windows',
+      fullTitle: 'Windows Explorer / Shell (explorer.exe)',
+      icon: '📁',
+      summary: 'explorer.exe — основной процесс графической оболочки пользователя в Windows: обеспечивает работу панели задач, меню «Пуск», рабочего стола и файлового менеджера.',
+      category: 'Оболочка Windows',
+      source: 'wikillm'
+    },
+    'svchost.exe': {
+      title: 'Хост-процесс служб Windows',
+      fullTitle: 'Host Process for Windows Services (svchost.exe)',
+      icon: '⚙️',
+      summary: 'svchost.exe — универсальный системный хост-процесс, запускающий фоновые службы Windows из динамических библиотек (DLL). Каждый экземпляр изолирует группу служб по модели прав.',
+      category: 'Служебный хост Windows',
+      source: 'wikillm'
+    },
+    'svchost': {
+      title: 'Хост-процесс служб Windows',
+      fullTitle: 'Host Process for Windows Services (svchost.exe)',
+      icon: '⚙️',
+      summary: 'svchost.exe — универсальный системный хост-процесс, запускающий фоновые службы Windows из динамических библиотек (DLL). Каждый экземпляр изолирует группу служб по модели прав.',
+      category: 'Служебный хост Windows',
+      source: 'wikillm'
+    },
+    'taskhostw.exe': {
+      title: 'Хост задач Windows',
+      fullTitle: 'Host Process for Windows Tasks (taskhostw.exe)',
+      icon: '⏱️',
+      summary: 'taskhostw.exe — системный хост для выполнения запланированных задач Windows, основанных на DLL-модулях, при входе пользователя в сеанс и по расписанию Task Scheduler.',
+      category: 'Планировщик задач',
+      source: 'wikillm'
+    },
+    'taskhostw': {
+      title: 'Хост задач Windows',
+      fullTitle: 'Host Process for Windows Tasks (taskhostw.exe)',
+      icon: '⏱️',
+      summary: 'taskhostw.exe — системный хост для выполнения запланированных задач Windows, основанных на DLL-модулях, при входе пользователя в сеанс и по расписанию Task Scheduler.',
+      category: 'Планировщик задач',
+      source: 'wikillm'
+    },
+    'lsass.exe': {
+      title: 'Служба безопасности LSA',
+      fullTitle: 'Local Security Authority Subsystem Service (lsass.exe)',
+      icon: '🛡️',
+      summary: 'lsass.exe — критический процесс безопасности Windows: осуществляет аутентификацию локальных пользователей и домена Active Directory, управление маркерами доступа и протоколами NTLM/Kerberos.',
+      category: 'Безопасность ядра',
+      source: 'wikillm'
+    },
+    'lsass': {
+      title: 'Служба безопасности LSA',
+      fullTitle: 'Local Security Authority Subsystem Service (lsass.exe)',
+      icon: '🛡️',
+      summary: 'lsass.exe — критический процесс безопасности Windows: осуществляет аутентификацию локальных пользователей и домена Active Directory, управление маркерами доступа и протоколами NTLM/Kerberos.',
+      category: 'Безопасность ядра',
+      source: 'wikillm'
+    },
+    'csrss.exe': {
+      title: 'Исполняющая подсистема клиент-сервер',
+      fullTitle: 'Client Server Runtime Process (csrss.exe)',
+      icon: '⚙️',
+      summary: 'csrss.exe — фундаментальная пользовательская подсистема Win32: управляет созданием и завершением потоков, окнами консоли и сессионным контекстом.',
+      category: 'Системное ядро Win32',
+      source: 'wikillm'
+    },
+    'csrss': {
+      title: 'Исполняющая подсистема клиент-сервер',
+      fullTitle: 'Client Server Runtime Process (csrss.exe)',
+      icon: '⚙️',
+      summary: 'csrss.exe — фундаментальная пользовательская подсистема Win32: управляет созданием и завершением потоков, окнами консоли и сессионным контекстом.',
+      category: 'Системное ядро Win32',
+      source: 'wikillm'
+    },
+    'services.exe': {
+      title: 'Диспетчер служб Windows',
+      fullTitle: 'Service Control Manager (services.exe)',
+      icon: '🛠️',
+      summary: 'services.exe (SCM) — системный диспетчер управления службами: запускает, останавливает и мониторит состояние фоновых сервисов и драйверов Windows.',
+      category: 'Управление службами',
+      source: 'wikillm'
+    },
+    'services': {
+      title: 'Диспетчер служб Windows',
+      fullTitle: 'Service Control Manager (services.exe)',
+      icon: '🛠️',
+      summary: 'services.exe (SCM) — системный диспетчер управления службами: запускает, останавливает и мониторит состояние фоновых сервисов и драйверов Windows.',
+      category: 'Управление службами',
+      source: 'wikillm'
+    },
+    'smss.exe': {
+      title: 'Диспетчер сеансов Windows',
+      fullTitle: 'Session Manager Subsystem (smss.exe)',
+      icon: '⚡',
+      summary: 'smss.exe — первый процесс пользовательского режима при загрузке Windows NT: создает переменные окружения, запускает подсистемы winlogon и csrss, управляет файлами подкачки.',
+      category: 'Инициализация сеансов',
+      source: 'wikillm'
+    },
+    'smss': {
+      title: 'Диспетчер сеансов Windows',
+      fullTitle: 'Session Manager Subsystem (smss.exe)',
+      icon: '⚡',
+      summary: 'smss.exe — первый процесс пользовательского режима при загрузке Windows NT: создает переменные окружения, запускает подсистемы winlogon и csrss, управляет файлами подкачки.',
+      category: 'Инициализация сеансов',
+      source: 'wikillm'
+    },
+    'winlogon.exe': {
+      title: 'Программа входа в систему',
+      fullTitle: 'Windows Logon Application (winlogon.exe)',
+      icon: '👤',
+      summary: 'winlogon.exe — обеспечивает интерактивный вход и выход пользователей, блокировку экрана, обработку защищенной последовательности клавиш (SAS / Ctrl+Alt+Del).',
+      category: 'Сеансы пользователей',
+      source: 'wikillm'
+    },
+    'winlogon': {
+      title: 'Программа входа в систему',
+      fullTitle: 'Windows Logon Application (winlogon.exe)',
+      icon: '👤',
+      summary: 'winlogon.exe — обеспечивает интерактивный вход и выход пользователей, блокировку экрана, обработку защищенной последовательности клавиш (SAS / Ctrl+Alt+Del).',
+      category: 'Сеансы пользователей',
+      source: 'wikillm'
+    },
+    'wininit.exe': {
+      title: 'Инициализатор системы Windows',
+      fullTitle: 'Windows Start-Up Application (wininit.exe)',
+      icon: '🚀',
+      summary: 'wininit.exe — процесс начальной инициализации пользовательского режима Windows: запускает Service Control Manager (services.exe), LSASS и LSA Secrets.',
+      category: 'Инициализация Windows',
+      source: 'wikillm'
+    },
+    'wininit': {
+      title: 'Инициализатор системы Windows',
+      fullTitle: 'Windows Start-Up Application (wininit.exe)',
+      icon: '🚀',
+      summary: 'wininit.exe — процесс начальной инициализации пользовательского режима Windows: запускает Service Control Manager (services.exe), LSASS и LSA Secrets.',
+      category: 'Инициализация Windows',
+      source: 'wikillm'
+    },
+    'powershell.exe': {
+      title: 'Windows PowerShell',
+      fullTitle: 'Windows PowerShell Command Interpreter (powershell.exe)',
+      icon: '⚡',
+      summary: 'powershell.exe — объектно-ориентированная среда командной строки и скриптов автоматизации администрирования операционной системы Windows.',
+      category: 'Интерпретаторы команд',
+      source: 'wikillm'
+    },
+    'powershell': {
+      title: 'Windows PowerShell',
+      fullTitle: 'Windows PowerShell Command Interpreter (powershell.exe)',
+      icon: '⚡',
+      summary: 'powershell.exe — объектно-ориентированная среда командной строки и скриптов автоматизации администрирования операционной системы Windows.',
+      category: 'Интерпретаторы команд',
+      source: 'wikillm'
+    },
+    'cmd.exe': {
+      title: 'Командная строка Windows',
+      fullTitle: 'Windows Command Prompt (cmd.exe)',
+      icon: '⬛',
+      summary: 'cmd.exe — стандартный интерфейс командной строки Windows для выполнения сценариев пакетной обработки .bat/.cmd и служебных утилит.',
+      category: 'Консольные утилиты',
+      source: 'wikillm'
+    },
+    'cmd': {
+      title: 'Командная строка Windows',
+      fullTitle: 'Windows Command Prompt (cmd.exe)',
+      icon: '⬛',
+      summary: 'cmd.exe — стандартный интерфейс командной строки Windows для выполнения сценариев пакетной обработки .bat/.cmd и служебных утилит.',
+      category: 'Консольные утилиты',
+      source: 'wikillm'
+    },
+    'conhost.exe': {
+      title: 'Хост окна консоли',
+      fullTitle: 'Console Window Host (conhost.exe)',
+      icon: '🪟',
+      summary: 'conhost.exe — хост-процесс оконного интерфейса консоли: обеспечивает отрисовку окон для консольных приложений и безопасность взаимодействия с csrss.',
+      category: 'Консольная подсистема',
+      source: 'wikillm'
+    },
+    'conhost': {
+      title: 'Хост окна консоли',
+      fullTitle: 'Console Window Host (conhost.exe)',
+      icon: '🪟',
+      summary: 'conhost.exe — хост-процесс оконного интерфейса консоли: обеспечивает отрисовку окон для консольных приложений и безопасность взаимодействия с csrss.',
+      category: 'Консольная подсистема',
+      source: 'wikillm'
+    },
+    'msmpeng.exe': {
+      title: 'Антивирусная служба Защитника',
+      fullTitle: 'Microsoft Defender Antivirus Service (msmpeng.exe)',
+      icon: '🛡️',
+      summary: 'msmpeng.exe — ядро сканирования антивирусной защиты Microsoft Defender в реальном времени: защита от вредоносных программ, мониторинг поведения и сканирование файлов.',
+      category: 'Антивирусная безопасность',
+      source: 'wikillm'
+    },
+    'msmpeng': {
+      title: 'Антивирусная служба Защитника',
+      fullTitle: 'Microsoft Defender Antivirus Service (msmpeng.exe)',
+      icon: '🛡️',
+      summary: 'msmpeng.exe — ядро сканирования антивирусной защиты Microsoft Defender в реальном времени: защита от вредоносных программ, мониторинг поведения и сканирование файлов.',
+      category: 'Антивирусная безопасность',
+      source: 'wikillm'
+    },
+    'runtimebroker.exe': {
+      title: 'Runtime Broker',
+      fullTitle: 'Windows Runtime Broker (runtimebroker.exe)',
+      icon: '🔒',
+      summary: 'runtimebroker.exe — процесс-посредник, управляющий разрешениями и доступом к системным API (камера, микрофон, геолокация) для приложений из Microsoft Store (UWP/AppX).',
+      category: 'Безопасность UWP',
+      source: 'wikillm'
+    },
+    'runtimebroker': {
+      title: 'Runtime Broker',
+      fullTitle: 'Windows Runtime Broker (runtimebroker.exe)',
+      icon: '🔒',
+      summary: 'runtimebroker.exe — процесс-посредник, управляющий разрешениями и доступом к системным API (камера, микрофон, геолокация) для приложений из Microsoft Store (UWP/AppX).',
+      category: 'Безопасность UWP',
+      source: 'wikillm'
+    },
+    'searchindexer.exe': {
+      title: 'Служба индексирования поиска',
+      fullTitle: 'Windows Search Indexer (searchindexer.exe)',
+      icon: '🔍',
+      summary: 'searchindexer.exe — фоновая служба индексирования файлов, электронной почты и свойств документов для мгновенного поиска в Windows.',
+      category: 'Индексация поиска',
+      source: 'wikillm'
+    },
+    'searchindexer': {
+      title: 'Служба индексирования поиска',
+      fullTitle: 'Windows Search Indexer (searchindexer.exe)',
+      icon: '🔍',
+      summary: 'searchindexer.exe — фоновая служба индексирования файлов, электронной почты и свойств документов для мгновенного поиска в Windows.',
+      category: 'Индексация поиска',
+      source: 'wikillm'
+    },
+    'spoolsv.exe': {
+      title: 'Диспетчер очереди печати',
+      fullTitle: 'Print Spooler Service (spoolsv.exe)',
+      icon: '🖨️',
+      summary: 'spoolsv.exe — системная служба управления очередями печати и взаимодействия с драйверами принтеров Windows.',
+      category: 'Печать и периферия',
+      source: 'wikillm'
+    },
+    'spoolsv': {
+      title: 'Диспетчер очереди печати',
+      fullTitle: 'Print Spooler Service (spoolsv.exe)',
+      icon: '🖨️',
+      summary: 'spoolsv.exe — системная служба управления очередями печати и взаимодействия с драйверами принтеров Windows.',
+      category: 'Печать и периферия',
+      source: 'wikillm'
+    },
+    'system': {
+      title: 'Системное ядро NT',
+      fullTitle: 'Windows NT Kernel & System Process',
+      icon: '💻',
+      summary: 'System (PID 4) — корневой процесс уровня ядра Windows NT: содержит потоки времени выполнения ядра, исполняет системные драйверы и координирует работу аппаратуры.',
+      category: 'Ядро операционной системы',
+      source: 'wikillm'
+    },
+    'registry': {
+      title: 'Процесс реестра',
+      fullTitle: 'Windows Registry Architecture Worker',
+      icon: '🗝️',
+      summary: 'Registry (PID ~100-160) — специализированный процесс ядра Windows 10/11 для сжатия и оптимизации доступа к кустам реестра в оперативной памяти.',
+      category: 'Подсистема реестра',
+      source: 'wikillm'
+    },
+    'cloudflared.exe': {
+      title: 'Служба Cloudflare Tunnel',
+      fullTitle: 'Cloudflare Zero Trust Tunnel Daemon',
+      icon: '☁️',
+      summary: 'cloudflared.exe — агент сетевого туннелирования Cloudflare Zero Trust: обеспечивает безопасный исходящий доступ к локальным службам без открытых портов в Интернет.',
+      category: 'Сетевые туннели',
+      source: 'wikillm'
+    },
+    'cloudflared': {
+      title: 'Служба Cloudflare Tunnel',
+      fullTitle: 'Cloudflare Zero Trust Tunnel Daemon',
+      icon: '☁️',
+      summary: 'cloudflared.exe — агент сетевого туннелирования Cloudflare Zero Trust: обеспечивает безопасный исходящий доступ к локальным службам без открытых портов в Интернет.',
+      category: 'Сетевые туннели',
+      source: 'wikillm'
+    },
+    'ctfmon.exe': {
+      title: 'Загрузчик текстовых служб CTF',
+      fullTitle: 'CTF Loader (ctfmon.exe)',
+      icon: '⌨️',
+      summary: 'ctfmon.exe — процесс управления альтернативным вводом данных, поддержкой языковых панелей, экранной клавиатуры и распознавания речи в Windows.',
+      category: 'Ввод и локализация',
+      source: 'wikillm'
+    },
+    'ctfmon': {
+      title: 'Загрузчик текстовых служб CTF',
+      fullTitle: 'CTF Loader (ctfmon.exe)',
+      icon: '⌨️',
+      summary: 'ctfmon.exe — процесс управления альтернативным вводом данных, поддержкой языковых панелей, экранной клавиатуры и распознавания речи в Windows.',
+      category: 'Ввод и локализация',
+      source: 'wikillm'
     }
   };
 
@@ -896,24 +1271,52 @@
     get(key) {
       if (!key) return null;
       const normKey = String(key).toLowerCase().trim();
-      
-      // 1. Проверяем быстрый in-memory кэш
-      if (this.memoryCache.has(normKey)) {
-        return this.memoryCache.get(normKey);
+      const variations = [
+        normKey,
+        normKey.replace(/\.exe$/i, ''),
+        normKey.endsWith('.exe') ? normKey : `${normKey}.exe`,
+        normKey.startsWith('process:') ? normKey : `process:${normKey}`,
+        normKey.startsWith('process:') ? normKey.replace(/^process:/i, '') : normKey,
+        normKey.replace(/^process:/i, '').replace(/\.exe$/i, '')
+      ];
+
+      // 1. Проверяем словарь i18n текущего активного языка (ru, en, uk, he)
+      const i18n = window.i18n || (window.parent && window.parent.i18n);
+      const currentLang = (i18n && (i18n.lang || i18n.currentLang)) || 'ru';
+      const dict = (i18n && i18n.translations && i18n.translations[currentLang] && i18n.translations[currentLang].tooltips) || null;
+      if (dict) {
+        for (const v of variations) {
+          if (dict[v]) {
+            return dict[v];
+          }
+        }
       }
 
-      // 2. Проверяем localStorage
+      // 2. Проверяем быстрый in-memory кэш
+      for (const v of variations) {
+        if (this.memoryCache.has(v)) {
+          return this.memoryCache.get(v);
+        }
+      }
+
+      // 3. Проверяем localStorage
       const all = this.getAll();
-      if (all && all[normKey]) {
-        this.memoryCache.set(normKey, all[normKey]);
-        return all[normKey];
+      if (all) {
+        for (const v of variations) {
+          if (all[v]) {
+            this.memoryCache.set(v, all[v]);
+            return all[v];
+          }
+        }
       }
 
-      // 3. Проверяем встроенную базу знаний
-      if (DEFAULT_KNOWLEDGE_BASE[normKey]) {
-        const item = Object.assign({}, DEFAULT_KNOWLEDGE_BASE[normKey], { isKnowledgeBase: true });
-        this.memoryCache.set(normKey, item);
-        return item;
+      // 4. Проверяем встроенную базу знаний (резервный fallback)
+      for (const v of variations) {
+        if (DEFAULT_KNOWLEDGE_BASE[v]) {
+          const item = Object.assign({}, DEFAULT_KNOWLEDGE_BASE[v], { isKnowledgeBase: true });
+          this.memoryCache.set(v, item);
+          return item;
+        }
       }
 
       return null;
@@ -947,6 +1350,9 @@
     showTimer: null,
     hideTimer: null,
     isHoveringTooltip: false,
+    lastMouseX: null,
+    lastMouseY: null,
+    moveRafId: null,
 
     /**
      * Создает или возвращает DOM-контейнер для карточки тултипа.
@@ -968,17 +1374,12 @@
           <div class="ai-smart-tooltip-box">
             <div class="ai-smart-tooltip-header">
               <div class="ai-smart-tooltip-title" id="ai-smart-tooltip-title">
-                <span id="ai-smart-tooltip-icon">🤖</span>
-                <span id="ai-smart-tooltip-title-text">Подсказка ИИ</span>
+                <span id="ai-smart-tooltip-icon">💡</span>
+                <span id="ai-smart-tooltip-title-text">Справка</span>
               </div>
-              <span class="ai-smart-tooltip-badge" id="ai-smart-tooltip-badge">WikiLLM</span>
+              <span class="ai-smart-tooltip-badge" id="ai-smart-tooltip-badge">Справка</span>
             </div>
             <div class="ai-smart-tooltip-body" id="ai-smart-tooltip-body">Загрузка пояснения...</div>
-            <div class="ai-smart-tooltip-footer">
-              <button type="button" class="ai-smart-tooltip-btn" id="ai-smart-tooltip-action-btn">
-                <i class="bi bi-robot"></i> <span id="ai-smart-tooltip-action-text">Узнать больше у модели</span>
-              </button>
-            </div>
             <div class="ai-smart-tooltip-arrow"></div>
           </div>
         `;
@@ -994,16 +1395,6 @@
           this.isHoveringTooltip = false;
           this.scheduleHide(150);
         });
-
-        // Клик по кнопке обращения к модели в тултипе
-        const actionBtn = el.querySelector('#ai-smart-tooltip-action-btn');
-        if (actionBtn) {
-          actionBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            this.handleActionClick();
-          });
-        }
 
         // Автоматическое скрытие тултипа при скролле страницы или панелей
         window.addEventListener('scroll', () => {
@@ -1028,6 +1419,10 @@
       if (this.hideTimer) {
         clearTimeout(this.hideTimer);
         this.hideTimer = null;
+      }
+      if (this.moveRafId) {
+        cancelAnimationFrame(this.moveRafId);
+        this.moveRafId = null;
       }
     },
 
@@ -1078,7 +1473,11 @@
           const idLower = idStr.toLowerCase();
           const textLower = cleanTitle.toLowerCase();
 
-          if (idLower.includes('cfa') || textLower.includes('cfa') || textLower.includes('ransomware')) {
+          if (idLower.includes('subtab-internals-logs') || idLower.includes('internals-logs')) {
+            key = 'internals-logs';
+          } else if (idLower.includes('tooltips-editor')) {
+            key = 'tooltips-editor';
+          } else if (idLower.includes('cfa') || textLower.includes('cfa') || textLower.includes('ransomware')) {
             key = 'cfa';
           } else if (idLower.includes('asr') || textLower.includes('asr')) {
             key = 'asr';
@@ -1136,6 +1535,8 @@
             key = 'sw-sockets';
           } else if (idLower.includes('winget')) {
             key = 'sw-winget';
+          } else if (idLower.includes('store') || idLower.includes('msstore')) {
+            key = 'sw-store';
           } else if (idLower.includes('ninite')) {
             key = 'sw-ninite';
           } else if (idLower.includes('trigger-scan') || idLower.includes('scan-trigger')) {
@@ -1214,19 +1615,35 @@
         panelId = 'panel-system-control-1';
       }
 
+      // Проверка на принадлежность к процессам хоста
+      const isProcess = getAttr('data-table-type') === 'process' ||
+                        (el.closest && Boolean(el.closest('tr[data-table-type="process"], [data-table-type="process"]'))) ||
+                        Boolean(getAttr('data-process-name')) ||
+                        key.endsWith('.exe') ||
+                        key.startsWith('process:');
+
+      const pidVal = getAttr('data-pid') || (el.closest && el.closest('tr')?.getAttribute('data-pid')) || '';
+      const procExe = getAttr('data-process-name') || (el.closest && el.closest('tr')?.getAttribute('data-process-name')) || (isProcess ? key.replace(/^process:/i, '') : '');
+
       return {
         key: key.toLowerCase(),
         title: cleanTitle,
         panelId: panelId,
-        elementId: idStr
+        elementId: idStr,
+        isProcess: isProcess,
+        tableType: isProcess ? 'process' : (getAttr('data-table-type') || 'ui_navigation'),
+        pid: pidVal,
+        processName: procExe
       };
     },
 
     /**
-     * Отображает интеллектуальный тултип НАД элементом.
+     * Отображает интеллектуальный тултип по горизонтали строго над или под мышкой (ось X).
      * @param {HTMLElement} targetEl Целевой элемент
+     * @param {number|null} [mouseX=null] Координата X курсора мыши
+     * @param {number|null} [mouseY=null] Координата Y курсора мыши
      */
-    show(targetEl) {
+    show(targetEl, mouseX = null, mouseY = null) {
       if (!targetEl || !document.body.contains(targetEl)) return;
 
       const meta = this.resolveElementMeta(targetEl);
@@ -1235,58 +1652,48 @@
       this.activeTarget = targetEl;
       const container = this.ensureContainer();
 
-      // Проверяем наличие ответа в кэше/базе знаний
+      const x = (typeof mouseX === 'number') ? mouseX : this.lastMouseX;
+      const y = (typeof mouseY === 'number') ? mouseY : this.lastMouseY;
+
+      // Проверяем наличие ответа в базе локализации / кэше
       const cached = TooltipCache.get(meta.key);
-      const hasCachedAnswer = Boolean(cached && cached.summary);
+      const hasCachedAnswer = Boolean(cached && (cached.summary || cached.title));
 
       // Заполняем DOM тултипа
       const iconEl = container.querySelector('#ai-smart-tooltip-icon');
       const titleEl = container.querySelector('#ai-smart-tooltip-title-text');
       const badgeEl = container.querySelector('#ai-smart-tooltip-badge');
       const bodyEl = container.querySelector('#ai-smart-tooltip-body');
-      const actionBtn = container.querySelector('#ai-smart-tooltip-action-btn');
-      const actionText = container.querySelector('#ai-smart-tooltip-action-text');
 
-      const displayTitle = (cached && cached.fullTitle) || (cached && cached.title) || meta.title || 'Элемент интерфейса';
+      const displayTitle = (cached && (cached.fullTitle || cached.title)) || meta.title || 'Справка';
       const displayIcon = (cached && cached.icon) || '💡';
+      const displayCategory = (cached && cached.category) || 'Справка';
 
       if (iconEl) iconEl.textContent = displayIcon;
       if (titleEl) titleEl.textContent = displayTitle;
 
-      if (hasCachedAnswer) {
-        // Ответ уже был получен ранее или присутствует в базе знаний WikiLLM
-        if (badgeEl) {
-          badgeEl.textContent = cached.source === 'wikillm' ? 'WikiLLM' : 'Кэш ИИ';
-          badgeEl.style.display = 'inline-block';
-        }
+      if (badgeEl) {
+        badgeEl.textContent = displayCategory;
+        badgeEl.style.display = 'inline-block';
+      }
+
+      if (hasCachedAnswer && cached.summary) {
         if (bodyEl) {
           bodyEl.textContent = cached.summary;
         }
-        if (actionBtn) {
-          actionBtn.className = 'ai-smart-tooltip-btn';
-        }
-        if (actionText) {
-          actionText.textContent = 'Узнать больше у модели';
-        }
       } else {
-        // Ответ еще не запрашивался
-        if (badgeEl) {
-          badgeEl.textContent = 'Новый термин';
-          badgeEl.style.display = 'inline-block';
-        }
+        // Базовое пояснение из атрибутов элемента или дефолтное описание
+        const fallbackDesc = targetEl.getAttribute('data-original-title') || 
+                             targetEl.getAttribute('title') || 
+                             targetEl.getAttribute('data-bs-title') || 
+                             `Контекстное назначение элемента «${meta.title || displayTitle}».`;
         if (bodyEl) {
-          bodyEl.textContent = `Контекстное назначение элемента «${meta.title}» еще не запрашивалось у модели ИИ. Обратитесь к модели для получения экспертного объяснения.`;
-        }
-        if (actionBtn) {
-          actionBtn.className = 'ai-smart-tooltip-btn btn-ask-model';
-        }
-        if (actionText) {
-          actionText.textContent = 'Обратиться к модели за уточнением';
+          bodyEl.textContent = fallbackDesc;
         }
       }
 
-      // Позиционируем НАД элементом
-      this.positionTooltip(targetEl, container);
+      // Позиционируем по горизонтали НАД или ПОД мышкой (ось X)
+      this.positionTooltip(targetEl, container, x, y);
 
       // Плавно показываем
       container.classList.add('show');
@@ -1294,46 +1701,71 @@
     },
 
     /**
-     * Позиционирует тултип строго НАД целевым элементом (или снизу при полном отсутствии места сверху).
+     * Позиционирует тултип по горизонтали строго над или под мышкой (ось X),
+     * а по вертикали над элементом/мышкой (или снизу при нехватке места сверху).
      * @param {HTMLElement} targetEl Целевой элемент
      * @param {HTMLElement} tipEl Элемент тултипа
+     * @param {number|null} [mouseX=null] Координата X курсора мыши
+     * @param {number|null} [mouseY=null] Координата Y курсора мыши
      */
-    positionTooltip(targetEl, tipEl) {
+    positionTooltip(targetEl, tipEl, mouseX = null, mouseY = null) {
       tipEl.style.display = 'block';
       tipEl.style.visibility = 'hidden';
 
       const rect = targetEl.getBoundingClientRect();
       const tipRect = tipEl.getBoundingClientRect();
 
-      // Вычисляем координаты: строго НАД элементом с зазором 10px в координатах viewport
-      let top = rect.top - tipRect.height - 10;
-      let left = rect.left + (rect.width - tipRect.width) / 2;
+      // Опорная точка по горизонтали (ось X):
+      // Если передана координата мыши, выравниваем тултип строго над или под мышкой.
+      // Иначе центрируем по середине целевого элемента.
+      let targetX = (typeof mouseX === 'number') ? mouseX : (rect.left + rect.width / 2);
+      if (rect.width > 0) {
+        // Ограничиваем targetX в пределах горизонтальных границ целевого элемента
+        targetX = Math.max(rect.left, Math.min(rect.right, targetX));
+      }
 
-      // Ограничение по горизонтальным границам экрана (viewport clamping)
-      const margin = 10;
-      if (left < margin) left = margin;
-      if (left + tipRect.width > window.innerWidth - margin) {
+      // Центрируем карточку тултипа по горизонтали вокруг targetX (ось X над/под мышкой)
+      let left = targetX - (tipRect.width / 2);
+
+      // Ограничение по границам экрана (viewport clamping)
+      const margin = 12;
+      if (left < margin) {
+        left = margin;
+      } else if (left + tipRect.width > window.innerWidth - margin) {
         left = window.innerWidth - margin - tipRect.width;
       }
 
-      // Проверка размещения: тултип ДОЛЖЕН быть НАД строкой.
-      // Размещаем снизу ТОЛЬКО если над элементом физически нет места (< margin)
-      // И снизу места достаточно для полного показа карточки.
-      if (top < margin && (window.innerHeight - rect.bottom) > (tipRect.height + 20)) {
-        top = rect.bottom + 10;
+      // Опорная точка по вертикали (ось Y):
+      const tipHeight = tipRect.height;
+      const spacing = 10;
+      const currentMouseY = (typeof mouseY === 'number') ? mouseY : (rect.top + rect.height / 2);
+
+      // Рассчитываем вертикальную координату размещения НАД мышкой / элементом
+      let topAbove = (typeof mouseY === 'number' && mouseY >= rect.top && mouseY <= rect.bottom)
+        ? (mouseY - tipHeight - spacing)
+        : (rect.top - tipHeight - spacing);
+
+      let top = Math.min(topAbove, rect.top - tipHeight - spacing);
+
+      // Проверка свободного места сверху (размещение НАД или ПОД мышкой):
+      // Если сверху места недостаточно (< margin), размещаем ПОД мышкой/элементом
+      const bottomSpace = window.innerHeight - (Math.max(rect.bottom, currentMouseY) + spacing);
+      if (top < margin && bottomSpace >= tipHeight) {
+        // Размещаем ПОД мышкой / элементом
+        top = Math.max(rect.bottom, currentMouseY) + spacing;
         tipEl.classList.add('placement-bottom');
       } else {
+        // Размещаем НАД мышкой / элементом
         if (top < margin) {
-          top = margin; // Прижимаем к верхнему краю экрана, оставаясь над строкой
+          top = margin; // Прижимаем к верхнему краю экрана при жестком дефиците высоты
         }
         tipEl.classList.remove('placement-bottom');
       }
 
-      // Центрируем стрелочку строго над центром элемента
+      // Центрируем стрелочку точно над/под курсором мыши (targetX) относительно тултипа
       const arrowEl = tipEl.querySelector('.ai-smart-tooltip-arrow');
       if (arrowEl) {
-        const targetCenterX = rect.left + rect.width / 2;
-        const arrowLeft = Math.max(16, Math.min(tipRect.width - 16, targetCenterX - left));
+        const arrowLeft = Math.max(16, Math.min(tipRect.width - 16, targetX - left));
         arrowEl.style.left = `${arrowLeft}px`;
       }
 
@@ -1485,6 +1917,45 @@
       const modal = window.AIModalDialog || window.AITableModal || 
                     (window.parent && (window.parent.AIModalDialog || window.parent.AITableModal));
 
+      // Если это процесс Windows — открываем досье процесса
+      if (meta.isProcess || meta.tableType === 'process') {
+        const procName = meta.processName || meta.title || meta.key;
+        const targetPid = parseInt(meta.pid, 10) || 0;
+        const procCategory = (cached && cached.category) || 'Процесс Windows';
+        const procSummary = (cached && cached.summary) || `Процесс ${procName}`;
+
+        if (typeof window.openProcessAiModal === 'function') {
+          window.openProcessAiModal({ name: procName, pid: targetPid, friendly_name: displayTitle }, 'group', null, null, meta.panelId);
+          return;
+        }
+
+        if (modal && typeof modal.show === 'function') {
+          modal.show({
+            title: displayTitle,
+            subtitle: `Категория: ${procCategory} • PID: ${targetPid || '-'}`,
+            icon: displayIcon || '🤖',
+            panelId: meta.panelId || 'panel-process-manager-dispetcher-protsessov-i-prilozhen',
+            tableType: 'process',
+            badges: [
+              { text: procCategory, class: 'badge bg-primary' },
+              { text: targetPid ? `PID: ${targetPid}` : 'Хост', class: 'badge bg-secondary' },
+              { text: 'ИИ Паспорт', class: 'badge bg-info text-dark' }
+            ],
+            metadata: [
+              { label: 'Исполняемый файл', value: procName, isCode: true },
+              { label: 'PID процесса', value: String(targetPid || '-'), isCode: true },
+              { label: 'Категория', value: procCategory },
+              { label: 'Панель интерфейса', value: meta.panelId }
+            ],
+            rawTitle: `Досье процесса: ${displayTitle}`,
+            rawContent: JSON.stringify({ name: procName, pid: targetPid, summary: procSummary }, null, 2),
+            requestData: { name: procName, pid: targetPid },
+            autoRun: true
+          });
+          return;
+        }
+      }
+
       if (modal && typeof modal.show === 'function') {
         modal.show({
           title: displayTitle,
@@ -1527,11 +1998,35 @@
         el.removeAttribute('title');
       }
 
-      el.addEventListener('mouseenter', () => {
+      el.addEventListener('mouseenter', (e) => {
         this.clearTimers();
+        if (e && typeof e.clientX === 'number') {
+          this.lastMouseX = e.clientX;
+          this.lastMouseY = e.clientY;
+        }
         this.showTimer = setTimeout(() => {
-          this.show(el);
+          this.show(el, this.lastMouseX, this.lastMouseY);
         }, 180);
+      });
+
+      el.addEventListener('mousemove', (e) => {
+        if (e && typeof e.clientX === 'number') {
+          this.lastMouseX = e.clientX;
+          this.lastMouseY = e.clientY;
+        }
+
+        // Если подсказка уже отображается для этого элемента (например, строка таблицы или карточка),
+        // плавно актуализируем ее положение по оси X над или под курсором мыши
+        if (this.activeTarget === el && this.containerEl && this.containerEl.classList.contains('show')) {
+          if (!this.moveRafId) {
+            this.moveRafId = requestAnimationFrame(() => {
+              this.moveRafId = null;
+              if (this.activeTarget === el && this.containerEl) {
+                this.positionTooltip(el, this.containerEl, this.lastMouseX, this.lastMouseY);
+              }
+            });
+          }
+        }
       });
 
       el.addEventListener('mouseleave', () => {
@@ -1602,6 +2097,9 @@
         '#btn-winadmin-acl-grant',
         '#winadmin-user-filters button',
         '#processes-subtabs-nav .nav-link',
+        '#app-internals-subtabs-nav button',
+        '#wikillm-sys-blocks-nav button',
+        '#instruments-blocks-nav button',
         '#btn-global-refresh',
         '#engine-status-badge',
         '[data-ai-tooltip]',
@@ -1623,7 +2121,7 @@
       if (!el || this.instances.has(el) || el.__aiTooltipBound) return;
 
       // Элементы с AI Smart Tooltip обрабатываются специальным контроллером
-      if (el.matches && el.matches('#defSubTabs .nav-link, #def-tab-cfa-btn, [data-ai-tooltip], [data-term], [id^="btn-def-"], #slc-source-tabs .slc-source-btn, #slc-mode-tabs .slc-subtab-btn, #sum-subtabs-nav .sum-subtab-btn, [id^="btn-slc-"], [id^="btn-sum-"], #software-subtabs-nav .nav-link, #sw-packages-subtabs .nav-link, [id^="sw-btn-"], [id^="subtab-sw-"], #winadmin-subtabs .nav-link, [id^="btn-winadmin-"], [id^="subtab-winadmin-"], [id^="btn-acl-"], [id^="btn-check-"], #processes-subtabs-nav .nav-link, [id^="subtab-proc-"], [id^="pm-"], [id^="btn-proc-"], [id^="btn-diag-leaks-"]')) {
+      if (el.matches && el.matches('#defSubTabs .nav-link, #def-tab-cfa-btn, [data-ai-tooltip], [data-term], [id^="btn-def-"], #slc-source-tabs .slc-source-btn, #slc-mode-tabs .slc-subtab-btn, #sum-subtabs-nav .sum-subtab-btn, [id^="btn-slc-"], [id^="btn-sum-"], #software-subtabs-nav .nav-link, #sw-packages-subtabs .nav-link, [id^="sw-btn-"], [id^="subtab-sw-"], #winadmin-subtabs .nav-link, [id^="btn-winadmin-"], [id^="subtab-winadmin-"], [id^="btn-acl-"], [id^="btn-check-"], #processes-subtabs-nav .nav-link, [id^="subtab-proc-"], [id^="pm-"], [id^="btn-proc-"], [id^="btn-diag-leaks-"], #app-internals-subtabs-nav button, #wikillm-sys-blocks-nav button, #instruments-blocks-nav button, [id^="subtab-internals-"], [id^="btn-block-"]')) {
         AISmartTooltip.bindElement(el);
         return;
       }
@@ -1640,6 +2138,28 @@
 
       if (!titleText) return;
 
+      // Bootstrap 5 (dom/data.js:26) не позволяет привязывать более одного плагина к одному DOM-элементу.
+      // Если элемент управляет вкладками, выпадающими меню, модальными окнами, offcanvas или collapse,
+      // делегируем подсказку контроллеру AISmartTooltip вместо new bootstrap.Tooltip(el).
+      const bsToggle = (el.getAttribute('data-bs-toggle') || '').toLowerCase();
+      const hasOtherBsPlugin = (bsToggle && bsToggle !== 'tooltip') ||
+        el.hasAttribute('data-bs-dismiss') ||
+        Boolean(
+          window.bootstrap && (
+            window.bootstrap.Tab?.getInstance?.(el) ||
+            window.bootstrap.Dropdown?.getInstance?.(el) ||
+            window.bootstrap.Offcanvas?.getInstance?.(el) ||
+            window.bootstrap.Modal?.getInstance?.(el) ||
+            window.bootstrap.Collapse?.getInstance?.(el) ||
+            window.bootstrap.Popover?.getInstance?.(el)
+          )
+        );
+
+      if (hasOtherBsPlugin) {
+        AISmartTooltip.bindElement(el);
+        return;
+      }
+
       if (el.hasAttribute('title')) {
         el.setAttribute('data-bs-title', titleText);
         el.removeAttribute('title');
@@ -1651,6 +2171,11 @@
 
       if (window.bootstrap && window.bootstrap.Tooltip) {
         try {
+          const existing = window.bootstrap.Tooltip.getInstance?.(el);
+          if (existing) {
+            this.instances.set(el, existing);
+            return;
+          }
           const tooltip = new window.bootstrap.Tooltip(el, {
             trigger: 'hover focus',
             placement: placement,
@@ -1703,16 +2228,48 @@
         textContent: event.detail.title
       };
       const meta = AISmartTooltip.resolveElementMeta(targetEl);
+      const cacheRecord = {
+        title: event.detail.title,
+        fullTitle: event.detail.title,
+        summary: event.detail.summary,
+        source: event.detail.source || 'gemini',
+        category: (event.detail.data && event.detail.data.category) || 'ИИ Анализ',
+        isVerified: true
+      };
+
       if (meta && meta.key) {
-        TooltipCache.set(meta.key, {
-          title: event.detail.title,
-          summary: event.detail.summary,
-          source: event.detail.source || 'gemini',
-          category: 'ИИ Анализ'
-        });
+        TooltipCache.set(meta.key, cacheRecord);
       }
+
+      // Извлекаем чистое имя процесса
+      const titleClean = String(event.detail.title || '')
+        .replace(/\[PID:.*?\]/i, '')
+        .replace(/\(.*?\)/g, '')
+        .trim();
+      const matchExe = String(event.detail.title || '').match(/([a-zA-Z0-9_\-\.]+\.exe)/i);
+      const exeName = matchExe ? matchExe[1].toLowerCase() : (titleClean.endsWith('.exe') ? titleClean.toLowerCase() : null);
+
+      if (exeName) {
+        TooltipCache.set(exeName, cacheRecord);
+        TooltipCache.set(exeName.replace(/\.exe$/i, ''), cacheRecord);
+        TooltipCache.set(`process:${exeName}`, cacheRecord);
+        TooltipCache.set(`process:${exeName.replace(/\.exe$/i, '')}`, cacheRecord);
+      } else if (titleClean) {
+        TooltipCache.set(titleClean.toLowerCase(), cacheRecord);
+      }
+
+      // Оповещаем таблицы инспектора процессов о поступлении новой информации ИИ
+      try {
+        window.dispatchEvent(new CustomEvent('process-ai-info:updated', { detail: { name: exeName || titleClean, record: cacheRecord } }));
+      } catch (_) {}
     }
   });
+
+  // Глобальное отслеживание позиции курсора мыши для точного выравнивания тултипов по оси X
+  document.addEventListener('mousemove', (e) => {
+    AISmartTooltip.lastMouseX = e.clientX;
+    AISmartTooltip.lastMouseY = e.clientY;
+  }, { passive: true });
 
   // Инициализация при загрузке документа
   document.addEventListener('DOMContentLoaded', () => {

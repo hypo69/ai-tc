@@ -79,3 +79,4 @@ class TasksCollector:
         except Exception as e:
             logger.debug(f'Ошибка при вызове Get-ScheduledTask: {e}')
         return []
+

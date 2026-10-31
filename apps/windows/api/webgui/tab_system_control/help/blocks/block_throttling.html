@@ -1,0 +1,76 @@
+<!--
+=============================================================================
+Process Name: Windows System Control - Atomic Help Block: Throttling & Core Health
+=============================================================================
+Description:
+  Атомарный HTML-фрагмент справки по разделу «Троттлинг и ядро» (throttling)
+  во вкладке «Центр контроля сбоев и журналов» (#tab-system-control).
+
+File: block_throttling.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_system_control/help/blocks
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 18:21:00
+=============================================================================
+-->
+<div class="card bg-body border-subtle shadow-sm mb-3 help-atomic-block" data-help-block="block_throttling">
+  <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between py-2 px-3">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-thermometer-sun text-danger fs-5"></i>
+      <h6 class="mb-0 fw-bold text-body" data-i18n="systemControlHelp.throttling.title">6. Раздел «Троттлинг и ядро» (Throttling &amp; Core Diagnostics)</h6>
+    </div>
+    <span class="ui-badge ui-badge-danger" data-i18n="systemControlHelp.throttling.badge">Термальные лимиты и DPC</span>
+  </div>
+  <div class="card-body p-3">
+    <p class="small text-muted mb-3" data-i18n="systemControlHelp.throttling.intro">
+      Глубокая аппаратная диагностика узких мест производительности и аппаратных причин падения FPS/зависаний:
+    </p>
+    <div class="row g-2">
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-fire text-danger"></i>
+            <span data-i18n="systemControlHelp.throttling.prochotTitle">Детекция PROCHOT и Power Limits (PL1/PL2)</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="systemControlHelp.throttling.prochotDesc">
+            Определяет факты срабатывания аппаратного термального троттлинга (Processor Hot), ограничения потребления по току (EDP/Current limit) и сброса тактовой частоты ядер CPU ниже базовой.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-speedometer text-warning"></i>
+            <span data-i18n="systemControlHelp.throttling.dpcTitle">DPC / ISR Латентность драйверов</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="systemControlHelp.throttling.dpcDesc">
+            Анализ задержек отложенных вызовов процедур (Deferred Procedure Calls) и прерываний (Interrupt Service Routines). Позволяет обнаружить проблемный драйвер, вызывающий треск звука и микрофризы.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-hdd-network text-info"></i>
+            <span data-i18n="systemControlHelp.throttling.pcieTitle">Ошибки шины PCIe и NVMe</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="systemControlHelp.throttling.pcieDesc">
+            Панель <code>panel-throttling-pcie</code> фиксирует сбои передачи пакетов по линиям PCI Express, понижение ширины линка (с x16 до x4/x1) и аварийные сбросы контроллеров накопителей NVMe.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-file-earmark-medical text-primary"></i>
+            <span data-i18n="systemControlHelp.throttling.memoryTitle">WHEA Ошибки памяти (ECC / Corrected)</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="systemControlHelp.throttling.memoryDesc">
+            Учет исправленных и неисправимых ошибок оперативной памяти и кэша процессора L1/L2/L3, позволяющий превентивно заменить дефектный модуль RAM до краха системы.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

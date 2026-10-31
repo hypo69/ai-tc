@@ -82,3 +82,4 @@ def test_npu_metrics_error_not_cached(collector: SystemCollector, monkeypatch: p
     collector._npus_cached = None
     assert collector.get_npu_metrics() == []
     assert collector._npus_cached is None
+

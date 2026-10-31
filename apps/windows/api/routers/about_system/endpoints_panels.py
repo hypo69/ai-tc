@@ -179,3 +179,4 @@ def register_panel_endpoints(router: APIRouter, storage: TelemetryStorage) -> No
         except Exception as exc:
             logger.error(f"[router_about_system] Ошибка при чтении панели /disk_io: {exc}", exc_info=True)
             return DiskIoPanelResponse()
+

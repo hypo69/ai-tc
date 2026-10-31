@@ -304,3 +304,4 @@ class AIW64ETWCollector:
         if self.storage:
             return self.storage.get_w64_events(event_type=event_type, provider='w64_etw_collector', limit=limit)
         return []
+

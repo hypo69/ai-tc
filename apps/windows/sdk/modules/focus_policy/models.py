@@ -106,3 +106,4 @@ class SessionSummary(BaseModel):
     profile_id: str
     total_suppressed: int = 0
     by_app: Dict[str, int] = Field(default_factory=dict)
+

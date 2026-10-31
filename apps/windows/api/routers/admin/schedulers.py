@@ -142,3 +142,4 @@ async def trigger_scheduler_job(job_name: str, request: Request) -> Dict[str, An
         return {'status': 'ok', 'job': 'email', 'count': len(messages), 'messages': messages[:5]}
     else:
         raise HTTPException(status_code=400, detail=f"Неизвестная задача: {job_name}. Доступны: 'rag', 'email'")
+

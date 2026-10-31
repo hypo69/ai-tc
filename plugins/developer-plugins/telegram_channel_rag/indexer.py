@@ -226,3 +226,4 @@ class TelegramChannelIndexer:
                 break
 
         return results
+

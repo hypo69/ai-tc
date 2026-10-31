@@ -397,3 +397,4 @@ async def _run_disk_benchmark_scenario() -> ScenarioRunResult:
         steps=[step],
         summary=f"Экспресс-бенчмарк накопителей завершен: {step.details}",
     )
+

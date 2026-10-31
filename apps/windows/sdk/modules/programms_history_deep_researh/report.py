@@ -47,3 +47,4 @@ def dump_report(pretty: bool = True) -> str:
     if pretty:
         return json.dumps(rpt, indent=2, ensure_ascii=False)
     return json.dumps(rpt, ensure_ascii=False)
+

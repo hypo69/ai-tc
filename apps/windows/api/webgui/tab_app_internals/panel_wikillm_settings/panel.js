@@ -12,11 +12,11 @@
  * Package: windows/api/webgui/tab_app_internals/panel_wikillm_settings
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:35:00
+ * Updated: 2026-10-31 17:05:00
  * =============================================================================
  */
 
-import { loadScript, notifyUser } from '../common/ui_utils.js';
+import { loadScript, notifyUser } from '../common/ui_utils.js?v=20261031_v2';
 
 /**
  * Загрузка сохраненных настроек WikiLLM с сервера.

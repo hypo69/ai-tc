@@ -220,3 +220,4 @@ class NewsFeedPlugin(BasePlugin):
 def plugin(ai_model: Any = None, config: Optional[Dict[str, Any]] = None) -> NewsFeedPlugin:
     """Plugin factory function."""
     return NewsFeedPlugin(ai_model=ai_model, config=config)
+

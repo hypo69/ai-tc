@@ -79,3 +79,4 @@ class UserAccountModel(BaseModel):
     account_type: str = Field(default="Локальная учетная запись", description="Тип учетной записи")
     groups: List[str] = Field(default_factory=list, description="Список групп безопасности")
     last_logon: str = Field(default="", description="Дата и время последнего входа")
+

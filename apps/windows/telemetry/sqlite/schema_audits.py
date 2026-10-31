@@ -123,3 +123,4 @@ AUDITS_INDEX_DDL: Tuple[str, ...] = (
     'CREATE INDEX IF NOT EXISTS idx_incidents_channel ON incidents(channel, created_at DESC);',
     *DELTA_INVENTORY_INDEX_DDL,
 )
+

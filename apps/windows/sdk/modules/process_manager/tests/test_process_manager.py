@@ -125,7 +125,7 @@ def test_extract_launch_summary():
     # 2. Python скрипт
     assert ProcessClassifier._extract_launch_summary(
         'python.exe',
-        'python.exe C:\\AI-TC\\apps\\windows\\telemetry\\main.py'
+        'python.exe C:\\ai-tc\\apps\\windows\\telemetry\\main.py'
     ) == 'telemetry/main.py'
 
     # 3. PWA / ChatGPT
@@ -143,7 +143,7 @@ def test_extract_launch_summary():
     # 5. PowerShell
     assert ProcessClassifier._extract_launch_summary(
         'pwsh.exe',
-        'pwsh.exe -File C:\\AI-TC\\tc.ps1'
+        'pwsh.exe -File C:\\ai-tc\\tc.ps1'
     ) == 'tc.ps1'
 
 
@@ -160,4 +160,5 @@ def test_process_enrichment_telemetry(classifier: ProcessClassifier):
     assert len(with_ppid) > 0
     with_user = [p for p in all_subs if p.username]
     assert len(with_user) > 0
+
 

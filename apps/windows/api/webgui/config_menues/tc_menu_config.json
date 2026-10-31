@@ -61,19 +61,19 @@
         "visible": true
       },
       {
+        "id": "user_environment",
+        "label": "Окружение пользователя",
+        "icon": "bi-person-workspace",
+        "tab": "tab-user-environment",
+        "order": 8,
+        "visible": true
+      },
+      {
         "id": "scenarios",
         "label": "Чат и сценарии",
         "i18n": "tabs.scenarios",
         "icon": "bi-chat-dots",
         "tab": "tab-scenarios",
-        "order": 8,
-        "visible": true
-      },
-      {
-        "id": "sound_settings",
-        "label": "Звук и громкость",
-        "icon": "bi-volume-up",
-        "tab": "tab-sound-settings",
         "order": 9,
         "visible": true
       }
@@ -96,14 +96,6 @@
         "visible": true
       },
       {
-        "id": "sound_settings",
-        "label": "Звук и громкость",
-        "icon": "bi-volume-up",
-        "tab": "tab-sound-settings",
-        "order": 3,
-        "visible": true
-      },
-      {
         "id": "network_terminal",
         "label": "Сетевой терминал",
         "i18n": "tabs.network",
@@ -113,12 +105,20 @@
         "visible": true
       },
       {
+        "id": "cloudflared_monitor",
+        "label": "Cloudflare Tunnel (kino)",
+        "icon": "bi-cloud-check",
+        "tab": "tab-cloudflared",
+        "order": 4,
+        "visible": true
+      },
+      {
         "id": "windows_startup_auditor",
         "label": "Автозапуск программ",
         "i18n": "tabs.startupAuditor",
         "icon": "bi-rocket-takeoff",
         "tab": "tab-startup-auditor",
-        "order": 4,
+        "order": 5,
         "visible": false
       },
       {
@@ -127,7 +127,7 @@
         "i18n": "tabs.userDirectories",
         "icon": "bi-folder2",
         "tab": "tab-user-directories",
-        "order": 5,
+        "order": 6,
         "visible": true
       },
       {
@@ -136,7 +136,7 @@
         "i18n": "tabs.rag",
         "icon": "bi-cpu",
         "tab": "tab-rag",
-        "order": 6,
+        "order": 7,
         "visible": false
       },
       {
@@ -144,7 +144,7 @@
         "label": "PixelRAG",
         "icon": "bi-image",
         "tab": "tab-pixelrag",
-        "order": 7,
+        "order": 8,
         "visible": false
       },
       {
@@ -153,7 +153,7 @@
         "i18n": "tabs.fileHistorySearch",
         "icon": "bi-search",
         "tab": "tab-file-history-search",
-        "order": 8,
+        "order": 9,
         "visible": false
       },
       {
@@ -161,7 +161,7 @@
         "label": "Накопители и Ресурс Дисков",
         "icon": "bi-hdd",
         "tab": "tab-storage-management",
-        "order": 9,
+        "order": 10,
         "visible": false
       },
       {
@@ -170,14 +170,6 @@
         "i18n": "tabs.softwareTransparency",
         "icon": "bi-eye",
         "tab": "tab-software-transparency",
-        "order": 10,
-        "visible": false
-      },
-      {
-        "id": "software_monitor",
-        "label": "Установленные программы",
-        "icon": "bi-box-seam",
-        "tab": "tab-software-monitor",
         "order": 11,
         "visible": false
       },
@@ -198,20 +190,11 @@
         "visible": false
       },
       {
-        "id": "system32_commands",
-        "label": "Команды System32",
-        "i18n": "tabs.system32Commands",
-        "icon": "bi-tools",
-        "tab": "tab-system32-commands",
-        "order": 14,
-        "visible": false
-      },
-      {
         "id": "telemetry_research",
         "label": "Исследования телеметрии",
         "icon": "bi-binoculars",
         "tab": "tab-telemetry-research",
-        "order": 15,
+        "order": 14,
         "visible": false
       },
       {
@@ -219,7 +202,7 @@
         "label": "1. Утечки и микрофризы",
         "icon": "bi-search",
         "tab": "tab-process-leaks",
-        "order": 16,
+        "order": 15,
         "visible": false
       },
       {
@@ -227,7 +210,7 @@
         "label": "Умное восстановление (Advisor)",
         "icon": "bi-shield-check",
         "tab": "tab-smart-restore",
-        "order": 17,
+        "order": 16,
         "visible": true
       },
       {
@@ -235,7 +218,7 @@
         "label": "Загрузка, WinRE и обслуживание SFC/DISM",
         "icon": "bi-rocket-takeoff",
         "tab": "tab-boot-recovery",
-        "order": 18,
+        "order": 17,
         "visible": true
       },
       {
@@ -243,7 +226,7 @@
         "label": "Службы Windows (Services)",
         "icon": "bi-gear",
         "tab": "tab-services-manager",
-        "order": 19,
+        "order": 18,
         "visible": true
       },
       {
@@ -251,7 +234,7 @@
         "label": "Планировщик задач (Tasks)",
         "icon": "bi-calendar3",
         "tab": "tab-task-scheduler",
-        "order": 20,
+        "order": 19,
         "visible": true
       },
       {
@@ -259,7 +242,7 @@
         "label": "Панель задач и Окна (Taskbar)",
         "icon": "bi-pin-angle",
         "tab": "tab-taskbar",
-        "order": 21,
+        "order": 20,
         "visible": true
       },
       {
@@ -267,7 +250,7 @@
         "label": "Диспетчер процессов (Processes)",
         "icon": "bi-cpu",
         "tab": "tab-processes-load-inspector#manager",
-        "order": 22,
+        "order": 21,
         "visible": false
       },
       {
@@ -275,7 +258,7 @@
         "label": "Редактор тем (Theme Editor)",
         "icon": "bi-palette2",
         "tab": "tab-theme-editor",
-        "order": 23,
+        "order": 22,
         "visible": false
       },
       {
@@ -283,7 +266,7 @@
         "label": "2. Поведенческая форензика",
         "icon": "bi-stopwatch",
         "tab": "tab-forensics",
-        "order": 24,
+        "order": 23,
         "visible": false
       },
       {
@@ -291,7 +274,32 @@
         "label": "3. Качество ядра и Троттлинг",
         "icon": "bi-lightning-charge",
         "tab": "tab-throttling",
+        "order": 24,
+        "visible": false
+      },
+      {
+        "id": "ai_assistant",
+        "label": "Умная история файлов (Smart File History)",
+        "icon": "bi-clock-history",
+        "tab": "tab-ai-assistant",
         "order": 25,
+        "visible": false
+      },
+      {
+        "id": "sound_settings",
+        "label": "Звук и громкость",
+        "icon": "bi-volume-up",
+        "tab": "tab-sound-settings",
+        "order": 26,
+        "visible": false
+      },
+      {
+        "id": "system32_commands",
+        "label": "Команды System32",
+        "i18n": "tabs.system32Commands",
+        "icon": "bi-tools",
+        "tab": "tab-system32-commands",
+        "order": 27,
         "visible": false
       },
       {
@@ -300,7 +308,7 @@
         "i18n": "tabs.fileRecovery",
         "icon": "bi-archive",
         "tab": "tab-file-recovery",
-        "order": 26,
+        "order": 28,
         "visible": true
       },
       {
@@ -308,7 +316,7 @@
         "label": "Post-Install Wizard",
         "icon": "bi-magic",
         "tab": "tab-post-install-wizard",
-        "order": 27,
+        "order": 29,
         "visible": true
       },
       {
@@ -316,7 +324,7 @@
         "label": "Установить Ninite",
         "icon": "bi-cloud-arrow-down",
         "tab": "tab-ninite-updater",
-        "order": 28,
+        "order": 30,
         "visible": true
       },
       {
@@ -324,7 +332,7 @@
         "label": "Внутренняя кухня (App Internals)",
         "icon": "bi-code-square",
         "tab": "tab-app-internals",
-        "order": 29,
+        "order": 31,
         "visible": true
       },
       {
@@ -332,15 +340,7 @@
         "label": "Карта сайта (Sitemap)",
         "icon": "bi-diagram-3-fill",
         "tab": "tab-sitemap",
-        "order": 30,
-        "visible": true
-      },
-      {
-        "id": "ai_assistant",
-        "label": "Умная история файлов (Smart File History)",
-        "icon": "bi-clock-history",
-        "tab": "tab-ai-assistant",
-        "order": 31,
+        "order": 32,
         "visible": true
       },
       {
@@ -348,7 +348,7 @@
         "label": "Экосистема ИИ (Агенты, Навыки, MCP)",
         "icon": "bi-robot",
         "tab": "tab-ai-ecosystem",
-        "order": 32,
+        "order": 33,
         "visible": true
       }
     ]

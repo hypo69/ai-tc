@@ -131,3 +131,4 @@ class GoogleOAuthPlugin(BasePlugin):
             "text": f"Google OAuth System Plugin is active. {count} account(s) registered in pool.",
             "accounts_count": count,
         }
+

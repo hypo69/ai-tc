@@ -126,3 +126,4 @@ class TelemetryBufferManager:
         """Завершение работы и финальный сброс остатков."""
         self.running = False
         self.flush_sync()
+

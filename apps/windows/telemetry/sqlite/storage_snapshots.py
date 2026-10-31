@@ -395,3 +395,4 @@ class TelemetrySnapshotStorageMixin:
         )
 
     save_sensor_polls = save_sensor_polls_batch
+

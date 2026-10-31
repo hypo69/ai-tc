@@ -179,3 +179,4 @@ class SettingsResolver:
             is_win11=self.is_win11,
             reason="Стандартный системный параметр",
         )
+

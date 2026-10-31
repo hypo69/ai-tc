@@ -267,3 +267,4 @@ class TaskbarSettingsManager:
         except Exception as exc:
             logger.error(f"[TaskbarSettings] Ошибка перезапуска explorer.exe: {exc}")
             return False
+

@@ -12,7 +12,7 @@
  * Package: windows/api/webgui/tab_agents
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:37:00
+ * Updated: 2026-10-30 11:15:00
  * =============================================================================
  */
 
@@ -39,9 +39,9 @@ export async function loadAllAgentsData() {
       fetchJson('/api/agents/providers')
     ]);
 
-    state.agents = Array.isArray(agentsRes) ? agentsRes : [];
-    state.tools = Array.isArray(toolsRes) ? toolsRes : [];
-    state.providers = providersRes ?? {};
+    state.agents = Array.isArray(agentsRes) ? agentsRes : (agentsRes?.agents || []);
+    state.tools = Array.isArray(toolsRes) ? toolsRes : (toolsRes?.tools || []);
+    state.providers = providersRes?.providers || (typeof providersRes === 'object' ? providersRes : {});
 
     renderCounters();
     renderGrid();

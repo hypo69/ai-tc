@@ -8,6 +8,8 @@
   "description": "Теплая светлая тема в стиле клинкерного кирпича и обожженной глины",
   "baseType": "light",
   "tokens": {
-    "--about-card-bg": "linear-gradient(135deg, #f5e8d4 0%, #e2c8b8 100%)"
+    "--about-card-bg": "linear-gradient(135deg, #f5e8d4 0%, #e2c8b8 100%)",
+    "--modal-width": "80vw",
+    "--modal-height": "80vh"
   }
 }

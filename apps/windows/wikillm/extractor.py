@@ -186,3 +186,4 @@ class ArtifactExtractor:
             )
 
         return results
+

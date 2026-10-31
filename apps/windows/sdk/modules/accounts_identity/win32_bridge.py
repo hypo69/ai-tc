@@ -338,3 +338,4 @@ class Win32IdentityBridge:
             return bool(ctypes.windll.shell32.IsUserAnAdmin())
         except Exception:
             return False
+

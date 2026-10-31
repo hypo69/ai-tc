@@ -393,3 +393,4 @@ class NetUserTool(BaseTool):
                 command_executed=cmd_str,
                 risk_level=op_risk,
             )
+

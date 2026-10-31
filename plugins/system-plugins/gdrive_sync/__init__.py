@@ -33,3 +33,4 @@ def plugin(ai_model: Any = None, config: Optional[dict] = None) -> GDriveSyncPlu
         GDriveSyncPlugin: Configured plugin instance.
     """
     return GDriveSyncPlugin(ai_model=ai_model, config=config)
+

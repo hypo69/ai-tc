@@ -191,3 +191,4 @@ def test_api_network_profile_endpoints(api_client):
         assert data["status"] == "ok"
         assert data["is_discovery_enabled"] is True
         assert data["current_category"] == "Private"
+

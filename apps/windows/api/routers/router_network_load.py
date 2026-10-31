@@ -17,7 +17,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 22:42:00
+# Updated: 2026-10-30 10:55:00
 # =============================================================================
 
 from __future__ import annotations
@@ -358,4 +358,22 @@ def init_router() -> APIRouter:
 
         return []
 
+    @router.get("/api/v1/network/speedtest/history")
+    async def get_speedtest_history(limit: int = 144) -> Dict[str, Any]:
+        """Возвращает накопленную кольцевую историю замеров FAST.com (до 144 записей) и скользящее среднее."""
+        from apps.windows.telemetry.internet_speed import get_internet_speed_sensor
+        sensor = get_internet_speed_sensor()
+        return {
+            "history": sensor.get_history(limit=limit),
+            "averages": sensor.get_average_stats(),
+        }
+
+    @router.post("/api/v1/network/speedtest/measure")
+    async def trigger_speedtest_measure(force: bool = True) -> Dict[str, Any]:
+        """Инициирует активный фоновый тест скорости интернета FAST.com."""
+        from apps.windows.telemetry.internet_speed import get_internet_speed_sensor
+        sensor = get_internet_speed_sensor()
+        return sensor.check_and_run_hourly(force=force, skip_if_busy=False)
+
     return router
+

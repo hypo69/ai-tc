@@ -203,3 +203,4 @@ class DAGConfirmRequest(BaseModel):
     """Запрос на подтверждение действия администратором (Human-in-the-loop)."""
     action: str = Field(description="Действие администратора: 'approve' (разрешить) или 'reject' (отклонить)")
 
+

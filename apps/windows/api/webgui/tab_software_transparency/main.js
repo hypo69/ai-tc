@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/tab_software_transparency
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 15:50:00
+ * Updated: 2026-10-28 15:30:00
  * =============================================================================
  */
 
@@ -211,16 +211,69 @@
     });
   }
 
-  function openConfigModal(appId, cfgPath) {
-    const app = allApps.find(a => a.id === appId);
-    const cfg = app ? (app.config_files || []).find(c => c.path === cfgPath) : null;
+  const CONFIG_API_BASES = ['/api/v1/software-scanner', '/api/windows/api/v1/software-scanner'];
 
-    document.getElementById('st-config-modal-path').innerText = cfgPath;
-    document.getElementById('st-config-modal-content').innerText = cfg ? (cfg.content_preview || '[Пустой файл]') : '[Файл не найден]';
+  /** Выполняет запрос к API редактора конфигов с перебором базовых URL. */
+  async function configApiFetch(suffix, opts) {
+    let res = null;
+    for (const base of CONFIG_API_BASES) {
+      res = await fetch(base + suffix, opts);
+      if (res.status !== 404 || base === CONFIG_API_BASES[CONFIG_API_BASES.length - 1]) break;
+      const detail = await res.clone().json().catch(() => null);
+      if (detail && detail.detail) break; // 404 вернул сам эндпоинт («Файл не найден»)
+    }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || ('HTTP ' + res.status));
+    }
+    return res.json();
+  }
 
+  /** Открывает окно редактора файла конфигурации с загрузкой полного содержимого. */
+  async function openConfigModal(appId, cfgPath) {
+    const pathEl = document.getElementById('st-config-modal-path');
+    const textEl = document.getElementById('st-config-modal-content');
+    const statusEl = document.getElementById('st-config-modal-status');
+    const saveBtn = document.getElementById('st-config-modal-save');
     const modalEl = document.getElementById('st-config-modal');
+
+    pathEl.innerText = cfgPath;
+    textEl.value = '';
+    textEl.disabled = true;
+    saveBtn.disabled = true;
+    statusEl.className = 'small mt-2 text-muted';
+    statusEl.innerText = 'Загрузка файла...';
+
     if (modalEl && window.bootstrap) {
-      new bootstrap.Modal(modalEl).show();
+      bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    }
+
+    try {
+      const data = await configApiFetch('/config-file?path=' + encodeURIComponent(cfgPath));
+      textEl.value = data.content;
+      textEl.disabled = false;
+      saveBtn.disabled = false;
+      statusEl.innerText = '';
+      saveBtn.onclick = async () => {
+        saveBtn.disabled = true;
+        try {
+          await configApiFetch('/config-file', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: cfgPath, content: textEl.value })
+          });
+          statusEl.className = 'small mt-2 text-success';
+          statusEl.innerText = 'Файл сохранён';
+        } catch (e) {
+          statusEl.className = 'small mt-2 text-danger';
+          statusEl.innerText = 'Ошибка сохранения: ' + e.message;
+        } finally {
+          saveBtn.disabled = false;
+        }
+      };
+    } catch (e) {
+      statusEl.className = 'small mt-2 text-danger';
+      statusEl.innerText = 'Ошибка загрузки: ' + e.message;
     }
   }
 

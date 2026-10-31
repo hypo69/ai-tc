@@ -1212,3 +1212,4 @@ def search_catalog(query: str) -> List[OperationCatalogItem]:
         or (op.win32_api and q in op.win32_api.lower())
         or (op.ps_or_cli and q in op.ps_or_cli.lower())
     ]
+

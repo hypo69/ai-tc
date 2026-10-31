@@ -1,0 +1,54 @@
+<!--
+=============================================================================
+Process Name: Windows Software Monitor - Atomic Help Block: Transparency Audit
+=============================================================================
+Description:
+  Атомарный HTML-фрагмент справки по разделу «ИИ-Аудит прозрачности и рисков ПО»
+  (transparency) во вкладке #tab-software-monitor.
+
+File: block_transparency.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_software_monitor/help/blocks
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 18:36:00
+=============================================================================
+-->
+<div class="card bg-body border-subtle shadow-sm mb-3 help-atomic-block" data-help-block="block_transparency">
+  <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between py-2 px-3">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-shield-check text-primary fs-5"></i>
+      <h6 class="mb-0 fw-bold text-body" data-i18n="softwareMonitorHelp.transparency.title">5. ИИ-Аудит прозрачности и рисков ПО</h6>
+    </div>
+    <span class="ui-badge ui-badge-info" data-i18n="softwareMonitorHelp.transparency.badge">ИИ-анализ и безопасность</span>
+  </div>
+  <div class="card-body p-3">
+    <p class="small text-muted mb-3" data-i18n="softwareMonitorHelp.transparency.intro">
+      Многоуровневый аудит безопасности и надежности установленных приложений с привлечением нейросетевых моделей:
+    </p>
+    <div class="row g-2">
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-patch-check-fill text-success"></i>
+            <span data-i18n="softwareMonitorHelp.transparency.sigTitle">Цифровые подписи и Authenticode</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="softwareMonitorHelp.transparency.sigDesc">
+            Проверка доверия цепочки сертификатов, валидности цифровой подписи исполняемых файлов и выявление неподписанных подозрительных бинарных файлов.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-robot text-primary"></i>
+            <span data-i18n="softwareMonitorHelp.transparency.aiTitle">ИИ-оценка рисков и репутации</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="softwareMonitorHelp.transparency.aiDesc">
+            Оценивает потенциальные риски программ (PUP/Adware, скрытый майнинг, чрезмерные привилегии, подозрительная сетевая активность) и формирует рекомендации по удалению или изоляции.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

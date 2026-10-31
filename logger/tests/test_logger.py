@@ -149,3 +149,4 @@ def test_logger_console_extra_label():
     formatted = formatter.format(record)
     assert " - CONSOLE:ERROR - " in formatted
     assert "Ошибка только для консоли" in formatted
+

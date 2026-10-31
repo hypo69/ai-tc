@@ -160,3 +160,4 @@ class AppTelemetryLogger:
         except Exception as exc:
             logger.debug(f'Ошибка сохранения param_change телеметрии {self.app_name}: {exc}')
             return False
+

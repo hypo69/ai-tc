@@ -12,15 +12,15 @@
  * Package: windows/api/webgui/tab_system_inspector
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 20:44:00
+ * Updated: 2026-10-31 19:05:00
  * =============================================================================
  */
 
 import { fetchAvailableTimeRanges } from './common/ui_utils.js';
 import { initCpuPanel, fetchCpuLoadFromApi, updateCpuTelemetry } from './panel_cpu/panel.js';
 import { initRamPanel, fetchMemoryIoFromApi, updateRamTelemetry } from './panel_ram/panel.js';
-import { initGpuPanel, fetchGpuLoadFromApi, updateGpuTelemetry } from './panel_gpu/panel.js?v=20261020_v4';
-import { initNetworkPanel, fetchNetworkLoadFromApi, updateNetworkTelemetry } from './panel_network/panel.js';
+import { initGpuPanel, fetchGpuLoadFromApi, updateGpuTelemetry } from './panel_gpu/panel.js?v=20261031_v1';
+import { initNetworkPanel, fetchNetworkLoadFromApi, updateNetworkTelemetry, handleNetworkHashRouting } from './panel_network/panel.js';
 import { initStoragePanel, fetchStorageLoadFromApi } from './panel_storage/panel.js';
 import { initWatcherPanel, fetchLiveFileEvents } from './panel_watcher/panel.js';
 import { initAiCopilotPanel } from './panel_ai_copilot/panel.js';
@@ -109,7 +109,6 @@ function dispatchTelemetrySnapshot(snap) {
 function setupSysSensorInterval(seconds) {
   currentUiRefreshSeconds = seconds;
   const pollHandler = async () => {
-    if (sysWs && sysWs.readyState === WebSocket.OPEN) return;
     try {
       await fetchCpuLoadFromApi();
       await fetchMemoryIoFromApi();
@@ -342,6 +341,12 @@ export async function initSystemInspectorTab() {
 export function activateSystemInspectorTab() {
   if (window.isTabActive && !window.isTabActive('tab-hardware-load-inspector') && !window.isTabActive('tab-system-load-inspector') && !window.isTabActive('tab-system-inspector')) return;
   connectSystemWebSocket();
+  handleNetworkHashRouting();
+  fetchCpuLoadFromApi();
+  fetchGpuLoadFromApi();
+  fetchMemoryIoFromApi();
+  fetchStorageLoadFromApi();
+  fetchNetworkLoadFromApi();
 }
 
 /**

@@ -234,3 +234,4 @@ __all__ = [
     'PowerAwareMonitor',
     'SYSTEM_POWER_STATUS',
 ]
+

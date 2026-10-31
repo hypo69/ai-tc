@@ -396,3 +396,4 @@ def get_command_by_id(command_id: str) -> Optional[TaskbarCommandMetadata]:
         if cmd.id.upper() == c_clean:
             return cmd
     return None
+

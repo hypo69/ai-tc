@@ -9,7 +9,7 @@
  * - Телеметрию батареи и профилей электропитания
  * - Профили брандмауэра Windows Defender и статус UAC
  * 
- * Updated: 2026-10-28 14:43:00
+ * Updated: 2026-10-30 11:15:00
  */
 
 import { apiFetch, setText, setStatusText, setFormattedStatusHtml, formatStatusHtml, setHtml, escapeHtml } from '../common/ui_utils.js?v=20261028_v4';
@@ -222,7 +222,11 @@ export function renderMonitorsSpec(monitors) {
 
   const html = sorted.map((m, idx) => {
     const isPrimary = Boolean(m.is_primary);
-    const monName = escapeHtml(m.name || m.model || 'Дисплей');
+    let displayName = m.name || m.model || 'Дисплей';
+    if (m.vendor && !displayName.toLowerCase().includes(m.vendor.toLowerCase())) {
+      displayName = `${m.vendor} ${displayName}`;
+    }
+    const monName = escapeHtml(displayName);
     const width = m.width || 1920;
     const height = m.height || 1080;
     const freq = m.frequency_hz ? `${m.frequency_hz} Hz` : '';

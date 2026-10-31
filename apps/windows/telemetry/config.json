@@ -8,6 +8,7 @@
   "data_path": "%ProgramData%/ai-tc/telemetry",
   "mode": "audit",
   "telemetry_mode": "audit",
+  "thorough_mode": false,
   "audit_enabled": true,
   "streaming_enabled": false,
   "standard_flush_interval_seconds": 30.0,
@@ -242,16 +243,17 @@
   "light_poll_interval_seconds": 6.0,
   "heavy_poll_interval_seconds": 90.0,
   "heavy_polls_intervals": {
-    "hardware_audit_interval_sec": 90.0,
-    "startup_audit_interval_sec": 180.0,
+    "hardware_audit_interval_sec": 60.0,
+    "startup_audit_interval_sec": 0.0,
     "extended_audit_interval_sec": 300.0,
     "defender_audit_interval_sec": 120.0,
     "process_activity_sync_interval_sec": 60.0,
-    "software_audit_interval_sec": 3600.0,
+    "software_audit_interval_sec": 0.0,
     "wmi_interval_sec": 120.0,
     "smart_interval_sec": 300.0,
-    "handles_interval_sec": 60.0,
+    "handles_interval_sec": 30.0,
     "network_ports_interval_sec": 30.0,
+    "network_activity_interval_sec": 30.0,
     "disk_scan_interval_sec": 43200.0
   }
 }

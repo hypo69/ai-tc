@@ -57,3 +57,4 @@ def get_news_engine(ai_model=None) -> NewsEngine:
     elif ai_model is not None and _news_engine_instance.ai_model is None:
         _news_engine_instance.ai_model = ai_model
     return _news_engine_instance
+

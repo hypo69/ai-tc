@@ -18,7 +18,7 @@
 # Package: scripts.cli
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-27 23:01:00
+# Updated: 2026-10-28 16:32:00
 # =============================================================================
 
 """Cross-platform installation system for AI Windows Admin.
@@ -215,11 +215,13 @@ class Installer:
                         cfg['server']['host'] = '127.0.0.1'
                         cfg['server']['use_cloudflared'] = False
                         cfg['server']['client_url'] = 'http://127.0.0.1:8000'
-                        cfg.setdefault('ai', {})
-                        cfg['ai']['use_foundry'] = False
-                        cfg['ai']['use_ollama'] = False
-                        cfg['ai']['use_gemini_cli'] = True
-                        cfg['ai']['use_agy'] = True
+                        ai_conf = cfg.setdefault('ai_providers_and_models_configuration', {})
+                        provs = ai_conf.setdefault('providers', {})
+                        provs.setdefault('foundry', {})['enabled'] = False
+                        provs.setdefault('ollama', {})['enabled'] = False
+                        provs.setdefault('gemini_cli', {})['enabled'] = True
+                        provs.setdefault('agy', {})['enabled'] = True
+                        cfg.pop('ai', None)
                         with open(config_path, 'w', encoding='utf-8') as f:
                             json.dump(cfg, f, indent=4)
                         logger.console('  Patched config.json for light version [OK]')

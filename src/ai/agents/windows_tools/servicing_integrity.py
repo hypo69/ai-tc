@@ -166,3 +166,4 @@ WINDOWS_SERVICING_INTEGRITY_TOOLS = [
     windows_servicing_integrity_audit,
     windows_servicing_integrity_action,
 ]
+

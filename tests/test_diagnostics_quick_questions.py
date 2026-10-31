@@ -164,3 +164,4 @@ def test_chat_endpoint_enriches_wikillm(api_client: TestClient, monkeypatch: pyt
     # Проверяем наличие Claim с вопросом и ответом
     statements = [c.statement for c in saved_entity.claims]
     assert any(test_question in s and test_answer in s for s in statements)
+

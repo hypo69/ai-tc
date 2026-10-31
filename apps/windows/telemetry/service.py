@@ -16,7 +16,7 @@
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 20:20:00
+# Updated: 2026-10-30 12:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -133,6 +133,8 @@ class TelemetryLoggerService:
         self.defender_audit_interval_sec: float = self.config_manager.get_defender_audit_interval_seconds()
         self.process_activity_sync_interval_sec: float = self.config_manager.get_process_activity_sync_interval_seconds()
         self.software_audit_interval_sec: float = self.config_manager.get_software_audit_interval_seconds()
+        self.internet_speed_interval_sec: float = 3600.0
+        self._last_internet_speed_time: Optional[float] = None
 
     @classmethod
     def get_instance(cls) -> TelemetryLoggerService:
@@ -230,6 +232,7 @@ class TelemetryLoggerService:
         self._last_proc_sync_time = None
         self._last_rollup_time = None
         self._last_db_cleanup_time = None
+        self._last_internet_speed_time = None
 
         if self.enable_w64:
             self._init_w64_collectors()
@@ -582,34 +585,33 @@ class TelemetryLoggerService:
                         if not audit_sample:
                             logger.debug(f"[Audit] Целевой процесс PID={target_pid} не обнаружен или завершился")
 
-                # 2. Периодический сбор и сохранение системного снимка в SQLite БД (STREAMING)
-                # Стриминг можно отключать отдельно от аудита, а можно запускать оба процесса!
-                if self.is_streaming_active():
+                # 2. Сбор и сохранение системного снимка на КАЖДОМ тике независимо от режима:
+                # потребление ресурсов приложениями копится для истории всегда (audit и streaming).
+                try:
+                    loop = None
                     try:
+                        loop = asyncio.get_event_loop()
+                    except RuntimeError:
                         loop = None
-                        try:
-                            loop = asyncio.get_event_loop()
-                        except RuntimeError:
-                            loop = None
-                        if loop and loop.is_running():
-                            task = asyncio.run_coroutine_threadsafe(
-                                self.collector.get_snapshot(process_limit=self.top_processes, force_live=True),
-                                loop,
-                            )
-                            snapshot = task.result(timeout=30.0)
-                        else:
-                            snapshot = asyncio.run(
-                                self.collector.get_snapshot(process_limit=self.top_processes, force_live=True)
-                            )
-                        self._last_snapshot = snapshot
-                        self.storage.save_snapshot(snapshot, top_n=self.top_processes)
-                    except Exception as snap_err:
-                        logger.warning(f'Ошибка сбора/сохранения снимка телеметрии в БД: {snap_err}')
+                    if loop and loop.is_running():
+                        task = asyncio.run_coroutine_threadsafe(
+                            self.collector.get_snapshot(process_limit=self.top_processes, force_live=True),
+                            loop,
+                        )
+                        snapshot = task.result(timeout=30.0)
+                    else:
+                        snapshot = asyncio.run(
+                            self.collector.get_snapshot(process_limit=self.top_processes, force_live=True)
+                        )
+                    self._last_snapshot = snapshot
+                    self.storage.save_snapshot(snapshot, top_n=self.top_processes)
+                except Exception as snap_err:
+                    logger.warning(f'Ошибка сбора/сохранения снимка телеметрии в БД: {snap_err}')
 
-                    # Контроль таймаута Live Stream (если был запущен on-demand)
-                    if self._live_stream_timeout_sec and self._live_stream_start_time:
-                        if loop_start - self._live_stream_start_time >= self._live_stream_timeout_sec:
-                            self.stop_live_stream()
+                # Контроль таймаута Live Stream (если был запущен on-demand)
+                if self.is_streaming_active() and self._live_stream_timeout_sec and self._live_stream_start_time:
+                    if loop_start - self._live_stream_start_time >= self._live_stream_timeout_sec:
+                        self.stop_live_stream()
 
                 self._ticks_count += 1
                 self._last_tick_time = time.time()
@@ -684,6 +686,15 @@ class TelemetryLoggerService:
                         except Exception as sc_ex:
                             logger.debug(f'Ошибка при сохранении периодического отчета сканера ПО в telemetry.db: {sc_ex}')
                         self._last_software_audit_time = loop_start
+
+                    # 7. Периодический замер скорости интернета FAST.com (1 раз в час, буфер на 144 записи)
+                    if self._last_internet_speed_time is None or loop_start - self._last_internet_speed_time >= self.internet_speed_interval_sec:
+                        try:
+                            from apps.windows.telemetry.internet_speed import get_internet_speed_sensor
+                            get_internet_speed_sensor().check_and_run_hourly(force=False, skip_if_busy=True)
+                        except Exception as net_ex:
+                            logger.debug(f'Ошибка фонового теста скорости интернета FAST.com: {net_ex}')
+                        self._last_internet_speed_time = loop_start
                 if self._last_rollup_time is None or loop_start - self._last_rollup_time >= self.rollup_interval_sec:
                     try:
                         self.run_rollups()
@@ -705,8 +716,7 @@ class TelemetryLoggerService:
                 self._last_error = str(ex)
                 logger.debug(f'Ошибка при сборе системной телеметрии: {ex}')
             elapsed = time.time() - loop_start
-            active_interval = self.config_manager.get_audit_interval_sec() if self.config_manager.is_audit_mode() else self.interval_sec
-            sleep_time = max(0.01, active_interval - elapsed)
+            sleep_time = max(0.01, self.get_tick_interval() - elapsed)
             if self._stop_event.wait(timeout=sleep_time):
                 break
 
@@ -743,15 +753,28 @@ class TelemetryLoggerService:
         except Exception as e:
             logger.debug(f'Ошибка сбора и сохранения состояния Defender: {e}')
 
-    def run_rollups(self) -> Dict[str, Any]:
-        """Принудительно запускает процедуры обобщения устаревших метрик процессов.
+    def get_tick_interval(self) -> float:
+        """Возвращает размер тика: interval_seconds из config.json.
+
+        Ускоренный интервал аудита (audit_interval_sec) применяется только пока
+        задан целевой PID глубокого аудита, и только если он меньше базового тика.
 
         Returns:
-            Dict[str, Any]: Сводная статистика обобщения за 2 минуты и за 1 день.
+            float: Интервал ожидания между тиками в секундах.
         """
-        short_res = self.storage.aggregate_process_metrics_2min(cutoff_seconds=120)
-        daily_res = self.storage.aggregate_process_metrics_daily(cutoff_days=1)
-        return {'rollup_2min': short_res, 'rollup_daily': daily_res}
+        if self.config_manager.get_audit_target_pid() is not None:
+            return min(self.interval_sec, self.config_manager.get_audit_interval_sec())
+        return self.interval_sec
+
+    def run_rollups(self) -> Dict[str, Any]:
+        """Запускает каскад агрегации (сенсоры и процессы) и очистку истории по сроку хранения.
+
+        Returns:
+            Dict[str, Any]: Результаты агрегации и число удалённых строк истории.
+        """
+        pipeline_res = self.storage.run_aggregation_pipeline(tick_seconds=self.get_tick_interval())
+        purged = self.storage.purge_history(self.config_manager.get_history_retention_days())
+        return {'pipeline': pipeline_res, 'history_purged': purged}
 
     def cleanup_db(self) -> Dict[str, Any]:
         """Запускает процедуру контроля размера и усечения базы данных телеметрии.

@@ -148,3 +148,4 @@ def init_router(prefix: str = "/api/v1/power", **kwargs: Any) -> APIRouter:
 
 
 __all__ = ["init_router"]
+

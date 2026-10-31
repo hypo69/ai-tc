@@ -144,3 +144,4 @@ def test_record_observations_and_co_occurrences(memory_storage: WikiStorage) -> 
 
     stats = memory_storage.get_stats()
     assert stats["total_observation_events"] == 2
+

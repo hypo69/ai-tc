@@ -267,3 +267,4 @@ class IncidentTimelineBuilder:
             return dt.strftime("%H:%M:%S")
         except Exception:
             return iso_ts[:19]
+

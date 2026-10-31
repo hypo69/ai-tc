@@ -302,3 +302,4 @@ async def delete_google_account_endpoint(name: str) -> Dict[str, Any]:
     except Exception as exc:
         logger.error(f"Ошибка удаления аккаунта '{name}': {exc}")
         raise HTTPException(status_code=500, detail=str(exc))
+

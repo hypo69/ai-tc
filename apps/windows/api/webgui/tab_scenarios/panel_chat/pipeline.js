@@ -3,18 +3,19 @@
  * Название: Визуализатор цепочки рассуждений (Matrix Reasoning) и интерактивный раннер команд
  * =============================================================================
  * Описание:
- *   Рендеринг потоковых шагов рассуждений модели (ReAct-цикл, вызовы инструментов
- *   WikiLLM Toolbox, результаты телеметрии с хоста) в реальном времени,
- *   а также интерактивные терминалы PowerShell/CMD для безопасного исполнения на хосте.
+ *   Универсальный парсер и визуализатор ответов языковых моделей для вкладки сценариев.
+ *   Обрабатывает смешанные ответы (Markdown + HTML), выделяет шаги рассуждений ReAct,
+ *   рендерит карточки готовых действий (Ready Tools / Action Cards) и интерактивные
+ *   консоли PowerShell / CMD с возможностью исполнения на локальном хосте.
  *
  * Файл: apps/windows/api/webgui/tab_scenarios/panel_chat/pipeline.js
  * Пакет: windows/api/webgui/tab_scenarios
  * Автор: hypo69
- * Updated: 2026-10-22 03:45:00
+ * Updated: 2026-10-31 19:55:00
  * =============================================================================
  */
 
-import { escapeHtml, formatMarkdown } from '../common/ui_utils.js';
+import { escapeHtml, unescapeHtml, formatMarkdown } from '../common/ui_utils.js';
 
 /**
  * Проверяет, является ли строка строкой статуса рассуждений (Reasoning Step).
@@ -76,7 +77,6 @@ export function renderMatrixStepHtml(st) {
 
     let cleanText = escapeHtml(rawText)
       .replace(/^[>*\s﻿ ​]*(?:[💡⚙️🛠️✨📝🏁🔍🧠⚡]\s*)+/g, '')
-      .replace(/^[>*\s﻿ ​]*(?:[💡⚙️🛠️✨📝🏁🔍🧠⚡]\s*)+/g, '')
       .replace(/^[*_\s]+/, '')
       .replace(/[*_\s]+$/, '')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
@@ -115,7 +115,6 @@ export function renderMatrixStepHtml(st) {
 
 /**
  * Отрисовывает входящий поток ответа модели в реальном времени.
- * Шаги рассуждения вслух (> 💡, > ⚙️, > 🛠️, > 📊) оформляются в живой терминал.
  * @param {HTMLElement} containerEl - Контейнер ответа.
  * @param {string} rawStreamText - Текущий накопленный текст ответа.
  */
@@ -142,7 +141,7 @@ export function renderLiveStreamContent(containerEl, rawStreamText) {
         liveSteps.push({
           type: 'data',
           title: currentTitle || 'Данные инструмента',
-          data: dataBuffer.join('\n').trim()
+          data: dataBuffer.join('\n').trim(),
         });
       }
       currentTitle = trimmed.replace(/^[>*\s﻿ ​]+/, '');
@@ -157,7 +156,7 @@ export function renderLiveStreamContent(containerEl, rawStreamText) {
           liveSteps.push({
             type: 'data',
             title: currentTitle || 'Данные инструмента',
-            data: dataBuffer.join('\n').trim()
+            data: dataBuffer.join('\n').trim(),
           });
           inData = false;
           dataBuffer = [];
@@ -170,7 +169,7 @@ export function renderLiveStreamContent(containerEl, rawStreamText) {
           liveSteps.push({
             type: 'data',
             title: currentTitle || 'Данные инструмента',
-            data: dataBuffer.join('\n').trim()
+            data: dataBuffer.join('\n').trim(),
           });
         }
         inData = false;
@@ -184,7 +183,7 @@ export function renderLiveStreamContent(containerEl, rawStreamText) {
     if (isInvestigationStatusLine(trimmed)) {
       liveSteps.push({
         type: 'status',
-        text: trimmed.replace(/^[>*\s﻿ ​]+/, '')
+        text: trimmed.replace(/^[>*\s﻿ ​]+/, ''),
       });
       continue;
     }
@@ -196,7 +195,7 @@ export function renderLiveStreamContent(containerEl, rawStreamText) {
     liveSteps.push({
       type: 'data',
       title: currentTitle || 'Данные инструмента',
-      data: dataBuffer.join('\n').trim()
+      data: dataBuffer.join('\n').trim(),
     });
   }
 
@@ -245,12 +244,12 @@ export function isCommandLineString(str) {
   const s = str.trim();
   if (!s) return false;
   return /^(?:powershell(?:\.exe)?\s+|pwsh(?:\.exe)?\s+|(?:Stop|Get|Start|Restart|Set|New|Remove|Test|Invoke|Select|Where)-[A-Za-z]+|cmd(?:\.exe)?(?:\s+\/c)?\s+|net(?:\.exe)?\s+(?:user|localgroup|start|stop|use|share|session)|taskkill\b|sc(?:\.exe)?\s+|reg(?:\.exe)?\s+|wmic\b|sfc\b|dism\b|gpupdate\b|ipconfig\b|route\b)/i.test(s) ||
-         /\b(?:Stop-Process|Get-Process|Restart-Service|Start-Service|Set-Service|Get-Service|Get-CimInstance|Get-WmiObject|Get-WinEvent)\b/i.test(s) ||
-         /^\$(?:user|p|svc)\s*=/i.test(s);
+         /\b(?:Stop-Process|Get-Process|Restart-Service|Start-Service|Set-Service|Get-Service|Get-CimInstance|Get-WmiObject|Get-WinEvent|New-Item|Set-Acl|Get-Acl|New-SmbShare|Get-SmbShare|Get-SmbSession)\b/i.test(s) ||
+         /^\$(?:user|p|svc|acl|rule|path)\s*=/i.test(s);
 }
 
 /**
- * Рендерит интерактивный виджет запуска и редактирования команды PowerShell.
+ * Рендерит интерактивный терминал запуска команды PowerShell / CMD.
  * @param {string} cmdText - Текст команды.
  * @param {string} lang - Язык оболочки (powershell, pwsh, cmd).
  * @returns {string} HTML виджета.
@@ -305,12 +304,88 @@ export function renderInteractiveCommandWidget(cmdText, lang = 'powershell') {
 }
 
 /**
+ * Рендерит карточку готового действия решения (Action Card / Ready Tool Card).
+ * @param {Object} toolObj - Параметры действия (title, description, execution_command, risk, shell).
+ * @returns {string} HTML карточки действия.
+ */
+export function renderReadyActionWidget(toolObj) {
+  if (!toolObj) return '';
+  const title = toolObj.title || toolObj.tool_title || 'Действие решения';
+  const description = toolObj.description || toolObj.description_ru || '';
+  const cmd = (toolObj.execution_command || toolObj.command || toolObj.probe_script || '').trim();
+  if (!cmd) return '';
+
+  const actionId = toolObj.action_id || 'act-' + Math.random().toString(36).substring(2, 8);
+  const termId = 'sc-action-' + Math.random().toString(36).substring(2, 9);
+  const risk = (toolObj.risk || 'safe').toLowerCase();
+  const riskBadge = risk === 'danger'
+    ? '<span class="badge bg-danger small px-2 py-0.5"><i class="bi bi-exclamation-octagon-fill me-1"></i>Опасно</span>'
+    : (risk === 'caution' || risk === 'warning'
+      ? '<span class="badge bg-warning text-dark small px-2 py-0.5"><i class="bi bi-exclamation-triangle-fill me-1"></i>Внимание</span>'
+      : '<span class="badge bg-primary bg-opacity-25 border border-primary text-info small px-2 py-0.5"><i class="bi bi-terminal-fill me-1"></i>PowerShell Action</span>');
+
+  const isCmdLike = (toolObj.shell === 'cmd') || /^(?:cmd\b|net\b|reg\b|taskkill\b|sc\b)/i.test(cmd);
+  const shellTitle = isCmdLike ? 'CMD Console' : 'PowerShell Console';
+  const lineCount = cmd.split('\n').length;
+  const rows = Math.min(Math.max(lineCount, 2), 10);
+  const escapedCmd = escapeHtml(cmd);
+
+  return `
+    <div class="uai-ready-tool-card uai-code-runner-box my-3 p-3 rounded border border-primary border-opacity-25 bg-body-tertiary" id="${termId}-card" data-action-id="${escapeHtml(actionId)}" data-term-id="${termId}">
+      <div class="uai-tool-card-header d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+        <div class="d-flex align-items-center gap-2">
+          <span class="fs-5 text-warning">⚡</span>
+          <div>
+            <div class="fw-bold text-primary uai-tool-title">${escapeHtml(title)}</div>
+            ${description ? `<div class="small text-muted uai-tool-desc">${escapeHtml(description)}</div>` : ''}
+          </div>
+        </div>
+        <div class="uai-tool-risk-wrapper">${riskBadge}</div>
+      </div>
+      <div class="uai-terminal-window" id="${termId}">
+        <div class="uai-terminal-header" id="${termId}-header">
+          <div class="d-flex align-items-center gap-2">
+            <span class="uai-terminal-dot uai-dot-red"></span>
+            <span class="uai-terminal-dot uai-dot-yellow"></span>
+            <span class="uai-terminal-dot uai-dot-green"></span>
+            <span class="uai-terminal-title font-monospace ms-1" id="${termId}-title"><i class="bi bi-terminal-fill me-1 text-info"></i>${escapeHtml(shellTitle)}</span>
+          </div>
+          <div class="d-flex align-items-center gap-1.5">
+            <button type="button" class="btn btn-sm uai-term-btn uai-btn-copy-cmd" id="${termId}-btn-copy" title="Скопировать команду в буфер обмена">
+              <i class="bi bi-clipboard me-1"></i>Копировать
+            </button>
+            <button type="button" class="btn btn-sm uai-term-btn-run uai-btn-run-cmd" id="${termId}-btn-run" title="Выполнить действие на хосте">
+              <i class="bi bi-play-fill me-1"></i>Запустить
+            </button>
+          </div>
+        </div>
+        <div class="uai-terminal-body" id="${termId}-body" style="background-color: #000000 !important; padding: 0 !important;">
+          <textarea class="font-monospace uai-cmd-input border-0" id="${termId}-input" rows="${rows}" spellcheck="false" placeholder="Введите команду..." style="background-color: #000000 !important; color: #ffffff !important; font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace !important; font-weight: 600 !important; font-size: 0.88rem !important; line-height: 1.45 !important; width: 100% !important; padding: 0.6rem 0.8rem !important; border: none !important; outline: none !important; resize: vertical !important; white-space: pre-wrap !important;">${escapedCmd}</textarea>
+        </div>
+      </div>
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-1">
+        <div class="small text-muted uai-cmd-hint" id="${termId}-hint" style="font-size: 0.76rem;">
+          <i class="bi bi-shield-check me-1 text-success"></i>Безопасное выполнение действия системы (${shellTitle})
+        </div>
+      </div>
+      <div class="uai-cmd-output-container mt-1" id="${termId}-output-container" style="display: none;">
+        <div class="d-flex align-items-center justify-content-between mb-1 flex-wrap gap-1">
+          <span class="small fw-semibold text-secondary uai-cmd-status-text" id="${termId}-status-text"><i class="bi bi-terminal me-1"></i>Результат выполнения:</span>
+          <span class="badge uai-cmd-result-badge" id="${termId}-result-badge"></span>
+        </div>
+        <pre class="uai-cmd-output font-monospace" id="${termId}-output"></pre>
+      </div>
+    </div>
+  `;
+}
+
+/**
  * Навешивает интерактивные обработчики для кнопок Run и Копировать в блоках команд.
  * @param {HTMLElement} rootEl - Корневой элемент контейнера.
  */
 export function attachInteractiveCommandHandlers(rootEl) {
   if (!rootEl) return;
-  const boxes = rootEl.querySelectorAll('.uai-code-runner-box');
+  const boxes = rootEl.querySelectorAll('.uai-code-runner-box, .uai-ready-tool-card');
   boxes.forEach(box => {
     if (box.dataset.handlerAttached === 'true') return;
     box.dataset.handlerAttached = 'true';
@@ -360,8 +435,8 @@ export function attachInteractiveCommandHandlers(rootEl) {
               command: cmdToRun,
               timeout_sec: 35,
               shell: 'powershell',
-              as_admin: false
-            })
+              as_admin: false,
+            }),
           });
 
           if (!resp.ok) {
@@ -407,15 +482,54 @@ export function attachInteractiveCommandHandlers(rootEl) {
 }
 
 /**
- * Парсер ответа модели: распознает шаги расследования и интерактивные блоки команд PowerShell.
+ * Универсальный парсер ответа модели: распознает шаги расследования WikiLLM Matrix Reasoning,
+ * готовые действия (Action Cards), интерактивные консоли PowerShell/CMD и форматирует Markdown.
+ *
  * @param {string} rawText - Текст ответа модели.
- * @returns {string} Итоговый HTML.
+ * @returns {string} Итоговый безопасный HTML диалога.
  */
 export function parseModelResponse(rawText) {
   if (!rawText) return '';
   let text = String(rawText);
 
-  // Выделение шагов расследования (> 💡 ..., > ⚙️ ..., > 🛠️ ..., > 📊 ...)
+  // 1. Очистка ритуальных вступительных клише
+  const greetingsRegex = /^(?:Приветствую[^\.\n]*[\.\n]*|Здравствуйте[^\.\n]*[\.\n]*|Как эксперт[^\.\n]*[\.\n]*|Я провел анализ[^\.\n]*[\.\n]*|Я проанализировал[^\.\n]*[\.\n]*)/i;
+  text = text.replace(greetingsRegex, '').trim();
+
+  // 2. Извлечение готовых инструментов и действий (блоки ```action { ... } ```)
+  const actionCards = [];
+  text = text.replace(/```(?:action|json:action)\s*(\{[\s\S]*?\})\s*```/gi, (match, jsonStr) => {
+    try {
+      const parsed = JSON.parse(jsonStr.trim());
+      if (parsed && (parsed.execution_command || parsed.command || parsed.probe_script)) {
+        actionCards.push(parsed);
+        return `###__ACTION_CARD_PLACEHOLDER_${actionCards.length - 1}__###`;
+      }
+    } catch (_) {}
+    return match;
+  });
+
+  // Поиск вызовов инструментов create_custom_tool в ```tool_call или ```json
+  text = text.replace(/```(?:tool_call|json)?\s*(\{[\s\S]*?"(?:tool_name|create_custom_tool|action_id)"[\s\S]*?\})\s*```/gi, (match, jsonStr) => {
+    try {
+      const parsed = JSON.parse(jsonStr.trim());
+      const tName = parsed.tool_name || parsed.action_id || '';
+      const args = parsed.arguments || parsed;
+      if (tName || args.probe_script || args.execution_command) {
+        actionCards.push({
+          title: args.tool_title || args.title || tName || 'Действие решения',
+          description: args.description_ru || args.description || '',
+          execution_command: args.probe_script || args.execution_command || args.command || '',
+          action_id: args.tool_name || tName || 'action_' + actionCards.length,
+          risk: args.risk || 'safe',
+        });
+        return `###__ACTION_CARD_PLACEHOLDER_${actionCards.length - 1}__###`;
+      }
+    } catch (_) {}
+    return match;
+  });
+
+  // 3. Выделение шагов расследования (> 💡 ..., > ⚙️ ..., > 🛠️ ..., > 📊 ..., > 🏁 ...)
   const investigationSteps = [];
   const lines = text.split('\n');
   const remainingLines = [];
@@ -432,7 +546,7 @@ export function parseModelResponse(rawText) {
         investigationSteps.push({
           type: 'data',
           title: currentStepTitle || 'Данные инструмента',
-          data: dataBuffer.join('\n').trim()
+          data: dataBuffer.join('\n').trim(),
         });
       }
       currentStepTitle = trimmed.replace(/^[>*\s﻿ ​]+/, '');
@@ -447,7 +561,7 @@ export function parseModelResponse(rawText) {
           investigationSteps.push({
             type: 'data',
             title: currentStepTitle || 'Данные инструмента',
-            data: dataBuffer.join('\n').trim()
+            data: dataBuffer.join('\n').trim(),
           });
           inDataBlock = false;
           dataBuffer = [];
@@ -460,7 +574,7 @@ export function parseModelResponse(rawText) {
           investigationSteps.push({
             type: 'data',
             title: currentStepTitle || 'Данные инструмента',
-            data: dataBuffer.join('\n').trim()
+            data: dataBuffer.join('\n').trim(),
           });
         }
         inDataBlock = false;
@@ -474,7 +588,7 @@ export function parseModelResponse(rawText) {
     if (isInvestigationStatusLine(trimmed)) {
       investigationSteps.push({
         type: 'status',
-        text: trimmed.replace(/^[>*\s﻿ ​]+/, '')
+        text: trimmed.replace(/^[>*\s﻿ ​]+/, ''),
       });
       continue;
     }
@@ -486,21 +600,54 @@ export function parseModelResponse(rawText) {
     investigationSteps.push({
       type: 'data',
       title: currentStepTitle || 'Данные инструмента',
-      data: dataBuffer.join('\n').trim()
+      data: dataBuffer.join('\n').trim(),
     });
   }
 
   let parsedMainText = remainingLines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
 
-  // Поиск и замена блоков кода PowerShell на интерактивные виджеты
-  parsedMainText = parsedMainText.replace(/```(?:powershell|pwsh|ps1|cmd)?\s*([\s\S]*?)```/gi, (match, code) => {
-    const rawCode = code.trim();
+  // 4. Поиск блоков команд Windows (powershell, pwsh, ps1, cmd, bat)
+  const cmdWidgets = [];
+  parsedMainText = parsedMainText.replace(/```(?:powershell|pwsh|ps1|cmd|bat|batch|bash|sh)?\s*([\s\S]*?)```/gi, (match, code) => {
+    const rawCode = unescapeHtml(code).trim();
     if (!rawCode) return match;
+
     const lowerMatch = match.toLowerCase();
-    const isCmd = lowerMatch.startsWith('```cmd');
-    return renderInteractiveCommandWidget(rawCode, isCmd ? 'cmd' : 'powershell');
+    const isCmdLang = lowerMatch.startsWith('```cmd') || lowerMatch.startsWith('```bat') || lowerMatch.startsWith('```batch');
+    const isPsLang = lowerMatch.startsWith('```powershell') || lowerMatch.startsWith('```pwsh') || lowerMatch.startsWith('```ps1');
+    const isSystemCmd = isCmdLang || isPsLang || isCommandLineString(rawCode);
+
+    if (isSystemCmd) {
+      const widgetHtml = renderInteractiveCommandWidget(rawCode, isCmdLang ? 'cmd' : 'powershell');
+      cmdWidgets.push(widgetHtml);
+      return `\n\n###__CMD_RUNNER_PLACEHOLDER_${cmdWidgets.length - 1}__###\n\n`;
+    }
+
+    // Если это обычный блок кода (например, JSON, Python, XML), оставляем его для стандартной подсветки
+    return match;
   });
 
+  // 5. Преобразование Markdown в безопасный HTML
+  let formattedHtml = formatMarkdown(parsedMainText);
+
+  // Очистка избыточных <br> вокруг плейсхолдеров
+  formattedHtml = formattedHtml.replace(/(?:<br\s*\/?>\s*)+###__CMD_RUNNER_PLACEHOLDER_/gi, '###__CMD_RUNNER_PLACEHOLDER_');
+  formattedHtml = formattedHtml.replace(/###__CMD_RUNNER_PLACEHOLDER_(\d+)__(?:<br\s*\/?>\s*)+/gi, '###__CMD_RUNNER_PLACEHOLDER_$1__');
+  formattedHtml = formattedHtml.replace(/(?:<br\s*\/?>\s*)+###__ACTION_CARD_PLACEHOLDER_/gi, '###__ACTION_CARD_PLACEHOLDER_');
+  formattedHtml = formattedHtml.replace(/###__ACTION_CARD_PLACEHOLDER_(\d+)__(?:<br\s*\/?>\s*)+/gi, '###__ACTION_CARD_PLACEHOLDER_$1__');
+
+  // 6. Подстановка готовых виджетов интерактивных команд
+  cmdWidgets.forEach((widgetHtml, idx) => {
+    formattedHtml = formattedHtml.replace(`###__CMD_RUNNER_PLACEHOLDER_${idx}__###`, widgetHtml);
+  });
+
+  // 7. Подстановка готовых карточек действий
+  actionCards.forEach((actionObj, idx) => {
+    const actionHtml = renderReadyActionWidget(actionObj);
+    formattedHtml = formattedHtml.replace(`###__ACTION_CARD_PLACEHOLDER_${idx}__###`, actionHtml);
+  });
+
+  // 8. Сборка итогового HTML
   let outHtml = '';
   if (investigationSteps.length > 0) {
     let matrixStepsHtml = '';
@@ -525,6 +672,6 @@ export function parseModelResponse(rawText) {
     `;
   }
 
-  outHtml += `<div>${formatMarkdown(parsedMainText)}</div>`;
+  outHtml += `<div>${formattedHtml}</div>`;
   return outHtml;
 }

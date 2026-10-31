@@ -79,3 +79,4 @@ def run_test_command(args: argparse.Namespace) -> int:
 
     res = subprocess.run(cmd)
     return res.returncode
+

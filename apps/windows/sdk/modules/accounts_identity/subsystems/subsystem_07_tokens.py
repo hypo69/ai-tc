@@ -164,3 +164,4 @@ class TokensSubsystem:
             "privileges": [p.name for p in (token_details.privileges if token_details else []) if p.enabled],
             "session_id": token_details.session_id if token_details else 0,
         }
+

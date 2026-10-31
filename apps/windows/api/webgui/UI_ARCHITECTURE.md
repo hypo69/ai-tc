@@ -14,7 +14,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-15 17:05:00
+Updated: 2026-10-31 16:50:00
 =============================================================================
 -->
 
@@ -22,18 +22,18 @@ Updated: 2026-10-15 17:05:00
 
 ## 1. Архитектурный принцип
 
-Каждая страница (`/`, `/tc`, `/su`, `/admin`, `/helpdesk`, `/chat`) — это **оболочка (shell)** с навигацией и набором **вкладок (tabs)**.
-Все оболочки используют **единую логику** жизненного цикла и опросников из `js/tab-core.js`.
+Страница-оболочка (**shell**) содержит навигацию и набор **вкладок (tabs)**.
+Оболочки используют **единую логику** жизненного цикла и опросников из `js/tab-core.js`.
 
-### 🗺️ Точки входа (Shells) и сценарии запуска
+### 🗺️ Точки входа (Shells)
 
-| URL Роут | Файл разметки (Shell) | Скрипт запуска | Конфигурация | Назначение |
-|---|---|---|---|---|
-| `/admin` | `admin/index.html` | `Run-Dashboard.ps1` | `config/dashboard.json` | Главная панель управления AI Windows Admin (администрирование, RAG, модели, ReAct-агенты) |
-| `/tc`, `/apps`, `/su` | `apps/index.html` | `Run-TC.ps1` / `su.ps1` | `config/tc_menu_config.json` | Хаб приложений Test Computer и консоль суперпользователя (диагностика, системный стек) |
-| `/` | `apps/index.html` (или `user/index.html`) | `Run-UserAssistant.ps1` | `config/dashboard.json` | Пользовательский интерфейс и персональный ассистент (Telegram Mini App) |
-| `/helpdesk` | `helpdesk/index.html` | `launchers/helpdesk.ps1` | `config.json` | Рабочее место службы поддержки (тикеты, операторы) |
-| `/chat` | `chat/index.html` | `launchers/Run-Chat.ps1` | `config.json` | Автономный диалоговый интерфейс AI со стримингом токенов |
+Сервер ([`server.py`](../server.py)) отдаёт одну оболочку:
+
+| URL | Файл разметки | Меню |
+|---|---|---|
+| `/`, `/tc`, `/apps`, `/su` | `apps/index.html` | `config/tc_menu_config.json` |
+
+В каталоге также есть `admin/index.html`, `user/index.html` и `index.html`; они доступны только как статика под `/html/...` (отдельных маршрутов в `server.py` у них нет).
 
 > [!IMPORTANT]
 > **Принцип Active-Only & On-Demand Polling**:
@@ -64,7 +64,7 @@ apps/windows/api/webgui/
 │   └── README.md            ← Документация компонента
 │
 ├── apps/
-│   ├── index.html           ← Оболочка для /tc, /apps, /su
+│   ├── index.html           ← Оболочка для /, /tc, /apps, /su
 │   ├── main.js              ← Оркестратор для /tc (Lazy Load per tab)
 │   └── modules/
 │       ├── tabs-config.js   ← Локальный реестр путей вкладок /tc
@@ -105,8 +105,8 @@ apps/windows/api/webgui/
 
 ### Offcanvas (боковое меню)
 ```html
-<div class="offcanvas" id="appsSideNavOffcanvas">   <!-- /tc, /apps -->
-<div class="offcanvas" id="leftSideNavOffcanvas">   <!-- / -->
+<div class="offcanvas" id="appsSideNavOffcanvas">   <!-- /, /tc, /apps, /su -->
+<div class="offcanvas" id="leftSideNavOffcanvas">   <!-- webgui/index.html -->
 ```
 - Закрывается автоматически при `switchTab`.
 

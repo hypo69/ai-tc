@@ -98,3 +98,4 @@ class TestSoundRequest(BaseModel):
 class LaunchToolRequest(BaseModel):
     """Запрос открытия системного окна настройки звука."""
     tool: str = Field("settings", description="Инструмент: settings, sndvol, mmsys")
+

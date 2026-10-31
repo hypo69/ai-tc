@@ -1,8 +1,11 @@
 /**
  * Модуль панели параметров и внешнего вида панели задач Windows.
  * Файл: apps/windows/api/webgui/tab_taskbar/panel_settings/panel.js
- * Updated: 2026-10-17 01:55:00
+ * Updated: 2026-10-31 15:55:00
  */
+
+let _isLoadingSettings = false;
+let _debounceTimer = null;
 
 function setCheck(id, val) {
   const el = document.getElementById(id);
@@ -13,6 +16,7 @@ function setCheck(id, val) {
  * Загружает текущие настройки панели задач из реестра / telemetry.
  */
 export async function loadSettings() {
+  _isLoadingSettings = true;
   try {
     const res = await fetch('/api/v1/taskbar/settings');
     if (!res.ok) return;
@@ -32,16 +36,21 @@ export async function loadSettings() {
     setCheck('switch-badges', s.badges_enabled);
   } catch (err) {
     console.error('[TaskbarTab] Ошибка настроек:', err);
+  } finally {
+    _isLoadingSettings = false;
   }
 }
 
 /**
  * Сохраняет параметры панели задач в систему.
- * @param {Event} e - Событие формы.
+ * @param {Event} [e] - Событие формы.
  * @param {Function} [onUpdated] - Коллбек обновления.
+ * @param {boolean} [isLive=false] - Флаг применения на лету.
  */
-export async function saveTaskbarSettings(e, onUpdated) {
+export async function saveTaskbarSettings(e, onUpdated, isLive = false) {
   if (e) e.preventDefault();
+  if (_isLoadingSettings) return;
+
   const alignRadio = document.querySelector('input[name="tb-alignment"]:checked');
   const alignment = alignRadio ? parseInt(alignRadio.value, 10) : 1;
   const search_mode = parseInt(document.getElementById('select-search-mode')?.value || '1', 10);
@@ -68,12 +77,47 @@ export async function saveTaskbarSettings(e, onUpdated) {
       })
     });
     if (res.ok) {
-      if (window.toast) window.toast.success('Настройки сохранены', 'Параметры панели задач успешно зафиксированы в telemetry.db');
+      if (window.toast) {
+        window.toast.success(isLive ? 'Применено на лету' : 'Настройки сохранены', 'Параметры панели задач успешно зафиксированы в telemetry.db');
+      }
       if (onUpdated) await onUpdated();
     }
   } catch (err) {
     if (window.toast) window.toast.error('Ошибка сохранения', err.message);
   }
+}
+
+/**
+ * Мгновенное применение параметров на лету с дебаунсом.
+ * @param {Function} [onUpdated] - Коллбек обновления.
+ */
+export function applyLiveTaskbarSettings(onUpdated) {
+  if (_isLoadingSettings) return;
+  if (_debounceTimer) clearTimeout(_debounceTimer);
+  _debounceTimer = setTimeout(() => {
+    saveTaskbarSettings(null, onUpdated, true);
+  }, 100);
+}
+
+/**
+ * Привязка слушателей изменений на лету.
+ * @param {Function} [onUpdated] - Коллбек обновления.
+ */
+export function bindTaskbarSettingsEvents(onUpdated) {
+  document.querySelectorAll('input[name="tb-alignment"]').forEach((radio) => {
+    radio.addEventListener('change', () => applyLiveTaskbarSettings(onUpdated));
+  });
+  document.getElementById('select-search-mode')?.addEventListener('change', () => applyLiveTaskbarSettings(onUpdated));
+  const switches = [
+    'switch-auto-hide',
+    'switch-widgets',
+    'switch-task-view',
+    'switch-copilot',
+    'switch-badges'
+  ];
+  switches.forEach((id) => {
+    document.getElementById(id)?.addEventListener('change', () => applyLiveTaskbarSettings(onUpdated));
+  });
 }
 
 /**

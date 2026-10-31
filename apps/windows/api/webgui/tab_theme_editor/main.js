@@ -16,7 +16,7 @@
  * Package: apps/windows/api/webgui/tab_theme_editor
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 11:15:00
+ * Updated: 2026-10-31 17:05:00
  * =============================================================================
  */
 
@@ -98,6 +98,26 @@ function bindFormControls() {
   if (rangeKpiHeight && valKpiHeight) {
     rangeKpiHeight.addEventListener('input', () => {
       valKpiHeight.textContent = `${rangeKpiHeight.value}px`;
+      updateLivePreview();
+    });
+  }
+
+  // Слайдер ширины модальных окон
+  const rangeModalWidth = document.getElementById('range-modal-width');
+  const valModalWidth = document.getElementById('val-modal-width');
+  if (rangeModalWidth && valModalWidth) {
+    rangeModalWidth.addEventListener('input', () => {
+      valModalWidth.textContent = `${rangeModalWidth.value}vw`;
+      updateLivePreview();
+    });
+  }
+
+  // Слайдер высоты модальных окон
+  const rangeModalHeight = document.getElementById('range-modal-height');
+  const valModalHeight = document.getElementById('val-modal-height');
+  if (rangeModalHeight && valModalHeight) {
+    rangeModalHeight.addEventListener('input', () => {
+      valModalHeight.textContent = `${rangeModalHeight.value}vh`;
       updateLivePreview();
     });
   }

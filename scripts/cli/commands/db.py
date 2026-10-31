@@ -65,3 +65,4 @@ def run_db_command(args: argparse.Namespace) -> int:
         return 0
     logger.console(f'Unknown db subcommand: {sub}')
     return 1
+

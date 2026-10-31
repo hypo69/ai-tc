@@ -1,0 +1,7 @@
+policy_id: full-admin-policy
+role_name: administrator
+host_id: "*"
+allowed_categories:
+  - "*"
+max_risk_level: critical
+allow_privilege_elevation: true

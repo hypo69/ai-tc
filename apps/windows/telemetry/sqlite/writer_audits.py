@@ -1521,3 +1521,4 @@ class TelemetryAuditWriterMixin:
         except Exception as ex:
             logger.debug(f"Ошибка при компактификации тиков live stream: {ex}")
             return stats
+

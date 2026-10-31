@@ -135,3 +135,4 @@ async def test_explain_element_heals_invalid_json_via_model_repair(monkeypatch):
     # Проверяем, что модель была вызвана дважды (первичный вызов + запрос на исправление)
     assert mock_ask.call_count == 2
 
+

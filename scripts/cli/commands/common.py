@@ -48,3 +48,4 @@ def run_script(script_rel_path: str, extra_args: list[str] = []) -> int:
         cmd.extend(extra_args)
     result = subprocess.run(cmd, cwd=str(__root__))
     return result.returncode
+

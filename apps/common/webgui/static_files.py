@@ -12,7 +12,7 @@
 # Package: apps.common.webgui
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 18:15:00
+# Updated: 2026-10-31 17:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -87,8 +87,15 @@ class SmartMultiDirStaticFiles(StaticFiles):
             other_dirs = [d for d in self.directories if "ai_assistant" not in str(d).lower()]
             token = _current_dirs_context.set(ai_dirs + other_dirs)
             try:
-                return await super().get_response(path, scope)
+                response = await super().get_response(path, scope)
             finally:
                 _current_dirs_context.reset(token)
+        else:
+            response = await super().get_response(path, scope)
 
-        return await super().get_response(path, scope)
+        lower_path = path.lower()
+        if lower_path.endswith((".js", ".mjs", ".css", ".html", ".json")):
+            response.headers["Cache-Control"] = "no-cache"
+
+        return response
+

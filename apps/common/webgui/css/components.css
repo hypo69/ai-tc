@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-22 13:15:00
+ * Updated: 2026-10-28 14:51:00
  * =============================================================================
  */
 
@@ -1940,7 +1940,7 @@ h3.panel-header,
 .ai-smart-tooltip-body {
   color: var(--ui-text-secondary, #9ca3af);
   font-size: 0.77rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
   word-wrap: break-word;
 }
 

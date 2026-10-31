@@ -183,3 +183,4 @@ WINDOWS_SYSTEM_CONTROL_CENTER_TOOLS = [
     windows_system_control_audit,
     windows_system_control_action,
 ]
+

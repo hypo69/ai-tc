@@ -29,7 +29,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_processes_load_inspector
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 14:45:00
+# Updated: 2026-10-31 19:16:00
 # =============================================================================
 -->
 <style>
@@ -241,28 +241,40 @@ Package: windows/api/webgui/tab_processes_load_inspector
         <small class="tab-header-subtitle text-secondary">Диспетчер задач Windows, мониторинг нагрузки ЦП/RAM в реальном времени, сетевые сокеты и файловая активность</small>
       </div>
     </div>
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-sm btn-outline-info d-flex align-items-center gap-1.5 shadow-sm"
+              id="proc-load-inspector-help-btn"
+              data-help-url="/html/tab_processes_load_inspector/help/index.html"
+              title="Открыть интерактивную справку по мониторингу процессов и активности хоста">
+        <i class="bi bi-question-circle fs-6"></i>
+        <span class="fw-semibold">Справка по разделу</span>
+      </button>
+      <button class="btn btn-sm btn-outline-info rounded-pill px-3 py-1" id="btn-global-refresh" data-term="proc-global-refresh" data-ai-tooltip="true" title="Обновить данные всех подсистем">
+        <i class="bi bi-arrow-clockwise"></i> Обновить
+      </button>
+    </div>
   </div>
 
-  <!-- Отдельный блок меню суб-вкладок ПОД названием вкладки, расположен слева -->
+  <!-- Блок меню переключения панелей на вкладке. Выбранная панель добавляется в url -->
   <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
     <div class="d-flex align-items-center gap-1 flex-wrap" id="processes-subtabs-nav" role="tablist">
-      <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-proc-manager-btn" data-term="proc-subtab-manager" data-ai-tooltip="true" data-bs-toggle="pill" data-bs-target="#subpane-proc-manager" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-proc-manager-btn" data-panel-id="manager" data-term="proc-subtab-manager" data-ai-tooltip="true" data-bs-toggle="pill" data-bs-target="#subpane-proc-manager" type="button" role="tab">
         <i class="bi bi-layout-text-window-reverse text-primary"></i>
         <span>Диспетчер процессов и приложений</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-proc-top-btn" data-term="proc-subtab-top" data-ai-tooltip="true" data-bs-toggle="pill" data-bs-target="#subpane-proc-top" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-proc-top-btn" data-panel-id="top" data-term="proc-subtab-top" data-ai-tooltip="true" data-bs-toggle="pill" data-bs-target="#subpane-proc-top" type="button" role="tab">
         <i class="bi bi-speedometer2 text-warning"></i>
         <span>Топ процессов хоста (Live Stream)</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-proc-net-btn" data-term="proc-subtab-net" data-ai-tooltip="true" data-bs-toggle="pill" data-bs-target="#subpane-proc-net" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-proc-net-btn" data-panel-id="net" data-term="proc-subtab-net" data-ai-tooltip="true" data-bs-toggle="pill" data-bs-target="#subpane-proc-net" type="button" role="tab">
         <i class="bi bi-globe text-info"></i>
         <span>Сетевая активность программ</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-proc-files-btn" data-term="proc-subtab-files" data-ai-tooltip="true" data-bs-toggle="pill" data-bs-target="#subpane-proc-files" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-proc-files-btn" data-panel-id="files" data-term="proc-subtab-files" data-ai-tooltip="true" data-bs-toggle="pill" data-bs-target="#subpane-proc-files" type="button" role="tab">
         <i class="bi bi-activity text-success"></i>
         <span>Изменения файлов (Real-Time)</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-proc-leaks-btn" data-term="proc-subtab-leaks" data-ai-tooltip="true" data-bs-toggle="pill" data-bs-target="#subpane-proc-leaks" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-proc-leaks-btn" data-panel-id="leaks" data-term="proc-subtab-leaks" data-ai-tooltip="true" data-bs-toggle="pill" data-bs-target="#subpane-proc-leaks" type="button" role="tab">
         <i class="bi bi-shield-shaded text-danger"></i>
         <span>Утечки ресурсов (Leak Hunter)</span>
       </button>
@@ -334,6 +346,15 @@ Package: windows/api/webgui/tab_processes_load_inspector
         </div>
       </div>
       <div class="d-flex align-items-center gap-2 flex-wrap">
+        <button class="btn btn-sm btn-outline-info rounded-pill px-2 py-0.5" id="pm-refresh-btn" data-term="pm-refresh" data-ai-tooltip="true" title="Обновить список процессов">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0.5" id="pm-toggle-expand-btn" data-term="pm-toggle-expand" data-ai-tooltip="true" title="Свернуть / Развернуть все группы">
+          <i class="bi bi-arrows-expand"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0.5" id="pm-btn-open-ai-modal" data-term="pm-ai-modal" data-ai-tooltip="true" title="Открыть досье ИИ">
+          <i class="bi bi-robot"></i>
+        </button>
         <span class="badge bg-secondary" id="pm-table-badge">0 процессов</span>
         <button class="btn btn-xs btn-outline-secondary btn-table-expand-100" id="pm-btn-table-expand" data-target-container="pm-table-container" title="Раскрыть таблицу на 100% высоты без скроллера">100%</button>
         <button class="btn btn-sm btn-outline-warning py-0 px-2.5 d-flex align-items-center gap-1.5" id="pm-btn-investigate-powershell" data-term="pm-investigate-ps" data-ai-tooltip="true" title="ИИ-расследование: найти кто и зачем постоянно запускает PowerShell / скрипты">
@@ -647,7 +668,17 @@ Package: windows/api/webgui/tab_processes_load_inspector
           <span class="badge bg-primary font-monospace" id="modal-deep-dive-pid-badge">PID: --</span>
           <span class="badge bg-dark border border-info text-info font-monospace" id="modal-deep-dive-inst-badge">#--</span>
         </div>
-        <button aria-label="Закрыть" class="btn-close btn-close-white" data-bs-dismiss="modal" id="modal-deep-dive-close-x" type="button"></button>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+          <button type="button" class="btn btn-xs btn-outline-info d-flex align-items-center gap-1 shadow-sm"
+                  id="deep-dive-help-btn"
+                  data-help-url="/html/tab_processes_load_inspector/help/index.html"
+                  data-help-focus="block_deep_dive"
+                  title="Открыть справку по 7 виджетам и действиям SafeOps">
+            <i class="bi bi-question-circle"></i>
+            <span class="d-none d-sm-inline">Справка</span>
+          </button>
+          <button aria-label="Закрыть" class="btn-close btn-close-white" data-bs-dismiss="modal" id="modal-deep-dive-close-x" type="button"></button>
+        </div>
       </div>
 
       <div class="modal-body p-3">
@@ -996,5 +1027,5 @@ Package: windows/api/webgui/tab_processes_load_inspector
 
 <!-- Интеграция универсального модального окна ИИ-ассистента -->
 <link rel="stylesheet" href="/html/ai_modal_dialog/style.css?v=20261028_v1">
-<script src="/html/ai_modal_dialog/main.js?v=20261020_v7"></script>
+<script src="/html/ai_modal_dialog/main.js?v=20261031_v2"></script>
 

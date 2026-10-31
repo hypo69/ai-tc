@@ -180,3 +180,4 @@ class SamplingController:
             "incident_active": self._mode in (SamplingMode.INCIDENT, SamplingMode.FORENSIC),
             "incident_remaining_sec": max(0.0, (self._incident_expiry_epoch - time.time())) if self._incident_expiry_epoch else 0.0,
         }
+

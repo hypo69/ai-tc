@@ -93,3 +93,4 @@ def run_rag_command(args: argparse.Namespace) -> int:
             return 1
     logger.console(f'Unknown rag subcommand: {sub}')
     return 1
+

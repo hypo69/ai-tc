@@ -2,7 +2,7 @@
  * Корневой оркестратор комплексного инспектора процессов хоста (Processes Load Inspector).
  * Координирует работу панелей: Диспетчер процессов, Топ потоков, Deep Dive, Сеть/Файлы, Leak Hunter и ИИ-ассистент.
  * Файл: apps/windows/api/webgui/tab_processes_load_inspector/main.js
- * Updated: 2026-10-28 14:30:00
+ * Updated: 2026-10-31 19:16:00
  */
 
 import {
@@ -14,7 +14,7 @@ import {
   updateUrlWithPanel as uiUpdateUrlWithPanel,
   showToast,
   syncWikiLLMProcessKnowledge
-} from './common/ui_utils.js?v=20261020_v2';
+} from './common/ui_utils.js?v=20261031_v2';
 import {
   initProcessManagerPanel,
   fetchProcessManagerSummary,
@@ -24,7 +24,7 @@ import {
   openProcessAiModal,
   openPowerShellInvestigationModal,
   resolveAIModal
-} from './panel_ai_audit/panel.js?v=20261020_v2';
+} from './panel_ai_audit/panel.js?v=20261031_v2';
 import {
   initTopStreamPanel,
   fetchHostProcesses
@@ -135,6 +135,7 @@ export function stopPolling() {
 export function startPolling() {
   stopPolling();
   if (!isProcessesTabActive()) return;
+  const activeSub = getActiveSubTabId();
 
   // Единый интервал опроса 5 секунд, привязанный к шагу сброса телеметрии в SQLite (tc_flush_interval_seconds: 5.0)
   const intervalMs = 5000;
@@ -346,6 +347,13 @@ function setupGlobalEventListeners() {
   window.addEventListener('process-ai-info:updated', () => {
     if (isProcessesTabActive()) {
       fetchActiveSubTabOnly(true);
+    }
+  });
+
+  // Предотвращение блокировки aria-hidden в браузере при закрытии любых модалей
+  document.addEventListener('hide.bs.modal', (e) => {
+    if (document.activeElement && e.target && e.target.contains(document.activeElement)) {
+      document.activeElement.blur();
     }
   });
 }

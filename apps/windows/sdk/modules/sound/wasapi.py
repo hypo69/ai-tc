@@ -55,3 +55,4 @@ def parse_guid(guid_str: str) -> GUID:
     g = GUID()
     ctypes.windll.ole32.CLSIDFromString(ctypes.c_wchar_p(guid_str), byref(g))
     return g
+

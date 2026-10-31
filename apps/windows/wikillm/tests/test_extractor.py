@@ -69,3 +69,4 @@ def test_extract_from_raw_text() -> None:
     assert ArtifactType.WINDOWS_ERROR in types
     assert ArtifactType.WINDOWS_EVENT in types
     assert ArtifactType.REGISTRY_KEY in types
+

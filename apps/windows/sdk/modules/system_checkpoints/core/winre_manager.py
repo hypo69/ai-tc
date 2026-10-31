@@ -215,3 +215,4 @@ class WinREManager:
         except Exception as ex:
             logger.error(f"Исключение при установке пути WinRE: {ex}")
             return {"success": False, "path": custom_path, "message": str(ex), "exit_code": -1}
+

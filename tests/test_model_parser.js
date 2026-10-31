@@ -1,6 +1,7 @@
 /**
  * Тест парсера ответов модели без сторонней библиотеки Prism.js
- * Updated: 2026-10-20 19:10:00
+ * Включает проверку парсера Markdown: таблиц, цитат, ссылок, инлайн-кода и списков.
+ * Updated: 2026-10-30 12:50:00
  */
 const fs = require('fs');
 const jsCode = fs.readFileSync('apps/windows/api/webgui/ai_modal_dialog/main.js', 'utf8');
@@ -106,4 +107,51 @@ if (!html2.includes('uai-ready-tool-card')) {
   process.exit(1);
 }
 
-console.log('SUCCESS: All parseModelResponse assertions PASSED (Both Test 1 and Test 2)!');
+// Тест 3: Расширенный парсинг Markdown в formatMarkdownText (таблицы, цитаты, списки, ссылки, код)
+const markdownPayload = `
+### Диагностический отчет системы
+
+> ⚠️ Внимание: Обнаружены аномалии в процессах фонового обновления.
+> 💡 Рекомендация: Рекомендуется выполнить проверку системных файлов.
+
+Сводка компонентов:
+| Компонент | PID | Статус | Риск |
+| --------- | --- | ------ | ---- |
+| Spooler   | 1420 | Active | Низкий |
+| Antigravity | 9744 | Running | Умеренный |
+
+Основные тезисы:
+- Проверена служба печати через команду \`Get-Service -Name Spooler\`
+- Установлен приоритет **Normal**
+- Документация доступна по ссылке [Microsoft Docs](https://learn.microsoft.com/windows)
+
+---
+`;
+
+const html3 = modalApi.formatMarkdownText(markdownPayload);
+console.log('Test 3 HTML length:', html3.length);
+console.log('Test 3 Has markdown table:', html3.includes('uai-markdown-table'));
+console.log('Test 3 Has warning blockquote:', html3.includes('uai-blockquote uai-bq-warning'));
+console.log('Test 3 Has tip blockquote:', html3.includes('uai-blockquote uai-bq-tip'));
+console.log('Test 3 Has inline code:', html3.includes('uai-inline-code'));
+console.log('Test 3 Has markdown link:', html3.includes('uai-markdown-link'));
+console.log('Test 3 Has divider:', html3.includes('uai-divider'));
+
+if (!html3.includes('uai-markdown-table')) {
+  console.error('FAIL: Test 3 Missing uai-markdown-table');
+  process.exit(1);
+}
+if (!html3.includes('uai-bq-warning') || !html3.includes('uai-bq-tip')) {
+  console.error('FAIL: Test 3 Missing blockquote callouts');
+  process.exit(1);
+}
+if (!html3.includes('uai-inline-code')) {
+  console.error('FAIL: Test 3 Missing uai-inline-code');
+  process.exit(1);
+}
+if (!html3.includes('uai-markdown-link')) {
+  console.error('FAIL: Test 3 Missing uai-markdown-link');
+  process.exit(1);
+}
+
+console.log('SUCCESS: All parseModelResponse and formatMarkdownText assertions PASSED (Tests 1, 2, and 3)!');

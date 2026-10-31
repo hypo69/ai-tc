@@ -165,3 +165,4 @@ def test_tshark_wrapper_finds_bin_path(tmp_path: pytest.TempPathFactory, monkeyp
     assert wrapper.tshark_path is not None
     assert "tshark.exe" in wrapper.tshark_path.lower()
 
+

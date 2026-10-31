@@ -17,7 +17,7 @@
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 20:45:00
+# Updated: 2026-10-31 15:58:30
 # =============================================================================
 
 from __future__ import annotations
@@ -41,6 +41,7 @@ except ImportError:
 
 
 ALLOWED_TABLES: FrozenSet[str] = frozenset({
+    # Базовые 12 таблиц телеметрии Windows
     "system_snapshots",
     "sensor_polls",
     "telemetry_rollups",
@@ -53,6 +54,18 @@ ALLOWED_TABLES: FrozenSet[str] = frozenset({
     "power_sessions",
     "inventory_state",
     "inventory_changes",
+    # Системные таблицы SQLite
+    "sqlite_sequence",
+    # Персистентные таблицы модулей Windows SDK в telemetry.db
+    "taskbar_action_history",
+    "window_management_history",
+    "personalization_snapshots",
+    "personalization_change_history",
+    "file_versions",
+    "file_version_blobs",
+    "focus_profiles",
+    "suppressed_notifications",
+    "focus_session_logs",
 })
 
 SCHEMA_DDL: Tuple[str, ...] = (
@@ -341,8 +354,10 @@ class TelemetrySchemaManager:
                     except sqlite3.OperationalError:
                         pass
 
-        # 3. Удаление всех избыточных и устаревших таблиц, не входящих в 12 базовых
+        # 3. Удаление всех избыточных и устаревших таблиц, не входящих в разрешенные
         for tbl in sorted(existing_tables - ALLOWED_TABLES):
+            if tbl.startswith("sqlite_"):
+                continue
             try:
                 cursor.execute(f"DROP TABLE IF EXISTS [{tbl}];")
             except sqlite3.OperationalError as err:
@@ -350,4 +365,5 @@ class TelemetrySchemaManager:
 
 
 init_database_schema = TelemetrySchemaManager.initialize_schema
+
 

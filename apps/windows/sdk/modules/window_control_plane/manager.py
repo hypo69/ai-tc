@@ -515,3 +515,4 @@ def get_window_control_plane() -> WindowManagementControlPlane:
     if _plane_instance is None:
         _plane_instance = WindowManagementControlPlane()
     return _plane_instance
+

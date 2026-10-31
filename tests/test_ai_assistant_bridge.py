@@ -68,3 +68,4 @@ def test_ai_assistant_panel_delegation(client: TestClient) -> None:
     assert data.get("status") == "ok"
     assert data.get("panel_id") == "panel-timeline"
     assert "data" in data
+

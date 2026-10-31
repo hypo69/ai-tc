@@ -111,3 +111,4 @@ def test_firewall_sqlite_data_first_and_refresh(client: TestClient):
     assert isinstance(rules, list)
     for r in rules:
         assert r['direction'] == 'In'
+

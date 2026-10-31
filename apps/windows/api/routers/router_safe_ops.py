@@ -366,3 +366,4 @@ async def validate_safeops_action(req: SafeOpsValidateRequest) -> SafeOpsValidat
 def init_router() -> APIRouter:
     """Фабричная функция инициализации роутера SafeOps."""
     return router
+

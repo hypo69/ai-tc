@@ -542,3 +542,4 @@ class TaskbarController:
                 command_id=cmd,
                 message=str(exc),
             )
+

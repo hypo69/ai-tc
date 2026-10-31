@@ -1,3 +1,4 @@
+import { fetchLatestSpeedtest, runInternetSpeedtest } from '../../tab_network/panel_speedtest/panel.js';
 /**
  * =============================================================================
  * Process Name: System Inspector - Network Load Panel
@@ -12,7 +13,7 @@
  * Package: windows/api/webgui/tab_system_inspector/panel_network
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 00:19:00
+ * Updated: 2026-10-30 11:05:00
  * =============================================================================
  */
 
@@ -53,6 +54,47 @@ export function initNetworkPanel() {
   if (btnLin) btnLin.onclick = () => setNetSparkScale('lin');
 
   window.setNetSparkScale = setNetSparkScale;
+
+  // Обработчик кнопки запуска Speedtest в карточке сети
+  const btnSpeedtest = document.getElementById('sys-btn-run-speedtest');
+  if (btnSpeedtest) {
+    btnSpeedtest.onclick = runInternetSpeedtest;
+  }
+
+  // Загрузка последних результатов теста скорости
+  fetchLatestSpeedtest();
+
+  // Глубокая маршрутизация по хешу URL (#tab-hardware-load-inspector#speedtest)
+  handleNetworkHashRouting();
+  window.addEventListener('hashchange', handleNetworkHashRouting);
+  document.addEventListener('panel:activated', (e) => {
+    if (e?.detail?.panelId === 'speedtest' || e?.detail?.panelId === 'panel-network') {
+      handleNetworkHashRouting();
+    }
+  });
+}
+
+/**
+ * Обработка глубокой маршрутизации по хешу URL для раскрытия и фокусировки Speedtest.
+ */
+export function handleNetworkHashRouting() {
+  const hash = (typeof location !== 'undefined' ? location.hash : '') || '';
+  if (hash.includes('speedtest') || hash.includes('panel-network')) {
+    const card = document.getElementById('sys-card-net');
+    if (card && !card.classList.contains('sys-card-drill-expanded')) {
+      card.classList.add('sys-card-drill-expanded');
+      const drillBtn = card.querySelector('.sys-drill-btn') || document.getElementById('sys-drill-btn-net');
+      if (drillBtn) drillBtn.classList.add('active');
+    }
+    if (hash.includes('speedtest')) {
+      const speedSection = document.getElementById('sys-net-speedtest');
+      if (speedSection) {
+        setTimeout(() => {
+          speedSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 150);
+      }
+    }
+  }
 }
 
 /**

@@ -12,7 +12,7 @@
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 20:41:00
+# Updated: 2026-10-30 11:15:00
 # =============================================================================
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ def _read_hw_components(
     """Вспомогательная функция чтения компонентов из hardware_components с распаковкой specs_json."""
     with cm.lock, cm.get_connection() as conn:
         cursor = conn.cursor()
-        sql = "SELECT * FROM hardware_components WHERE category = ? ORDER BY id ASC"
+        sql = "SELECT * FROM hardware_components WHERE category = ? AND (status IS NULL OR status != 'REMOVED') ORDER BY id ASC"
         params: List[Any] = [category]
         if limit is not None:
             sql += " LIMIT ?"
@@ -511,13 +511,21 @@ class TelemetryInventoryReaderMixin:
         items = _read_hw_components(self._cm, "Monitors & Displays")
         if items:
             monitors: List[Dict[str, Any]] = []
-            for it in items:
+            seen_devices: set = set()
+            # Обходим в обратном порядке (от самых свежих id), чтобы брать наиболее актуальные данные по каждому устройству
+            for it in reversed(items):
+                if it.get("status") == "REMOVED" or it.get("is_present") == 0:
+                    continue
                 props = it.get("properties_json") or {}
                 if isinstance(props, str):
                     try:
                         props = json.loads(props)
                     except Exception:
                         props = {}
+                dev = props.get("Устройство") or it.get("component_key") or ""
+                if dev in seen_devices:
+                    continue
+                seen_devices.add(dev)
                 res = str(props.get("Разрешение экрана", "")).split("x")
                 w = int(res[0].strip()) if len(res) == 2 and res[0].strip().isdigit() else 1920
                 h = int(res[1].strip()) if len(res) == 2 and res[1].strip().isdigit() else 1080
@@ -525,7 +533,7 @@ class TelemetryInventoryReaderMixin:
                 freq = int(freq_str) if freq_str.isdigit() else 60
                 is_prim = "Основной" in str(props.get("Основной монитор", ""))
                 monitors.append({
-                    "device": props.get("Устройство") or it.get("component_key") or "",
+                    "device": dev,
                     "name": props.get("Название дисплея (EDID)") or it.get("model") or it.get("name") or "Display Monitor",
                     "vendor": it.get("vendor") or props.get("Производитель", ""),
                     "adapter": props.get("Подключенный видеоадаптер", ""),
@@ -539,6 +547,7 @@ class TelemetryInventoryReaderMixin:
                     "production_date": it.get("production_date"),
                 })
             if monitors:
+                monitors.reverse()
                 return monitors
 
         with self._cm.lock, self._cm.get_connection() as conn:
@@ -622,4 +631,5 @@ class TelemetryInventoryReaderMixin:
                         d["details"] = {}
                 results.append(d)
             return results
+
 

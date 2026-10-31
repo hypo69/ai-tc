@@ -180,3 +180,4 @@ def test_about_system_html_contains_full_user_and_network_panel():
     assert 'id="reg-usr-groups-badge"' in content
 
 
+

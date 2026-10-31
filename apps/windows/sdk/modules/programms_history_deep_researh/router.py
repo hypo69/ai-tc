@@ -15,3 +15,4 @@ router = APIRouter(prefix="/program-history", tags=["program-history"])
 async def get_program_history_report():
     """Возвращает полный отчёт о программах и их артефактах."""
     return generate_report()
+

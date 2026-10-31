@@ -770,3 +770,4 @@ def init_router() -> APIRouter:
     """Возвращает сконфигурированный FastAPI APIRouter для Auto-Discovery."""
     return router
 
+

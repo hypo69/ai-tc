@@ -66,3 +66,4 @@ def test_failures_analyzer_empty_handling():
     assert isinstance(summary['bsod_incidents'], list)
     assert isinstance(summary['driver_errors'], list)
     assert isinstance(summary['suspicious_activity'], list)
+

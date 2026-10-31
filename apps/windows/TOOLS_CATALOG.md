@@ -76,26 +76,26 @@ flowchart TD
 
 | Компонент / Файл | Класс / Функция | Назначение |
 |---|---|---|
-| [`tool_chains/engine.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/tool_chains/engine.py) | `ToolChainExecutionEngine` | Исполнительный движок цепочек инструментов с защитой SafeOps, динамическим ветвлением, компенсацией и протоколированием. |
-| [`tool_chains/planner.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/tool_chains/planner.py) | `ToolChainPlanner` | Семантический планировщик графа шагов из естественно-языкового намерения пользователя. |
-| [`tool_chains/storage.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/tool_chains/storage.py) | `ToolChainStorage` | SQLite хранилище шаблонов цепочек, истории запусков, вызовов инструментов и доказательств. |
-| [`tool_chains/catalog.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/tool_chains/catalog.py) | `get_builtin_chains` | Встроенный каталог типовых цепочек (диагностика портов, расследование SSD, безопасный перезапуск служб). |
-| [`safe_executor.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/safe_executor.py) | `SafeExecutor` | Движок безопасного исполнения команд с поддержкой Dry-Run, валидацией рисков и созданием бэкапов. |
-| [`root_cause_engine.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/root_cause_engine.py) | `RootCauseEngine` | Построение графа инцидентов и расследование первопричин сбоев по временным шкалам. |
-| [`correlation_engine.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/correlation_engine.py) | `CorrelationEngine` | Междоменная корреляция событий (CPU + EventLog + Disk IO + Network Drops). |
-| [`diagnostics.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/diagnostics.py) | `DiagnosticsEngine` | Комплексный расчёт индекса здоровья системы (Health Score) по 10+ категориям. |
-| [`agent_loop.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/agent_loop.py) | `WindowsAgentLoop` | Автономный цикл ReAct для AI-агента с пошаговым вызовом системных инструментов. |
-| [`atomic_capabilities.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/atomic_capabilities.py) | `AtomicCapabilityRegistry` | Реестр атомарных системных операций с маппингом привилегий и рисков. |
-| [`system32_catalog.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/system32_catalog.py) | `System32Catalog` | Семантический каталог 149 штатных системных утилит Windows System32. |
-| [`closed_loop_remediation.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/closed_loop_remediation.py) | `RemediationCoordinator` | Замкнутый контур автоматического исправления проблем с валидацией результата. |
-| [`etw_pipeline.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/etw_pipeline.py) | `EtwPipeline` | Конвейер захвата и потоковой обработки низкоуровневых событий ETW в реальном времени. |
-| [`focus_executor.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/focus_executor.py) | `FocusExecutor` | Управление фокусом приложений, подавлением уведомлений и политиками тишины. |
-| [`power_monitor.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/power_monitor.py) | `PowerMonitor` | Мониторинг состояний питания, батареи, схем электропитания и сна. |
-| [`process_activity_engine.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/process_activity_engine.py) | `ProcessActivityEngine` | Аналитика активности процессов, переключения контекста и использования ресурсов. |
-| [`process_audit_manager.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/process_audit_manager.py) | `ProcessAuditManager` | Глубокий аудит запущенных процессов, проверка цифровых подписей и путей запуска. |
-| [`software_transparency.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/software_transparency.py) | `SoftwareTransparencyManager` | Построение матрицы прозрачности ПО: связь Приложение → Служба → Драйвер → Задача. |
-| [`system_restore.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/system_restore.py) | `SystemRestoreManager` | Управление точками восстановления VSS и автоматическое создание бэкапа перед операциями. |
-| [`system_param_manager.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/system_param_manager.py) | `SystemParamManager` | Чтение и модификация системных параметров Windows (реестр, переменные среды, политики). |
+| [`tool_chains/engine.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/tool_chains/engine.py) | `ToolChainExecutionEngine` | Исполнительный движок цепочек инструментов с защитой SafeOps, динамическим ветвлением, компенсацией и протоколированием. |
+| [`tool_chains/planner.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/tool_chains/planner.py) | `ToolChainPlanner` | Семантический планировщик графа шагов из естественно-языкового намерения пользователя. |
+| [`tool_chains/storage.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/tool_chains/storage.py) | `ToolChainStorage` | SQLite хранилище шаблонов цепочек, истории запусков, вызовов инструментов и доказательств. |
+| [`tool_chains/catalog.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/tool_chains/catalog.py) | `get_builtin_chains` | Встроенный каталог типовых цепочек (диагностика портов, расследование SSD, безопасный перезапуск служб). |
+| [`safe_executor.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/safe_executor.py) | `SafeExecutor` | Движок безопасного исполнения команд с поддержкой Dry-Run, валидацией рисков и созданием бэкапов. |
+| [`root_cause_engine.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/root_cause_engine.py) | `RootCauseEngine` | Построение графа инцидентов и расследование первопричин сбоев по временным шкалам. |
+| [`correlation_engine.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/correlation_engine.py) | `CorrelationEngine` | Междоменная корреляция событий (CPU + EventLog + Disk IO + Network Drops). |
+| [`diagnostics.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/diagnostics.py) | `DiagnosticsEngine` | Комплексный расчёт индекса здоровья системы (Health Score) по 10+ категориям. |
+| [`agent_loop.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/agent_loop.py) | `WindowsAgentLoop` | Автономный цикл ReAct для AI-агента с пошаговым вызовом системных инструментов. |
+| [`atomic_capabilities.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/atomic_capabilities.py) | `AtomicCapabilityRegistry` | Реестр атомарных системных операций с маппингом привилегий и рисков. |
+| [`system32_catalog.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/system32_catalog.py) | `System32Catalog` | Семантический каталог 149 штатных системных утилит Windows System32. |
+| [`closed_loop_remediation.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/closed_loop_remediation.py) | `RemediationCoordinator` | Замкнутый контур автоматического исправления проблем с валидацией результата. |
+| [`etw_pipeline.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/etw_pipeline.py) | `EtwPipeline` | Конвейер захвата и потоковой обработки низкоуровневых событий ETW в реальном времени. |
+| [`focus_executor.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/focus_executor.py) | `FocusExecutor` | Управление фокусом приложений, подавлением уведомлений и политиками тишины. |
+| [`power_monitor.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/power_monitor.py) | `PowerMonitor` | Мониторинг состояний питания, батареи, схем электропитания и сна. |
+| [`process_activity_engine.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/process_activity_engine.py) | `ProcessActivityEngine` | Аналитика активности процессов, переключения контекста и использования ресурсов. |
+| [`process_audit_manager.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/process_audit_manager.py) | `ProcessAuditManager` | Глубокий аудит запущенных процессов, проверка цифровых подписей и путей запуска. |
+| [`software_transparency.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/software_transparency.py) | `SoftwareTransparencyManager` | Построение матрицы прозрачности ПО: связь Приложение → Служба → Драйвер → Задача. |
+| [`system_restore.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/system_restore.py) | `SystemRestoreManager` | Управление точками восстановления VSS и автоматическое создание бэкапа перед операциями. |
+| [`system_param_manager.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/system_param_manager.py) | `SystemParamManager` | Чтение и модификация системных параметров Windows (реестр, переменные среды, политики). |
 
 ---
 
@@ -103,16 +103,16 @@ flowchart TD
 
 | Файл | Назначение | Описание |
 |---|---|---|
-| [`registry.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/tools/registry.py) | `ToolRegistry` | Центральный реестр инструментов, поддерживающий регистрацию, валидацию и фильтрацию по ролям. |
-| [`dynamic_factory.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/tools/dynamic_factory.py) | `DynamicToolFactory` | Фабрика автоматической генерации JSON-схем и сигнатур инструментов для LLM на основе сигнатур Python. |
-| [`system_tools.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/tools/system_tools.py) | `SystemToolsProvider` | Набор готовых системных инструментов (чтение реестра, управление службами, запуск CLI, сбор метрик). |
-| [`base.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/core/tools/base.py) | `BaseTool`, `ToolResult` | Базовые абстракции, модели входных/выходных данных и статус выполнения инструмента. |
+| [`registry.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/tools/registry.py) | `ToolRegistry` | Центральный реестр инструментов, поддерживающий регистрацию, валидацию и фильтрацию по ролям. |
+| [`dynamic_factory.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/tools/dynamic_factory.py) | `DynamicToolFactory` | Фабрика автоматической генерации JSON-схем и сигнатур инструментов для LLM на основе сигнатур Python. |
+| [`system_tools.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/tools/system_tools.py) | `SystemToolsProvider` | Набор готовых системных инструментов (чтение реестра, управление службами, запуск CLI, сбор метрик). |
+| [`base.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/tools/base.py) | `BaseTool`, `ToolResult` | Базовые абстракции, модели входных/выходных данных и статус выполнения инструмента. |
 
 ---
 
 ## 4. Доменные модули SDK (29 подсистем)
 
-Расположены в [`apps/windows/sdk/modules`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/modules):
+Расположены в [`apps/windows/sdk/modules`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/modules):
 
 | № | Модуль | Основные классы / Функционал | Назначение |
 |---|---|---|---|
@@ -151,17 +151,17 @@ flowchart TD
 ## 5. Слой телеметрии и аналитики (`apps/windows/telemetry`)
 
 ### Ядро сбора и хранилище SQLite
-* **[`telemetry_engine.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/telemetry/telemetry_engine.py):** фоновый циклический сбор метрик (CPU, RAM, Disks, Network, GPU, Handles, Threads).
-* **[`sqlite/storage.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/telemetry/sqlite/storage.py):** высокопроизводительный асинхронный адаптер SQLite с буферизацией и WAL-режимом.
-* **[`sqlite/schema.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/telemetry/sqlite/schema.py):** DDL-схемы таблиц телеметрии, метрик, инцидентов и системных снапшотов.
-* **[`sqlite/compactor.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/telemetry/sqlite/maintenance.py):** авто-очистка и сжатие исторических данных по TTL.
+* **[`telemetry_engine.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/telemetry_engine.py):** фоновый циклический сбор метрик (CPU, RAM, Disks, Network, GPU, Handles, Threads).
+* **[`sqlite/storage.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/sqlite/storage.py):** высокопроизводительный асинхронный адаптер SQLite с буферизацией и WAL-режимом.
+* **[`sqlite/schema.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/sqlite/schema.py):** DDL-схемы таблиц телеметрии, метрик, инцидентов и системных снапшотов.
+* **[`sqlite/compactor.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/sqlite/maintenance.py):** авто-очистка и сжатие исторических данных по TTL.
 
 ### Аналитический модуль (`telemetry/analytics` & `telemetry_research`)
-* **[`diagnostic_engine.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/telemetry/analytics/diagnostic_engine.py):** аналитический движок диагностики отклонений телеметрии от нормы.
-* **[`incident_detector.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/telemetry/analytics/incident_detector.py):** детектор аномалий, перегрева, троттлинга CPU/GPU, утечек памяти.
-* **[`reboot_analyzer.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/telemetry/analytics/reboot_analyzer.py):** анализ причин перезагрузок (BSOD, Kernel-Power Event ID 41, чистые перезагрузки).
-* **[`hardware_auditor.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/telemetry/analytics/hardware_auditor.py):** аудит деградации компонентов оборудования на основе временных рядов.
-* **[`startup_history_manager.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/telemetry/analytics/startup_history_manager.py):** анализ трендов времени загрузки ОС и фаз инициализации BIOS/OS.
+* **[`diagnostic_engine.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/analytics/diagnostic_engine.py):** аналитический движок диагностики отклонений телеметрии от нормы.
+* **[`incident_detector.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/analytics/incident_detector.py):** детектор аномалий, перегрева, троттлинга CPU/GPU, утечек памяти.
+* **[`reboot_analyzer.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/analytics/reboot_analyzer.py):** анализ причин перезагрузок (BSOD, Kernel-Power Event ID 41, чистые перезагрузки).
+* **[`hardware_auditor.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/analytics/hardware_auditor.py):** аудит деградации компонентов оборудования на основе временных рядов.
+* **[`startup_history_manager.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/analytics/startup_history_manager.py):** анализ трендов времени загрузки ОС и фаз инициализации BIOS/OS.
 
 ---
 
@@ -178,35 +178,35 @@ flowchart LR
     L4 --> Save[Сохранение нового факта в SQLite]
 ```
 
-* **[`engine.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/wikillm/engine.py):** главный координатор WikiLLM Engine.
-* **[`storage.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/wikillm/storage.py):** хранилище сущностей, связей и наблюдений в SQLite с полнотекстовым поиском FTS5.
-* **[`code_indexer.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/wikillm/code_indexer.py):** AST-парсер и индексатор Python-кода (классы, методы, docstrings).
-* **[`command_indexer.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/wikillm/command_indexer.py):** семантический индексатор системных CLI-команд Windows.
-* **[`telemetry_bridge.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/wikillm/telemetry_bridge.py):** мост автоматического обогащения инцидентов телеметрии знаниями из WikiLLM.
+* **[`engine.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/wikillm/engine.py):** главный координатор WikiLLM Engine.
+* **[`storage.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/wikillm/storage.py):** хранилище сущностей, связей и наблюдений в SQLite с полнотекстовым поиском FTS5.
+* **[`code_indexer.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/wikillm/code_indexer.py):** AST-парсер и индексатор Python-кода (классы, методы, docstrings).
+* **[`command_indexer.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/wikillm/command_indexer.py):** семантический индексатор системных CLI-команд Windows.
+* **[`telemetry_bridge.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/wikillm/telemetry_bridge.py):** мост автоматического обогащения инцидентов телеметрии знаниями из WikiLLM.
 
 ---
 
 ## 7. Log Intelligence & Adaptive RAG (`apps/windows/log_intelligence`)
 
-* **[`pipeline.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/log_intelligence/src/pipeline.py):** сквозной конвейер обработки и семантического анализа журналов событий.
-* **[`adaptive_rag.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/log_intelligence/src/adaptive_rag.py):** адаптивный RAG-движок для поиска решений по известным кодам ошибок Windows (HRESULT, NTSTATUS).
-* **[`data_researcher.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/log_intelligence/src/data_researcher.py):** сбор дополнительного диагностического контекста по сбойным процессам.
-* **[`decision_gate.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/log_intelligence/src/decision_gate.py):** шлюз принятия решений по автоматическому применению исправлений.
+* **[`pipeline.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/log_intelligence/src/pipeline.py):** сквозной конвейер обработки и семантического анализа журналов событий.
+* **[`adaptive_rag.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/log_intelligence/src/adaptive_rag.py):** адаптивный RAG-движок для поиска решений по известным кодам ошибок Windows (HRESULT, NTSTATUS).
+* **[`data_researcher.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/log_intelligence/src/data_researcher.py):** сбор дополнительного диагностического контекста по сбойным процессам.
+* **[`decision_gate.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/log_intelligence/src/decision_gate.py):** шлюз принятия решений по автоматическому применению исправлений.
 
 ---
 
 ## 8. AI Diagnostics & Root Cause Analysis (`apps/windows/ai`)
 
-* **[`diagnostician.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/ai/diagnostician.py):** формирование всестороннего AI-заключения о здоровье системы.
-* **[`root_cause_analyzer.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/ai/root_cause_analyzer.py):** глубокий анализ первопричин критических сбоев и конфликтов драйверов.
-* **[`prompt_templates.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/ai/prompt_templates.py):** специализированные системные промпты для LLM (диагностика, планирование, аудит).
-* **[`tool_engine.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/ai/tool_engine.py):** движок сопоставления намерений пользователя с конкретными вызовами инструментов Windows.
+* **[`diagnostician.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/ai/diagnostician.py):** формирование всестороннего AI-заключения о здоровье системы.
+* **[`root_cause_analyzer.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/ai/root_cause_analyzer.py):** глубокий анализ первопричин критических сбоев и конфликтов драйверов.
+* **[`prompt_templates.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/ai/prompt_templates.py):** специализированные системные промпты для LLM (диагностика, планирование, аудит).
+* **[`tool_engine.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/ai/tool_engine.py):** движок сопоставления намерений пользователя с конкретными вызовами инструментов Windows.
 
 ---
 
 ## 9. Низкоуровневые Win32 FFI & Native API
 
-Расположены в [`apps/windows/sdk/native`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/native) и [`apps/windows/telemetry/win32_ffi`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/telemetry/win32_ffi):
+Расположены в [`apps/windows/sdk/native`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/native) и [`apps/windows/telemetry/win32_ffi`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/win32_ffi):
 
 | Библиотека / Модуль | Оборачиваемые WinAPI функции | Назначение |
 |---|---|---|
@@ -227,8 +227,8 @@ flowchart LR
 
 ## 10. REST API Маршрутизаторы
 
-Центральный роутер: [`apps/windows/router.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/router.py)  
-Модульные роутеры: [`apps/windows/api/routers`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/api/routers)
+Центральный роутер: [`apps/windows/router.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/router.py)  
+Модульные роутеры: [`apps/windows/api/routers`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/api/routers)
 
 | Эндпоинт / Роутер | Префикс маршрута | Описание возможностей |
 |---|---|---|
@@ -253,10 +253,10 @@ flowchart LR
 
 ## 11. Системные каталоги и реестры
 
-* **[`SYSTEM32_CAPABILITIES_CATALOG.md`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/SYSTEM32_CAPABILITIES_CATALOG.md):** полный каталог 149 утилит `%SystemRoot%\System32` с параметрами CLI, рисками и эквивалентами WinAPI.
-* **[`CONSOLE_TOOLS_REGISTRY.md`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/CONSOLE_TOOLS_REGISTRY.md):** матрица атомарных операций CLI и сопоставление с FastAPI эндпоинтами.
-* **[`NATIVE_API_REGISTRY.md`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/NATIVE_API_REGISTRY.md):** реестр низкоуровневых структур данных, флагов и FFI сигнатур CTypes.
-* **[`TASKBAR_CAPABILITIES_CATALOG.md`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/TASKBAR_CAPABILITIES_CATALOG.md):** каталог возможностей управления панелью задач, треем и окнами через WinAPI/COM.
+* **[`SYSTEM32_CAPABILITIES_CATALOG.md`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/SYSTEM32_CAPABILITIES_CATALOG.md):** полный каталог 149 утилит `%SystemRoot%\System32` с параметрами CLI, рисками и эквивалентами WinAPI.
+* **[`CONSOLE_TOOLS_REGISTRY.md`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/CONSOLE_TOOLS_REGISTRY.md):** матрица атомарных операций CLI и сопоставление с FastAPI эндпоинтами.
+* **[`NATIVE_API_REGISTRY.md`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/NATIVE_API_REGISTRY.md):** реестр низкоуровневых структур данных, флагов и FFI сигнатур CTypes.
+* **[`TASKBAR_CAPABILITIES_CATALOG.md`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/TASKBAR_CAPABILITIES_CATALOG.md):** каталог возможностей управления панелью задач, треем и окнами через WinAPI/COM.
 
 ---
 

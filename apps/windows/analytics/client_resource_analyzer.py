@@ -535,3 +535,4 @@ class ClientResourceAnalyzer:
             evaluations=evaluations,
             scanned_at=datetime.now(timezone.utc).isoformat(),
         )
+

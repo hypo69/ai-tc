@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/admin
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 20:43:00
+ * Updated: 2026-10-30 13:25:00
  * =============================================================================
  */
 
@@ -107,7 +107,6 @@ window.addEventListener('load', async () => {
     
     // Система и Администратор
     { tabName: 'admin', htmlUrl: `/html/tab_admin/index.html`, jsUrl: `/html/tab_admin/main.js` },
-    { tabName: 'users', htmlUrl: `/html/tab_users/index.html`, jsUrl: `/html/tab_users/main.js` },
     { tabName: 'plugins', htmlUrl: `/html/tab_plugins/index.html`, jsUrl: `/html/tab_plugins/main.js` },
     { tabName: 'google-accounts', htmlUrl: `/html/tab_google_accounts/index.html`, jsUrl: `/html/tab_google_accounts/main.js` },
     { tabName: 'instructions', htmlUrl: `/html/tab_instructions/index.html`, jsUrl: `/html/tab_instructions/main.js` },

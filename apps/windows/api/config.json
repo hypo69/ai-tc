@@ -7,6 +7,12 @@
   },
   "routers": [
     {
+      "module": "apps.cloudflared_monitor.router",
+      "factory": "init_router",
+      "enabled": true,
+      "description": "Мониторинг и управление Cloudflare Tunnel (/api/cloudflared/*)"
+    },
+    {
       "module": "apps.ai_assistant.router",
       "factory": "init_router",
       "enabled": false,
@@ -81,6 +87,12 @@
       "description": "Сетевой терминал (/api/network/*)"
     },
     {
+      "module": "apps.windows.sdk.modules.network.infra.router",
+      "factory": "init_router",
+      "enabled": true,
+      "description": "Диагностика сетевой инфраструктуры: адаптеры, Hyper-V, NAT, WSL, история (/api/network/infra/*)"
+    },
+    {
       "module": "apps.windows.startup.router",
       "factory": "init_router",
       "enabled": true,
@@ -145,6 +157,12 @@
       "factory": "init_router",
       "enabled": true,
       "description": "Управление базой WikiLLM (/api/v1/wikillm/*)"
+    },
+    {
+      "module": "apps.windows.api.routers.router_tooltips",
+      "factory": "init_router",
+      "enabled": true,
+      "description": "Управление подсказками и базой знаний тултипов (/api/v1/tooltips/*)"
     },
     {
       "module": "apps.windows.api.routers.router_cpu_load",
@@ -344,10 +362,16 @@
       "factory": "init_router",
       "enabled": true,
       "description": "Управление системным звуком и аудиомикшером Windows (/api/v1/sound/*)"
+    },
+    {
+      "module": "apps.windows.api.routers.router_help_pages",
+      "factory": "init_router",
+      "enabled": true,
+      "description": "Редактор страниц и блоков контекстной справки (/api/v1/help-pages/*)"
     }
   ],
   "database": {
-    "engine": "mariadb",
+    "engine": "sqlite",
     "sqlite": {
       "path": "data/windows_wikillm/knowledge.db"
     },
@@ -398,7 +422,8 @@
         "max_context_tokens": 8192,
         "grounding_required": true
       }
-    }
+    },
+    "db_path": "data/windows_wikillm/knowledge.db"
   },
   "smart_audit": {
     "enabled": true,
@@ -413,22 +438,34 @@
   },
   "ai_instruments": {
     "description": "Изолированная база данных инструментов ИИ-агента (ai_instruments.db)",
-    "engine": "sqlite",
+    "engine": "mariadb",
     "sqlite": {
       "path": "data/ai_instruments/ai_instruments.db"
     },
     "hostinger": {
-      "connection_type": "php_api",
+      "connection_type": "direct",
       "host": "srv1502.hstgr.io",
       "port": 3306,
       "user": "u177424397_davidka",
       "password": "@Davidka#1969",
       "database": "u177424397_comp_knowledge",
       "table_name": "ai_instruments",
-      "ip_fallback": "77.37.35.16",
-      "connect_timeout": 10,
       "php_api_url": "https://srv1502.hstgr.io/wikillm_hostinger.php",
-      "php_api_key": "test_token_123"
+      "php_api_key": "test_token_123",
+      "connect_timeout": 10
+    },
+    "runtime": {
+      "execution_timeout": 25,
+      "elevate_powershell": true,
+      "safe_ops_enabled": true,
+      "auto_extract_from_reasoning": true,
+      "title_prefix": "Расследование инцидента"
     }
+  },
+  "app_name": "ai-tc",
+  "paths": {
+    "programdata": "%ProgramData%",
+    "app_name": "ai-tc",
+    "system_knowledge_db": "data/windows_wikillm/knowledge.db"
   }
 }

@@ -18,21 +18,22 @@
 # Package: src.ai.rag
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-10-31 18:28:00
 # =============================================================================
 
 from __future__ import annotations
-"""Единый координатор знаний: WikiLLM + Text RAG + Pixel RAG + Log RAG."""
+"""Единый координатор знаний: WikiLLM + Text RAG + Pixel RAG + Log RAG + Codebase RAG."""
 
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 from logger import logger
-from src.ai.wikillm.engine import WikiLLMEngine
-from src.ai.wikillm.extractor import ArtifactExtractor
-from src.ai.wikillm.models import ArtifactInput, ResolutionResult
-from src.ai.wikillm.storage import WikiStorage
+from apps.windows.wikillm.engine import WikiLLMEngine
+from apps.windows.wikillm.extractor import ArtifactExtractor
+from apps.windows.wikillm.models import ArtifactInput, ResolutionResult
+from apps.windows.wikillm.storage import WikiStorage
+from .codebase_rag import CodebaseRAG, CodeDiagnosticConclusion
 from .text_rag import TextRAG
 from .pixel_rag import PixelRAG
 from .log_rag import LogRAG
@@ -42,23 +43,25 @@ class UnifiedKnowledgeHub:
     """Единый координационный хаб знаний платформы AI Windows Admin.
 
     Интегрирует детерминированную прогрессивную базу знаний WikiLLM ($O(1)$ кэш),
-    векторный поиск документов TextRAG, визуальный мультимодальный поиск PixelRAG
-    и адаптивный анализ журналов LogRAG.
+    векторный поиск документов TextRAG, визуальный мультимодальный поиск PixelRAG,
+    адаптивный анализ журналов LogRAG и AST-индексатор кодовой базы CodebaseRAG.
 
     Attributes:
         wikillm: Экземпляр движка WikiLLMEngine.
         text_rag: Экземпляр текстового векторного хранилища TextRAG.
         pixel_rag: Экземпляр визуального хранилища скриншотов PixelRAG.
         log_rag: Экземпляр адаптивного анализатора журналов LogRAG.
+        codebase_rag: Экземпляр AST-анализатора кодовой базы CodebaseRAG.
     """
 
     def __init__(
         self,
-        base_dir: Optional[Path] = None,
-        wikillm_engine: Optional[WikiLLMEngine] = None,
-        text_rag: Optional[TextRAG] = None,
-        pixel_rag: Optional[PixelRAG] = None,
-        log_rag: Optional[LogRAG] = None,
+        base_dir: Optional[Path] = False,
+        wikillm_engine: Optional[WikiLLMEngine] = False,
+        text_rag: Optional[TextRAG] = False,
+        pixel_rag: Optional[PixelRAG] = False,
+        log_rag: Optional[LogRAG] = False,
+        codebase_rag: Optional[CodebaseRAG] = False,
     ) -> None:
         """Инициализирует UnifiedKnowledgeHub.
 
@@ -68,14 +71,16 @@ class UnifiedKnowledgeHub:
             text_rag: Пользовательский экземпляр TextRAG.
             pixel_rag: Пользовательский экземпляр PixelRAG.
             log_rag: Пользовательский экземпляр LogRAG.
+            codebase_rag: Пользовательский экземпляр CodebaseRAG.
         """
-        root = base_dir or Path("data/rag")
+        root = Path(base_dir) if base_dir else Path("data/rag")
         root.mkdir(parents=True, exist_ok=True)
 
         self.wikillm = wikillm_engine or WikiLLMEngine()
         self.text_rag = text_rag or TextRAG(db_path=root / "text_index")
         self.pixel_rag = pixel_rag or PixelRAG(storage_dir=root / "pixel_storage")
         self.log_rag = log_rag or LogRAG(storage_dir=root / "logs_storage")
+        self.codebase_rag = codebase_rag or CodebaseRAG(storage_dir=root / "codebase")
 
     async def resolve_query(
         self,
@@ -182,6 +187,7 @@ class UnifiedKnowledgeHub:
         text_results = self.text_rag.search(query, top_k=top_k)
         pixel_results = self.pixel_rag.search_by_text(query, top_k=top_k)
         log_results = self.log_rag.search_chunks(query, top_k=top_k)
+        codebase_results = self.codebase_rag.search_code(query, top_k=top_k)
 
         return {
             "query": query,
@@ -189,8 +195,56 @@ class UnifiedKnowledgeHub:
             "text_rag": text_results,
             "pixel_rag": pixel_results,
             "log_rag": log_results,
-            "total_found": len(wiki_results) + len(text_results) + len(pixel_results) + len(log_results),
+            "codebase_rag": codebase_results,
+            "total_found": (
+                len(wiki_results)
+                + len(text_results)
+                + len(pixel_results)
+                + len(log_results)
+                + len(codebase_results)
+            ),
         }
+
+    async def diagnose_code(
+        self,
+        question: str = "",
+        logs: Optional[List[str]] = False,
+        error_message: str = "",
+        index_name: str = "codebase",
+        top_k: int = 6,
+        use_llm: bool = True,
+    ) -> CodeDiagnosticConclusion:
+        """Сквозная диагностика вопроса, списка логов или ошибки по базе знаний о коде.
+
+        Args:
+            question (str): Вопрос пользователя по коду или архитектуре.
+                            Значение по умолчанию: ''.
+            logs (Optional[List[str]]): Список строк логов или событий.
+                                        Значение по умолчанию: False.
+            error_message (str): Текст ошибки или стек-трейс (Traceback).
+                                 Значение по умолчанию: ''.
+            index_name (str): Имя индекса кода. Значение по умолчанию: 'codebase'.
+            top_k (int): Количество фрагментов кода для контекста. Значение по умолчанию: 6.
+            use_llm (bool): Использовать ли LLM для синтеза заключения. Значение по умолчанию: True.
+
+        Returns:
+            CodeDiagnosticConclusion: Структурированное инженерное заключение.
+
+        Examples:
+            >>> import asyncio
+            >>> hub = UnifiedKnowledgeHub()
+            >>> res = asyncio.run(hub.diagnose_code(question="Где объявлен UnifiedKnowledgeHub?", use_llm=False))
+            >>> print(isinstance(res.summary, str))
+            True
+        """
+        return await self.codebase_rag.diagnose(
+            question=question,
+            logs=logs,
+            error_message=error_message,
+            index_name=index_name,
+            top_k=top_k,
+            use_llm=use_llm,
+        )
 
     def get_metrics(self) -> Dict[str, Any]:
         """Возвращает агрегированные метрики всех подсистем знаний."""
@@ -201,4 +255,8 @@ class UnifiedKnowledgeHub:
             },
             "pixel_rag": self.pixel_rag.get_status(),
             "log_rag": self.log_rag.get_stats(),
+            "codebase_rag": {
+                "indexes": self.codebase_rag.list_indexes(),
+            },
         }
+

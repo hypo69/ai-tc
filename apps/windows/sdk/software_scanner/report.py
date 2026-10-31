@@ -82,3 +82,4 @@ class ReportFormatter:
 
 
 __all__ = ["ReportFormatter"]
+

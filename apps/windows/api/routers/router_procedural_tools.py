@@ -142,3 +142,4 @@ def init_router(service: Optional[ProceduralWikiLLMService] = None) -> APIRouter
 
 
 __all__ = ["init_router"]
+

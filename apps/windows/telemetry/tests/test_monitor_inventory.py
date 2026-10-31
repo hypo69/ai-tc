@@ -183,3 +183,4 @@ async def test_query_system_summary_enriches_monitors(temp_storage):
     assert monitors[0]["vendor"] == "Samsung"
     assert monitors[0]["is_primary"] is True
     assert monitors[0]["orientation"] == "горизонтальная"
+

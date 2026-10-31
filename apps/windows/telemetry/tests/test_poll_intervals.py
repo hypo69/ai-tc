@@ -158,3 +158,4 @@ def test_service_initialization_with_poll_intervals(temp_config_file):
         del storage
         gc.collect()
         shutil.rmtree(tmp_dir, ignore_errors=True)
+

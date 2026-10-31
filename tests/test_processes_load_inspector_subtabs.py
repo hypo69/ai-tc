@@ -133,3 +133,4 @@ def test_process_manager_tab_consolidation_into_processes_inspector() -> None:
     assert pm_item is not None, "Элемент process_manager отсутствует в меню"
     assert pm_item.get("visible") is False, "Элемент process_manager должен быть скрыт из меню как отдельная вкладка"
     assert pm_item.get("tab") == "tab-processes-load-inspector#manager", "Целевая вкладка process_manager должна указывать на панель manager"
+

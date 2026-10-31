@@ -101,3 +101,4 @@ AVAILABLE_SCENARIOS: List[Dict[str, Any]] = [
         "estimated_duration_sec": 3,
     },
 ]
+

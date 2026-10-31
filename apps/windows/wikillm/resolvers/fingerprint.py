@@ -55,3 +55,4 @@ class FingerprintResolver(BaseResolver):
             return None
 
         return self.storage.find_by_fingerprint(fingerprint)
+

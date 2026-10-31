@@ -18,7 +18,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-19 00:25:00
+# Updated: 2026-10-28 16:40:00
 # =============================================================================
 
 from __future__ import annotations
@@ -141,6 +141,24 @@ def init_router() -> APIRouter:
             "intervals": cfg_mgr.get_all_intervals(),
         }
 
+    @router.post("/compact-now")
+    async def run_compaction_now() -> Dict[str, Any]:
+        """Запускает принудительное каскадное усреднение снимков телеметрии (5с -> 30с -> 3м -> 10м -> 36ч)."""
+        try:
+            from apps.windows.telemetry.sqlite import TelemetryStorage
+            storage = TelemetryStorage.get_instance()
+            storage.flush()
+            cfg_mgr = TelemetryConfigManager()
+            stats = storage.run_tiered_compaction(thorough_mode=cfg_mgr.is_thorough_mode())
+            return {
+                "success": True,
+                "message": "Каскадное усреднение телеметрии выполнено",
+                "stats": stats,
+            }
+        except Exception as ex:
+            logger.error(f"Ошибка каскадного усреднения телеметрии: {ex}", exc_info=True)
+            raise HTTPException(status_code=500, detail=str(ex))
+
     @router.post("/raw")
     async def save_raw_telemetry_config(payload: TelemetryRawConfigUpdateRequest) -> Dict[str, Any]:
         """Валидирует и сохраняет сырой текст JSON конфигурации в %APPDATA%.
@@ -262,5 +280,6 @@ async def collect_heavy_sequentially(payload: Optional[Dict[str, Any]] = None) -
         "count": len(results),
         "results": results,
     }
+
 
 

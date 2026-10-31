@@ -376,3 +376,4 @@ def test_theme_engine_runtime_in_node() -> None:
 
     assert res.returncode == 0, f"Ошибка выполнения теста Node.js: {res.stderr}\n{res.stdout}"
     assert "ALL_NODE_TESTS_PASSED" in res.stdout
+

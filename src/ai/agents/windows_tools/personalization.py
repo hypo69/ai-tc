@@ -239,3 +239,4 @@ WINDOWS_PERSONALIZATION_TOOLS = [
     windows_personalization_theme_action,
     windows_personalization_cursor_wallpaper,
 ]
+

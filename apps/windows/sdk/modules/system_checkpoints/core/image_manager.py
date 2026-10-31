@@ -354,3 +354,4 @@ class SystemImageManager:
         except Exception as ex:
             logger.error(f"Исключение при вызове DISM: {ex}")
             return {"success": False, "target_file": str(target_file), "error": str(ex)}
+

@@ -99,3 +99,4 @@ def test_scan_recovery_images_mock(tmp_path):
     assert len(found) >= 1
     baseline_match = [f for f in found if f.is_baseline]
     assert len(baseline_match) >= 1
+

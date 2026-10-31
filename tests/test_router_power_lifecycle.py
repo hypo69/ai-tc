@@ -70,3 +70,4 @@ def test_power_events_endpoint(client):
         assert "event_id" in first
         assert "timestamp" in first
         assert "provider" in first
+

@@ -188,3 +188,4 @@ def test_process_provenance_multi_tier_aggregation(test_db: Path) -> None:
     assert "io" in daily_first and "total_read_mb" in daily_first["io"]
     storage.close()
 
+

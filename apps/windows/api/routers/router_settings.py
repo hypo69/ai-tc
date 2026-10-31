@@ -143,3 +143,4 @@ async def rollback_display_rotation(req: ConfirmRotationRequest) -> Dict[str, An
 async def rollback_last_command(req: RollbackRequest) -> CommandExecutionResult:
     """Откатывает последнее состояние указанной команды."""
     return _executor.rollback(req.command)
+

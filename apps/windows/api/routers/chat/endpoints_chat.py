@@ -190,3 +190,4 @@ def register_chat_endpoint(router: APIRouter, chat_model, narrator_model, plugin
                 yield f"data: {json.dumps({'error': str(ex)})}\n\n"
 
         return StreamingResponse(event_generator(), media_type="text/event-stream")
+

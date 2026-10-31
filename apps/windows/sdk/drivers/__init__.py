@@ -197,3 +197,4 @@ __all__ = [
     'AmdCatalogManager',
     'DriverDownloader',
 ]
+

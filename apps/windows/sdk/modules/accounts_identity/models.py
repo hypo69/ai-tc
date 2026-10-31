@@ -298,3 +298,4 @@ class IdentityGraph(BaseModel):
     nodes: List[IdentityGraphNode] = Field(default_factory=list)
     edges: List[IdentityGraphEdge] = Field(default_factory=list)
     summary: Dict[str, Any] = Field(default_factory=dict)
+

@@ -256,3 +256,4 @@ def register_system_endpoints(router: APIRouter) -> None:
             "anomalies_count": len(anomalies),
             "recommendations_count": len(recommendations),
         }
+

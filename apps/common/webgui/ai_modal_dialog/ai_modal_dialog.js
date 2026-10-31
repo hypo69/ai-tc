@@ -34,7 +34,7 @@ export class AIModalDialog {
 if (typeof window !== 'undefined') {
   if (!window.AIModalDialog) {
     const script = document.createElement('script');
-    script.src = '/html/ai_modal_dialog/main.js?v=20261017_v7';
+    script.src = '/html/ai_modal_dialog/main.js?v=20261031_v2';
     document.head.appendChild(script);
   }
 }

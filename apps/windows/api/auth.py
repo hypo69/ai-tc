@@ -126,3 +126,4 @@ __all__ = [
     'get_current_user_optional',
     'require_admin_user',
 ]
+

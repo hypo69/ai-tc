@@ -96,3 +96,4 @@ class DomainSubsystem:
             if "EnterpriseJoined" in line_str and "YES" in line_str.upper():
                 return True
         return False
+

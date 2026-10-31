@@ -228,3 +228,4 @@ def get_window_catalog() -> WindowControlPlaneCatalog:
     if _catalog_instance is None:
         _catalog_instance = WindowControlPlaneCatalog()
     return _catalog_instance
+

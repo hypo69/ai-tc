@@ -1104,3 +1104,4 @@ class TelemetryAuditReaderMixin:
             "metrics_comparison": deltas,
             "conclusion": summary_conclusion,
         }
+

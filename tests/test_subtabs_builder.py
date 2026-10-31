@@ -6,14 +6,14 @@ Description:
   Набор юнит-тестов для CLI инструмента генерации субменю и суб-вкладок
   subtabs_builder.py (.agents/skills/webgui-developer/scripts/subtabs_builder.py).
   Проверяет корректность разметки кнопок меню в стиле верхнего меню,
-  оберток tab-pane и генерацию JS-хелпера.
+  оберток tab-pane и генерацию JS-хелпера с поддержкой URL маршрутизации.
 
 File: test_subtabs_builder.py
 Project: ai-windows-admin
 Package: tests
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 13:25:00
+Updated: 2026-10-28 16:40:00
 =============================================================================
 """
 
@@ -69,9 +69,11 @@ def test_build_subtabs_header_html():
     assert "Тестовый Заголовок" in html
     assert "Тестовый Подзаголовок" in html
     assert "⚡" in html
+    assert "<!-- Блок меню переключения панелей на вкладке. Выбранная панель добавляется в url -->" in html
     assert 'id="test-subtabs-nav"' in html
     assert 'class="d-flex align-items-center gap-1 flex-wrap"' in html
     assert 'id="subtab-test-tab1-btn"' in html
+    assert 'data-panel-id="tab1"' in html
     assert 'data-bs-target="#subpane-test-tab1"' in html
     assert 'class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded"' in html
     assert 'class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded"' in html
@@ -94,17 +96,20 @@ def test_build_tab_pane_wrapper():
 
 
 def test_build_subtabs_js_helper():
-    """Проверяет генерацию функции switchSubTab."""
+    """Проверяет генерацию функции switchSubTab с поддержкой URL маршрутизации."""
     tabs = [
         {"id": "first", "label": "Первая"},
         {"id": "second", "label": "Вторая"},
     ]
     js = build_subtabs_js_helper("sample", tabs, function_name="switchMySampleTab")
-    
-    assert "window.switchMySampleTab = function(subtabId)" in js
+
+    assert "window.switchMySampleTab = function(subtabId, updateUrl = true)" in js
+    assert "updateUrlWithPanel(canonical);" in js
     assert "case 'first':" in js
     assert "btnId = 'subtab-sample-first-btn';" in js
     assert "case 'second':" in js
     assert "btnId = 'subtab-sample-second-btn';" in js
     assert "let btnId = 'subtab-sample-first-btn';" in js
     assert "window.bootstrap.Tab" in js
+    assert "data-panel-id" in js
+

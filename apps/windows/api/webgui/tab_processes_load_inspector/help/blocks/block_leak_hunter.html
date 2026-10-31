@@ -1,0 +1,54 @@
+<!--
+=============================================================================
+Process Name: Windows Processes Load Inspector - Atomic Help Block: Leak Hunter
+=============================================================================
+Description:
+  Атомарный HTML-фрагмент справки по разделу «Утечки ресурсов (Leak Hunter)»
+  (leaks) во вкладке #tab-processes-load-inspector.
+
+File: block_leak_hunter.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_processes_load_inspector/help/blocks
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 18:39:00
+=============================================================================
+-->
+<div class="card bg-body border-subtle shadow-sm mb-3 help-atomic-block" data-help-block="block_leak_hunter">
+  <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between py-2 px-3">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-shield-shaded text-danger fs-5"></i>
+      <h6 class="mb-0 fw-bold text-body" data-i18n="processesInspectorHelp.leakHunter.title">5. Аудит утечек ресурсов (Leak Hunter)</h6>
+    </div>
+    <span class="ui-badge ui-badge-danger" data-i18n="processesInspectorHelp.leakHunter.badge">Утечки дескрипторов и памяти</span>
+  </div>
+  <div class="card-body p-3">
+    <p class="small text-muted mb-3" data-i18n="processesInspectorHelp.leakHunter.intro">
+      Эвристический анализатор деградации системных ресурсов, предупреждающий о зависании интерфейса и исчерпании лимитов ОС:
+    </p>
+    <div class="row g-2">
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-window text-danger"></i>
+            <span data-i18n="processesInspectorHelp.leakHunter.gdiTitle">Утечки GDI и USER дескрипторов</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="processesInspectorHelp.leakHunter.gdiDesc">
+            Windows накладывает жесткий лимит в 10 000 GDI объектов на процесс. Монитор отслеживает кисти, шрифты, контексты устройств (DC) и предупреждает при приближении к порогу.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-hdd-stack text-warning"></i>
+            <span data-i18n="processesInspectorHelp.leakHunter.handlesTitle">Дескрипторы ядра (Kernel Handles) и Page Faults</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="processesInspectorHelp.leakHunter.handlesDesc">
+            Фиксирует аномальный линейный рост открытых файлов, событий (Events), мьютексов и всплески ошибок отсутствия страниц (Hard Page Faults).
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

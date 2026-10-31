@@ -363,7 +363,6 @@
     "elColProvider": "Provider",
     "elColEventId": "Event ID",
     "elColDescription": "Event Description",
-    "modeDefenderLogs": "🛡️ Defender Events",
     "defStatStatus": "Defender Protection Status 🛡️",
     "defStatStatusSub": "Real-Time / Cloud Protection",
     "defStatThreats": "Detected Threats 🚨",
@@ -670,6 +669,52 @@
       "resetFilters": "Reset Filters",
       "loading": "Loading WikiLLM Knowledge Base...",
       "error": "Failed to load articles from server"
+    }
+  },
+  "internals": {
+    "subtabTelemetryLabel": "Telemetry",
+    "subtabTelemetryTitle": "Monitor CPU, memory, disk metrics and background tasks",
+    "subtabModelsLabel": "Models & APIs",
+    "subtabModelsTitle": "Manage AI providers and models (Windows AI, Ollama, Gemini, Foundry Local)",
+    "subtabLogsLabel": "Logs Center",
+    "subtabLogsTitle": "Inspect ai-tc internal application logs",
+    "subtabEtwLabel": "ETW Tracing",
+    "subtabEtwTitle": "Low-level Windows kernel ETW event tracing",
+    "subtabSettingsLabel": "Settings",
+    "subtabSettingsTitle": "Manage global configuration and subsystem settings",
+    "subtabSystemKnowledgeLabel": "System Knowledge",
+    "subtabSystemKnowledgeTitle": "Knowledge base of system hints: local SQLite file, model parameters, and articles",
+    "subtabInstrumentsLabel": "AI Instruments",
+    "subtabInstrumentsTitle": "Agent reasoning chain instruments base: Hostinger server, runtime parameters, and catalog",
+    "blockSysStorageLabel": "SQLite Storage",
+    "blockSysStorageTitle": "Manage local SQLite hints database file, schema verification, and tables",
+    "blockSysParamsLabel": "WikiLLM Settings",
+    "blockSysParamsTitle": "Configure generative model, confidence threshold, and context window",
+    "blockSysArticlesLabel": "Hint Articles",
+    "blockSysArticlesTitle": "Browse and edit system hint knowledge base articles",
+    "blockInstHostingerLabel": "Hostinger Server",
+    "blockInstHostingerTitle": "Connection settings for remote Hostinger server (REST PHP API / MariaDB)",
+    "blockInstRuntimeLabel": "Reasoning Chain",
+    "blockInstRuntimeTitle": "Agent reasoning chain execution parameters, SafeOps, and timeouts",
+    "blockInstCatalogLabel": "Instruments Catalog",
+    "blockInstCatalogTitle": "Explore agent instruments library, search, and run test executions",
+    "subtabTooltipsEditorLabel": "Tooltips Editor",
+    "subtabTooltipsEditorTitle": "Editor for system smart tooltips and knowledge base hints"
+  },
+  "tooltips": {
+    "internals-logs": {
+      "title": "Logs Center",
+      "fullTitle": "ai-tc Internal Logs Center",
+      "summary": "Inspect ai-tc internal application logs",
+      "category": "Logging",
+      "icon": "📜"
+    },
+    "logs": {
+      "title": "Logs Center",
+      "fullTitle": "ai-tc Internal Logs Center",
+      "summary": "Inspect ai-tc internal application logs",
+      "category": "Logging",
+      "icon": "📜"
     }
   }
 }

@@ -233,3 +233,4 @@ class BasePlugin(abc.ABC):
             Dict[str, Any]: Streamed output events and result chunks.
         """
         yield {"status": "complete", "text": ""}
+

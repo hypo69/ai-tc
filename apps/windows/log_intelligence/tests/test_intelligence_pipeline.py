@@ -127,3 +127,4 @@ def test_log_discovery_engine_sources() -> None:
     assert len(sources) > 50
     categories = {s.category for s in sources}
     assert 'Windows Event Log' in categories
+

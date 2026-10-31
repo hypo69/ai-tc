@@ -184,3 +184,4 @@ WINDOWS_PROGRAMS_HISTORY_TOOLS = [
     windows_programs_history_report,
     windows_programs_history_audit,
 ]
+

@@ -12,7 +12,7 @@ import {
   renderAIBadge,
   getProcessTooltipAttributes,
   initTableSmartTooltips
-} from '../common/ui_utils.js';
+} from '../common/ui_utils.js?v=20261031_v2';
 
 let cachedNetworkActivities = [];
 let currentNetFilter = 'internet';

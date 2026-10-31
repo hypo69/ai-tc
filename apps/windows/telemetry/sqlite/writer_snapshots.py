@@ -11,7 +11,7 @@
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 09:53:00
+# Updated: 2026-10-31 18:55:00
 # =============================================================================
 
 from __future__ import annotations
@@ -263,12 +263,12 @@ class TelemetrySnapshotWriterMixin:
                 delta_fields.get("cpu_frequency_mhz"),
                 raw_fields.get("cpu_temp_c"),
                 raw_fields.get("cpu_power_w"),
-                delta_fields.get("memory_total_gb"),
+                raw_fields.get("memory_total_gb"),
                 delta_fields.get("memory_used_gb"),
                 delta_fields.get("memory_percent"),
                 delta_fields.get("swap_percent"),
                 delta_fields.get("gpu_load_percent"),
-                delta_fields.get("gpu_temp_c"),
+                raw_fields.get("gpu_temp_c"),
                 raw_fields.get("gpu_vram_used_mb"),
                 delta_fields.get("disk_read_bytes_sec"),
                 delta_fields.get("disk_write_bytes_sec"),
@@ -1178,4 +1178,5 @@ class TelemetrySnapshotWriterMixin:
             )
             conn.commit()
         return len(rows)
+
 

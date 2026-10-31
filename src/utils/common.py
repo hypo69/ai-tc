@@ -102,3 +102,4 @@ def get_utc_timestamp_iso() -> str:
         Строка вида 'YYYY-MM-DDTHH:MM:SS.mmmmmmZ'.
     """
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+

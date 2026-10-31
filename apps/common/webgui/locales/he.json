@@ -321,5 +321,51 @@
     "aiToastTitle": "ניתוח בינה מלאכותית",
     "aiToastBody": "השאילתה הועברה לעוזר הצ'אט.",
     "exportNoEvents": "אין אירועים שנטענו לייצוא."
+  },
+  "internals": {
+    "subtabTelemetryLabel": "טלמטריה",
+    "subtabTelemetryTitle": "ניטור מדדי מעבד, זיכרון, דיסקים ומשימות רקע",
+    "subtabModelsLabel": "מודלים ו-API",
+    "subtabModelsTitle": "ניהול ספקי ומודלי בינה מלאכותית (Windows AI, Ollama, Gemini, Foundry Local)",
+    "subtabLogsLabel": "מרכז יומנים",
+    "subtabLogsTitle": "צפייה ביומנים פנימיים של תוכנת ai-tc",
+    "subtabEtwLabel": "מעקב ETW",
+    "subtabEtwTitle": "מעקב אירועי ETW בליבת Windows",
+    "subtabSettingsLabel": "הגדרות",
+    "subtabSettingsTitle": "ניהול הגדרות גלובליות ופרמטרים של תתי-מערכות",
+    "subtabSystemKnowledgeLabel": "רמזי מערכת",
+    "subtabSystemKnowledgeTitle": "בסיס ידע של רמזי מערכת: קובץ SQLite מקומי, הגדרות מודל ומאמרים",
+    "subtabInstrumentsLabel": "כלי סוכן",
+    "subtabInstrumentsTitle": "בסיס כלי שרשרת החשיבה של הסוכן: שרת Hostinger, פרמטרי הרצה וקטלוג",
+    "blockSysStorageLabel": "אחסון SQLite",
+    "blockSysStorageTitle": "ניהול קובץ SQLite מקומי של רמזים, בדיקת סכמה וטבלאות",
+    "blockSysParamsLabel": "פרמטרי WikiLLM",
+    "blockSysParamsTitle": "הגדרות מודל יצירתי, סף ביטחון וחלון הקשר",
+    "blockSysArticlesLabel": "מאמרי רמזים",
+    "blockSysArticlesTitle": "קטלוג ועורך מובנה למאמרי בסיס ידע של רמזים",
+    "blockInstHostingerLabel": "שרת Hostinger",
+    "blockInstHostingerTitle": "הגדרות חיבור לשרת Hostinger המרוחק (REST PHP API / MariaDB)",
+    "blockInstRuntimeLabel": "שרשרת חשיבה",
+    "blockInstRuntimeTitle": "פרמטרי הרצת כלים בשרשרת החשיבה, SafeOps ופסקי זמן",
+    "blockInstCatalogLabel": "קטלוג כלים",
+    "blockInstCatalogTitle": "צפייה בספריית כלי הסוכן, חיפוש והרצת בדיקה",
+    "subtabTooltipsEditorLabel": "עורך חלוניות מידע",
+    "subtabTooltipsEditorTitle": "עורך חלוניות מידע ובסיס ידע של המערכת"
+  },
+  "tooltips": {
+    "internals-logs": {
+      "title": "מרכז יומנים",
+      "fullTitle": "מרכז יומנים פנימיים של ai-tc",
+      "summary": "צפייה ביומנים פנימיים של תוכנת ai-tc",
+      "category": "יומנים",
+      "icon": "📜"
+    },
+    "logs": {
+      "title": "מרכז יומנים",
+      "fullTitle": "מרכז יומנים פנימיים של ai-tc",
+      "summary": "צפייה ביומנים פנימיים של תוכנת ai-tc",
+      "category": "יומנים",
+      "icon": "📜"
+    }
   }
 }

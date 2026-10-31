@@ -282,3 +282,4 @@ class WindowsFocusController:
             )
             for r in rows
         ]
+

@@ -64,3 +64,4 @@ class PerformanceTracingTUI:
 
 
 __all__ = ['PerformanceTracingTUI']
+

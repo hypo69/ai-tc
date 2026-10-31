@@ -1,0 +1,315 @@
+commands:
+  - id: windows.system.info
+    name: Сведения о системе Windows
+    platform: windows
+    category: system
+    executor: powershell
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: windows.system.cpu
+    name: Загрузка и характеристики процессора Windows
+    platform: windows
+    category: system
+    executor: powershell
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: windows.system.memory
+    name: Состояние оперативной памяти Windows
+    platform: windows
+    category: system
+    executor: powershell
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: windows.system.disks
+    name: Логические тома и диски Windows
+    platform: windows
+    category: system
+    executor: powershell
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: windows.system.uptime
+    name: Время непрерывной работы Windows
+    platform: windows
+    category: system
+    executor: powershell
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: windows.system.boot_info
+    name: Сведения о загрузке ОС Windows
+    platform: windows
+    category: system
+    executor: powershell
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: windows.system.environment
+    name: Переменные окружения Windows
+    platform: windows
+    category: system
+    executor: powershell
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: windows.process.list
+    name: Список процессов Windows
+    platform: windows
+    category: processes
+    executor: powershell
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: windows.process.get
+    name: Информация о процессе Windows
+    platform: windows
+    category: processes
+    executor: powershell
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters:
+      pid:
+        type: integer
+        required: true
+
+  - id: windows.process.start
+    name: Запуск процесса Windows
+    platform: windows
+    category: processes
+    executor: powershell
+    privilege: standard
+    risk_level: medium
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters:
+      executable:
+        type: string
+        required: true
+      arguments:
+        type: list
+        required: false
+
+  - id: windows.process.stop
+    name: Остановка процесса Windows
+    platform: windows
+    category: processes
+    executor: powershell
+    privilege: administrator
+    risk_level: high
+    timeout: 30
+    requires_confirmation: true
+    audit: true
+    parameters:
+      pid:
+        type: integer
+        required: true
+
+  - id: windows.process.tree
+    name: Дерево процессов Windows
+    platform: windows
+    category: processes
+    executor: powershell
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: windows.process.resource_usage
+    name: Топ потребления ресурсов процессами Windows
+    platform: windows
+    category: processes
+    executor: powershell
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: windows.service.list
+    name: Список служб Windows
+    platform: windows
+    category: services
+    executor: powershell
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: windows.service.status
+    name: Состояние службы Windows
+    platform: windows
+    category: services
+    executor: powershell
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters:
+      service_name:
+        type: string
+        required: true
+
+  - id: windows.service.start
+    name: Запуск службы Windows
+    platform: windows
+    category: services
+    executor: powershell
+    privilege: administrator
+    risk_level: medium
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters:
+      service_name:
+        type: string
+        required: true
+
+  - id: windows.service.stop
+    name: Остановка службы Windows
+    platform: windows
+    category: services
+    executor: powershell
+    privilege: administrator
+    risk_level: high
+    timeout: 30
+    requires_confirmation: true
+    audit: true
+    parameters:
+      service_name:
+        type: string
+        required: true
+
+  - id: windows.service.restart
+    name: Перезапуск службы Windows
+    platform: windows
+    category: services
+    executor: powershell
+    privilege: administrator
+    risk_level: high
+    timeout: 30
+    requires_confirmation: true
+    audit: true
+    parameters:
+      service_name:
+        type: string
+        required: true
+
+  - id: windows.service.enable
+    name: Включение автозапуска службы Windows
+    platform: windows
+    category: services
+    executor: powershell
+    privilege: administrator
+    risk_level: high
+    timeout: 30
+    requires_confirmation: true
+    audit: true
+    parameters:
+      service_name:
+        type: string
+        required: true
+
+  - id: windows.service.disable
+    name: Отключение автозапуска службы Windows
+    platform: windows
+    category: services
+    executor: powershell
+    privilege: administrator
+    risk_level: high
+    timeout: 30
+    requires_confirmation: true
+    audit: true
+    parameters:
+      service_name:
+        type: string
+        required: true
+
+  - id: windows.user.list
+    name: Список локальных пользователей Windows
+    platform: windows
+    category: users
+    executor: powershell
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: windows.user.create
+    name: Создание локального пользователя Windows
+    platform: windows
+    category: users
+    executor: powershell
+    privilege: administrator
+    risk_level: high
+    timeout: 30
+    requires_confirmation: true
+    audit: true
+    parameters:
+      username:
+        type: string
+        required: true
+      credential_ref:
+        type: string
+        required: true
+
+  - id: windows.user.delete
+    name: Удаление пользователя Windows
+    platform: windows
+    category: users
+    executor: powershell
+    privilege: administrator
+    risk_level: critical
+    timeout: 30
+    requires_confirmation: true
+    audit: true
+    parameters:
+      username:
+        type: string
+        required: true

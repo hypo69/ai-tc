@@ -15,7 +15,7 @@ Usage Examples:
  * Package: windows/api/webgui/tab_system_control
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 19:15:00
+ * Updated: 2026-10-31 18:23:00
  * =============================================================================
 -->
 <!-- Windows System Logs & Activity Center Web Tab -->
@@ -489,30 +489,39 @@ Usage Examples:
         <small class="tab-header-subtitle text-secondary">Сводка системных аварий (BSOD, LiveKernelReports), журнал дампов памяти и диагностика стабильности</small>
       </div>
     </div>
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-sm btn-outline-info d-flex align-items-center gap-1.5 shadow-sm"
+              id="system-control-help-btn"
+              data-help-url="/html/tab_system_control/help/index.html"
+              title="Открыть интерактивную справку по центру контроля сбоев и журналов">
+        <i class="bi bi-question-circle fs-6"></i>
+        <span class="fw-semibold">Справка по разделу</span>
+      </button>
+    </div>
   </div>
 
-  <!-- Отдельный блок меню суб-вкладок ПОД названием вкладки, расположен слева -->
+  <!-- Блок меню переключения панелей на вкладке. Выбранная панель добавляется в url -->
   <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
     <div class="d-flex align-items-center gap-1 flex-wrap" id="slc-source-tabs" role="tablist">
-      <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="summary-dashboard" data-term="summary-dashboard" data-ai-tooltip="true" id="btn-source-summary-dashboard" title="Сводная панель критических сбоев: питание, BSOD, ошибки драйверов и подозрительная активность" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="summary-dashboard" data-panel-id="summary-dashboard" data-term="summary-dashboard" data-ai-tooltip="true" id="btn-source-summary-dashboard" title="Сводная панель критических сбоев: питание, BSOD, ошибки драйверов и подозрительная активность" type="button" role="tab">
         <i class="bi bi-shield-exclamation text-danger"></i><span data-i18n="systemControl.modeSummaryDashboard">🚨 Сводка сбоев и аномалий</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="event-logs" data-term="event-logs" data-ai-tooltip="true" id="btn-source-event-logs" title="Классические системные журналы Windows (System, Application, Security, PowerShell и др.)" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="event-logs" data-panel-id="event-logs" data-term="event-logs" data-ai-tooltip="true" id="btn-source-event-logs" title="Классические системные журналы Windows (System, Application, Security, PowerShell и др.)" type="button" role="tab">
         <i class="bi bi-journal-text text-primary"></i><span data-i18n="systemControl.modeEventLogs">📝 Журналы событий</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="activity" data-term="activity" data-ai-tooltip="true" id="btn-source-activity" title="Журнал внутренней активности и операций приложения/системы" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="activity" data-panel-id="activity" data-term="activity" data-ai-tooltip="true" id="btn-source-activity" title="Журнал внутренней активности и операций приложения/системы" type="button" role="tab">
         <i class="bi bi-gear-wide-connected text-info"></i><span data-i18n="systemControl.modeActivity">⚙️ Журнал активности</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="power-lifecycle" data-term="power-lifecycle" data-ai-tooltip="true" id="btn-source-power-lifecycle" title="Анализ сессий электропитания, включений, выключений, гибернаций и BSOD" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="power-lifecycle" data-panel-id="power-lifecycle" data-term="power-lifecycle" data-ai-tooltip="true" id="btn-source-power-lifecycle" title="Анализ сессий электропитания, включений, выключений, гибернаций и BSOD" type="button" role="tab">
         <i class="bi bi-lightning-charge text-warning"></i><span data-i18n="systemControl.modePowerLifecycle">⚡ Жизненный цикл питания</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="defender-logs" data-term="defender-logs" data-ai-tooltip="true" id="btn-source-defender-logs" title="События безопасности и срабатывания антивируса Microsoft Defender" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="defender-logs" data-panel-id="defender-logs" data-term="defender-logs" data-ai-tooltip="true" id="btn-source-defender-logs" title="События безопасности и срабатывания антивируса Microsoft Defender" type="button" role="tab">
         <i class="bi bi-shield-lock text-success"></i><span data-i18n="systemControl.modeDefenderLogs">🛡️ Журналы Defender</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="forensics" data-term="forensics" data-ai-tooltip="true" id="btn-source-forensics" title="Поведенческая форензика активности пользователя, аудит сенсоров, таймлайн и UserAssist" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="forensics" data-panel-id="forensics" data-term="forensics" data-ai-tooltip="true" id="btn-source-forensics" title="Поведенческая форензика активности пользователя, аудит сенсоров, таймлайн и UserAssist" type="button" role="tab">
         <i class="bi bi-stopwatch-fill text-warning"></i><span data-i18n="systemControl.modeForensics">⏱️ Форензика</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="throttling" data-term="throttling" data-ai-tooltip="true" id="btn-source-throttling" title="Детекция термального троттлинга (PROCHOT), ограничений PL1/PL2, DPC/ISR латентности и крашей ядра BSOD" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="throttling" data-panel-id="throttling" data-term="throttling" data-ai-tooltip="true" id="btn-source-throttling" title="Детекция термального троттлинга (PROCHOT), ограничений PL1/PL2, DPC/ISR латентности и крашей ядра BSOD" type="button" role="tab">
         <i class="bi bi-thermometer-sun text-danger"></i><span data-i18n="systemControl.modeThrottling">🌡️ Троттлинг и ядро</span>
       </button>
     </div>
@@ -582,6 +591,7 @@ Usage Examples:
 <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-placement="top" data-ai-tooltip="true" data-term="mode-incidents" data-i18n="systemControl.modeIncidents" data-mode="incidents" type="button" role="tab" title="Сгруппированные кластеры повторяющихся сбоев и инцидентов"><span>🧩 Инциденты</span></button>
 <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-placement="top" data-ai-tooltip="true" data-term="mode-timeline" data-i18n="systemControl.modeTimeline" data-mode="timeline" type="button" role="tab" title="Хронологическая графическая шкала событий (GitHub Heatmap и Pulse)"><span>📊 Таймлайн</span></button>
 <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-placement="top" data-ai-tooltip="true" data-term="mode-errors" data-i18n="systemControl.modeErrors" data-mode="errors" type="button" role="tab" title="Фильтрация потока: скрывать информационные сообщения"><span>⚠️ Только ошибки</span></button>
+<button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-placement="top" data-ai-tooltip="true" data-term="mode-raw" data-i18n="systemControl.modeRaw" data-mode="raw" type="button" role="tab" title="Сырой поток событий"><span>📄 Raw Data</span></button>
 </div>
 <!-- Action AI Button -->
 <div class="d-flex align-items-center gap-2">

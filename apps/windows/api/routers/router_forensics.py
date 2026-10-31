@@ -216,3 +216,4 @@ def init_router(storage: Optional[TelemetryStorage] = None) -> APIRouter:
 
     return router
 
+

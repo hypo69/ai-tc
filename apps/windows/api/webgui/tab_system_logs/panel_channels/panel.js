@@ -9,7 +9,7 @@
  * Файл: apps/windows/api/webgui/tab_system_logs/panel_channels/panel.js
  * Пакет: windows/api/webgui/tab_system_logs
  * Автор: hypo69
- * Updated: 2026-10-17 01:25:00
+ * Updated: 2026-10-31 18:33:00
  * =============================================================================
  */
 
@@ -19,6 +19,7 @@ let currentChannel = 'System';
 let currentFilePath = '';
 let cachedChannels = [];
 let globalTooltipEl = null;
+let savedChannelSelectCallback = null;
 
 export function getCurrentChannel() {
   return currentChannel;
@@ -130,7 +131,7 @@ export async function performSystemScan(force = false) {
       countBadge.textContent = String(activeChannels.length);
     }
 
-    renderChannelsTree();
+    renderChannelsTree(savedChannelSelectCallback);
   } catch (err) {
     console.warn('[SystemLogs] Ошибка сканирования источников журналов:', err);
   }
@@ -141,6 +142,10 @@ export async function performSystemScan(force = false) {
  * @param {Function} [onChannelSelect] - Функция обратного вызова при выборе канала.
  */
 export function renderChannelsTree(onChannelSelect) {
+  if (onChannelSelect) {
+    savedChannelSelectCallback = onChannelSelect;
+  }
+  const handler = onChannelSelect || savedChannelSelectCallback;
   const container = document.getElementById('slc-channel-tree-container');
   const filterInput = document.getElementById('slc-channel-filter-input');
   const filterText = filterInput ? filterInput.value.trim().toLowerCase() : '';
@@ -150,7 +155,7 @@ export function renderChannelsTree(onChannelSelect) {
 
   const filtered = cachedChannels.filter((c) => {
     // Исключаем пустые каналы с 0 записей
-    if (c.record_count === 0) return false;
+    if (Number(c.record_count) === 0) return false;
 
     if (!filterText) return true;
     return (
@@ -223,9 +228,9 @@ export function renderChannelsTree(onChannelSelect) {
         }
         const statChan = document.getElementById('slc-stat-channel');
         if (statChan) statChan.textContent = c.display_name;
-        renderChannelsTree(onChannelSelect);
-        if (typeof onChannelSelect === 'function') {
-          onChannelSelect(currentChannel, currentFilePath);
+        renderChannelsTree(handler);
+        if (typeof handler === 'function') {
+          handler(currentChannel, currentFilePath);
         }
       };
       container.appendChild(item);

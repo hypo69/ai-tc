@@ -74,3 +74,4 @@ class BootRecoveryTUI:
 
 
 __all__ = ['BootRecoveryTUI']
+

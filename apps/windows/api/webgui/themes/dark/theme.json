@@ -6,5 +6,9 @@
   "icon": "bi-moon-stars-fill",
   "iconColor": "text-primary",
   "description": "Классическая глубокая контрастная тёмная тема",
-  "baseType": "dark"
+  "baseType": "dark",
+  "tokens": {
+    "--modal-width": "80vw",
+    "--modal-height": "80vh"
+  }
 }

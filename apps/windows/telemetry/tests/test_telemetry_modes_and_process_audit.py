@@ -237,3 +237,4 @@ def test_telemetry_api_endpoints():
     assert resp.status_code == 200
     assert resp.json()["streaming_enabled"] is True
     assert resp.json()["audit_enabled"] is True
+

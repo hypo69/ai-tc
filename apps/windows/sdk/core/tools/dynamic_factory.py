@@ -16,7 +16,7 @@
 # Package: apps.windows.sdk.core.tools
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 20:38:00
+# Updated: 2026-10-31 17:33:00
 # =============================================================================
 
 from __future__ import annotations
@@ -34,6 +34,7 @@ from logger import logger
 from apps.windows.sdk.core.models import RiskLevel
 from apps.windows.sdk.core.tools.base import BaseTool, ToolExecutionResult
 from apps.windows.sdk.core.tools.registry import ToolRegistry
+from utils.command_validator import run_safe_async, validate_powershell_syntax
 
 def to_ascii_slug(text: str) -> str:
     """Преобразует строку в безопасный ASCII-слаг для имени инструмента."""
@@ -65,7 +66,7 @@ class DynamicSynthesizedTool(BaseTool):
         self.risk_level = risk_level
 
     async def execute(self, **kwargs: Any) -> ToolExecutionResult:
-        """Исполнение динамического PowerShell скрипта с подстановкой параметров."""
+        """Исполнение динамического PowerShell скрипта с подстановкой параметров и самопроверкой."""
         if platform.system() != 'Windows':
             return ToolExecutionResult(tool_name=self.name, status='ok', data={'mock': True, 'message': 'Платформа не является Windows, зонд симулирован.'}, command_executed=self.probe_script)
         exec_script = self.probe_script
@@ -73,18 +74,50 @@ class DynamicSynthesizedTool(BaseTool):
             val_str = json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list)) else str(v)
             exec_script = exec_script.replace(f'${k}', val_str)
         try:
-            proc = await asyncio.to_thread(subprocess.run, ['powershell', '-NoProfile', '-NonInteractive', '-Command', exec_script], capture_output=True, text=True, timeout=12)
-            stdout = proc.stdout.strip()
-            stderr = proc.stderr.strip()
-            if proc.returncode != 0 and (not stdout):
-                return ToolExecutionResult(tool_name=self.name, status='error', data={'stderr': stderr}, message=f"Ошибка выполнения динамического инструмента: {stderr or 'код ' + str(proc.returncode)}", command_executed=exec_script)
+            # Выполняем через модуль самопроверки run_safe_async с автоисправлением и UTF-8
+            res = await run_safe_async(
+                command=exec_script,
+                dry_run=False,
+                timeout_sec=15,
+                shell='powershell',
+                enforce_error_visibility=True
+            )
+            stdout = res.get('stdout', '').strip()
+            stderr = res.get('stderr', '').strip()
+            warnings = res.get('warnings', [])
+            retcode = res.get('returncode', 0)
+
+            if not res.get('success') and not stdout:
+                return ToolExecutionResult(
+                    tool_name=self.name,
+                    status='error',
+                    data={'stderr': stderr, 'warnings': warnings},
+                    message=f"Ошибка выполнения динамического инструмента: {stderr or 'код ' + str(retcode)}",
+                    command_executed=exec_script
+                )
+
             try:
                 parsed = json.loads(stdout) if stdout else []
             except json.JSONDecodeError:
                 parsed = stdout
-            return ToolExecutionResult(tool_name=self.name, status='ok', data=parsed, message=f"Инструмент '{self.title}' успешно выполнил сбор данных.", command_executed=exec_script, metadata={'is_dynamic': True, 'instructions': self.instructions, 'description_ru': self.description})
-        except subprocess.TimeoutExpired:
-            return ToolExecutionResult(tool_name=self.name, status='error', data=None, message='Превышен таймаут выполнения динамического инструмента (12 сек).', command_executed=exec_script)
+
+            msg = f"Инструмент '{self.title}' успешно выполнил сбор данных."
+            if warnings:
+                msg += f" Замечание: {'; '.join(warnings)}"
+
+            return ToolExecutionResult(
+                tool_name=self.name,
+                status='ok' if not warnings else 'warn',
+                data=parsed,
+                message=msg,
+                command_executed=res.get('sanitized_command') or exec_script,
+                metadata={
+                    'is_dynamic': True,
+                    'instructions': self.instructions,
+                    'description_ru': self.description,
+                    'warnings': warnings
+                }
+            )
         except Exception as e:
             return ToolExecutionResult(tool_name=self.name, status='error', data=None, message=f'Сбой исполнения динамического инструмента: {e}', command_executed=exec_script)
 
@@ -104,7 +137,58 @@ class DynamicToolFactory:
             pass
         tool = DynamicSynthesizedTool(name=tool_name, title=tool_title, description=description_ru, probe_script=probe_script, parameters_schema=parameters_schema, instructions=instructions, risk_level=r_level)
         self.registry.register(tool, overwrite=True)
+        self._persist_to_ai_instruments(tool)
         return tool
+
+    def _persist_to_ai_instruments(self, tool: DynamicSynthesizedTool) -> None:
+        """Сохраняет синтезированный в цепочке рассуждений инструмент в изолированную БД ai_instruments."""
+        try:
+            from apps.windows.ai_instruments.models import AIInstrumentCreate
+            from apps.windows.ai_instruments.service import AIInstrumentsService
+            from apps.windows.ai_instruments.storage import AIInstrumentsStorage
+
+            cfg_path = __root__ / "apps" / "windows" / "api" / "config.json"
+            engine = "sqlite"
+            db_path = "data/ai_instruments/ai_instruments.db"
+            hostinger_cfg: Dict[str, Any] = {}
+            auto_extract = True
+            title_prefix = ""
+
+            if cfg_path.exists():
+                try:
+                    app_cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+                    inst_cfg = app_cfg.get("ai_instruments") or {}
+                    engine = inst_cfg.get("engine", "sqlite")
+                    db_path = inst_cfg.get("sqlite", {}).get("path", db_path)
+                    hostinger_cfg = inst_cfg.get("hostinger", {})
+                    runtime_cfg = inst_cfg.get("runtime") or {}
+                    auto_extract = bool(runtime_cfg.get("auto_extract_from_reasoning", True))
+                    title_prefix = str(runtime_cfg.get("title_prefix", "")).strip()
+                except Exception:
+                    pass
+
+            if not auto_extract:
+                return
+
+            storage = AIInstrumentsStorage(db_path=db_path, engine=engine, hostinger_config=hostinger_cfg)
+            srv = AIInstrumentsService(storage=storage)
+            display_name = f"{title_prefix}: {tool.title}" if (title_prefix and not tool.title.startswith(title_prefix)) else tool.title
+            srv.save_instrument(
+                AIInstrumentCreate(
+                    tool_id=f"inst_{tool.name.replace('-', '_')}",
+                    name=display_name,
+                    tool_type="powershell",
+                    command=tool.probe_script,
+                    description=tool.description,
+                    target_entity="system",
+                    parameters_schema=tool.parameters_schema,
+                    risk_level=tool.risk_level.value if hasattr(tool.risk_level, "value") else str(tool.risk_level),
+                    author_agent="dynamic_tool_factory",
+                    tags=["#dynamic_synthesized", "#reasoning_chain"],
+                )
+            )
+        except Exception as ex:
+            logger.debug(f"[DynamicToolFactory] Не удалось синхронизировать инструмент '{tool.name}' в ai_instruments: {ex}")
 
     def save_as_skill(self, tool: DynamicSynthesizedTool) -> Dict[str, Any]:
         """Сохраняет динамический инструмент как постоянный навык в .agents/skills/."""
@@ -141,8 +225,21 @@ class CreateCustomToolMetaTool(BaseTool):
         self.factory = factory
 
     async def execute(self, tool_name: str, tool_title: str, description_ru: str, probe_script: str, instructions: str='', **kwargs: Any) -> ToolExecutionResult:
-        """Регистрация нового инструмента и немедленный пробный запуск."""
+        """Регистрация нового инструмента и немедленный пробный запуск с синтаксической самопроверкой."""
         try:
+            # 1. Предварительная синтаксическая самопроверка (AST-валидация)
+            is_valid, errs = validate_powershell_syntax(probe_script)
+            if not is_valid:
+                err_msg = f"Ошибка синтаксиса PowerShell при создании инструмента '{tool_name}': {'; '.join(errs)}"
+                logger.warning(f"[CreateCustomToolMetaTool] {err_msg}")
+                return ToolExecutionResult(
+                    tool_name=self.name,
+                    status='error',
+                    data={'syntax_errors': errs},
+                    message=err_msg,
+                    command_executed=probe_script
+                )
+
             tool = self.factory.create_and_register(tool_name=tool_name, tool_title=tool_title, description_ru=description_ru, probe_script=probe_script, instructions=instructions)
             exec_res = await tool.execute()
             return ToolExecutionResult(tool_name=self.name, status='ok' if exec_res.status == 'ok' else 'warn', data=exec_res.data, message=f"Инструмент '{tool.title}' успешно создан, зарегистрирован в рантайме и выполнен.", command_executed=tool.probe_script, metadata={'created_tool_name': tool.name, 'created_tool_title': tool.title, 'created_tool_description': tool.description, 'is_new_tool': True, 'instructions': tool.instructions})

@@ -245,3 +245,4 @@ WINDOWS_FOCUS_TOOLS = [
     windows_focus_session_action,
     windows_focus_notifications,
 ]
+

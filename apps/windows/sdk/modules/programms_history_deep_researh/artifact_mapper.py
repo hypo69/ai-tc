@@ -40,3 +40,4 @@ def map_artifacts(programs: List[Dict], artifacts: List[Dict]) -> Tuple[List[Dic
         if not matched:
             unknown.append(art)
     return mapped, unknown
+

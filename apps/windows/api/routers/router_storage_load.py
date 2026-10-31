@@ -17,7 +17,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 10:45:00
+# Updated: 2026-10-31 18:55:00
 # =============================================================================
 
 from __future__ import annotations
@@ -506,6 +506,11 @@ def build_storage_load(
     )
 
 
+_CACHED_PHYSICAL_DISKS: List[Any] = []
+_LAST_PHYSICAL_DISKS_TIME: float = 0.0
+_PHYSICAL_DISKS_CACHE_TTL: float = 60.0
+
+
 def init_router(
     storage_sensor: Optional[WindowsStorageSensor] = None,
 ) -> APIRouter:
@@ -522,31 +527,38 @@ def init_router(
     @router.get("/api/v1/panel/storage-load", response_model=StorageLoadResponse)
     async def get_panel_storage_load() -> StorageLoadResponse:
         """Возвращает детальную загрузку, температуру и емкость всех накопителей из телеметрии БД."""
+        global _CACHED_PHYSICAL_DISKS, _LAST_PHYSICAL_DISKS_TIME
         try:
             sensors: List[Dict[str, Any]] = []
             physical_disks: List[Any] = []
             partitions_data: Optional[List[Dict[str, Any]]] = None
+            now = time.time()
 
-            # 1. Попытка прочитать актуальные данные дисков из SQLite телеметрии
-            try:
-                from apps.windows.telemetry.sqlite import TelemetryStorage
-                storage = TelemetryStorage.get_instance(read_only=True)
-                storage_data = storage.get_latest_storage_data()
-                if storage_data.get("physical_disks"):
-                    physical_disks = storage_data["physical_disks"]
-                if storage_data.get("partitions"):
-                    partitions_data = storage_data["partitions"]
+            # 1. Проверяем свежий кэш накопителей в памяти
+            if _CACHED_PHYSICAL_DISKS and (now - _LAST_PHYSICAL_DISKS_TIME) < _PHYSICAL_DISKS_CACHE_TTL:
+                physical_disks = list(_CACHED_PHYSICAL_DISKS)
 
-                if not physical_disks:
-                    snap = storage.get_latest_snapshot_full() or {}
-                    if snap.get("physical_disks"):
-                        physical_disks = snap["physical_disks"]
-                    if not partitions_data and snap.get("disks"):
-                        partitions_data = snap["disks"]
-            except Exception as db_err:
-                logger.debug(f"[router_storage_load] Не удалось прочитать накопители из SQLite: {db_err}")
+            # 2. Попытка прочитать актуальные данные дисков из SQLite телеметрии
+            if not physical_disks:
+                try:
+                    from apps.windows.telemetry.sqlite import TelemetryStorage
+                    storage = TelemetryStorage.get_instance(read_only=True)
+                    storage_data = storage.get_latest_storage_data()
+                    if storage_data.get("physical_disks"):
+                        physical_disks = storage_data["physical_disks"]
+                    if storage_data.get("partitions"):
+                        partitions_data = storage_data["partitions"]
 
-            # 2. Если снимков еще нет — извлекаем инвентарь дисков из SQLite БД или живого WindowsStorageSensor
+                    if not physical_disks:
+                        snap = storage.get_latest_snapshot_full() or {}
+                        if snap.get("physical_disks"):
+                            physical_disks = snap["physical_disks"]
+                        if not partitions_data and snap.get("disks"):
+                            partitions_data = snap["disks"]
+                except Exception as db_err:
+                    logger.debug(f"[router_storage_load] Не удалось прочитать накопители из SQLite: {db_err}")
+
+            # 3. Если снимков еще нет — извлекаем инвентарь дисков из SQLite БД или живого WindowsStorageSensor
             if not physical_disks:
                 try:
                     physical_disks = storage.get_disk_inventory() or []
@@ -556,9 +568,13 @@ def init_router(
             if not physical_disks:
                 try:
                     sensor = storage_sensor or WindowsStorageSensor()
-                    physical_disks = sensor.get_physical_disks() or []
+                    physical_disks = sensor.get_physical_disks(sync=True) or []
                 except Exception as ex:
                     logger.debug(f"[router_storage_load] Fallback WindowsStorageSensor error: {ex}")
+
+            if physical_disks:
+                _CACHED_PHYSICAL_DISKS = list(physical_disks)
+                _LAST_PHYSICAL_DISKS_TIME = now
 
             return build_storage_load(
                 sensors=sensors,
@@ -583,3 +599,4 @@ __all__ = [
     "_find_matching_key",
     "extract_smart_temperature",
 ]
+

@@ -16,7 +16,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-10-30 18:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -34,6 +34,7 @@ from logger import logger
 
 # Пути к директориям меню
 _LOCAL_CONFIG_MENUES = Path(__file__).resolve().parents[1] / 'webgui' / 'config_menues'
+_LOCAL_CONFIG = Path(__file__).resolve().parents[1] / 'webgui' / 'config'
 
 
 def _get_config_path(target: Optional[str] = None) -> Path:
@@ -52,6 +53,8 @@ def _get_config_path(target: Optional[str] = None) -> Path:
         file_name = f"{target.lower()}_menu_config.json"
 
     local_path = _LOCAL_CONFIG_MENUES / file_name
+    if not local_path.exists() and (_LOCAL_CONFIG / file_name).exists():
+        return _LOCAL_CONFIG / file_name
     return local_path
 
 
@@ -114,7 +117,13 @@ def init_router() -> APIRouter:
         config_path = _get_config_path(target)
         try:
             config_path.parent.mkdir(parents=True, exist_ok=True)
-            config_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
+            formatted_json = json.dumps(payload, ensure_ascii=False, indent=2)
+            config_path.write_text(formatted_json, encoding='utf-8')
+
+            # Синхронизируем также с альтернативной директорией config/
+            alt_path = _LOCAL_CONFIG / config_path.name
+            if _LOCAL_CONFIG.exists():
+                alt_path.write_text(formatted_json, encoding='utf-8')
 
             logger.info(f"[router_menu] Конфигурация меню успешно сохранена в {config_path.name}")
             return {"status": "ok", "message": f"Конфигурация меню успешно сохранена в {config_path.name}"}
@@ -126,3 +135,4 @@ def init_router() -> APIRouter:
 
 
 __all__ = ['init_router']
+

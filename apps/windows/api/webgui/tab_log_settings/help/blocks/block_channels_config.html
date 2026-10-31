@@ -1,0 +1,60 @@
+<!--
+=============================================================================
+Process Name: Windows Log Settings - Atomic Help Block: Channels Configuration
+=============================================================================
+Description:
+  Атомарный HTML-фрагмент справки по подразделу «Параметры и размеры каналов»
+  (#ls-subpane-channels) в #tab-app-internals#settings.
+
+File: block_channels_config.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_log_settings/help/blocks
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 17:45:00
+=============================================================================
+-->
+<div class="card bg-body border-subtle shadow-sm mb-3 help-atomic-block" data-help-block="block_channels_config">
+  <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between py-2 px-3">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-sliders text-primary fs-5"></i>
+      <h6 class="mb-0 fw-bold text-body" data-i18n="logSettingsHelp.channels.title">3. Подраздел «Параметры и размеры каналов»</h6>
+    </div>
+    <span class="ui-badge ui-badge-neutral">panel-log-settings-6</span>
+  </div>
+  <div class="card-body p-3">
+    <p class="small text-muted mb-3" data-i18n="logSettingsHelp.channels.intro">
+      Табличный менеджер всех каналов Windows Event Log позволяет контролировать квоты дискового пространства, диапазоны записей (Oldest..Newest Record ID) и политики ротации без вызова системной оснастки <code>eventvwr.msc</code>:
+    </p>
+    <div class="row g-2">
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-gear-fill text-info"></i>
+            <span data-i18n="logSettingsHelp.channels.configModalTitle">Настройка канала (Кнопка шестеренки)</span>
+          </strong>
+          <ul class="small text-muted mb-0 ps-3">
+            <li data-i18n="logSettingsHelp.channels.cfg1"><strong>Максимальный размер (Max Size):</strong> ручной ввод в МБ или быстрые пресеты (<code>20 MB</code>, <code>64 MB</code>, <code>128 MB</code>, <code>256 MB</code>, <code>512 MB</code>, <code>1 GB</code>, <code>2 GB</code>).</li>
+            <li data-i18n="logSettingsHelp.channels.cfg2"><strong>Включить сбор (Enabled):</strong> активация/остановка записи в канал (аналог <code>wevtutil sl /e:true</code>).</li>
+            <li data-i18n="logSettingsHelp.channels.cfg3"><strong>Автоархивация (AutoBackup):</strong> автоматическое сохранение переполненного журнала в архивный файл <code>.evtx</code>.</li>
+            <li data-i18n="logSettingsHelp.channels.cfg4"><strong>Политика удержания (Retention):</strong> блокировка перезаписи старых событий (по умолчанию используется кольцевой буфер <code>FIFO</code>).</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-trash3-fill text-danger"></i>
+            <span data-i18n="logSettingsHelp.channels.clearModalTitle">Безопасная очистка с резервной копией</span>
+          </strong>
+          <p class="small text-muted mb-2" data-i18n="logSettingsHelp.channels.clearModalDesc">
+            Кнопка корзины открывает диалог очистки выбранного журнала. По умолчанию включена опция <strong>«Создать резервную копию (.evtx) перед очисткой»</strong> с автоматической генерацией пути вида <code>C:\Windows\Temp\evtx_backup_&lt;Channel&gt;_&lt;Timestamp&gt;.evtx</code>.
+          </p>
+          <div class="small text-muted" data-i18n="logSettingsHelp.channels.clearNote">
+            <i class="bi bi-exclamation-circle text-warning me-1"></i>При очистке канала <code>Security</code> система автоматически генерирует аудиторское событие <code>Event ID 1102</code>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

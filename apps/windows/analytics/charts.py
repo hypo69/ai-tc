@@ -439,3 +439,4 @@ class TelemetryChartGenerator:
 </body>
 </html>
 """
+

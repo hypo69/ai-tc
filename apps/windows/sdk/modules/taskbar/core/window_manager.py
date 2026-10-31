@@ -294,3 +294,4 @@ class WindowManager:
             "action": req.action,
             "affected_windows_count": affected,
         }
+

@@ -136,3 +136,4 @@ class WindowsSandboxInspector:
                 launched=False,
                 error=str(ex)
             )
+

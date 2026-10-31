@@ -78,20 +78,20 @@ WikiLLM не только сохраняет знания от LLM, но и фи
 
 ```powershell
 # Разрешить ошибку или событие
-py -m apps.windows.wikillm resolve "0x80070490"
-py -m apps.windows.wikillm resolve "Event ID 10016 DistributedCOM"
+py -m src.ai.wikillm resolve "0x80070490"
+py -m src.ai.wikillm resolve "Event ID 10016 DistributedCOM"
 
 # Полнотекстовый поиск по базе знаний
-py -m apps.windows.wikillm search "DCOM permissions"
+py -m src.ai.wikillm search "DCOM permissions"
 
 # Индексация исходного кода
-py -m apps.windows.wikillm index-code --path apps/windows
+py -m src.ai.wikillm index-code --path apps/windows
 
 # Просмотр статистики кэш-хитов и сущностей
-py -m apps.windows.wikillm stats
+py -m src.ai.wikillm stats
 
 # Интерактивный терминал
-py -m apps.windows.wikillm tui
+py -m src.ai.wikillm tui
 ```
 
 ---
@@ -138,8 +138,8 @@ py -m apps.windows.wikillm tui
 
 2. **Программно через Pydantic-модель:**
    ```python
-   from apps.windows.wikillm.config import WikiLLMConfig
-   from apps.windows.wikillm.engine import WikiEngine
+   from src.ai.wikillm.config import WikiLLMConfig
+   from src.ai.wikillm.engine import WikiEngine
 
    config = WikiLLMConfig(database_path="data/windows_wikillm/knowledge.db")
    engine = WikiEngine(config=config)
@@ -147,7 +147,7 @@ py -m apps.windows.wikillm tui
 
 3. **Напрямую в хранилище `WikiStorage`:**
    ```python
-   from apps.windows.wikillm.storage import WikiStorage
+   from src.ai.wikillm.storage import WikiStorage
 
    # Использование файла на диске
    storage = WikiStorage(db_path="data/windows_wikillm/knowledge.db")

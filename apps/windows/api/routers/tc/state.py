@@ -77,3 +77,4 @@ def get_diagnostician() -> SystemAIDiagnostician:
     if _diagnostician is None:
         _diagnostician = SystemAIDiagnostician()
     return _diagnostician
+

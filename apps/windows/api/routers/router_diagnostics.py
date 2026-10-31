@@ -19,7 +19,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-22 14:40:00
+# Updated: 2026-10-31 19:10:00
 # =============================================================================
 
 from __future__ import annotations
@@ -43,6 +43,7 @@ from pydantic import BaseModel, Field
 
 from header import __root__
 from logger import logger
+from utils.command_validator import run_safe
 
 
 class DiagnosticExplainRequest(BaseModel):
@@ -63,11 +64,12 @@ class DiagnosticExplainRequest(BaseModel):
     question: Optional[str] = Field(default=None, description="Опциональный вопрос администратора")
     lang: Optional[str] = Field(default=None, description="Язык интерфейса и шаблона промпта (ru, en, etc.)")
     use_wikillm: bool = Field(default=True, description="Использовать ли локальную базу знаний WikiLLM для проверки и обогащения")
+    wikillm_general_data: Optional[Dict[str, Any]] = Field(default=None, description="Справочные данные из базы знаний WikiLLM")
 
 
 class DiagnosticExplainResponse(BaseModel):
     """Структурированный ответ AI-диагностики элемента таблицы."""
-    summary: str = Field(description="Краткое понятное описание назначения элемента")
+    summary: str = Field(description="Краткое понятное описание назначения элемента или анализ ресурсов")
     developer: str = Field(default="Неизвестен", description="Разработчик / принадлежность / вендор")
     category: str = Field(default="Системный компонент", description="Категория элемента")
     security_verdict: str = Field(description="Оценка безопасности, легитимности и рисков")
@@ -85,6 +87,9 @@ class DiagnosticExplainResponse(BaseModel):
     canonical_key: Optional[str] = Field(default=None, description="Канонический ключ сущности в WikiLLM")
     source: str = Field(default="gemini", description="Источник ответа (wikillm / gemini / heuristic / not_found)")
     is_verified: bool = Field(default=False, description="Признак верификации знания в WikiLLM")
+    general_summary: Optional[str] = Field(default=None, description="Общие справочные данные о программе из WikiLLM")
+    has_wikillm_general_data: bool = Field(default=False, description="Признак наличия общих данных о программе в WikiLLM")
+    telemetry_data: Optional[Dict[str, Any]] = Field(default=None, description="Расширенная телеметрия текущего инстанса процесса")
 
 
 class DiagnosticSuggestQuestionsRequest(BaseModel):
@@ -293,6 +298,133 @@ def _extract_and_parse_json(text: str) -> tuple[Optional[Any], Optional[Exceptio
 
     return None, last_err
 
+async def _collect_expanded_process_telemetry(
+    req: DiagnosticExplainRequest,
+    canonical_key: Optional[str] = None
+) -> Dict[str, Any]:
+    """Собирает расширенную телеметрию текущего инстанса процесса (Live Snapshot)."""
+    target_pid: Optional[int] = None
+
+    # 1. Поиск PID в metadata
+    for pid_key in ("pid", "PID", "main_pid", "target_pid"):
+        val = req.metadata.get(pid_key)
+        if val is not None:
+            try:
+                target_pid = int(val)
+                if target_pid > 0:
+                    break
+            except (ValueError, TypeError):
+                pass
+
+    # 2. Поиск PID в title или subtitle
+    if not target_pid:
+        m = re.search(r"[\s\[\(]+PID[:\s]*(\d+)[\s\]\)]*", f"{req.title} {req.subtitle or ''}", re.IGNORECASE)
+        if m:
+            try:
+                target_pid = int(m.group(1))
+            except (ValueError, TypeError):
+                pass
+
+    # 3. Поиск PID в raw_data
+    raw_dict: Dict[str, Any] = {}
+    if req.raw_data and req.raw_data.strip().startswith("{"):
+        try:
+            raw_dict = json.loads(req.raw_data)
+            if not target_pid:
+                for k in ("pid", "main_pid", "PID"):
+                    if raw_dict.get(k):
+                        target_pid = int(raw_dict[k])
+                        break
+        except Exception:
+            pass
+
+    # 4. Если PID не найден, ищем активный процесс по имени
+    clean_proc_name = ""
+    if canonical_key and canonical_key.startswith("process:"):
+        clean_proc_name = canonical_key.replace("process:", "").strip().lower()
+    elif req.title:
+        clean_proc_name = req.title.split()[0].strip().lower()
+
+    if not target_pid and clean_proc_name:
+        try:
+            import psutil
+            for p in psutil.process_iter(["pid", "name"]):
+                try:
+                    if p.info["name"] and p.info["name"].lower() == clean_proc_name:
+                        target_pid = p.info["pid"]
+                        break
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    continue
+        except Exception:
+            pass
+
+    telemetry: Dict[str, Any] = {}
+    if target_pid and target_pid > 0:
+        try:
+            from apps.windows.api.routers.router_telemetry import get_process_deep_history
+            deep_hist = await get_process_deep_history(target_pid)
+            if hasattr(deep_hist, "model_dump"):
+                telemetry = deep_hist.model_dump()
+            elif isinstance(deep_hist, dict):
+                telemetry = dict(deep_hist)
+        except Exception as deep_ex:
+            logger.debug(f"[RouterDiagnostics] get_process_deep_history({target_pid}) fallback: {deep_ex}")
+
+    # Резервный опрос SQLite
+    if not telemetry and target_pid:
+        try:
+            from apps.windows.telemetry.sqlite import TelemetryStorage
+            storage = TelemetryStorage.get_instance(read_only=True)
+            snap = storage.get_process_pid_snapshot(pid=target_pid)
+            if snap:
+                telemetry = dict(snap)
+        except Exception:
+            pass
+
+    # Базовый срез телеметрии при отсутствии прямого доступа
+    if not telemetry:
+        telemetry = {
+            "pid": target_pid or "-",
+            "process_name": clean_proc_name or req.title,
+            "executable_path": req.metadata.get("exe_path") or req.metadata.get("executable") or raw_dict.get("exe_path"),
+            "command_line": req.metadata.get("command_line") or req.metadata.get("cmdline") or raw_dict.get("command_line"),
+            "cpu_percent": float(req.metadata.get("cpu_percent") or raw_dict.get("cpu_percent") or 0.0),
+            "memory_working_set_mb": float(req.metadata.get("memory_working_set_mb") or req.metadata.get("memory_mb") or raw_dict.get("memory_mb") or 0.0),
+            "memory_private_bytes_mb": float(req.metadata.get("memory_private_bytes_mb") or raw_dict.get("memory_private_bytes_mb") or 0.0),
+            "handles_count": int(req.metadata.get("handles_count") or req.metadata.get("handles") or raw_dict.get("handles") or 0),
+            "thread_count": int(req.metadata.get("thread_count") or req.metadata.get("threads") or raw_dict.get("num_threads") or 1),
+            "active_sockets_count": int(req.metadata.get("active_sockets_count") or req.metadata.get("active_sockets") or 0),
+            "user_name": req.metadata.get("username") or raw_dict.get("username"),
+        }
+
+    # Обогащаем ключами из metadata, если они не были заполнены
+    for m_key in ("memory_working_set_mb", "memory_private_bytes_mb", "memory_peak_working_set_mb", "handles_count", "thread_count", "active_sockets_count"):
+        if m_key in req.metadata and req.metadata[m_key] is not None and not telemetry.get(m_key):
+            telemetry[m_key] = req.metadata[m_key]
+
+    # Обогащаем данными о группе процессов, если это сводная группа
+    if raw_dict.get("subprocesses") or raw_dict.get("instance_count", 1) > 1 or req.metadata.get("is_group"):
+        subs = raw_dict.get("subprocesses") or []
+        telemetry["is_process_group"] = True
+        telemetry["group_instance_count"] = raw_dict.get("instance_count") or len(subs) or 1
+        telemetry["group_total_memory_mb"] = raw_dict.get("total_memory_mb") or req.metadata.get("total_memory_mb")
+        telemetry["group_total_cpu_percent"] = raw_dict.get("total_cpu_percent") or req.metadata.get("total_cpu_percent")
+        telemetry["group_total_threads"] = raw_dict.get("total_threads") or req.metadata.get("total_threads")
+        if subs:
+            telemetry["subprocesses_summary"] = [
+                {
+                    "pid": s.get("pid"),
+                    "memory_mb": s.get("memory_mb"),
+                    "cpu_percent": s.get("cpu_percent"),
+                    "threads": s.get("num_threads"),
+                    "command_line": s.get("command_line") or s.get("cmdline"),
+                }
+                for s in subs[:15]
+            ]
+
+    return telemetry
+
+
 # Памятный кэш для быстрых вопросов (предотвращает повторные вызовы LLM)
 _QUESTIONS_CACHE: Dict[str, List[str]] = {}
 
@@ -447,45 +579,28 @@ try {{
                             except Exception:
                                 pass
 
-                # Стандартный непривилегированный запуск
-                if shell_type == "cmd":
-                    cmd_args = ["cmd.exe", "/c", raw_cmd]
-                elif shell_type == "pwsh":
-                    cmd_args = ["pwsh.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", raw_cmd]
-                else:
-                    cmd_args = ["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", raw_cmd]
-
-                try:
-                    proc = subprocess.run(
-                        cmd_args,
-                        capture_output=True,
-                        text=True,
-                        encoding="oem",
-                        errors="replace",
-                        timeout=req.timeout_sec,
-                    )
-                except FileNotFoundError:
-                    if shell_type == "pwsh":
-                        logger.warning("pwsh.exe не найден на хосте, автоматический откат на powershell.exe")
-                        proc = subprocess.run(
-                            ["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", raw_cmd],
-                            capture_output=True,
-                            text=True,
-                            encoding="oem",
-                            errors="replace",
-                            timeout=req.timeout_sec,
-                        )
-                    else:
-                        raise
-
-                elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
-                return DiagnosticExecuteCommandResponse(
-                    success=(proc.returncode == 0),
-                    returncode=proc.returncode,
-                    stdout=proc.stdout or "",
-                    stderr=proc.stderr or "",
-                    execution_time_ms=elapsed_ms,
+                # Стандартный непривилегированный запуск через модуль самопроверки run_safe
+                safe_res = run_safe(
                     command=raw_cmd,
+                    dry_run=False,
+                    timeout_sec=req.timeout_sec,
+                    shell=shell_type,
+                    as_admin=False,
+                    enforce_error_visibility=True,
+                )
+                elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
+                err_text = safe_res.get("stderr") or ""
+                if safe_res.get("warnings"):
+                    warn_prefix = "\n".join(f"[Предупреждение]: {w}" for w in safe_res["warnings"])
+                    err_text = f"{warn_prefix}\n{err_text}".strip()
+
+                return DiagnosticExecuteCommandResponse(
+                    success=safe_res.get("success", False),
+                    returncode=safe_res.get("returncode", 0),
+                    stdout=safe_res.get("stdout") or "",
+                    stderr=err_text,
+                    execution_time_ms=elapsed_ms,
+                    command=safe_res.get("sanitized_command") or raw_cmd,
                 )
             except subprocess.TimeoutExpired:
                 elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
@@ -630,6 +745,7 @@ try {{
 
 
 
+
     @router.post("/explain", response_model=DiagnosticExplainResponse)
     async def explain_table_item(req: DiagnosticExplainRequest) -> DiagnosticExplainResponse:
         """Генерирует AI-объяснение и оценку для выбранного элемента таблицы."""
@@ -646,6 +762,18 @@ try {{
             logger.debug(f"Ошибка вычисления канонического ключа WikiLLM: {e}")
 
         # 2. Проверяем наличие верифицированного знания в локальной базе WikiLLM
+        is_process_type = (
+            req.table_type.lower() in ("process", "proc")
+            or (canonical_key and canonical_key.startswith("process:"))
+            or (req.panel_id and ("process" in req.panel_id.lower() or "top-proc" in req.panel_id.lower()))
+        )
+
+        wikillm_entity = None
+        dev_text = req.subtitle or "Неизвестен"
+        sec_text = "Проверено в базе знаний WikiLLM"
+        dev_advice = ""
+        matched_key = canonical_key
+
         if getattr(req, "use_wikillm", True) and canonical_key and not getattr(req, "force_refresh", False):
             try:
                 from apps.windows.wikillm.router import get_engine
@@ -677,6 +805,7 @@ try {{
                         break
 
                 if entity:
+                    wikillm_entity = entity
                     rec_text = "Оставить без изменений."
                     dev_advice = ""
                     for c in entity.claims:
@@ -691,20 +820,26 @@ try {{
                     sec_text = entity.diagnostic_info.symptoms[0] if entity.diagnostic_info and entity.diagnostic_info.symptoms else "Проверено в базе знаний WikiLLM"
                     dev_text = entity.diagnostic_info.related_components[0] if entity.diagnostic_info and entity.diagnostic_info.related_components else req.subtitle or "Верифицировано"
 
-                    logger.info(f"[WikiLLM] Мгновенный ответ из базы знаний для '{matched_key}' (верифицировано)")
-                    return DiagnosticExplainResponse(
-                        summary=entity.summary,
-                        developer=dev_text,
-                        category=entity.category,
-                        security_verdict=sec_text,
-                        performance_impact="В пределах нормы (из базы знаний WikiLLM)",
-                        recommendation=rec_text,
-                        action_steps=actions or ["Действий не требуется."],
-                        developer_advice=dev_advice,
-                        canonical_key=matched_key,
-                        source="wikillm",
-                        is_verified=True,
-                    )
+                    # Для процессов: если запрошена ТОЛЬКО проверка кэша (cache_only), возвращаем общие данные.
+                    # Но если запрашивается полноценный анализ (not cache_only), не прерываем выполнение!
+                    # Сохраняем wikillm_entity и переходим к запросу анализа live-параметров процесса моделью.
+                    if req.cache_only or not is_process_type:
+                        logger.info(f"[WikiLLM] Мгновенный ответ из базы знаний для '{matched_key}' (верифицировано)")
+                        return DiagnosticExplainResponse(
+                            summary=entity.summary,
+                            developer=dev_text,
+                            category=entity.category,
+                            security_verdict=sec_text,
+                            performance_impact="В пределах нормы (из базы знаний WikiLLM)",
+                            recommendation=rec_text,
+                            action_steps=actions or ["Действий не требуется."],
+                            developer_advice=dev_advice,
+                            canonical_key=matched_key,
+                            source="wikillm",
+                            is_verified=True,
+                            general_summary=entity.summary,
+                            has_wikillm_general_data=True,
+                        )
             except Exception as e:
                 logger.debug(f"Проверка WikiLLM пропущена: {e}")
 
@@ -721,20 +856,81 @@ try {{
                 canonical_key=canonical_key,
                 source="not_found",
                 is_verified=False,
+                has_wikillm_general_data=False,
             )
+
+        # Сбор расширенной телеметрии для процессов
+        expanded_telemetry: Optional[Dict[str, Any]] = None
+        if is_process_type:
+            expanded_telemetry = await _collect_expanded_process_telemetry(req, canonical_key)
 
         # Получаем соответствующий шаблон промпта для типа таблицы с приоритетом panel_id
         tmpl = prompt_manager.get_template(req.table_type, panel_id=req.panel_id, lang=req.lang)
         sys_instruction = req.system_instruction.strip() if (req.system_instruction and req.system_instruction.strip()) else tmpl.system_instruction
 
-        # 3. Вызов языковой модели без искусственного таймаута и без эвристической подмены
-        try:
-            prov = (req.provider or "gemini").lower().strip()
-            model_name = _resolve_diagnostic_model(
-                requested_model=req.model,
-                web_search=req.web_search,
+        if is_process_type and wikillm_entity and expanded_telemetry:
+            # Кардинально обновленная логика: общие данные уже есть в WikiLLM.
+            # Запрашиваем у модели исключительно анализ текущего потребления и состояния ресурсов процесса по расширенной телеметрии.
+            sys_instruction = (
+                "Ты — ведущий эксперт по мониторингу производительности и профилированию процессов Windows (Windows Performance & Resource Analyst). "
+                "Твоя задача — провести глубокий анализ текущего потребления и состояния ресурсов запущенного процесса на основе предоставленной детальной телеметрии. "
+                "Общие сведения о назначении программы и разработчике уже известны из базы знаний WikiLLM. "
+                "НЕ ОПИСЫВАЙ заново, что это за программа! Сконцентрируйся исключительно на анализе текущих параметров, эффективности, утечек, нагрузке на подсистемы и состоянии процесса. "
+                "Отвечай строго в формате чистого JSON на русском языке."
             )
+            prompt = f"""[ОБЩИЕ ДАННЫЕ ПРОЦЕССА ИЗ БАЗЫ ЗНАНИЙ WIKILLM]:
+- Исполняемый файл: {wikillm_entity.name}
+- Разработчик / Вендор: {dev_text}
+- Категория: {wikillm_entity.category}
+- Назначение / Описание программы: {wikillm_entity.summary}
+- Базовая оценка доверия и безопасности: {sec_text}
 
+[АКТУАЛЬНАЯ ТЕЛЕМЕТРИЯ ТЕКУЩЕГО ИНСТАНСА ПРОЦЕССА (EXPANDED RUNTIME TELEMETRY JSON)]:
+{json.dumps(expanded_telemetry, ensure_ascii=False, indent=2)}
+
+[ЗАДАНИЕ НА АНАЛИЗ ТЕКУЩИХ ПАРАМЕТРОВ И СОСТОЯНИЯ РЕСУРСОВ]:
+ВНИМАНИЕ: Описание того, что это за процесс, разработчик и его общее назначение УЖЕ ИЗВЕСТНЫ из базы знаний WikiLLM (приведены выше).
+НЕ ПОВТОРЯЙ и НЕ ОПИСЫВАЙ заново, что это за программа!
+Твоя задача — провести СТРОГО АНАЛИЗ ТЕКУЩИХ ПАРАМЕТРОВ, ПОТРЕБЛЕНИЯ И СОСТОЯНИЯ РЕСУРСОВ этого процесса на основе предоставленной расширенной телеметрии:
+1. Оцени текущее потребление ресурсов: нагрузка на процессор (CPU: {expanded_telemetry.get('cpu_percent', 0)}%), оперативная память (Working Set: {expanded_telemetry.get('memory_working_set_mb', 0)} МБ, Private Bytes: {expanded_telemetry.get('memory_private_bytes_mb', 0)} МБ, Peak: {expanded_telemetry.get('memory_peak_working_set_mb', 0)} МБ, Page Faults: {expanded_telemetry.get('memory_page_faults_total', 0)}), дескрипторы ({expanded_telemetry.get('handles_count', 0)}), потоки ({expanded_telemetry.get('thread_count', 1)}), дисковый ввод-вывод (чтение/запись МБ и операций), сетевые сокеты и соединения ({expanded_telemetry.get('active_sockets_count', 0)} сокетов).
+2. Соответствует ли текущая нагрузка нормальному поведению данного типа ПО?
+3. Есть ли признаки утечек памяти (memory leak), зависания в бесконечном цикле, взрывного роста дескрипторов, I/O thrashing или скрытой сетевой активности?
+4. Сформулируй вердикт по ресурсам и дай конкретные практические рекомендации администратору (нужна ли оптимизация, перезапуск, изменение приоритета, завершение процесса при простое, или ресурсы потребляются штатно).
+
+Верни СТРОГО валидный JSON следующей схемы:
+{{
+  "summary": "Анализ текущего потребления и состояния ресурсов: подробная оценка работы процесса (PID {expanded_telemetry.get('pid', '-')}), оценка нагрузки на CPU ({expanded_telemetry.get('cpu_percent', 0)}%) и память (WS: {expanded_telemetry.get('memory_working_set_mb', 0)} MB, Private: {expanded_telemetry.get('memory_private_bytes_mb', 0)} MB), оценка дескрипторов ({expanded_telemetry.get('handles_count', 0)}) и потоков ({expanded_telemetry.get('thread_count', 1)}). Диагностика текущего поведения.",
+  "developer": "{dev_text}",
+  "category": "{wikillm_entity.category}",
+  "performance_impact": "Детальный срез по подсистемам: ЦП, ОЗУ, Дисковый ввод-вывод (чтение/запись МБ и IOPS), Сетевой трафик и сокеты, Дескрипторы ОС.",
+  "security_verdict": "Анализ безопасности текущей сессии: путь запуска, учетная запись пользователя, активные сетевые сокеты, порождение дочерних процессов.",
+  "recommendation": "Четкая практическая рекомендация системному администратору по управлению ресурсами процесса (штатная работа / требуется оптимизация / рекомендуется перезапуск / ограничить приоритет / завершить при простое).",
+  "action_steps": ["Рекомендованное действие 1", "Рекомендованное действие 2"]
+}}
+"""
+        elif is_process_type and expanded_telemetry:
+            # Общих данных в WikiLLM пока нет: запрашиваем и общую идентификацию (general_summary), и анализ ресурсов
+            prompt = f"""[АКТУАЛЬНАЯ ТЕЛЕМЕТРИЯ ПРОЦЕССА (EXPANDED RUNTIME TELEMETRY JSON)]:
+{json.dumps(expanded_telemetry, ensure_ascii=False, indent=2)}
+
+[ЗАДАНИЕ ДЛЯ ЭКСПЕРТА ПО ПРОЦЕССАМ И РЕСУРСАМ WINDOWS]:
+Проведи детальный аудит процесса. В базе знаний WikiLLM пока нет общих данных об этой программе.
+Определи общее назначение программы (general_summary) И проведи анализ текущего потребления ресурсов по предоставленной телеметрии:
+- CPU: {expanded_telemetry.get('cpu_percent', 0)}%, RAM: {expanded_telemetry.get('memory_working_set_mb', 0)} MB, Handles: {expanded_telemetry.get('handles_count', 0)}, Threads: {expanded_telemetry.get('thread_count', 1)}.
+
+Верни СТРОГО валидный JSON следующей схемы:
+{{
+  "general_summary": "Краткое общее описание программы (что это за ПО, назначение, официальный вендор/сайт, легитимность)",
+  "summary": "Анализ текущего потребления и состояния ресурсов: подробная оценка работы процесса (PID {expanded_telemetry.get('pid', '-')}), оценка нагрузки на CPU ({expanded_telemetry.get('cpu_percent', 0)}%) и память (WS: {expanded_telemetry.get('memory_working_set_mb', 0)} MB), оценка дескрипторов ({expanded_telemetry.get('handles_count', 0)}) и потоков ({expanded_telemetry.get('thread_count', 1)}). Диагностика текущего поведения.",
+  "developer": "Точный разработчик / вендор",
+  "category": "Категория процесса",
+  "performance_impact": "Детальный срез по подсистемам: ЦП, ОЗУ, Диск, Сеть, Дескрипторы.",
+  "security_verdict": "Оценка безопасности сессии и прав запуска.",
+  "recommendation": "Практическая рекомендация по ресурсам процесса.",
+  "action_steps": ["Рекомендованное действие 1", "Рекомендованное действие 2"]
+}}
+"""
+        else:
             prompt = tmpl.format_prompt(
                 title=req.title,
                 subtitle=req.subtitle or "",
@@ -745,6 +941,10 @@ try {{
             if eff_custom_q:
                 prompt += f"\n\n[Целевой вопрос / приоритетный аспект анализа от администратора]:\n{eff_custom_q}"
 
+        prov = (req.provider or "gemini").lower().strip()
+        model_name = _resolve_diagnostic_model(requested_model=req.model, web_search=req.web_search)
+
+        try:
             async def _invoke_ai_model(prompt_text: str, current_sys_instruction: str, cfg: Dict[str, Any]) -> str:
                 if prov == "gemini_cli":
                     from src.ai.providers.gemini_cli import GeminiCliChatBase
@@ -865,18 +1065,25 @@ try {{
                 if isinstance(dev_advice, (dict, list)):
                     dev_advice = json.dumps(dev_advice, ensure_ascii=False, indent=2)
 
+                gen_sum = wikillm_entity.summary if wikillm_entity else data.get("general_summary")
+                eff_dev = data.get("developer") or (dev_text if wikillm_entity else (req.subtitle or "Неизвестен"))
+                eff_cat = data.get("category") or (wikillm_entity.category if wikillm_entity else "Диагностика")
+
                 return DiagnosticExplainResponse(
                     summary=data.get("summary", ""),
-                    developer=data.get("developer", req.subtitle or "Неизвестен"),
-                    category=data.get("category", "Диагностика"),
+                    developer=eff_dev,
+                    category=eff_cat,
                     security_verdict=data.get("security_verdict", "Оценка безопасности завершена."),
                     performance_impact=data.get("performance_impact", "В пределах нормы."),
                     recommendation=data.get("recommendation", "Оставить как есть."),
                     action_steps=data.get("action_steps", ["Проверьте актуальность конфигурации."]),
                     developer_advice=str(dev_advice),
-                    canonical_key=canonical_key,
-                    source=prov,
-                    is_verified=False,
+                    canonical_key=matched_key if wikillm_entity else canonical_key,
+                    source="wikillm_resource_analysis" if wikillm_entity else prov,
+                    is_verified=bool(wikillm_entity),
+                    general_summary=gen_sum,
+                    has_wikillm_general_data=bool(wikillm_entity),
+                    telemetry_data=expanded_telemetry if is_process_type else None,
                 )
 
             raise HTTPException(
@@ -896,7 +1103,14 @@ try {{
     async def approve_knowledge_endpoint(req: Dict[str, Any]) -> Dict[str, Any]:
         """Одобряет результат диагностики и фиксирует его в базе знаний WikiLLM."""
         from apps.windows.wikillm.router import approve_knowledge as wikillm_approve, ApproveKnowledgeRequest
-        req_obj = ApproveKnowledgeRequest(**req)
+        req_copy = dict(req)
+        if req_copy.get("table_type") == "process" or (str(req_copy.get("canonical_key") or "").startswith("process:")):
+            import re
+            req_copy["title"] = re.sub(r"[\s\[\(]+PID[:\s]*\d+[\s\]\)]*", "", req_copy.get("title", ""), flags=re.IGNORECASE).strip()
+            if req_copy.get("general_summary"):
+                req_copy["summary"] = req_copy["general_summary"]
+            req_copy["performance_impact"] = "Штатный профиль приложения (из базы знаний WikiLLM)"
+        req_obj = ApproveKnowledgeRequest(**req_copy)
         return await wikillm_approve(req_obj)
 
     @router.post("/suggest-questions", response_model=DiagnosticSuggestQuestionsResponse)
@@ -1703,4 +1917,5 @@ __all__ = [
     "DiagnosticExecuteCommandRequest",
     "DiagnosticExecuteCommandResponse",
 ]
+
 

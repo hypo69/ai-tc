@@ -1,0 +1,76 @@
+<!--
+=============================================================================
+Process Name: Windows Processes Load Inspector - Composite Help View
+=============================================================================
+Description:
+  Сводная иерархическая страница интерактивной справки для раздела
+  «Мониторинг процессов и активности хоста» (#tab-processes-load-inspector).
+  Объединяет 6 атомарных блоков справки через директиву data-help-include.
+  Соблюдает стандарты тем (CSS-токены) и мультиязычности (data-i18n).
+
+File: index.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_processes_load_inspector/help
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 18:40:00
+=============================================================================
+-->
+<div class="help-composite-container p-1">
+  <!-- Вводный баннер и навигация по блокам -->
+  <div class="p-3 mb-3 rounded border border-subtle bg-body-tertiary">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-cpu-fill text-warning fs-4"></i>
+        <h5 class="mb-0 fw-bold text-body" data-i18n="processesInspectorHelp.composite.title">
+          Справка: Мониторинг процессов и активности хоста Windows
+        </h5>
+      </div>
+      <span class="ui-badge ui-badge-warning" data-i18n="processesInspectorHelp.composite.badge">
+        Модуль #tab-processes-load-inspector
+      </span>
+    </div>
+    <p class="small text-muted mb-3" data-i18n="processesInspectorHelp.composite.desc">
+      Интерактивный комплекс мониторинга процессов и диспетчера задач Windows: потоковый анализ нагрузки ЦП/памяти/диска (Live Stream), сетевая активность сокетов, низкоуровневый трекинг изменений файлов, аудит утечек ресурсов (Leak Hunter) и досье процессов Deep Dive с безопасными действиями SafeOps.
+    </p>
+
+    <!-- Быстрая навигация по блокам -->
+    <div class="d-flex flex-wrap gap-1.5 align-items-center">
+      <span class="small text-body fw-bold me-1" data-i18n="processesInspectorHelp.composite.quickNav">Разделы:</span>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_manager">
+        <i class="bi bi-layout-text-window-reverse text-primary"></i>
+        <span data-i18n="processesInspectorHelp.nav.manager">Диспетчер процессов</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_top_stream">
+        <i class="bi bi-speedometer2 text-warning"></i>
+        <span data-i18n="processesInspectorHelp.nav.topStream">Топ процессов</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_network_activity">
+        <i class="bi bi-globe text-info"></i>
+        <span data-i18n="processesInspectorHelp.nav.network">Сетевая активность</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_file_changes">
+        <i class="bi bi-activity text-success"></i>
+        <span data-i18n="processesInspectorHelp.nav.fileChanges">Изменения файлов</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_leak_hunter">
+        <i class="bi bi-shield-shaded text-danger"></i>
+        <span data-i18n="processesInspectorHelp.nav.leakHunter">Утечки ресурсов</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_deep_dive">
+        <i class="bi bi-robot text-primary"></i>
+        <span data-i18n="processesInspectorHelp.nav.deepDive">Deep Dive &amp; SafeOps</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Список атомарных блоков (включаются динамически через HelpModal) -->
+  <div class="help-blocks-wrapper d-flex flex-column gap-2">
+    <div data-help-include="/html/tab_processes_load_inspector/help/blocks/block_manager.html"></div>
+    <div data-help-include="/html/tab_processes_load_inspector/help/blocks/block_top_stream.html"></div>
+    <div data-help-include="/html/tab_processes_load_inspector/help/blocks/block_network_activity.html"></div>
+    <div data-help-include="/html/tab_processes_load_inspector/help/blocks/block_file_changes.html"></div>
+    <div data-help-include="/html/tab_processes_load_inspector/help/blocks/block_leak_hunter.html"></div>
+    <div data-help-include="/html/tab_processes_load_inspector/help/blocks/block_deep_dive.html"></div>
+  </div>
+</div>

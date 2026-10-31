@@ -176,3 +176,4 @@ def test_fastapi_history_endpoints(client: TestClient):
     # 6. Rollback last
     resp_rbl = client.post("/api/v1/taskbar/history/rollback-last")
     assert resp_rbl.status_code in (200, 400)
+

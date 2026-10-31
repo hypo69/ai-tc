@@ -6,12 +6,12 @@
  * - Сортировку по технической важности компонентов
  * - Таблицу дисковых разделов и таблицу запущенных процессов
  * 
- * Updated: 2026-10-20 16:55:00
+ * Updated: 2026-10-30 11:15:00
  */
 
 import { escapeHtml, apiFetch, formatStatusHtml } from '../common/ui_utils.js?v=20261018_v4';
 import { getHardwareEnrichmentHtml, openHardwareComponentHistory, requestComponentProductionDate } from './enrichment.js?v=20261020_v6';
-import { renderMonitorsSpec } from '../panel_identity/panel.js?v=20261020_v6';
+import { renderMonitorsSpec } from '../panel_identity/panel.js?v=20261030_v1';
 
 let hardwareData = [];
 
@@ -179,6 +179,7 @@ export function applyHardwareData(nodes) {
         return {
           device: p['Устройство'] || '',
           name: p['Название дисплея (EDID)'] || mn.name || 'Дисплей',
+          vendor: p['Производитель'] || '',
           adapter: p['Подключенный видеоадаптер'] || '',
           width: w,
           height: h,

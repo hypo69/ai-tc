@@ -32,15 +32,15 @@ py .mcp/config_helper.py --json
   "mcpServers": {
     "aitc-fastapi": {
       "command": "py",
-      "args": ["C:/Users/onela/AppData/Local/AI-TC/.mcp/fastapi_mcp_server.py"]
+      "args": ["C:/Users/onela/AppData/Local/ai-tc/.mcp/fastapi_mcp_server.py"]
     },
     "aitc-gemini": {
       "command": "py",
-      "args": ["C:/Users/onela/AppData/Local/AI-TC/.mcp/gemini_search_mcp_server.py"]
+      "args": ["C:/Users/onela/AppData/Local/ai-tc/.mcp/gemini_search_mcp_server.py"]
     },
     "aitc-langchain": {
       "command": "py",
-      "args": ["C:/Users/onela/AppData/Local/AI-TC/.mcp/langchain_mcp_server.py"]
+      "args": ["C:/Users/onela/AppData/Local/ai-tc/.mcp/langchain_mcp_server.py"]
     }
   }
 }

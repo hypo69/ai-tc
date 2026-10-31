@@ -238,3 +238,4 @@ class FileVersionEntry(BaseModel):
     sha256_hash: str
     created_at: str
     description: Optional[str] = None
+

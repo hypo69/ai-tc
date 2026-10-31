@@ -7,7 +7,7 @@
  * - Фильтрацию по уровню важности, Event ID и поисковой строке
  * - Интеллектуальный профиль канала (Log Intelligence)
  * 
- * Updated: 2026-10-17 00:35:00
+ * Updated: 2026-10-31 18:31:00
  */
 
 import { escapeHtml, formatTime, getSeverityClass, adjustMainStreamHeight, initTableResizers, t } from '../common/ui_utils.js';
@@ -39,6 +39,26 @@ export function getCachedEvents() {
 }
 
 /**
+ * Фильтрация каналов по строке ввода.
+ */
+export function filterChannels() {
+  const filterInput = document.getElementById('slc-channel-filter-input');
+  const filterText = filterInput ? filterInput.value.trim().toLowerCase() : '';
+  if (!cachedChannels || cachedChannels.length === 0) return;
+  if (!filterText) {
+    renderChannelTree(cachedChannels);
+    return;
+  }
+  const filtered = cachedChannels.filter(c => {
+    const sysName = (c.channel_name || c.name || c.source_id || '').toLowerCase();
+    const dispName = (c.display_name || '').toLowerCase();
+    const desc = (c.description || '').toLowerCase();
+    return sysName.includes(filterText) || dispName.includes(filterText) || desc.includes(filterText);
+  });
+  renderChannelTree(filtered);
+}
+
+/**
  * Сканирование доступных каналов журналов Windows.
  * @param {boolean} force
  */
@@ -56,17 +76,20 @@ export async function scanChannels(force = false) {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
     const rawChannels = data.channels || [];
+    const priorityKeywords = ['system', 'application', 'security', 'setup', 'powershell', 'defender'];
     cachedChannels = rawChannels.filter(c => {
       const records = Number(c.record_count) || 0;
       const sizeBytes = Number(c.size_bytes) || 0;
       const sizeMb = Number(c.file_size_mb) || 0;
-      return records > 0 || sizeBytes > 0 || sizeMb > 0;
+      const name = (c.channel_name || c.name || '').toLowerCase();
+      const isPriority = priorityKeywords.some(k => name.includes(k));
+      return records > 0 || sizeBytes > 0 || sizeMb > 0 || isPriority;
     });
 
     if (countBadge) countBadge.textContent = cachedChannels.length;
     if (sourcesStat) sourcesStat.textContent = cachedChannels.length.toLocaleString();
 
-    renderChannelTree(cachedChannels);
+    filterChannels();
   } catch (err) {
     if (treeEl) treeEl.innerHTML = `<div class="text-danger p-2 small">${t('systemControl.errorScanning', 'Ошибка сканирования каналов:')} ${escapeHtml(err.message)}</div>`;
   }
@@ -148,7 +171,7 @@ export function renderChannelTree(channels) {
       const mainTitle = document.getElementById('slc-main-view-title');
       if (mainTitle) mainTitle.innerHTML = `<i class="bi bi-list-columns-reverse me-2 text-primary"></i>${t('systemControl.channelEventsTitle', 'События канала:')} <span class="text-info">${escapeHtml(dispName)}</span>`;
 
-      loadEvents();
+      loadEvents(true);
     });
   });
 }
@@ -156,8 +179,9 @@ export function renderChannelTree(channels) {
 /**
  * Загрузка событий выбранного журнала с мгновенным показом из кеша браузера.
  * @param {boolean} forceRefresh
+ * @param {string} mode
  */
-export async function loadEvents(forceRefresh = false) {
+export async function loadEvents(forceRefresh = false, mode = 'live') {
   const tbody = document.getElementById('slc-table-body');
   const statEvents = document.getElementById('slc-stat-events');
   const statIncidents = document.getElementById('slc-stat-incidents');
@@ -167,8 +191,22 @@ export async function loadEvents(forceRefresh = false) {
 
   const cleanChan = currentChannel.replace(/^evt:/, '').split(' (')[0].trim();
 
-  // 1. Быстрая загрузка из кеша браузера
-  if (!forceRefresh) {
+  const searchInput = document.getElementById('slc-search-input');
+  const levelSelect = document.getElementById('slc-level-select');
+  const hoursSelect = document.getElementById('slc-hours-select');
+  const limitSelect = document.getElementById('slc-limit-select');
+  const eventIdInput = document.getElementById('slc-eventid-input');
+
+  const query = searchInput ? searchInput.value.trim() : '';
+  const level = levelSelect ? levelSelect.value : '';
+  const hours = hoursSelect ? hoursSelect.value : '24';
+  const limit = limitSelect ? limitSelect.value : '100';
+  const eventId = eventIdInput ? eventIdInput.value.trim() : '';
+
+  const isDefaultFilter = !query && !level && hours === '24' && !eventId;
+
+  // 1. Быстрая загрузка из кеша браузера при стандартных фильтрах
+  if (!forceRefresh && isDefaultFilter && !currentFilePath) {
     const cached = loadLogFromBrowserCache(cleanChan, currentFilePath);
     if (cached && cached.events && cached.events.length > 0) {
       cachedEvents = cached.events;
@@ -183,7 +221,7 @@ export async function loadEvents(forceRefresh = false) {
       }).length;
       if (statIncidents) statIncidents.textContent = faults;
 
-      renderEventsTable(cachedEvents);
+      renderEventsTable(cachedEvents, mode);
       return;
     }
   }
@@ -215,18 +253,6 @@ export async function loadEvents(forceRefresh = false) {
     `;
   }
 
-  const searchInput = document.getElementById('slc-search-input');
-  const levelSelect = document.getElementById('slc-level-select');
-  const hoursSelect = document.getElementById('slc-hours-select');
-  const limitSelect = document.getElementById('slc-limit-select');
-  const eventIdInput = document.getElementById('slc-eventid-input');
-
-  const query = searchInput ? searchInput.value.trim() : '';
-  const level = levelSelect ? levelSelect.value : '';
-  const hours = hoursSelect ? hoursSelect.value : '24';
-  const limit = limitSelect ? limitSelect.value : '100';
-  const eventId = eventIdInput ? eventIdInput.value.trim() : '';
-
   const params = new URLSearchParams({
     channel: cleanChan,
     limit: limit,
@@ -247,7 +273,9 @@ export async function loadEvents(forceRefresh = false) {
     const data = await res.json();
     const freshEvents = data.events || data.entries || [];
 
-    const savedDate = saveLogToBrowserCache(cleanChan, currentFilePath, freshEvents);
+    if (isDefaultFilter && !currentFilePath) {
+      saveLogToBrowserCache(cleanChan, currentFilePath, freshEvents);
+    }
     cachedEvents = freshEvents;
 
     if (statEvents) statEvents.textContent = cachedEvents.length.toLocaleString();
@@ -259,8 +287,7 @@ export async function loadEvents(forceRefresh = false) {
     }).length;
     if (statIncidents) statIncidents.textContent = faults;
 
-    updateCacheDateUI(savedDate);
-    renderEventsTable(cachedEvents);
+    renderEventsTable(cachedEvents, mode);
   } catch (err) {
     if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">Ошибка загрузки событий: ${escapeHtml(err.message)}</td></tr>`;
   } finally {
@@ -279,17 +306,26 @@ export async function loadEvents(forceRefresh = false) {
 /**
  * Рендеринг таблицы событий Windows.
  * @param {Array} events
+ * @param {string} mode
  */
-export function renderEventsTable(events) {
+export function renderEventsTable(events, mode = 'live') {
   const tbody = document.getElementById('slc-table-body');
   if (!tbody) return;
 
-  if (!events || events.length === 0) {
+  let displayEvents = events || [];
+  if (mode === 'errors') {
+    displayEvents = displayEvents.filter(e => {
+      const l = (e.level || '').toLowerCase();
+      return l.includes('err') || l.includes('crit') || l.includes('warn');
+    });
+  }
+
+  if (!displayEvents || displayEvents.length === 0) {
     tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">Нет записей, удовлетворяющих заданным фильтрам.</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = events.map((e, idx) => {
+  tbody.innerHTML = displayEvents.map((e, idx) => {
     const timeFormatted = formatTime(e.timestamp);
     const isErr = (e.level || '').toLowerCase().includes('err') || (e.level || '').toLowerCase().includes('crit');
     const provName = e.provider || e.source || '-';
@@ -312,7 +348,7 @@ export function renderEventsTable(events) {
       tbody.querySelectorAll('tr').forEach(r => r.classList.remove('table-active'));
       row.classList.add('table-active');
       const idx = parseInt(row.getAttribute('data-index'), 10);
-      const ev = events[idx];
+      const ev = displayEvents[idx];
       if (ev) showEventDetails(ev, 'panel-system-control-3', currentChannel);
     };
   });
@@ -437,10 +473,10 @@ export function initEventLogsPanel() {
     channelSelect.addEventListener('change', fetchEventLogsSummary);
   }
 
-  const searchInput = document.getElementById('el-search-input');
-  if (searchInput && !searchInput._bound) {
-    searchInput._bound = true;
-    searchInput.addEventListener('input', applyElFilters);
+  const elSearchInput = document.getElementById('el-search-input');
+  if (elSearchInput && !elSearchInput._bound) {
+    elSearchInput._bound = true;
+    elSearchInput.addEventListener('input', applyElFilters);
   }
 
   const bannerCloseBtn = document.getElementById('el-intel-close-btn');
@@ -452,5 +488,70 @@ export function initEventLogsPanel() {
     });
   }
 
+  // Привязка интерактивных элементов сайдбара и потока событий
+  const channelFilterInput = document.getElementById('slc-channel-filter-input');
+  if (channelFilterInput && !channelFilterInput._bound) {
+    channelFilterInput._bound = true;
+    channelFilterInput.addEventListener('input', filterChannels);
+  }
+
+  const levelSelect = document.getElementById('slc-level-select');
+  if (levelSelect && !levelSelect._bound) {
+    levelSelect._bound = true;
+    levelSelect.addEventListener('change', () => loadEvents(true));
+  }
+
+  const hoursSelect = document.getElementById('slc-hours-select');
+  if (hoursSelect && !hoursSelect._bound) {
+    hoursSelect._bound = true;
+    hoursSelect.addEventListener('change', () => loadEvents(true));
+  }
+
+  const limitSelect = document.getElementById('slc-limit-select');
+  if (limitSelect && !limitSelect._bound) {
+    limitSelect._bound = true;
+    limitSelect.addEventListener('change', () => loadEvents(true));
+  }
+
+  let searchTimer = null;
+  const searchInput = document.getElementById('slc-search-input');
+  if (searchInput && !searchInput._bound) {
+    searchInput._bound = true;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => loadEvents(true), 350);
+    });
+  }
+
+  let eventIdTimer = null;
+  const eventIdInput = document.getElementById('slc-eventid-input');
+  if (eventIdInput && !eventIdInput._bound) {
+    eventIdInput._bound = true;
+    eventIdInput.addEventListener('input', () => {
+      clearTimeout(eventIdTimer);
+      eventIdTimer = setTimeout(() => loadEvents(true), 350);
+    });
+  }
+
+  const panelRefreshBtn = document.getElementById('btn-slc-panel-refresh');
+  if (panelRefreshBtn && !panelRefreshBtn._bound) {
+    panelRefreshBtn._bound = true;
+    panelRefreshBtn.addEventListener('click', () => loadEvents(true));
+  }
+
+  const auditBtn = document.getElementById('btn-slc-audit');
+  if (auditBtn && !auditBtn._bound) {
+    auditBtn._bound = true;
+    auditBtn.addEventListener('click', () => {
+      const modeBtn = document.querySelector('#slc-mode-tabs button[data-mode="audit"]');
+      if (modeBtn) modeBtn.click();
+    });
+  }
+
   initTableResizers();
+
+  // Запуск фонового сканирования каналов при инициализации
+  if (!cachedChannels || cachedChannels.length === 0) {
+    scanChannels(false);
+  }
 }

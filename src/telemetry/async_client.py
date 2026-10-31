@@ -140,3 +140,4 @@ class AsyncTelemetryBatchClient:
         self._running = False
         if self._flush_task and not self._flush_task.done():
             self._flush_task.cancel()
+

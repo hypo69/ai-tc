@@ -427,3 +427,4 @@ class TelegramChannelRagPlugin(BasePlugin):
             "text": f"Found {len(results)} relevant Telegram messages across monitored channels.",
             "results": results,
         }
+

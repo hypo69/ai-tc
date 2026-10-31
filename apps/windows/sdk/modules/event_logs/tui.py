@@ -70,3 +70,4 @@ class EventLogsTUI:
 
 
 __all__ = ['EventLogsTUI']
+

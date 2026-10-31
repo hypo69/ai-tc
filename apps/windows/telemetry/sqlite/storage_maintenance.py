@@ -18,7 +18,7 @@
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 01:17:00
+# Updated: 2026-10-30 13:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -81,11 +81,13 @@ class TelemetryMaintenanceStorageMixin:
     def prune_to_size(self, target_size_mb: float) -> Dict[str, Any]:
         return self.enforce_size_limit(max_size_mb=target_size_mb, target_ratio=0.95)
 
-    def aggregate_process_metrics_2min(self, cutoff_seconds: int = 120, outlier_cpu_threshold: float = 30.0) -> Dict[str, int]:
-        return self._maintenance.aggregate_process_metrics_2min(cutoff_seconds=cutoff_seconds, outlier_cpu_threshold=outlier_cpu_threshold)
+    def run_tiered_compaction(self, thorough_mode: bool = False, now_epoch: Optional[float] = None) -> Dict[str, Any]:
+        """Запускает каскадное многоуровневое усреднение снимков (5с -> 30с -> 3м -> 10м -> 36ч)."""
+        return self._maintenance.run_tiered_compaction(thorough_mode=thorough_mode, now_epoch=now_epoch)
 
-    def aggregate_process_metrics_daily(self, cutoff_days: int = 1) -> Dict[str, int]:
-        return self._maintenance.aggregate_process_metrics_daily(cutoff_days=cutoff_days)
+    def purge_history(self, retention_days: int) -> int:
+        """Удаляет историю железа и приложений старше срока (0 — хранить вечно)."""
+        return self._maintenance.purge_history(retention_days)
 
     def aggregate_sensors(self, level: Union[AggregationLevel, str], start_epoch: Optional[float] = None, end_epoch: Optional[float] = None, detect_spikes: bool = True) -> Dict[str, Any]:
         return self._aggregator.aggregate(level=level, start_epoch=start_epoch, end_epoch=end_epoch, detect_spikes=detect_spikes)
@@ -105,8 +107,8 @@ class TelemetryMaintenanceStorageMixin:
     def aggregate_yearly(self, start_epoch: Optional[float] = None, end_epoch: Optional[float] = None) -> Dict[str, Any]:
         return self._aggregator.aggregate_yearly(start_epoch=start_epoch, end_epoch=end_epoch)
 
-    def run_aggregation_pipeline(self, start_epoch: Optional[float] = None, end_epoch: Optional[float] = None, detect_spikes: bool = True) -> Dict[str, Any]:
-        return self._aggregator.run_pipeline(start_epoch=start_epoch, end_epoch=end_epoch, detect_spikes=detect_spikes)
+    def run_aggregation_pipeline(self, start_epoch: Optional[float] = None, end_epoch: Optional[float] = None, detect_spikes: bool = True, tick_seconds: float = 5.0) -> Dict[str, Any]:
+        return self._aggregator.run_pipeline(start_epoch=start_epoch, end_epoch=end_epoch, detect_spikes=detect_spikes, tick_seconds=tick_seconds)
 
     def start_background_aggregator(self, interval_seconds: float = 300.0) -> None:
         """Запускает фоновый регламентный планировщик агрегации."""
@@ -117,3 +119,4 @@ class TelemetryMaintenanceStorageMixin:
         self._aggregator.stop_background_scheduler()
 
     get_stats = get_storage_stats
+

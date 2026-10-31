@@ -12,56 +12,51 @@
 
 ## 🏛️ Архитектура системы
 
+Вокруг трёх основных рабочих модулей строится весь проект:
+
+| Модуль | Путь | Роль |
+|---|---|---|
+| **SDK** | [`sdk/`](sdk/README.md) | Инструменты работы с ОС: FFI-биндинги Win32, SafeOps, ядро аудита, 31 доменная подсистема |
+| **Телеметрия** | [`telemetry/`](telemetry/README.md) | Служба сбора метрик и событий, единственный писатель в `telemetry.db` |
+| **Веб-интерфейс / API** | [`api/`](api/README.md) | FastAPI-сервер, роутеры и WebGUI (вкладки `tab_*`) |
+
 ```
-AI WINDOWS DIAGNOSTIC & ADMINISTRATION CENTER
-├── 1. Слой интерфейсов (Presentation & API)
-│   ├── router.py             # FastAPI REST API endpoints
-│   ├── cli.py                # Универсальный CLI (python -m apps.windows)
-│   ├── tui.py                # Интерактивный Rich TUI Dashboard
-│   └── __main__.py           # Точка входа в модуль
-│
-├── 2. Слой AI и корреляции (AI Intelligence Layer)
-│   ├── ai/diagnostician.py        # AI-диагност и расчёт Health Score
-│   ├── ai/root_cause_analyzer.py  # Анализатор первопричин по симптомам
-│   └── ai/prompt_templates.py     # Структурированные промпты для LLM
-│
-├── 3. Безопасность и исполнение (SafeOps Layer)
-│   ├── core/safe_executor.py      # Dry-run симуляция, изоляция рисков, бэкапы
-│   ├── core/root_cause_engine.py  # Построение графа расследования (Timeline Graph)
-│   └── core/models.py             # Нормализованные модели данных и уровни рисков
-│
-├── 4. База знаний и самообучение (WikiLLM Progressive Knowledge Base)
-│   ├── wikillm/engine.py          # 4-уровневый координатор (Exact -> Fingerprint -> Semantic -> Gemini)
-│   ├── wikillm/storage.py         # SQLite + FTS5 хранилище сущностей, фактов и наблюдений
-│   ├── wikillm/code_indexer.py    # AST-индексатор структуры Python кода (Code Knowledge)
-│   ├── wikillm/telemetry_bridge.py# Мост обогащения инцидентов и телеметрии Windows
-│   └── wikillm/router.py          # REST API эндпоинты /api/windows/wikillm/*
-│
-└── 5. 15 Доменных модулей сбора фактов (Fact Collectors)
-    ├── clean_collector.py         # 1. Очистка кэшей, %TEMP%, WinUpdate, Minidump
-    ├── performance_collector.py   # 2. Производительность, автозагрузка, CPU/RAM
-    ├── driver_collector.py        # 3. Драйверы, ошибки PnP, DriverStore audit
-    ├── software_collector.py      # 4. Инвентарь ПО (App -> Service -> Task -> Driver)
-    ├── integrity_collector.py     # 5. Целостность (SFC / DISM / Servicing / Reboot)
-    ├── storage_collector.py       # 6. Диски, тома, свободное место, SMART
-    ├── security_collector.py      # 7. Defender, UAC, брандмауэр, персистентность
-    ├── eventlog_collector.py      # 8. Корреляция системных журналов (Event Log)
-    ├── process_collector.py       # 9. Интеллект процессов (Process Explorer)
-    ├── services_collector.py      # 10. Матрица служб и поиск осиротевших сервисов
-    ├── tasks_collector.py         # 11. Задачи планировщика (Task Scheduler)
-    ├── network_collector.py       # 12. Сетевая телеметрия, сокеты и порты
-    ├── update_collector.py        # 13. Обновления Windows (KB, версии, SSU)
-    ├── baseline_collector.py      # 14. Снимок конфигурации и Drift Detector
-    └── postinstall_collector.py   # 15. Чек-лист готовности после установки Windows
+apps/windows/
+├── sdk/            # Слой инструментов ОС (native → drivers → features → core → modules)
+├── telemetry/      # Сбор, буферизация, SQLite-хранилище, Windows Service (AITelemetry)
+├── api/            # FastAPI: server.py, routers/, services/, webgui/
+├── wikillm/        # База знаний WikiLLM (4-уровневое разрешение, FTS5, AST-индексатор)
+├── ai/             # AI-диагност, анализатор первопричин, промпты, tool_engine
+├── ai_instruments/ # Реестр ИИ-инструментов (models, service, storage)
+├── analytics/      # Аналитический слой над telemetry.db (запросы, отчёты, инциденты)
+├── commands/       # Каталог команд настроек Windows
+├── contracts/      # Pydantic-контракты (ai, audit, enums, hardware, telemetry)
+├── db/             # Адаптер БД (db_adapter.py)
+├── log_intelligence/, prompts/   # Документация по анализу логов и промптам
+├── __main__.py, main.py, cli.py, tui.py   # Точки входа (python -m apps.windows)
+└── router.py, system_inspector_router.py  # REST-роутеры верхнего уровня
 ```
+
+### Поток данных
+
+```mermaid
+flowchart LR
+    SDK["sdk (инструменты ОС)"] --> TEL["telemetry (сбор + SQLite)"]
+    TEL --> DB[("telemetry.db")]
+    DB --> API["api (FastAPI)"]
+    SDK --> API
+    API --> GUI["webgui (tab_*)"]
+```
+
+Подробности по каждому модулю — в их README.
 
 ---
 
-## 📂 Разделение подсистем: `apps/windows/core` vs `apps/windows/modules`
+## 📂 Разделение подсистем: `sdk/core` vs `sdk/modules`
 
 Архитектура `apps/windows` строго разделена по уровню ответственности:
 
-### 1. `apps/windows/core` — Ядро, инфраструктура и сквозная оркестрация
+### 1. `apps/windows/sdk/core` — Ядро, инфраструктура и сквозная оркестрация
 Содержит **общие фундаментальные механизмы, движки анализа, семантические реестры и сквозные аудиты**, используемые всей системой и AI-агентами:
 * **Семантический реестр системных команд (`windows_command_registry.json` / `System32Catalog`):**
   - Полный семантический каталог 149 штатных системных утилит Windows (`%SystemRoot%\System32`) по 66 доменным категориям.
@@ -71,10 +66,10 @@ AI WINDOWS DIAGNOSTIC & ADMINISTRATION CENTER
   - Генерируется через [`build_command_registry.py`](apps/windows/sdk/core/build_command_registry.py).
 * **Движки анализа и диагностики:** `root_cause_engine.py`, `correlation_engine.py`, `diagnostics.py`.
 * **Сквозной контур безопасности и выполнения:** `safe_executor.py`, `agent_loop.py`, `atomic_capabilities.py`.
-* **Динамический реестр инструментов для AI-агентов:** `apps/windows/core/tools` (`dynamic_factory.py`, `registry.py`, `system_tools.py`).
-* **Стандартизированные коллекторы аудита:** `apps/windows/core/audits` (14 унифицированных коллекторов: `CleanCollector`, `DriverCollector`, `SecurityCollector`, `StorageCollector`, `IntegrityCollector` и др.).
+* **Динамический реестр инструментов для AI-агентов:** `apps/windows/sdk/core/tools` (`dynamic_factory.py`, `registry.py`, `system_tools.py`).
+* **Стандартизированные коллекторы аудита:** `apps/windows/sdk/core/audits` (14 унифицированных коллекторов: `CleanCollector`, `DriverCollector`, `SecurityCollector`, `StorageCollector`, `IntegrityCollector` и др.).
 
-### 2. `apps/windows/modules` — Функциональные доменные подсистемы
+### 2. `apps/windows/sdk/modules` — Функциональные доменные подсистемы
 Содержит **изолированные тематические подсистемы (мини-приложения/микромодули)**, каждое из которых отвечает за конкретную предметную область Windows и обычно имеет собственный `router.py`, `tui.py`, `core/`, `models.py` и `tests/`:
 * **Оборудование и сеть:** `hardware` (GPU Prober, Hardware Sensors), `network` (LAN Scanner, Speedtest, Network Usage).
 * **Диски и хранилище:** `storage_manager` (клонирование, экспресс-бенчмарк DiskSpd, низкоуровневые сенсоры накопителей).
@@ -83,7 +78,7 @@ AI WINDOWS DIAGNOSTIC & ADMINISTRATION CENTER
 
 ### 📊 Сравнительная таблица
 
-| Критерий | `apps/windows/core` | `apps/windows/modules` |
+| Критерий | `sdk/core` | `sdk/modules` |
 | :--- | :--- | :--- |
 | **Назначение** | Инфраструктура, мета-анализ, агентные циклы, сквозной аудит | Самодостаточные доменные утилиты управления конкретными функциями ОС |
 | **Структура** | Единый фреймворк классов, инструментов и базовых моделей | Набор независимых пакетов (в каждом `router.py`, `tui.py`, `core/`, `tests/`) |
@@ -226,7 +221,7 @@ python -m apps.windows --server --port 8105
 
 ## 🛠️ Нативный Function Calling и Саморасширяемые инструменты (Self-Extending Tools)
 
-Модуль `apps/windows/core/tools` реализует передовую архитектуру вызова и синтеза инструментов на лету:
+Модуль `apps/windows/sdk/core/tools` реализует передовую архитектуру вызова и синтеза инструментов на лету:
 
 1. **`ToolRegistry` (`registry.py`)**:
    - Централизованный реестр инструментов с формированием схем вызова OpenAPI / Function Calling (`to_function_definition()`).
@@ -245,7 +240,7 @@ python -m apps.windows --server --port 8105
 ## 🧪 Тестирование
 
 ```powershell
-pytest apps/windows/tests/test_hardware_monitor.py apps/windows/tests/test_ai_diagnostic_center.py -v
+pytest apps/windows/telemetry/tests apps/windows/sdk -v   # тесты модулей лежат в tests/ рядом с кодом
 ```
 
 ---
@@ -254,3 +249,4 @@ pytest apps/windows/tests/test_hardware_monitor.py apps/windows/tests/test_ai_di
 
 © 2026 hypo69. Все права защищены.
 
+**Updated:** 2026-10-31 16:45:00

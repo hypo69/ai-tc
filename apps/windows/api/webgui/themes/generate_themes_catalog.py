@@ -88,3 +88,4 @@ def build_themes_catalog_file(output_path: Path = _OUTPUT_CATALOG_FILE) -> int:
 if __name__ == "__main__":
     count = build_themes_catalog_file()
     print(f"Сгенерирован themes_catalog.json: {count} тем записано.")
+

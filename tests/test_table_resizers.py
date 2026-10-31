@@ -109,3 +109,4 @@ def test_index_html_files_include_table_resizer():
 
     assert "table-resizer.js" in apps_index.read_text(encoding="utf-8")
     assert "table-resizer.js" in admin_index.read_text(encoding="utf-8")
+

@@ -1,0 +1,59 @@
+<!--
+=============================================================================
+Process Name: Windows Log Settings - Atomic Help Block: Provenance & Lifecycle
+=============================================================================
+Description:
+  Атомарный HTML-фрагмент справки по подразделам «Граф процессов (Provenance)»
+  (#ls-subpane-provenance) и «Жизненный цикл ОС (Boot / Crash)» (#ls-subpane-lifecycle)
+  в #tab-app-internals#settings.
+
+File: block_provenance_lifecycle.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_log_settings/help/blocks
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 17:45:00
+=============================================================================
+-->
+<div class="card bg-body border-subtle shadow-sm mb-3 help-atomic-block" data-help-block="block_provenance_lifecycle">
+  <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between py-2 px-3">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-bezier2 text-warning fs-5"></i>
+      <h6 class="mb-0 fw-bold text-body" data-i18n="logSettingsHelp.provLifecycle.title">5. Подразделы «Граф процессов (Provenance)» и «Жизненный цикл ОС»</h6>
+    </div>
+    <span class="ui-badge ui-badge-neutral">panel-log-settings-9 / 10</span>
+  </div>
+  <div class="card-body p-3">
+    <div class="row g-2">
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-diagram-2 text-warning"></i>
+            <span data-i18n="logSettingsHelp.provLifecycle.provTitle">Граф происхождения процессов (Process Provenance)</span>
+          </strong>
+          <p class="small text-muted mb-2" data-i18n="logSettingsHelp.provLifecycle.provDesc">
+            Реконструирует полную причинно-следственную цепочку запуска: <code>User → Process → Parent Process → Service → Scheduled Task</code> на основе собранных событий <code>Event 4688</code> за последние 72 часа.
+          </p>
+          <div class="small text-muted" data-i18n="logSettingsHelp.provLifecycle.provUsage">
+            Введите имя исполняемого файла (например, <code>powershell.exe</code> или <code>python.exe</code>) и нажмите <strong>«Построить граф»</strong>, чтобы увидеть родительский процесс, PID, учетную запись инициатора и полную командную строку.
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-power text-danger"></i>
+            <span data-i18n="logSettingsHelp.provLifecycle.lifecycleTitle">Жизненный цикл ОС (Boot / Sleep / Crash)</span>
+          </strong>
+          <p class="small text-muted mb-2" data-i18n="logSettingsHelp.provLifecycle.lifecycleDesc">
+            Выстраивает единую хронологическую ленту (Timeline) переходов состояния питания и ядра системы: <code>BOOT → LOGIN → SLEEP → WAKE → SHUTDOWN / CRASH</code>.
+          </p>
+          <div class="small text-muted" data-i18n="logSettingsHelp.provLifecycle.lifecycleUsage">
+            Позволяет выбрать горизонт анализа (<code>24 часа</code>, <code>3 дня</code>, <code>7 дней</code>, <code>30 дней</code>) и мгновенно выявить нештатные перезагрузки (<code>Kernel-Power 41</code>), сбои питания и стоп-ошибки BSOD.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

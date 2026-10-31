@@ -20,7 +20,7 @@
 # Package: apps.windows.sdk.modules.window_control_plane
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 00:10:00
+# Updated: 2026-10-31 15:58:30
 # =============================================================================
 
 from __future__ import annotations
@@ -267,13 +267,13 @@ class WindowManagementHistoryManager:
         query += " ORDER BY id DESC LIMIT ? OFFSET ?;"
         params.extend([limit, offset])
 
-        try:
+        def _fetch() -> List[Dict[str, Any]]:
             with self._get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(query, params)
                 rows = cursor.fetchall()
 
-                result: List[Dict[str, Any]] = []
+                res: List[Dict[str, Any]] = []
                 for row in rows:
                     item = dict(row)
                     # Десериализация JSON значений
@@ -294,9 +294,23 @@ class WindowManagementHistoryManager:
                     item["is_rolled_back"] = bool(item.get("is_rolled_back", 0))
                     item["rolled_back"] = bool(item.get("is_rolled_back", 0))
                     item["success"] = item.get("status") == "SUCCESS"
-                    result.append(item)
+                    res.append(item)
 
-                return result
+                return res
+
+        try:
+            return _fetch()
+        except sqlite3.OperationalError as exc:
+            if "no such table" in str(exc).lower():
+                logger.warning("[WindowManagementHistoryManager] Таблица window_management_history отсутствует. Автоматическое создание...")
+                self._init_db()
+                try:
+                    return _fetch()
+                except Exception as retry_exc:
+                    logger.error(f"[WindowManagementHistoryManager] Ошибка чтения истории после создания таблицы: {retry_exc}")
+                    return []
+            logger.error(f"[WindowManagementHistoryManager] Ошибка чтения истории из telemetry.db: {exc}")
+            return []
         except Exception as exc:
             logger.error(f"[WindowManagementHistoryManager] Ошибка чтения истории из telemetry.db: {exc}")
             return []
@@ -397,3 +411,4 @@ def get_window_history_manager(db_path: Optional[Union[str, Path]] = None) -> Wi
     if _history_manager_instance is None or db_path is not None:
         _history_manager_instance = WindowManagementHistoryManager(db_path=db_path)
     return _history_manager_instance
+

@@ -48,3 +48,4 @@ def test_catalog_search_by_query() -> None:
     catalog = WindowControlPlaneCatalog()
     found = catalog.search(query='active_window_tracking')
     assert any(i.id == 'window.focus.active_window_tracking' for i in found)
+

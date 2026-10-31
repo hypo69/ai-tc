@@ -112,3 +112,4 @@ def ns2xls(data: SimpleNamespace, xls_file_path: str | Path) -> bool:
         bool: True if successful, False otherwise.
     """
     return save_xls_file(data,xls_file_path)
+

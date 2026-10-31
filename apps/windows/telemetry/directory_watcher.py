@@ -379,3 +379,4 @@ class DirectoryWatchEngine:
                 storage.insert_process_file_events(events_to_save)
             except Exception as exc:
                 logger.debug(f'[DirectoryWatchEngine] Ошибка сохранения файловых событий: {exc}')
+

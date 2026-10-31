@@ -207,3 +207,4 @@ WINDOWS_STORAGE_MANAGER_TOOLS = [
     windows_storage_audit,
     windows_storage_action,
 ]
+

@@ -86,3 +86,4 @@ def test_windows_admin_main_js_subtab_switching() -> None:
     assert "window.switchWindowsAdminSubTab = switchWindowsAdminSubTab;" in content
     assert "subtab-winadmin-" in content
     assert "new window.bootstrap.Tab(btn).show()" in content
+

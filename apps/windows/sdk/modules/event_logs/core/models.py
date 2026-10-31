@@ -113,3 +113,4 @@ __all__ = [
     'IntelligenceDecisionSummary',
     'IntelligenceProcessResponse',
 ]
+

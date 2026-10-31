@@ -284,7 +284,7 @@ class PrettyConsoleFormatter(logging.Formatter):
 
 
 def _get_app_name() -> str:
-    """Возвращает название приложения из окружения, конфигурации или по умолчанию 'AI-TC'."""
+    """Возвращает название приложения из окружения, конфигурации или по умолчанию 'ai-tc'."""
     if os.environ.get('APP_NAME'):
         return os.environ['APP_NAME']
     try:
@@ -292,10 +292,10 @@ def _get_app_name() -> str:
         if cfg.exists():
             with open(cfg, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                return data.get('app_name') or data.get('app', {}).get('app_name') or 'AI-TC'
+                return data.get('app_name') or data.get('app', {}).get('app_name') or 'ai-tc'
     except Exception:
         pass
-    return 'AI-TC'
+    return 'ai-tc'
 
 
 class Logger(metaclass=SingletonMeta):

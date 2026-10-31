@@ -141,3 +141,4 @@ async def launch_sound_tool(payload: LaunchToolRequest) -> Dict[str, Any]:
 def init_router() -> APIRouter:
     """Фабричная функция инициализации роутера управления звуком."""
     return router
+

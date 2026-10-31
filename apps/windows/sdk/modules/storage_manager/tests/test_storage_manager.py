@@ -77,3 +77,4 @@ def test_storage_manager_endpoints(client: TestClient):
 
     resp_vols = client.get('/api/storage-manager/volumes')
     assert resp_vols.status_code == 200
+

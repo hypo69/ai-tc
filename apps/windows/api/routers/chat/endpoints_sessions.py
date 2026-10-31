@@ -153,3 +153,4 @@ def register_session_endpoints(router: APIRouter, chat_model, narrator_model, pl
         except Exception as e:
             logger.error("Error clearing chat sessions", e)
             raise HTTPException(status_code=500, detail=str(e))
+

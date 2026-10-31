@@ -150,3 +150,4 @@ def test_controller_quick_scan():
     markdown_summary = ReportFormatter.format_summary_markdown(report)
     assert "Отчет глубокого аудита ПО" in markdown_summary
     assert report.scan_id in markdown_summary
+

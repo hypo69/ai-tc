@@ -116,3 +116,4 @@ def test_system_collector_integration_with_hardware_collector() -> None:
     report = system_collector.get_hardware_audit()
     assert report is not None
     assert report.devices_count > 0
+

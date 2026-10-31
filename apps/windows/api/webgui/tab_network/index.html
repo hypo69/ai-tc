@@ -15,7 +15,7 @@ Usage Examples:
 File: index.html
 Project: ai-windows-admin
 Package: windows/api/webgui/tab_network
-# Updated: 2026-10-20 18:35:00
+Updated: 2026-10-30 11:45:00
 =============================================================================
 -->
 <!-- Windows Network Terminal Tab (/apps/windows/network) -->
@@ -188,32 +188,60 @@ Package: windows/api/webgui/tab_network
     </div>
   </div>
 
-  <!-- Отдельный блок меню суб-вкладок ПОД названием вкладки, расположен слева -->
+  <!-- Блок меню переключения панелей на вкладке. Выбранная панель добавляется в url -->
   <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
     <div class="d-flex align-items-center gap-1 flex-wrap" id="network-subtabs-nav" role="tablist">
-      <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-speedtest-btn" data-bs-toggle="pill" data-bs-target="#tab-net-speedtest" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-speedtest-btn" data-panel-id="speedtest" data-bs-toggle="pill" data-bs-target="#tab-net-speedtest" type="button" role="tab">
         <i class="bi bi-speedometer2 text-primary"></i>
         <span>Тест скорости (Speedtest)</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-discovery-btn" data-bs-toggle="pill" data-bs-target="#tab-net-discovery" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-discovery-btn" data-panel-id="discovery" data-bs-toggle="pill" data-bs-target="#tab-net-discovery" type="button" role="tab">
         <i class="bi bi-display text-primary"></i>
         <span>Обнаружение компьютеров (LAN)</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-adapters-btn" data-bs-toggle="pill" data-bs-target="#tab-net-adapters" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-adapters-btn" data-panel-id="adapters" data-bs-toggle="pill" data-bs-target="#panel-network-adapters" type="button" role="tab">
         <i class="bi bi-ethernet text-info"></i>
         <span>Адаптеры и интерфейсы</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-connections-btn" data-bs-toggle="pill" data-bs-target="#tab-net-connections" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-connections-btn" data-panel-id="connections" data-bs-toggle="pill" data-bs-target="#tab-net-connections" type="button" role="tab">
         <i class="bi bi-arrow-left-right text-success"></i>
         <span>Активные сокеты и TCP/UDP</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-capture-btn" data-bs-toggle="pill" data-bs-target="#tab-net-capture" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-capture-btn" data-panel-id="capture" data-bs-toggle="pill" data-bs-target="#tab-net-capture" type="button" role="tab">
         <i class="bi bi-broadcast text-warning"></i>
         <span>Захват сетевых пакетов (Sniffer)</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-pcap-btn" data-bs-toggle="pill" data-bs-target="#tab-net-pcap" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-pcap-btn" data-panel-id="pcap" data-bs-toggle="pill" data-bs-target="#tab-net-pcap" type="button" role="tab">
         <i class="bi bi-file-earmark-binary text-danger"></i>
         <span>PCAP Анализатор</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-overview-btn" data-panel-id="overview" data-bs-toggle="pill" data-bs-target="#panel-network-overview" type="button" role="tab">
+        <i class="bi bi-speedometer text-primary"></i>
+        <span>Обзор сети</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-switches-btn" data-panel-id="switches" data-bs-toggle="pill" data-bs-target="#panel-network-switches" type="button" role="tab">
+        <i class="bi bi-diagram-3 text-info"></i>
+        <span>Виртуальные коммутаторы</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-ip-config-btn" data-panel-id="ip-config" data-bs-toggle="pill" data-bs-target="#panel-network-ip-config" type="button" role="tab">
+        <i class="bi bi-signpost-split text-success"></i>
+        <span>IP и маршруты</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-nat-btn" data-panel-id="nat" data-bs-toggle="pill" data-bs-target="#panel-network-nat" type="button" role="tab">
+        <i class="bi bi-shuffle text-warning"></i>
+        <span>NAT</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-wsl-btn" data-panel-id="wsl" data-bs-toggle="pill" data-bs-target="#panel-network-wsl" type="button" role="tab">
+        <i class="bi bi-ubuntu text-info"></i>
+        <span>WSL2</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-diagnostics-btn" data-panel-id="diagnostics" data-bs-toggle="pill" data-bs-target="#panel-network-diagnostics" type="button" role="tab">
+        <i class="bi bi-clipboard2-pulse text-danger"></i>
+        <span>Диагностика</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-history-btn" data-panel-id="history" data-bs-toggle="pill" data-bs-target="#panel-network-history" type="button" role="tab">
+        <i class="bi bi-clock-history text-secondary"></i>
+        <span>История изменений</span>
       </button>
     </div>
   </div>
@@ -264,13 +292,15 @@ Package: windows/api/webgui/tab_network
 <div class="tab-pane fade show active" id="tab-net-speedtest">
 <!-- Speedtest Action Control Box -->
 <div class="net-panel mb-3">
-<div class="net-panel-header">
-<span><i class="bi bi-speedometer2 text-warning me-1"></i> Тестирование пропускной способности и задержки Интернета</span>
+<div class="net-panel-header d-flex justify-content-between align-items-center flex-wrap gap-2">
 <div class="speedtest-controls-grid d-flex justify-content-start align-items-center gap-2">
-<span class="small text-muted" id="speedtest-status-text">Готов к тестированию</span>
-<button class="btn btn-sm btn-warning rounded-pill px-3 fw-bold shadow-sm" id="btn-run-speedtest">
+<button class="btn btn-sm btn-warning rounded-pill px-3 fw-bold shadow-sm btn-run-speedtest" id="btn-run-speedtest" type="button">
 <i class="bi bi-play-fill me-1"></i> Запустить тест скорости
-            </button>
+</button>
+<span class="small text-muted speedtest-status-text" id="speedtest-status-text">Готов к тестированию</span>
+</div>
+<div class="d-flex align-items-center gap-2 text-secondary">
+<span><i class="bi bi-speedometer2 text-warning me-1"></i> Тестирование пропускной способности и задержки Интернета</span>
 </div>
 </div>
 <div class="p-3">
@@ -279,39 +309,39 @@ Package: windows/api/webgui/tab_network
 <div class="col-6 col-lg-3">
 <div class="speed-gauge-card">
 <div class="text-secondary small text-uppercase fw-semibold mb-1"><i class="bi bi-arrow-down-circle-fill text-success me-1"></i> Скачивание (Download)</div>
-<div class="speed-gauge-val text-success" id="speed-val-download">--</div>
-<div class="text-muted small mt-1" id="speed-sub-download">0.0 MB/s</div>
+<div class="speed-gauge-val text-success" class="speed-val-download" id="speed-val-download">--</div>
+<div class="text-muted small mt-1" class="speed-sub-download" id="speed-sub-download">0.0 MB/s</div>
 </div>
 </div>
 <div class="col-6 col-lg-3">
 <div class="speed-gauge-card">
 <div class="text-secondary small text-uppercase fw-semibold mb-1"><i class="bi bi-arrow-up-circle-fill text-primary me-1"></i> Отдача (Upload)</div>
-<div class="speed-gauge-val text-primary" id="speed-val-upload">--</div>
-<div class="text-muted small mt-1" id="speed-sub-upload">0.0 MB/s</div>
+<div class="speed-gauge-val text-primary" class="speed-val-upload" id="speed-val-upload">--</div>
+<div class="text-muted small mt-1" class="speed-sub-upload" id="speed-sub-upload">0.0 MB/s</div>
 </div>
 </div>
 <div class="col-6 col-lg-3">
 <div class="speed-gauge-card">
 <div class="text-secondary small text-uppercase fw-semibold mb-1"><i class="bi bi-stopwatch-fill text-info me-1"></i> Задержка (Ping)</div>
-<div class="speed-gauge-val text-info" id="speed-val-ping">--</div>
-<div class="text-muted small mt-1" id="speed-sub-jitter">Jitter: -- ms</div>
+<div class="speed-gauge-val text-info" class="speed-val-ping" id="speed-val-ping">--</div>
+<div class="text-muted small mt-1" class="speed-sub-jitter" id="speed-sub-jitter">Jitter: -- ms</div>
 </div>
 </div>
 <div class="col-6 col-lg-3">
 <div class="speed-gauge-card">
 <div class="text-secondary small text-uppercase fw-semibold mb-1"><i class="bi bi-shield-check text-warning me-1"></i> Качество соединения</div>
-<div class="speed-gauge-val text-warning" id="speed-val-grade">--</div>
-<div class="text-muted small text-truncate mt-1" id="speed-sub-isp">Провайдер: --</div>
+<div class="speed-gauge-val text-warning" class="speed-val-grade" id="speed-val-grade">--</div>
+<div class="text-muted small text-truncate mt-1" class="speed-sub-isp" id="speed-sub-isp">Провайдер: --</div>
 </div>
 </div>
 </div>
 <!-- Quality Summary Bar -->
 <div class="p-2.5 rounded net-well mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
 <div class="d-flex align-items-center gap-2">
-<span class="badge bg-secondary" id="speed-badge-ip">Внешний IP: --</span>
-<span class="badge bg-body-secondary border text-body" id="speed-badge-location">Локация: --</span>
+<span class="badge bg-secondary" class="speed-badge-ip" id="speed-badge-ip">Внешний IP: --</span>
+<span class="badge bg-body-secondary border text-body" class="speed-badge-location" id="speed-badge-location">Локация: --</span>
 </div>
-<div class="small text-muted" id="speed-summary-text">Нажмите «Запустить тест скорости», чтобы измерить пропускную способность канала, задержку (Ping) и джиттер.</div>
+<div class="small text-muted" class="speed-summary-text" id="speed-summary-text">Нажмите «Запустить тест скорости», чтобы измерить пропускную способность канала, задержку (Ping) и джиттер.</div>
 </div>
 <!-- DNS & Edge Servers Latency Table -->
 <h6 class="small fw-bold text-info mb-2"><i class="bi bi-globe me-1"></i> Задержка к опорным DNS &amp; CDN серверам:</h6>
@@ -328,7 +358,7 @@ Package: windows/api/webgui/tab_network
 <th style="width: 100px;">Статус</th>
 </tr>
 </thead>
-<tbody id="speed-servers-tbody">
+<tbody class="speed-servers-tbody" id="speed-servers-tbody">
 <tr><td class="text-center py-3 text-muted" colspan="7">Запустите тест скорости для измерения задержки к DNS-серверам.</td></tr>
 </tbody>
 </table>
@@ -458,8 +488,85 @@ Package: windows/api/webgui/tab_network
     </div>
   </div>
 </div>
+<!-- Панель диагностики: overview -->
+<div class="tab-pane fade" id="panel-network-overview" role="tabpanel">
+<div class="net-panel">
+<div class="net-panel-header">
+<span><i class="bi bi-speedometer me-1"></i> Обзор сетевой инфраструктуры</span>
+<span class="d-flex align-items-center gap-2"><small class="text-muted" data-infra-updated="overview"></small><button class="btn btn-xs btn-outline-info rounded-pill px-2 py-0" data-infra-refresh="overview">Обновить</button></span>
+</div>
+<div class="p-2" data-infra-body="overview"></div>
+</div>
+</div>
+<!-- Панель диагностики: switches -->
+<div class="tab-pane fade" id="panel-network-switches" role="tabpanel">
+<div class="net-panel">
+<div class="net-panel-header">
+<span><i class="bi bi-diagram-3 me-1"></i> Виртуальные коммутаторы Hyper-V</span>
+<span class="d-flex align-items-center gap-2"><small class="text-muted" data-infra-updated="switches"></small><button class="btn btn-xs btn-outline-info rounded-pill px-2 py-0" data-infra-refresh="switches">Обновить</button></span>
+</div>
+<div class="p-2" data-infra-body="switches"></div>
+</div>
+</div>
+<!-- Панель диагностики: ip-config -->
+<div class="tab-pane fade" id="panel-network-ip-config" role="tabpanel">
+<div class="net-panel">
+<div class="net-panel-header">
+<span><i class="bi bi-signpost-split me-1"></i> IP-конфигурация и маршрутизация</span>
+<span class="d-flex align-items-center gap-2"><small class="text-muted" data-infra-updated="ip-config"></small><button class="btn btn-xs btn-outline-info rounded-pill px-2 py-0" data-infra-refresh="ip-config">Обновить</button></span>
+</div>
+<div class="p-2" data-infra-body="ip-config"></div>
+</div>
+</div>
+<!-- Панель диагностики: nat -->
+<div class="tab-pane fade" id="panel-network-nat" role="tabpanel">
+<div class="net-panel">
+<div class="net-panel-header">
+<span><i class="bi bi-shuffle me-1"></i> NAT-конфигурации</span>
+<span class="d-flex align-items-center gap-2"><small class="text-muted" data-infra-updated="nat"></small><button class="btn btn-xs btn-outline-info rounded-pill px-2 py-0" data-infra-refresh="nat">Обновить</button></span>
+</div>
+<div class="p-2" data-infra-body="nat"></div>
+</div>
+</div>
+<!-- Панель диагностики: wsl -->
+<div class="tab-pane fade" id="panel-network-wsl" role="tabpanel">
+<div class="net-panel">
+<div class="net-panel-header">
+<span><i class="bi bi-ubuntu me-1"></i> Сетевая инфраструктура WSL2</span>
+<span class="d-flex align-items-center gap-2"><small class="text-muted" data-infra-updated="wsl"></small><button class="btn btn-xs btn-outline-info rounded-pill px-2 py-0" data-infra-refresh="wsl">Обновить</button></span>
+</div>
+<div class="p-2" data-infra-body="wsl"></div>
+</div>
+</div>
+<!-- Панель диагностики: diagnostics -->
+<div class="tab-pane fade" id="panel-network-diagnostics" role="tabpanel">
+<div class="net-panel">
+<div class="net-panel-header">
+<span><i class="bi bi-clipboard2-pulse me-1"></i> Диагностика сетевой конфигурации (только чтение)</span>
+<span class="d-flex align-items-center gap-2"><small class="text-muted" data-infra-updated="diagnostics"></small><button class="btn btn-xs btn-outline-info rounded-pill px-2 py-0" data-infra-refresh="diagnostics">Обновить</button></span>
+</div>
+<div class="p-2" data-infra-body="diagnostics"></div>
+</div>
+</div>
+<!-- Панель диагностики: history -->
+<div class="tab-pane fade" id="panel-network-history" role="tabpanel">
+<div class="net-panel">
+<div class="net-panel-header">
+<span><i class="bi bi-clock-history me-1"></i> История изменений конфигурации</span>
+<span class="d-flex align-items-center gap-2"><small class="text-muted" data-infra-updated="history"></small><button class="btn btn-xs btn-outline-info rounded-pill px-2 py-0" data-infra-refresh="history">Обновить</button></span>
+</div>
+<div class="p-2" data-infra-body="history"></div>
+</div>
+</div>
 <!-- SECTION 1: Network Adapters -->
-<div class="tab-pane fade" id="tab-net-adapters">
+<div class="tab-pane fade" id="panel-network-adapters" role="tabpanel">
+<div class="net-panel mb-3">
+<div class="net-panel-header">
+<span><i class="bi bi-ethernet me-1"></i> Инвентаризация адаптеров (физические, Hyper-V, WSL2, виртуальные)</span>
+<span class="d-flex align-items-center gap-2"><small class="text-muted" data-infra-updated="adapters"></small><button class="btn btn-xs btn-outline-info rounded-pill px-2 py-0" data-infra-refresh="adapters">Обновить</button></span>
+</div>
+<div class="p-2" data-infra-body="adapters"></div>
+</div>
 <div class="net-panel">
 <div class="net-panel-header">
 <span><i class="bi bi-hdd-network me-1"></i> Физические и виртуальные сетевые интерфейсы Windows</span>

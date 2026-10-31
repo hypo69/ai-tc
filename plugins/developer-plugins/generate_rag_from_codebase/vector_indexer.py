@@ -231,3 +231,4 @@ class CodebaseVectorIndexer:
             return True
         except Exception:
             return False
+

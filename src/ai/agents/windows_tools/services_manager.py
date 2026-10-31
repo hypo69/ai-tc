@@ -190,3 +190,4 @@ WINDOWS_SERVICES_MANAGER_TOOLS = [
     windows_services_list,
     windows_services_action,
 ]
+

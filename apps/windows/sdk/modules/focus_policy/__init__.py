@@ -23,3 +23,4 @@ from apps.windows.sdk.modules.focus_policy.models import FocusProfile
 from apps.windows.sdk.modules.focus_policy.router import init_router
 
 __all__ = ['WindowsFocusController', 'FocusProfile', 'init_router']
+

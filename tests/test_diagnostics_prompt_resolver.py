@@ -181,3 +181,4 @@ def test_resolve_process_manager_panel(tmp_path: Path) -> None:
     assert "Task Manager" in tmpl_en.name
     assert "Windows Internals" in tmpl_en.system_instruction
 
+

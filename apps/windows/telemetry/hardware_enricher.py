@@ -259,3 +259,4 @@ class HardwareEnricher:
     async def enrich_pending_components_async(self, max_items: int = 15) -> int:
         """Опрос и сбор спецификаций от вендора полностью запрещены."""
         return 0
+

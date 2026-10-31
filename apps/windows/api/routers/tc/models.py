@@ -92,3 +92,4 @@ class TcCpuResponse(BaseModel):
     display_freq: str = Field(default="", description="Строка с частотой")
     timestamp: str = Field(default="", description="Временная метка снимка из базы данных")
     source: str = Field(default="telemetry.db", description="Источник данных")
+

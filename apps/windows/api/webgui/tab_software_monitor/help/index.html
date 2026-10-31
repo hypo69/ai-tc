@@ -1,0 +1,76 @@
+<!--
+=============================================================================
+Process Name: Windows Software Monitor - Composite Help View
+=============================================================================
+Description:
+  Сводная иерархическая страница интерактивной справки для раздела
+  «Установленные программы и Мониторинг ПО» (#tab-software-monitor).
+  Объединяет 6 атомарных блоков справки через директиву data-help-include.
+  Соблюдает стандарты тем (CSS-токены) и мультиязычности (data-i18n).
+
+File: index.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_software_monitor/help
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 18:37:00
+=============================================================================
+-->
+<div class="help-composite-container p-1">
+  <!-- Вводный баннер и навигация по блокам -->
+  <div class="p-3 mb-3 rounded border border-subtle bg-body-tertiary">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-box-seam-fill text-primary fs-4"></i>
+        <h5 class="mb-0 fw-bold text-body" data-i18n="softwareMonitorHelp.composite.title">
+          Справка: Установленные программы и Мониторинг ПО (Software Hub)
+        </h5>
+      </div>
+      <span class="ui-badge ui-badge-info" data-i18n="softwareMonitorHelp.composite.badge">
+        Модуль #tab-software-monitor
+      </span>
+    </div>
+    <p class="small text-muted mb-3" data-i18n="softwareMonitorHelp.composite.desc">
+      Централизованный инструмент инвентаризации установленного программного обеспечения, пакетных менеджеров (WinGet, MSI, Store, Ninite), выявления спящих программ и сирот деинсталляции, аудита автозапуска, ИИ-оценки прозрачности, ресурсоемкости и сетевых сокетов.
+    </p>
+
+    <!-- Быстрая навигация по блокам -->
+    <div class="d-flex flex-wrap gap-1.5 align-items-center">
+      <span class="small text-body fw-bold me-1" data-i18n="softwareMonitorHelp.composite.quickNav">Разделы:</span>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_inventory">
+        <i class="bi bi-card-checklist text-primary"></i>
+        <span data-i18n="softwareMonitorHelp.nav.inventory">Реестр ПО</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_packages">
+        <i class="bi bi-box-seam text-info"></i>
+        <span data-i18n="softwareMonitorHelp.nav.packages">Пакеты и Store</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_dormant_orphans">
+        <i class="bi bi-clock-history text-warning"></i>
+        <span data-i18n="softwareMonitorHelp.nav.dormant">Спящие и сироты</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_startup">
+        <i class="bi bi-rocket-takeoff text-success"></i>
+        <span data-i18n="softwareMonitorHelp.nav.startup">Автозапуск</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_transparency">
+        <i class="bi bi-shield-check text-primary"></i>
+        <span data-i18n="softwareMonitorHelp.nav.transparency">ИИ-Прозрачность</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_heavy_sockets">
+        <i class="bi bi-hdd-network text-info"></i>
+        <span data-i18n="softwareMonitorHelp.nav.heavySockets">Ресурсы и сокеты</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Список атомарных блоков (включаются динамически через HelpModal) -->
+  <div class="help-blocks-wrapper d-flex flex-column gap-2">
+    <div data-help-include="/html/tab_software_monitor/help/blocks/block_inventory.html"></div>
+    <div data-help-include="/html/tab_software_monitor/help/blocks/block_packages.html"></div>
+    <div data-help-include="/html/tab_software_monitor/help/blocks/block_dormant_orphans.html"></div>
+    <div data-help-include="/html/tab_software_monitor/help/blocks/block_startup.html"></div>
+    <div data-help-include="/html/tab_software_monitor/help/blocks/block_transparency.html"></div>
+    <div data-help-include="/html/tab_software_monitor/help/blocks/block_heavy_sockets.html"></div>
+  </div>
+</div>

@@ -488,3 +488,4 @@ class SoundManager:
             return dev_list
 
         return _scan_flow("Render", "render"), _scan_flow("Capture", "capture")
+

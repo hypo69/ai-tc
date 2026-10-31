@@ -389,3 +389,4 @@ class StartupHistoryManager:
 
     # Алиас для удобства
     get_changes = get_change_timeline
+

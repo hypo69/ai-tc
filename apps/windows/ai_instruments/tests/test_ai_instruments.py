@@ -15,7 +15,7 @@
 # Package: apps.windows.ai_instruments.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 12:47:00
+# Updated: 2026-10-31 18:58:00
 # =============================================================================
 
 from __future__ import annotations
@@ -194,5 +194,72 @@ def test_router_endpoints(service: AIInstrumentsService) -> None:
     )
     assert check_resp.status_code == 200
     assert check_resp.json()["ok"] is True
+
+
+def test_hostinger_direct_and_sqlite_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Проверка переключения с недоступного PHP API на резервную базу SQLite без ошибок."""
+    storage = AIInstrumentsStorage(
+        db_path=":memory:",
+        engine="hostinger",
+        hostinger_config={
+            "connection_type": "php_api",
+            "host": "",
+            "user": "",
+            "php_api_url": "https://127.0.0.1:1/nonexistent.php",
+            "connect_timeout": 1,
+        },
+    )
+    assert storage.engine == "sqlite"
+    inst = AIInstrument(
+        tool_id="inst_fallback_ok",
+        name="Fallback Tool",
+        command="Get-Process",
+    )
+    saved = storage.save_instrument(inst)
+    assert saved.tool_id == "inst_fallback_ok"
+    assert storage.get_instrument("inst_fallback_ok") is not None
+
+
+def test_seed_default_instruments_catalog(service: AIInstrumentsService) -> None:
+    """Проверка заполнения базы полным каталогом инструментов из apps/windows/sdk и .agents/skills."""
+    from apps.windows.ai_instruments.default_catalog import DEFAULT_AGENT_INSTRUMENTS
+
+    seeded = service.seed_default_instruments()
+    assert len(seeded) == len(DEFAULT_AGENT_INSTRUMENTS)
+    assert len(seeded) >= 50
+
+    all_items = service.list_instruments(limit=200)
+    assert len(all_items) == len(DEFAULT_AGENT_INSTRUMENTS)
+
+    # Повторный вызов без force не дублирует записи
+    second = service.seed_default_instruments(force=False)
+    assert second == []
+
+
+@pytest.mark.asyncio
+async def test_register_database_instruments_in_registry(service: AIInstrumentsService, mem_storage: AIInstrumentsStorage) -> None:
+    """Проверка загрузки инструментов из ai_instruments в ToolRegistry и их выполнения."""
+    from apps.windows.sdk.core.tools.registry import ToolRegistry
+    from apps.windows.sdk.core.tools.database_tool import register_database_instruments
+
+    service.seed_default_instruments()
+    registry = ToolRegistry()
+
+    loaded_count = register_database_instruments(registry, storage=mem_storage)
+    assert loaded_count >= 50
+    assert registry.has("inst_powershell_process_tracker")
+
+    tool = registry.get("inst_powershell_process_tracker")
+    assert tool is not None
+    assert getattr(tool, "is_dynamic", False) is True
+
+    # Проверка вызова инструмента
+    res = await tool.execute()
+    assert res.status in ("ok", "warn")
+    assert res.tool_name == "inst_powershell_process_tracker"
+
+
+
+
 
 

@@ -1,275 +1,111 @@
-# Model Context Protocol (MCP) Servers (`.mcp/`)
+# 🔌 Серверы Model Context Protocol (`.mcp/`)
 
-## Purpose
-Hosts local **MCP Servers** built using `FastMCP` (`mcp.server.fastmcp`) and Node.js. These servers expose standardized tools and resources to external AI clients (Antigravity, Claude Desktop, Cursor, VS Code, and automated agents).
+**Описание:** Пакет локальных и гибридных серверов протокола **Model Context Protocol (MCP)** на базе официального SDK `mcp.server.MCPServer` (v2) и Node.js/TypeScript для интеграции инструментов AI Windows Admin (AI-TC) с внешними ИИ-клиентами (Google Antigravity, Claude Desktop, Cursor, VS Code).
 
-All servers are **кроссплатформенные** (cross-platform) и работают на Windows, Linux и macOS.
-
----
-
-## Registered MCP Servers
-
-| Server | Entry Point | Primary Tools | Platform Support |
-|---|---|---|---|
-| **LangChain AI Windows Admin Agent** | `langchain_mcp_server.py` | `agent_query`, `agent_web_search`, `agent_rag_search`, `agent_python_eval` | ✅ Win/Linux/macOS |
-| **Gemini Search Grounding** | `gemini_search_mcp_server.py` | `gemini_web_search`, `gemini_key_pool_status` | ✅ Win/Linux/macOS |
-| **Gemini CLI Search** | `gemini_cli_search_mcp_server.py` | `gemini_cli_web_search` | ✅ Win/Linux/macOS |
-| **Antigravity Search** | `agy_search_mcp_server.py` | `agy_web_search` | ✅ Win/Linux/macOS |
-| **FastAPI Client** | `fastapi_mcp_server.py` | `fastapi_chat`, `fastapi_media_list` | ✅ Win/Linux/macOS |
-| **Unicorn Manager** | `unicorn_mcp_server.py` | `unicorn_start`, `unicorn_stop`, `unicorn_status` | ✅ Win/Linux/macOS |
-| **Auto-Commits Helper** | `auto_commits.py` | Background watcher | ✅ Win/Linux/macOS |
-| **Playwright MCP** | `playwright/` | `POST /precommit`, `POST /apply` | ✅ Win/Linux/macOS |
+**Статус:** ✅ Production Ready  
+**Версия:** 2.0  
+**Автор:** hypo69  
+**Updated:** 2026-10-31 17:08:00
 
 ---
 
-## Running MCP Servers
+## 🏗️ Архитектура
 
-### Python MCP Servers (кроссплатформенные)
+Все Python MCP-серверы в директории `.mcp/` построены по единому инженерному стандарту:
+- Используют официальный класс **`MCPServer`** (`from mcp.server import MCPServer`, MCP Python SDK v2).
+- Все вызовы к ИИ-моделям маршрутизируются строго через единый фасад **`UnifiedChatModel`** (`src.ai.orchestration.unified_chat`).
+- Сетевые порты, хосты и идентификаторы моделей считываются динамически из корневого `config.json` через [`config_helper.py`](config_helper.py) без жесткого кодирования (No Hardcode).
+- Логирование выполняется централизованно через `from logger import logger` (вывод в консоль по запросу — через `logger.console()`).
 
-```bash
-# Linux/macOS
-python3 .mcp/gemini_search_mcp_server.py
-python3 .mcp/langchain_mcp_server.py
-python3 .mcp/fastapi_mcp_server.py
+### Зарегистрированные серверы и модули
 
-# Windows (cmd или PowerShell)
-python .mcp\gemini_search_mcp_server.py
-python .mcp\langchain_mcp_server.py
-python .mcp\fastapi_mcp_server.py
-```
-
-### Node.js MCP Server
-
-```bash
-# Playwright MCP
-cd .mcp/playwright
-npm install
-npm start
-```
-
----
-
-## MCP Client Configuration
-
-Example for different clients:
-
-### Claude Desktop (`claude_desktop_config.json`)
-
-```json
-{
-  "mcpServers": {
-    "aitc-gemini-search": {
-      "command": "python3",
-      "args": ["/path/to/ai-tc/.mcp/gemini_search_mcp_server.py"],
-      "cwd": "/path/to/ai-tc"
-    },
-    "aitc-langchain": {
-      "command": "python3",
-      "args": ["/path/to/ai-tc/.mcp/langchain_mcp_server.py"],
-      "cwd": "/path/to/ai-tc"
-    }
-  }
-}
-```
-
-### VS Code Cursor (`cursor-mcp.json` или `.cursor/config`)
-
-```json
-{
-  "mcpServers": {
-    "aitc": {
-      "command": "python3",
-      "args": ["/path/to/ai-tc/.mcp/langchain_mcp_server.py"],
-      "environment": {
-        "AITC_DIR": "/path/to/ai-tc",
-        "PYTHONPATH": "/path/to/ai-tc"
-      }
-    }
-  }
-}
-```
+| Модуль / Сервер | Назначение | Основные инструменты (`@mcp.tool`) |
+|---|---|---|
+| [`ssh_mcp_server.py`](ssh_mcp_server.py) | Точка запуска универсального SSH MCP Server (`ssh_mcp`) для администрирования Windows и Linux | 72 инструмента (`ssh_connect`, `exec_command`, `service_status`, `fs_read_file` и др.) |
+| [`langchain_mcp_server.py`](langchain_mcp_server.py) | Автономный ReAct-агент (`MediaSearchAgent`) и инструменты поиска/RAG | `agent_query`, `agent_web_search`, `agent_rag_search`, `agent_python_eval`, `agent_file_read` |
+| [`gemini_search_mcp_server.py`](gemini_search_mcp_server.py) | Поиск через облачный провайдер Google Gemini и аудит пула API-ключей | `gemini_web_search`, `gemini_key_pool_status` |
+| [`gemini_cli_search_mcp_server.py`](gemini_cli_search_mcp_server.py) | Поиск через терминальный агент Google Gemini CLI | `gemini_cli_web_search` |
+| [`agy_search_mcp_server.py`](agy_search_mcp_server.py) | Агентный поиск и анализ через Google Antigravity SDK (`agy`) | `agy_web_search` |
+| [`fastapi_mcp_server.py`](fastapi_mcp_server.py) | Мост к REST API центрального FastAPI-сервера (`/api/chat`, `/api/media`, `/api/torrents`) | `fastapi_chat`, `fastapi_media_list`, `fastapi_qbittorrent_info` |
+| [`unicorn_mcp_server.py`](unicorn_mcp_server.py) | Управление жизненным циклом фонового ASGI/Uvicorn сервера (`Run-Unicorn.ps1`) | `unicorn_start`, `unicorn_stop`, `unicorn_status` |
+| [`example_mcp_server.py`](example_mcp_server.py) | Эталонный диагностический сервер проверки окружения, портов и SSL-сертификатов | `get_project_info`, `get_directories`, `check_server_status`, `read_config_value`, `read_env_variable`, `list_certs` |
+| [`config_helper.py`](config_helper.py) | Вспомогательный модуль чтения `config.json`, `.env` и генератор клиентских конфигураций | CLI: `--list`, `--json`, `--generate` |
+| [`auto_commits.py`](auto_commits.py) | Фоновая служба отслеживания модификаций файлов и создания атомарных Git-коммитов | `scan_modified_files`, `commit_if_dirty` |
+| [`server.js`](server.js) | Вспомогательный Node.js HTTP-мост для безопасных pre-commit операций и записи файлов | `POST /precommit`, `POST /apply` |
+| [`playwright/`](playwright/README.md) | TypeScript-сервер оркестрации Playwright MCP | `GET /health`, `POST /precommit`, `POST /apply` |
 
 ---
 
-## Кроссплатформенные особенности
+## 🚀 Использование
 
-### 1. Управление путями
+### 1. Генерация конфигурации для клиентов MCP
 
-Все MCP серверы используют `pathlib.Path` для кроссплатформенной работы:
+Утилита [`config_helper.py`](config_helper.py) автоматически формирует пути для всех серверов каталога `.mcp/`:
 
-```python
-from pathlib import Path
+```powershell
+# Вывести список всех зарегистрированных MCP-серверов
+py .mcp/config_helper.py --list
 
-# Вместо Windows-специфичного пути
-# config_path = "C:\\Users\\user\\config.json"
-
-# Используйте (работает везде):
-config_path = Path(__file__).parent.parent / "config.json"
+# Сгенерировать готовую JSON-конфигурацию mcpServers
+py .mcp/config_helper.py --json
 ```
 
-### 2. Вспомогательный Module `config_helper.py`
+### 2. Запуск отдельного MCP-сервера (STDIO)
 
-Для упрощения работы с конфигурацией используйте встроенный `config_helper`:
+```powershell
+# Запуск сервера поиска Google Gemini
+py .mcp/gemini_search_mcp_server.py
+
+# Запуск SSH MCP Server
+py .mcp/ssh_mcp_server.py --transport stdio
+
+# Запуск LangChain ReAct-агента
+py .mcp/langchain_mcp_server.py
+```
+
+### 3. Программное использование `config_helper`
 
 ```python
 from .config_helper import (
-    get_project_root,
-    load_config,
-    get_config_value,
-    get_server_url,
-    get_env_var,
     get_certs_dir,
+    get_config_value,
     get_data_dir,
+    get_env_var,
+    get_project_root,
+    get_server_url,
     is_port_open,
 )
 
-# Кроссплатформенно получить URL сервера
-server_url = get_server_url()  # Автоматически: http://localhost:8000
+# Получение URL центрального FastAPI-сервера из config.json
+server_url = get_server_url()
 
-# Получить конфиг значение
-port = get_config_value("server.port", 8000)
-
-# Получить директорию SSL сертификатов
-certs_dir = get_certs_dir()  # ~/.certs (Windows), ~/Library/Certs (macOS), ~/.local/share/ca-certificates (Linux)
-```
-
-### 3. Переменные окружения
-
-Все MCP серверы должны использовать переменные окружения для конфигурации:
-
-```python
-import os
-
-# Получить путь проекта из переменной окружения
-project_dir = os.environ.get("AIWINDOWSADMIN_DIR", ".")
-
-# Использовать PYTHONPATH
-python_path = os.environ.get("PYTHONPATH", "")
-```
-
-### 4. Управление процессами
-
-При запуске внешних процессов используйте `subprocess` вместо Windows-специфичных команд:
-
-```python
-import subprocess
-import sys
-
-# ❌ Неправильно (только Windows)
-# os.system("taskkill /PID 1234")
-
-# ✅ Правильно (кроссплатформенно)
-import signal
-os.kill(pid, signal.SIGTERM)  # Linux/macOS
-# или
-subprocess.run(["kill", pid])  # Unix
+# Проверка доступности порта сервера
+port_ready = is_port_open()
 ```
 
 ---
 
-## Engineering Standards for MCP Servers
+## 📂 Файловая структура
 
-1. **All Python MCP servers use `from mcp.server.fastmcp import FastMCP`.**
-   - Стандартизированная реализация для кроссплатформенности
-
-2. **Logging через `from core.logger import logger`.**
-   - Единообразное логирование на всех платформах
-
-3. **Configuration parameters read from root `config.json` via `config_helper.py`.**
-   - Кроссплатформенная работа с конфигурацией
-
-4. **Tools registered with `@mcp.tool()` decorator with explicit type annotations and docstrings.**
-   - Стандартный формат для всех MCP инструментов
-
-5. **Path handling using `pathlib.Path` only.**
-   - Не использовать строковые конкатенации путей
-
-6. **Process management via `subprocess` module.**
-   - Кроссплатформенная работа с процессами
-
-7. **Environment variables for sensitive data.**
-   - Configuration через `.env` и переменные окружения
+- `__init__.py` — Инициализация пакета `.mcp` и экспорт публичного API `config_helper`
+- `agy_search_mcp_server.py` — MCP-сервер поиска через Google Antigravity (`UnifiedChatModel`)
+- `auto_commits.py` — Служба мониторинга изменений и автокоммитов Git
+- `config_helper.py` — Чтение `config.json`, `.env`, проверка портов и CLI-генератор конфигов
+- `example_mcp_server.py` — Эталонный кроссплатформенный диагностический MCP-сервер
+- `fastapi_mcp_server.py` — MCP-клиент к REST API основного сервера FastAPI
+- `gemini_cli_search_mcp_server.py` — MCP-сервер поиска через Google Gemini CLI
+- `gemini_search_mcp_server.py` — MCP-сервер поиска через Google Gemini и статуса пула ключей
+- `langchain_mcp_server.py` — MCP-сервер автономного LangChain ReAct-агента
+- `ssh_mcp_server.py` — Точка запуска `ssh_mcp` из каталога `.mcp/`
+- `unicorn_mcp_server.py` — MCP-сервер управления процессом Uvicorn (`Run-Unicorn.ps1`)
+- `server.js` — Node.js Express сервер безопасного применения правок и автокоммитов
+- `playwright/` — TypeScript-модуль оркестрации Playwright MCP
 
 ---
 
-## Examples использования config_helper
+## 🔗 Связанные модули и документация
 
-### Пример 1: Получить URL сервера
-
-```python
-from .config_helper import get_server_url
-
-base_url = get_server_url()
-# Результат: http://localhost:8000 или https://localhost:8000 (если SSL включен)
-```
-
-### Пример 2: Кроссплатформенные пути
-
-```python
-from .config_helper import get_certs_dir, get_data_dir
-
-certs = get_certs_dir()
-# Windows: C:\Users\user\.certs
-# Linux: /home/user/.local/share/ca-certificates
-# macOS: /Users/user/Library/Certs
-
-data = get_data_dir()
-# Windows: C:\Users\user\AppData\Local\ai-tc
-# Linux: /home/user/.local/share/ai-tc
-# macOS: /Users/user/Library/Application Support/ai-tc
-```
-
-### Пример 3: Работа с .env
-
-```python
-from .config_helper import get_env_var
-
-api_key = get_env_var("GEMINI_API_KEY")
-# Ищет в: 1) переменные окружения, 2) .env файл, 3) None
-```
-
----
-
-## Миграция на кроссплатформенность
-
-Если вы пишете новый MCP сервер:
-
-**Старое (Windows-специфичное):**
-```python
-config_path = r"C:\Users\user\AppData\Local\ai-tc\config.json"
-if os.name == "nt":
-    import subprocess
-    subprocess.run(["taskkill", "/F", "/PID", str(pid)])
-```
-
-**Новое (кроссплатформенное):**
-```python
-from pathlib import Path
-from .config_helper import get_project_root, load_config
-
-config_path = get_project_root() / "config.json"
-config = load_config()
-
-import os
-os.kill(pid, 9)  # Работает везде
-```
-
----
-
-## Тестирование на разных платформах
-
-```bash
-# Linux
-python3 .mcp/gemini_search_mcp_server.py
-
-# macOS
-python3 .mcp/gemini_search_mcp_server.py
-
-# Windows (cmd)
-python .mcp\gemini_search_mcp_server.py
-
-# Windows (PowerShell)
-python .mcp/gemini_search_mcp_server.py  # Путем слэши тоже работают
-```
-
-Все серверы должны работать без изменений на любой платформе.
+- [`../ssh_mcp/README.md`](../ssh_mcp/README.md) — Полная документация ядра SSH MCP Server
+- [`../src/ai/agents/mcp_client.py`](../src/ai/agents/mcp_client.py) — Клиентский менеджер подключения MCP-серверов в LangChain
+- [`../apps/windows/api/routers/admin/mcp.py`](../apps/windows/api/routers/admin/mcp.py) — REST API управления реестром MCP-серверов в WebGUI
+- [`../docs/ru/mcp/index.md`](../docs/ru/mcp/index.md) — Руководство по архитектуре подсистемы MCP

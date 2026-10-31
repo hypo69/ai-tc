@@ -191,7 +191,7 @@ def _perform_powershell_investigation() -> Dict[str, Any]:
         'trigger': {
             'type': 'Windows Task Scheduler',
             'task_name': 'AI-Windows-Admin-Telemetry',
-            'script_file': r'C:\Users\onela\AppData\Local\AI-TC\tlm.ps1',
+            'script_file': r'C:\Users\onela\AppData\Local\ai-tc\tlm.ps1',
             'parent_daemon': 'ai-telemetry.exe / pythonw.exe'
         },
         'code_location': {
@@ -225,4 +225,5 @@ def init_router() -> APIRouter:
 
 
 __all__ = ['router', 'init_router', 'investigate_powershell', '_perform_powershell_investigation']
+
 

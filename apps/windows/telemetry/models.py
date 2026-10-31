@@ -16,7 +16,7 @@
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-19 00:13:00
+# Updated: 2026-10-31 18:58:00
 # =============================================================================
 
 from __future__ import annotations
@@ -567,6 +567,8 @@ class MonitorInfo(BaseModel):
     """Connected display monitor details."""
     device: str = Field(default='', description='Display device name (e.g. \\\\.\\DISPLAY1)')
     name: str = Field(default='Monitor', description='Friendly monitor name or model')
+    vendor: str = Field(default='', description='Display manufacturer or vendor')
+    serial_number: str = Field(default='', description='Monitor serial number or Service Tag')
     adapter: str = Field(default='', description='Display adapter name')
     width: int = Field(default=1920, description='Display resolution width')
     height: int = Field(default=1080, description='Display resolution height')
@@ -1227,13 +1229,13 @@ class ProcessDefinitionRecord(BaseModel):
 class ProcessInstanceRecord(BaseModel):
     """Единичный уникальный инстанс процесса (Process Instance) с защитой от PID Recycling."""
     instance_id: Optional[Union[str, int]] = Field(default=None, description='Уникальный первичный ключ инстанса')
-    definition_id: int = Field(..., description='Ссылка на паспорт программы')
+    definition_id: int = Field(default=1, description='Ссылка на паспорт программы')
     pid: int = Field(..., description='Process ID операционной системы')
     parent_instance_id: Optional[Union[str, int]] = Field(default=None, description='Уникальный instance_id родительского процесса')
     name: str = Field(..., description='Имя процесса')
-    executable_path: str = Field(..., description='Полный путь к исполняемому файлу')
+    executable_path: str = Field(default='', description='Полный путь к исполняемому файлу')
     command_line: Optional[str] = Field(default=None, description='Полная командная строка запуска')
-    start_time: str = Field(..., description='Время запуска процесса ядра ОС (ISO-8601)')
+    start_time: str = Field(default='', description='Время запуска процесса ядра ОС (ISO-8601)')
     exit_time: Optional[str] = Field(default=None, description='Время завершения процесса')
     exit_code: Optional[int] = Field(default=None, description='Код завершения процесса')
     session_id: int = Field(default=1, description='Идентификатор пользовательской сессии Windows')
@@ -1515,6 +1517,7 @@ class ProcessDeepHistoryResponse(BaseModel):
     # Телеметрия из базы SQLite
     sqlite_snapshots_count: int = Field(default=0, description='Количество сохраненных срезов в БД телеметрии')
     timestamp: str = Field(default='', description='Время фиксации снимка (ISO-8601)')
+
 
 
 

@@ -109,9 +109,9 @@ class TelemetryAggregator:
         Returns:
             str: Путь к лог-директории.
         """
-        programdata = os.environ.get('ProgramData') or os.environ.get('ALLUSERSPROFILE') or 'C:\\ProgramData'
-        app_name = os.environ.get('APP_NAME') or 'ai-tc'
-        return os.path.join(programdata, app_name, 'telemetry', 'logs')
+        programdata = os.environ.get('ProgramData') or os.environ.get('ALLUSERSPROFILE') or 'C:\\ProgramData'
+        app_name = os.environ.get('APP_NAME') or 'ai-tc'
+        return os.path.join(programdata, app_name, 'telemetry', 'logs')
 
     def start(self) -> bool:
         """Запускает фоновый поток сбора телеметрии.
@@ -356,3 +356,4 @@ class TelemetryAggregator:
             Optional[Dict[str, Any]]: Последняя телеметрия или None.
         """
         return self._last_measurements
+

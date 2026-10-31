@@ -19,7 +19,7 @@
 # Package: apps.windows.sdk.modules.taskbar.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 00:10:00
+# Updated: 2026-10-31 15:58:30
 # =============================================================================
 
 from __future__ import annotations
@@ -125,29 +125,42 @@ class TaskbarHistoryManager:
         new_json = json.dumps(new_state, ensure_ascii=False) if new_state else None
         det_json = json.dumps(details, ensure_ascii=False) if details else None
 
-        try:
+        insert_sql = """
+            INSERT INTO taskbar_action_history (
+                timestamp, command_id, category, action_type, target_hwnd,
+                previous_state, new_state, details, status, is_rolled_back
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+        """
+        params = (now_iso, command_id, category, action_type, target_hwnd, prev_json, new_json, det_json, status)
+
+        def _insert() -> int:
             with self._get_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute("""
-                    INSERT INTO taskbar_action_history (
-                        timestamp, command_id, category, action_type, target_hwnd,
-                        previous_state, new_state, details, status, is_rolled_back
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
-                """, (
-                    now_iso, command_id, category, action_type, target_hwnd,
-                    prev_json, new_json, det_json, status
-                ))
+                cursor.execute(insert_sql, params)
                 conn.commit()
                 rec_id = cursor.lastrowid or 0
                 logger.debug(f"[TaskbarHistory] Зафиксировано действие {command_id} [ID: {rec_id}] в telemetry.db")
                 return rec_id
+
+        try:
+            return _insert()
+        except sqlite3.OperationalError as exc:
+            if "no such table" in str(exc).lower():
+                logger.warning("[TaskbarHistoryManager] Таблица taskbar_action_history отсутствует. Автоматическое создание...")
+                self._init_db()
+                try:
+                    return _insert()
+                except Exception as retry_exc:
+                    logger.error(f"[TaskbarHistoryManager] Повторный сбой записи действия в telemetry.db: {retry_exc}")
+                    return 0
+            logger.error(f"[TaskbarHistoryManager] Не удалось записать действие в telemetry.db: {exc}")
+            return 0
         except Exception as exc:
             logger.error(f"[TaskbarHistoryManager] Не удалось записать действие в telemetry.db: {exc}")
             return 0
 
     def get_history(self, limit: int = 50, command_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """Возвращает историю изменений из telemetry.db."""
-        result: List[Dict[str, Any]] = []
         query = "SELECT * FROM taskbar_action_history"
         params: List[Any] = []
 
@@ -158,7 +171,8 @@ class TaskbarHistoryManager:
         query += " ORDER BY id DESC LIMIT ?"
         params.append(limit)
 
-        try:
+        def _fetch() -> List[Dict[str, Any]]:
+            result: List[Dict[str, Any]] = []
             with self._get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(query, params)
@@ -181,14 +195,28 @@ class TaskbarHistoryManager:
                         except Exception:
                             pass
                     result.append(item)
+            return result
+
+        try:
+            return _fetch()
+        except sqlite3.OperationalError as exc:
+            if "no such table" in str(exc).lower():
+                logger.warning("[TaskbarHistoryManager] Таблица taskbar_action_history отсутствует при чтении. Автоматическое создание...")
+                self._init_db()
+                try:
+                    return _fetch()
+                except Exception as retry_exc:
+                    logger.error(f"[TaskbarHistoryManager] Ошибка чтения истории после создания таблицы: {retry_exc}")
+                    return []
+            logger.error(f"[TaskbarHistoryManager] Ошибка чтения истории из telemetry.db: {exc}")
+            return []
         except Exception as exc:
             logger.error(f"[TaskbarHistoryManager] Ошибка чтения истории из telemetry.db: {exc}")
-
-        return result
+            return []
 
     def get_record_by_id(self, history_id: int) -> Optional[Dict[str, Any]]:
         """Получает запись истории по ID."""
-        try:
+        def _fetch_record() -> Optional[Dict[str, Any]]:
             with self._get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute("SELECT * FROM taskbar_action_history WHERE id = ?", (history_id,))
@@ -202,9 +230,22 @@ class TaskbarHistoryManager:
                     if item.get("details"):
                         item["details"] = json.loads(item["details"])
                     return item
+            return None
+
+        try:
+            return _fetch_record()
+        except sqlite3.OperationalError as exc:
+            if "no such table" in str(exc).lower():
+                self._init_db()
+                try:
+                    return _fetch_record()
+                except Exception:
+                    return None
+            logger.error(f"[TaskbarHistoryManager] Ошибка получения записи ID {history_id}: {exc}")
+            return None
         except Exception as exc:
             logger.error(f"[TaskbarHistoryManager] Ошибка получения записи ID {history_id}: {exc}")
-        return None
+            return None
 
     def rollback(self, history_id: int, controller: Any) -> Dict[str, Any]:
         """
@@ -317,6 +358,13 @@ class TaskbarHistoryManager:
                     return {"status": "ERROR", "message": "Нет доступных действий для отката"}
                 last_id = row[0]
                 return self.rollback(last_id, controller)
+        except sqlite3.OperationalError as exc:
+            if "no such table" in str(exc).lower():
+                self._init_db()
+                return {"status": "ERROR", "message": "История действий пуста"}
+            logger.error(f"[TaskbarHistoryManager] Ошибка отката последнего действия: {exc}")
+            return {"status": "ERROR", "message": str(exc)}
         except Exception as exc:
             logger.error(f"[TaskbarHistoryManager] Ошибка отката последнего действия: {exc}")
             return {"status": "ERROR", "message": str(exc)}
+

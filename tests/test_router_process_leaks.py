@@ -69,3 +69,4 @@ def test_tc_process_leaks_alias_endpoints(client):
     post_res = client.post("/api/v1/tc/process-leaks/refresh?limit=10")
     assert post_res.status_code == 200
     assert "all_processes" in post_res.json()
+

@@ -1,0 +1,49 @@
+<!--
+=============================================================================
+Process Name: Windows Log Settings - Atomic Help Block: Event Inspector
+=============================================================================
+Description:
+  Атомарный HTML-фрагмент справки по подразделу «Инспектор событий»
+  (#ls-subpane-inspector) в #tab-app-internals#settings.
+
+File: block_event_inspector.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_log_settings/help/blocks
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 17:45:00
+=============================================================================
+-->
+<div class="card bg-body border-subtle shadow-sm mb-2 help-atomic-block" data-help-block="block_event_inspector">
+  <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between py-2 px-3">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-journal-text text-primary fs-5"></i>
+      <h6 class="mb-0 fw-bold text-body" data-i18n="logSettingsHelp.inspector.title">6. Подраздел «Инспектор событий» (Master-Detail)</h6>
+    </div>
+    <span class="ui-badge ui-badge-neutral">panel-log-settings-11</span>
+  </div>
+  <div class="card-body p-3">
+    <p class="small text-muted mb-2" data-i18n="logSettingsHelp.inspector.intro">
+      Двухпанельный инструмент оперативного расследования инцидентов, позволяющий напрямую опрашивать живые каналы <code>Security</code>, <code>System</code>, <code>Application</code>, <code>Sysmon</code>, <code>TaskScheduler</code>, а также нормализованное хранилище <code>telemetry.db</code>:
+    </p>
+    <div class="row g-2">
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-block mb-1" data-i18n="logSettingsHelp.inspector.filtersTitle">Панель быстрых фильтров и поиска:</strong>
+          <ul class="small text-muted mb-0 ps-3">
+            <li data-i18n="logSettingsHelp.inspector.f1"><strong>Кнопки Event ID:</strong> мгновенная фильтрация по самым востребованным кодам безопасности: <code>4688</code> (Создание процесса), <code>4624</code> (Успешный вход Logon), <code>4625</code> (Неудачный вход / Brute-force), <code>1102</code> (Очистка журнала аудита).</li>
+            <li data-i18n="logSettingsHelp.inspector.f2"><strong>Многокритериальный фильтр:</strong> отбор по уровню критичности (<code>Critical</code>, <code>Error</code>, <code>Warning</code>, <code>Information</code>), имени пользователя, процессу и подстроке в тексте сообщения.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-block mb-1" data-i18n="logSettingsHelp.inspector.detailTitle">Правая карточка детального разбора:</strong>
+          <p class="small text-muted mb-0" data-i18n="logSettingsHelp.inspector.detailDesc">
+            При клике на любую строку таблицы в правой панели автоматически раскрывается карточка события: точная метка времени, целевой/субъектный пользователь, процесс с PID, выделенный блок <code>CommandLine</code>, родительский процесс и спойлер <strong>«Показать исходные данные (Raw Data)»</strong> с полной JSON-структурой записи.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

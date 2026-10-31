@@ -11,7 +11,7 @@
 # Package: apps.windows.api.routers.chat
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-22 13:30:00
+# Updated: 2026-10-30 13:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -113,13 +113,6 @@ def register_model_endpoints(router: APIRouter, chat_model, narrator_model, plug
             normalized_model, provider = _normalize_model_and_provider(target_model, req.provider)
             user_identifier, _, _, _ = await _extract_user_auth(fastapi_req)
 
-            try:
-                from src.user_manager import user_manager
-                user_id_int = int(user_identifier) if str(user_identifier).isdigit() else 1
-                await asyncio.to_thread(user_manager.update_user_settings, user_id_int, model=normalized_model)
-            except Exception as e:
-                logger.debug(f"[router_chat] Не удалось обновить model в user_settings: {e}")
-
             # Обновление состояния базового chat_model
             active_chat_ref = getattr(getattr(fastapi_req, "app", None), "state", None)
             target_chat_model = getattr(active_chat_ref, "chat_model", None) if active_chat_ref else None
@@ -170,15 +163,7 @@ def register_model_endpoints(router: APIRouter, chat_model, narrator_model, plug
             normalized_model, provider = _normalize_model_and_provider(req.model, target_provider)
             user_identifier, _, _, _ = await _extract_user_auth(fastapi_req)
 
-            # 1. Обновляем настройки пользователя в базе данных
-            try:
-                from src.user_manager import user_manager
-                user_id_int = int(user_identifier) if str(user_identifier).isdigit() else 1
-                await asyncio.to_thread(user_manager.update_user_settings, user_id_int, model=normalized_model)
-            except Exception as e:
-                logger.debug(f"[router_chat] Не удалось обновить provider/model в user_settings: {e}")
-
-            # 2. Обновление состояния базового chat_model
+            # 1. Обновление состояния базового chat_model
             active_chat_ref = getattr(getattr(fastapi_req, "app", None), "state", None)
             target_chat_model = getattr(active_chat_ref, "chat_model", None) if active_chat_ref else None
             if not target_chat_model:
@@ -240,15 +225,7 @@ def register_model_endpoints(router: APIRouter, chat_model, narrator_model, plug
 
             user_identifier, _, selected_model, _ = await _extract_user_auth(fastapi_req)
 
-            # 1. Обновляем настройки пользователя в базе данных
-            try:
-                from src.user_manager import user_manager
-                user_id_int = int(user_identifier) if str(user_identifier).isdigit() else 1
-                await asyncio.to_thread(user_manager.update_user_settings, user_id_int, system_instruction=raw_instruction)
-            except Exception as e:
-                logger.debug(f"[router_chat] Не удалось обновить user_settings: {e}")
-
-            # 2. Обновляем базовый chat_model (из app.state или переданный при инициализации)
+            # 1. Обновляем базовый chat_model (из app.state или переданный при инициализации)
             active_chat_ref = getattr(getattr(fastapi_req, "app", None), "state", None)
             target_chat_model = getattr(active_chat_ref, "chat_model", None) if active_chat_ref else None
             if not target_chat_model:
@@ -431,3 +408,4 @@ def register_model_endpoints(router: APIRouter, chat_model, narrator_model, plug
             'status': 'success',
             'health': summary,
         }
+

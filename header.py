@@ -80,7 +80,7 @@ def set_project_root(marker_files=marker_files) -> Path:
     if not found:
         local_app_data = os.environ.get('LOCALAPPDATA')
         if local_app_data:
-            candidate = Path(local_app_data) / os.environ.get('APP_NAME', 'AI-TC')
+            candidate = Path(local_app_data) / os.environ.get('APP_NAME', 'ai-tc')
             if candidate.exists() and (candidate / 'config.json').exists():
                 __root__ = candidate
     if str(__root__) not in sys.path:
@@ -101,11 +101,12 @@ def _load_app_name(root: Path) -> str:
         try:
             with open(cfg, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                return data.get('app_name') or data.get('app', {}).get('app_name') or 'AI-TC'
+                return data.get('app_name') or data.get('app', {}).get('app_name') or 'ai-tc'
         except Exception:
             pass
-    return 'AI-TC'
+    return 'ai-tc'
 
 
 APP_NAME: str = _load_app_name(__root__)
 os.environ['APP_NAME'] = APP_NAME
+

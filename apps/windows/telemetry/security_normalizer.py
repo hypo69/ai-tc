@@ -467,3 +467,4 @@ class SecurityEventNormalizer:
 
 
 __all__ = ['SecurityEventNormalizer', '_parse_int']
+

@@ -251,3 +251,4 @@ async def stream_universal_solve(req: UniversalAgentSolveRequest):
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
+

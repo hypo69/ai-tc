@@ -1,0 +1,54 @@
+<!--
+=============================================================================
+Process Name: Windows Log Settings - Atomic Help Block: 7 Domains & Catalog
+=============================================================================
+Description:
+  Атомарный HTML-фрагмент справки по подразделу «7 Доменов и Каталог провайдеров»
+  (#ls-subpane-domains) в #tab-app-internals#settings.
+
+File: block_domains_catalog.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_log_settings/help/blocks
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 17:45:00
+=============================================================================
+-->
+<div class="card bg-body border-subtle shadow-sm mb-3 help-atomic-block" data-help-block="block_domains_catalog">
+  <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between py-2 px-3">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-diagram-3-fill text-info fs-5"></i>
+      <h6 class="mb-0 fw-bold text-body" data-i18n="logSettingsHelp.domains.title">2. Подраздел «7 Доменов и Каталог провайдеров»</h6>
+    </div>
+    <span class="ui-badge ui-badge-neutral">panel-log-settings-5</span>
+  </div>
+  <div class="card-body p-3">
+    <p class="small text-muted mb-2" data-i18n="logSettingsHelp.domains.intro">
+      Структурирует сотни каналов Windows Event Log в 7 логических доменов телеметрии и дополнительный контур глубокой наблюдаемости Sysmon:
+    </p>
+    <div class="row g-2 mb-3">
+      <div class="col-12 col-md-6">
+        <ul class="list-unstyled small mb-0 d-flex flex-column gap-1">
+          <li><span class="ui-badge ui-badge-info me-1">1</span> <strong class="text-body">Security / Identity:</strong> <span class="text-muted" data-i18n="logSettingsHelp.domains.d1">входы (4624/4625), привилегии, управление учетными записями.</span></li>
+          <li><span class="ui-badge ui-badge-info me-1">2</span> <strong class="text-body">Process / Tasks:</strong> <span class="text-muted" data-i18n="logSettingsHelp.domains.d2">жизненный цикл процессов (4688/4689), задания планировщика, службы.</span></li>
+          <li><span class="ui-badge ui-badge-info me-1">3</span> <strong class="text-body">Storage &amp; Filesystem:</strong> <span class="text-muted" data-i18n="logSettingsHelp.domains.d3">NTFS, Disk, StorPort, VSS теневые копии и ошибки блочного ввода-вывода.</span></li>
+          <li><span class="ui-badge ui-badge-info me-1">4</span> <strong class="text-body">Network &amp; Sockets:</strong> <span class="text-muted" data-i18n="logSettingsHelp.domains.d4">DNS-клиент, брандмауэр WFP, SMB, TCP/IP соединения и адаптеры.</span></li>
+        </ul>
+      </div>
+      <div class="col-12 col-md-6">
+        <ul class="list-unstyled small mb-0 d-flex flex-column gap-1">
+          <li><span class="ui-badge ui-badge-info me-1">5</span> <strong class="text-body">Windows Update:</strong> <span class="text-muted" data-i18n="logSettingsHelp.domains.d5">установка патчей KB, Servicing, состояния перезагрузки и откаты.</span></li>
+          <li><span class="ui-badge ui-badge-info me-1">6</span> <strong class="text-body">Hardware / Drivers:</strong> <span class="text-muted" data-i18n="logSettingsHelp.domains.d6">Kernel-PnP, загрузка драйверов, WHEA аппаратные сбои и USB.</span></li>
+          <li><span class="ui-badge ui-badge-info me-1">7</span> <strong class="text-body">Power / Boot / Shutdown:</strong> <span class="text-muted" data-i18n="logSettingsHelp.domains.d7">Kernel-Power (41, 107), переходы в сон, гибернацию и BSOD BugCheck.</span></li>
+          <li><span class="ui-badge ui-badge-warning me-1">+</span> <strong class="text-body">Sysmon Observability:</strong> <span class="text-muted" data-i18n="logSettingsHelp.domains.d8">хэши образов, сетевые коннекты, инъекции памяти и DNS-запросы.</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="p-2 rounded border border-subtle bg-body-tertiary small">
+      <strong class="text-body d-block mb-1" data-i18n="logSettingsHelp.domains.catalogHowToTitle">Как работать с таблицей каталога провайдеров:</strong>
+      <span class="text-muted" data-i18n="logSettingsHelp.domains.catalogHowToDesc">
+        Клик по любой карточке домена автоматически фильтрует таблицу «Иерархический каталог провайдеров Windows». Для каждого провайдера указаны ключевые Event ID (с всплывающими расшифровками), рейтинг объема трафика (Low / Medium / High / Extreme), рекомендуемый метод сбора (ETW Stream или Pull) и теги корреляции.
+      </span>
+    </div>
+  </div>
+</div>

@@ -125,3 +125,4 @@ class TelemetryJsonLogger:
         """Вернуть размер текущего лог‑файла в байтах.
         """
         return self.current_path.stat().st_size if self.current_path.exists() else 0
+

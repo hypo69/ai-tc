@@ -138,3 +138,4 @@ def excel2text(file_path: Union[str, Path]) -> str:
         output_lines.append("")
 
     return "\n".join(output_lines)
+

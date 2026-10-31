@@ -42,3 +42,4 @@ def init_router() -> APIRouter:
     register_system_endpoints(router)
     register_telemetry_endpoints(router)
     return router
+

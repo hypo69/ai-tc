@@ -17,7 +17,7 @@
  * Package: windows/api/webgui/apps/modules
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 14:54:00
+ * Updated: 2026-10-31 19:45:00
  * =============================================================================
  */
 
@@ -28,17 +28,19 @@ export const APP_TAB_DEFS = [
   // Консолидированные панели
   { id: 'smart_restore', tab: 'smart-restore', tabId: 'tab-smart-restore', html: '/html/tab_smart_restore/index.html?v=20261016_v1', js: '/html/tab_smart_restore/main.js?v=20261016_v1' },
   { id: 'windows_user_settings', tab: 'windows-settings', tabId: 'tab-windows-settings', html: '/html/tab_windows_settings/index.html?v=20261015_v1', js: '/html/tab_windows_settings/main.js?v=20261015_v1' },
-  { id: 'app_internals', tab: 'app-internals', tabId: 'tab-app-internals', html: '/html/tab_app_internals/index.html?v=20261020_v2', js: '/html/tab_app_internals/main.js?v=20261020_v2' },
-  { id: 'ai_ecosystem', tab: 'ai-ecosystem', tabId: 'tab-ai-ecosystem', html: '/html/tab_ai_ecosystem/index.html?v=20261013_v2', js: '/html/tab_ai_ecosystem/main.js?v=20261013_v2' },
+  { id: 'app_internals', tab: 'app-internals', tabId: 'tab-app-internals', html: '/html/tab_app_internals/index.html?v=20261031_v7', js: '/html/tab_app_internals/main.js?v=20261031_v7' },
+  { id: 'ai_ecosystem', tab: 'ai-ecosystem', tabId: 'tab-ai-ecosystem', html: '/html/tab_ai_ecosystem/index.html?v=20261030_v1', js: '/html/tab_ai_ecosystem/main.js?v=20261030_v1' },
   { id: 'storage_management', tab: 'storage-management', tabId: 'tab-storage-management', html: '/html/tab_storage_management/index.html?v=20261013_v2', js: '/html/tab_storage_management/main.js?v=20261013_v2' },
   { id: 'telemetry_control', tab: 'telemetry-control', tabId: 'tab-telemetry-control', html: '/html/tab_telemetry_control/index.html?v=20261013_v2', js: '/html/tab_telemetry_control/main.js?v=20261013_v2' },
   { id: 'interactive_agent', tab: 'interactive-agent', tabId: 'tab-interactive-agent', html: '/html/tab_interactive_agent/index.html?v=20261013_v1', js: '/html/tab_interactive_agent/main.js?v=20261013_v1' },
+  { id: 'user_environment', tab: 'user-environment', tabId: 'tab-user-environment', html: '/html/tab_user_environment/index.html?v=20261031_v1', js: '/html/tab_user_environment/main.js?v=20261031_v1' },
+  { id: 'user_enviroment', tab: 'user-enviroment', tabId: 'tab-user-enviroment', html: '/html/tab_user_environment/index.html?v=20261031_v1', js: '/html/tab_user_environment/main.js?v=20261031_v1' },
 
   { id: 'about_system', tab: 'about-system', tabId: 'tab-about-system', html: '/html/tab_about_system/index.html?v=20261028_v4', js: '/html/tab_about_system/main.js?v=20261028_v4' },
   { id: 'scenarios', tab: 'scenarios', tabId: 'tab-scenarios', html: '/html/tab_scenarios/index.html?v=20261006_v8', js: '/html/tab_scenarios/main.js?v=20261006_v8' },
   { id: 'chat', tab: 'chat', tabId: 'tab-chat', html: '/html/tab_chat/index.html?v=20260923_v5', js: '/html/tab_chat/main.js?v=20260923_v5' },
-  { id: 'network_terminal', tab: 'network', tabId: 'tab-network', html: '/html/tab_network/index.html?v=20261020_v2', js: '/html/tab_network/main.js?v=20261020_v2' },
-  { id: 'system_inspector', tab: 'hardware-load-inspector', tabId: 'tab-hardware-load-inspector', html: '/html/tab_system_inspector/index.html?v=20261020_v3', js: '/html/tab_system_inspector/main.js?v=20261020_v3' },
+  { id: 'network_terminal', tab: 'network', tabId: 'tab-network', html: '/html/tab_network/index.html?v=20261028_v1', js: '/html/tab_network/main.js?v=20261028_v1' },
+  { id: 'system_inspector', tab: 'hardware-load-inspector', tabId: 'tab-hardware-load-inspector', html: '/html/tab_system_inspector/index.html?v=20261030_v1', js: '/html/tab_system_inspector/main.js?v=20261030_v1' },
   { id: 'processes_load_inspector', tab: 'processes-load-inspector', tabId: 'tab-processes-load-inspector', html: '/html/tab_processes_load_inspector/index.html?v=20261028_v1', js: '/html/tab_processes_load_inspector/main.js?v=20261028_v1' },
   { id: 'windows_sysadmin', tab: 'windows-admin', tabId: 'tab-windows-admin', html: '/html/tab_windows_admin/index.html?v=20261015_v2', js: '/html/tab_windows_admin/main.js?v=20261015_v2' },
   { id: 'focus_settings', tab: 'focus-settings', tabId: 'tab-focus-settings', html: '/html/tab_focus_settings/index.html?v=20261006_v1', js: '/html/tab_focus_settings/main.js?v=20261006_v1' },
@@ -62,9 +64,8 @@ export const APP_TAB_DEFS = [
   { id: 'helpdesk', tab: 'helpdesk', tabId: 'tab-helpdesk', html: '/html/tab_helpdesk/index.html', js: '/html/tab_helpdesk/main.js' },
   { id: 'wikipedia_research', tab: 'wikipedia-research', tabId: 'tab-wikipedia-research', html: '/html/tab_wikipedia_research/index.html', js: '/html/tab_wikipedia_research/main.js' },
   { id: 'software_transparency_scanner', tab: 'software-transparency', tabId: 'tab-software-transparency', html: '/html/tab_software_transparency/index.html', js: '/html/tab_software_transparency/main.js' },
-  { id: 'software_monitor', tab: 'software-monitor', tabId: 'tab-software-monitor', html: '/html/tab_software_monitor/index.html?v=20261020_v2', js: '/html/tab_software_monitor/main.js?v=20261020_v2' },
-  { id: 'software_scanner', tab: 'software-scanner', tabId: 'tab-software-scanner', html: '/html/tab_software_monitor/index.html?v=20261020_v2', js: '/html/tab_software_monitor/main.js?v=20261020_v2' },
-  { id: 'user_directories', tab: 'user-directories', tabId: 'tab-user-directories', html: '/html/tab_user_directories/index.html?v=20261014_v1', js: '/html/tab_user_directories/main.js?v=20261014_v1' },
+  { id: 'software_monitor', tab: 'software-monitor', tabId: 'tab-software-monitor', html: '/html/tab_software_monitor/index.html?v=20261028_v1', js: '/html/tab_software_monitor/main.js?v=20261028_v1' },
+  { id: 'software_scanner', tab: 'software-scanner', tabId: 'tab-software-scanner', html: '/html/tab_software_monitor/index.html?v=20261028_v1', js: '/html/tab_software_monitor/main.js?v=20261028_v1' },
   { id: 'ninite_updater', tab: 'ninite-updater', tabId: 'tab-ninite-updater', html: '/html/tab_ninite_updater/index.html?v=20260924_v2', js: '/html/tab_ninite_updater/main.js?v=20260924_v2' },
   { id: 'file_recovery', tab: 'file-recovery', tabId: 'tab-file-recovery', html: '/html/tab_file_recovery/index.html', js: '/html/tab_file_recovery/main.js' },
   { id: 'file_history_ai_search', tab: 'file-history-search', tabId: 'tab-file-history-search', html: '/html/tab_file_history_ai_search/index.html?v=20260928_v1', js: '/html/tab_file_history_ai_search/main.js?v=20260928_v1' },

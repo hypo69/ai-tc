@@ -12,16 +12,16 @@
  * Package: windows/api/webgui/tab_app_internals/panel_wikillm_db
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 15:45:00
+ * Updated: 2026-10-31 17:25:00
  * =============================================================================
  */
 
-import { notifyUser } from '../common/ui_utils.js';
+import { notifyUser } from '../common/ui_utils.js?v=20261031_v3';
 import {
   createWikiLLMDatabase as createDbAction,
   initWikiLLMEmptyTables as initTablesAction,
   importWikiLLMFromSqlite as importSqliteAction
-} from './actions.js';
+} from './actions.js?v=20261031_v3';
 
 /**
  * Получение текущего активного режима подключения к БД.
@@ -29,7 +29,7 @@ import {
  */
 export function getActiveConnMode() {
   const checked = document.querySelector('input[name="wikillm-conn-mode"]:checked');
-  return checked ? checked.value : 'php_api';
+  return checked ? checked.value : 'sqlite';
 }
 
 /**
@@ -80,22 +80,28 @@ export function updateActiveDbBanner(engine, connType) {
   const typeBadge = document.getElementById('wikillm-active-type-badge');
   const detail = document.getElementById('wikillm-active-db-detail');
 
-  if (!badge || !typeBadge || !detail) return;
+  if (!badge || !detail) return;
 
   if (engine === 'sqlite') {
-    const path = document.getElementById('wikillm-db-sqlite-path')?.value || 'data/windows_wikillm/knowledge.db';
+    const path = document.getElementById('wikillm-db-sqlite-path')?.value || '%ProgramData%/{app_name}/windows/knowledge.db';
+    const resolvedPathEl = document.getElementById('wikillm-db-resolved-path');
+    const resolvedPath = resolvedPathEl?.textContent || '';
     badge.innerHTML = '<i class="bi bi-hdd me-1"></i>Локальная база (SQLite)';
     badge.className = 'ui-badge ui-badge-neutral fw-bold';
-    typeBadge.textContent = 'Локальная';
-    typeBadge.className = 'ui-badge ui-badge-neutral';
-    detail.textContent = path;
+    if (typeBadge) {
+      typeBadge.textContent = 'Локальная';
+      typeBadge.className = 'ui-badge ui-badge-neutral';
+    }
+    detail.textContent = resolvedPath ? `${path} (${resolvedPath})` : path;
   } else if (connType === 'php_api') {
     const url = document.getElementById('wikillm-db-php-url')?.value || 'wikillm_hostinger.php';
     const dbName = document.getElementById('wikillm-db-api-name')?.value || 'u177424397_comp_knowledge';
     badge.innerHTML = '<i class="bi bi-cloud-check-fill me-1"></i>Удаленная MariaDB (через API)';
     badge.className = 'ui-badge ui-badge-info fw-bold';
-    typeBadge.textContent = 'Удаленная';
-    typeBadge.className = 'ui-badge ui-badge-info';
+    if (typeBadge) {
+      typeBadge.textContent = 'Удаленная';
+      typeBadge.className = 'ui-badge ui-badge-info';
+    }
     detail.textContent = 'REST Gateway: ' + url.split('/').pop() + ' (БД: ' + dbName + ')';
   } else {
     const host = document.getElementById('wikillm-db-host')?.value || 'srv1502.hstgr.io';
@@ -103,8 +109,10 @@ export function updateActiveDbBanner(engine, connType) {
     const dbName = document.getElementById('wikillm-db-direct-name')?.value || 'u177424397_comp_knowledge';
     badge.innerHTML = '<i class="bi bi-hdd-network-fill me-1"></i>Удаленная MariaDB (Прямое подключение)';
     badge.className = 'ui-badge ui-badge-info fw-bold';
-    typeBadge.textContent = 'Удаленная';
-    typeBadge.className = 'ui-badge ui-badge-info';
+    if (typeBadge) {
+      typeBadge.textContent = 'Удаленная';
+      typeBadge.className = 'ui-badge ui-badge-info';
+    }
     detail.textContent = 'Direct TCP: ' + host + ':' + port + ' (БД: ' + dbName + ')';
   }
 }
@@ -148,10 +156,19 @@ export async function loadWikiLLMDbConfig() {
 
     // Поле SQLite
     const s = data.sqlite || {};
-    if (document.getElementById('wikillm-db-sqlite-path')) document.getElementById('wikillm-db-sqlite-path').value = s.path || 'data/windows_wikillm/knowledge.db';
+    if (document.getElementById('wikillm-db-sqlite-path')) {
+      document.getElementById('wikillm-db-sqlite-path').value = s.path || '%ProgramData%/{app_name}/windows/knowledge.db';
+    }
+    if (document.getElementById('wikillm-db-resolved-path') && s.resolved_path) {
+      document.getElementById('wikillm-db-resolved-path').textContent = s.resolved_path;
+    }
 
-    setActiveConnMode(mode);
-    updateActiveDbBanner(engine, connType);
+    const hasModeRadios = document.querySelectorAll('input[name="wikillm-conn-mode"]').length > 0;
+    const effectiveEngine = hasModeRadios ? engine : 'sqlite';
+    const effectiveMode = hasModeRadios ? mode : 'sqlite';
+
+    setActiveConnMode(effectiveMode);
+    updateActiveDbBanner(effectiveEngine, connType);
   } catch (e) {
     console.warn('[WikiLLM DB] Не удалось загрузить конфигурацию БД:', e);
   }
@@ -166,6 +183,7 @@ export function getDbFormParams() {
   if (mode === 'sqlite') {
     return {
       engine: 'sqlite',
+      connection_type: 'sqlite',
       sqlite_path: document.getElementById('wikillm-db-sqlite-path')?.value || 'data/windows_wikillm/knowledge.db'
     };
   }
@@ -252,12 +270,17 @@ export async function checkWikiLLMDbConnection() {
   const headerStatus = document.getElementById('wikillm-db-header-status');
   if (!resultBox) return;
 
+  const mode = getActiveConnMode();
+  const statusMsg = (mode === 'sqlite')
+    ? 'Выполняется проверка локальной базы данных SQLite и структуры таблиц...'
+    : 'Выполняется проверка сервера MariaDB и структуры базы данных...';
+
   if (spinner) spinner.style.display = 'inline-block';
   resultBox.style.display = 'block';
   resultBox.innerHTML = `
     <div class="alert alert-secondary py-2 px-3 small d-flex align-items-center gap-2 mb-0">
       <span class="spinner-border spinner-border-sm text-info" role="status"></span>
-      <span>Выполняется проверка сервера MariaDB и структуры базы данных...</span>
+      <span>${statusMsg}</span>
     </div>
   `;
 
@@ -279,10 +302,30 @@ export async function checkWikiLLMDbConnection() {
         <div class="alert alert-danger py-2 px-3 mb-0">
           <div class="d-flex align-items-center gap-2 mb-1">
             <i class="bi bi-x-circle-fill fs-5 text-danger"></i>
-            <strong class="text-danger">Ошибка подключения к MariaDB</strong>
+            <strong class="text-danger">Ошибка проверки базы данных</strong>
           </div>
-          <div class="small mb-2">${data.message || data.error || 'Не удалось установить TCP соединение с сервером.'}</div>
-          <div class="small text-secondary">Рекомендации: проверьте хост (или резервный IP), порт 3306, логин, пароль и сетевой доступ к серверу.</div>
+          <div class="small mb-2">${data.message || data.error || 'Не удалось получить доступ к базе данных.'}</div>
+        </div>
+      `;
+      return;
+    }
+
+    // Режим SQLite
+    if (data.engine === 'sqlite') {
+      if (headerStatus) headerStatus.innerHTML = '<span class="ui-badge ui-badge-success"><i class="bi bi-check-circle-fill me-1"></i>SQLite готов</span>';
+      const count = data.total_records || data.sqlite_info?.total_records || 0;
+      const path = data.sqlite_info?.path || document.getElementById('wikillm-db-sqlite-path')?.value || 'data/windows_wikillm/knowledge.db';
+      resultBox.innerHTML = `
+        <div class="alert alert-success py-2 px-3 mb-0">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-1">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+              <strong>Локальная база подсказок SQLite готова к работе!</strong>
+            </div>
+            <span class="ui-badge ui-badge-neutral">SQLite (${count} подсказок)</span>
+          </div>
+          <div class="small mb-1">Файл: <code>${path}</code></div>
+          <div class="small text-secondary">${data.message}</div>
         </div>
       `;
       return;
@@ -444,6 +487,12 @@ export function bindWikiLLMDbButtons() {
   if (checkBtn && !checkBtn._bound) {
     checkBtn._bound = true;
     checkBtn.addEventListener('click', checkWikiLLMDbConnection);
+  }
+
+  const initTablesBtn = document.getElementById('wikillm-db-btn-init-tables');
+  if (initTablesBtn && !initTablesBtn._bound) {
+    initTablesBtn._bound = true;
+    initTablesBtn.addEventListener('click', initWikiLLMEmptyTables);
   }
 
   const saveCfgBtn = document.getElementById('wikillm-db-btn-save-cfg');

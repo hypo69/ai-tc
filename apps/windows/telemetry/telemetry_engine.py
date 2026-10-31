@@ -19,7 +19,7 @@
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 09:15:00
+# Updated: 2026-10-31 18:55:00
 # =============================================================================
 
 from __future__ import annotations
@@ -455,6 +455,13 @@ class TelemetryEngine:
         phys_disks = self.collector.get_physical_disks_health(force=True)
         gpus = self.collector.get_gpu_metrics()
 
+        cpu_model_name = "x86_64"
+        if hasattr(self.collector, '_resolve_cpu_model'):
+            try:
+                cpu_model_name = asyncio.run(self.collector._resolve_cpu_model())
+            except Exception:
+                pass
+
         return {
             "hostname": ident.get("hostname", ""),
             "username": ident.get("username", ""),
@@ -463,6 +470,7 @@ class TelemetryEngine:
             "system_language": ident.get("system_language", ""),
             "user_locale": ident.get("user_locale", ""),
             "timezone": ident.get("timezone", ""),
+            "cpu_model": cpu_model_name,
             "ram_spd": [f"{r.manufacturer} {r.speed_mhz}MHz ({r.part_number})" for r in (ram_sticks or [])],
             "disks_passport": [f"{d.model} ({d.size_gb}GB, {d.media_type})" for d in (phys_disks or [])],
             "gpu_specs": [f"{g.name} ({g.vendor}, {g.memory_total_gb}GB)" for g in (gpus or [])],
@@ -660,21 +668,28 @@ class TelemetryEngine:
             return []
 
     def _get_fast_cpu_metrics(self) -> CpuMetrics:
-        """Получение базовых метрик CPU."""
+        """Получение базовых метрик CPU с поядерным распределением."""
         total_p = 0.0
         freq_mhz = 0.0
+        per_core: List[float] = []
         if PSUTIL_AVAILABLE:
             try:
-                total_p = psutil.cpu_percent(interval=None)
+                per_core = psutil.cpu_percent(interval=None, percpu=True)
+                total_p = round(sum(per_core) / max(len(per_core), 1), 1) if per_core else round(psutil.cpu_percent(interval=None), 1)
                 cf = psutil.cpu_freq()
                 if cf:
                     freq_mhz = round(cf.current, 1)
             except Exception:
                 pass
+
+        model_name = self.static_catalog.get("cpu_model") or getattr(self.collector, '_cpu_model_cached', None) or "x86_64"
+
         return CpuMetrics(
-            model=self.static_catalog.get("cpu_model", "x86_64"),
+            model=model_name,
             total_percent=total_p,
+            per_core_percent=per_core,
             frequency_mhz=freq_mhz,
             physical_cores=psutil.cpu_count(logical=False) or 1 if PSUTIL_AVAILABLE else 1,
             logical_cores=psutil.cpu_count(logical=True) or 1 if PSUTIL_AVAILABLE else 1,
         )
+

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-TC Root - Conftest
+# Process Name: ai-tc Root - Conftest
 # =============================================================================
 # Description:
 #   Test configuration for ai-windows-admin.
@@ -99,7 +99,7 @@ def sample_media_records():
 def setup_env():
     """Configure environment for each test."""
     preserved = {k: v for k, v in os.environ.items() if k in ('APP_NAME', 'APPDATA', 'LOCALAPPDATA', 'USERPROFILE', 'USERNAME', 'SYSTEMROOT', 'WINDIR', 'PATH', 'TEMP', 'TMP', 'PROGRAMDATA', 'ALLUSERSPROFILE', 'ProgramData')}
-    preserved.setdefault('APP_NAME', 'AI-TC')
+    preserved.setdefault('APP_NAME', 'ai-tc')
     preserved.update({'GOOGLE_CLIENT_ID': 'test_client_id', 'GOOGLE_CLIENT_SECRET': 'test_secret', 'JWT_SECRET': 'test_jwt_secret', 'NGROK_AUTOTOKEN': 'test_ngrok', 'GEMINI_API_KEY_NAMES': 'test_key'})
     with patch.dict(os.environ, preserved, clear=True):
         yield

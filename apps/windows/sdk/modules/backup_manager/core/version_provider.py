@@ -257,3 +257,4 @@ class WindowsVersionProvider:
                 conn.execute('DELETE FROM file_versions WHERE version_id = ?', (row['version_id'],))
                 conn.execute('DELETE FROM file_version_blobs WHERE blob_id = ?', (row['blob_id'],))
         return len(rows)
+

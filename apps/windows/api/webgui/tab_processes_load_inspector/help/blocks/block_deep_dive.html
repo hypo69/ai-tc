@@ -1,0 +1,104 @@
+<!--
+=============================================================================
+Process Name: Windows Processes Load Inspector - Atomic Help Block: Deep Dive & SafeOps
+=============================================================================
+Description:
+  Атомарный HTML-фрагмент справки по модальному окну Process Intelligence Deep Dive
+  (7 виджетов: профиль инстанса, SafeOps, 4 графика Chart.js, Lineage, дескрипторы,
+  сеть и файлы) во вкладке #tab-processes-load-inspector.
+
+File: block_deep_dive.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_processes_load_inspector/help/blocks
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 18:52:00
+=============================================================================
+-->
+<div class="card bg-body border-subtle shadow-sm mb-3 help-atomic-block" data-help-block="block_deep_dive">
+  <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between py-2 px-3">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-robot text-primary fs-5"></i>
+      <h6 class="mb-0 fw-bold text-body" data-i18n="processesInspectorHelp.deepDive.title">6. Досье инстанса (Process Intelligence Deep Dive) и SafeOps управление</h6>
+    </div>
+    <span class="ui-badge ui-badge-primary" data-i18n="processesInspectorHelp.deepDive.badge">7 виджетов и SafeOps</span>
+  </div>
+  <div class="card-body p-3">
+    <p class="small text-muted mb-3" data-i18n="processesInspectorHelp.deepDive.intro">
+      Модальное окно углубленного анализа инстанса процесса (открывается кликом по строке или иконке Drill-Down 🔬):
+    </p>
+    <div class="row g-2">
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-person-vcard text-primary"></i>
+            <span data-i18n="processesInspectorHelp.deepDive.w1Title">Виджет 1: Профиль инстанса (Instance Profile)</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="processesInspectorHelp.deepDive.w1Desc">
+            Точный PID, Creation Time, хеш исполняемого файла, пользователь-владелец (User SID), статус цифровой подписи Authenticode и полная командная строка запуска CommandLine.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-shield-lock-fill text-success"></i>
+            <span data-i18n="processesInspectorHelp.deepDive.w2Title">Виджет 2: Действия SafeOps</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="processesInspectorHelp.deepDive.w2Desc">
+            Безопасное управление: смена класса приоритета (Realtime, High, Normal, Idle), маска привязки ядер (CPU Affinity), заморозка/возобновление потоков (Suspend/Resume) и грациозное/принудительное завершение.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-graph-up text-info"></i>
+            <span data-i18n="processesInspectorHelp.deepDive.w3Title">Виджет 3: 4 Синхронизированных графика Chart.js</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="processesInspectorHelp.deepDive.w3Desc">
+            Динамические временные ряды с единой осью времени: утилизация % CPU, Private Bytes RAM (утечки памяти), дисковый I/O (Read/Write КБ/с) и дескрипторы Handles.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-diagram-3 text-warning"></i>
+            <span data-i18n="processesInspectorHelp.deepDive.w4Title">Виджет 4: Иерархия Lineage</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="processesInspectorHelp.deepDive.w4Desc">
+            Древовидная родословная процесса: кто родитель (Parent Process -> Explorer/Services/TaskScheduler), каков PPID и какие дочерние подпроцессы уже порождены.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-window-stack text-danger"></i>
+            <span data-i18n="processesInspectorHelp.deepDive.w5Title">Виджет 5: Дескрипторы ОС, GDI и USER</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="processesInspectorHelp.deepDive.w5Desc">
+            Аудит Handle Leaks: открытые файловые дескрипторы, ключи реестра, мьютексы, а также оконные объекты GDI/USER с контролем системного лимита.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-hdd-network text-primary"></i>
+            <span data-i18n="processesInspectorHelp.deepDive.w6Title">Виджеты 6 и 7: Сокеты и Лента файлов</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="processesInspectorHelp.deepDive.w6Desc">
+            Сетевые соединения процесса (TCP/UDP, удаленный IP, порт, состояние) и журнал недавних файловых операций ввода-вывода (Read/Write/Delete).
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

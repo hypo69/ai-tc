@@ -19,7 +19,7 @@ Usage Examples:
  * Package: windows/api/webgui/tab_forensics
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 10:55:00
+ * Updated: 2026-10-28 16:35:00
  * =============================================================================
 -->
 <style>
@@ -156,18 +156,18 @@ Usage Examples:
     </div>
   </div>
 
-  <!-- Отдельный блок меню суб-вкладок с переключателями (как в tab-processes-load-inspector) -->
+  <!-- Блок меню переключения панелей на вкладке. Выбранная панель добавляется в url -->
   <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
     <ul class="nav nav-pills" id="forensics-subtabs-nav" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active btn-sm rounded-pill px-3 d-flex align-items-center gap-1.5" id="subtab-forensics-timeline-btn" data-bs-toggle="pill" data-bs-target="#subpane-forensics-timeline" type="button" role="tab" aria-selected="true">
+        <button class="nav-link active btn-sm rounded-pill px-3 d-flex align-items-center gap-1.5" id="subtab-forensics-timeline-btn" data-panel-id="timeline" data-bs-toggle="pill" data-bs-target="#subpane-forensics-timeline" type="button" role="tab" aria-selected="true">
           <i class="bi bi-clock-history text-info"></i>
           <span>Хронологический таймлайн активности (Telemetry Timeline)</span>
           <span class="badge bg-secondary ms-1" id="subtab-forensics-timeline-badge">0</span>
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link btn-sm rounded-pill px-3 d-flex align-items-center gap-1.5" id="subtab-forensics-userassist-btn" data-bs-toggle="pill" data-bs-target="#subpane-forensics-userassist" type="button" role="tab" aria-selected="false">
+        <button class="nav-link btn-sm rounded-pill px-3 d-flex align-items-center gap-1.5" id="subtab-forensics-userassist-btn" data-panel-id="userassist" data-bs-toggle="pill" data-bs-target="#subpane-forensics-userassist" type="button" role="tab" aria-selected="false">
           <i class="bi bi-archive text-warning"></i>
           <span>Запуск программ из реестра (UserAssist ROT13)</span>
           <span class="badge bg-secondary ms-1" id="subtab-forensics-userassist-badge">0</span>

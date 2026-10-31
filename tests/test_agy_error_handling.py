@@ -149,3 +149,4 @@ class TestAgyErrorHandling(unittest.IsolatedAsyncioTestCase):
                 await model.chat("Тест через UnifiedChatModel")
             self.assertIn("503 UNAVAILABLE", str(ctx.exception))
 
+

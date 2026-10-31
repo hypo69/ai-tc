@@ -77,3 +77,4 @@ def run_skills_command(args: argparse.Namespace) -> int:
             return 1
     logger.console(f'Unknown skills subcommand: {sub}')
     return 1
+

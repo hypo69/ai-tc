@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/apps
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 14:54:00
+ * Updated: 2026-10-31 18:45:00
  * =============================================================================
  */
 
@@ -26,9 +26,9 @@
 import { setupGlobalApi, setupThemeAndLang } from './modules/init-interface.js';
 import { fetchAppsStatus, updateModelBadge } from './modules/status-manager.js';
 import { initModelTester, sendModelPing } from './modules/model-tester.js';
-import { APP_TAB_DEFS } from './modules/tabs-config.js?v=20261028_v5';
+import { APP_TAB_DEFS } from './modules/tabs-config.js?v=20261030_v1';
 import { applyTranslations } from '../js/i18n.js';
-import { switchTab, loadTab, setupTabClicks } from '../js/tab-core.js';
+import { switchTab, loadTab, setupTabClicks } from '../js/tab-core.js?v=20261031_v4';
 import { loadPanelData, initPanels } from '../js/panel-loader.js';
 
 // Глобальный экспорт
@@ -81,6 +81,8 @@ export async function switchAppTab(tabId) {
   const parts = rawClean.split('#');
   const baseTab = parts[0];
   let subPanel = parts[1] || null;
+  const blockId = parts.find(p => p.startsWith('block-')) || null;
+  const extraParts = parts.slice(2).filter(Boolean);
   tabId = baseTab;
 
   // Редирект Брандмауэр -> Defender (суб-панель Firewall)
@@ -92,8 +94,10 @@ export async function switchAppTab(tabId) {
         window.switchDefenderSubTab('firewall');
       } else {
         const btn = document.getElementById('subtab-firewall-btn');
-        if (btn && window.bootstrap) {
-          new window.bootstrap.Tab(btn).show();
+        if (btn && window.bootstrap?.Tab) {
+          try {
+            new window.bootstrap.Tab(btn).show();
+          } catch (_) {}
         }
       }
     }, 70);
@@ -108,8 +112,10 @@ export async function switchAppTab(tabId) {
         window.switchWindowsAdminSubTab('acl');
       } else {
         const btn = document.getElementById('subtab-winadmin-acl-btn');
-        if (btn && window.bootstrap) {
-          new window.bootstrap.Tab(btn).show();
+        if (btn && window.bootstrap?.Tab) {
+          try {
+            new window.bootstrap.Tab(btn).show();
+          } catch (_) {}
         }
       }
     }, 70);
@@ -221,6 +227,8 @@ export async function switchAppTab(tabId) {
         window.switchProcessesSubTab('manager');
       }
     }, 70);
+  } else if (tabId === 'tab-user-enviroment' || tabId === 'user-enviroment') {
+    tabId = 'tab-user-environment';
   }
 
   // Мгновенная отмена висящих сетевых запросов предыдущей вкладки (01_FRONTEND.md)
@@ -232,9 +240,16 @@ export async function switchAppTab(tabId) {
 
   const normId = tabId.startsWith('tab-') ? tabId : `tab-${tabId}`;
   await lazyLoad(normId);
-  _switchTab(subPanel ? `${normId}#${subPanel}` : normId);
+  const fullSubHash = [subPanel, ...extraParts].filter(Boolean).join('#');
+  _switchTab(fullSubHash ? `${normId}#${fullSubHash}` : normId);
 
-  if (subPanel && normId === 'tab-processes-load-inspector') {
+  if (subPanel && (normId === 'tab-user-environment' || normId === 'tab-user-enviroment')) {
+    setTimeout(() => {
+      if (typeof window.switchUserEnvSubTab === 'function') {
+        window.switchUserEnvSubTab(subPanel);
+      }
+    }, 70);
+  } else if (subPanel && normId === 'tab-processes-load-inspector') {
     setTimeout(() => {
       if (typeof window.switchProcessesSubTab === 'function') {
         window.switchProcessesSubTab(subPanel, false);
@@ -255,7 +270,7 @@ export async function switchAppTab(tabId) {
   } else if (subPanel && (normId === 'tab-app-internals' || normId === 'app-internals')) {
     setTimeout(() => {
       if (typeof window.switchAppInternalsSubTab === 'function') {
-        window.switchAppInternalsSubTab(subPanel, false);
+        window.switchAppInternalsSubTab(subPanel, blockId, false);
       }
     }, 70);
   } else if (subPanel && (normId === 'tab-defender-firewall' || normId === 'defender-firewall' || normId === 'tab-defender' || normId === 'defender')) {
@@ -407,9 +422,15 @@ async function buildMenu(appsMap = {}, customCfg = null) {
 
   if (!cfg || !cfg.menu) return null;
 
-  const enabled = item => appsMap[item.id]?.enabled !== false;
+  const isAppEnabled = item => {
+    if (!appsMap || Object.keys(appsMap).length === 0) return true;
+    if (appsMap[item.id] && appsMap[item.id].enabled === false) return false;
+    const tabKey = (item.tab || '').replace(/^tab-/, '').replace(/-/g, '_');
+    if (appsMap[tabKey] && appsMap[tabKey].enabled === false) return false;
+    return true;
+  };
   const sorted = arr => [...arr]
-    .filter(x => x.visible !== false && enabled(x))
+    .filter(x => x.visible !== false && isAppEnabled(x))
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
   // Верхнее меню
@@ -517,10 +538,20 @@ function initMenuEditor(cfg, appsMap = {}) {
   let draggedGlobalIdx = null;
 
   function collectInitialItems() {
-    return [
+    const seen = new Set();
+    const result = [];
+    const all = [
       ...(cfg.menu.topButtons || []).map(x => ({ ...x, position: x.position || (x.visible === false ? 'hidden' : 'top') })),
       ...(cfg.menu.sidebarItems || []).map(x => ({ ...x, position: x.position || (x.visible === false ? 'hidden' : 'bottom') })),
     ];
+    for (const item of all) {
+      const key = item.id || item.tab;
+      if (key && !seen.has(key)) {
+        seen.add(key);
+        result.push(item);
+      }
+    }
+    return result;
   }
 
   function renderList() {

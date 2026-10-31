@@ -381,3 +381,4 @@ class CommandKnowledgeIndexer:
             "system32_tools": sys32_cnt,
             "total_commands_indexed": total,
         }
+

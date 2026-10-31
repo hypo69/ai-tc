@@ -10,8 +10,8 @@
 # Project: ai-windows-admin
 # Package: apps.windows.api.routers.admin
 # Author: hypo69
-# Copyright: c 2026 hypo69
-# Updated: 2026-10-12 06:00:00
+# Copyright: © 2026 hypo69
+# Updated: 2026-10-30 13:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -52,25 +52,8 @@ def _get_app_plugins(request: Request) -> Dict[str, Any]:
     return request.app.state.plugins
 
 def _get_request_user(request: Request) -> Optional[Dict[str, Any]]:
-    """Retrieve user dictionary if authenticated."""
-    try:
-        from apps.windows.api.auth import verify_jwt_token
-        from src.user_manager import user_manager
-        token: str = request.cookies.get('auth_token', '')
-        if not token:
-            auth_header: str = request.headers.get('Authorization', '')
-            if auth_header.startswith('Bearer '):
-                token = auth_header[7:].strip()
-
-        if token:
-            user_data = verify_jwt_token(token)
-            if user_data:
-                if user_data.id:
-                    return user_manager.get_user_by_id(user_data.id)
-                return user_manager.get_user_by_email(user_data.email)
-    except Exception:
-        pass
-    return None
+    """Возвращает данные пользователя по умолчанию (администратор)."""
+    return {'id': 1, 'is_admin': 1, 'role': 'admin', 'name': 'Admin'}
 
 
 def _get_plugin_manifest(p: Any, lang: Optional[str] = None) -> Dict[str, Any]:

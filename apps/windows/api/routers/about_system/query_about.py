@@ -499,3 +499,4 @@ def query_about_system_history_from_db(
             "sql_query": sql_history.replace("?", str(safe_limit)),
         },
     )
+

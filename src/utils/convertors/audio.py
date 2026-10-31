@@ -123,3 +123,4 @@ async def audio2text(
 
     # Информативное описание, если распознавание не удалось
     return f"*(Аудиофайл {path.name}: транскрибация недоступна. Настройте API-ключ Gemini в src/secrets/gemini_keys.json)*"
+

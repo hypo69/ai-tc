@@ -14,7 +14,7 @@ Project: ai-windows-admin
 Package: .skills/cert-installer/scripts
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-27 23:03:00
+Updated: 2026-10-30 19:46:00
 =============================================================================
 .SYNOPSIS
     Проверка, генерация и установка локальных SSL-сертификатов для ai-windows-admin
@@ -120,21 +120,14 @@ if ($needsGeneration) {
 if ((Test-Path $certPath) -and (Test-Path $keyPath)) {
     Write-Host "[2/3] Добавление в доверенные Windows..." -ForegroundColor Cyan
     try {
-        $certObj = $null
         $certBytes = [System.IO.File]::ReadAllBytes($certPath)
-        $certObj = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-        $certObj.Import($certBytes)
+        $certObj = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($certBytes)
         
         $storeMy = New-Object System.Security.Cryptography.X509Certificates.X509Store("My", "CurrentUser")
         $storeMy.Open("ReadWrite")
         $storeMy.Add($certObj)
         $storeMy.Close()
-
-        $storeRoot = New-Object System.Security.Cryptography.X509Certificates.X509Store("Root", "CurrentUser")
-        $storeRoot.Open("ReadWrite")
-        $storeRoot.Add($certObj)
-        $storeRoot.Close()
-        Write-Host "    [OK] Сертификаты импортированы в хранилище" -ForegroundColor Green
+        Write-Host "    [OK] Сертификаты импортированы в хранилище CurrentUser\My" -ForegroundColor Green
     } catch {
         Write-Host "    [WARN] Ошибка импорта в хранилище: $_" -ForegroundColor Yellow
     }

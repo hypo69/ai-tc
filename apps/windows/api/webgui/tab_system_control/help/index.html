@@ -1,0 +1,76 @@
+<!--
+=============================================================================
+Process Name: Windows System Control - Composite Help View
+=============================================================================
+Description:
+  Сводная иерархическая страница интерактивной справки для раздела
+  «Центр контроля сбоев и журналов» (#tab-system-control).
+  Объединяет 6 атомарных блоков справки через директиву data-help-include.
+  Соблюдает стандарты темы (CSS-токены) и мультиязычности (data-i18n).
+
+File: index.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_system_control/help
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 18:22:00
+=============================================================================
+-->
+<div class="help-composite-container p-1">
+  <!-- Вводный баннер и навигация по блокам -->
+  <div class="p-3 mb-3 rounded border border-subtle bg-body-tertiary">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-shield-shaded text-danger fs-4"></i>
+        <h5 class="mb-0 fw-bold text-body" data-i18n="systemControlHelp.composite.title">
+          Справка: Центр контроля сбоев и журналов Windows
+        </h5>
+      </div>
+      <span class="ui-badge ui-badge-danger" data-i18n="systemControlHelp.composite.badge">
+        Модуль #tab-system-control
+      </span>
+    </div>
+    <p class="small text-muted mb-3" data-i18n="systemControlHelp.composite.desc">
+      Интерактивный центр мониторинга аварий ядра (BSOD), стабильности питания, классических журналов Windows Event Log, аудита антивируса Defender, криминалистической форензики и термального троттлинга оборудования. Выберите интересующий раздел для быстрого перехода:
+    </p>
+
+    <!-- Быстрая навигация по блокам -->
+    <div class="d-flex flex-wrap gap-1.5 align-items-center">
+      <span class="small text-body fw-bold me-1" data-i18n="systemControlHelp.composite.quickNav">Разделы:</span>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_summary_dashboard">
+        <i class="bi bi-shield-exclamation text-danger"></i>
+        <span data-i18n="systemControlHelp.nav.summary">Сводка сбоев</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_event_logs">
+        <i class="bi bi-journal-text text-primary"></i>
+        <span data-i18n="systemControlHelp.nav.eventLogs">Журналы событий</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_power_lifecycle">
+        <i class="bi bi-lightning-charge text-warning"></i>
+        <span data-i18n="systemControlHelp.nav.power">Питание и сессии</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_defender_logs">
+        <i class="bi bi-shield-lock text-success"></i>
+        <span data-i18n="systemControlHelp.nav.defender">Defender</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_forensics">
+        <i class="bi bi-stopwatch-fill text-warning"></i>
+        <span data-i18n="systemControlHelp.nav.forensics">Форензика</span>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary d-flex align-items-center gap-1" data-help-jump="block_throttling">
+        <i class="bi bi-thermometer-sun text-danger"></i>
+        <span data-i18n="systemControlHelp.nav.throttling">Троттлинг ядра</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Список атомарных блоков (включаются динамически через HelpModal) -->
+  <div class="help-blocks-wrapper d-flex flex-column gap-2">
+    <div data-help-include="/html/tab_system_control/help/blocks/block_summary_dashboard.html"></div>
+    <div data-help-include="/html/tab_system_control/help/blocks/block_event_logs.html"></div>
+    <div data-help-include="/html/tab_system_control/help/blocks/block_power_lifecycle.html"></div>
+    <div data-help-include="/html/tab_system_control/help/blocks/block_defender_logs.html"></div>
+    <div data-help-include="/html/tab_system_control/help/blocks/block_forensics.html"></div>
+    <div data-help-include="/html/tab_system_control/help/blocks/block_throttling.html"></div>
+  </div>
+</div>

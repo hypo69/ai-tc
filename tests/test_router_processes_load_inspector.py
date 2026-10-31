@@ -16,7 +16,7 @@
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 09:41:00
+# Updated: 2026-10-31 18:59:00
 # =============================================================================
 
 from __future__ import annotations
@@ -112,6 +112,14 @@ def test_deep_dive_endpoints(client: TestClient):
     assert resp_sockets.status_code == 200
     assert isinstance(resp_sockets.json(), list)
 
+    resp_samples = client.get("/api/v1/tab-processes-load-inspector/panel-deep-dive/18252_1793465254783/samples?limit=60")
+    assert resp_samples.status_code == 200
+    assert isinstance(resp_samples.json(), list)
+
+    resp_samples_pid = client.get("/api/v1/tab-processes-load-inspector/panel-deep-dive/18252/samples?limit=10")
+    assert resp_samples_pid.status_code == 200
+    assert isinstance(resp_samples_pid.json(), list)
+
 
 def test_ai_audit_powershell_endpoint(client: TestClient):
     """Проверка эндпоинта ИИ-расследования вызовов PowerShell."""
@@ -120,3 +128,4 @@ def test_ai_audit_powershell_endpoint(client: TestClient):
     data = resp.json()
     assert "status" in data
     assert "verdict" in data
+

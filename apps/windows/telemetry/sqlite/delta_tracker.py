@@ -351,3 +351,4 @@ class LocfReconstructor:
             reconstructed_list.reverse()
 
         return reconstructed_list
+

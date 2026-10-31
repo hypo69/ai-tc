@@ -108,3 +108,4 @@ class DriverCollector:
         except Exception as e:
             logger.debug(f'Ошибка при вызове pnputil: {e}')
         return packages
+

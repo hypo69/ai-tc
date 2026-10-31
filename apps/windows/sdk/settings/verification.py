@@ -79,3 +79,4 @@ class SettingsVerification:
             "WINDOW.FOCUS_TRACKING": True,
         }
         return rollbackable.get(command_id, False)
+

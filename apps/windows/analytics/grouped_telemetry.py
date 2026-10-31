@@ -324,3 +324,4 @@ class SynthesisDiagnosticResult(BaseModel):
     system_instruction: Optional[str] = Field(default=None, description="Системная инструкция синтеза")
     ai_model_used: str = Field(default="AI Model", description="Использованный провайдер для синтеза")
     groups_evaluated: int = Field(default=4, description="Количество оцененных доменов")
+

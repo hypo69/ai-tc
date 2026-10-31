@@ -97,3 +97,4 @@ def test_rotate_display_validation_and_rollback_flow() -> None:
     assert res.success is True
     assert res.actual_orientation == current_orient
     assert res.confirmed is True
+

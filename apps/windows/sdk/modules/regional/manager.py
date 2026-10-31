@@ -601,3 +601,4 @@ class RegionalManager:
             "new_workgroup": clean_wg,
             "message": f"Ошибка Add-Computer: {err}",
         }
+

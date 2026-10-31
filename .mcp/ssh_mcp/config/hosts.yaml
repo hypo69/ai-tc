@@ -1,0 +1,19 @@
+hosts:
+  - host_id: local-win-admin
+    hostname: localhost
+    address: 127.0.0.1
+    port: 22
+    platform: windows
+    username: administrator
+    auth_method: agent
+    credential_ref: ""
+    enabled: true
+  - host_id: linux-server-01
+    hostname: linux-srv-01.local
+    address: 192.168.1.101
+    port: 22
+    platform: linux
+    username: admin
+    auth_method: key
+    credential_ref: "ssh_key:linux_srv_01"
+    enabled: true

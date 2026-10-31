@@ -51,3 +51,4 @@ class BaseResolver(ABC):
             Сущность KnowledgeEntity или None, если знание не найдено.
         """
         raise NotImplementedError
+

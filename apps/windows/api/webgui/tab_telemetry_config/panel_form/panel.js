@@ -1,7 +1,7 @@
 /**
  * Модуль визуальной формы параметров телеметрии и таблицы сенсоров.
  * Файл: apps/windows/api/webgui/tab_telemetry_config/panel_form/panel.js
- * Updated: 2026-10-17 01:55:00
+ * Updated: 2026-10-30 13:10:00
  */
 
 import { setVal, getVal, setChecked, getChecked, SENSOR_META } from '../common/ui_utils.js';
@@ -27,6 +27,7 @@ export function renderGuiForm(cfg) {
   setChecked('tc-field-heavy-auto-switch', cfg.heavy_mode_auto_switch_enabled !== false);
 
   setVal('tc-field-retention-days', cfg.retention_days ?? 7);
+  setVal('tc-field-history-retention', cfg.history_retention || 'forever');
   setVal('tc-field-db-cleanup-interval', cfg.db_cleanup_interval_seconds ?? 300.0);
   setVal('tc-field-flush-interval', cfg.flush_interval_seconds ?? 5.0);
   setVal('tc-field-buffer-mode', cfg.buffer_mode || 'memory');
@@ -144,6 +145,7 @@ export function gatherFormConfig(baseConfig = {}) {
   cfg.heavy_mode_auto_switch_enabled = getChecked('tc-field-heavy-auto-switch');
 
   cfg.retention_days = parseInt(getVal('tc-field-retention-days'), 10) || 7;
+  cfg.history_retention = getVal('tc-field-history-retention') || 'forever';
   cfg.db_cleanup_interval_seconds = parseFloat(getVal('tc-field-db-cleanup-interval')) || 300.0;
   cfg.flush_interval_seconds = parseFloat(getVal('tc-field-flush-interval')) || 5.0;
   cfg.buffer_mode = getVal('tc-field-buffer-mode') || 'memory';

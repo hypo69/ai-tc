@@ -133,3 +133,4 @@ def test_approve_endpoint(client: TestClient) -> None:
     assert ent["provenance_source"] == "documented"
     assert len(ent["claims"]) >= 1
     assert ent["claims"][0]["verified"] is True
+

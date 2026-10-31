@@ -293,3 +293,4 @@ def run_startup_audit(
         check_drivers=check_drivers,
         check_eventlog=check_eventlog
     )
+

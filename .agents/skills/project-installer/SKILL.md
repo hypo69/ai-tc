@@ -1,137 +1,117 @@
 ---
 name: project-installer
-# Updated: 2026-10-27 23:36:00
-description: "Interactive full-project installer and environment configurator for AI Windows Admin. Guides through pre-flight checks, venv creation, dependency installation, SSL certs, global CLI setup, and directory verification."
+# Updated: 2026-10-31 19:10:00
+description: "Интерактивный установщик проекта и конфигуратор окружения для AI Windows Admin (ai-tc). Пошагово выполняет предварительные проверки, запуск телеметрии, создание venv, установку зависимостей из requirements.txt, настройку .env, генерацию SSL-сертификатов и верификацию целостности."
 description_i18n:
-  en: "Interactive full-project installer and environment configurator for AI Windows Admin. Guides through pre-flight checks, venv creation, dependency installation, SSL certs, global CLI setup, and directory verification."
-  ru: "Интерактивный установщик проекта и конфигуратор окружения для AI Windows Admin. Пошагово выполняет предварительные проверки, создание venv, установку зависимостей, SSL-сертификаты и глобальный CLI."
+  ru: "Интерактивный установщик проекта и конфигуратор окружения для AI Windows Admin (ai-tc). Пошагово выполняет предварительные проверки, запуск телеметрии, создание venv, установку зависимостей из requirements.txt, настройку .env, генерацию SSL-сертификатов и верификацию целостности."
+  en: "Interactive full-project installer and environment configurator for AI Windows Admin (ai-tc). Step-by-step pre-flight checks, telemetry startup, venv creation, requirements.txt installation, .env setup, SSL certs, and integrity verification."
 ---
 
-# 🚀 AI Windows Admin Project Installer Skill
+# 🚀 Навык установки проекта AI Windows Admin (ai-tc)
 
-This skill enables AI agents and Gemini CLI (using `gemini-3.1-flash-lite`) to interactively install, configure, troubleshoot, and verify the entire **AI Windows Admin** project across Windows, Linux, and macOS.
+Данный навык предназначен для автономных агентов и Gemini CLI для пошаговой установки, конфигурации, диагностики неполадок и полной верификации проекта **AI Windows Admin (ai-tc)** на Windows, Linux и macOS.
 
 ---
 
-## 💻 Invoking via Gemini CLI
+## 💻 Запуск через Gemini CLI
 
-To launch the installer interactively with Gemini CLI and the requested model:
+Для интерактивного запуска установщика через Gemini CLI:
 
 ```powershell
 # Windows (PowerShell)
-gemini --model "gemini-3.1-flash-lite" --prompt "Execute the project-installer skill. Read INSTALL-INSTRUCTION.md and guide me through full AI Windows Admin installation interactively with error checks and directory verification."
+gemini --model "gemini-3.1-flash-lite" --prompt "Активируй навык project-installer. Прочти INSTALL-INSTRUCTION.md и пошагово проведи установку AI Windows Admin с запуском телеметрии, созданием venv, установкой зависимостей и финальной верификацией."
 
-# Or using the launcher script:
+# Либо через готовый скрипт:
 .\.agents\skills\project-installer\scripts\run_installer_gemini.ps1
 ```
 
 ```bash
 # Linux / macOS (Bash)
-gemini --model "gemini-3.1-flash-lite" --prompt "Execute the project-installer skill. Read INSTALL-INSTRUCTION.md and guide me through full AI Windows Admin installation interactively with error checks and directory verification."
-
-# Or using the launcher script:
-bash skills/project-installer/scripts/run_installer_gemini.sh
+bash .agents/skills/project-installer/scripts/run_installer_gemini.sh
 ```
 
 ---
 
-## 📖 Mandatory Reference
+## 📖 Обязательные источники и регламенты
 
-Before executing any installation step, the agent **MUST** inspect:
-- [INSTALL-INSTRUCTION.md](file:///c:/Users/onela/AppData/Local/AI-TC/skills/project-installer/INSTALL-INSTRUCTION.md) (Skill copy) or [INSTALL-INSTRUCTION.md](file:///c:/Users/onela/AppData/Local/AI-TC/INSTALL-INSTRUCTION.md) (Root copy).
-- Windows baseline: [`install.ps1`](file:///c:/Users/onela/AppData/Local/AI-TC/install.ps1) and [`install/`](file:///c:/Users/onela/AppData/Local/AI-TC/install).
-- Linux / macOS baseline: [`install.sh`](file:///c:/Users/onela/AppData/Local/AI-TC/install.sh), [`install/install.sh`](file:///c:/Users/onela/AppData/Local/AI-TC/install/install.sh), and [`INSTALL_LINUX.md`](file:///c:/Users/onela/AppData/Local/AI-TC/INSTALL_LINUX.md).
+Перед выполнением шагов установки агент **ОБЯЗАН** изучить:
+- [INSTALL-INSTRUCTION.md](file:///c:/Users/onela/AppData/Local/AI-TC/INSTALL-INSTRUCTION.md) — регламент установки в корне проекта.
+- [requirements.txt](file:///c:/Users/onela/AppData/Local/AI-TC/requirements.txt) — реестр зависимостей проекта.
+- [.env.example](file:///c:/Users/onela/AppData/Local/AI-TC/.env.example) — шаблон переменных окружения и секретов.
+- [config.json](file:///c:/Users/onela/AppData/Local/AI-TC/config.json) — системная конфигурация сервисов и портов.
 
 ---
 
-## 🤖 Agent Execution Protocol (Interactive Mode)
+## 🤖 Протокол работы агента (Интерактивный режим)
 
-When this skill is activated, the model must execute the following workflow step-by-step, asking the user for choices where needed and diagnosing failures:
+При активации навыка модель выполняет шаги последовательно, выводя статус пользователю и решая возникающие ошибки:
 
-### Phase 0: Telemetry Startup (Первоочередной запуск телеметрии)
-1. **Сбор и запуск телеметрии (`tlm.ps1`):** В самую первую очередь перед остальными шагами развертывания собрать и запустить телеметрию в отдельном терминале:
+### Этап 0: Первоочередной запуск телеметрии (`tlm.ps1`)
+1. Перед началом любых других действий запустить службу телеметрии:
    ```powershell
    Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File .\tlm.ps1"
    ```
-2. Убедиться в успешном старте службы телеметрии и только после этого переходить к следующим этапам установки.
+2. Убедиться, что процесс фонового сбора телеметрии запущен (`telemetry.db`).
 
-### Phase 1: Pre-Flight Environment Inspection
-1. Detect host OS (`platform.system()`) and architecture.
-2. Probe available Python interpreters:
-   - Must be Python 3.10+ (Preferred: 3.12 / 3.13).
-   - On Windows: ensure Python is in PATH, avoid Microsoft Store execution aliases (`WindowsApps\python.exe`).
-   - On Linux/macOS: check `python3-venv` and development headers.
-3. Check Git presence and internet connectivity for dependency fetching.
+### Этап 1: Предварительные проверки (Pre-Flight)
+1. Определить операционную систему (`platform.system()`) и архитектуру процессора.
+2. Проверить доступные интерпретаторы Python:
+   - Требуется Python версии **3.10 – 3.14** (рекомендуется 3.12 или 3.14).
+   - На Windows убедиться, что лаунчер `py` указывает на реальный интерпретатор, а не пустой алиас Windows Store.
+3. Проверить наличие Git и интернет-соединения для загрузки пакетов.
 
-### Phase 2: Interactive Installation Steps
-Follow the platform rules derived from `install.ps1` and `install.sh`:
-
-1. **Language & Configuration Selection:**
-   - Ask user for interface language (`ru`, `en`, `es`, `he`).
-   - Confirm target installation directory (Default: `%LOCALAPPDATA%\ai-tc` on Windows, current directory or `/opt/ai-tc` on Linux).
-
-2. **File Permissions & Unblock (Windows):**
-   - Execute `Unblock-File` on project PowerShell scripts.
-
-3. **Virtual Environment Setup:**
-   - Check if `venv/` exists. If not, create via `python -m venv venv`.
-   - Validate `<project_root>/venv/Scripts/python.exe` (Windows) or `<project_root>/venv/bin/python` (Linux/macOS).
-
-4. **Tooling & Dependencies Installation:**
-   - Upgrade `pip`, `setuptools`, `wheel`.
-   - Present profile choice to user:
-     - `1`: Full installation (`requirements.txt`) — Recommended
-     - `2`: Core only (`install/req/requirements-core.txt`)
-     - `3`: Core + AI (`requirements-core.txt` + `requirements-ai.txt`)
-     - `4`: Full + Dev (`requirements.txt` + test & docs requirements)
-     - `5`: Skip
-   - Run `pip install` and monitor output for errors.
-
-5. **SSL Certificates Setup:**
-   - Check for `localhost+2.pem` and `localhost+2-key.pem`.
-   - Run `.\install\Install-SslCertificate.ps1` or Python certificate generator if missing.
-
-6. **Environment & Secrets (`.env`):**
-   - Ensure `.env` exists (copy from `.env.example` if absent).
-   - Check key variables: `GEMINI_API_KEY_NAMES`, `JWT_SECRET`, `AIWINDOWSADMIN_DIR`.
-
-7. **Global CLI Integration (`assist`):**
-   - Verify `assist.ps1`, `assist.cmd`, and `assist` wrappers.
-   - Set persistent `AIWINDOWSADMIN_DIR` environment variable.
-   - Add `%USERPROFILE%\.local\bin` or `~/.local/bin` to `PATH`.
+### Этап 2: Пошаговая установка
+1. **Разблокировка файлов скриптов (Windows):**
+   ```powershell
+   Get-ChildItem -Path . -Recurse -File -Include "*.ps1","*.cmd" | Unblock-File -ErrorAction SilentlyContinue
+   ```
+2. **Создание и проверка виртуального окружения (`venv`):**
+   - Создать окружение: `py -3.14 -m venv venv` (или `python -m venv venv`).
+   - Проверить наличие `venv\Scripts\python.exe` (Windows) или `venv/bin/python` (Linux/macOS).
+3. **Обновление pip и установка зависимостей:**
+   - Обновить: `.\venv\Scripts\python.exe -m pip install --upgrade pip setuptools wheel`.
+   - Установить зависимости:
+     - Полный профиль: `pip install -r requirements.txt`
+     - Базовый профиль ядра: `pip install -r install/req/requirements-core.txt`
+     - ИИ-провайдеры: `pip install -r install/req/requirements-ai.txt`
+4. **Конфигурация секретов (`.env`):**
+   - Создать `.env` из шаблона `.env.example`, если он отсутствует.
+   - Проверить обязательные переменные: `GEMINI_API_KEY`, `JWT_SECRET`, `ADMIN_PASSWORD`.
+5. **Генерация SSL-сертификатов (HTTPS):**
+   - Проверить наличие сертификата `localhost+2.pem` и ключа `localhost+2-key.pem` в `%USERPROFILE%\.certs\`.
+   - При отсутствии сгенерировать через `py scripts/maintenance/generate_ssl_certs.py` или `mkcert`.
+6. **Глобальный CLI (`assist`):**
+   - Убедиться в доступности `assist.ps1`, задать переменную среды `AIWINDOWSADMIN_DIR`.
 
 ---
 
-## 🛠️ Dynamic Error Checking & Self-Healing Matrix
+## 🧪 Этап 3: Автоматическая проверка целостности
 
-During execution, if any command fails, the model must match the error against the matrix and apply the remedy before continuing:
-
-| Error Pattern | Identified Issue | Dynamic Self-Healing Action |
-|---|---|---|
-| `running scripts is disabled` | Windows PowerShell ExecutionPolicy | Run `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force` |
-| `ensurepip is not available` / `No module named venv` | Missing Linux venv package | Prompt user to run `sudo apt-get install python3-venv python3-pip -y` (or run if permitted) |
-| `Permission denied` | Missing Linux/macOS executable bit | Run `chmod +x install.sh assist run` |
-| `Failed building wheel for ...` | Missing C++ build tools | Retry with `--only-binary :all:` or suggest Visual C++ Build Tools / `build-essential` |
-| `Address already in use :8000` | Port conflict | Identify PID with `assist status` / `netstat -ano` and terminate or execute `assist stop` |
-| `mkcert: command not found` | Missing mkcert binary | Fallback to internal Python self-signed certificate generator |
-
----
-
-## 🧪 Post-Installation Directory & Component Verification
-
-After completing installation, the agent **MUST** run the automated verification tool to prove that all directories and modules are valid:
+После установки агент **ОБЯЗАН** запустить утилиту валидации целостности:
 
 ```powershell
-# Execute verification tool
-python skills/project-installer/scripts/verify_installation.py
+# Запуск утилиты проверки
+python .agents/skills/project-installer/scripts/verify_installation.py
 
-# Or with JSON output for automated agent parsing:
-python skills/project-installer/scripts/verify_installation.py --json
+# Или в формате JSON:
+python .agents/skills/project-installer/scripts/verify_installation.py --json
 ```
 
-### Verification Checklist:
-- [ ] Required directories: `core/`, `scripts/`, `install/`, `launchers/`, `docs/`, `tests/`, `webinterface/`, `.ai/`, `skills/`, `tmp/`, `venv/`.
-- [ ] Core configuration files: `header.py`, `config.json`, `.env`/`.env.example`, `requirements.txt`, `INSTALL-INSTRUCTION.md`.
-- [ ] Virtual environment binaries and pip availability.
-- [ ] Importability of `fastapi`, `uvicorn`, `pydantic`, `dotenv`, `cryptography`, `aiohttp`, `platformdirs`.
-- [ ] Exit code is `0`.
+### Чек-лист валидации:
+- [x] Каталоги: `apps`, `src`, `scripts`, `launchers`, `docs`, `tests`, `install`, `data`, `logger`, `.agents`
+- [x] Файлы: `header.py`, `config.json`, `requirements.txt`, `INSTALL-INSTRUCTION.md`, `.env` / `.env.example`
+- [x] Окружение venv: статус `active`, корректный путь к `python.exe`
+- [x] Модули ядра: `fastapi`, `uvicorn`, `pydantic`, `dotenv`, `cryptography`, `aiohttp`, `platformdirs`, `psutil`
+- [x] Код завершения скрипта равен `0`
+
+---
+
+## 🛠️ Матрица самовосстановления (Self-Healing Matrix)
+
+| Ошибка | Причина | Автоматическое действие |
+|---|---|---|
+| `running scripts is disabled` | Политика PowerShell | `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force` |
+| `ensurepip is not available` | Отсутствует venv пакет на Linux | `sudo apt-get install python3-venv python3-pip -y` |
+| `Port 8001 / 8000 already in use` | Конфликт портов | Убить процесс по PID через `free_port_if_occupied()` или `Stop-Process -Id ... -Force` |
+| `mkcert not found` | Отсутствует утилита mkcert | Вызвать `py scripts/maintenance/generate_ssl_certs.py` (чистый Python generator) |
+| `ModuleNotFoundError: No module named 'logger'` | Отсутствует корень в `sys.path` | Импортировать модуль `header` первым в скрипте |

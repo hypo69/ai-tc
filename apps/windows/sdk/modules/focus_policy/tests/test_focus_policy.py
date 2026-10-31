@@ -178,3 +178,4 @@ def test_rest_api(env) -> None:
     assert st['listener_access_status'] in ('Allowed', 'Unspecified')
     assert client.get('/api/v1/focus/suppressed-notifications').json() == []
     assert client.post('/api/v1/focus/request-listener-access').json()['status'] == 'Allowed'
+

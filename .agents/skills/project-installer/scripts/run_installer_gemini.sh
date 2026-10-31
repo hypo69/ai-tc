@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-#
-# Launch interactive AI Windows Admin Project Installer using Gemini CLI with gemini-3.1-flash-lite
-#
+# =============================================================================
+# Process Name: AI-Windows-Admin Automation - Run Installer Gemini (Bash)
+# Updated: 2026-10-31 19:10:00
+# Author: hypo69
+# =============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_DIR="$(dirname "$SCRIPT_DIR")"
-PROJECT_ROOT="$(dirname "$(dirname "$SKILL_DIR")")"
+PROJECT_ROOT="$(dirname "$(dirname "$(dirname "$SKILL_DIR")")")"
 
 INSTRUCTION_FILE="$SKILL_DIR/INSTALL-INSTRUCTION.md"
 if [ ! -f "$INSTRUCTION_FILE" ]; then
@@ -13,13 +15,12 @@ if [ ! -f "$INSTRUCTION_FILE" ]; then
 fi
 
 echo "========================================================="
-echo "🤖 Launching Gemini CLI Installer (gemini-3.1-flash-lite)"
+echo "🤖 Запуск установщика Gemini CLI (gemini-3.1-flash-lite)"
 echo "========================================================="
-echo "Project Root: $PROJECT_ROOT"
-echo "Instruction:  $INSTRUCTION_FILE"
+echo "Корень проекта: $PROJECT_ROOT"
+echo "Инструкция:     $INSTRUCTION_FILE"
 echo ""
 
-PROMPT="You are the AI Windows Admin Interactive Installer. Read and follow all instructions from '$INSTRUCTION_FILE'. Guide me step by step through installing AI Windows Admin, perform pre-flight checks, handle errors, and verify directories and components at the end."
+PROMPT="Ты интерактивный установщик AI Windows Admin. Прочти и выполни инструкции из '$INSTRUCTION_FILE'. Пошагово проведи установку, выполни pre-flight проверки, настрой venv, requirements.txt, .env и запусти верификацию verify_installation.py."
 
-# Execute Gemini CLI with gemini-3.1-flash-lite model
 gemini --model "gemini-3.1-flash-lite" --prompt "$PROMPT"

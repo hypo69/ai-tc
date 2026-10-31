@@ -260,3 +260,4 @@ class PlanChainApiRequest(BaseModel):
     """Pydantic схема запроса на семантическое планирование цепочки."""
     user_intent: str = Field(..., description="Цель, симптом или задача пользователя")
     max_steps: int = Field(6, description="Максимальное количество шагов цепочки")
+

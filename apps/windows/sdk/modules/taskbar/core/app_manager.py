@@ -211,3 +211,4 @@ class TaskbarAppManager:
             "message": f"Действие открепления для '{target_name_or_path}' выполнено.",
             "file_removed": removed,
         }
+

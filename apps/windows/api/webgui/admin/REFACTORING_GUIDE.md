@@ -29,7 +29,7 @@ main.js (880 строк) ❌ МОНОЛИТ
 ## Структура проекта
 
 ```
-src/api/webgui/admin/
+apps/windows/api/webgui/admin/
 ├── index.html                          # HTML шаблон
 ├── main.js                             # ⚠️ Старый монолит (сохранить для совместимости)
 ├── main-refactored.js                  # ✨ Новый оркестратор (РЕКОМЕНДУЕТСЯ)
@@ -65,7 +65,7 @@ src/api/webgui/admin/
 
 3. **Удалите старый файл** (после тестирования):
    ```bash
-   rm src/api/webgui/admin/main.js
+   rm apps/windows/api/webgui/admin/main.js
    ```
 
 ### Вариант 2: Постепенная миграция (БЕЗОПАСНО)
@@ -256,8 +256,8 @@ console.log('✅ API ready:', !!window.api);
 ### Шаг 1: Скопировать новые файлы
 
 ```bash
-# Модули уже созданы в src/api/webgui/admin/modules/
-ls src/api/webgui/admin/modules/
+# Модули уже созданы в apps/windows/api/webgui/admin/modules/
+ls apps/windows/api/webgui/admin/modules/
 ```
 
 ### Шаг 2: Обновить index.html
@@ -284,7 +284,7 @@ ls src/api/webgui/admin/modules/
 ### Шаг 5: Удалить старый файл (опционально)
 
 ```bash
-rm src/api/webgui/admin/main.js
+rm apps/windows/api/webgui/admin/main.js
 ```
 
 ## Возможные проблемы и решения

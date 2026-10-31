@@ -185,3 +185,4 @@ class TaskbarList3Wrapper:
             except (OSError, Exception):
                 pass
 
+

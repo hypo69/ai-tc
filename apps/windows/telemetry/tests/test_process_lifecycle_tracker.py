@@ -318,3 +318,4 @@ def test_storage_and_api_incident_timeline(temp_telemetry_storage):
     data = resp.json()
     assert data["pid"] == current_pid
     assert "events" in data
+

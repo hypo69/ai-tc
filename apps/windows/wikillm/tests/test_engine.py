@@ -139,3 +139,4 @@ async def test_telemetry_bridge_incident_enrichment() -> None:
     assert "wiki_enrichment" in enriched
     assert len(enriched["wiki_enrichment"]["resolved_entities"]) > 0
     assert "Интенсивное резервное копирование" in enriched["wiki_enrichment"]["suggested_causes"]
+

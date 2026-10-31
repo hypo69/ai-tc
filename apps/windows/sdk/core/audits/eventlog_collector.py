@@ -70,3 +70,4 @@ class EventLogCollector:
         except Exception as e:
             logger.debug(f'Ошибка при сборе системных ошибок через WevtAPI: {e}')
         return events
+

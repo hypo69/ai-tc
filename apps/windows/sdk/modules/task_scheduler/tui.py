@@ -70,3 +70,4 @@ class TaskSchedulerTUI:
 
 
 __all__ = ['TaskSchedulerTUI']
+

@@ -186,3 +186,4 @@ def test_panel_loader_and_tab_core_block_about_system_panels():
     assert tab_core_path.exists()
     tab_core_content = tab_core_path.read_text(encoding="utf-8")
     assert "tabName !== 'about-system'" in tab_core_content
+

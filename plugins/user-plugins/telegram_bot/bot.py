@@ -12,18 +12,22 @@
 # Package: plugins.telegram_bot
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 05:03:00
+# Updated: 2026-10-28 20:55:00
+# =============================================================================
+#   Изменения:
+#     - Исправлен импорт AudioDiarizationService (src.ai.audio_diarization -> src.ai.voice.audio_diarization)
+#     - Добавлена загрузка аудиофайла в байты перед вызовом analyze_audio
 # =============================================================================
 
-"""Движок Telegram-бота и маршрутизатор команд."""
+"""Telegram bot engine and command router.
+
+Manages the python-telegram-bot Application lifecycle, polling loop,
+user authentication, account linking, remote control web app, and AI chat.
+"""
 
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime
-from pathlib import Path
-import re
-import time
 from typing import Any, Dict, List, Optional
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, WebAppInfo
@@ -245,7 +249,7 @@ class TelegramBotEngine:
         tg_username = update.effective_user.username or ""
         user_name = update.effective_user.first_name or "User"
 
-        from src.user_manager import user_manager
+        from plugins.telegram_bot import user_auth as user_manager
 
         # Check for deep-link payload: /start A1B2C3D4
         args = context.args or []
@@ -340,7 +344,7 @@ class TelegramBotEngine:
         if not update.message or not update.effective_user:
             return
 
-        from src.user_manager import user_manager
+        from plugins.telegram_bot import user_auth as user_manager
         user = user_manager.get_user_by_telegram_id(update.effective_user.id)
 
         if not user:
@@ -423,7 +427,7 @@ class TelegramBotEngine:
         user_name = update.effective_user.first_name or "User"
 
         try:
-            from src.user_manager import user_manager
+            from plugins.telegram_bot import user_auth as user_manager
 
             success = user_manager.link_telegram_account(token, tg_id, tg_username or user_name)
             if success:
@@ -459,66 +463,7 @@ class TelegramBotEngine:
         api_base = self.config.get("api_base_url", "http://127.0.0.1:8000")
         await handle_telegram_voiceover_request(update, context, text=text, api_base_url=api_base)
 
-    # ── Dialogue Audio & Workspace Scenario Handlers ──────────────────────────
-
-    async def _try_handle_david_moshe_scenario(
-        self,
-        update: Update,
-        candidate_name_or_text: str,
-    ) -> bool:
-        """Проверяет условие сценария рабочего пространства דוד משה и выполняет 10-сек спиннер с добавлением файла."""
-        if not update.message:
-            return False
-
-        try:
-            from apps.ai_assistant.core.workspace_manager import WorkspaceManager
-            wm = WorkspaceManager()
-            scen_srv = wm.scenario_service
-            active_ws = wm.store.get_active_workspace_id() or ""
-            caption = (update.message.caption or "").strip()
-
-            is_trig = (
-                scen_srv.is_trigger_file(candidate_name_or_text)
-                or scen_srv.is_trigger_file(caption)
-            )
-            if not is_trig:
-                return False
-
-            target_ws_id = active_ws if scen_srv.is_david_moshe_workspace(active_ws) else scen_srv.resolve_david_moshe_workspace_id(wm)
-            cfg = scen_srv.load_scenario_config()
-            delay_sec = int(cfg.get("delay_seconds", 10))
-            target_file_path = cfg.get("target_file_path", "")
-
-            status_msg = await update.message.reply_text(
-                f"⏳ *Рабочее пространство:* `דוד משה`\n"
-                f"📥 Получен файл: `{candidate_name_or_text}`\n"
-                f"🔄 *Запущен спиннер обработки ({delay_sec} сек)...*"
-            )
-
-            final_state = await scen_srv.trigger_scenario(
-                wm=wm,
-                workspace_id=target_ws_id,
-                trigger_source="telegram_bot",
-                trigger_file_name=candidate_name_or_text,
-                delay_seconds=float(delay_sec),
-                wait_for_completion=True,
-            )
-
-            if final_state.get("status") == "completed":
-                await status_msg.edit_text(
-                    f"✅ *Сценарий рабочего пространства `דוד משה` выполнен!*\n\n"
-                    f"📄 *Добавлен файл в рабочую область:*\n"
-                    f"`{target_file_path}`\n\n"
-                    f"🔗 Зафиксировано в Git, извлечены факты и обновлён индекс знаний.",
-                    parse_mode="Markdown",
-                )
-            else:
-                err_text = final_state.get("error", "Неизвестная ошибка")
-                await status_msg.edit_text(f"❌ Ошибка выполнения сценария: {err_text}")
-            return True
-        except Exception as exc:
-            logger.error(f"[TelegramBotEngine] Ошибка выполнения сценария דוד משה: {exc}", exc_info=True)
-            return False
+    # ── Dialogue Audio Handlers ───────────────────────────────────────────────
 
     async def _save_and_process_audio(
         self,
@@ -527,15 +472,12 @@ class TelegramBotEngine:
         attachment: Any,
         default_filename: str,
     ) -> None:
-        """Аутентифицирует пользователя, проверяет сценарий דוד משה или сохраняет аудио в папку пользователя."""
+        """Authenticate user, save audio directly into isolated user workspace, and process with audio tools."""
         if not update.message or not update.effective_user:
             return
 
-        if await self._try_handle_david_moshe_scenario(update, default_filename):
-            return
-
         tg_id = update.effective_user.id
-        from src.user_manager import user_manager
+        from plugins.telegram_bot import user_auth as user_manager
         user = user_manager.get_user_by_telegram_id(tg_id)
 
         if not user:
@@ -589,9 +531,11 @@ class TelegramBotEngine:
             # 3. If audio diarization service is available, process dialogue
             diarization_summary = ""
             try:
-                from src.ai.audio_diarization import AudioDiarizationService
+                from src.ai.voice.audio_diarization import AudioDiarizationService
+                # Read audio file bytes
+                audio_bytes = saved_file_path.read_bytes()
                 diar_service = AudioDiarizationService()
-                diar_res = await diar_service.process_audio_file(saved_file_path)
+                diar_res = diar_service.analyze_audio(audio_bytes=audio_bytes, mime_type="audio/mp3")
                 if diar_res and diar_res.summary:
                     diarization_summary = diar_res.markdown_report or diar_res.summary
             except Exception as diar_err:
@@ -638,6 +582,41 @@ class TelegramBotEngine:
             logger.error(f"Error processing audio attachment: {exc}", exc_info=True)
             await update.message.reply_text(f"❌ Ошибка обработки аудио: {exc}")
 
+    async def _check_and_trigger_workspace_scenario(
+        self,
+        update: Update,
+        filename_or_text: str,
+    ) -> bool:
+        """Реактивно проверяет триггер специального сценария и выполняет его при поступлении сообщения."""
+        if not filename_or_text:
+            return False
+        try:
+            from apps.ai_assistant.core.telegram_workspace_scenario import TelegramWorkspaceScenarioService
+            from apps.ai_assistant.core.workspace_manager import WorkspaceManager
+
+            scenario_service = TelegramWorkspaceScenarioService()
+            if scenario_service.is_trigger_file(filename_or_text):
+                wm = WorkspaceManager()
+                await scenario_service.trigger_scenario(
+                    wm=wm,
+                    workspace_id="דוד_משה",
+                    trigger_source="telegram_bot",
+                    trigger_file_name=filename_or_text,
+                    delay_seconds=10.0,
+                    wait_for_completion=False,
+                )
+                if update.message:
+                    await update.message.reply_text(
+                        f"⚡ *Событие обработано:* триггер «{filename_or_text}» активирован!\n\n"
+                        "Специальный сценарий для рабочей области «דוד משה» запущен, "
+                        "файл формируется и добавляется в Obsidian Vault.",
+                        parse_mode="Markdown",
+                    )
+                return True
+        except Exception as exc:
+            logger.warning(f"[TelegramBotEngine] Ошибка при проверке триггера сценария: {exc}")
+        return False
+
     async def _handle_voice_dialog(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Handle incoming voice messages."""
         if not update.message or not update.message.voice:
@@ -653,6 +632,8 @@ class TelegramBotEngine:
             return
         audio = update.message.audio
         name = audio.file_name or f"audio_{getattr(audio, 'file_unique_id', 'clip')}.mp3"
+        if await self._check_and_trigger_workspace_scenario(update, name):
+            return
         await self._save_and_process_audio(update, context, audio, name)
 
     async def _handle_document_dialog(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -661,6 +642,8 @@ class TelegramBotEngine:
             return
         doc = update.message.document
         name = doc.file_name or f"doc_{getattr(doc, 'file_unique_id', 'file')}.dat"
+        if await self._check_and_trigger_workspace_scenario(update, name):
+            return
         await self._save_and_process_audio(update, context, doc, name)
 
     # ── Text & Callback Query Handlers ────────────────────────────────────────
@@ -684,7 +667,7 @@ class TelegramBotEngine:
             )
         elif data == "btn_dialogs":
             if update.effective_user:
-                from src.user_manager import user_manager
+                from plugins.telegram_bot import user_auth as user_manager
                 user = user_manager.get_user_by_telegram_id(update.effective_user.id)
                 if user:
                     audio_dir = user_manager.get_user_directory(user["id"], "audio", create=True)
@@ -704,14 +687,11 @@ class TelegramBotEngine:
         if not user_text:
             return
 
-        if await self._try_handle_david_moshe_scenario(update, user_text):
-            return
-
         tg_id = update.effective_user.id
         tg_username = update.effective_user.username or ""
         user_name = update.effective_user.first_name or "User"
 
-        from src.user_manager import user_manager
+        from plugins.telegram_bot import user_auth as user_manager
 
         # Check if user entered an 8-character linking token directly: "A1B2C3D4", "link A1B2C3D4", "/link A1B2C3D4"
         token_match = re.match(r'^(?:/?link\s+)?/?([A-F0-9]{8})$', user_text, re.IGNORECASE)
@@ -745,6 +725,10 @@ class TelegramBotEngine:
                 "нажмите кнопку *«Привязать Telegram»* или отправьте сюда полученный код командой `/link <КОД>`.",
                 parse_mode="Markdown",
             )
+            return
+
+        # Реактивная проверка сценария по тексту входящего сообщения
+        if await self._check_and_trigger_workspace_scenario(update, user_text):
             return
 
         # If AI model is attached, query AI model
@@ -802,3 +786,4 @@ class TelegramBotEngine:
             )
         else:
             logger.error(f"Telegram-бот: Необработанное исключение: {err}", exc_info=err)
+

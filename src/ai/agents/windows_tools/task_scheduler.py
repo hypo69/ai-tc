@@ -193,3 +193,4 @@ WINDOWS_TASK_SCHEDULER_TOOLS = [
     windows_task_scheduler_audit,
     windows_task_scheduler_action,
 ]
+

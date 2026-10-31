@@ -166,3 +166,4 @@ def get_accounts_identity_service() -> AccountsIdentityService:
     if _service_instance is None:
         _service_instance = AccountsIdentityService()
     return _service_instance
+

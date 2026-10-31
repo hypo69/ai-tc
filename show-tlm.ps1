@@ -1,6 +1,6 @@
 <#
 =============================================================================
-Process Name: AI-TC Automation - Show Tlm
+Process Name: ai-tc Automation - Show Tlm
 =============================================================================
 Description:
   Лончер веб-интерфейса аналитики и визуализации системной телеметрии (show-tlm).
@@ -112,7 +112,7 @@ $url = "http://${HostAddress}:${Port}"
 
 Write-Host ""
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host "  🔬 AI-TC: Исследование телеметрии Windows (Web GUI)" -ForegroundColor Green
+Write-Host "  🔬 ai-tc: Исследование телеметрии Windows (Web GUI)" -ForegroundColor Green
 Write-Host "=================================================================" -ForegroundColor Cyan
 Write-Host "  • URL веб-интерфейса: $url" -ForegroundColor Yellow
 Write-Host "  • Интерпретатор:      $pythonExe" -ForegroundColor Gray

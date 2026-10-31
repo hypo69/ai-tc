@@ -49,3 +49,4 @@ def plugin(ai_model: Any = None, config: Optional[Dict[str, Any]] = None) -> IFT
         'ifttt'
     """
     return IFTTTPlugin(ai_model=ai_model, config=config)
+

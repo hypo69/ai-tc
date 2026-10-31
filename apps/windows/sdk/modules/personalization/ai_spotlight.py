@@ -317,3 +317,4 @@ def get_ai_spotlight_engine(catalog_file: Optional[Path] = None) -> AISpotlightE
     if _ai_spotlight_instance is None or catalog_file is not None:
         _ai_spotlight_instance = AISpotlightEngine(catalog_file=catalog_file)
     return _ai_spotlight_instance
+

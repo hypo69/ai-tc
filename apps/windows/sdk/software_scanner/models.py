@@ -151,3 +151,4 @@ __all__ = [
     "ScanStats",
     "ScanReport",
 ]
+

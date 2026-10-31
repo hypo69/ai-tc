@@ -146,3 +146,4 @@ class CodeSymbolIndex:
     def count(self) -> int:
         """Return total number of unique symbol keys."""
         return sum(len(v) for v in self.symbols.values())
+

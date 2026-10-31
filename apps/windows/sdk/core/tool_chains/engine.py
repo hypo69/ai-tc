@@ -99,7 +99,7 @@ class ToolChainExecutionEngine:
         if (chain.requires_restore_point or create_restore_point) and not dry_run:
             try:
                 res_point = self._restore_mgr.create_restore_point(
-                    description=f"AI-TC ToolChain AutoCheckpoint: {chain.chain_id}"
+                    description=f"ai-tc ToolChain AutoCheckpoint: {chain.chain_id}"
                 )
                 if res_point and res_point.get("success"):
                     report.restore_point_created = True
@@ -345,3 +345,4 @@ class ToolChainExecutionEngine:
             elif s.status == StepRunStatus.FAILED:
                 report.findings_summary.append(f"[{s.step_id}] Сбой выполнения: {s.error_message or 'Ненулевой код возврата'}")
                 report.root_cause_identified = f"Ошибка на шаге {s.step_id} ({s.tool_id}): {s.error_message}"
+

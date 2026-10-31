@@ -1,11 +1,11 @@
 /**
  * Модуль интеграции с универсальным модальным окном ИИ-ассистента (#universal-ai-table-modal / AIModalDialog).
  * Реализует паспорт процесса и форензику расследования повторяющихся вызовов PowerShell.
- * Файл: apps/windows/api/webgui/tab_processes_load_inspector/panel_ai_audit/panel.js
- * Updated: 2026-10-28 14:45:00
+ * Файл: apps/windows/api/webgui/tab_processes_load_inspector/panel_ai_audit/panel.js?v=20261031_v2
+ * Updated: 2026-10-31 19:16:00
  */
 
-import { showToast } from '../common/ui_utils.js';
+import { showToast } from '../common/ui_utils.js?v=20261031_v2';
 
 /**
  * Безопасно находит существующий инстанс AIModalDialog в текущем окне или родительских фреймах.
@@ -61,7 +61,7 @@ export async function resolveAIModal() {
     const link = document.createElement('link');
     link.id = 'link-ai-modal-dialog-style';
     link.rel = 'stylesheet';
-    link.href = '/html/ai_modal_dialog/style.css?v=20261028_v1';
+    link.href = '/html/ai_modal_dialog/style.css?v=20261031_v2';
     document.head.appendChild(link);
   }
 
@@ -70,7 +70,7 @@ export async function resolveAIModal() {
   if (!existingScript) {
     const s = document.createElement('script');
     s.id = 'script-ai-modal-dialog-lazy';
-    s.src = '/html/ai_modal_dialog/main.js?v=20261020_v7';
+    s.src = '/html/ai_modal_dialog/main.js?v=20261031_v2';
     document.head.appendChild(s);
   }
 
@@ -89,7 +89,7 @@ export async function resolveAIModal() {
 
   // Резервный динамический импорт ES-фасада
   try {
-    const mod = await import('/html/ai_modal_dialog/ai_modal_dialog.js?v=20261020_v7');
+    const mod = await import('/html/ai_modal_dialog/ai_modal_dialog.js?v=20261031_v2');
     if (mod && mod.AIModalDialog && typeof mod.AIModalDialog.show === 'function') {
       return mod.AIModalDialog;
     }
@@ -116,13 +116,27 @@ export async function openProcessAiModal(item, type = 'group', parentGroup = nul
   const category = (item.category || (parentGroup ? parentGroup.category : 'process')).toUpperCase();
   const title = isGroup
     ? (item.friendly_name ? `${item.friendly_name} (${item.name})` : item.name)
-    : `${item.name} [PID: ${item.pid}]`;
+    : `${item.name} [PID: ${item.pid || targetPid}]`;
 
-  const memMb = isGroup ? (item.total_memory_mb || 0) : (item.memory_mb || 0);
+  // Опрос расширенной телеметрии (deep history) для выбранного процесса
+  let deepHist = null;
+  if (targetPid > 0) {
+    try {
+      const dCtrl = new AbortController();
+      const dTimeout = setTimeout(() => dCtrl.abort(), 1500);
+      const dRes = await fetch(`/api/v1/telemetry/processes/${targetPid}/deep-history`, { signal: dCtrl.signal });
+      clearTimeout(dTimeout);
+      if (dRes.ok) {
+        deepHist = await dRes.json();
+      }
+    } catch (_) {}
+  }
+
+  const memMb = deepHist ? deepHist.memory_working_set_mb : (isGroup ? (item.total_memory_mb || 0) : (item.memory_mb || 0));
   const memStr = memMb >= 1024 ? `${(memMb / 1024).toFixed(1)} GB` : `${Math.round(memMb)} MB`;
-  const cpuPercent = isGroup
+  const cpuPercent = deepHist ? deepHist.cpu_percent : (isGroup
     ? (item.total_cpu_percent !== undefined ? item.total_cpu_percent : 0)
-    : (item.cpu_percent !== undefined ? item.cpu_percent : 0);
+    : (item.cpu_percent !== undefined ? item.cpu_percent : 0));
   const cpuStr = `${cpuPercent.toFixed(1)}%`;
 
   const globalModal = await resolveAIModal();
@@ -130,24 +144,51 @@ export async function openProcessAiModal(item, type = 'group', parentGroup = nul
     const gBadges = [
       { text: category, class: 'badge bg-primary' },
       { text: `PID: ${pidStr}`, class: 'badge bg-secondary' },
-      { text: isGroup ? `${count} процессов` : (item.username || 'SYSTEM'), class: 'badge bg-info text-dark' }
+      { text: isGroup ? `${count} процессов` : (item.username || (deepHist && deepHist.user_name) || 'SYSTEM'), class: 'badge bg-info text-dark' }
     ];
     if (item.has_visible_window || item.has_window) gBadges.push({ text: 'Оконный', class: 'badge bg-success' });
+    if (deepHist && deepHist.suspicion_level && deepHist.suspicion_level !== 'SAFE') {
+      gBadges.push({ text: `Риск: ${deepHist.suspicion_level}`, class: 'badge bg-danger' });
+    }
 
     const gMeta = [
       { label: 'Исполняемый файл', value: item.name, isCode: true },
       { label: 'PID процесса', value: pidStr, isCode: true },
       { label: 'Категория', value: category },
       { label: 'Нагрузка CPU', value: cpuStr },
-      { label: 'Использование памяти', value: memStr },
-      { label: 'Потоков (Threads)', value: String(isGroup ? (item.total_threads || count) : (item.num_threads || item.threads || 1)) }
+      { label: 'Память (Working Set)', value: memStr },
+      { label: 'Потоков (Threads)', value: String(deepHist ? deepHist.thread_count : (isGroup ? (item.total_threads || count) : (item.num_threads || item.threads || 1))) }
     ];
-    if (item.username) gMeta.push({ label: 'Пользователь', value: item.username });
-    if (item.create_time) gMeta.push({ label: 'Время старта', value: item.create_time });
-    const exePath = item.exe_path || item.executable || '';
+
+    if (deepHist) {
+      if (deepHist.memory_private_bytes_mb) gMeta.push({ label: 'Private Bytes (ОЗУ)', value: `${deepHist.memory_private_bytes_mb} MB` });
+      if (deepHist.memory_peak_working_set_mb) gMeta.push({ label: 'Пиковая память (Peak WS)', value: `${deepHist.memory_peak_working_set_mb} MB` });
+      if (deepHist.handles_count) gMeta.push({ label: 'Дескрипторы (Handles)', value: String(deepHist.handles_count) });
+      if (deepHist.uptime_seconds) {
+        const upSec = Math.round(deepHist.uptime_seconds);
+        const upStr = upSec > 3600 ? `${(upSec / 3600).toFixed(1)} ч` : (upSec > 60 ? `${Math.round(upSec / 60)} мин` : `${upSec} сек`);
+        gMeta.push({ label: 'Время работы (Uptime)', value: upStr });
+      }
+      const totalDiskIo = (deepHist.disk_read_mb_total || 0) + (deepHist.disk_write_mb_total || 0);
+      if (totalDiskIo > 0) gMeta.push({ label: 'Диск (I/O Всего)', value: `${totalDiskIo.toFixed(1)} MB` });
+      if (deepHist.active_sockets_count !== undefined) gMeta.push({ label: 'Сетевых сокетов', value: String(deepHist.active_sockets_count) });
+    }
+
+    const effUser = (deepHist && deepHist.user_name) || item.username;
+    if (effUser) gMeta.push({ label: 'Пользователь', value: effUser });
+    const effStartTime = (deepHist && deepHist.start_time) || item.create_time;
+    if (effStartTime) gMeta.push({ label: 'Время старта', value: effStartTime });
+    const exePath = (deepHist && deepHist.executable_path) || item.exe_path || item.executable || '';
     if (exePath) gMeta.push({ label: 'Путь к файлу', value: exePath, isCode: true, fullWidth: true });
-    const cmdLine = item.command_line || item.cmdline || '';
+    const cmdLine = (deepHist && deepHist.command_line) || item.command_line || item.cmdline || '';
     if (cmdLine) gMeta.push({ label: 'Командная строка', value: cmdLine, isCode: true, fullWidth: true });
+
+    const mergedTelemetry = Object.assign({}, item, deepHist || {}, {
+      pid: targetPid,
+      process_name: item.name,
+      is_group: isGroup,
+      instance_count: count
+    });
 
     globalModal.show({
       icon: '🤖',
@@ -157,9 +198,9 @@ export async function openProcessAiModal(item, type = 'group', parentGroup = nul
       tableType: 'process',
       badges: gBadges,
       metadata: gMeta,
-      rawTitle: 'Телеметрия процесса Windows',
-      rawContent: JSON.stringify(item, null, 2),
-      requestData: item,
+      rawTitle: 'Расширенная телеметрия процесса Windows',
+      rawContent: JSON.stringify(mergedTelemetry, null, 2),
+      requestData: mergedTelemetry,
       actions: [
         {
           label: isGroup ? 'Завершить дерево процессов' : 'Завершить процесс',
@@ -218,7 +259,7 @@ export async function openPowerShellInvestigationModal() {
       { label: 'Выявленный виновник', value: verdict },
       { label: 'Служба / Процесс-родитель', value: 'ai-telemetry.exe / pythonw.exe', isCode: true },
       { label: 'Задача планировщика Windows', value: taskName, isCode: true },
-      { label: 'Файл запуска планировщика', value: 'C:\\Users\\onela\\AppData\\Local\\AI-TC\\tlm.ps1', isCode: true, fullWidth: true },
+      { label: 'Файл запуска планировщика', value: 'C:\\Users\\onela\\AppData\\Local\\ai-tc\\tlm.ps1', isCode: true, fullWidth: true },
       { label: 'Точка вызова в кодовой базе', value: scriptLoc, isCode: true, fullWidth: true },
       { label: 'Выполняемые команды WMI', value: 'Get-CimInstance Win32_PerfFormattedData_GPUPerformanceCounters_... | ConvertTo-Json', isCode: true, fullWidth: true }
     ];

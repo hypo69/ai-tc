@@ -11,7 +11,7 @@
 # Package: apps.windows.api.routers.admin
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-22 14:40:00
+# Updated: 2026-10-30 18:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -273,13 +273,12 @@ def get_apps_status(profile: Optional[str] = None) -> Dict[str, Any]:
 
         if has_enabled_key:
             enabled_set = {str(item).strip().lower() for item in apps_cfg["enabled"] if item}
-            enable_all = False
         if has_disabled_key:
             disabled_set = {str(item).strip().lower() for item in apps_cfg["disabled"] if item}
 
         if "enable_all" in apps_cfg and isinstance(apps_cfg["enable_all"], bool):
             enable_all = apps_cfg["enable_all"]
-        elif not has_enabled_key:
+        else:
             enable_all = True
     else:
         enable_all = True
@@ -293,8 +292,8 @@ def get_apps_status(profile: Optional[str] = None) -> Dict[str, Any]:
         if aliases.intersection(disabled_set):
             is_enabled = False
         # 2. Проверка включения в список enabled
-        elif enabled_set is not None:
-            is_enabled = bool(aliases.intersection(enabled_set))
+        elif enabled_set is not None and aliases.intersection(enabled_set):
+            is_enabled = True
         # 3. Проверка индивидуального булева флага в словаре
         elif isinstance(apps_cfg, dict) and key in apps_cfg and isinstance(apps_cfg[key], bool):
             is_enabled = apps_cfg[key]
@@ -329,12 +328,26 @@ def get_apps_status(profile: Optional[str] = None) -> Dict[str, Any]:
             "enabled": is_enabled,
         }
 
+    # Включение дополнительных приложений из списка enabled_set (например, cloudflared_monitor)
+    for extra_id in (enabled_set or set()):
+        if extra_id not in result_apps:
+            result_apps[extra_id] = {
+                "id": extra_id,
+                "key": extra_id,
+                "tab": f"tab-{extra_id.replace('_', '-')}",
+                "folder": extra_id,
+                "name": extra_id,
+                "ru_name": extra_id,
+                "icon": "📱",
+                "enabled": True,
+            }
+
     ai_cfg = {}
     if active_path and active_path.exists():
         try:
             with open(active_path, "r", encoding="utf-8") as f:
                 root_data = json.load(f)
-                ai_cfg = root_data.get("ai", {})
+                ai_cfg = root_data.get("ai_providers_and_models_configuration") or root_data.get("ai", {})
         except Exception:
             pass
 
@@ -412,3 +425,4 @@ async def set_app_config(app_name: str, data: AppConfigUpdateRequest, request: R
             raise HTTPException(status_code=500, detail=f"Failed to save configuration: {e}")
 
     return {"status": "ok", "app": safe_name, "config": data.config, "message": "Конфигурация успешно сохранена"}
+

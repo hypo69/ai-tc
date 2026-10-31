@@ -14,7 +14,7 @@
  * Package: apps.windows.api.webgui.js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-10-31 19:16:00
  * =============================================================================
  */
 
@@ -23,6 +23,6 @@
 
 if (!window.AIModalDialog) {
   const script = document.createElement('script');
-  script.src = '/html/ai_modal_dialog/main.js?v=20261008_v1';
+  script.src = '/html/ai_modal_dialog/main.js?v=20261031_v2';
   document.head.appendChild(script);
 }

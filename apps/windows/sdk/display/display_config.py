@@ -408,3 +408,4 @@ class DisplayConfigManager:
             logger.info(f"[DisplayConfig] Пользовательский откат экрана {clean_id} к {orig_orientation.value}")
             return self._apply_rotation_direct(clean_id, orig_orientation)
         return False
+

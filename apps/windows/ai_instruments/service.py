@@ -19,7 +19,7 @@
 # Package: apps.windows.ai_instruments
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 12:42:00
+# Updated: 2026-10-31 17:47:00
 # =============================================================================
 
 from __future__ import annotations
@@ -35,6 +35,7 @@ import uuid
 from typing import Any, Dict, List, Optional
 
 from logger import logger
+from .default_catalog import DEFAULT_AGENT_INSTRUMENTS
 from .models import AIInstrument, AIInstrumentCreate, get_current_iso_time
 from .storage import AIInstrumentsStorage
 
@@ -105,6 +106,38 @@ class AIInstrumentsService:
     def delete_instrument(self, tool_id: str) -> bool:
         """Удаляет инструмент."""
         return self.storage.delete_instrument(tool_id)
+
+    def seed_default_instruments(self, force: bool = False) -> List[AIInstrument]:
+        """Синхронизирует базу со стандартным каталогом инструментов из apps/windows/sdk и .agents/skills.
+
+        Args:
+            force: Принудительно перезаписать все стандартные инструменты, даже если они уже есть в БД.
+
+        Returns:
+            List[AIInstrument]: Список добавленных или обновлённых инструментов.
+        """
+        existing_ids = set()
+        if not force:
+            try:
+                existing = self.storage.list_instruments(limit=500)
+                existing_ids = {it.tool_id for it in existing}
+                if len(existing_ids) >= len(DEFAULT_AGENT_INSTRUMENTS):
+                    return []
+            except Exception as ex:
+                logger.warning(f"[AIInstrumentsService] Ошибка проверки инструментов перед синхронизацией: {ex}")
+                return []
+
+        seeded: List[AIInstrument] = []
+        for raw in DEFAULT_AGENT_INSTRUMENTS:
+            if not force and raw.get("tool_id") in existing_ids:
+                continue
+            try:
+                item = AIInstrumentCreate(**raw)
+                saved = self.save_instrument(item)
+                seeded.append(saved)
+            except Exception as ex:
+                logger.warning(f"[AIInstrumentsService] Не удалось сохранить базовый инструмент {raw.get('tool_id')}: {ex}")
+        return seeded
 
     def extract_and_save_from_text(
         self,
@@ -201,7 +234,8 @@ class AIInstrumentsService:
                 wrapper_ps1 = os.path.join(temp_dir, f"inst_wrap_{uid}.ps1")
 
                 inner = f'cmd.exe /c "{cmd_to_run}"' if shell_type == "cmd" else f"& {{ {cmd_to_run} }}"
-                wrapper_code = f"""$ErrorActionPreference = 'Continue'
+                wrapper_code = f"""[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$ErrorActionPreference = 'Continue'
 try {{
     {inner} *>&1 | Out-File -FilePath "{out_file}" -Encoding utf8
     $code = $LASTEXITCODE
@@ -243,16 +277,18 @@ try {{
                 stderr_res = proc.stderr.strip()
             else:
                 if shell_type == "cmd":
-                    args = ["cmd.exe", "/c", cmd_to_run]
+                    args = ["cmd.exe", "/c", f"chcp 65001 >nul & {cmd_to_run}"]
                 elif shell_type == "pwsh":
-                    args = ["pwsh.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", cmd_to_run]
+                    args = ["pwsh.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", f"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; {cmd_to_run}"]
                 else:
-                    args = ["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", cmd_to_run]
+                    args = ["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", f"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; {cmd_to_run}"]
 
                 proc = subprocess.run(
                     args,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                     timeout=timeout_sec,
                     shell=False,
                 )
@@ -292,3 +328,4 @@ try {{
                 "duration_ms": duration,
                 "tool_id": tool_id,
             }
+

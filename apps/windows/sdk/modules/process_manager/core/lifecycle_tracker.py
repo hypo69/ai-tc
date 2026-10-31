@@ -405,3 +405,4 @@ class ProcessLifecycleTracker:
             "users_distribution": users_count,
             "recent_sessions": [s.to_dict() for s in sorted(filtered, key=lambda x: x.created_ts, reverse=True)[:50]],
         }
+

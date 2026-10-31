@@ -246,3 +246,4 @@ WINDOWS_REGISTRY_TOOLS = [
     windows_registry_search,
     windows_registry_action,
 ]
+

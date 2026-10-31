@@ -321,5 +321,1339 @@
     "aiToastTitle": "ניתוח בינה מלאכותית",
     "aiToastBody": "השאילתה הועברה לעוזר הצ'אט.",
     "exportNoEvents": "אין אירועים שנטענו לייצוא."
+  },
+  "internals": {
+    "subtabTelemetryLabel": "טלמטריה",
+    "subtabTelemetryTitle": "ניטור מדדי מעבד, זיכרון, דיסקים ומשימות רקע",
+    "subtabModelsLabel": "מודלים ו-API",
+    "subtabModelsTitle": "ניהול ספקי ומודלי בינה מלאכותית (Windows AI, Ollama, Gemini, Foundry Local)",
+    "subtabLogsLabel": "מרכז יומנים",
+    "subtabLogsTitle": "צפייה ביומנים פנימיים של תוכנת ai-tc",
+    "subtabEtwLabel": "מעקב ETW",
+    "subtabEtwTitle": "מעקב אירועי ETW בליבת Windows",
+    "subtabSettingsLabel": "הגדרות",
+    "subtabSettingsTitle": "ניהול הגדרות גלובליות ופרמטרים של תתי-מערכות",
+    "subtabSystemKnowledgeLabel": "רמזי מערכת",
+    "subtabSystemKnowledgeTitle": "בסיס ידע של רמזי מערכת: קובץ SQLite מקומי, הגדרות מודל ומאמרים",
+    "subtabInstrumentsLabel": "כלי סוכן",
+    "subtabInstrumentsTitle": "בסיס כלי שרשרת החשיבה של הסוכן: שרת Hostinger, פרמטרי הרצה וקטלוג",
+    "blockSysStorageLabel": "אחסון SQLite",
+    "blockSysStorageTitle": "ניהול קובץ SQLite מקומי של רמזים, בדיקת סכמה וטבלאות",
+    "blockSysParamsLabel": "פרמטרי WikiLLM",
+    "blockSysParamsTitle": "הגדרות מודל יצירתי, סף ביטחון וחלון הקשר",
+    "blockSysArticlesLabel": "מאמרי רמזים",
+    "blockSysArticlesTitle": "קטלוג ועורך מובנה למאמרי בסיס ידע של רמזים",
+    "blockInstHostingerLabel": "שרת Hostinger",
+    "blockInstHostingerTitle": "הגדרות חיבור לשרת Hostinger המרוחק (REST PHP API / MariaDB)",
+    "blockInstRuntimeLabel": "שרשרת חשיבה",
+    "blockInstRuntimeTitle": "פרמטרי הרצת כלים בשרשרת החשיבה, SafeOps ופסקי זמן",
+    "blockInstCatalogLabel": "קטלוג כלים",
+    "blockInstCatalogTitle": "צפייה בספריית כלי הסוכן, חיפוש והרצת בדיקה",
+    "subtabTooltipsEditorLabel": "עורך חלוניות מידע",
+    "subtabTooltipsEditorTitle": "עורך חלוניות מידע ובסיס ידע של המערכת",
+    "subtabHelpPagesEditorLabel": "Help Pages Editor",
+    "subtabHelpPagesEditorTitle": "Editor for atomic help blocks and composite pages"
+  },
+  "tooltips": {
+    "workspace": {
+      "title": "מרחב עבודה",
+      "summary": "סביבת עבודה של הפרויקט עם קבצים מקושרים, מקורות הקשר, מאגר עובדות ותיעוד.",
+      "category": "מרחב עבודה",
+      "icon": "📁"
+    },
+    "qa": {
+      "title": "שאלות ותשובות (Q&A)",
+      "summary": "מודול שאלות ותשובות סמנטי המבוסס על אחסון וקטורי ואחזור ידע.",
+      "category": "מאגר ידע",
+      "icon": "💡"
+    },
+    "commits": {
+      "title": "היסטוריית שינויים (Commits)",
+      "summary": "פיד שינויים אינטראקטיבי של המאגר עם ניתוח שינויים ותיאורי הבדלים.",
+      "category": "ניהול גרסאות",
+      "icon": "🌿"
+    },
+    "system_tour": {
+      "title": "סיור במערכת",
+      "summary": "מדריך אינטראקטיבי שלב אחר שלב במסכי הניהול המרכזיים וכלי הממשק.",
+      "category": "הדרכה",
+      "icon": "🧭"
+    },
+    "cfa": {
+      "title": "הגנה מפני כופר / CFA",
+      "summary": "גישה מבוקרת לתיקיות (CFA) מגינה מפני תוכנות כופר על ידי חסימת שינויים בלתי מורשים בתיקיות מוגנות.",
+      "category": "הגנה מפני כופר",
+      "icon": "🔒"
+    },
+    "asr": {
+      "title": "כללי ASR",
+      "summary": "כללי צמצום משטח התקפה (ASR) חוסמים וקטורי איומים נפוצים כגון מאקרו זדוני של Office, סקריפטים לא מורשים והזרקת קוד.",
+      "category": "צמצום משטח התקפה",
+      "icon": "🛡️"
+    },
+    "exclusions": {
+      "title": "חריגות Defender",
+      "summary": "רשימת נתיבים, סיומות ותהליכים המוחרגים מסריקה בזמן אמת. דורש ביקורת קבועה למניעת הפעלת נוזקות.",
+      "category": "מדיניות חריגות",
+      "icon": "⚠️"
+    },
+    "threats": {
+      "title": "איומים והסגר",
+      "summary": "יומן מרכזי של איומים שזוהו וקבצים בהסגר, המאפשר שחזור בטוח של קבצים תקינים או מחיקה לצמיתות.",
+      "category": "יומן תקריות",
+      "icon": "🚨"
+    },
+    "procs": {
+      "title": "עץ תהליכים / ללא קבצים",
+      "summary": "ניטור התנהגותי של עץ תהליכים וזיהוי תקיפות ללא קבצים (Fileless) המנצלות כלי מערכת לגיטימיים של Windows.",
+      "category": "ניתוח התנהגותי",
+      "icon": "🌳"
+    },
+    "events": {
+      "title": "יומן אירועי אבטחה",
+      "summary": "פיד אירועי אבטחה של Windows Defender (מזהים 1116, 1117, 5001 ועוד) העוקב אחר זיהויים, חסימות ועדכונים.",
+      "category": "אירועים וביקורת",
+      "icon": "📜"
+    },
+    "diag": {
+      "title": "אבחון אנטי-וירוס",
+      "summary": "בדיקת תקינות מקיפה של מנוע האנטי-וירוס, תצורת MpCmdRun, עדכניות מאגרי החתימות ומצב הסורקים.",
+      "category": "ИИ Диагностика",
+      "icon": "🎯"
+    },
+    "quick_scan": {
+      "title": "סריקה מהירה",
+      "summary": "הפעלת סריקה מהירה של זיכרון RAM, תוכניות הפעלה אוטומטית ותיקיות מערכת לאיתור קוד זדוני.",
+      "category": "סריקת אנטי-וירוס",
+      "icon": "▶️"
+    },
+    "full_scan": {
+      "title": "סריקה מלאה",
+      "summary": "סריקה מעמיקה של כל הכוננים, קובצי ארכיון, ספריות מערכת וקבצי משתמש. מומלץ בחשד להדבקה.",
+      "category": "סריקת אנטי-וירוס",
+      "icon": "🛡️"
+    },
+    "update_sigs": {
+      "title": "עדכון חתימות",
+      "summary": "הורדה והתקנה יזומה של מאגרי חתימות איומים עדכניים משרתי Microsoft Security Intelligence.",
+      "category": "Сигнатурные базы",
+      "icon": "☁️"
+    },
+    "realtime": {
+      "title": "הגנה בזמן אמת",
+      "summary": "מסנן מערכת קבצים ראשי (WdFilter) המיירט ובודק את כל פעולות הקריאה והכתיבה בזמן אמת.",
+      "category": "Ядро антивируса",
+      "icon": "⚡"
+    },
+    "cloud_tamper": {
+      "title": "הגנת ענן ו-Tamper",
+      "summary": "ניתוח היוריסטי בענן (MAPS) והגנה מפני שיבוש (Tamper Protection) החוסמת שינויים בלתי מורשים בהגדרות אבטחה.",
+      "category": "Расширенная защита",
+      "icon": "☁️"
+    },
+    "summary-dashboard": {
+      "title": "לוח בקרה מרכזי",
+      "summary": "מבט כולל על בריאות המערכת המרכז קריסות, אירועי מערכת קריטיים, תקלות חומרה ואנומליות צריכת חשמל.",
+      "category": "Сводная диагностика",
+      "icon": "🚨"
+    },
+    "event-logs": {
+      "title": "יומני אירועים",
+      "summary": "מציג אירועים מובנה לבדיקת ערוצי System, Application ו-Security עם סינון מתקדם.",
+      "category": "Журналы Windows",
+      "icon": "📝"
+    },
+    "activity": {
+      "title": "פעילות המערכת",
+      "summary": "טלמטריה בזמן אמת של תהליכים פעילים, צריכת משאבים, תהליכוני רקע ותדירות הפעלות.",
+      "category": "Активность системы",
+      "icon": "⚙️"
+    },
+    "power-lifecycle": {
+      "title": "צריכת חשמל ומחזור חיים",
+      "summary": "ביקורת מצבי שינה, אירועי חשמל ACPI, הפעלת תרוטלינג, כיבויים בלתי צפויים ואתחולים.",
+      "category": "Электропитание",
+      "icon": "⚡"
+    },
+    "defender-logs": {
+      "title": "יומני Defender",
+      "summary": "יומן מרוכז של זיהויי אבטחה, בידוד נוזקות ופעילות בדיקת רשת של האנטי-וירוס.",
+      "category": "Безопасность / Defender",
+      "icon": "🛡️"
+    },
+    "forensics": {
+      "title": "פורנזיקה של המערכת",
+      "summary": "ניתוח מפורט של קבצי Dump, אבחון קריסות מסך כחול (BSOD) ובדיקת זיכרון לחקירת תקלות.",
+      "category": "История работы ПК",
+      "icon": "⏱️"
+    },
+    "mode-live": {
+      "title": "מצב זרם חי (Live)",
+      "summary": "פיד אירועים ופעילות תהליכים בזמן אמת עם רענון אוטומטי רציף.",
+      "category": "Режим отображения",
+      "icon": "●"
+    },
+    "mode-audit": {
+      "title": "מצב ביקורת חכמה",
+      "summary": "ניתוח חכם, זיהוי דפוסים ומניעת כפילויות של גלי אירועים ושגיאות מערכת.",
+      "category": "Аналитика журнала",
+      "icon": "🔬"
+    },
+    "mode-rag": {
+      "title": "מצב חיפוש RAG",
+      "summary": "אחזור סמנטי וחיפוש הקשרי מתוך תיעוד המערכת ומאגרי שגיאות מאונדקסים.",
+      "category": "ИИ Поиск",
+      "icon": "🧠"
+    },
+    "mode-incidents": {
+      "title": "מצב תקריות",
+      "summary": "מבט מקובץ על תקלות חוזרות לפי תת-מערכת, רמת חומרה ושורש הבעיה.",
+      "category": "Корреляция сбоев",
+      "icon": "🧩"
+    },
+    "mode-timeline": {
+      "title": "מצב ציר זמן",
+      "summary": "מפת חום כרונולוגית וחלוקת תדירות אירועים לזיהוי תקופות עומס ותקלות שיא.",
+      "category": "Временная шкала",
+      "icon": "📊"
+    },
+    "mode-errors": {
+      "title": "מצב שגיאות בלבד",
+      "summary": "סינון זרם האירועים: הצגת אזהרות, שגיאות ותקלות מערכת קריטיות בלבד.",
+      "category": "Фильтрация потока",
+      "icon": "⚠️"
+    },
+    "mode-raw": {
+      "title": "מצב נתונים גולמיים",
+      "summary": "אירועי טלמטריה גולמיים ללא סינון ורשומות יומן אירועים מקוריות של Windows.",
+      "category": "Сырые данные",
+      "icon": "📄"
+    },
+    "sum-power": {
+      "title": "תקלות צריכת חשמל",
+      "summary": "תקריות הקשורות לכיבוי בלתי תקין, אובדן חשמל ליבתי (Event 41) וכשלי התעוררות משינה.",
+      "category": "Критические сбои",
+      "icon": "⚡"
+    },
+    "sum-bsod": {
+      "title": "קריסות מסך כחול (BSOD)",
+      "summary": "דוחות קריסה של מסך כחול (BSOD), קודי שגיאת ליבה (Bugcheck) וניתוח קבצי Minidump.",
+      "category": "Критические сбои",
+      "icon": "💻"
+    },
+    "sum-drivers": {
+      "title": "שגיאות דרייברים",
+      "summary": "תקריות פקיעת זמן של מנהלי התקנים, כשלי אתחול חומרה ושגיאות התקנים היקפיים.",
+      "category": "Аппаратные сбои",
+      "icon": "🔌"
+    },
+    "sum-suspicious": {
+      "title": "אנומליות חשודות",
+      "summary": "הפעלות תהליכים חריגות, רישומי שירותים בלתי צפויים ואירועי ביקורת לא שגרתיים.",
+      "category": "אבטחה",
+      "icon": "🚨"
+    },
+    "slc-scan": {
+      "title": "הפעלת סריקת אבחון",
+      "summary": "מפעיל ניתוח מקיף של יומני אירועים, קבצי קריסה וטלמטריית חומרה של המערכת.",
+      "category": "Операции",
+      "icon": "📡"
+    },
+    "slc-refresh": {
+      "title": "רענון יומנים",
+      "summary": "טעינה מחדש של רשומות האירועים העדכניות ומדדי הטלמטריה של Windows.",
+      "category": "Операции",
+      "icon": "🔄"
+    },
+    "sum-refresh": {
+      "title": "רענון מדדים",
+      "summary": "מחשב מחדש את סטטיסטיקת התקלות המרכזית ומעדכן את מדדי תקינות המערכת.",
+      "category": "Операции",
+      "icon": "🔄"
+    },
+    "ask-ai": {
+      "title": "הסבר המערכת",
+      "summary": "הסבר הקשרי מפורט של רשומת האבחון שנבחרה והשפעתה על יציבות המערכת.",
+      "category": "ИИ Диагностика",
+      "icon": "🤖"
+    },
+    "sum-export": {
+      "title": "ייצוא דוח",
+      "summary": "ייצוא תמצית בריאות המערכת ודוח טלמטריית תקלות כקובץ JSON או CSV.",
+      "category": "Операции",
+      "icon": "💾"
+    },
+    "sw-inventory": {
+      "title": "תוכנות מותקנות",
+      "summary": "קטלוג של כל יישומי המחשב הרשומים, אפליקציות Windows Store ותלויות החבילות.",
+      "category": "Инвентарь ПО",
+      "icon": "📋"
+    },
+    "sw-packages": {
+      "title": "מנהלי חבילות",
+      "summary": "ניהול משולב עבור מנהל החבילות Winget, קובצי התקנה של MSI ומאגרי תוכנה.",
+      "category": "Менеджер пакетов",
+      "icon": "📦"
+    },
+    "sw-dormant": {
+      "title": "תוכנות רדומות",
+      "summary": "זיהוי יישומים שלא הופעלו זמן רב על בסיס טלמטריית UserAssist לפינוי שטח אחסון.",
+      "category": "Аудит неактивности",
+      "icon": "⏳"
+    },
+    "sw-transparency": {
+      "title": "שקיפות תוכנה",
+      "summary": "ניתוח מעמיק של קבצי תוכנה, תעודות חתימה של מפתחים, דרייברים מוטמעים ומשימות רקע.",
+      "category": "ИИ Безопасность",
+      "icon": "🛡️"
+    },
+    "sw-heavy": {
+      "title": "תוכנות כבדות",
+      "summary": "זיהוי יישומים התופסים שטח דיסק עצום, עצי מטמון כבדים או צריכת זיכרון חריגה.",
+      "category": "Производительность",
+      "icon": "⚡"
+    },
+    "sw-sockets": {
+      "title": "חיבורי רשת (Sockets)",
+      "summary": "ביקורת על תהליכים המאזינים ברשת, חיבורים יוצאים ופורטים פתוחים של תוכנות.",
+      "category": "Сетевая активность",
+      "icon": "🌐"
+    },
+    "sw-winget": {
+      "title": "מנהל החבילות Winget",
+      "summary": "כלי ומאגר רשמי של Windows להתקנה שקטה, שדרוג והסרה של יישומים.",
+      "category": "Пакетный менеджер",
+      "icon": "🧩"
+    },
+    "sw-msi": {
+      "title": "חבילות MSI",
+      "summary": "בדיקת חבילות Windows Installer, מצב עדכוני אבטחה ורכיבי GUID רשומים במערכת.",
+      "category": "Пакетный менеджер",
+      "icon": "⚙️"
+    },
+    "sw-store": {
+      "title": "אפליקציות Microsoft Store",
+      "summary": "ניהול אפליקציות אוניברסליות של Windows הארוזות בתקן Appx ו-MSIX.",
+      "category": "Пакетный менеджер",
+      "icon": "🛍️"
+    },
+    "sw-ninite": {
+      "title": "אוטומציית Ninite",
+      "summary": "התקנה ושדרוג אוטומטיים של חבילות תוכנה חיוניות ללא התערבות ידנית.",
+      "category": "Пакетный менеджер",
+      "icon": "🚀"
+    },
+    "sw-scan-trigger": {
+      "title": "סריקת מלאי תוכנה",
+      "summary": "סורק את הרישום (Registry) ומערכת הקבצים לרענון רשימת התוכנות המותקנות.",
+      "category": "Операции сканера",
+      "icon": "🔍"
+    },
+    "sw-scan-modes": {
+      "title": "עומק סריקה",
+      "summary": "מעבר בין סריקת רישום מהירה לבין בדיקה יסודית ברמת מערכת הקבצים.",
+      "category": "Конфигурация",
+      "icon": "⚙️"
+    },
+    "sw-filter-dormant": {
+      "title": "סינון תוכנות רדומות",
+      "summary": "מציג אך ורק יישומים שלא הופעלו במהלך 60 הימים האחרונים.",
+      "category": "Фильтры реестра",
+      "icon": "🟡"
+    },
+    "sw-filter-orphan": {
+      "title": "סינון שיירי תוכנה",
+      "summary": "מציג קבצים שנותרו, תיקיות ריקות ומפתחות רישום מיותרים של תוכנות שהוסרו.",
+      "category": "Фильтры реестра",
+      "icon": "🔴"
+    },
+    "sw-filter-store": {
+      "title": "סינון אפליקציות Store",
+      "summary": "מבודד יישומי UWP/MSIX מודרניים שהותקנו דרך חנות Microsoft Store.",
+      "category": "Фильтры реестра",
+      "icon": "🛍️"
+    },
+    "sw-refresh-heavy": {
+      "title": "חישוב שטח דיסק מחדש",
+      "summary": "מעדכן את חישוב גודל התיקיות לזיהוי התוכנות התופסות את מרב שטח האחסון.",
+      "category": "Операции монитора",
+      "icon": "🔄"
+    },
+    "sw-refresh-sockets": {
+      "title": "רענון חיבורי רשת",
+      "summary": "בודק את הפורטים והחיבורים הפעילים ברשת המשויכים לתוכנות המותקנות.",
+      "category": "Операции монитора",
+      "icon": "🔄"
+    },
+    "winadmin-users": {
+      "title": "חשבונות משתמשים",
+      "summary": "ניהול חשבונות משתמש מקומיים ב-Windows, מדיניות סיסמאות ובדיקת מצב חשבונות.",
+      "category": "חשבונות משתמש",
+      "icon": "👥"
+    },
+    "winadmin-groups": {
+      "title": "קבוצות אבטחה",
+      "summary": "ניהול קבוצות אבטחה מקומיות (Administrators, Users, Remote Desktop Users ועוד).",
+      "category": "אבטחה",
+      "icon": "🏛️"
+    },
+    "winadmin-events": {
+      "title": "יומן אירועי אבטחה",
+      "summary": "יומני ביקורת העוקבים אחר התחברות משתמשים (אירועים 4624/4625), העלאת הרשאות ושינויי חשבון.",
+      "category": "ביקורת אבטחה",
+      "icon": "🛡️"
+    },
+    "winadmin-security": {
+      "title": "הקשחת אבטחת מערכת",
+      "summary": "בדיקת מדיניות אבטחה מקומית, רמת בקרת חשבון משתמש (UAC), הגנת LSA ובידוד אישורים.",
+      "category": "Аудит привилегий",
+      "icon": "🔐"
+    },
+    "winadmin-pid": {
+      "title": "מפקח תהליכים לפי PID",
+      "summary": "ממפה מזהי תהליכים (PID) לטוקנים מאובטחים של המשתמש, מזהי SID וסט הרשאות.",
+      "category": "Контекст процессов",
+      "icon": "🔬"
+    },
+    "winadmin-catalog": {
+      "title": "קטלוג כלי מערכת",
+      "summary": "מדריך כלי ניהול ופקודות מערכת של Windows לתחזוקה ואיתור תקלות.",
+      "category": "מאגר ידע",
+      "icon": "📖"
+    },
+    "winadmin-acl": {
+      "title": "רשימות בקרת גישה (ACL)",
+      "summary": "עורך הרשאות עבור קבצים, תיקיות, מפתחות רישום ואובייקטים מאובטחים במערכת.",
+      "category": "Файловая безопасность",
+      "icon": "🔒"
+    },
+    "winadmin-refresh": {
+      "title": "רענון נתוני משתמשים",
+      "summary": "מעדכן את רשימת חשבונות המשתמש המקומיים, הפעלות פעילות וחברות בקבוצות.",
+      "category": "Операции",
+      "icon": "🔄"
+    },
+    "winadmin-create-user": {
+      "title": "יצירת משתמש מקומי",
+      "summary": "פותח אשף ליצירת חשבון משתמש מקומי חדש עם הרשאות מוגדרות וסיסמה.",
+      "category": "Управление учетными записями",
+      "icon": "👤"
+    },
+    "winadmin-privacy-radar": {
+      "title": "רדאר פרטיות",
+      "summary": "ביקורת על שידור טלמטריה של Windows, רמות נתוני אבחון ואיסוף מידע ברקע.",
+      "category": "פרטיות",
+      "icon": "📡"
+    },
+    "winadmin-backup": {
+      "title": "גיבוי ושחזור מערכת",
+      "summary": "מצב שירות עותקי צל (VSS), נקודות שחזור מערכת ותקינות גיבויים קיימים.",
+      "category": "גיבוי ושחזור",
+      "icon": "💾"
+    },
+    "winadmin-audit-admins": {
+      "title": "ביקורת מנהלי מערכת",
+      "summary": "מזהה את כל החשבונות המחזיקים בהרשאות ניהול מקומיות במחשב.",
+      "category": "Экспресс-аудит",
+      "icon": "👑"
+    },
+    "winadmin-audit-service": {
+      "title": "ביקורת כניסה כשירות",
+      "summary": "ביקורת על חשבונות בעלי הרשאת 'כניסה כשירות' (SeServiceLogonRight).",
+      "category": "Экспресс-аудит",
+      "icon": "⚙️"
+    },
+    "winadmin-audit-rdp": {
+      "title": "ביקורת גישת שולחן עבודה מרוחק",
+      "summary": "בודק משתמשים וקבוצות בעלי הרשאה להתחברות מרחוק באמצעות פרוטוקול RDP.",
+      "category": "Экспресс-аудит",
+      "icon": "🖥️"
+    },
+    "winadmin-audit-orphaned": {
+      "title": "ביקורת פרופילים יתומים",
+      "summary": "מזהה תיקיות פרופיל משתמש בדיסק שאינן מקושרות עוד לאף חשבון פעיל.",
+      "category": "Экспресс-аудит",
+      "icon": "⚠️"
+    },
+    "winadmin-acl-takeown": {
+      "title": "קבלת בעלות",
+      "summary": "העברת הבעלות על הקובץ, התיקייה או מפתח הרישום שנבחרו לקבוצת מנהלי המערכת.",
+      "category": "ACL Операции",
+      "icon": "🔑"
+    },
+    "winadmin-acl-reset": {
+      "title": "איפוס הרשאות ברירת מחדל",
+      "summary": "משחזר הרשאות ירושה תקניות של Windows על אובייקט המערכת הנבחר.",
+      "category": "ACL Операции",
+      "icon": "↩️"
+    },
+    "winadmin-acl-backup": {
+      "title": "גיבוי רשימת ACL",
+      "summary": "מייצא את הרשאות הגישה הנוכחיות לקובץ גיבוי מאובטח לפני ביצוע שינויים.",
+      "category": "ACL Операции",
+      "icon": "💾"
+    },
+    "winadmin-acl-rollback": {
+      "title": "שחזור רשימת ACL",
+      "summary": "משחזר הרשאות גישה שנשמרו בעבר על גבי אובייקט המערכת.",
+      "category": "ACL Операции",
+      "icon": "⏮️"
+    },
+    "winadmin-acl-inspect": {
+      "title": "בדיקת פרטי הרשאות ACL",
+      "summary": "מציג רשומות בקרת גישה מפורטות (DACL / ACE) עבור האובייקט הנבחר.",
+      "category": "ACL Операции",
+      "icon": "🔍"
+    },
+    "winadmin-acl-grant": {
+      "title": "הענקת הרשאות גישה",
+      "summary": "מעניק הרשאות קריאה, כתיבה או שליטה מלאה למשתמש או לקבוצה מוגדרת.",
+      "category": "ACL Операции",
+      "icon": "✍️"
+    },
+    "winadmin-filter-hidden": {
+      "title": "סינון חשבונות מוסתרים",
+      "summary": "מציג חשבונות מערכת מובנים ומושבתים (DefaultAccount, Guest ועוד).",
+      "category": "Фильтры пользователей",
+      "icon": "👁️"
+    },
+    "winadmin-filter-admins": {
+      "title": "סינון מנהלי מערכת",
+      "summary": "מסנן את הרשימה להצגת חשבונות השייכים לקבוצת Administrators בלבד.",
+      "category": "Фильтры пользователей",
+      "icon": "🛡️"
+    },
+    "proc-engine-status": {
+      "title": "סטטוס מנוע הבדיקה",
+      "summary": "קצב דגימת טלמטריה נוכחי ומצב תקינות תהליכי הרקע של מפקח המערכת.",
+      "category": "Безопасность процессов",
+      "icon": "🟢"
+    },
+    "proc-global-refresh": {
+      "title": "רענון כלל התהליכים",
+      "summary": "מרענן את טבלת התהליכים, היררכיית העצים, מונים של זיכרון וידיות קבצים פתוחות.",
+      "category": "Управление монитором",
+      "icon": "🔄"
+    },
+    "proc-subtab-manager": {
+      "title": "לשונית מנהל המשימות",
+      "summary": "תצוגת מנהל משימות המארגנת יישומים, תהליכי רקע ועצי תהליכי מערכת של Windows.",
+      "category": "Диспетчер задач",
+      "icon": "📑"
+    },
+    "proc-subtab-top": {
+      "title": "זרם תהליכים מובילים",
+      "summary": "דירוג בזמן אמת של התהליכים הצורכים את כמות המשאבים הגבוהה ביותר (מעבד וזיכרון).",
+      "category": "Мониторинг нагрузки",
+      "icon": "⚡"
+    },
+    "proc-subtab-net": {
+      "title": "לשונית פעילות רשת",
+      "summary": "מעקב חי אחר חיבורי TCP/UDP פעילים, פורטים מאזינים וקצבי העברת נתונים של תהליכים.",
+      "category": "ניטור רשת",
+      "icon": "🌐"
+    },
+    "proc-subtab-files": {
+      "title": "זרם פעולות קבצים",
+      "summary": "פיד בזמן אמת של יצירת קבצים, שינויים ומחיקות בדיסק באמצעות ReadDirectoryChangesW.",
+      "category": "Файловый мониторинг",
+      "icon": "📁"
+    },
+    "proc-subtab-leaks": {
+      "title": "איתור דליפות משאבים",
+      "summary": "זיהוי תהליכים בעלי הצטברות חריגה של ידיות (Handles), אובייקטי GDI/USER ודליפות זיכרון.",
+      "category": "Диагностика сбоев",
+      "icon": "🛡️"
+    },
+    "pm-card-apps": {
+      "title": "יישומים אינטראקטיביים",
+      "summary": "סינון להצגת יישומי שולחן עבודה בעלי ממשק חלונות גרפי הנמצאים בשימוש.",
+      "category": "Категории процессов",
+      "icon": "🪟"
+    },
+    "pm-card-bg": {
+      "title": "תהליכי רקע",
+      "summary": "סינון להצגת תהליכי שירות ותוכניות עזר ברקע הפועלות ללא ממשק משתמש.",
+      "category": "Категории процессов",
+      "icon": "⚙️"
+    },
+    "pm-card-win": {
+      "title": "תהליכי מערכת Windows",
+      "summary": "סינון מבודד להצגת שירותי ליבה ותהליכים חיוניים של מערכת ההפעלה Windows.",
+      "category": "Система Windows",
+      "icon": "🪟"
+    },
+    "pm-card-all": {
+      "title": "כלל התהליכים",
+      "summary": "תצוגה כוללת של כל התהליכים הפועלים במערכת בכל ההפעלות והמשתמשים.",
+      "category": "Сводка системы",
+      "icon": "📊"
+    },
+    "pm-refresh": {
+      "title": "רענון עץ התהליכים",
+      "summary": "בונה מחדש את היררכיית עץ התהליכים ומחשב מחדש את מדדי הקבוצות המצטברים.",
+      "category": "Управление",
+      "icon": "🔄"
+    },
+    "pm-category-filters": {
+      "title": "בורר קטגוריות",
+      "summary": "מעבר מהיר בין קטגוריות יישומים, תהליכי רקע ותהליכי מערכת של Windows.",
+      "category": "סינון",
+      "icon": "🔘"
+    },
+    "pm-toggle-expand": {
+      "title": "הרחבת כל העצים",
+      "summary": "מרחיב או מכווץ את כל קבוצות התהליכים הראשיות והיררכיות תהליכי המשנה.",
+      "category": "Интерфейс",
+      "icon": "↕️"
+    },
+    "pm-ai-modal": {
+      "title": "דרכון תהליך",
+      "summary": "בדיקת אבטחה, חתימה דיגיטלית, מפת זיכרון וטלמטריה של התהליך הנבחר.",
+      "category": "ИИ Анализ",
+      "icon": "🤖"
+    },
+    "pm-investigate-ps": {
+      "title": "חקירת פקודות PowerShell",
+      "summary": "חילוץ פרמטרי שורת פקודה פעילים, בלוקי סקריפטים ועצי תהליך אב לבדיקה.",
+      "category": "Расследование угроз",
+      "icon": "🔍"
+    },
+    "pm-prompt-settings": {
+      "title": "הגדרות מפקח",
+      "summary": "הגדרת ספי התרעה לעומס מעבד גבוה, שימוש מופרז בזיכרון ואנומליות של תהליכים.",
+      "category": "Настройки ИИ",
+      "icon": "⚙️"
+    },
+    "proc-top-pause": {
+      "title": "השהיית זרם",
+      "summary": "מקפיא את זרם התהליכים המובילים כדי לאפשר בדיקה של עליות עומס קצרות.",
+      "category": "Управление потоком",
+      "icon": "⏸️"
+    },
+    "proc-top-refresh": {
+      "title": "רענון תהליכים מובילים",
+      "summary": "בקשה מיידית לשליפת התהליכים בעלי צריכת המשאבים הגבוהה ביותר כעת.",
+      "category": "Управление потоком",
+      "icon": "🔄"
+    },
+    "proc-net-filter-internet": {
+      "title": "סינון חיבורי אינטרנט",
+      "summary": "מציג אך ורק חיבורי אינטרנט חיצוניים, ומסנן תקשורת מקומית פנימית (127.0.0.1).",
+      "category": "Сетевые фильтры",
+      "icon": "🌐"
+    },
+    "proc-net-pause": {
+      "title": "השהיית ניטור רשת",
+      "summary": "מקפיא את טבלת חיבורי הרשת כדי לאפשר ניתוח של חיבורים קיימים.",
+      "category": "ניטור רשת",
+      "icon": "⏸️"
+    },
+    "proc-net-refresh": {
+      "title": "רענון חיבורי רשת",
+      "summary": "דוגם חיבורי רשת פעילים, מצבי סוקטים וקצבי העברת נתונים לפי תהליך.",
+      "category": "ניטור רשת",
+      "icon": "🔄"
+    },
+    "proc-watch-badge": {
+      "title": "תיקייה מנוטרת",
+      "summary": "נתיב תיקיית מערכת הקבצים הנמצאת כעת תחת מעקב אחר שינויים ויצירת קבצים.",
+      "category": "Файловый мониторинг",
+      "icon": "📁"
+    },
+    "proc-watch-exclusions": {
+      "title": "חריגות ניטור קבצים",
+      "summary": "הגדרת תיקיות וסיומות קבצים המוחרגות ממעקב (כגון log.*, tmp.*) למניעת עומס נתונים.",
+      "category": "Файловый мониторинг",
+      "icon": "🛡️"
+    },
+    "proc-watch-change-dir": {
+      "title": "שינוי תיקיית יעד לניטור",
+      "summary": "בחירת נתיב תיקייה אחר בכל כונן מקומי למעקב אחר שינויי קבצים בזמן אמת.",
+      "category": "Файловый мониторинг",
+      "icon": "📂"
+    },
+    "proc-watch-refresh": {
+      "title": "ניקוי ורענון אירועים",
+      "summary": "מנקה את זיכרון האירועים ושולף אירועי מערכת קבצים אחרונים מ-Windows.",
+      "category": "Файловый мониторинг",
+      "icon": "🔄"
+    },
+    "diag-leaks-total": {
+      "title": "תהליכים מנוטרים",
+      "summary": "המספר הכולל של תהליכי Windows הנמצאים תחת מעקב לאיתור דליפות משאבים.",
+      "category": "איתור דליפות משאבים",
+      "icon": "💻"
+    },
+    "diag-leaks-suspicious": {
+      "title": "אנומליות דליפה חשודות",
+      "summary": "תהליכים עם קצב גידול ידיות או אובייקטי GDI החורג מסף הבטיחות התקין.",
+      "category": "איתור דליפות משאבים",
+      "icon": "⚠️"
+    },
+    "diag-leaks-handles": {
+      "title": "שיא שימוש בידיות (Handles)",
+      "summary": "התהליך המחזיק במספר הגבוה ביותר של ידיות אובייקטי ליבה פתוחות.",
+      "category": "איתור דליפות משאבים",
+      "icon": "📦"
+    },
+    "diag-leaks-gdi": {
+      "title": "שיא אובייקטי גרפיקה (GDI)",
+      "summary": "התהליך הצורך את הכמות הגבוהה ביותר של אובייקטי GDI מול מגבלת 10,000 ב-Windows.",
+      "category": "איתור דליפות משאבים",
+      "icon": "🎨"
+    },
+    "diag-leaks-filters": {
+      "title": "סינון חומרת דליפות",
+      "summary": "סינון טבלת תהליכים לפי רמת סיכון לדליפה, מספר ידיות גבוה או שימוש חריג ב-GDI.",
+      "category": "איתור דליפות משאבים",
+      "icon": "🔍"
+    },
+    "diag-leaks-refresh": {
+      "title": "ביקורת דליפות משאבים",
+      "summary": "מבצע בדיקה בזמן אמת של ידיות תהליכים, אובייקטי GDI/USER וקצב שגיאות דפדוף בזיכרון.",
+      "category": "איתור דליפות משאבים",
+      "icon": "🔄"
+    },
+    "dwm.exe": {
+      "title": "מנהל חלונות שולחן העבודה (DWM)",
+      "summary": "מנהל חלונות של Windows האחראי על רינדור אפקטים חזותיים, האצת חומרה והרכבת תצוגה.",
+      "category": "Системный компонент Windows",
+      "icon": "🪟"
+    },
+    "dwm": {
+      "title": "מנהל חלונות שולחן העבודה (DWM)",
+      "summary": "מנהל חלונות של Windows האחראי על רינדור אפקטים חזותיים, האצת חומרה והרכבת תצוגה.",
+      "category": "Системный компонент Windows",
+      "icon": "🪟"
+    },
+    "explorer.exe": {
+      "title": "סייר Windows (Explorer)",
+      "summary": "מעטפת המשתמש המספקת את שורת המשימות, שולחן העבודה, תפריט ההתחלה וניהול קבצים.",
+      "category": "מעטפת Windows",
+      "icon": "📁"
+    },
+    "explorer": {
+      "title": "סייר Windows (Explorer)",
+      "summary": "מעטפת המשתמש המספקת את שורת המשימות, שולחן העבודה, תפריט ההתחלה וניהול קבצים.",
+      "category": "מעטפת Windows",
+      "icon": "📁"
+    },
+    "svchost.exe": {
+      "title": "תהליך מארח לשירותי Windows (svchost)",
+      "summary": "תהליך מערכת המארח שירותי רקע מבוססי DLL המחולקים לפי רמות בידוד והרשאות אבטחה.",
+      "category": "Служебный хост Windows",
+      "icon": "⚙️"
+    },
+    "svchost": {
+      "title": "תהליך מארח לשירותי Windows (svchost)",
+      "summary": "תהליך מערכת המארח שירותי רקע מבוססי DLL המחולקים לפי רמות בידוד והרשאות אבטחה.",
+      "category": "Служебный хост Windows",
+      "icon": "⚙️"
+    },
+    "taskhostw.exe": {
+      "title": "מארח משימות Windows (taskhostw)",
+      "summary": "מבצע משימות מתוזמנות, פעולות תחזוקה ברקע וסקריפטים של טלמטריית אירועים.",
+      "category": "Планировщик задач",
+      "icon": "⏱️"
+    },
+    "taskhostw": {
+      "title": "מארח משימות Windows (taskhostw)",
+      "summary": "מבצע משימות מתוזמנות, פעולות תחזוקה ברקע וסקריפטים של טלמטריית אירועים.",
+      "category": "Планировщик задач",
+      "icon": "⏱️"
+    },
+    "lsass.exe": {
+      "title": "רשות האבטחה המקומית (LSASS)",
+      "summary": "תהליך אבטחה קריטי של Windows המנהל אימותי כניסה, אסימוני זיהוי ומדיניות אבטחה מקומית.",
+      "category": "Безопасность ядра",
+      "icon": "🛡️"
+    },
+    "lsass": {
+      "title": "רשות האבטחה המקומית (LSASS)",
+      "summary": "תהליך אבטחה קריטי של Windows המנהל אימותי כניסה, אסימוני זיהוי ומדיניות אבטחה מקומית.",
+      "category": "Безопасность ядра",
+      "icon": "🛡️"
+    },
+    "csrss.exe": {
+      "title": "תת-מערכת הלקוח-שרת (CSRSS)",
+      "summary": "רכיב תת-מערכת Win32 חיוני המנהל חלונות קונסולה, כיבוי תהליכים ויצירת תהליכונים.",
+      "category": "Системное ядро Win32",
+      "icon": "⚙️"
+    },
+    "csrss": {
+      "title": "תת-מערכת הלקוח-שרת (CSRSS)",
+      "summary": "רכיב תת-מערכת Win32 חיוני המנהל חלונות קונסולה, כיבוי תהליכים ויצירת תהליכונים.",
+      "category": "Системное ядро Win32",
+      "icon": "⚙️"
+    },
+    "services.exe": {
+      "title": "מנהל בקרת השירותים (SCM)",
+      "summary": "מתניע, עוצר, מנטר ומנהל את שירותי הרקע ותלויות מנהלי ההתקנים של Windows.",
+      "category": "Управление службами",
+      "icon": "🛠️"
+    },
+    "services": {
+      "title": "מנהל בקרת השירותים (SCM)",
+      "summary": "מתניע, עוצר, מנטר ומנהל את שירותי הרקע ותלויות מנהלי ההתקנים של Windows.",
+      "category": "Управление службами",
+      "icon": "🛠️"
+    },
+    "smss.exe": {
+      "title": "מנהל ההפעלות (SMSS)",
+      "summary": "תהליך מצב המשתמש הראשון המופעל על ידי הליבה, יוצר את קובצי ההחלפה, סביבת המערכת והפעלות.",
+      "category": "Инициализация сеансов",
+      "icon": "⚡"
+    },
+    "smss": {
+      "title": "מנהל ההפעלות (SMSS)",
+      "summary": "תהליך מצב המשתמש הראשון המופעל על ידי הליבה, יוצר את קובצי ההחלפה, סביבת המערכת והפעלות.",
+      "category": "Инициализация сеансов",
+      "icon": "⚡"
+    },
+    "winlogon.exe": {
+      "title": "יישום הכניסה של Windows (winlogon)",
+      "summary": "מטפל בכניסת משתמשים מאובטחת, רצף תשומת לב מאובטח (Ctrl+Alt+Del) ונעילת שולחן עבודה.",
+      "category": "Сеансы пользователей",
+      "icon": "👤"
+    },
+    "winlogon": {
+      "title": "יישום הכניסה של Windows (winlogon)",
+      "summary": "מטפל בכניסת משתמשים מאובטחת, רצף תשומת לב מאובטח (Ctrl+Alt+Del) ונעילת שולחן עבודה.",
+      "category": "Сеансы пользователей",
+      "icon": "👤"
+    },
+    "wininit.exe": {
+      "title": "אתחול Windows (wininit)",
+      "summary": "מאתחל שירותי מערכת ברקע, יוצר תיקיות שירות ומפעיל את מנהל השירותים (SCM) ו-LSASS.",
+      "category": "Инициализация Windows",
+      "icon": "🚀"
+    },
+    "wininit": {
+      "title": "אתחול Windows (wininit)",
+      "summary": "מאתחל שירותי מערכת ברקע, יוצר תיקיות שירות ומפעיל את מנהל השירותים (SCM) ו-LSASS.",
+      "category": "Инициализация Windows",
+      "icon": "🚀"
+    },
+    "powershell.exe": {
+      "title": "Windows PowerShell",
+      "summary": "מעטפת שורת פקודה ושפת סקריפטים מתקדמת המבוססת על NET. לניהול ואוטומציה של המערכת.",
+      "category": "Интерпретаторы команд",
+      "icon": "⚡"
+    },
+    "powershell": {
+      "title": "Windows PowerShell",
+      "summary": "מעטפת שורת פקודה ושפת סקריפטים מתקדמת המבוססת על NET. לניהול ואוטומציה של המערכת.",
+      "category": "Интерпретаторы команд",
+      "icon": "⚡"
+    },
+    "cmd.exe": {
+      "title": "מעבד הפקודות של Windows (cmd)",
+      "summary": "מפרש שורת פקודה קלאסי של Windows להפעלת קובצי אצווה (Batch) ופקודות קונסולה.",
+      "category": "Консольные утилиты",
+      "icon": "⬛"
+    },
+    "cmd": {
+      "title": "מעבד הפקודות של Windows (cmd)",
+      "summary": "מפרש שורת פקודה קלאסי של Windows להפעלת קובצי אצווה (Batch) ופקודות קונסולה.",
+      "category": "Консольные утилиты",
+      "icon": "⬛"
+    },
+    "conhost.exe": {
+      "title": "מארח חלון הקונסולה (conhost)",
+      "summary": "תהליך מארח המתווך פעולות קלט/פלט בין שורת הפקודה (cmd, powershell) לממשק המשתמש.",
+      "category": "Консольная подсистема",
+      "icon": "🪟"
+    },
+    "conhost": {
+      "title": "מארח חלון הקונסולה (conhost)",
+      "summary": "תהליך מארח המתווך פעולות קלט/פלט בין שורת הפקודה (cmd, powershell) לממשק המשתמש.",
+      "category": "Консольная подсистема",
+      "icon": "🪟"
+    },
+    "msmpeng.exe": {
+      "title": "שירות האנטי-וירוס (msmpeng)",
+      "summary": "מנוע הסריקה הראשי של Microsoft Defender המבצע הגנה בזמן אמת וניתוח היוריסטי של קבצים.",
+      "category": "Антивирусная безопасность",
+      "icon": "🛡️"
+    },
+    "msmpeng": {
+      "title": "שירות האנטי-וירוס (msmpeng)",
+      "summary": "מנוע הסריקה הראשי של Microsoft Defender המבצע הגנה בזמן אמת וניתוח היוריסטי של קבצים.",
+      "category": "Антивирусная безопасность",
+      "icon": "🛡️"
+    },
+    "runtimebroker.exe": {
+      "title": "Runtime Broker",
+      "summary": "מנהל הרשאות עבור אפליקציות חנות Windows (גישה למצלמה, מיקרופון ומערכת הקבצים).",
+      "category": "Безопасность UWP",
+      "icon": "🔒"
+    },
+    "runtimebroker": {
+      "title": "Runtime Broker",
+      "summary": "מנהל הרשאות עבור אפליקציות חנות Windows (גישה למצלמה, מיקרופון ומערכת הקבצים).",
+      "category": "Безопасность UWP",
+      "icon": "🔒"
+    },
+    "searchindexer.exe": {
+      "title": "אינדוקס החיפוש של Windows",
+      "summary": "בונה אינדקס חיפוש ברקע עבור קבצים, הודעות דוא\"ל ומטא-דאטה להאצת החיפוש במחשב.",
+      "category": "Индексация поиска",
+      "icon": "🔍"
+    },
+    "searchindexer": {
+      "title": "אינדוקס החיפוש של Windows",
+      "summary": "בונה אינדקס חיפוש ברקע עבור קבצים, הודעות דוא\"ל ומטא-דאטה להאצת החיפוש במחשב.",
+      "category": "Индексация поиска",
+      "icon": "🔍"
+    },
+    "spoolsv.exe": {
+      "title": "שירות ניהול ההדפסה (spoolsv)",
+      "summary": "מנהל תורי הדפסה במערכת, מתאם עיבוד מסמכים ותקשורת מול מנהלי התקנים של מדפסות.",
+      "category": "Печать и периферия",
+      "icon": "🖨️"
+    },
+    "spoolsv": {
+      "title": "שירות ניהול ההדפסה (spoolsv)",
+      "summary": "מנהל תורי הדפסה במערכת, מתאם עיבוד מסמכים ותקשורת מול מנהלי התקנים של מדפסות.",
+      "category": "Печать и периферия",
+      "icon": "🖨️"
+    },
+    "system": {
+      "title": "תהליך ליבת המערכת (PID 4)",
+      "summary": "תהליך מיוחד המארח תהליכוני ליבה, מנהלי התקני חומרה והקשרי ביצוע של המערכת.",
+      "category": "Ядро операционной системы",
+      "icon": "💻"
+    },
+    "registry": {
+      "title": "תהליך רישום המערכת (Registry)",
+      "summary": "תהליך ליבה המייעל את שמירת המטמון של מפתחות הרישום ודחיסת הזיכרון במערכת.",
+      "category": "Подсистема реестра",
+      "icon": "🗝️"
+    },
+    "cloudflared.exe": {
+      "title": "סוכן מנהרת Cloudflare",
+      "summary": "תהליך רקע מוצפן של Zero Trust המחבר שירותי רשת מקומיים ישירות לרשת הענן של Cloudflare.",
+      "category": "Сетевые туннели",
+      "icon": "☁️"
+    },
+    "cloudflared": {
+      "title": "סוכן מנהרת Cloudflare",
+      "summary": "תהליך רקע מוצפן של Zero Trust המחבר שירותי רשת מקומיים ישירות לרשת הענן של Cloudflare.",
+      "category": "Сетевые туннели",
+      "icon": "☁️"
+    },
+    "ctfmon.exe": {
+      "title": "שירות קלט טקסט ושפות (ctfmon)",
+      "summary": "מנהל את שורת השפות, פריסות המקלדת ושירותי קלט הטקסט המתקדמים של Windows (TSF).",
+      "category": "Ввод и локализация",
+      "icon": "⌨️"
+    },
+    "ctfmon": {
+      "title": "שירות קלט טקסט ושפות (ctfmon)",
+      "summary": "מנהל את שורת השפות, פריסות המקלדת ושירותי קלט הטקסט המתקדמים של Windows (TSF).",
+      "category": "Ввод и локализация",
+      "icon": "⌨️"
+    },
+    "overview": {
+      "title": "סקירה ושירותים",
+      "summary": "לוח בקרה מרוכז לניטור מצב שירותי Windows Defender, רכיבי הגנה פעילים וגרסאות חתימות האיומים.",
+      "category": "Windows Defender",
+      "icon": "📊"
+    },
+    "proc-top-ai-modal": {
+      "title": "דרכון טלמטריה של תהליך",
+      "summary": "דרכון תהליך מפורט הכולל מדדי מעבד, זיכרון, ידיות מערכת הפעלה, סוקטים ופעילות קבצים.",
+      "category": "מנהל המשימות",
+      "icon": "🔬"
+    },
+    "proc-top-prompt-settings": {
+      "title": "הגדרת כללי תהליכים",
+      "summary": "הגדרת כללי ביקורת תהליכים, ספי התרעה לדליפות משאבים ופרופילי בדיקה.",
+      "category": "הגדרות",
+      "icon": "⚙️"
+    },
+    "sw-orphans": {
+      "title": "שאריות תוכנה יתומות",
+      "summary": "איתור קבצים שנותרו, תיקיות ריקות ונתיבי רישום שבורים לאחר הסרת תוכנות.",
+      "category": "ביקורת תוכנה",
+      "icon": "🗑️"
+    },
+    "sw-startup": {
+      "title": "תוכניות בהפעלה אוטומטית",
+      "summary": "ביקורת על מפתחות הפעלה ברישום, תיקיות הפעלה ומשימות מתוזמנות בעליית Windows.",
+      "category": "הפעלה אוטומטית",
+      "icon": "🚀"
+    },
+    "throttling": {
+      "title": "תרוטלינג וחום חומרה",
+      "summary": "זיהוי תרוטלינג תרמי של המעבד (PROCHOT), מגבלות מתח PL1/PL2 ושיהויי DPC/ISR.",
+      "category": "ניטור חומרה",
+      "icon": "🌡️"
+    },
+    "internals-logs": {
+      "title": "מרכז יומנים",
+      "fullTitle": "מרכז יומנים פנימיים של ai-tc",
+      "summary": "צפייה ביומנים פנימיים של תוכנת ai-tc",
+      "category": "יומנים",
+      "icon": "📜"
+    },
+    "logs": {
+      "title": "מרכז יומנים",
+      "fullTitle": "מרכז יומנים פנימיים של ai-tc",
+      "summary": "צפייה ביומנים פנימיים של תוכנת ai-tc",
+      "category": "יומנים",
+      "icon": "📜"
+    }
+  },
+  "logSettingsHelp": {
+    "composite": {
+      "title": "Help: Windows Event Log Settings & Rotation",
+      "badge": "Module #tab-app-internals#settings",
+      "desc": "Interactive management center for Windows Event Logs, command line audit policies, rotation presets, incremental SQLite telemetry collection, and event inspection.",
+      "quickNav": "Sections:"
+    },
+    "nav": {
+      "kpi": "KPI Cards",
+      "domains": "7 Domains",
+      "channels": "Channels & Quotas",
+      "security": "Audit & Bookmark",
+      "provenance": "Graph & Lifecycle",
+      "inspector": "Event Inspector"
+    },
+    "kpiCards": {
+      "title": "1. Summary KPI Status Cards",
+      "badge": "Real-time overview",
+      "intro": "Four top widgets display live telemetry of the Windows Event Log subsystem and background security collector:",
+      "secTitle": "Security Log (EVTX)",
+      "secDesc": "Displays file size of Security.evtx, maximum size quota, fill progress bar, total records, and channel status.",
+      "cmdlineTitle": "CommandLine Audit (Event 4688)",
+      "cmdlineDesc": "Displays the status of ProcessCreationIncludeCmdLine_Enabled registry policy. Allows toggling command-line logging.",
+      "collectorTitle": "Telemetry.db Collector & Bookmark",
+      "collectorDesc": "Controls incremental collection into telemetry.db: shows stored events, latest processed Record ID bookmark, and sync time.",
+      "sysmonTitle": "7 Domains Hierarchy & Sysmon",
+      "sysmonDesc": "Checks Sysmon service/driver status, aggregates total records across all 7 OS domains, and provides force refresh button."
+    },
+    "domains": {
+      "title": "2. 7 OS Domains & Provider Catalog",
+      "intro": "Organizes hundreds of Windows Event Log channels into 7 logical telemetry domains plus Sysmon observability:",
+      "d1": "Logons (4624/4625), privileges, and account management.",
+      "d2": "Process lifecycle (4688/4689), scheduled tasks, services.",
+      "d3": "NTFS, Disk, StorPort, VSS shadow copies, block I/O errors.",
+      "d4": "DNS client, WFP firewall, SMB, TCP/IP connections, adapters.",
+      "d5": "KB patches, Servicing, reboot states, rollback events.",
+      "d6": "Kernel-PnP, driver loading, WHEA hardware errors, USB.",
+      "d7": "Kernel-Power (41, 107), sleep, hibernation, BSOD BugChecks.",
+      "d8": "Image hashes, network connects, memory injection, DNS queries.",
+      "catalogHowToTitle": "How to use the provider catalog:",
+      "catalogHowToDesc": "Clicking any domain card filters the provider table with key Event IDs, traffic volume rating, and recommended collection method."
+    },
+    "channels": {
+      "title": "3. Channel Parameters & Quotas",
+      "intro": "Table manager for all Windows Event Log channels to control disk quotas, record ID ranges, and rotation policies:",
+      "configModalTitle": "Channel Configuration",
+      "cfg1": "Max Size: manual input in MB or quick presets (20 MB to 2 GB).",
+      "cfg2": "Enabled: toggle event logging on or off.",
+      "cfg3": "AutoBackup: automatically archive full log to .evtx.",
+      "cfg4": "Retention: circular FIFO buffer policy or overwrite protection.",
+      "clearModalTitle": "Safe Clear with Backup",
+      "clearModalDesc": "Clear log modal with default automatic backup creation to temp directory.",
+      "clearNote": "Clearing Security log automatically triggers audit Event ID 1102."
+    },
+    "security": {
+      "title": "4. Security Audit & Telemetry Collector",
+      "policyTitle": "Audit Policy & Privileges",
+      "policyDesc": "Controls ProcessCreationIncludeCmdLine_Enabled registry setting required for Process Provenance and AI telemetry.",
+      "privDesc": "Verifies SeSecurityPrivilege on the server process for accessing Security log.",
+      "bookmarkTitle": "Incremental Collector & Bookmark",
+      "bookmarkDesc": "Collector stores last processed Bookmark RecordID in telemetry.db:",
+      "bm1": "Set Bookmark: enter specific Record ID or leave blank to jump to current end of log.",
+      "bm2": "Manual Collect: pick batch size (100 to 5000) and run collection immediately."
+    },
+    "provLifecycle": {
+      "title": "5. Process Provenance & OS Lifecycle",
+      "provTitle": "Process Provenance Graph",
+      "provDesc": "Reconstructs causation tree: User → Process → Parent Process → Service → Scheduled Task from Event 4688 logs.",
+      "provUsage": "Enter executable name and click Build Graph to view ancestry and child processes.",
+      "lifecycleTitle": "OS Lifecycle (Boot / Sleep / Crash)",
+      "lifecycleDesc": "Builds chronological timeline of system power states: BOOT → LOGIN → SLEEP → WAKE → SHUTDOWN / CRASH.",
+      "lifecycleUsage": "Select analysis time window (24h to 30d) to spot unexpected reboots (Kernel-Power 41) and BSOD BugChecks."
+    },
+    "inspector": {
+      "title": "6. Event Inspector (Master-Detail)",
+      "intro": "Dual-pane investigation tool for querying live channels and normalized SQLite telemetry:",
+      "filtersTitle": "Quick Filters & Search:",
+      "f1": "Event ID shortcuts: 4688, 4624, 4625, 1102.",
+      "f2": "Multi-criteria filter: level, user, process, and keyword search.",
+      "detailTitle": "Event Detail View:",
+      "detailDesc": "Selecting any row displays timestamps, user accounts, process PID, command-line arguments, and raw JSON data."
+    }
+  },
+  "helppagesEditor": {
+    "title": "Help Pages & Blocks Editor",
+    "subtitle": "Manage hierarchical atomic blocks and composite web interface help pages",
+    "btnCreate": "Create Block / Page",
+    "btnRefresh": "Refresh",
+    "treeTitle": "Pages Catalog",
+    "btnPreview": "Test 80vw×80vh Modal",
+    "btnSave": "Save",
+    "lintWarning": "Warning: Hardcoded HEX/RGB styles detected. Please use theme CSS variables and classes.",
+    "hintsText": "Standard: bg-body, bg-body-tertiary containers, ui-badge, composition via data-help-include."
+  },
+  "systemControlHelp": {
+    "composite": {
+      "title": "Help: Windows Crash Control & Logs Center",
+      "badge": "Module #tab-system-control",
+      "desc": "Interactive monitoring center for kernel crashes (BSOD), power lifecycle, classic Windows Event Logs, Microsoft Defender security events, digital forensics, and hardware thermal throttling.",
+      "quickNav": "Sections:"
+    },
+    "nav": {
+      "summary": "Summary Dashboard",
+      "eventLogs": "Event Logs",
+      "power": "Power Lifecycle",
+      "defender": "Defender",
+      "forensics": "Forensics",
+      "throttling": "Core Throttling"
+    },
+    "summary": {
+      "title": "1. Summary Dashboard",
+      "badge": "Kernel stability & crashes",
+      "intro": "Operational aggregated monitoring panel for hardware and software operating system failures:",
+      "bsodTitle": "BSOD Dumps & BugCheck Crashes",
+      "bsodDesc": "Displays counts and decoded details of Windows kernel crashes (BSOD, LiveKernelReports, BugCheck stop codes).",
+      "powerTitle": "Power Failures (Kernel-Power 41)",
+      "powerDesc": "Captures unexpected power outages, forced reboots, and freezes where system shutdown was not clean.",
+      "gpuTitle": "GPU / CPU Throttling & WHEA",
+      "gpuDesc": "Analyzes Windows Hardware Error Architecture (WHEA-Logger) events, PROCHOT thermal limits, and TDR GPU resets.",
+      "anomTitle": "Suspicious Activity",
+      "anomDesc": "Summary of elevated privilege process executions, brute-force logon spikes, and audit log wiping."
+    },
+    "eventLogs": {
+      "title": "2. Event Logs Center",
+      "badge": "Channel tree & viewer",
+      "intro": "Multi-functional inspection center for over 1,000 Windows Event Log channels with analytic views:",
+      "mLive": "Live Events:",
+      "mLiveDesc": "Real-time streaming view of selected channel records with live polling toggle.",
+      "mDigest": "Smart Digest (EDA):",
+      "mDigestDesc": "Intelligent deduplication and clustering of repeated messages, highlighting frequency anomalies.",
+      "mRag": "Semantic RAG Search:",
+      "mRagDesc": "Natural language search for root causes using local knowledge base vector embeddings.",
+      "mHeatmap": "GitHub Activity Heatmap:",
+      "mHeatmapDesc": "Hourly and daily error activity heatmap with incident severity indicators.",
+      "exportTitle": "Export & Data Extraction:",
+      "exportDesc": "Export button in header allows downloading filtered records as JSON or CSV."
+    },
+    "power": {
+      "title": "3. Power Lifecycle & Sessions",
+      "badge": "Kernel sessions & uptime",
+      "intro": "Chronological reconstruction of OS runtime sessions, sleep transitions, and abnormal shutdowns:",
+      "sessionsTitle": "OS Sessions & Uptime Table",
+      "sessionsDesc": "Every row shows continuous session: boot time, shutdown time, uptime, and termination type.",
+      "sleepTitle": "Sleep / Hibernate / Modern Standby",
+      "sleepDesc": "Logs low-power state transitions (Kernel-Power 42) and wake events (Event 107) with wake source details.",
+      "bugcheckTitle": "BugCheck Stop Code Inspection",
+      "bugcheckDesc": "Clicking any crash session displays hex error code, 4 BugCheck parameters, and minidump link.",
+      "batteryTitle": "Battery & AC/DC Telemetry",
+      "batteryDesc": "Captures power source transitions (AC / Battery) and state of charge during critical events."
+    },
+    "defender": {
+      "title": "4. Microsoft Defender Logs",
+      "badge": "Antivirus security events",
+      "intro": "Auditing panel for Microsoft-Windows-Windows Defender/Operational channel:",
+      "threatsTitle": "Threat & Malware Detection",
+      "threatsDesc": "Event 1116 and 1117: threat identification, severity, file path, initiator process, and remediation.",
+      "sigTitle": "Signature & Intelligence Updates",
+      "sigDesc": "Event 2000: installed signature definition versions, ASR rules state, and cloud sync status.",
+      "policyTitle": "Protection Policy Alterations",
+      "policyDesc": "Detects added exclusions (Event 5007) and real-time protection disabling (Event 5001).",
+      "scanTitle": "Disk Scan Auditing",
+      "scanDesc": "Detailed results of quick, full, and scheduled antivirus scans."
+    },
+    "forensics": {
+      "title": "5. Digital Forensics & Artifacts",
+      "badge": "Artifacts & timeline",
+      "intro": "Forensic tools for user actions and background program investigations:",
+      "userAssistTitle": "UserAssist Registry (GUI Executions)",
+      "userAssistDesc": "Decodes ROT13 user registry keys: run counts, last execution timestamp, and active focus duration.",
+      "sensorsTitle": "Hardware Sensor Audit",
+      "sensorsDesc": "Chronological slice of temperatures, voltage drops, USB mounts, and network interfaces.",
+      "timelineTitle": "Unified Chronological Timeline",
+      "timelineDesc": "Minute-by-minute timeline aggregation of logins, volume mounts, clock adjustments, and services.",
+      "privTitle": "Privilege Escalation & UAC",
+      "privDesc": "Tracks User Account Control prompts, runas invocations, and unsigned binary elevation attempts."
+    },
+    "throttling": {
+      "title": "6. Throttling & Core Diagnostics",
+      "badge": "Thermal limits & DPC",
+      "intro": "Hardware diagnostics for performance bottlenecks and frame drop root causes:",
+      "prochotTitle": "PROCHOT & Power Limits (PL1/PL2)",
+      "prochotDesc": "Detects processor thermal trip events, electrical current limits, and CPU throttling downclocks.",
+      "dpcTitle": "DPC / ISR Driver Latency",
+      "dpcDesc": "Analyzes Deferred Procedure Call and Interrupt Service Routine delays causing audio crackles and stutter.",
+      "pcieTitle": "PCIe & NVMe Bus Errors",
+      "pcieDesc": "panel-throttling-pcie tracks PCIe packet transmission errors and NVMe controller resets.",
+      "memoryTitle": "WHEA Memory Errors (ECC / Corrected)",
+      "memoryDesc": "Accounting for corrected and uncorrected RAM and CPU L1/L2/L3 cache errors."
+    }
+  },
+  "softwareMonitorHelp": {
+    "composite": {
+      "title": "Help: Installed Software & Software Monitor (Software Hub)",
+      "badge": "Module #tab-software-monitor",
+      "desc": "Centralized software inventory tool, package managers (WinGet, MSI, Store, Ninite), dormant and orphan software detection, startup auditor, AI transparency risks, heavy resources, and sockets.",
+      "quickNav": "Sections:"
+    },
+    "nav": {
+      "inventory": "Software Inventory",
+      "packages": "Packages & Store",
+      "dormant": "Dormant & Orphans",
+      "startup": "Startup Auditor",
+      "transparency": "AI Transparency",
+      "heavySockets": "Heavy & Sockets"
+    },
+    "inventory": {
+      "title": "1. Software Inventory",
+      "badge": "Full Inventory",
+      "intro": "Centralized inventory table of installed software across architectures (x64, x86/WoW6432Node, MSIX/AppX):",
+      "sourcesTitle": "Software Detection Sources",
+      "sourcesDesc": "Queries HKLM/HKCU Uninstall keys, AppX manifests, Program Files folders, and MSI database.",
+      "uninstallTitle": "Quiet Uninstall",
+      "uninstallDesc": "Allows executing silent removal (/qn, /silent, /verysilent) without installer UI dialogs."
+    },
+    "packages": {
+      "title": "2. Package Managers (WinGet, MSI, Store, Ninite)",
+      "badge": "Package Management",
+      "intro": "Unified control plane for Windows package management:",
+      "wingetTitle": "WinGet (Windows Package Manager)",
+      "wingetDesc": "Search, install, and batch upgrade (winget upgrade --all) packages from Microsoft community repository.",
+      "storeTitle": "Microsoft Store (UWP / MSIX)",
+      "storeDesc": "Inventory and management of isolated Store applications, checking package manifests and clearing cache.",
+      "msiTitle": "Windows Installer Database (MSI)",
+      "msiDesc": "Direct Windows Installer API interaction: validating cached .msi files in C:\\Windows\\Installer.",
+      "niniteTitle": "Ninite Auto-Updater",
+      "niniteDesc": "Background batch updates for popular utilities without adware or third-party toolbars."
+    },
+    "dormant": {
+      "title": "3. Dormant Apps & Orphans",
+      "badge": "Cleanup & Footprints",
+      "intro": "Deep usage analysis based on UserAssist, Prefetch, and Task Scheduler artifacts:",
+      "dormantTitle": "Dormant Applications (>90 days untouched)",
+      "dormantDesc": "Identifies rarely launched software taking up disk space by comparing install date with Prefetch timestamps.",
+      "orphansTitle": "Orphan Remnants & Leftovers",
+      "orphansDesc": "Locates abandoned services, scheduler tasks, missing binaries in startup registry, and residual AppData folders."
+    },
+    "startup": {
+      "title": "4. Startup Auditor",
+      "badge": "Boot Optimization",
+      "intro": "Auditing all Windows startup extension points impacting boot time and background resource usage:",
+      "locationsTitle": "Startup Extension Points (Registry & Folders)",
+      "locationsDesc": "Scans Run, RunOnce, RunServices, Startup folders, and Windows Logon task triggers.",
+      "impactTitle": "Startup Impact",
+      "impactDesc": "Estimates boot delay severity and provides immediate toggle (Enable / Disable)."
+    },
+    "transparency": {
+      "title": "5. AI Software Transparency & Risk Audit",
+      "badge": "AI Security Analysis",
+      "intro": "Multi-level application security auditing powered by neural models:",
+      "sigTitle": "Authenticode Digital Signatures",
+      "sigDesc": "Validates certificate chains, signature integrity, and highlights unsigned suspicious executables.",
+      "aiTitle": "AI Risk & Reputation Scoring",
+      "aiDesc": "Evaluates potential risks (PUP/Adware, miners, excessive permissions) and outputs actionable advice."
+    },
+    "heavySockets": {
+      "title": "6. Heavy Resources & Network Sockets",
+      "badge": "Resources & Network",
+      "intro": "Real-time telemetry of resource usage and network activity of running software:",
+      "heavyTitle": "Heavy Resource Apps",
+      "heavyDesc": "Detects processes consuming significant CPU shares, private memory, and intense disk I/O.",
+      "socketsTitle": "Sockets & Listening Ports",
+      "socketsDesc": "Displays open TCP/UDP ports, listening sockets, and established connections mapped to PID."
+    }
+  },
+  "processesInspectorHelp": {
+    "composite": {
+      "title": "Help: Windows Host Process Monitoring & Load Inspector",
+      "badge": "Module #tab-processes-load-inspector",
+      "desc": "Interactive process telemetry and Windows task management: live streaming load inspection (CPU/RAM/Disk), network sockets, real-time file changes, resource leak hunter, and Deep Dive process dossiers with SafeOps actions.",
+      "quickNav": "Sections:"
+    },
+    "nav": {
+      "manager": "Process Manager",
+      "topStream": "Top Stream",
+      "network": "Network Activity",
+      "fileChanges": "File Changes",
+      "leakHunter": "Leak Hunter",
+      "deepDive": "Deep Dive & SafeOps"
+    },
+    "manager": {
+      "title": "1. Process Manager & Task Tree",
+      "badge": "Task Manager",
+      "intro": "Hierarchical Windows Task Manager with processes organized by category, sub-processes, and application windows:",
+      "appsTitle": "Applications (Apps) & Background Services",
+      "appsDesc": "Separates desktop GUI applications, background services, and core Windows processes with child process trees.",
+      "guardTitle": "PID Recycling Guard",
+      "guardDesc": "Protection against OS PID reuse: avoids sending control signals to wrong processes by verifying process creation timestamps."
+    },
+    "topStream": {
+      "title": "2. Host Top Processes (Live Stream)",
+      "badge": "Streaming Monitor",
+      "intro": "High-frequency real-time monitoring of host top resource consumers:",
+      "metricsTitle": "Load Metrics (CPU, RAM, Disk, IOPS)",
+      "metricsDesc": "Displays CPU utilization percentage, private working set memory, disk read/write bandwidth, and IOPS.",
+      "drilldownTitle": "Drill-Down Action",
+      "drilldownDesc": "Clicking the binoculars icon in any process row opens the Process Intelligence Deep Dive modal."
+    },
+    "network": {
+      "title": "3. Program Network Activity (Sockets & Traffic)",
+      "badge": "Network Telemetry",
+      "intro": "Per-process network traffic inspection via Windows IP Helper API:",
+      "connectionsTitle": "Active Connections (TCP / UDP)",
+      "connectionsDesc": "Displays local IP/port, remote host, domain name, socket status (ESTABLISHED, LISTENING), and owning process.",
+      "speedTitle": "Throughput Bandwidth",
+      "speedDesc": "Measures inbound and outbound traffic in real time to spot background downloads and leaks."
+    },
+    "fileChanges": {
+      "title": "4. Real-Time File Changes (ReadDirectoryChangesW)",
+      "badge": "File Tracking",
+      "intro": "Low-level file system change capture via Windows kernel notifications:",
+      "eventsTitle": "Event Types (Created, Modified, Renamed, Deleted)",
+      "eventsDesc": "Displays continuous feed of file operations across observed drives and directory trees.",
+      "actorTitle": "Correlating Initiating Processes",
+      "actorDesc": "Maps file events to open file handles of active processes to pinpoint modifying programs."
+    },
+    "leakHunter": {
+      "title": "5. Resource Leak Hunter",
+      "badge": "Handles & Memory Leaks",
+      "intro": "Heuristic analyzer for system resource degradation and OS exhaustion limits:",
+      "gdiTitle": "GDI & USER Object Leaks",
+      "gdiDesc": "Windows limits GDI handles to 10,000 per process. Tracks brushes, fonts, and device contexts to prevent desktop freezes.",
+      "handlesTitle": "Kernel Handles & Page Faults",
+      "handlesDesc": "Detects monotonic handle leaks (files, events, mutexes) and hard page fault spikes."
+    },
+    "deepDive": {
+      "title": "6. Instance Dossier (Deep Dive) & SafeOps Actions",
+      "badge": "7 Widgets & SafeOps",
+      "intro": "Comprehensive profile of chosen process instance:",
+      "chartsTitle": "4 Synchronized Chart.js Time Series",
+      "chartsDesc": "Real-time charts: CPU %, Private Bytes RAM, Disk I/O, and Handle count.",
+      "lineageTitle": "Process Lineage Tree",
+      "lineageDesc": "Displays ancestry chain and child process tree with command-line arguments.",
+      "safeopsTitle": "Safe Operations (SafeOps)",
+      "safeopsDesc": "Process priority adjustment, CPU core affinity, suspend/resume, and safe termination.",
+      "aiDocTitle": "AI Dossier & Process Intelligence",
+      "aiDocDesc": "One-click AI assistant generates vendor legitimacy checks, risk ratings, and configuration suggestions.",
+      "w1Title": "Widget 1: Instance Profile",
+      "w1Desc": "Accurate PID, Creation Time, executable hash, owning User SID, Authenticode signature status, and complete CommandLine.",
+      "w2Title": "Widget 2: SafeOps Actions",
+      "w2Desc": "Safe lifecycle management: Priority Class adjustment, CPU Affinity mask, thread Suspend/Resume, and graceful/forced termination.",
+      "w3Title": "Widget 3: 4 Synchronized Chart.js Time Series",
+      "w3Desc": "Dynamic synchronized charts: CPU % utilization, Private Bytes RAM, Disk I/O bandwidth, and Handle count.",
+      "w4Title": "Widget 4: Lineage Hierarchy",
+      "w4Desc": "Tree pedigree of the process: parent (PPID), grandparent, and launched child processes.",
+      "w5Title": "Widget 5: OS, GDI & USER Handles",
+      "w5Desc": "Handle leak audit: open file descriptors, registry keys, synchronization mutexes, and GDI/USER graphical objects.",
+      "w6Title": "Widgets 6 & 7: Sockets & File Feed",
+      "w6Desc": "Network connections (TCP/UDP, remote host, port, state) and feed of recent file I/O operations."
+    }
   }
 }

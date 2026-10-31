@@ -163,3 +163,4 @@ class TaskbarConfigManager:
         base_settings["alignment_label"] = self.get_alignment()
         base_settings["is_win11"] = self.is_win11
         return base_settings
+

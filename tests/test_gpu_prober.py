@@ -91,3 +91,4 @@ def test_wddm_error_does_not_break_probe(monkeypatch: pytest.MonkeyPatch) -> Non
     monkeypatch.setattr(prober, '_query_wddm_counters', lambda: ({}, {}))
     gpus = prober.probe_all()
     assert [g.name for g in gpus] == ['Intel(R) UHD Graphics']
+

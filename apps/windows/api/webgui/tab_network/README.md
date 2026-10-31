@@ -3,7 +3,7 @@
 **Статус:** ✅ Активен  
 **Язык:** Русский  
 **Автор:** hypo69  
-**Обновлено:** 2026-10-20 18:35:00
+**Обновлено:** 2026-10-28 16:30:00
 
 ---
 
@@ -43,6 +43,10 @@ tab_network/
 ```
 
 ---
+
+### 🔬 Диагностика сетевой инфраструктуры (панели panel-network-*)
+
+В тот же блок меню #network-subtabs-nav добавлены панели с DOM-идентификаторами panel-network-overview, panel-network-adapters (бывший 	ab-net-adapters, дополнен инвентаризацией), panel-network-switches, panel-network-ip-config, panel-network-nat, panel-network-wsl, panel-network-diagnostics, panel-network-history. Переключение — штатный Bootstrap-механизм + существующий обработчик shown.bs.tab в main.js. Код: panel_infra/{api,render,panel}.js. Backend и документация: [sdk/modules/network/infra](../../../sdk/modules/network/infra/README.md), API /api/network/infra/*.
 
 ## 🚀 Основные эндпоинты API
 

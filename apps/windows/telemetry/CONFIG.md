@@ -2,7 +2,7 @@
 
 Файл `config.json` (по умолчанию располагающийся в `%ProgramData%/AI-Windows-Admin/apps/windows/telemetry/config.json` для всей системы) является центральным конфигурационным файлом для системы сбора, буферизации, аудита и мониторинга телеметрии Windows в проекте AI-Windows-Admin.
 
-Управление загрузкой, валидацией и модификацией параметров осуществляется модулем [`telemetry_config.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/telemetry/telemetry_config.py) (класс `TelemetryConfigManager`).
+Управление загрузкой, валидацией и модификацией параметров осуществляется модулем [`telemetry_config.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/telemetry_config.py) (класс `TelemetryConfigManager`).
 
 ---
 
@@ -48,7 +48,7 @@
 
 > [!TIP]
 > **Динамическая регулировка "на лету"**:
-> Все сервисы телеметрии ([`service.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/telemetry/service.py), [`main.py`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/telemetry/main.py), [`TelemetryConfigManager`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/telemetry/telemetry_config.py)) отслеживают время изменения `config.json`. При сохранении файла новые интервалы и настройки подхватываются автоматически **без перезапуска сервиса**.
+> Все сервисы телеметрии ([`service.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/service.py), [`main.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/main.py), [`TelemetryConfigManager`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/telemetry_config.py)) отслеживают время изменения `config.json`. При сохранении файла новые интервалы и настройки подхватываются автоматически **без перезапуска сервиса**.
 > 
 > Поддерживаются как числовые значения в секундах (`5`, `6.0`), так и строковые интервалы (`"5 seconds"`, `"10s"`, `"1 minute"`, `"2 мин"`, `"1 hour"`, `"6 hours"`).
 
@@ -91,26 +91,7 @@
 
 ## 5. Логгеры приложений (`loggers`)
 
-Секция задает периодичность и статус активности фоновых логгеров модулей системы:
-
-| Логгер | Интервал по умолчанию | Описание |
-|---|---|---|
-| `system_inspector` | `5 seconds` | Инспектор системных ресурсов и общей нагрузки ОС. |
-| `hardware_monitor` | `5 seconds` | Монитор аппаратных компонентов и датчиков. |
-| `hardware_sensors` | `5 seconds` | Нативный опрос сенсоров оборудования WMI/CIM и ACPI. |
-| `windows_sysadmin` | `1 minute` | Мониторинг служб, задач и системного окружения. |
-| `windows_defender` | `1 hour` | Состояние антивируса и журнала угроз Defender. |
-| `windows_startup_auditor` | `1 hour` | Аудит программ автозагрузки, планировщика и сервисов. |
-| `windows_backup_manager` | `6 hours` | Мониторинг резервных копий и целостности архивов. |
-| `registry_viewer` | `1 hour` | Отслеживание изменений критических ветвей реестра. |
-| `software_audit` | `1 hour` | Аудит установленного и неиспользуемого ПО. |
-| `website_monitor` | `5 minutes` | Мониторинг доступности внешних сайтов и API. |
-| `gcloud_monitor` | `5 minutes` | Метрики облачной инфраструктуры Google Cloud. |
-| `cloudflared_monitor` | `30 seconds` | Статус туннелей Cloudflare. |
-| `user_assistant` | `5 minutes` | Журнал работы ассистента. |
-| `helpdesk` | `1 minute` | Очередь тикетов и обращений. |
-
----
+Необязательная секция. Словарь `имя_логгера → {параметры}` читается `TelemetryConfigManager` (`telemetry_config.py`) как есть, без предопределённого списка имён: набор логгеров, их интервалы и флаг активности задаются пользователем (через `config.json` или API `router_telemetry_config`). В поставляемом `config.json` секции `loggers` нет.
 
 ## 6. Конфигурация сенсоров (`sensors`)
 
@@ -158,3 +139,64 @@
 | `enable_disk_trace` | `boolean` | ETW-трассировка операций блочного ввода-вывода дисков. |
 | `enable_network_trace` | `boolean` | ETW-трассировка сетевых пакетов TCP/IP. |
 | `enable_registry_trace` | `boolean` | ETW-трассировка операций с ключами реестра. |
+
+
+---
+
+## 9. Многоскоростное ядро (`multi_rate_engine`)
+
+Параметры [`TelemetryEngine`](telemetry_engine.py). Уровни: 3 — realtime, 2 — адаптивные сенсоры, 1 — низкочастотные.
+
+| Параметр | По умолчанию | Описание |
+|---|---|---|
+| `enabled` | `true` | Включить многоскоростное ядро |
+| `level3_realtime_interval_seconds` | `1.0` | Период realtime-тика |
+| `level2_adaptive_initial_interval_seconds` / `_min_` / `_max_` | `2.0` / `0.5` / `30.0` | Начальный/минимальный/максимальный интервал адаптивных сенсоров |
+| `level2_cooldown_ticks`, `level2_backoff_multiplier` | `10`, `1.5` | Число «спокойных» тиков и множитель замедления |
+| `level1_smart_interval_seconds` | `43200` | Опрос SMART |
+| `level1_battery_interval_seconds` | `900` | Опрос батареи |
+| `level1_security_interval_seconds` | `3600` | Опрос журнала Security |
+| `level1_scm_interval_seconds` | `1800` | Опрос служб и задач (SCM) |
+| `level1_schedule_check_interval_seconds` | `60` | Проверка расписаний |
+| `wal_flush_interval_seconds` | `5.0` | Период сброса буфера в SQLite |
+| `ring_buffer_capacity`, `ring_buffer_max_mb` | `600`, `32` | Размер кольцевого буфера |
+| `deadband.*` | см. файл | Пороги значимого изменения (`temperature_c`, `cpu_load_pct`, `freq_mhz`, `power_w`, `fan_rpm`, `network_bytes`, `network_packets`, `disk_space_gb`, `default_threshold`), `heartbeat_interval_seconds` (принудительная запись), `ignore_cumulative_network_spikes` |
+
+## 10. TTL кэшей (`cache_ttls`)
+
+Время жизни кэша (сек) для дорогих проб: `acpi_thermal_ttl_sec`, `storage_smart_ttl_sec`, `cloud_storage_ttl_sec`, `internet_speed_ttl_sec`, `network_adapter_stats_ttl_sec`, `physical_disks_health_ttl_sec`, `forensics_consent_store_ttl_sec`, `forensics_userassist_ttl_sec`, `gpu_probe_ttl_sec`, `disk_partitions_ttl_sec`.
+
+## 11. Пороги (`thresholds`)
+
+Используются детектором инцидентов и анализом утечек:
+
+| Группа | Параметры |
+|---|---|
+| Инциденты | `incident_cpu_pct`, `incident_cpu_critical_pct`, `incident_disk_write_burst_mb_s`, `incident_net_burst_mb_s`, `incident_cooldown_seconds`, `incident_window_before_seconds` |
+| Подозрительная температура | `suspicious_temp_cpu_pct`, `suspicious_temp_critical_cpu_pct`, `individual_process_high_cpu_pct` |
+| Утечки | `leak_candidate_*`, `leak_warning_*`, `leak_critical_*`, `leak_severe_handles`, `leak_warning_gdi`, `leak_critical_gdi`, `leak_warning_user_objects`, `leak_high_page_faults`, `leak_high_memory_mb`, `leaks_scan_every_n_ticks` |
+| DPC / прерывания | `dpc_elevated_pct`, `dpc_severe_pct`, `interrupt_elevated_pct`, `interrupt_severe_pct` |
+
+## 12. Адаптивная частота (`sampling_controller`)
+
+Читается [`SamplingController`](sampling_controller.py):
+
+| Параметр | По умолчанию | Описание |
+|---|---|---|
+| `forensic_interval_sec` / `forensic_duration_sec` | `0.25` / `300` | Форензик-режим |
+| `incident_interval_sec` / `incident_duration_sec` | `1.0` / `1200` | Режим после инцидента |
+| `boot_phase{1,2,3}_max_uptime_sec` | `600` / `3600` / `86400` | Границы фаз после загрузки |
+| `boot_phase{1,2,3}_interval_sec` | `1` / `5` / `30` | Интервалы по фазам |
+| `monitoring_interval_sec`, `normal_interval_sec` | `30`, `60` | Штатные режимы |
+
+## 13. Прочие интервалы
+
+| Параметр | По умолчанию | Описание |
+|---|---|---|
+| `telemetry_mode` | `audit` | `audit` / `live_stream` / `both` / `tc` (см. раздел 2) |
+| `light_poll_interval_seconds` / `heavy_poll_interval_seconds` | `6.0` / `90.0` | Лёгкий и тяжёлый опрос |
+| `heavy_polls_intervals.*` | см. файл | Интервалы отдельных тяжёлых проб: `hardware_audit`, `startup_audit`, `extended_audit`, `defender_audit`, `process_activity_sync`, `software_audit`, `wmi`, `smart`, `handles`, `network_ports`, `network_activity`, `disk_scan` (`0` — отключено) |
+
+---
+
+**Updated:** 2026-10-31 16:25:00

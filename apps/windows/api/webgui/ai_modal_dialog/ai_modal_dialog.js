@@ -11,7 +11,7 @@
  * Package: apps.windows.api.webgui.ai_modal_dialog
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 05:56:00
+ * Updated: 2026-10-31 19:16:00
  * =============================================================================
  */
 
@@ -34,7 +34,7 @@ export class AIModalDialog {
 if (typeof window !== 'undefined') {
   if (!window.AIModalDialog) {
     const script = document.createElement('script');
-    script.src = '/html/ai_modal_dialog/main.js?v=20261017_v7';
+    script.src = '/html/ai_modal_dialog/main.js?v=20261031_v2';
     document.head.appendChild(script);
   }
 }

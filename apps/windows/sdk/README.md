@@ -6,89 +6,107 @@
 
 ## 🏛️ Архитектура SDK
 
+SDK — один из трёх основных модулей проекта (вместе с [`telemetry`](../telemetry/README.md) и [`api`](../api/README.md)). Слои зависят строго сверху вниз: `modules` → `core` → `features`/`drivers` → `native`/`win32_ffi`.
+
 ```
 apps/windows/sdk/
-├── __init__.py           # Корневой экспорт SDK и исключений
-├── client.py             # Единый фасад WindowsSDK (windows_sdk)
-├── exceptions.py         # Иерархия типизированных исключений (Exceptions Hierarchy)
-├── README.md             # Полная документация архитектуры и примеры использования
+├── __init__.py           # Корневой экспорт SDK (WindowsSDK, windows_sdk, подсистемы)
+├── client.py             # Фасад WindowsSDK: native / drivers / features / core / modules
+├── exceptions.py         # Иерархия типизированных исключений
+├── dynamic_runner.py     # Исполнение динамически сгенерированного кода инструментов
+├── security_ast.py       # AST-проверка динамического кода (запрещённые конструкции)
+├── security_policy.json  # Политика безопасности для security_ast / dynamic_runner
 │
-├── native/               # [Слой 1] Низкоуровневые C-FFI / ctypes биндинги Win32 API
-│   ├── kernel32.py       # Память, дескрипторы, потоки, системная информация
-│   ├── advapi32.py       # Токены, SID, аудит, привилегии
-│   ├── psapi.py          # Перечисление процессов и модулей
-│   ├── pdh.py            # Счетчики производительности PDH
-│   ├── iphlpapi.py       # Сетевые сокеты и адаптеры
-│   ├── scm.py            # Service Control Manager FFI
-│   ├── setupapi.py       # PnP устройства и DriverStore
-│   ├── wevtapi.py        # Windows Event Log FFI (курсоры, подписки, закладки)
-│   ├── ntdll.py          # Прямые вызовы Native NT API
-│   ├── etw.py            # Event Tracing for Windows
-│   └── error.py          # Расшифровка Win32 / NTSTATUS / HRESULT ошибок
+├── native/               # [Слой 1] ctypes-биндинги Win32 (см. native/README.md)
+│   ├── kernel32.py, advapi32.py, psapi.py, ntdll.py, pdh.py
+│   ├── iphlpapi.py, nethelper.py   # Сетевые сокеты и адаптеры
+│   ├── scm.py, tasksched.py        # Service Control Manager, Task Scheduler
+│   ├── setupapi.py, etw.py         # PnP / DriverStore, ETW
+│   └── error.py, error_decoder.py  # Win32Error, расшифровка Win32/NTSTATUS/HRESULT
 │
-├── drivers/              # [Слой 2] Управление драйверами и аппаратные каталоги
-│   └── __init__.py       # GPU Hardware Detector, каталоги NVIDIA/AMD, Downloader
+├── win32_ffi/            # Единый пакет FFI-классов (Kernel32API, PsapiAPI, WevtAPI,
+│                         #   ServiceControlManager, IPHelperAPI, ...); используется
+│                         #   телеметрией (telemetry/win32_ffi — мост на этот пакет)
 │
-├── features/             # [Слой 3] Windows Optional Features (DISM / PowerShell)
-│   └── manager.py        # Включение/отключение компонентов с контролем зависимостей
+├── drivers/              # [Слой 2] GPU-детектор, каталоги NVIDIA/AMD, загрузчик драйверов
+├── features/             # [Слой 3] Windows Optional Features (DISM/PowerShell): manager.py
 │
-├── core/                 # [Слой 4] Ядро SafeOps, системный аудит и аналитика
-│   ├── winapi.py         # Высокоуровневые обертки WinAPI
-│   ├── safe_executor.py  # SafeOps движок (Dry-Run, симуляция, точки отката)
-│   ├── diagnostics.py    # Расчет индекса здоровья системы (Health Score)
-│   ├── correlation_engine.py # Анализ взаимосвязей сбоев и аномалий
-│   ├── root_cause_engine.py  # Граф расследования первопричин (Root-Cause)
-│   ├── system_restore.py     # Точки восстановления Windows System Restore
-│   ├── power_monitor.py      # Отслеживание состояний питания (Power-Aware Monitoring)
-│   ├── system_param_manager.py # Менеджер безопасного тюнинга параметров ОС
-│   ├── process_audit_manager.py # Аудит и построение дерева процессов
-│   └── system32_catalog.py   # Каталог 149 системных утилит Windows
+├── core/                 # [Слой 4] Ядро SafeOps, аудит, аналитика, инструменты ИИ
+│   ├── safe_executor.py, safe_ops.py   # Dry-Run, оценка риска, точки отката
+│   ├── system_restore.py, system_param_manager.py
+│   ├── diagnostics.py, correlation_engine.py, root_cause_engine.py
+│   ├── process_audit_manager.py, process_activity_engine.py, etw_pipeline.py
+│   ├── software_audit.py, software_transparency.py, defender_manager.py
+│   ├── atomic_capabilities.py, atomic_models.py, agent_loop.py,
+│   │   universal_langchain_agent.py, closed_loop_remediation.py
+│   ├── system32_catalog.py, system32_models.py, build_command_registry.py
+│   ├── audits/           # 14 унифицированных коллекторов аудита
+│   ├── tools/            # ToolRegistry, BaseTool, DynamicToolFactory (см. tools/README.md)
+│   └── tool_chains/      # Планирование и запуск цепочек инструментов
 │
-└── modules/              # [Слой 5] 27 специализированных доменных подсистем
-    ├── hardware/         # Нативные датчики, GPU, температуры, WMI/CIM
-    ├── network/          # Сканер портов, сокеты, замеры скорости
-    ├── storage_manager/  # Диски, SMART, тома, клон и бенчмарк DiskSpd
-    ├── explorer_manager/ # Стартовое представление и Folder Options Проводника
-    ├── shell_namespace/  # Known Folders, Shell Libraries, Shell URI
-    ├── backup_manager/   # Резервное копирование, File History, VSS-снимки
-    ├── defender/         # Windows Defender, правила, исключения
-    ├── firewall_manager/ # Брандмауэр Windows
-    ├── services_manager/ # Службы Windows (запуск, остановка, автозапуск)
-    ├── task_scheduler/   # Планировщик заданий
-    ├── registry/         # Безопасный доступ к реестру
-    ├── process_manager/  # Управление процессами
-    ├── taskbar/          # Панель задач и трей
-    ├── window_control_plane/ # Управление окнами и фокусом
-    └── ...               # Прочие доменные модули
+├── display/              # Конфигурация дисплеев (display_config.py)
+├── settings/             # Каталог и resolver настроек Windows, верификация применения
+├── shell/                # Конфигурация панели задач (taskbar_config.py)
+├── software_scanner/     # Сканер ПО: probes, correlator, orphan_detector, report
+│
+└── modules/              # [Слой 5] 31 доменная подсистема
 ```
+
+### Доменные модули (`modules/`)
+
+| Группа | Модули |
+|---|---|
+| Оборудование и сеть | `hardware`, `network`, `sound`, `performance_tracing`, `extended_inspectors` |
+| Диски и бэкапы | `storage_manager`, `backup_manager`, `system_checkpoints`, `boot_recovery`, `servicing_integrity` |
+| Безопасность | `defender`, `firewall_manager`, `security_acl`, `accounts_identity`, `event_logs` |
+| Администрирование | `services_manager`, `task_scheduler`, `process_manager`, `registry`, `startup`, `sysadmin`, `system_control_center`, `software_manager` |
+| Оболочка и UI | `explorer_manager`, `shell_namespace`, `taskbar`, `window_control_plane`, `focus_policy`, `personalization`, `regional` |
+| Расследование | `programms_history_deep_researh` (история запуска программ: реестр, артефакты, отчёт) |
+
+Фасад `windows_sdk.modules` лениво отдаёт: `hardware`, `network`, `network_discovery`, `storage`, `defender`, `firewall`, `services`, `task_scheduler`, `registry`, `process_manager`, `taskbar`, `window_control_plane`, `software_scanner`, `regional`. Остальные модули импортируются напрямую из `apps.windows.sdk.modules.<имя>`.
+
+> [!IMPORTANT]
+> Модули SDK **не пишут** в `telemetry.db` самостоятельно: сбор и запись идут через слой телеметрии (исключение — узкие хранилища вроде `personalization/store.py`, `core/tool_chains/storage.py`).
 
 ---
 
 ## ⚠️ Система исключений SDK (Exceptions Hierarchy)
 
-Все сбои и ошибки подсистем строго типизированы и наследуются от базового класса [`WindowsSDKError`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/sdk/exceptions.py#L22-L46):
+Все сбои и ошибки подсистем строго типизированы и наследуются от базового класса [`WindowsSDKError`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/exceptions.py#L22-L46):
 
 ```mermaid
 classDiagram
     Exception <|-- WindowsSDKError
     WindowsSDKError <|-- NativeCallError
     WindowsSDKError <|-- SafeOpsViolationError
+    WindowsSDKError <|-- SystemRestorePointError
+    WindowsSDKError <|-- DiagnosticEngineError
+    WindowsSDKError <|-- ParameterValidationError
     WindowsSDKError <|-- DriverSubsystemError
     WindowsSDKError <|-- WindowsFeatureError
     WindowsSDKError <|-- ModuleOperationError
 
     NativeCallError <|-- Win32NativeError
+    NativeCallError <|-- InvalidHandleError
     Win32NativeError <|-- AccessDeniedSDKError
     AccessDeniedSDKError <|-- PrivilegeElevationRequiredError
-
     SafeOpsViolationError <|-- DryRunExecutionError
-    WindowsSDKError <|-- SystemRestorePointError
+
+    DriverSubsystemError <|-- DriverNotFoundError
+    DriverSubsystemError <|-- HardwareProbeError
+    DriverSubsystemError <|-- DriverDownloadError
+    WindowsFeatureError <|-- FeatureNotFoundError
+    WindowsFeatureError <|-- FeatureInstallationError
 
     ModuleOperationError <|-- RegistryAccessError
     ModuleOperationError <|-- ServiceControlError
     ModuleOperationError <|-- TaskSchedulerError
+    ModuleOperationError <|-- ProcessOperationError
     ModuleOperationError <|-- ExplorerManagerError
+    ModuleOperationError <|-- ShellNamespaceError
     ModuleOperationError <|-- BackupOperationError
+    ModuleOperationError <|-- FirewallConfigurationError
+    ModuleOperationError <|-- DefenderConfigurationError
 ```
 
 ### Пример обработки исключений:
@@ -156,6 +174,6 @@ print(f"NVIDIA Version: {clean_ver}")
 
 ---
 
-**Updated:** 2026-10-10 07:16:00  
+**Updated:** 2026-10-31 16:10:00  
 **Package:** `apps.windows.sdk`  
 **Author:** hypo69

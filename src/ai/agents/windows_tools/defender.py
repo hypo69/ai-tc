@@ -195,3 +195,4 @@ WINDOWS_DEFENDER_TOOLS = [
     windows_defender_audit_security,
     windows_defender_ai_diagnostics,
 ]
+

@@ -22,7 +22,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_software_monitor
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 20:20:00
+Updated: 2026-10-31 18:37:30
 =============================================================================
 -->
 <div class="container-fluid py-2 px-3" id="software-monitor-container">
@@ -33,41 +33,53 @@ Updated: 2026-10-20 20:20:00
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
           <h3 class="tab-header-title panel-header mb-0">Установленные программы и Мониторинг ПО</h3>
-          
         </div>
         <small class="tab-header-subtitle text-secondary">Полная инвентаризация установленных программ Windows (x64/x86/MSIX), отслеживание изменений и обновлений</small>
       </div>
     </div>
-    
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-sm btn-outline-info d-flex align-items-center gap-1.5 shadow-sm"
+              id="software-monitor-help-btn"
+              data-help-url="/html/tab_software_monitor/help/index.html"
+              title="Открыть интерактивную справку по установленным программам и мониторингу ПО">
+        <i class="bi bi-question-circle fs-6"></i>
+        <span class="fw-semibold">Справка по разделу</span>
+      </button>
+    </div>
   </div>
-<!-- Отдельный блок меню суб-вкладок ПОД названием вкладки, расположен слева -->
+<!-- Блок меню переключения панелей на вкладке. Выбранная панель добавляется в url -->
   <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
     <div class="d-flex align-items-center gap-1 flex-wrap" id="software-subtabs-nav" role="tablist">
-      <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-inventory-btn" data-term="sw-inventory" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-inventory" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-inventory-btn" data-panel-id="inventory" data-term="sw-inventory" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-inventory" type="button" role="tab">
         <i class="bi bi-card-checklist text-primary"></i>
         <span>Реестр программ (Инвентарь)</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-packages-btn" data-term="sw-packages" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-packages" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-packages-btn" data-panel-id="packages" data-term="sw-packages" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-packages" type="button" role="tab">
         <i class="bi bi-box-seam text-info"></i>
         <span>Менеджер пакетов (WinGet, MSI, Store &amp; Ninite)</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-dormant-btn" data-term="sw-dormant" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-dormant" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-dormant-btn" data-panel-id="dormant" data-term="sw-dormant" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-dormant" type="button" role="tab">
         <i class="bi bi-clock-history text-warning"></i>
-        <span>Спящие программы и Сироты</span>
+        <span>Спящие программы (Dormant)</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-startup-btn" data-term="sw-startup" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-startup" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-orphans-btn" data-panel-id="orphans" data-term="sw-orphans" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-orphans" type="button" role="tab">
+        <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+        <span>Обнаруженные сироты и остатки</span>
+        <span class="badge bg-danger text-white ms-1" id="sw-orphans-nav-badge" style="display: none;">0</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-startup-btn" data-panel-id="startup" data-term="sw-startup" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-startup" type="button" role="tab">
         <i class="bi bi-rocket-takeoff text-success"></i>
         <span>Автозапуск программ</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-transparency-btn" data-term="sw-transparency" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-transparency" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-transparency-btn" data-panel-id="transparency" data-term="sw-transparency" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-transparency" type="button" role="tab">
         <i class="bi bi-shield-check text-primary"></i>
         <span>ИИ-Аудит прозрачности и рисков</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-heavy-btn" data-term="sw-heavy" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-heavy" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-heavy-btn" data-panel-id="heavy" data-term="sw-heavy" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-heavy" type="button" role="tab">
         <i class="bi bi-lightning-fill text-warning"></i>
         <span>Ресурсоемкие программы</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-sockets-btn" data-term="sw-sockets" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-sockets" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-sw-sockets-btn" data-panel-id="sockets" data-term="sw-sockets" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subpane-sw-sockets" type="button" role="tab">
         <i class="bi bi-hdd-network text-info"></i>
         <span>Конфигурации и сокеты</span>
       </button>
@@ -243,15 +255,28 @@ Updated: 2026-10-20 20:20:00
         </div>
       </div>
 
+    </div>
+
+    <!-- Subpane: Обнаруженные сироты и остатки ПО (Orphans) -->
+    <div class="tab-pane fade" id="subpane-sw-orphans" role="tabpanel" data-panel-id="panel-software-scanner-orphans">
       <!-- Блок обнаруженных сирот и остатков -->
-      <div class="card bg-dark text-white border-danger mb-3 shadow-sm" id="panel-software-scanner-orphans" data-panel-id="panel-software-scanner-orphans" style="display: none;">
+      <div class="card bg-dark text-white border-danger mb-3 shadow-sm" id="panel-software-scanner-orphans" data-panel-id="panel-software-scanner-orphans">
         <div class="card-header bg-danger bg-opacity-10 border-danger d-flex align-items-center justify-content-between py-2 px-3">
-          <span class="fw-semibold small text-danger">
-            <i class="bi bi-exclamation-triangle-fill me-1"></i> Обнаруженные сироты (битые службы, задачи и удаленные папки)
-          </span>
-          <span class="badge bg-danger text-white" id="sw-orphans-count-badge">0</span>
+          <div class="d-flex align-items-center gap-2">
+            <span class="text-danger fs-5">⚠️</span>
+            <div>
+              <span class="fw-semibold small text-danger d-block">
+                Обнаруженные сироты (битые службы, задачи планировщика, остатки реестра и удаленные папки)
+              </span>
+              <small class="text-muted" style="font-size: 0.75rem;">Компоненты программного обеспечения, оставшиеся в системе после неполного удаления или повреждения</small>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-secondary-subtle text-secondary border border-secondary small d-none d-md-inline" title="Нажмите на любую строку для вызова ИИ-помощника"><i class="bi bi-robot me-1"></i>Клик по строке для ИИ-анализа</span>
+            <span class="badge bg-danger text-white fs-6 px-2.5 py-1" id="sw-orphans-count-badge">0</span>
+          </div>
         </div>
-        <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+        <div class="table-responsive" style="max-height: 560px; overflow-y: auto;">
           <table class="table table-dark table-hover mb-0 align-middle small">
             <thead class="table-dark text-secondary sticky-top border-secondary">
               <tr>
@@ -261,6 +286,11 @@ Updated: 2026-10-20 20:20:00
               </tr>
             </thead>
             <tbody id="sw-orphans-table-body">
+              <tr>
+                <td class="text-center py-4 text-muted" colspan="3">
+                  Загрузка обнаруженных сирот и остатков ПО...
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

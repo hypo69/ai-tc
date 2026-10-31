@@ -99,3 +99,4 @@ class UserInterestProfile:
             interaction_count=int(data.get("interaction_count", 0)),
             updated_at=data.get("updated_at", datetime.now(timezone.utc).isoformat()),
         )
+

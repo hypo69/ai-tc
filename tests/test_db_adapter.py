@@ -124,3 +124,4 @@ def test_global_db_adapter_import():
     assert hasattr(global_adapter, "fetch_all")
     assert hasattr(global_adapter, "execute")
     assert global_adapter.ping() is True
+

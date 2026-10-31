@@ -257,4 +257,4 @@ class SetupAPI:
         finally:
             self._SetupDiDestroyDeviceInfoList(h_dev_info)
 
-        return dates
+        return dates

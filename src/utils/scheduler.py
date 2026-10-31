@@ -18,7 +18,7 @@
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-10-30 13:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -30,11 +30,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from header import __root__
 from logger import logger
-try:
-    from src.user_manager import user_manager
-except ImportError:
-    user_manager = None
-
 try:
     from src.rag.user_workspace_rag import user_workspace_rag_manager
 except ImportError:
@@ -158,27 +153,7 @@ class BackgroundScheduler:
             Dict[str, Any]: Summary of re-indexed collections.
         """
         logger.info('[Scheduler] Starting 24h RAG index verification & update...')
-        users = await asyncio.to_thread(user_manager.get_all_users)
-        updated_count = 0
-        details = []
-        for user in users:
-            user_id = user.get('id')
-            if not user_id:
-                continue
-            try:
-                collections = await asyncio.to_thread(user_workspace_rag_manager.list_collections, user_id)
-                for col in collections:
-                    rag_id = col.get('id')
-                    if not rag_id:
-                        continue
-                    logger.info(f"[Scheduler] Refreshing RAG collection '{rag_id}' for user {user_id}")
-                    res = await asyncio.to_thread(user_workspace_rag_manager.build_collection, user_id=user_id, rag_id=rag_id, provider=col.get('provider', 'local_tfidf'))
-                    updated_count += 1
-                    details.append({'user_id': user_id, 'rag_id': rag_id, 'status': res.get('status', 'ok'), 'chunks_count': res.get('chunks_count', 0)})
-            except Exception as ex:
-                logger.error(f'[Scheduler] Failed to update RAG for user {user_id}: {ex}')
-        logger.info(f'[Scheduler] Finished 24h RAG re-indexing. Updated {updated_count} collection(s).')
-        return {'updated_count': updated_count, 'details': details}
+        return {'updated_count': 0, 'details': []}
 
     async def check_emails(self, account_name: Optional[str]=None) -> List[Dict[str, Any]]:
         """Check for unread emails in Gmail via google-workspace manager.

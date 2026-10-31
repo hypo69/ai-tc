@@ -11,7 +11,7 @@
 # Package: apps.windows.api.routers.chat
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-22 14:40:00
+# Updated: 2026-10-30 13:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -142,40 +142,11 @@ def get_chat_model(selected_model_name: str, system_instruction: str = "", user_
     return inst
 
 async def _extract_user_auth(fastapi_req: Request) -> tuple[str, str, str, dict]:
-    """Извлекает идентификатор пользователя, системную инструкцию, модель и настройки из JWT/IP без обязательной авторизации."""
+    """Извлекает идентификатор сессии, системную инструкцию, модель и настройки."""
     user_identifier = "1"
-    system_instruction = ""
+    system_instruction = _get_default_system_instruction()
     selected_model = ""
     settings = {}
-
-    try:
-        from apps.windows.api.auth import get_current_user_optional
-        user_data = get_current_user_optional(fastapi_req) if fastapi_req is not None else None
-
-        from src.user_manager import user_manager
-        db_user = None
-        if user_data:
-            if getattr(user_data, 'id', None):
-                db_user = await asyncio.to_thread(user_manager.get_user_by_id, user_data.id)
-            if not db_user and getattr(user_data, 'email', None):
-                db_user = await asyncio.to_thread(user_manager.get_user_by_email, user_data.email)
-
-        if not db_user:
-            db_user = await asyncio.to_thread(user_manager.get_user_by_id, 1)
-
-        if db_user:
-            user_identifier = str(db_user.get('id', 1))
-            settings = await asyncio.to_thread(user_manager.get_user_settings, db_user.get('id', 1)) or {}
-            if settings.get('system_instruction'):
-                system_instruction = settings['system_instruction']
-            if settings.get('model'):
-                selected_model = settings['model']
-    except Exception as e:
-        logger.debug(f"[router_chat] Failed to extract optional user auth: {e}")
-
-    if not system_instruction:
-        system_instruction = _get_default_system_instruction()
-
     return user_identifier, system_instruction, selected_model, settings
 
 def _get_voice_gender_rule(settings: dict) -> str:
@@ -462,3 +433,4 @@ def _normalize_model_and_provider(target_model: str = "", target_provider: str =
         model = f"onnx:{model}"
 
     return model, provider.upper()
+

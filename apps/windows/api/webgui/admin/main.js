@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/admin
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 14:30:00
+ * Updated: 2026-10-30 18:15:00
  * =============================================================================
  */
 
@@ -414,7 +414,10 @@ let currentActiveAdminTabId = null;
 
 function switchTab(targetId) {
   if (!targetId) return;
-  let cleanId = targetId.startsWith('#') ? targetId.slice(1) : targetId;
+  const rawClean = targetId.startsWith('#') ? targetId.slice(1) : targetId;
+  const parts = rawClean.split('#');
+  let cleanId = parts[0];
+  let subPanel = parts[1] || null;
   let tabId = cleanId.startsWith('tab-') ? cleanId : `tab-${cleanId}`;
 
   if (tabId === 'tab-servicing-integrity') {
@@ -544,13 +547,21 @@ function switchTab(targetId) {
   // 3. Notify lifecycle callback
   onTabSwitched(tabId);
 
+  if (subPanel && (tabId === 'tab-user-environment' || tabId === 'tab-user-enviroment')) {
+    setTimeout(() => {
+      if (typeof window.switchUserEnvSubTab === 'function') {
+        window.switchUserEnvSubTab(subPanel, false);
+      }
+    }, 60);
+  }
+
   // 4. Активация новой вкладки
   const newName = tabId.replace(/^tab-/, '').replace(/-([a-z])/g, (_, c) => c.toUpperCase());
   const activateFn = window[`activate${newName[0].toUpperCase() + newName.slice(1)}Tab`];
   if (typeof activateFn === 'function') {
     try { activateFn(); } catch (err) { console.debug('activate hook error:', err); }
   }
-  document.dispatchEvent(new CustomEvent('tab:activated', { detail: { tabId, name: newName } }));
+  document.dispatchEvent(new CustomEvent('tab:activated', { detail: { tabId, name: newName, subPanelId: subPanel } }));
 }
 window.switchTab = switchTab;
 window.switchToTab = switchTab;
@@ -693,9 +704,6 @@ async function initInterface() {
     loadTabContent('chat', `/html/tab_chat/index.html?v=${cb}`, `/html/tab_chat/main.js?v=${cb}`),
     loadTabContent('plugins', `/html/tab_plugins/index.html?v=${cb}`, `/html/tab_plugins/main.js?v=${cb}`),
     loadTabContent('admin', `/html/tab_admin/index.html?v=${cb}`, `/html/tab_admin/main.js?v=${cb}`),
-    loadTabContent('users', `/html/tab_users/index.html?v=${cb}`, `/html/tab_users/main.js?v=${cb}`),
-    loadTabContent('windows-users', `/html/tab_windows_users/index.html?v=${cb}`, `/html/tab_windows_users/main.js?v=${cb}`),
-    loadTabContent('user-directories', `/html/tab_user_directories/index.html?v=${cb}`, `/html/tab_user_directories/main.js?v=${cb}`),
     loadTabContent('google-accounts', `/html/tab_google_accounts/index.html?v=${cb}`, `/html/tab_google_accounts/main.js?v=${cb}`),
     loadTabContent('instructions', `/html/tab_instructions/index.html?v=${cb}`, `/html/tab_instructions/main.js?v=${cb}`),
     loadTabContent('rag', `/html/tab_rag/index.html?v=${cb}`, `/html/tab_rag/main.js?v=${cb}`),

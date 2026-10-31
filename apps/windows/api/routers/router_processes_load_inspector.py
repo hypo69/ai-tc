@@ -416,3 +416,4 @@ def init_router(prefix: str = "/api/v1/tab-processes-load-inspector", **kwargs: 
 
 
 __all__ = ["init_router"]
+

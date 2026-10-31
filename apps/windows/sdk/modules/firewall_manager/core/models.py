@@ -77,3 +77,4 @@ __all__ = [
     'FirewallReport',
     'FirewallRuleActionRequest',
 ]
+

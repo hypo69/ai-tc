@@ -1,7 +1,7 @@
 /**
  * Общие вспомогательные утилиты для вкладки инспектора процессов.
  * Файл: apps/windows/api/webgui/tab_processes_load_inspector/common/ui_utils.js
- * Updated: 2026-10-18 22:50:00
+ * Updated: 2026-10-31 19:25:00
  */
 
 export const TAB_ID = 'tab-processes-load-inspector';
@@ -168,6 +168,14 @@ export function showToast(msg, type = 'info') {
  */
 export function openGenericModal(modalEl) {
   if (!modalEl) return;
+  if (!modalEl._hideAriaBound) {
+    modalEl._hideAriaBound = true;
+    modalEl.addEventListener('hide.bs.modal', () => {
+      if (document.activeElement && modalEl.contains(document.activeElement)) {
+        document.activeElement.blur();
+      }
+    });
+  }
   if (window.bootstrap && window.bootstrap.Modal) {
     try {
       const bs = window.bootstrap.Modal.getOrCreateInstance(modalEl);
@@ -197,6 +205,9 @@ export function openGenericModal(modalEl) {
  */
 export function closeGenericModal(modalEl) {
   if (!modalEl) return;
+  if (document.activeElement && modalEl.contains(document.activeElement)) {
+    document.activeElement.blur();
+  }
   if (window.bootstrap && window.bootstrap.Modal) {
     try {
       const bs = window.bootstrap.Modal.getInstance(modalEl);
@@ -233,14 +244,16 @@ export function getProcessAIInfo(procName) {
 }
 
 /**
- * Генерирует HTML бейджа ИИ для процесса, если по нему есть верифицированная информация.
+ * Генерирует HTML бейджа справки для процесса, если по нему есть описание в базе локализации или кэше.
  * @param {string} procName - Имя процесса.
  * @returns {string} HTML бейджа или пустая строка.
  */
 export function renderAIBadge(procName) {
   const info = getProcessAIInfo(procName);
   if (!info) return '';
-  return `<span class="badge bg-primary-subtle text-primary border border-primary ms-1.5 px-1 py-0.5 ai-proc-badge" style="font-size: 0.68rem; vertical-align: middle; cursor: help;" title="Доступно экспертное описание ИИ (наведите для просмотра)"><i class="bi bi-robot me-1"></i>ИИ</span>`;
+  const clean = String(procName).toLowerCase().trim();
+  const summaryText = info.summary || info.title || 'Доступно экспертное описание ИИ (наведите для просмотра)';
+  return `<span class="badge bg-primary-subtle text-primary border border-primary ms-1.5 px-1 py-0.5 ai-proc-badge" data-ai-tooltip="true" data-term="${escapeHtml(clean)}" data-title="${escapeHtml(info.title || procName)}" data-table-type="process" data-process-name="${escapeHtml(procName)}" data-general-summary="${escapeHtml(summaryText)}" style="font-size: 0.68rem; vertical-align: middle; cursor: help;" title="Доступно экспертное описание ИИ (наведите для просмотра)"><i class="bi bi-robot me-1"></i>ИИ</span>`;
 }
 
 /**

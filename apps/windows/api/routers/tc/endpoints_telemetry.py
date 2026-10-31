@@ -272,3 +272,4 @@ def register_telemetry_endpoints(router: APIRouter) -> None:
         except Exception as exc:
             logger.error(f"[router_tc] Ошибка открытия God Mode: {exc}")
             return {"status": "error", "message": str(exc)}
+

@@ -139,3 +139,4 @@ def test_legacy_process_snapshots_not_null_migration() -> None:
     assert net_row[3] == 'network'
 
 
+

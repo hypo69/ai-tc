@@ -331,3 +331,4 @@ class CheckpointCoordinator:
             self.save_catalog(filtered)
             return True
         return False
+

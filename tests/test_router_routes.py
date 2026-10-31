@@ -30,3 +30,4 @@ BASELINE = json.loads((Path(__file__).parent / 'api_baselines' / 'router_routes.
 def test_routes_unchanged(prefix: str) -> None:
     """Набор маршрутов роутеров совпадает с эталоном, снятым до декомпозиции."""
     assert collect_routes(prefix) == BASELINE[prefix]
+

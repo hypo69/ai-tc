@@ -363,7 +363,6 @@
     "elColProvider": "Источник (Provider)",
     "elColEventId": "Event ID",
     "elColDescription": "Описание события",
-    "modeDefenderLogs": "🛡️ Журналы Defender (Defender Events)",
     "defStatStatus": "Статус защиты Defender 🛡️",
     "defStatStatusSub": "Real-Time / Cloud Protection",
     "defStatThreats": "Обнаруженные угрозы 🚨",
@@ -670,6 +669,52 @@
       "resetFilters": "Сбросить фильтры",
       "loading": "Загрузка базы знаний WikiLLM...",
       "error": "Ошибка загрузки статей с сервера"
+    }
+  },
+  "internals": {
+    "subtabTelemetryLabel": "Телеметрия",
+    "subtabTelemetryTitle": "Мониторинг системных метрик процессора, памяти, дисков и фоновых задач",
+    "subtabModelsLabel": "Модели и API",
+    "subtabModelsTitle": "Управление провайдерами и моделями ИИ (Windows AI, Ollama, Gemini, Foundry Local)",
+    "subtabLogsLabel": "Центр логов",
+    "subtabLogsTitle": "Просмотр внутренних логов программы ai-tc",
+    "subtabEtwLabel": "Трассировка ETW",
+    "subtabEtwTitle": "Низкоуровневая трассировка системных событий ETW ядра Windows",
+    "subtabSettingsLabel": "Параметры",
+    "subtabSettingsTitle": "Управление глобальными конфигурациями и параметрами подсистем",
+    "subtabSystemKnowledgeLabel": "Подсказки по системе",
+    "subtabSystemKnowledgeTitle": "База знаний общих подсказок по системе: локальный файл SQLite, параметры модели и статьи",
+    "subtabInstrumentsLabel": "База инструментов",
+    "subtabInstrumentsTitle": "База инструментов для цепочки размышлений агента: сервер Hostinger, параметры выполнения и каталог",
+    "blockSysStorageLabel": "Хранилище SQLite",
+    "blockSysStorageTitle": "Управление локальным файлом SQLite базы подсказок, проверка схемы и таблиц",
+    "blockSysParamsLabel": "Параметри WikiLLM",
+    "blockSysParamsTitle": "Настройки модели генерации, порога уверенности и контекстного окна",
+    "blockSysArticlesLabel": "Статьи подсказок",
+    "blockSysArticlesTitle": "Каталог и встроенный редактор статей базы знаний подсказок",
+    "blockInstHostingerLabel": "Сервер Hostinger",
+    "blockInstHostingerTitle": "Настройки подключения к удаленному серверу Hostinger (REST PHP API / MariaDB)",
+    "blockInstRuntimeLabel": "Цепочка размышлений",
+    "blockInstRuntimeTitle": "Параметры выполнения инструментов в цепочке размышлений, SafeOps и таймауты",
+    "blockInstCatalogLabel": "Каталог инструментов",
+    "blockInstCatalogTitle": "Просмотр библиотеки инструментов агента, поиск и тестовый запуск",
+    "subtabTooltipsEditorLabel": "Редактор тултипов",
+    "subtabTooltipsEditorTitle": "Редактор всплывающих подсказок и базы знаний тултипов системы"
+  },
+  "tooltips": {
+    "internals-logs": {
+      "title": "Центр логов",
+      "fullTitle": "Центр внутренних логов ai-tc",
+      "summary": "Просмотр внутренних логов программы ai-tc",
+      "category": "Логирование",
+      "icon": "📜"
+    },
+    "logs": {
+      "title": "Центр логов",
+      "fullTitle": "Центр внутренних логов ai-tc",
+      "summary": "Просмотр внутренних логов программы ai-tc",
+      "category": "Логирование",
+      "icon": "📜"
     }
   }
 }

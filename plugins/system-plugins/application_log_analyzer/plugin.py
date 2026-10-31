@@ -397,3 +397,4 @@ class ApplicationLogAnalyzerPlugin(BasePlugin):
 
 # Псевдоним для совместимости
 LogAnalyzerPlugin = ApplicationLogAnalyzerPlugin
+

@@ -69,3 +69,4 @@ def test_ast_parser_extracts_chunks(tmp_path: Path):
     assert "_get_llm" in search_chunk["related_symbols"]
     assert "__init__" in search_chunk["related_symbols"]
     assert "async def search(self, query)" in search_chunk["signature"]
+

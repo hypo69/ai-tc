@@ -65,3 +65,4 @@ def test_windows_router_does_not_contain_broken_nested_route() -> None:
     schema = app.openapi()
     paths = list(schema.get("paths", {}).keys())
     assert not any("window-management/api/v1" in p for p in paths)
+

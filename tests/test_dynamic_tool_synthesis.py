@@ -239,3 +239,4 @@ def test_api_procedural_tools_endpoints(api_client: TestClient) -> None:
     res_del = api_client.delete("/api/v1/procedural-tools/tool_api_disk_calc")
     assert res_del.status_code == 200
     assert res_del.json()["deleted"] is True
+

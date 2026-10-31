@@ -139,3 +139,4 @@ async def get_articles_endpoint(
         total=len(filtered),
         articles=[WikiArticle(**a) for a in filtered],
     )
+

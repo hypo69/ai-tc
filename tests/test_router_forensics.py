@@ -71,3 +71,4 @@ def test_privacy_status_endpoint(client):
     assert "camera_active_apps" in data
     assert "microphone_active_apps" in data
     assert "user_idle_seconds" in data
+

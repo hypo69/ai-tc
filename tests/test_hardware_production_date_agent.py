@@ -132,3 +132,4 @@ def test_decode_edid_and_spd() -> None:
     assert res_ram is not None
     assert res_ram["production_date"] == "2020-W48"
     assert "SPD" in res_ram["production_source"]
+

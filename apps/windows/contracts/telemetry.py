@@ -329,3 +329,4 @@ class CrashDumpArtifact(BaseModel):
     creation_time: str
     stop_code: str = ""
     faulting_driver: Optional[str] = None
+

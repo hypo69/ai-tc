@@ -110,3 +110,4 @@ def test_checkpoint_create_request_validation():
     assert req.checkpoint_type == CheckpointType.BASELINE
     assert req.title == "Чистая Windows"
     assert req.create_restore_point is True
+

@@ -3,21 +3,19 @@
  * Process Name: Windows Web Interface - Global AI Smart Tooltips i18n
  * =============================================================================
  * Description:
- *   Единый интеллектуальный модуль всплывающих подсказок (AI Smart Tooltips).
- *   Позиционирование: строго НАД элементом (placement: top).
- *   Интерактивность: при наведении мыши появляется подсказка с контекстным пояснением.
- *   Проверка кэша ответов: если ответ уже был получен от модели или содержится в базе
- *   знаний, отображается готовое пояснение и кнопка «Узнать больше у модели».
- *   Если ответа еще нет — предлагается кнопка «Обратиться к модели за уточнением».
- *   При запросе уточнения открывается стандартное модальное окно ИИ-ассистента
- *   (window.AIModalDialog.show), а результат кэшируется для мгновенного показа в будущем.
+ *   Единый автономный модуль всплывающих подсказок (Global Tooltips i18n).
+ *   - Полностью отвязан от вызовов моделей ИИ и сетевых задержек.
+ *   - Отображает готовые мультиязычные справочные описания (i18n: ru, en, uk, he).
+ *   - Позиционирование: строго над или под курсором мыши по оси X.
+ *   - Интерактивность: при наведении мыши появляется всплывающая карточка со
+ *     справочной информацией, иконкой, заголовком и категорией.
  *
  * File: global-tooltips-i18n.js
  * Project: ai-windows-admin
  * Package: apps/common/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 14:28:00
+ * Updated: 2026-10-31 19:25:00
  * =============================================================================
  */
 
@@ -62,6 +60,22 @@
       icon: '🧭',
       summary: 'Пошаговый интерактивный гид по ключевым экранам и возможностям веб-интерфейса.',
       category: 'Обучение',
+      source: 'wikillm'
+    },
+    'internals-logs': {
+      title: 'Центр логов',
+      fullTitle: 'Центр внутренних логов ai-tc',
+      icon: '📜',
+      summary: 'Просмотр внутренних логов программы ai-tc',
+      category: 'Логирование',
+      source: 'wikillm'
+    },
+    'tooltips-editor': {
+      title: 'Редактор тултипов',
+      fullTitle: 'Редактор всплывающих подсказок и базы знаний тултипов',
+      icon: '💬',
+      summary: 'Интерактивный редактор, поиск и управление интеллектуальными тултипами системы.',
+      category: 'Администрирование',
       source: 'wikillm'
     },
     'cfa': {
@@ -1266,14 +1280,26 @@
         normKey.replace(/^process:/i, '').replace(/\.exe$/i, '')
       ];
 
-      // 1. Проверяем быстрый in-memory кэш
+      // 1. Проверяем словарь i18n текущего активного языка (ru, en, uk, he)
+      const i18n = window.i18n || (window.parent && window.parent.i18n);
+      const currentLang = (i18n && (i18n.lang || i18n.currentLang)) || 'ru';
+      const dict = (i18n && i18n.translations && i18n.translations[currentLang] && i18n.translations[currentLang].tooltips) || null;
+      if (dict) {
+        for (const v of variations) {
+          if (dict[v]) {
+            return dict[v];
+          }
+        }
+      }
+
+      // 2. Проверяем быстрый in-memory кэш
       for (const v of variations) {
         if (this.memoryCache.has(v)) {
           return this.memoryCache.get(v);
         }
       }
 
-      // 2. Проверяем localStorage
+      // 3. Проверяем localStorage
       const all = this.getAll();
       if (all) {
         for (const v of variations) {
@@ -1284,7 +1310,7 @@
         }
       }
 
-      // 3. Проверяем встроенную базу знаний
+      // 4. Проверяем встроенную базу знаний (резервный fallback)
       for (const v of variations) {
         if (DEFAULT_KNOWLEDGE_BASE[v]) {
           const item = Object.assign({}, DEFAULT_KNOWLEDGE_BASE[v], { isKnowledgeBase: true });
@@ -1324,6 +1350,9 @@
     showTimer: null,
     hideTimer: null,
     isHoveringTooltip: false,
+    lastMouseX: null,
+    lastMouseY: null,
+    moveRafId: null,
 
     /**
      * Создает или возвращает DOM-контейнер для карточки тултипа.
@@ -1345,17 +1374,12 @@
           <div class="ai-smart-tooltip-box">
             <div class="ai-smart-tooltip-header">
               <div class="ai-smart-tooltip-title" id="ai-smart-tooltip-title">
-                <span id="ai-smart-tooltip-icon">🤖</span>
-                <span id="ai-smart-tooltip-title-text">Подсказка ИИ</span>
+                <span id="ai-smart-tooltip-icon">💡</span>
+                <span id="ai-smart-tooltip-title-text">Справка</span>
               </div>
-              <span class="ai-smart-tooltip-badge" id="ai-smart-tooltip-badge">WikiLLM</span>
+              <span class="ai-smart-tooltip-badge" id="ai-smart-tooltip-badge">Справка</span>
             </div>
             <div class="ai-smart-tooltip-body" id="ai-smart-tooltip-body">Загрузка пояснения...</div>
-            <div class="ai-smart-tooltip-footer">
-              <button type="button" class="ai-smart-tooltip-btn" id="ai-smart-tooltip-action-btn">
-                <i class="bi bi-robot"></i> <span id="ai-smart-tooltip-action-text">Узнать больше у модели</span>
-              </button>
-            </div>
             <div class="ai-smart-tooltip-arrow"></div>
           </div>
         `;
@@ -1371,16 +1395,6 @@
           this.isHoveringTooltip = false;
           this.scheduleHide(150);
         });
-
-        // Клик по кнопке обращения к модели в тултипе
-        const actionBtn = el.querySelector('#ai-smart-tooltip-action-btn');
-        if (actionBtn) {
-          actionBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            this.handleActionClick();
-          });
-        }
 
         // Автоматическое скрытие тултипа при скролле страницы или панелей
         window.addEventListener('scroll', () => {
@@ -1405,6 +1419,10 @@
       if (this.hideTimer) {
         clearTimeout(this.hideTimer);
         this.hideTimer = null;
+      }
+      if (this.moveRafId) {
+        cancelAnimationFrame(this.moveRafId);
+        this.moveRafId = null;
       }
     },
 
@@ -1455,7 +1473,11 @@
           const idLower = idStr.toLowerCase();
           const textLower = cleanTitle.toLowerCase();
 
-          if (idLower.includes('cfa') || textLower.includes('cfa') || textLower.includes('ransomware')) {
+          if (idLower.includes('subtab-internals-logs') || idLower.includes('internals-logs')) {
+            key = 'internals-logs';
+          } else if (idLower.includes('tooltips-editor')) {
+            key = 'tooltips-editor';
+          } else if (idLower.includes('cfa') || textLower.includes('cfa') || textLower.includes('ransomware')) {
             key = 'cfa';
           } else if (idLower.includes('asr') || textLower.includes('asr')) {
             key = 'asr';
@@ -1616,10 +1638,12 @@
     },
 
     /**
-     * Отображает интеллектуальный тултип НАД элементом.
+     * Отображает интеллектуальный тултип по горизонтали строго над или под мышкой (ось X).
      * @param {HTMLElement} targetEl Целевой элемент
+     * @param {number|null} [mouseX=null] Координата X курсора мыши
+     * @param {number|null} [mouseY=null] Координата Y курсора мыши
      */
-    show(targetEl) {
+    show(targetEl, mouseX = null, mouseY = null) {
       if (!targetEl || !document.body.contains(targetEl)) return;
 
       const meta = this.resolveElementMeta(targetEl);
@@ -1628,58 +1652,62 @@
       this.activeTarget = targetEl;
       const container = this.ensureContainer();
 
-      // Проверяем наличие ответа в кэше/базе знаний
+      const x = (typeof mouseX === 'number') ? mouseX : this.lastMouseX;
+      const y = (typeof mouseY === 'number') ? mouseY : this.lastMouseY;
+
+      // Проверяем наличие ответа в базе локализации / кэше
       const cached = TooltipCache.get(meta.key);
-      const hasCachedAnswer = Boolean(cached && cached.summary);
+      const hasCachedAnswer = Boolean(cached && (cached.summary || cached.title));
 
       // Заполняем DOM тултипа
       const iconEl = container.querySelector('#ai-smart-tooltip-icon');
       const titleEl = container.querySelector('#ai-smart-tooltip-title-text');
       const badgeEl = container.querySelector('#ai-smart-tooltip-badge');
       const bodyEl = container.querySelector('#ai-smart-tooltip-body');
-      const actionBtn = container.querySelector('#ai-smart-tooltip-action-btn');
-      const actionText = container.querySelector('#ai-smart-tooltip-action-text');
 
-      const displayTitle = (cached && cached.fullTitle) || (cached && cached.title) || meta.title || 'Элемент интерфейса';
+      const displayTitle = (cached && (cached.fullTitle || cached.title)) || meta.title || 'Справка';
       const displayIcon = (cached && cached.icon) || '💡';
+      const displayCategory = (cached && cached.category) || 'Справка';
 
       if (iconEl) iconEl.textContent = displayIcon;
       if (titleEl) titleEl.textContent = displayTitle;
 
-      if (hasCachedAnswer) {
-        // Ответ уже был получен ранее или присутствует в базе знаний WikiLLM
+      if (badgeEl) {
+        badgeEl.textContent = displayCategory;
+        badgeEl.style.display = 'inline-block';
+      }
+
+      const isProcBadge = targetEl.classList?.contains('ai-proc-badge') || Boolean(targetEl.closest?.('.ai-proc-badge'));
+      const procGeneralSummary = targetEl.getAttribute('data-general-summary') || targetEl.closest?.('.ai-proc-badge')?.getAttribute('data-general-summary');
+
+      if (isProcBadge) {
+        if (iconEl) iconEl.textContent = '🤖';
+        if (titleEl) titleEl.textContent = (cached && (cached.fullTitle || cached.title)) || meta.title || 'Процесс Windows';
         if (badgeEl) {
-          badgeEl.textContent = cached.source === 'wikillm' ? 'WikiLLM' : 'Кэш ИИ';
+          badgeEl.textContent = 'WikiLLM (Общие данные)';
+          badgeEl.className = 'ai-smart-tooltip-badge badge border border-success text-success';
           badgeEl.style.display = 'inline-block';
         }
+        if (bodyEl) {
+          bodyEl.textContent = procGeneralSummary || (cached && cached.summary) || 'Общие сведения о программе из базы знаний WikiLLM.';
+        }
+      } else if (hasCachedAnswer && cached.summary) {
         if (bodyEl) {
           bodyEl.textContent = cached.summary;
         }
-        if (actionBtn) {
-          actionBtn.className = 'ai-smart-tooltip-btn';
-        }
-        if (actionText) {
-          actionText.textContent = 'Узнать больше у модели';
-        }
       } else {
-        // Ответ еще не запрашивался
-        if (badgeEl) {
-          badgeEl.textContent = 'Новый термин';
-          badgeEl.style.display = 'inline-block';
-        }
+        // Базовое пояснение из атрибутов элемента или дефолтное описание
+        const fallbackDesc = targetEl.getAttribute('data-original-title') || 
+                             targetEl.getAttribute('title') || 
+                             targetEl.getAttribute('data-bs-title') || 
+                             `Контекстное назначение элемента «${meta.title || displayTitle}».`;
         if (bodyEl) {
-          bodyEl.textContent = `Контекстное назначение элемента «${meta.title}» еще не запрашивалось у модели ИИ. Обратитесь к модели для получения экспертного объяснения.`;
-        }
-        if (actionBtn) {
-          actionBtn.className = 'ai-smart-tooltip-btn btn-ask-model';
-        }
-        if (actionText) {
-          actionText.textContent = 'Обратиться к модели за уточнением';
+          bodyEl.textContent = fallbackDesc;
         }
       }
 
-      // Позиционируем НАД элементом
-      this.positionTooltip(targetEl, container);
+      // Позиционируем по горизонтали НАД или ПОД мышкой (ось X)
+      this.positionTooltip(targetEl, container, x, y);
 
       // Плавно показываем
       container.classList.add('show');
@@ -1687,46 +1715,71 @@
     },
 
     /**
-     * Позиционирует тултип строго НАД целевым элементом (или снизу при полном отсутствии места сверху).
+     * Позиционирует тултип по горизонтали строго над или под мышкой (ось X),
+     * а по вертикали над элементом/мышкой (или снизу при нехватке места сверху).
      * @param {HTMLElement} targetEl Целевой элемент
      * @param {HTMLElement} tipEl Элемент тултипа
+     * @param {number|null} [mouseX=null] Координата X курсора мыши
+     * @param {number|null} [mouseY=null] Координата Y курсора мыши
      */
-    positionTooltip(targetEl, tipEl) {
+    positionTooltip(targetEl, tipEl, mouseX = null, mouseY = null) {
       tipEl.style.display = 'block';
       tipEl.style.visibility = 'hidden';
 
       const rect = targetEl.getBoundingClientRect();
       const tipRect = tipEl.getBoundingClientRect();
 
-      // Вычисляем координаты: строго НАД элементом с зазором 10px в координатах viewport
-      let top = rect.top - tipRect.height - 10;
-      let left = rect.left + (rect.width - tipRect.width) / 2;
+      // Опорная точка по горизонтали (ось X):
+      // Если передана координата мыши, выравниваем тултип строго над или под мышкой.
+      // Иначе центрируем по середине целевого элемента.
+      let targetX = (typeof mouseX === 'number') ? mouseX : (rect.left + rect.width / 2);
+      if (rect.width > 0) {
+        // Ограничиваем targetX в пределах горизонтальных границ целевого элемента
+        targetX = Math.max(rect.left, Math.min(rect.right, targetX));
+      }
 
-      // Ограничение по горизонтальным границам экрана (viewport clamping)
-      const margin = 10;
-      if (left < margin) left = margin;
-      if (left + tipRect.width > window.innerWidth - margin) {
+      // Центрируем карточку тултипа по горизонтали вокруг targetX (ось X над/под мышкой)
+      let left = targetX - (tipRect.width / 2);
+
+      // Ограничение по границам экрана (viewport clamping)
+      const margin = 12;
+      if (left < margin) {
+        left = margin;
+      } else if (left + tipRect.width > window.innerWidth - margin) {
         left = window.innerWidth - margin - tipRect.width;
       }
 
-      // Проверка размещения: тултип ДОЛЖЕН быть НАД строкой.
-      // Размещаем снизу ТОЛЬКО если над элементом физически нет места (< margin)
-      // И снизу места достаточно для полного показа карточки.
-      if (top < margin && (window.innerHeight - rect.bottom) > (tipRect.height + 20)) {
-        top = rect.bottom + 10;
+      // Опорная точка по вертикали (ось Y):
+      const tipHeight = tipRect.height;
+      const spacing = 10;
+      const currentMouseY = (typeof mouseY === 'number') ? mouseY : (rect.top + rect.height / 2);
+
+      // Рассчитываем вертикальную координату размещения НАД мышкой / элементом
+      let topAbove = (typeof mouseY === 'number' && mouseY >= rect.top && mouseY <= rect.bottom)
+        ? (mouseY - tipHeight - spacing)
+        : (rect.top - tipHeight - spacing);
+
+      let top = Math.min(topAbove, rect.top - tipHeight - spacing);
+
+      // Проверка свободного места сверху (размещение НАД или ПОД мышкой):
+      // Если сверху места недостаточно (< margin), размещаем ПОД мышкой/элементом
+      const bottomSpace = window.innerHeight - (Math.max(rect.bottom, currentMouseY) + spacing);
+      if (top < margin && bottomSpace >= tipHeight) {
+        // Размещаем ПОД мышкой / элементом
+        top = Math.max(rect.bottom, currentMouseY) + spacing;
         tipEl.classList.add('placement-bottom');
       } else {
+        // Размещаем НАД мышкой / элементом
         if (top < margin) {
-          top = margin; // Прижимаем к верхнему краю экрана, оставаясь над строкой
+          top = margin; // Прижимаем к верхнему краю экрана при жестком дефиците высоты
         }
         tipEl.classList.remove('placement-bottom');
       }
 
-      // Центрируем стрелочку строго над центром элемента
+      // Центрируем стрелочку точно над/под курсором мыши (targetX) относительно тултипа
       const arrowEl = tipEl.querySelector('.ai-smart-tooltip-arrow');
       if (arrowEl) {
-        const targetCenterX = rect.left + rect.width / 2;
-        const arrowLeft = Math.max(16, Math.min(tipRect.width - 16, targetCenterX - left));
+        const arrowLeft = Math.max(16, Math.min(tipRect.width - 16, targetX - left));
         arrowEl.style.left = `${arrowLeft}px`;
       }
 
@@ -1959,11 +2012,35 @@
         el.removeAttribute('title');
       }
 
-      el.addEventListener('mouseenter', () => {
+      el.addEventListener('mouseenter', (e) => {
         this.clearTimers();
+        if (e && typeof e.clientX === 'number') {
+          this.lastMouseX = e.clientX;
+          this.lastMouseY = e.clientY;
+        }
         this.showTimer = setTimeout(() => {
-          this.show(el);
+          this.show(el, this.lastMouseX, this.lastMouseY);
         }, 180);
+      });
+
+      el.addEventListener('mousemove', (e) => {
+        if (e && typeof e.clientX === 'number') {
+          this.lastMouseX = e.clientX;
+          this.lastMouseY = e.clientY;
+        }
+
+        // Если подсказка уже отображается для этого элемента (например, строка таблицы или карточка),
+        // плавно актуализируем ее положение по оси X над или под курсором мыши
+        if (this.activeTarget === el && this.containerEl && this.containerEl.classList.contains('show')) {
+          if (!this.moveRafId) {
+            this.moveRafId = requestAnimationFrame(() => {
+              this.moveRafId = null;
+              if (this.activeTarget === el && this.containerEl) {
+                this.positionTooltip(el, this.containerEl, this.lastMouseX, this.lastMouseY);
+              }
+            });
+          }
+        }
       });
 
       el.addEventListener('mouseleave', () => {
@@ -2034,6 +2111,9 @@
         '#btn-winadmin-acl-grant',
         '#winadmin-user-filters button',
         '#processes-subtabs-nav .nav-link',
+        '#app-internals-subtabs-nav button',
+        '#wikillm-sys-blocks-nav button',
+        '#instruments-blocks-nav button',
         '#btn-global-refresh',
         '#engine-status-badge',
         '[data-ai-tooltip]',
@@ -2055,7 +2135,7 @@
       if (!el || this.instances.has(el) || el.__aiTooltipBound) return;
 
       // Элементы с AI Smart Tooltip обрабатываются специальным контроллером
-      if (el.matches && el.matches('#defSubTabs .nav-link, #def-tab-cfa-btn, [data-ai-tooltip], [data-term], [id^="btn-def-"], #slc-source-tabs .slc-source-btn, #slc-mode-tabs .slc-subtab-btn, #sum-subtabs-nav .sum-subtab-btn, [id^="btn-slc-"], [id^="btn-sum-"], #software-subtabs-nav .nav-link, #sw-packages-subtabs .nav-link, [id^="sw-btn-"], [id^="subtab-sw-"], #winadmin-subtabs .nav-link, [id^="btn-winadmin-"], [id^="subtab-winadmin-"], [id^="btn-acl-"], [id^="btn-check-"], #processes-subtabs-nav .nav-link, [id^="subtab-proc-"], [id^="pm-"], [id^="btn-proc-"], [id^="btn-diag-leaks-"]')) {
+      if (el.matches && el.matches('#defSubTabs .nav-link, #def-tab-cfa-btn, [data-ai-tooltip], [data-term], [id^="btn-def-"], #slc-source-tabs .slc-source-btn, #slc-mode-tabs .slc-subtab-btn, #sum-subtabs-nav .sum-subtab-btn, [id^="btn-slc-"], [id^="btn-sum-"], #software-subtabs-nav .nav-link, #sw-packages-subtabs .nav-link, [id^="sw-btn-"], [id^="subtab-sw-"], #winadmin-subtabs .nav-link, [id^="btn-winadmin-"], [id^="subtab-winadmin-"], [id^="btn-acl-"], [id^="btn-check-"], #processes-subtabs-nav .nav-link, [id^="subtab-proc-"], [id^="pm-"], [id^="btn-proc-"], [id^="btn-diag-leaks-"], #app-internals-subtabs-nav button, #wikillm-sys-blocks-nav button, #instruments-blocks-nav button, [id^="subtab-internals-"], [id^="btn-block-"]')) {
         AISmartTooltip.bindElement(el);
         return;
       }
@@ -2072,6 +2152,28 @@
 
       if (!titleText) return;
 
+      // Bootstrap 5 (dom/data.js:26) не позволяет привязывать более одного плагина к одному DOM-элементу.
+      // Если элемент управляет вкладками, выпадающими меню, модальными окнами, offcanvas или collapse,
+      // делегируем подсказку контроллеру AISmartTooltip вместо new bootstrap.Tooltip(el).
+      const bsToggle = (el.getAttribute('data-bs-toggle') || '').toLowerCase();
+      const hasOtherBsPlugin = (bsToggle && bsToggle !== 'tooltip') ||
+        el.hasAttribute('data-bs-dismiss') ||
+        Boolean(
+          window.bootstrap && (
+            window.bootstrap.Tab?.getInstance?.(el) ||
+            window.bootstrap.Dropdown?.getInstance?.(el) ||
+            window.bootstrap.Offcanvas?.getInstance?.(el) ||
+            window.bootstrap.Modal?.getInstance?.(el) ||
+            window.bootstrap.Collapse?.getInstance?.(el) ||
+            window.bootstrap.Popover?.getInstance?.(el)
+          )
+        );
+
+      if (hasOtherBsPlugin) {
+        AISmartTooltip.bindElement(el);
+        return;
+      }
+
       if (el.hasAttribute('title')) {
         el.setAttribute('data-bs-title', titleText);
         el.removeAttribute('title');
@@ -2083,6 +2185,11 @@
 
       if (window.bootstrap && window.bootstrap.Tooltip) {
         try {
+          const existing = window.bootstrap.Tooltip.getInstance?.(el);
+          if (existing) {
+            this.instances.set(el, existing);
+            return;
+          }
           const tooltip = new window.bootstrap.Tooltip(el, {
             trigger: 'hover focus',
             placement: placement,
@@ -2171,6 +2278,12 @@
       } catch (_) {}
     }
   });
+
+  // Глобальное отслеживание позиции курсора мыши для точного выравнивания тултипов по оси X
+  document.addEventListener('mousemove', (e) => {
+    AISmartTooltip.lastMouseX = e.clientX;
+    AISmartTooltip.lastMouseY = e.clientY;
+  }, { passive: true });
 
   // Инициализация при загрузке документа
   document.addEventListener('DOMContentLoaded', () => {

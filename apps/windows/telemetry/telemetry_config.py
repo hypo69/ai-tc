@@ -20,7 +20,7 @@
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 04:40:00
+# Updated: 2026-10-30 12:55:00
 # =============================================================================
 
 from __future__ import annotations
@@ -77,12 +77,12 @@ def get_default_telemetry_config_path() -> Path:
     return target_path
 
 
-def parse_interval_to_seconds(val: Any, default: float = 5.0) -> float:
+def parse_interval_to_seconds(val: Any, default: float = 5.0, allow_zero: bool = False) -> float:
     """Преобразует строковое или числовое значение интервала в секунды (float).
 
     Поддерживает:
-        - Числа (int, float): 5 -> 5.0, 0.5 -> 0.5
-        - Строковые числа: "5", "5.0" -> 5.0
+        - Числа (int, float): 5 -> 5.0, 0 -> 0.0 (при allow_zero=True)
+        - Строковые числа: "5", "5.0", "0" -> 5.0 / 0.0
         - Строки с единицами времени:
             - Секунды: "5s", "5 seconds", "5 сек", "5 секунд" -> 5.0
             - Минуты: "1m", "1 minute", "5 minutes", "2 мин" -> 60.0 / 300.0 / 120.0
@@ -92,20 +92,22 @@ def parse_interval_to_seconds(val: Any, default: float = 5.0) -> float:
     Args:
         val: Значение интервала из конфигурации.
         default: Значение по умолчанию в секундах.
+        allow_zero: Разрешить возврат 0.0 для режимов 'только при старте / отключено'.
 
     Returns:
-        float: Интервал в секундах (минимум 0.001 при валидном положительном значении).
+        float: Интервал в секундах (минимум 0.001 при allow_zero=False).
     """
     if val is None:
         return float(default)
+    min_val = 0.0 if allow_zero else 0.001
     if isinstance(val, (int, float)):
-        return max(0.001, float(val))
+        return max(min_val, float(val))
     if isinstance(val, str):
         val_str = val.strip().lower()
         if not val_str:
             return float(default)
         try:
-            return max(0.001, float(val_str))
+            return max(min_val, float(val_str))
         except ValueError:
             pass
         match = re.match(r"^([\d.]+)\s*([a-zа-я]+)?$", val_str)
@@ -114,13 +116,13 @@ def parse_interval_to_seconds(val: Any, default: float = 5.0) -> float:
                 num = float(match.group(1))
                 unit = match.group(2) or "s"
                 if unit in ("s", "sec", "second", "seconds", "сек", "секунд", "секунды", "секунда"):
-                    return max(0.001, num)
+                    return max(min_val, num)
                 elif unit in ("m", "min", "minute", "minutes", "мин", "минут", "минуты", "минута"):
-                    return max(0.001, num * 60.0)
+                    return max(min_val, num * 60.0)
                 elif unit in ("h", "hr", "hour", "hours", "ч", "час", "часа", "часов"):
-                    return max(0.001, num * 3600.0)
+                    return max(min_val, num * 3600.0)
                 elif unit in ("d", "day", "days", "д", "день", "дня", "дней"):
-                    return max(0.001, num * 86400.0)
+                    return max(min_val, num * 86400.0)
             except ValueError:
                 pass
     return float(default)
@@ -196,12 +198,13 @@ class TelemetryConfigManager:
                 heavy_polls = {}
 
             self._hardware_audit_interval_sec = parse_interval_to_seconds(
-                heavy_polls.get('hardware_audit_interval_sec', self._config.get('hardware_audit_interval_sec', self._heavy_interval)),
-                self._heavy_interval
+                heavy_polls.get('hardware_audit_interval_sec', self._config.get('hardware_audit_interval_sec', 60.0)),
+                60.0
             )
             self._startup_audit_interval_sec = parse_interval_to_seconds(
-                heavy_polls.get('startup_audit_interval_sec', self._config.get('startup_audit_interval_sec', 180.0)),
-                180.0
+                heavy_polls.get('startup_audit_interval_sec', self._config.get('startup_audit_interval_sec', 0.0)),
+                0.0,
+                allow_zero=True
             )
             self._extended_audit_interval_sec = parse_interval_to_seconds(
                 heavy_polls.get('extended_audit_interval_sec', self._config.get('extended_audit_interval_sec', 300.0)),
@@ -216,8 +219,21 @@ class TelemetryConfigManager:
                 60.0
             )
             self._software_audit_interval_sec = parse_interval_to_seconds(
-                heavy_polls.get('software_audit_interval_sec', self._config.get('software_audit_interval_sec', 3600.0)),
-                3600.0
+                heavy_polls.get('software_audit_interval_sec', self._config.get('software_audit_interval_sec', 0.0)),
+                0.0,
+                allow_zero=True
+            )
+            self._network_activity_interval_sec = parse_interval_to_seconds(
+                heavy_polls.get('network_activity_interval_sec', self._config.get('network_activity_interval_sec', 30.0)),
+                30.0
+            )
+            self._network_ports_interval_sec = parse_interval_to_seconds(
+                heavy_polls.get('network_ports_interval_sec', self._config.get('network_ports_interval_sec', 30.0)),
+                30.0
+            )
+            self._handles_interval_sec = parse_interval_to_seconds(
+                heavy_polls.get('handles_interval_sec', self._config.get('handles_interval_sec', 30.0)),
+                30.0
             )
 
             raw_disk_interval = heavy_polls.get('disk_scan_interval_sec', self._config.get('heavy_disk_scan_interval_seconds'))
@@ -306,6 +322,7 @@ class TelemetryConfigManager:
 
             self._auto_vacuum_enabled = bool(self._config.get('auto_vacuum_enabled', True))
             self._enable_foreground_window = bool(self._config.get('enable_foreground_window', True))
+            self._thorough_mode = bool(self._config.get('thorough_mode', False))
 
             # Независимые интервалы опроса коллекторов (03_TELEMETRY.md и heavy_polls_intervals)
             self._wmi_interval_sec = parse_interval_to_seconds(
@@ -319,6 +336,9 @@ class TelemetryConfigManager:
             )
             self._network_ports_interval_sec = parse_interval_to_seconds(
                 heavy_polls.get('network_ports_interval_sec', self._config.get('network_ports_interval_sec', 30.0)), 30.0
+            )
+            self._network_activity_interval_sec = parse_interval_to_seconds(
+                heavy_polls.get('network_activity_interval_sec', self._config.get('network_activity_interval_sec', 60.0)), 60.0
             )
         except FileNotFoundError:
             if not self._config:
@@ -435,11 +455,11 @@ class TelemetryConfigManager:
 
     def get_hardware_audit_interval_seconds(self) -> float:
         """Возвращает интервал аудита аппаратного оборудования (железа)."""
-        return getattr(self, '_hardware_audit_interval_sec', self._heavy_interval)
+        return getattr(self, '_hardware_audit_interval_sec', 60.0)
 
     def get_startup_audit_interval_seconds(self) -> float:
-        """Возвращает интервал аудита автозапуска Windows."""
-        return getattr(self, '_startup_audit_interval_sec', 180.0)
+        """Возвращает интервал аудита автозапуска Windows (0.0 = только при старте программы)."""
+        return getattr(self, '_startup_audit_interval_sec', 0.0)
 
     def get_extended_audit_interval_seconds(self) -> float:
         """Возвращает интервал расширенного системного аудита."""
@@ -454,8 +474,8 @@ class TelemetryConfigManager:
         return getattr(self, '_process_activity_sync_interval_sec', 60.0)
 
     def get_software_audit_interval_seconds(self) -> float:
-        """Возвращает интервал периодического аудита установленного ПО."""
-        return getattr(self, '_software_audit_interval_sec', 3600.0)
+        """Возвращает интервал периодического аудита установленного ПО (0.0 = только при старте программы)."""
+        return getattr(self, '_software_audit_interval_sec', 0.0)
 
     def get_heavy_polls_intervals(self) -> Dict[str, float]:
         """Возвращает словарь всех индивидуальных интервалов для тяжелых опросов."""
@@ -470,8 +490,22 @@ class TelemetryConfigManager:
             'smart_interval_sec': self.get_smart_interval_seconds(),
             'handles_interval_sec': self.get_handles_interval_seconds(),
             'network_ports_interval_sec': self.get_network_ports_interval_seconds(),
+            'network_activity_interval_sec': self.get_network_activity_interval_seconds(),
             'disk_scan_interval_sec': self.get_heavy_disk_scan_interval(),
         }
+
+    def is_thorough_mode(self) -> bool:
+        """Возвращает флаг режима тщательного сбора (True = сбор всех точек без усреднения)."""
+        return getattr(self, '_thorough_mode', False)
+
+    def set_thorough_mode(self, enabled: bool) -> bool:
+        """Устанавливает флаг режима тщательного сбора в конфигурации."""
+        self._thorough_mode = bool(enabled)
+        return self.save_config({'thorough_mode': bool(enabled)})
+
+    def get_network_activity_interval_seconds(self) -> float:
+        """Возвращает интервал аудита сетевых соединений процессов (в секундах)."""
+        return getattr(self, '_network_activity_interval_sec', 30.0)
 
     def get_wmi_interval_seconds(self) -> float:
         """Возвращает интервал аудита WMI и оборудования (в секундах)."""
@@ -483,7 +517,7 @@ class TelemetryConfigManager:
 
     def get_handles_interval_seconds(self) -> float:
         """Возвращает интервал сбора дескрипторов и процессов (в секундах)."""
-        return getattr(self, '_handles_interval_sec', 60.0)
+        return getattr(self, '_handles_interval_sec', 30.0)
 
     def get_network_ports_interval_seconds(self) -> float:
         """Возвращает интервал сбора сетевых сокетов и портов (в секундах)."""
@@ -947,6 +981,18 @@ class TelemetryConfigManager:
         except (ValueError, TypeError):
             return 7
 
+    def get_history_retention_days(self) -> int:
+        """Возвращает срок хранения истории потребления ресурсов железом и приложениями (в днях).
+
+        Значения history_retention: 1m (30), 3m (90), 6m (180), 1y (365), forever (0).
+        Неизвестное или отсутствующее значение трактуется как «вечно», чтобы не терять историю.
+
+        Returns:
+            int: Число дней хранения, 0 означает «хранить вечно».
+        """
+        mapping = {'1m': 30, '3m': 90, '6m': 180, '1y': 365, 'forever': 0}
+        return mapping.get(str(self._config.get('history_retention', 'forever')).lower(), 0)
+
     def get_db_cleanup_interval_seconds(self) -> float:
         """Возвращает интервал периодической проверки и очистки БД (в секундах)."""
         return getattr(self, '_db_cleanup_interval_seconds', 300.0)
@@ -1033,6 +1079,7 @@ class TelemetryConfigManager:
         """Возвращает сводный словарь всех настроенных интервалов системы."""
         return {
             'telemetry_mode': self.get_telemetry_mode(),
+            'thorough_mode': self.is_thorough_mode(),
             'trigger_mode': self.get_trigger_mode(),
             'sequential_heavy_execution': self.is_sequential_heavy_enabled(),
             'default_interval_seconds': self.get_interval_seconds(),
@@ -1194,3 +1241,4 @@ def is_sequential_heavy_enabled() -> bool:
 def get_all_intervals() -> Dict[str, Any]:
     """Возвращает сводный словарь интервалов телеметрии."""
     return get_telemetry_config_manager().get_all_intervals()
+

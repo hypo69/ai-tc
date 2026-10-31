@@ -387,3 +387,4 @@ class AgyChatBase:
                 logger.critical(f'[DEBUG MODE] Ошибка Antigravity SDK chat_stream ({self.model_id}): {e}')
             err_to_raise = self._handle_agy_error(e)
             raise err_to_raise from e
+

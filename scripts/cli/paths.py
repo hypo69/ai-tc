@@ -16,7 +16,7 @@
 # Package: scripts.cli
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-27 23:01:00
+# Updated: 2026-10-31 19:10:00
 # =============================================================================
 
 """Cross-platform path management system.
@@ -46,7 +46,7 @@ class CrossPlatformPaths:
         """Initialize cross-platform paths.
         
         Args:
-            app_name: Application name (defaults to APP_NAME env var or config.json 'app_name' or 'AI-TC').
+            app_name: Application name (defaults to APP_NAME env var or config.json 'app_name' or 'ai-tc').
             app_author: Application author.
         """
         self._project_root = self._find_project_root()
@@ -186,7 +186,7 @@ class CrossPlatformPaths:
     @property
     def secrets_dir(self) -> Path:
         """Secrets directory for API keys."""
-        return self.project_root / 'core' / 'secrets'
+        return self.project_root / 'src' / 'secrets'
 
     @property
     def env_file(self) -> Path:

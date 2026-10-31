@@ -18,7 +18,7 @@
 # Package: scripts.cli
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:28:45
+# Updated: 2026-10-28 16:32:00
 # =============================================================================
 
 """Cross-platform CLI assistant for AI Windows Admin project management.
@@ -168,9 +168,11 @@ class AssistCLI:
             logger.console(f'  {C_BOLD}FastAPI Сервер:{C_RESET}     {C_RED}○ ОСТАНОВЛЕН{C_RESET}')
             logger.console(f'  {C_BOLD}Ожидаемый порт:{C_RESET}     {port}')
         logger.console(f"  {C_BOLD}Режим / SSL:{C_RESET}        {mode} | SSL: {('ВКЛ' if use_ssl else 'ВЫКЛ')} | Autoreload: {('ВКЛ' if reload_on else 'ВЫКЛ')}")
-        ai_cfg = config.get('ai', {})
-        use_foundry = bool(ai_cfg.get('use_foundry', False))
-        foundry_url = str(ai_cfg.get('foundry_base_url', 'http://localhost:54837'))
+        ai_cfg = config.get('ai_providers_and_models_configuration') or config.get('ai', {})
+        providers = ai_cfg.get('providers', {})
+        foundry_prov = providers.get('foundry', {})
+        use_foundry = bool(foundry_prov.get('enabled', ai_cfg.get('use_foundry', False)))
+        foundry_url = str(foundry_prov.get('base_url', ai_cfg.get('foundry_base_url', 'http://localhost:54837')))
         if use_foundry:
             logger.console(f'  {C_BOLD}AI Foundry:{C_RESET}         {C_YELLOW}○ ВКЛЮЧЕН В CONFIG (внешний сервис){C_RESET}')
             logger.console(f'  {C_BOLD}URL:{C_RESET}                {foundry_url}')
@@ -185,35 +187,40 @@ class AssistCLI:
     def cmd_providers(self) -> int:
         """Показать list провайдеров"""
         config = self.config_mgr.load_config()
-        ai_cfg = config.get('ai', {})
+        ai_cfg = config.get('ai_providers_and_models_configuration') or config.get('ai', {})
+        providers = ai_cfg.get('providers', {})
         logger.console(f'\n{C_BOLD}{C_CYAN}╔═══════════════════════════════════════════════════════════════════════════════════════╗{C_RESET}')
         logger.console(f'{C_BOLD}{C_CYAN}║                     РЕЕСТР ПРОВАЙДЕРОВ И МОДЕЛЕЙ ИИ                                   ║{C_RESET}')
         logger.console(f'{C_BOLD}{C_CYAN}╚═══════════════════════════════════════════════════════════════════════════════════════╝{C_RESET}\n')
         gemini_keys = os.getenv('GEMINI_API_KEY_NAMES', '')
         keys = [k.strip() for k in gemini_keys.split(',') if k.strip()]
         has_gemini = len(keys) > 0
+        def_gemini_mod = providers.get('gemini', {}).get('default_model') or 'gemini-3.5-flash-lite'
         logger.console(f'{C_BOLD}{C_GREEN}1. Google Gemini API (Cloud API){C_RESET}')
         logger.console(f"   Status:          {('✅ Активен' if has_gemini else '❌ Нет ключей')}")
         logger.console(f"   Пул ключей:      {len(keys)} шт. ({(', '.join(keys) if keys else 'пусто')})")
-        logger.console(f'   Дефолтная модель: gemini-3.1-flash / gemini-3.1-flash-lite')
+        logger.console(f'   Дефолтная модель: {def_gemini_mod}')
         logger.console()
-        use_gemini_cli = bool(ai_cfg.get('use_gemini_cli', True))
-        gemini_cli_model = str(ai_cfg.get('gemini_cli_model_id', 'gemini-3.1-flash-lite'))
+        gemini_cli_prov = providers.get('gemini_cli', {})
+        use_gemini_cli = bool(gemini_cli_prov.get('enabled', ai_cfg.get('use_gemini_cli', True)))
+        gemini_cli_model = str(gemini_cli_prov.get('default_model', ai_cfg.get('gemini_cli_model_id', 'gemini-2.5-flash')))
         logger.console(f'{C_BOLD}{C_GREEN}2. Gemini CLI (Терминальный агент){C_RESET}')
         logger.console(f"   Status:          {('✅ Включен' if use_gemini_cli else '○ Отключен')}")
         logger.console(f'   Модель:          {gemini_cli_model}')
         logger.console()
-        use_foundry = bool(ai_cfg.get('use_foundry', False))
-        foundry_model = str(ai_cfg.get('foundry_model_id', 'qwen2.5-1.5b'))
-        foundry_url = str(ai_cfg.get('foundry_base_url', 'http://localhost:54837'))
+        foundry_prov = providers.get('foundry', {})
+        use_foundry = bool(foundry_prov.get('enabled', ai_cfg.get('use_foundry', False)))
+        foundry_model = str(foundry_prov.get('default_model', ai_cfg.get('foundry_model_id', 'qwen2.5-1.5b')))
+        foundry_url = str(foundry_prov.get('base_url', ai_cfg.get('foundry_base_url', 'http://localhost:54837')))
         logger.console(f'{C_BOLD}{C_GREEN}3. Microsoft AI Foundry (Локальная LLM){C_RESET}')
         logger.console(f"   Status:          {('✅ Включен' if use_foundry else '○ Отключен')}")
         logger.console(f'   Модель:          {foundry_model}')
         logger.console(f'   Endpoint:        {foundry_url}')
         logger.console()
-        use_ollama = bool(ai_cfg.get('use_ollama', False))
-        ollama_model = str(ai_cfg.get('ollama_model_id', 'llama3.1'))
-        ollama_url = str(ai_cfg.get('ollama_base_url', 'http://localhost:11434'))
+        ollama_prov = providers.get('ollama', {})
+        use_ollama = bool(ollama_prov.get('enabled', ai_cfg.get('use_ollama', False)))
+        ollama_model = str(ollama_prov.get('default_model', ai_cfg.get('ollama_model_id', 'llama3.1')))
+        ollama_url = str(ollama_prov.get('base_url', ai_cfg.get('ollama_base_url', 'http://localhost:11434')))
         logger.console(f'{C_BOLD}{C_GREEN}4. Ollama Local{C_RESET}')
         logger.console(f"   Status:          {('✅ Включен' if use_ollama else '○ Отключен')}")
         logger.console(f'   Модель:          {ollama_model}')

@@ -65,3 +65,4 @@ def scan_user_profiles() -> List[Dict]:
                 except OSError:
                     continue
     return artifacts
+

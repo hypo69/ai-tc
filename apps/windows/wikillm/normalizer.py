@@ -16,7 +16,7 @@
 # Package: apps.windows.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 19:48:00
+# Updated: 2026-10-10 17:35:00
 # =============================================================================
 
 from __future__ import annotations
@@ -205,69 +205,28 @@ class CanonicalKeyNormalizer:
         raw_title = (title or "").strip()
         raw_type = (table_type or "generic").strip().lower()
 
-        # Очистка от ведущих и изолированных таймстемпов вида '2026-10-20 13:19:51'
-        clean_title = cls._TIMESTAMP_RE.sub("", raw_title).strip()
-
         # Если title является кодом ошибки
-        if cls._HEX_ERROR_RE.match(clean_title) or clean_title.lower().startswith("0x"):
-            norm_code = cls.normalize_hex_code(clean_title)
+        if cls._HEX_ERROR_RE.match(raw_title) or raw_title.lower().startswith("0x"):
+            norm_code = cls.normalize_hex_code(raw_title)
             prefix = "ntstatus" if norm_code.startswith("0xc") else "win32"
             return f"{prefix}:{norm_code}"
 
-        # Если security_event / windows_event / audit или строка содержит Event ID
-        is_event_type = raw_type in (
-            "security_event", "windows_event", "event", "security", "audit", "security_log", "event_log"
-        )
-        eid_match = re.search(
-            r"(?:event\s*id|eventid|event|событи[ея]|#)?\s*[:\s#]?\b(4\d{3}|1\d{3}|7\d{3}|\d{3,6})\b",
-            clean_title,
-            re.IGNORECASE,
-        )
-        if is_event_type or (eid_match and any(w in clean_title.lower() for w in ("logon", "audit", "security", "вход", "событие", "event"))):
-            if eid_match:
-                eid = eid_match.group(1)
-                event_name_map = {
-                    "4624": "successful_logon",
-                    "4625": "failed_logon",
-                    "4672": "special_privileges_assigned",
-                    "4688": "process_creation",
-                    "4720": "user_created",
-                    "4722": "user_enabled",
-                    "4723": "password_change_attempt",
-                    "4724": "password_reset",
-                    "4725": "user_disabled",
-                    "4726": "user_deleted",
-                    "4732": "member_added_to_local_group",
-                    "4733": "member_removed_from_local_group",
-                    "4738": "user_changed",
-                    "4740": "account_locked_out",
-                    "1102": "audit_log_cleared",
-                }
-                # Сохраняем стабильный детерминированный ключ для совместимости с базой знаний
-                if eid == "4624":
-                    return "security_event:4624_-_successful_logon"
-                name_suffix = event_name_map.get(eid)
-                if not name_suffix:
-                    words = [w for w in re.findall(r"[a-zA-Z0-9]+", clean_title.lower()) if w != eid and len(w) > 2]
-                    name_suffix = "_".join(words[:4]) if words else "event"
-                return f"security_event:{eid}_-_{name_suffix}"
-
         # Если process
-        if raw_type in ("process", "proc") or clean_title.lower().endswith(".exe"):
-            clean_proc = clean_title.split()[0].lower() if clean_title else "unknown.exe"
+        if raw_type in ("process", "proc") or raw_title.lower().endswith(".exe"):
+            clean_proc = raw_title.split()[0].lower() if raw_title else "unknown.exe"
             return f"process:{clean_proc}"
 
         # Если service
         if raw_type in ("service", "services"):
-            clean_srv = re.sub(r"[^a-zA-Z0-9_\-]+", "_", clean_title.lower()).strip("_")
+            clean_srv = re.sub(r"[^a-zA-Z0-9_\-]+", "_", raw_title.lower()).strip("_")
             return f"service:{clean_srv}"
 
         # Если registry
-        if raw_type in ("registry", "reg") or any(clean_title.upper().startswith(p) for p in ("HKLM\\", "HKCU\\", "HKEY_")):
-            return f"registry:{cls.normalize_registry_path(clean_title)}"
+        if raw_type in ("registry", "reg") or any(raw_title.upper().startswith(p) for p in ("HKLM\\", "HKCU\\", "HKEY_")):
+            return f"registry:{cls.normalize_registry_path(raw_title)}"
 
         # Для software, network, task, website, generic
-        slug = re.sub(r"[^a-zA-Z0-9_\-]+", "_", clean_title.lower()).strip("_")
+        slug = re.sub(r"[^a-zA-Z0-9_\-]+", "_", raw_title.lower()).strip("_")
         if not slug:
             slug = re.sub(r"[^a-zA-Z0-9_\-]+", "_", (subtitle or "unspecified").lower()).strip("_")
         return f"{raw_type}:{slug[:64] or 'unspecified'}"
@@ -308,3 +267,4 @@ class CanonicalKeyNormalizer:
 
         combined = f"{canonical_key}|{prov}|{eid}|{msg_template}"
         return hashlib.sha256(combined.encode("utf-8")).hexdigest()[:24]
+

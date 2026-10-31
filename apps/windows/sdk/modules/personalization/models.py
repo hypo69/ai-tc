@@ -191,3 +191,4 @@ class PersonalizationOverviewResponse(BaseModel):
     ai_spotlight_current: Optional[AISpotlightImageInfo] = None
     available_themes_count: int = 0
     saved_ai_spotlight_count: int = 0
+

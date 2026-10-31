@@ -1,0 +1,92 @@
+<!--
+=============================================================================
+Process Name: Windows Log Settings - Atomic Help Block: Summary KPI Cards
+=============================================================================
+Description:
+  Атомарный HTML-фрагмент справки по верхним сводным KPI-карточкам панели
+  «Параметры и ротация журналов» (#tab-app-internals#settings).
+  Соблюдает стандарты мульти-темизации (CSS-токены без хардкода) и мультиязычности (data-i18n).
+
+File: block_kpi_cards.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_log_settings/help/blocks
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 17:45:00
+=============================================================================
+-->
+<div class="card bg-body border-subtle shadow-sm mb-3 help-atomic-block" data-help-block="block_kpi_cards">
+  <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between py-2 px-3">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-speedometer2 text-primary fs-5"></i>
+      <h6 class="mb-0 fw-bold text-body" data-i18n="logSettingsHelp.kpiCards.title">1. Верхние сводные карточки состояния (KPI)</h6>
+    </div>
+    <span class="ui-badge ui-badge-info" data-i18n="logSettingsHelp.kpiCards.badge">Обзор в реальном времени</span>
+  </div>
+  <div class="card-body p-3">
+    <p class="small text-muted mb-3" data-i18n="logSettingsHelp.kpiCards.intro">
+      Четыре верхних виджета отображают оперативную телеметрию подсистемы логирования Windows Event Log и фонового сборщика событий безопасности (обновление каждые 20 секунд при активной вкладке):
+    </p>
+    <div class="row g-2">
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <strong class="small text-body d-flex align-items-center gap-1.5">
+              <i class="bi bi-shield-shaded text-primary"></i>
+              <span data-i18n="logSettingsHelp.kpiCards.secTitle">Журнал Security (EVTX)</span>
+            </strong>
+            <code class="small">panel-log-settings-1</code>
+          </div>
+          <p class="small text-muted mb-0" data-i18n="logSettingsHelp.kpiCards.secDesc">
+            Показывает текущий физический размер файла <code>Security.evtx</code> и установленный максимальный лимит (в МБ), прогресс-бар заполнения, общее число записей и статус активности канала. При заполнении выше 90% индикатор предупреждает о риске перезаписи старых событий (FIFO).
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <strong class="small text-body d-flex align-items-center gap-1.5">
+              <i class="bi bi-terminal-plus text-warning"></i>
+              <span data-i18n="logSettingsHelp.kpiCards.cmdlineTitle">Аудит CommandLine (Event 4688)</span>
+            </strong>
+            <code class="small">panel-log-settings-2</code>
+          </div>
+          <p class="small text-muted mb-0" data-i18n="logSettingsHelp.kpiCards.cmdlineDesc">
+            Отображает состояние системной политики включения полной командной строки (<code>ProcessCreationIncludeCmdLine_Enabled</code>) в события создания процессов <code>Event ID 4688</code>. Кнопка «Переключить политику» мгновенно активирует или отключает запись аргументов запуска в реестре.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <strong class="small text-body d-flex align-items-center gap-1.5">
+              <i class="bi bi-database-down text-success"></i>
+              <span data-i18n="logSettingsHelp.kpiCards.collectorTitle">Сборщик Telemetry.db и Закладка</span>
+            </strong>
+            <code class="small">panel-log-settings-3</code>
+          </div>
+          <p class="small text-muted mb-0" data-i18n="logSettingsHelp.kpiCards.collectorDesc">
+            Контролирует инкрементальный сборщик событий в локальную базу <code>telemetry.db</code>: показывает число сохраненных событий, последний обработанный <code>Record ID</code> (Bookmark) и время синхронизации. Позволяет запустить сбор вручную или сбросить закладку в конец журнала.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <strong class="small text-body d-flex align-items-center gap-1.5">
+              <i class="bi bi-diagram-3 text-info"></i>
+              <span data-i18n="logSettingsHelp.kpiCards.sysmonTitle">Иерархия 7 доменов и Sysmon</span>
+            </strong>
+            <code class="small">panel-log-settings-4</code>
+          </div>
+          <p class="small text-muted mb-0" data-i18n="logSettingsHelp.kpiCards.sysmonDesc">
+            Проверяет наличие и статус драйвера/службы <code>Sysmon</code> (System Monitor), суммирует общее количество записей по всем 7 доменам телеметрии ОС и предоставляет кнопку принудительного обновления всех панелей.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

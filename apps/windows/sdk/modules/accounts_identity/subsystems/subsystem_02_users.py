@@ -180,3 +180,4 @@ class UsersSubsystem:
         val = "$true" if never_expires else "$false"
         ret, _, _ = self.bridge.run_command(["powershell.exe", "-NoProfile", "-Command", f"Set-LocalUser -Name '{name}' -PasswordNeverExpires {val}"])
         return ret == 0
+

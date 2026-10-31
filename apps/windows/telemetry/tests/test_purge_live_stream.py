@@ -133,3 +133,4 @@ def test_buffer_clear_discards_queued_records(temp_storage):
     # Сброс не должен записать ничего в БД
     saved = storage.flush()
     assert saved == 0
+

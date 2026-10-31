@@ -615,3 +615,4 @@ class FailuresAnalyzer:
 
         return sorted(activities, key=lambda x: x.get('timestamp') or '', reverse=True)
 
+

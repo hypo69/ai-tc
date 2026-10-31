@@ -134,3 +134,4 @@ class PersonalizationStore:
         args.append(limit)
         with self._connect() as conn:
             return [dict(r) for r in conn.execute(sql, args).fetchall()]
+

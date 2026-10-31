@@ -147,3 +147,4 @@ class TelemetryRingBuffer:
         with self._lock:
             self._buffer.clear()
             self._current_bytes = 0
+

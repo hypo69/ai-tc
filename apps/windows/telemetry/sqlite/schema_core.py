@@ -242,3 +242,4 @@ CORE_INDEX_DDL: Tuple[str, ...] = (
     'CREATE INDEX IF NOT EXISTS idx_pfe_pid_time ON process_file_events(pid, created_at DESC);',
     'CREATE INDEX IF NOT EXISTS idx_pfe_dir_time ON process_file_events(target_directory, created_at DESC);',
 )
+

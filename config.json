@@ -1,200 +1,204 @@
 {
-    "app_name": "AI-TC",
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "app": {
-        "name": "AI-TC Windows (TC)",
-        "description": "Конфигурационный профиль подсистемы Windows System API и хаба приложений TC (tc.ps1)",
-        "app_name": "AI-TC"
-    },
-    "server": {
-        "host": "127.0.0.1",
-        "port": 8001,
-        "protocol": "http",
-        "title": "AI-TC Windows Internal API",
-        "description": "Сервис TC/Windows: телеметрия, дашборды, диагностика.",
-        "workers": 1,
-        "reload": false,
-        "use_ssl": false,
-        "mode": "DEV",
-        "debug": true
-    },
-    "ai_providers_and_models_configuration": {
-        "enable_narrator": false,
-        "preload_silero": false,
-        "realtime_streaming": true,
-        "default_provider": "gemini",
-        "default_model": "gemini-3.5-flash-lite",
-        "providers": {
-            "gemini": {
-                "enabled": true,
-                "api_key_names": "*",
-                "default_model": "gemini-3.5-flash-lite",
-                "unsupported_models": [
-                    "gemini-1.0-pro",
-                    "gemini-1.0-ultra",
-                    "gemini-1.5-flash",
-                    "gemini-1.5-pro",
-                    "gemini-2.0-flash",
-                    "gemini-old"
-                ],
-                "model": "gemini-3.5-flash-lite"
-            },
-            "gemini_cli": {
-                "enabled": true,
-                "default_model": "gemini-2.5-flash",
-                "unsupported_models": [
-                    "gemini-1.5-flash",
-                    "gemini-2.0-flash"
-                ]
-            },
-            "agy": {
-                "enabled": true,
-                "default_model": "agy-gemini-3.8-flash",
-                "effort": "medium",
-                "unsupported_models": [
-                    "gemini-1.5-flash",
-                    "gemini-2.0-flash"
-                ],
-                "model": "agy-gemini-3.8-flash"
-            },
-            "foundry": {
-                "enabled": false,
-                "base_url": "http://localhost:49618",
-                "default_model": "qwen2.5-1.5b",
-                "unsupported_models": [
-                    "antigravity-preview-05-2026",
-                    "test-foundry-model-1"
-                ]
-            },
-            "ollama": {
-                "enabled": false,
-                "base_url": "http://localhost:11434",
-                "default_model": "llama3.1",
-                "unsupported_models": [
-                    "llama3.1"
-                ]
-            },
-            "hf": {
-                "enabled": false,
-                "default_model": "",
-                "unsupported_models": []
-            },
-            "onnx": {
-                "enabled": false,
-                "default_model": "",
-                "unsupported_models": []
-            },
-            "openai": {
-                "enabled": false,
-                "model": "",
-                "unsupported_models": []
-            }
-        }
-    },
-    "ai": {
-        "provider": "gemini",
-        "gemini": {
-            "model": "gemini-3.5-flash-lite"
-        },
-        "providers": {
-            "gemini": {
-                "unsupported_models": [
-                    "agy-gemini-3.5-flash-lite",
-                    "gemini-2.5-flash",
-                    "gemini-2.5-pro"
-                ]
-            }
-        },
-        "agy": {
-            "model": "agy-gemini-3.8-flash"
-        }
-    },
-    "database": {
-        "engine": "mariadb",
-        "sqlite": {
-            "path": "data/windows_wikillm/knowledge.db"
-        },
-        "mariadb": {
-            "host": "srv1502.hstgr.io",
-            "ip_fallback": "77.37.35.16",
-            "port": 3306,
-            "user": "u177424397_davidka",
-            "password": "@Davidka#1969",
-            "database": "u177424397_comp_knowledge",
-            "charset": "utf8mb4",
-            "connect_timeout": 10,
-            "pool_size": 10
-        }
-    },
-    "wikillm": {
-        "active_profile": "balanced",
-        "search_mode": "hybrid",
-        "profiles": {
-            "fast": {
-                "top_k": 3,
-                "fetch_k": 10,
-                "score_threshold": 0.6,
-                "reranker_enabled": false,
-                "rerank_top_n": 3,
-                "temperature": 0.2,
-                "max_context_tokens": 2048,
-                "grounding_required": true
-            },
-            "balanced": {
-                "top_k": 5,
-                "fetch_k": 20,
-                "score_threshold": 0.7,
-                "reranker_enabled": true,
-                "rerank_top_n": 5,
-                "temperature": 0.1,
-                "max_context_tokens": 4096,
-                "grounding_required": true
-            },
-            "precise": {
-                "top_k": 10,
-                "fetch_k": 50,
-                "score_threshold": 0.82,
-                "reranker_enabled": true,
-                "rerank_top_n": 8,
-                "temperature": 0.0,
-                "max_context_tokens": 8192,
-                "grounding_required": true
-            }
-        }
-    },
-    "smart_audit": {
+  "app_name": "ai-tc",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "app": {
+    "name": "ai-tc Windows (TC)",
+    "description": "Конфигурационный профиль подсистемы Windows System API и хаба приложений TC (tc.ps1)",
+    "app_name": "ai-tc"
+  },
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8001,
+    "protocol": "http",
+    "title": "ai-tc Windows Internal API",
+    "description": "Сервис TC/Windows: телеметрия, дашборды, диагностика.",
+    "workers": 1,
+    "reload": false,
+    "use_ssl": false,
+    "mode": "DEV",
+    "debug": true,
+    "ssl_certfile": "C:/Users/onela/.certs/localhost+2.pem",
+    "ssl_keyfile": "C:/Users/onela/.certs/localhost+2-key.pem"
+  },
+  "ai_providers_and_models_configuration": {
+    "enable_narrator": false,
+    "preload_silero": false,
+    "realtime_streaming": true,
+    "default_provider": "gemini",
+    "default_model": "gemini-3.5-flash-lite",
+    "providers": {
+      "gemini": {
         "enabled": true,
-        "chunk_size": 50,
-        "default_provider": "gemini",
-        "supported_providers": [
-            "gemini",
-            "agy"
+        "api_key_names": "*",
+        "default_model": "gemini-3.5-flash-lite",
+        "unsupported_models": [
+          "agy-gemini-3.5-flash-lite",
+          "gemini-1.0-pro",
+          "gemini-1.0-ultra",
+          "gemini-1.5-flash",
+          "gemini-1.5-pro",
+          "gemini-2.0-flash",
+          "gemini-2.5-flash",
+          "gemini-2.5-pro",
+          "gemini-old"
         ],
-        "auto_delete_after_audit": false,
-        "backup_before_delete": true
-    },
-    "ai_instruments": {
-        "description": "Изолированная база данных инструментов ИИ-агента (ai_instruments.db)",
-        "engine": "sqlite",
-        "sqlite": {
-            "path": "data/ai_instruments/ai_instruments.db"
-        },
-        "mariadb": {
-            "connection_type": "php_api",
-            "host": "srv1502.hstgr.io",
-            "port": 3306,
-            "user": "u177424397_davidka",
-            "password": "@Davidka#1969",
-            "database": "u177424397_comp_knowledge",
-            "table_name": "ai_instruments",
-            "ip_fallback": "77.37.35.16",
-            "connect_timeout": 10,
-            "php_api_url": "https://srv1502.hstgr.io/wikillm_hostinger.php",
-            "php_api_key": "test_token_123"
-        }
-    },
-    "chromium": {
-        "profile_dir": "data/chromium/profiles",
-        "cache_dir": "data/chromium/cache"
+        "model": "gemini-3.5-flash-lite"
+      },
+      "gemini_cli": {
+        "enabled": true,
+        "default_model": "gemini-2.5-flash",
+        "unsupported_models": [
+          "gemini-1.5-flash",
+          "gemini-2.0-flash"
+        ]
+      },
+      "agy": {
+        "enabled": true,
+        "default_model": "agy-gemini-3.8-flash",
+        "effort": "medium",
+        "unsupported_models": [
+          "gemini-1.5-flash",
+          "gemini-2.0-flash"
+        ],
+        "model": "agy-gemini-3.8-flash"
+      },
+      "foundry": {
+        "enabled": false,
+        "base_url": "http://localhost:49618",
+        "default_model": "qwen2.5-1.5b",
+        "unsupported_models": [
+          "antigravity-preview-05-2026",
+          "test-foundry-model-1"
+        ]
+      },
+      "ollama": {
+        "enabled": false,
+        "base_url": "http://localhost:11434",
+        "default_model": "llama3.1",
+        "unsupported_models": [
+          "llama3.1"
+        ]
+      },
+      "hf": {
+        "enabled": false,
+        "default_model": "",
+        "unsupported_models": []
+      },
+      "onnx": {
+        "enabled": false,
+        "default_model": "",
+        "unsupported_models": []
+      },
+      "openai": {
+        "enabled": false,
+        "model": "",
+        "unsupported_models": []
+      }
     }
+  },
+  "database": {
+    "engine": "sqlite",
+    "sqlite": {
+      "path": "data/windows_wikillm/knowledge.db"
+    },
+    "mariadb": {
+      "host": "srv1502.hstgr.io",
+      "ip_fallback": "77.37.35.16",
+      "port": 3306,
+      "user": "u177424397_davidka",
+      "password": "@Davidka#1969",
+      "database": "u177424397_comp_knowledge",
+      "charset": "utf8mb4",
+      "connect_timeout": 10,
+      "pool_size": 10
+    }
+  },
+  "wikillm": {
+    "active_profile": "balanced",
+    "search_mode": "hybrid",
+    "profiles": {
+      "fast": {
+        "top_k": 3,
+        "fetch_k": 10,
+        "score_threshold": 0.6,
+        "reranker_enabled": false,
+        "rerank_top_n": 3,
+        "temperature": 0.2,
+        "max_context_tokens": 2048,
+        "grounding_required": true
+      },
+      "balanced": {
+        "top_k": 5,
+        "fetch_k": 20,
+        "score_threshold": 0.7,
+        "reranker_enabled": true,
+        "rerank_top_n": 5,
+        "temperature": 0.1,
+        "max_context_tokens": 4096,
+        "grounding_required": true
+      },
+      "precise": {
+        "top_k": 10,
+        "fetch_k": 50,
+        "score_threshold": 0.82,
+        "reranker_enabled": true,
+        "rerank_top_n": 8,
+        "temperature": 0.0,
+        "max_context_tokens": 8192,
+        "grounding_required": true
+      }
+    },
+    "db_path": "data/windows_wikillm/knowledge.db"
+  },
+  "smart_audit": {
+    "enabled": true,
+    "chunk_size": 50,
+    "default_provider": "gemini",
+    "supported_providers": [
+      "gemini",
+      "agy"
+    ],
+    "auto_delete_after_audit": false,
+    "backup_before_delete": true
+  },
+  "ai_instruments": {
+    "description": "Изолированная база данных инструментов ИИ-агента (ai_instruments.db)",
+    "engine": "mariadb",
+    "sqlite": {
+      "path": "data/ai_instruments/ai_instruments.db"
+    },
+    "hostinger": {
+      "connection_type": "direct",
+      "host": "srv1502.hstgr.io",
+      "port": 3306,
+      "user": "u177424397_davidka",
+      "password": "@Davidka#1969",
+      "database": "u177424397_comp_knowledge",
+      "table_name": "ai_instruments",
+      "php_api_url": "https://srv1502.hstgr.io/wikillm_hostinger.php",
+      "php_api_key": "test_token_123",
+      "connect_timeout": 10
+    },
+    "runtime": {
+      "execution_timeout": 25,
+      "elevate_powershell": true,
+      "safe_ops_enabled": true,
+      "auto_extract_from_reasoning": true,
+      "title_prefix": "Расследование инцидента"
+    }
+  },
+  "chromium": {
+    "profile_dir": "data/chromium/profiles",
+    "cache_dir": "data/chromium/cache"
+  },
+  "apps": {
+    "enabled": [
+      "cloudflared_monitor"
+    ]
+  },
+  "paths": {
+    "programdata": "%ProgramData%",
+    "app_name": "ai-tc",
+    "system_knowledge_db": "data/windows_wikillm/knowledge.db"
+  }
 }

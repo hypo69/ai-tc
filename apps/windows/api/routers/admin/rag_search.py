@@ -179,3 +179,4 @@ async def test_web_search(request: Request, data: WebSearchTestRequest):
     except Exception as e:
         logger.error(f"Error тестового поиска {engine}", e)
         return {"status": "error", "engine": engine, "message": str(e)}
+

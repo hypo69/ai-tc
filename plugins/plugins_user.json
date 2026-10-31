@@ -7,6 +7,7 @@
     {"path": "user-plugins/news_feed"},
     {"path": "user-plugins/telegram_bot"},
     {"path": "user-plugins/user_storage"},
-    {"path": "user-plugins/whatsapp"}
+    {"path": "user-plugins/whatsapp"},
+    {"path": "user-plugins/youtube_mp3"}
   ]
 }

@@ -94,3 +94,4 @@ async def test_quick_questions_caching() -> None:
             assert res.questions == ["Вопрос 1", "Вопрос 2", "Вопрос 3"]
             assert res.canonical_key == key
             break
+

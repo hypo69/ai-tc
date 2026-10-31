@@ -166,3 +166,4 @@ async def get_ai_spotlight_gallery() -> List[AISpotlightImageInfo]:
 def init_router() -> APIRouter:
     """Фабрика инициализации роутера."""
     return router
+

@@ -322,3 +322,4 @@ class ChannelManager:
         # Sort all matched results by score descending
         all_matches.sort(key=lambda x: x.get("score", 0.0), reverse=True)
         return all_matches[:top_k]
+

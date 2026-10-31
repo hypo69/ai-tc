@@ -103,3 +103,4 @@ def run_network_command(args: argparse.Namespace) -> int:
         return 0
     logger.console(f'Unknown network subcommand: {sub}')
     return 1
+

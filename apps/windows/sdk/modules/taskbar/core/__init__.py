@@ -69,3 +69,4 @@ __all__ = [
     "TaskbarCommandMetadata",
     "get_taskbar_command_catalog",
 ]
+

@@ -212,3 +212,4 @@ async def rollback_last_setting_change() -> SettingRollbackResponse:
     if not res.rolled_back:
         raise HTTPException(status_code=400, detail=res.message)
     return res
+

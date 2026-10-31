@@ -76,3 +76,4 @@ class FirewallManagerTUI:
 
 
 __all__ = ['FirewallManagerTUI']
+

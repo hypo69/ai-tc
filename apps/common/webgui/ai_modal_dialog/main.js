@@ -26,7 +26,7 @@
  * Package: apps.windows.api.webgui.ai_modal_dialog
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 19:10:00
+ * Updated: 2026-10-31 19:25:00
  * =============================================================================
  */
 
@@ -2084,9 +2084,29 @@
       const isVerified = Boolean(isFromWikiLLM || data.is_verified || data.source === 'wikillm');
       const isHeuristic = data.source === 'heuristic';
       const isGemini = data.source === 'gemini';
+      const isProcess = (opts.tableType === 'process' || (opts.panelId && opts.panelId.includes('process')));
+
+      let wikillmGeneralCard = '';
+      if (data.has_wikillm_general_data && data.general_summary) {
+        wikillmGeneralCard = `
+          <div class="card border-success bg-dark bg-opacity-75 p-2.5 mb-2.5 rounded shadow-sm">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-1">
+              <span class="badge border border-success text-success p-1 px-2 d-inline-flex align-items-center gap-1.5 small">
+                <i class="bi bi-shield-check"></i> База знаний WikiLLM (Общие данные)
+              </span>
+              <span class="small text-secondary fw-semibold">${escapeHtml(data.developer || '')} (${escapeHtml(data.category || '')})</span>
+            </div>
+            <div class="small text-light">
+              ${escapeHtml(data.general_summary)}
+            </div>
+          </div>
+        `;
+      }
 
       let sourceBadge = '';
-      if (isVerified) {
+      if (data.source === 'wikillm_resource_analysis') {
+        sourceBadge = `<div class="badge border border-info text-info p-1 px-2 mb-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-speedometer2"></i> Анализ текущего потребления и состояния ресурсов (Live Telemetry)</div>`;
+      } else if (isVerified) {
         sourceBadge = `<div class="badge border border-success text-success p-1 px-2 mb-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-shield-check"></i> База знаний WikiLLM (L1 Exact Cache)</div>`;
       } else if (isGemini) {
         sourceBadge = `<div class="badge border border-info text-info p-1 px-2 mb-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-stars"></i> AI Экспертный анализ (Web Grounding)</div>`;
@@ -2094,7 +2114,18 @@
         sourceBadge = `<div class="badge border border-secondary text-secondary p-1 px-2 mb-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-cpu"></i> Системный экспертный анализ (Телеметрия)</div>`;
       }
 
-      const actionBlock = isVerified ? `
+      const actionBlock = (data.has_wikillm_general_data && data.source === 'wikillm_resource_analysis') ? `
+        <div class="p-2 mt-2 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" id="uai-approval-container">
+          <div class="small text-success">
+            <i class="bi bi-check-circle-fill me-1"></i>Общие данные зафиксированы в WikiLLM. Анализ ресурсов сформирован по актуальной телеметрии.
+          </div>
+          <div class="d-flex align-items-center gap-1.5">
+            <button type="button" class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1.5" id="btn-uai-reanalyze">
+              <i class="bi bi-arrow-clockwise"></i> Обновить срез телеметрии
+            </button>
+          </div>
+        </div>
+      ` : isVerified ? `
         <div class="p-2 mt-2 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" id="uai-approval-container">
           <div class="small text-secondary">
             <i class="bi bi-database-check text-success me-1"></i>Справочные данные из локальной базы WikiLLM.
@@ -2120,8 +2151,9 @@
       `;
 
       aiExplanation.innerHTML = `
+        ${wikillmGeneralCard}
         ${sourceBadge}
-        <div class="mb-2"><strong class="text-info"><i class="bi bi-card-text me-1"></i>Назначение:</strong> ${escapeHtml(data.summary)}</div>
+        <div class="mb-2"><strong class="text-info"><i class="bi bi-cpu me-1"></i>${(data.has_wikillm_general_data || data.source === 'wikillm_resource_analysis') ? 'Анализ ресурсов:' : 'Назначение:'}</strong> ${escapeHtml(data.summary)}</div>
         <div class="mb-2"><strong class="text-secondary"><i class="bi bi-building me-1"></i>Разработчик / Категория:</strong> ${escapeHtml(data.developer || 'Неизвестен')} (${escapeHtml(data.category || 'Компонент')})</div>
         <div class="mb-2"><strong class="text-warning"><i class="bi bi-shield-lock me-1"></i>Оценка безопасности:</strong> ${escapeHtml(data.security_verdict)}</div>
         <div class="mb-2"><strong class="text-info"><i class="bi bi-speedometer2 me-1"></i>Влияние на ресурсы:</strong> ${escapeHtml(data.performance_impact)}</div>
@@ -2206,6 +2238,93 @@
     }
 
     // Проверка наличия знаний в WikiLLM перед запросом к LLM
+    function renderDiagnosticResultWithPlaceholders(data) {
+      if (!aiExplanation) return;
+      if (Array.isArray(data.suggested_quick_questions) && data.suggested_quick_questions.length > 0) {
+        renderQuickButtons(data.suggested_quick_questions);
+      }
+
+      const generalSummary = data.general_summary || data.summary || '';
+      const devText = data.developer || 'Неизвестен';
+      const catText = data.category || 'Процесс Windows';
+
+      const wikillmGeneralCard = `
+        <div class="card border-success bg-dark bg-opacity-75 p-2.5 mb-2.5 rounded shadow-sm">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-1">
+            <span class="badge border border-success text-success p-1 px-2 d-inline-flex align-items-center gap-1.5 small">
+              <i class="bi bi-shield-check"></i> База знаний WikiLLM (Общие данные)
+            </span>
+            <span class="small text-secondary fw-semibold">${escapeHtml(devText)} (${escapeHtml(catText)})</span>
+          </div>
+          <div class="small text-light">
+            ${formatMarkdownText(generalSummary)}
+          </div>
+        </div>
+      `;
+
+      const sourceBadge = `<div class="badge border border-info text-info p-1 px-2 mb-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-speedometer2"></i> Анализ текущего потребления и состояния ресурсов (Live Telemetry)</div>`;
+
+      const spinnerPlaceholder = (text) => `
+        <div class="d-inline-flex align-items-center gap-2 text-info py-0.5">
+          <div class="spinner-border spinner-border-sm text-info" style="width: 0.85rem; height: 0.85rem;" role="status"></div>
+          <span class="text-secondary fst-italic small">${text}</span>
+        </div>
+      `;
+
+      aiExplanation.innerHTML = `
+        ${wikillmGeneralCard}
+        ${sourceBadge}
+        <div class="mb-2">
+          <strong class="text-info"><i class="bi bi-cpu me-1"></i>Анализ ресурсов:</strong>
+          <div class="mt-0.5">${spinnerPlaceholder('Выполняется экспресс-анализ текущего потребления параметров телеметрии...')}</div>
+        </div>
+        <div class="mb-2">
+          <strong class="text-secondary"><i class="bi bi-building me-1"></i>Разработчик / Категория:</strong> ${escapeHtml(devText)} (${escapeHtml(catText)})
+        </div>
+        <div class="mb-2">
+          <strong class="text-warning"><i class="bi bi-shield-lock me-1"></i>Оценка безопасности текущей сессии:</strong>
+          <div class="mt-0.5">${spinnerPlaceholder('Проверка прав, путей запуска и активных сетевых сокетов...')}</div>
+        </div>
+        <div class="mb-2">
+          <strong class="text-info"><i class="bi bi-speedometer2 me-1"></i>Влияние на ресурсы:</strong>
+          <div class="mt-0.5">${spinnerPlaceholder('Срез по подсистемам: ЦП, ОЗУ, Дисковый ввод-вывод, Сокеты...')}</div>
+        </div>
+        <div class="p-2 mb-2 rounded uai-recommendation-box">
+          <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация:</strong>
+          <div class="ms-1 d-inline-block">${spinnerPlaceholder('Формирование вердикта администратору...')}</div>
+        </div>
+        <div class="mb-2">
+          <h6 class="uai-action-steps-title text-uppercase text-muted fw-bold mb-1">Рекомендуемые действия:</h6>
+          <div class="ps-1">${spinnerPlaceholder('Определение практических шагов оптимизации...')}</div>
+        </div>
+        ${data.developer_advice ? `
+          <div class="uai-dev-advice-wrapper mt-3 pt-2 border-top border-secondary border-opacity-25">
+            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
+              <button class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1.5 py-1 px-3 rounded-pill uai-btn-toggle-dev" 
+                      type="button" data-bs-toggle="collapse" data-bs-target="#uai-dev-advice-collapse" aria-expanded="true">
+                <i class="bi bi-code-slash"></i>
+                <strong class="small">Советы разработчику &amp; Автоматизация</strong>
+                <i class="bi bi-chevron-down ms-1"></i>
+              </button>
+              <div class="d-flex align-items-center gap-1.5">
+                <span class="badge border border-info text-info small" style="font-size: 0.72rem;">
+                  <i class="bi bi-cpu me-1"></i>API &amp; Scripting
+                </span>
+              </div>
+            </div>
+            <div class="collapse show" id="uai-dev-advice-collapse">
+              <div class="p-3 rounded uai-dev-advice-box">
+                ${renderDevAdviceContent(data.developer_advice)}
+              </div>
+            </div>
+          </div>
+        ` : ''}
+        <div class="p-2 mt-2 rounded d-flex align-items-center justify-content-between flex-wrap gap-2 text-secondary small" id="uai-approval-container">
+          <div><i class="bi bi-hourglass-split me-1 text-info"></i>Общие данные загружены из WikiLLM. Ожидается ответ модели по текущему инстансу...</div>
+        </div>
+      `;
+    }
+
     async function checkWikiLLMKnowledge() {
       if (!aiExplanation) return;
       aiExplanation.innerHTML = `
@@ -2240,7 +2359,13 @@
         }, 4000);
 
         if (data && (data.is_verified || data.source === 'wikillm') && data.summary) {
-          renderDiagnosticResult(data, true);
+          const isProcess = (opts.tableType === 'process' || (opts.panelId && opts.panelId.includes('process')));
+          if (isProcess) {
+            renderDiagnosticResultWithPlaceholders(data);
+            executeDiagnostics(true, false, true);
+          } else {
+            renderDiagnosticResult(data, true);
+          }
         } else {
           const autoEnrichToggle = document.getElementById('toggle-auto-enrich-on-miss');
           if (autoEnrichToggle && autoEnrichToggle.checked) {
@@ -2269,7 +2394,7 @@
     }
 
     // Выполнение диагностического запроса к AI с передачей модели, провайдера и системной инструкции
-    async function executeDiagnostics(forceRefresh = false, autoSave = false) {
+    async function executeDiagnostics(forceRefresh = false, autoSave = false, isHybridProcess = false) {
       const aiExplanation = document.getElementById('uai-modal-ai-explanation');
       if (!aiExplanation) return;
 
@@ -2277,12 +2402,14 @@
       const currentModel = modelInput ? modelInput.value.trim() : '';
       const currentProvider = providerSelect ? providerSelect.value : 'gemini';
 
-      aiExplanation.innerHTML = `
-        <div class="d-flex align-items-center gap-2 py-2 text-info">
-          <div class="spinner-border spinner-border-sm" role="status"></div>
-          <span>Выполняется ${forceRefresh ? 'углубленный' : 'экспертный'} AI-анализ для «${escapeHtml(opts.title)}» (терпеливое ожидание ответа модели)...</span>
-        </div>
-      `;
+      if (!isHybridProcess) {
+        aiExplanation.innerHTML = `
+          <div class="d-flex align-items-center gap-2 py-2 text-info">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            <span>Выполняется ${forceRefresh ? 'углубленный' : 'экспертный'} AI-анализ для «${escapeHtml(opts.title)}» (терпеливое ожидание ответа модели)...</span>
+          </div>
+        `;
+      }
 
       const metaDict = {};
       (opts.metadata || []).forEach(m => {
@@ -2339,6 +2466,21 @@
       } catch (err) {
         // При ошибке: в WikiLLM НЕ записываем, выводим сообщение с расшифровкой и сырым JSON ответа
         const errInfo = decipherModelError(err);
+        if (isHybridProcess) {
+          const approvalContainer = document.getElementById('uai-approval-container');
+          if (approvalContainer) {
+            approvalContainer.className = 'card border-danger bg-dark bg-opacity-75 p-2.5 mt-2 text-light';
+            approvalContainer.innerHTML = `
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="small text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i>Сбой анализа телеметрии: ${escapeHtml(errInfo.friendlyReason || err.message || 'Ошибка модели')}</div>
+                <button type="button" class="btn btn-xs btn-outline-danger" id="btn-uai-modal-retry"><i class="bi bi-arrow-clockwise"></i> Повторить</button>
+              </div>
+            `;
+            const retryBtn = document.getElementById('btn-uai-modal-retry');
+            if (retryBtn) retryBtn.onclick = () => executeDiagnostics(true, false, true);
+            return;
+          }
+        }
         aiExplanation.innerHTML = `
           <div class="card border-danger bg-dark bg-opacity-75 p-3 mb-2 text-light">
             <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
@@ -2431,15 +2573,26 @@
       if (approveBtn) approveBtn.disabled = true;
 
       try {
+        const isProcApprove = (options.tableType === 'process' || (options.panelId && options.panelId.includes('process')));
+        let cleanTitle = options.title || '';
+        let cleanSummary = aiData.general_summary || aiData.summary || '';
+        let cleanPerf = aiData.performance_impact || '';
+        if (isProcApprove) {
+          cleanTitle = cleanTitle.replace(/[\s\[\(]+PID[:\s]*\d+[\s\]\)]*/gi, '').trim();
+          if (!cleanTitle) cleanTitle = (options.title || '').split(' ')[0].trim();
+          cleanPerf = 'Штатный профиль приложения (из базы знаний WikiLLM)';
+        }
+
         const payload = {
           canonical_key: aiData.canonical_key || undefined,
           table_type: options.tableType || 'generic',
-          title: options.title || '',
+          title: cleanTitle,
           subtitle: options.subtitle || '',
-          summary: aiData.summary || '',
+          summary: cleanSummary,
+          general_summary: cleanSummary,
           category: aiData.category || 'system',
           security_verdict: aiData.security_verdict || '',
-          performance_impact: aiData.performance_impact || '',
+          performance_impact: cleanPerf,
           recommendation: aiData.recommendation || '',
           action_steps: aiData.action_steps || [],
           developer_advice: aiData.developer_advice || '',

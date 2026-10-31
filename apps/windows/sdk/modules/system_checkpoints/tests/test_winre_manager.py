@@ -107,3 +107,4 @@ def test_winre_actions_mock(mock_run):
     res_path = mgr.set_reimage_path("C:\\Recovery\\Custom")
     assert res_path["success"] is True
     assert res_path["path"] == "C:\\Recovery\\Custom"
+

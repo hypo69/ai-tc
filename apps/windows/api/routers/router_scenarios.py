@@ -25,3 +25,4 @@ from __future__ import annotations
 
 from .scenarios.endpoints import init_router  # noqa: F401
 from .scenarios.models import ScenarioRunRequest  # noqa: F401
+

@@ -328,3 +328,4 @@ async def _run_log_audit_scenario() -> ScenarioRunResult:
         steps=steps,
         summary=summary,
     )
+

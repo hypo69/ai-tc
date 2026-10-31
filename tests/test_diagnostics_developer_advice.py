@@ -106,3 +106,4 @@ async def test_wikillm_approve_and_cache_preserves_developer_advice() -> None:
             found_dev_claim = True
             break
     assert found_dev_claim, "Советы разработчику должны сохраняться в утверждениях (claims) сущности WikiLLM"
+

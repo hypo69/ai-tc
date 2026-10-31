@@ -215,7 +215,7 @@ function openItemAiModal(item) {
 
 ## 📚 Инструменты и стандарты разработчика WebGUI
 
-- **Инженерный стандарт WebGUI**: [`.ai/instructions/standards/WEBGUI.md`](file:///c:/Users/onela/AppData/Local/AI-TC/.ai/instructions/standards/WEBGUI.md)
-- **Эталонный шаблон вкладки**: [`apps/windows/api/webgui/templates/tab_template/`](file:///c:/Users/onela/AppData/Local/AI-TC/apps/windows/api/webgui/templates/tab_template/)
-- **Навык агента по разработке WebGUI**: [`.agents/skills/webgui-developer/SKILL.md`](file:///c:/Users/onela/AppData/Local/AI-TC/.agents/skills/webgui-developer/SKILL.md)
+- **Инженерный стандарт WebGUI**: [`.ai/instructions/standards/WEBGUI.md`](file:///c:/Users/onela/AppData/Local/ai-tc/.ai/instructions/standards/WEBGUI.md)
+- **Эталонный шаблон вкладки**: [`apps/windows/api/webgui/templates/tab_template/`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/api/webgui/templates/tab_template/)
+- **Навык агента по разработке WebGUI**: [`.agents/skills/webgui-developer/SKILL.md`](file:///c:/Users/onela/AppData/Local/ai-tc/.agents/skills/webgui-developer/SKILL.md)
 - **Генератор вкладок (CLI)**: `py .agents/skills/webgui-developer/scripts/scaffold_tab.py <name> --title "<Заголовок>"`

@@ -93,3 +93,4 @@ def test_live_file_events_capture():
                 os.remove(test_file)
             except Exception:
                 pass
+

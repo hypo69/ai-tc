@@ -107,3 +107,4 @@ class DisplayRotateResponse(BaseModel):
     pending_rollback: bool = Field(False, description="Ожидает ли таймер авто-отката подтверждения")
     timeout_seconds: int = Field(0, description="Оставшееся время таймаута")
     error: Optional[str] = Field(None, description="Текст ошибки при сбое")
+

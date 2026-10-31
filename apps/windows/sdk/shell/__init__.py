@@ -23,3 +23,4 @@ from __future__ import annotations
 from apps.windows.sdk.shell.taskbar_config import TaskbarConfigManager
 
 __all__ = ["TaskbarConfigManager"]
+

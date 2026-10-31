@@ -20,7 +20,7 @@
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 09:41:00
+# Updated: 2026-10-31 18:57:00
 # =============================================================================
 
 from __future__ import annotations
@@ -733,8 +733,18 @@ class ProcessActivityEngine:
         is_int_pid = False
         target_pid = -1
         try:
-            target_pid = int(inst_str)
-            is_int_pid = True
+            if inst_str.isdigit():
+                cand_pid = int(inst_str)
+                if 0 <= cand_pid <= 4194304:
+                    target_pid = cand_pid
+                    is_int_pid = True
+            elif "_" in inst_str:
+                p_part = inst_str.split("_")[0]
+                if p_part.isdigit():
+                    cand_pid = int(p_part)
+                    if 0 <= cand_pid <= 4194304:
+                        target_pid = cand_pid
+                        is_int_pid = True
         except (ValueError, TypeError):
             pass
 
@@ -748,17 +758,38 @@ class ProcessActivityEngine:
                     COALESCE(i.integrity_level, 'Medium'), COALESCE(i.status, 'RUNNING'),
                     i.icon_base64
                 FROM process_lifecycle_sessions i
-                WHERE i.instance_id = ? OR (i.pid = ? AND i.status = 'RUNNING')
-                ORDER BY CASE WHEN i.instance_id = ? THEN 0 ELSE 1 END, i.created_ts DESC
+                WHERE i.instance_id = ? OR i.pid = ?
+                ORDER BY CASE 
+                    WHEN i.instance_id = ? THEN 0 
+                    WHEN i.status = 'RUNNING' THEN 1 
+                    ELSE 2 
+                END, i.created_ts DESC
                 LIMIT 1
                 """,
                 (inst_str, target_pid if is_int_pid else -1, inst_str),
             )
             r = cursor.fetchone()
-            if not r and is_int_pid and psutil.pid_exists(target_pid):
-                live_rec = self._create_or_update_live_instance_by_pid(target_pid)
-                if live_rec:
-                    return live_rec
+            if not r and is_int_pid and (0 <= target_pid <= 4194304):
+                try:
+                    if psutil.pid_exists(target_pid):
+                        live_rec = self._create_or_update_live_instance_by_pid(target_pid)
+                        if live_rec:
+                            return live_rec
+                except (OverflowError, OSError, ValueError):
+                    pass
+                from datetime import datetime, timezone
+                now_iso = datetime.now(timezone.utc).isoformat()
+                return ProcessInstanceRecord(
+                    instance_id=f"{target_pid}_term",
+                    definition_id=1,
+                    pid=target_pid,
+                    name=f"Process_{target_pid}",
+                    executable_path=f"PID {target_pid} (Terminated)",
+                    command_line="",
+                    start_time=now_iso,
+                    exit_time=now_iso,
+                    status="TERMINATED",
+                )
             if not r:
                 return None
         except sqlite3.OperationalError as db_err:
@@ -849,9 +880,25 @@ class ProcessActivityEngine:
         inst_str = str(instance_id).strip()
         is_int_pid = False
         target_pid = -1
+        start_ts: Optional[float] = None
         try:
-            target_pid = int(inst_str)
-            is_int_pid = True
+            if inst_str.isdigit():
+                cand_pid = int(inst_str)
+                if 0 <= cand_pid <= 4194304:
+                    target_pid = cand_pid
+                    is_int_pid = True
+            elif "_" in inst_str:
+                parts = inst_str.split("_")
+                if parts[0].isdigit():
+                    cand_pid = int(parts[0])
+                    if 0 <= cand_pid <= 4194304:
+                        target_pid = cand_pid
+                        is_int_pid = True
+                if len(parts) >= 2 and parts[1].isdigit():
+                    try:
+                        start_ts = float(parts[1]) / 1000.0
+                    except (ValueError, TypeError):
+                        pass
         except (ValueError, TypeError):
             pass
 
@@ -864,9 +911,13 @@ class ProcessActivityEngine:
                 COALESCE(write_bytes_sec, 0.0), 0.0 as disk_iops, COALESCE(num_handles, 0),
                 COALESCE(gdi_objects, 0), COALESCE(user_objects, 0), COALESCE(tcp_connections_count, 0), sockets_json
             FROM process_snapshots
-            WHERE (instance_id = ? OR (pid = ? AND sample_type = 'sample')) AND sample_type = 'sample'
+            WHERE (instance_id = ? OR (pid = ? AND sample_type IN ('sample', 'snapshot')))
+              AND sample_type IN ('sample', 'snapshot')
         """
         params: List[Any] = [inst_str, target_pid if is_int_pid else -1]
+        if start_ts is not None:
+            query += " AND (created_at >= ? OR instance_id = ?)"
+            params.extend([start_ts - 2.0, inst_str])
         if from_time:
             query += " AND timestamp >= ?"
             params.append(from_time)
@@ -880,10 +931,14 @@ class ProcessActivityEngine:
         try:
             cursor.execute(query, tuple(params))
             rows = cursor.fetchall()
-            if not rows and is_int_pid and psutil.pid_exists(target_pid):
-                self._create_or_update_live_instance_by_pid(target_pid)
-                cursor.execute(query, tuple(params))
-                rows = cursor.fetchall()
+            if not rows and is_int_pid and (0 <= target_pid <= 4194304):
+                try:
+                    if psutil.pid_exists(target_pid):
+                        self._create_or_update_live_instance_by_pid(target_pid)
+                        cursor.execute(query, tuple(params))
+                        rows = cursor.fetchall()
+                except (OverflowError, OSError, ValueError):
+                    pass
         except sqlite3.OperationalError as db_err:
             if "database is locked" in str(db_err):
                 logger.debug(f"[ProcessActivityEngine] Пропущена выборка сэмплов #{instance_id}: база заблокирована")
@@ -896,7 +951,7 @@ class ProcessActivityEngine:
             result.append(
                 ProcessSampleRecord(
                     sample_id=int(r[0]),
-                    instance_id=r[1],
+                    instance_id=r[1] or inst_str,
                     timestamp=r[2],
                     created_at=float(r[3] or 0.0),
                     cpu_percent=float(r[4] or 0.0),
@@ -1350,3 +1405,4 @@ class ProcessActivityEngine:
 
 
 __all__ = ["ProcessActivityEngine"]
+

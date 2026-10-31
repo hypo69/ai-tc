@@ -84,3 +84,4 @@ def test_main_js_no_fetch_network_profile_in_init():
     assert "fetchNetworkProfile();" not in init_func_body, (
         "fetchNetworkProfile() не должен вызываться при инициализации вкладки!"
     )
+

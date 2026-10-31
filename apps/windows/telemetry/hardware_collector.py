@@ -379,3 +379,4 @@ class HardwareCollector:
     ) -> HardwareAuditReport:
         """Алиас для совместимости со сборщиками телеметрии."""
         return self.collect_hardware_report(sensors=sensors)
+

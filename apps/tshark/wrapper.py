@@ -325,3 +325,4 @@ class TSharkWrapper:
                 await process.wait()
             except Exception:
                 pass
+

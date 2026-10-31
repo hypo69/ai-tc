@@ -21,14 +21,14 @@
                                              └───────────────────┘
 ```
 
-1. **[`hardware.py`](file:///c:/Users/onela/AppData/Local/AI-TC/src/ai/orchestration/hardware.py)**: Диагностика CPU, GPU (CUDA, DirectML), NPU, RAM/VRAM и аппаратного ускорения Windows Copilot+.
-2. **[`discovery.py`](file:///c:/Users/onela/AppData/Local/AI-TC/src/ai/orchestration/discovery.py)**: Сканирование локальных демонов (Foundry Local на `54837`, Ollama на `11434`), компонентов Windows AI и ключей доступа.
-3. **[`capability_registry.py`](file:///c:/Users/onela/AppData/Local/AI-TC/src/ai/orchestration/capability_registry.py)**: Стандартизация возможностей моделей (`chat`, `vision`, `ocr`, `embedding`, `code`, `image_generation`).
-4. **[`model_error_hub.py`](file:///c:/Users/onela/AppData/Local/AI-TC/src/ai/orchestration/model_error_hub.py)**: Централизованный хаб классификации (`SERVICE_UNAVAILABLE`, `RATE_LIMIT`, `AUTH_ERROR`, `NOT_FOUND`, `CONTEXT_OVERFLOW`, `SAFETY_BLOCK`, `CONNECTION_ERROR`), регистрации инцидентов, расчета здоровья моделей и оповещения слушателей.
-5. **[`model_pool_state.py`](file:///c:/Users/onela/AppData/Local/AI-TC/src/ai/orchestration/model_pool_state.py)**: Реестр состояния пулов моделей, отслеживание 503/429 и автоматический failover.
-6. **[`policy.py`](file:///c:/Users/onela/AppData/Local/AI-TC/src/ai/orchestration/policy.py)**: Применение политик приватности (`strict` vs `standard`) и локализации исполнения (`local_only`, `prefer_local`, `cloud_only`).
-7. **[`router.py`](file:///c:/Users/onela/AppData/Local/AI-TC/src/ai/orchestration/router.py)**: Разрешение запросов `AIRequest` на доступные исполнительные бэкенды.
-8. **[`unified_chat.py`](file:///c:/Users/onela/AppData/Local/AI-TC/src/ai/orchestration/unified_chat.py)**: Высокоуровневый фасад чата для маршрутизаторов FastAPI и CLI-агентов.
+1. **[`hardware.py`](file:///c:/Users/onela/AppData/Local/ai-tc/src/ai/orchestration/hardware.py)**: Диагностика CPU, GPU (CUDA, DirectML), NPU, RAM/VRAM и аппаратного ускорения Windows Copilot+.
+2. **[`discovery.py`](file:///c:/Users/onela/AppData/Local/ai-tc/src/ai/orchestration/discovery.py)**: Сканирование локальных демонов (Foundry Local на `54837`, Ollama на `11434`), компонентов Windows AI и ключей доступа.
+3. **[`capability_registry.py`](file:///c:/Users/onela/AppData/Local/ai-tc/src/ai/orchestration/capability_registry.py)**: Стандартизация возможностей моделей (`chat`, `vision`, `ocr`, `embedding`, `code`, `image_generation`).
+4. **[`model_error_hub.py`](file:///c:/Users/onela/AppData/Local/ai-tc/src/ai/orchestration/model_error_hub.py)**: Централизованный хаб классификации (`SERVICE_UNAVAILABLE`, `RATE_LIMIT`, `AUTH_ERROR`, `NOT_FOUND`, `CONTEXT_OVERFLOW`, `SAFETY_BLOCK`, `CONNECTION_ERROR`), регистрации инцидентов, расчета здоровья моделей и оповещения слушателей.
+5. **[`model_pool_state.py`](file:///c:/Users/onela/AppData/Local/ai-tc/src/ai/orchestration/model_pool_state.py)**: Реестр состояния пулов моделей, отслеживание 503/429 и автоматический failover.
+6. **[`policy.py`](file:///c:/Users/onela/AppData/Local/ai-tc/src/ai/orchestration/policy.py)**: Применение политик приватности (`strict` vs `standard`) и локализации исполнения (`local_only`, `prefer_local`, `cloud_only`).
+7. **[`router.py`](file:///c:/Users/onela/AppData/Local/ai-tc/src/ai/orchestration/router.py)**: Разрешение запросов `AIRequest` на доступные исполнительные бэкенды.
+8. **[`unified_chat.py`](file:///c:/Users/onela/AppData/Local/ai-tc/src/ai/orchestration/unified_chat.py)**: Высокоуровневый фасад чата для маршрутизаторов FastAPI и CLI-агентов.
 
 ---
 

@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/user
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-16 14:55:00
+ * Updated: 2026-10-30 13:25:00
  * =============================================================================
  */
 
@@ -155,7 +155,6 @@ const USER_TAB_DEFS = {
   'voice': { html: '/html/tab_voice/index.html', js: '/html/tab_voice/main.js' },
   'skills': { html: '/html/tab_skills/index.html', js: '/html/tab_skills/main.js' },
   'plugins': { html: '/html/tab_plugins/index.html', js: '/html/tab_plugins/main.js' },
-  'user-directories': { html: '/html/tab_user_directories/index.html', js: '/html/tab_user_directories/main.js' },
 };
 
 const loadedUserTabs = new Set();

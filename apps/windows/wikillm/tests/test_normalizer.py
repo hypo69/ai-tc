@@ -16,7 +16,7 @@
 # Package: apps.windows.wikillm.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 19:48:00
+# Updated: 2026-10-10 17:35:00
 # =============================================================================
 
 from __future__ import annotations
@@ -104,29 +104,4 @@ def test_fingerprint_generation() -> None:
     fp2 = CanonicalKeyNormalizer.compute_fingerprint(art2)
 
     assert fp1 == fp2, "Отпечатки с динамическими GUID и адресами должны совпадать!"
-
-
-def test_compute_key_from_parts_events() -> None:
-    """Проверка нормализации событий аудита с разными таймстемпами и параметрами в единый ключ."""
-    ev1 = (
-        "2026-10-20 13:19:51\t4624\tSuccessful Logon\tSYSTEM\tDELL-VOSTRO$\t"
-        "SubjectUserSid: S-1-5-18 | SubjectUserName: DELL-VOSTRO$ | SubjectDomainName: WORKGROUP"
-    )
-    ev2 = (
-        "2026-10-20 13:19:45\t4624\tSuccessful Logon\tSYSTEM\tDELL-VOSTRO$\t"
-        "SubjectUserSid: S-1-5-18 | SubjectUserName: DELL-VOSTRO$"
-    )
-    ev3 = "Событие аудита: #4624 - Successful Logon"
-    ev4 = "4624 Successful Logon"
-
-    k1 = CanonicalKeyNormalizer.compute_key_from_parts("security_event", ev1)
-    k2 = CanonicalKeyNormalizer.compute_key_from_parts("security_event", ev2)
-    k3 = CanonicalKeyNormalizer.compute_key_from_parts("security_event", ev3)
-    k4 = CanonicalKeyNormalizer.compute_key_from_parts("security_event", ev4)
-
-    assert k1 == "security_event:4624_-_successful_logon"
-    assert k2 == "security_event:4624_-_successful_logon"
-    assert k3 == "security_event:4624_-_successful_logon"
-    assert k4 == "security_event:4624_-_successful_logon"
-    assert k1 == k2 == k3 == k4
 

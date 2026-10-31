@@ -15,7 +15,7 @@
  * Package: windows/api/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 14:45:00
+ * Updated: 2026-10-28 23:15:00
  * =============================================================================
  */
 
@@ -199,6 +199,181 @@ html[data-bs-theme="light"] body {
 .sys-kpi-label i {
   color: var(--text-muted, #71717a) !important;
   opacity: 0.85;
+}
+
+/* ── Dark Slate Theme — Переопределения Bootstrap и компонентов ─────────────── */
+[data-theme="theme-dark-slate"],
+:root[data-bs-theme="dark"][data-theme="theme-dark-slate"],
+html[data-bs-theme="dark"][data-theme="theme-dark-slate"] {
+  --bs-body-bg: var(--bg-color, #0f172a);
+  --bs-body-bg-rgb: 15, 23, 42;
+  --bs-body-color: var(--text-color, #f8fafc);
+  --bs-body-color-rgb: 248, 250, 252;
+  --bs-emphasis-color: var(--text-color, #f8fafc);
+  --bs-emphasis-color-rgb: 248, 250, 252;
+  --bs-secondary-color: var(--ui-text-secondary, #cbd5e1);
+  --bs-secondary-color-rgb: 203, 213, 225;
+  --bs-tertiary-color: var(--text-muted, #94a3b8);
+  --bs-tertiary-color-rgb: 148, 163, 184;
+  --bs-heading-color: var(--text-color, #f8fafc);
+  --bs-link-color: var(--nav-active, #38bdf8);
+  --bs-link-hover-color: var(--ui-accent-hover, #0ea5e9);
+  --bs-card-bg: var(--surface-1, #1e293b);
+  --bs-card-color: var(--text-color, #f8fafc);
+  --bs-modal-bg: var(--modal-bg, #1e293b);
+  --bs-modal-color: var(--text-color, #f8fafc);
+  --bs-offcanvas-bg: var(--surface-1, #1e293b);
+  --bs-tertiary-bg: var(--surface-2, #334155);
+  --bs-tertiary-bg-rgb: 51, 65, 85;
+  --bs-secondary-bg: var(--surface-2, #334155);
+  --bs-secondary-bg-rgb: 51, 65, 85;
+  --bs-secondary-bg-subtle: var(--surface-2, #334155);
+  --bs-secondary-border-subtle: var(--border-strong, #475569);
+  --bs-border-color-translucent: rgba(255, 255, 255, 0.15);
+  --bs-list-group-bg: var(--surface-1, #1e293b);
+  --bs-list-group-color: var(--text-color, #f8fafc);
+  --bs-list-group-action-color: var(--text-color, #f8fafc);
+  --bs-list-group-action-hover-color: var(--nav-active, #38bdf8);
+  --bs-list-group-action-hover-bg: var(--surface-2, #334155);
+  --bs-dropdown-bg: var(--surface-1, #1e293b);
+  --bs-dropdown-color: var(--text-color, #f8fafc);
+  --bs-dropdown-border-color: var(--border-color, #334155);
+  --bs-border-color: var(--border-color, #334155);
+  --bs-info: var(--ui-info, #38bdf8);
+  --bs-info-rgb: 56, 189, 248;
+  --bs-primary: var(--nav-active, #38bdf8);
+  --bs-primary-rgb: 56, 189, 248;
+}
+
+[data-theme="theme-dark-slate"] body,
+html[data-theme="theme-dark-slate"] body {
+  background-color: var(--bg-color, #0f172a) !important;
+  color: var(--text-color, #f8fafc) !important;
+}
+
+/* Высококонтрастная типографика форм и меток в Dark Slate */
+[data-theme="theme-dark-slate"] label,
+[data-theme="theme-dark-slate"] .form-label,
+[data-theme="theme-dark-slate"] .form-check-label {
+  color: var(--ui-text-secondary, #cbd5e1) !important;
+  font-weight: 500;
+}
+
+/* Инпуты, текстовые области, выпадающие списки в Dark Slate */
+[data-theme="theme-dark-slate"] .form-control,
+[data-theme="theme-dark-slate"] .form-select,
+[data-theme="theme-dark-slate"] input:not([type="checkbox"]):not([type="radio"]):not(.btn),
+[data-theme="theme-dark-slate"] textarea {
+  background-color: var(--surface-1, #1e293b) !important;
+  color: var(--text-color, #f8fafc) !important;
+  border-color: var(--border-color, #334155) !important;
+}
+
+[data-theme="theme-dark-slate"] .form-control:focus,
+[data-theme="theme-dark-slate"] .form-select:focus,
+[data-theme="theme-dark-slate"] input:focus,
+[data-theme="theme-dark-slate"] textarea:focus {
+  background-color: var(--surface-1, #1e293b) !important;
+  color: #ffffff !important;
+  border-color: var(--nav-active, #38bdf8) !important;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25) !important;
+}
+
+[data-theme="theme-dark-slate"] .form-control::placeholder,
+[data-theme="theme-dark-slate"] input::placeholder,
+[data-theme="theme-dark-slate"] textarea::placeholder {
+  color: var(--text-muted, #94a3b8) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="theme-dark-slate"] .form-control:disabled,
+[data-theme="theme-dark-slate"] .form-control[readonly],
+[data-theme="theme-dark-slate"] input:disabled,
+[data-theme="theme-dark-slate"] input[readonly],
+[data-theme="theme-dark-slate"] textarea:disabled,
+[data-theme="theme-dark-slate"] textarea[readonly] {
+  background-color: var(--surface-2, #334155) !important;
+  color: var(--text-color, #f8fafc) !important;
+  opacity: 0.95 !important;
+}
+
+/* Списки list-group и элементы выбора в Dark Slate */
+[data-theme="theme-dark-slate"] .list-group-item {
+  background-color: var(--surface-1, #1e293b) !important;
+  color: var(--text-color, #f8fafc) !important;
+  border-color: var(--border-color, #334155) !important;
+}
+
+[data-theme="theme-dark-slate"] .list-group-item-action {
+  color: var(--text-color, #f8fafc) !important;
+}
+
+[data-theme="theme-dark-slate"] .list-group-item-action:hover,
+[data-theme="theme-dark-slate"] .list-group-item-action:focus {
+  background-color: var(--surface-2, #334155) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="theme-dark-slate"] .list-group-item-action.active,
+[data-theme="theme-dark-slate"] .list-group-item.active {
+  background-color: var(--nav-active, #38bdf8) !important;
+  border-color: var(--nav-active, #38bdf8) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="theme-dark-slate"] .list-group-item-action.active * {
+  color: #0f172a !important;
+}
+
+/* Текстовые классы и вторичные подписи в Dark Slate */
+[data-theme="theme-dark-slate"] .text-muted,
+[data-theme="theme-dark-slate"] small.text-muted {
+  color: var(--text-muted, #94a3b8) !important;
+}
+
+[data-theme="theme-dark-slate"] .text-secondary {
+  color: var(--ui-text-secondary, #cbd5e1) !important;
+}
+
+[data-theme="theme-dark-slate"] .badge.bg-secondary-subtle,
+[data-theme="theme-dark-slate"] .bg-secondary-subtle {
+  background-color: var(--surface-2, #334155) !important;
+  color: var(--ui-text-secondary, #cbd5e1) !important;
+  border: 1px solid var(--border-strong, #475569) !important;
+}
+
+[data-theme="theme-dark-slate"] strong,
+[data-theme="theme-dark-slate"] b,
+[data-theme="theme-dark-slate"] h1,
+[data-theme="theme-dark-slate"] h2,
+[data-theme="theme-dark-slate"] h3,
+[data-theme="theme-dark-slate"] h4,
+[data-theme="theme-dark-slate"] h5,
+[data-theme="theme-dark-slate"] h6 {
+  color: var(--text-color, #f8fafc);
+}
+
+/* Навигационные кнопки в Dark Slate */
+[data-theme="theme-dark-slate"] .main-nav-container .btn-primary,
+[data-theme="theme-dark-slate"] .main-nav-container .btn-outline-primary.active,
+[data-theme="theme-dark-slate"] .btn-outline-primary.active,
+[data-theme="theme-dark-slate"] .btn-primary {
+  background-color: var(--nav-active, #38bdf8) !important;
+  border-color: var(--nav-active, #38bdf8) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="theme-dark-slate"] .main-nav-container .btn-outline-primary,
+[data-theme="theme-dark-slate"] .btn-outline-primary {
+  color: var(--nav-active, #38bdf8) !important;
+  border-color: var(--border-color, #334155) !important;
+  background-color: transparent !important;
+}
+[data-theme="theme-dark-slate"] .main-nav-container .btn-outline-primary:hover,
+[data-theme="theme-dark-slate"] .btn-outline-primary:hover {
+  background-color: var(--surface-2, #334155) !important;
+  color: var(--nav-active, #38bdf8) !important;
+  border-color: var(--nav-active, #38bdf8) !important;
 }
 
 /* Навигационные кнопки в NightView */
@@ -719,6 +894,7 @@ html[data-bs-theme="light"] body {
 
 /* ── Dark & Terminal Themes — Высококонтрастные переопределения ─────────────── */
 [data-theme="dark"],
+[data-theme="theme-dark-slate"],
 [data-theme="terminal"] {
   .card-header.bg-light,
   .card-footer.bg-light,

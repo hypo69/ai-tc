@@ -259,3 +259,4 @@ class DeviceFlappingSensor:
         """
         with self._lock:
             return {'is_running': self._is_running, 'poll_interval_sec': self.poll_interval, 'active_devices_count': len(self._active_devices), 'flapping_devices_tracked': len(self._disconnect_history), 'devices_with_problems': sum((1 for d in self._active_devices.values() if d.has_problem))}
+

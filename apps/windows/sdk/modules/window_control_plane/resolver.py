@@ -590,3 +590,4 @@ class WindowBackendResolver:
             return True, s, None
 
         return True, value, None
+

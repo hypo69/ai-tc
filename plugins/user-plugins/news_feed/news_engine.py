@@ -332,3 +332,4 @@ class NewsEngine:
             "digest_text": digest_text,
             "articles": [a.model_dump() for a in feed]
         }
+

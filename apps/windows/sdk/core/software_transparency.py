@@ -16,7 +16,7 @@
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 16:15:00
+# Updated: 2026-10-28 15:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -137,6 +137,11 @@ class ResearchRequest(BaseModel):
     """Запрос на AI-исследование конкретной программы."""
     app_id: str = Field(..., description='Идентификатор программы')
     force_refresh: bool = Field(default=False, description='Принудительное обновление через Gemini')
+
+class ConfigFileSaveRequest(BaseModel):
+    """Запрос на сохранение отредактированного файла конфигурации."""
+    path: str = Field(..., description='Абсолютный путь к файлу конфигурации')
+    content: str = Field(..., description='Новое содержимое файла')
 
 class SoftwareInventory:
     """Инвентаризатор программного обеспечения Windows на базе SoftwareAuditEngine."""
@@ -784,6 +789,56 @@ def init_software_transparency_router(
                 return v
 
         raise HTTPException(status_code=404, detail=f"Программа с ID '{app_id}' не найдена")
+
+    def _resolve_known_config_path(path: str) -> Path:
+        """Проверяет, что путь принадлежит файлу конфигурации, найденному сканером.
+
+        Args:
+            path (str): Абсолютный путь к файлу конфигурации.
+
+        Returns:
+            Path: Проверенный путь к файлу.
+
+        Raises:
+            HTTPException: 403, если путь не обнаружен сканером; 404, если файл отсутствует.
+        """
+        norm = os.path.normcase(os.path.abspath(path))
+        known = {
+            os.path.normcase(os.path.abspath(c.path))
+            for app in _cache.values()
+            for c in app.config_files
+        }
+        if norm not in known:
+            raise HTTPException(status_code=403, detail='Файл не входит в список обнаруженных конфигураций')
+        target = Path(norm)
+        if not target.is_file():
+            raise HTTPException(status_code=404, detail='Файл не найден')
+        return Path(os.path.abspath(path))
+
+    @router.get('/config-file')
+    async def read_config_file(path: str = Query(..., description='Абсолютный путь к файлу конфигурации')) -> Dict[str, Any]:
+        """Возвращает полное содержимое обнаруженного файла конфигурации для редактирования."""
+        if not _cache:
+            await _execute_full_scan()
+        target = _resolve_known_config_path(path)
+        if target.stat().st_size > config_inspector.max_file_size_bytes:
+            raise HTTPException(status_code=413, detail='Файл превышает лимит размера 256 KB')
+        content = await asyncio.to_thread(target.read_text, encoding='utf-8', errors='replace')
+        return {'path': str(target), 'content': content}
+
+    @router.put('/config-file')
+    async def save_config_file(req: ConfigFileSaveRequest) -> Dict[str, Any]:
+        """Сохраняет отредактированное содержимое обнаруженного файла конфигурации."""
+        target = _resolve_known_config_path(req.path)
+        if len(req.content.encode('utf-8')) > config_inspector.max_file_size_bytes:
+            raise HTTPException(status_code=413, detail='Содержимое превышает лимит размера 256 KB')
+        try:
+            await asyncio.to_thread(target.write_text, req.content, encoding='utf-8', newline='')
+        except OSError as exc:
+            logger.error(f'Не удалось сохранить файл конфигурации {target}: {exc}')
+            raise HTTPException(status_code=500, detail=f'Ошибка записи файла: {exc}')
+        logger.info(f'Файл конфигурации сохранён: {target}')
+        return {'status': 'ok', 'path': str(target)}
 
     @router.post('/research', response_model=GeminiAppResearch)
     async def research_app(req: ResearchRequest) -> GeminiAppResearch:

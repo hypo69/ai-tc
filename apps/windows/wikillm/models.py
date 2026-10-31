@@ -211,3 +211,4 @@ class ResolutionResult(BaseModel):
     confidence: float = Field(default=1.0, description="Итоговая уверенность")
     execution_time_ms: float = Field(default=0.0, description="Время обработки запроса в миллисекундах")
     message: str = Field(default="Успешно разрешено", description="Статусное сообщение")
+

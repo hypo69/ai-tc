@@ -169,3 +169,4 @@ def test_cleanup_keeps_locf_anchors(db_path):
     full = s.get_latest_snapshot_full()
     assert full['hostname'] == 'HOST' and full['os_build'] == '26100'
     s.close()
+

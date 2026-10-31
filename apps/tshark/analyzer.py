@@ -113,3 +113,4 @@ class TrafficAnalyzer:
             warnings.append(f"Высокая концентрация DNS-запросов: {dns_queries_count} из {len(packets)} пакетов")
 
         return warnings
+

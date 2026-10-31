@@ -18,7 +18,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 13:20:00
+# Updated: 2026-10-31 17:33:00
 # =============================================================================
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ class InstrumentsDbConfigRequest(BaseModel):
     """Схема конфигурации базы данных инструментов."""
     engine: str = Field(default="sqlite", description="Движок: sqlite или mariadb/hostinger")
     sqlite_path: str = Field(default="data/ai_instruments/ai_instruments.db", description="Путь к файлу SQLite")
-    connection_type: str = Field(default="php_api", description="Тип соединения: php_api или direct")
+    connection_type: str = Field(default="direct", description="Тип соединения: direct или php_api")
     host: str = Field(default="srv1502.hstgr.io", description="Хост сервера")
     port: int = Field(default=3306, description="Порт")
     database: str = Field(default="u177424397_comp_knowledge", description="Имя БД")
@@ -61,6 +61,15 @@ class ExtractAdviceRequest(BaseModel):
     text: str = Field(..., description="Текст советов разработчику или ответ модели")
     target_entity: Optional[str] = Field(default="", description="Связанная сущность системы")
     title_prefix: Optional[str] = Field(default="Инструмент агента", description="Префикс названия")
+
+
+class InstrumentsRuntimeConfigRequest(BaseModel):
+    """Схема параметров выполнения инструментов в цепочке размышлений."""
+    execution_timeout: int = Field(default=15, description="Таймаут выполнения команды (сек)")
+    elevate_powershell: bool = Field(default=True, description="Запуск PowerShell с повышенными правами")
+    safe_ops_enabled: bool = Field(default=True, description="Безопасный режим SafeOps")
+    auto_extract_from_reasoning: bool = Field(default=True, description="Автоизвлечение из рассуждений модели")
+    title_prefix: str = Field(default="Инструмент агента", description="Префикс названий создаваемых инструментов")
 
 
 def init_router(service: Optional[AIInstrumentsService] = None) -> APIRouter:
@@ -101,6 +110,10 @@ def init_router(service: Optional[AIInstrumentsService] = None) -> APIRouter:
             hostinger_config=hostinger_cfg,
         )
         srv = AIInstrumentsService(storage=storage)
+        try:
+            srv.seed_default_instruments()
+        except Exception as ex:
+            logger.warning(f"[RouterAIInstruments] Ошибка начальной инициализации каталога инструментов: {ex}")
     else:
         srv = service
 
@@ -268,6 +281,10 @@ def init_router(service: Optional[AIInstrumentsService] = None) -> APIRouter:
             hostinger_config=new_inst_cfg["hostinger"],
         )
         srv.storage = new_storage
+        try:
+            srv.seed_default_instruments()
+        except Exception as ex:
+            logger.warning(f"[RouterAIInstruments] Ошибка синхронизации инструментов после смены БД: {ex}")
 
         return {
             "status": "ok",
@@ -303,32 +320,40 @@ def init_router(service: Optional[AIInstrumentsService] = None) -> APIRouter:
                     "message": f"Ошибка доступа к файлу SQLite: {ex}",
                 }
 
-        # Hostinger
-        h_cfg = req.model_dump() if req else srv.storage.hostinger_config
-        php_url = h_cfg.get("php_api_url", "https://srv1502.hstgr.io/wikillm_hostinger.php")
+        # Hostinger (Direct TCP MariaDB или PHP API)
+        h_cfg = req.model_dump() if req else dict(srv.storage.hostinger_config)
         try:
             temp_storage = AIInstrumentsStorage(
-                engine="hostinger",
+                db_path=":memory:",
+                engine="sqlite",
                 hostinger_config=h_cfg,
             )
-            # Проверяем наличие таблицы ai_instruments
-            res = temp_storage._call_hostinger_api("query", {
-                "sql": "SELECT COUNT(*) AS cnt FROM ai_instruments",
-                "params": []
-            })
-            count = 0
-            if res.get("rows"):
-                count = int(res["rows"][0].get("cnt", 0))
-            return {
-                "ok": True,
-                "connected": True,
-                "engine": "hostinger",
-                "host": h_cfg.get("host", "srv1502.hstgr.io"),
-                "database": h_cfg.get("database", "u177424397_comp_knowledge"),
-                "table": "ai_instruments",
-                "count": count,
-                "message": f"Сервер Hostinger доступен: таблица ai_instruments содержит {count} инструментов.",
-            }
+            temp_storage.engine = "hostinger"
+            temp_storage._execute_remote(
+                "execute",
+                """
+                CREATE TABLE IF NOT EXISTS ai_instruments (
+                    tool_id VARCHAR(255) PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    tool_type VARCHAR(50) NOT NULL DEFAULT 'powershell',
+                    command LONGTEXT NOT NULL,
+                    description MEDIUMTEXT,
+                    target_entity VARCHAR(255) DEFAULT '',
+                    parameters_schema_json LONGTEXT,
+                    risk_level VARCHAR(50) NOT NULL DEFAULT 'safe',
+                    author_agent VARCHAR(100) NOT NULL DEFAULT 'reasoning_chain',
+                    tags_json LONGTEXT,
+                    execution_count INT NOT NULL DEFAULT 0,
+                    last_executed_at VARCHAR(100),
+                    created_at VARCHAR(100) NOT NULL,
+                    updated_at VARCHAR(100) NOT NULL,
+                    INDEX idx_ai_inst_target (target_entity),
+                    INDEX idx_ai_inst_type (tool_type)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                """,
+                [],
+            )
+            return temp_storage.check_remote_connection()
         except Exception as ex:
             return {
                 "ok": False,
@@ -354,4 +379,78 @@ def init_router(service: Optional[AIInstrumentsService] = None) -> APIRouter:
         except Exception as ex:
             raise HTTPException(status_code=500, detail=f"Ошибка инициализации таблицы: {ex}")
 
+    _runtime_mem_cache: Dict[str, Any] = {}
+
+    @router.get("/runtime/config", response_model=Dict[str, Any])
+    async def get_instruments_runtime_configuration() -> Dict[str, Any]:
+        """Возвращает параметры выполнения инструментов в цепочке размышлений."""
+        import json
+        import time
+        from pathlib import Path
+        cfg_paths = [Path("apps/windows/api/config.json"), Path("config.json")]
+        runtime_cfg = {
+            "execution_timeout": 15,
+            "elevate_powershell": True,
+            "safe_ops_enabled": True,
+            "auto_extract_from_reasoning": True,
+            "title_prefix": "Инструмент агента",
+        }
+        if _runtime_mem_cache:
+            runtime_cfg.update(_runtime_mem_cache)
+
+        for cfg_path in cfg_paths:
+            if not cfg_path.exists():
+                continue
+            for _ in range(3):
+                try:
+                    with open(cfg_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    ai_inst = data.get("ai_instruments") or {}
+                    c = ai_inst.get("runtime") or {}
+                    if c:
+                        runtime_cfg.update(c)
+                        _runtime_mem_cache.update(c)
+                        break
+                except Exception as ex:
+                    time.sleep(0.05)
+                    continue
+
+        return {"status": "ok", "runtime": runtime_cfg}
+
+    @router.post("/runtime/config", response_model=Dict[str, Any])
+    async def save_instruments_runtime_configuration(req: InstrumentsRuntimeConfigRequest) -> Dict[str, Any]:
+        """Сохраняет параметры выполнения инструментов в цепочке размышлений."""
+        import json
+        import time
+        from pathlib import Path
+        cfg_paths = [Path("apps/windows/api/config.json"), Path("config.json")]
+        runtime_data = req.model_dump()
+        _runtime_mem_cache.update(runtime_data)
+
+        for p in cfg_paths:
+            if not p.exists():
+                continue
+            for _ in range(3):
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        c = json.load(f)
+                    if "ai_instruments" not in c:
+                        c["ai_instruments"] = {}
+                    c["ai_instruments"]["runtime"] = runtime_data
+                    with open(p, "w", encoding="utf-8") as f:
+                        json.dump(c, f, ensure_ascii=False, indent=2)
+                        f.write("\n")
+                    break
+                except Exception as ex:
+                    time.sleep(0.05)
+                    continue
+
+        return {
+            "status": "ok",
+            "success": True,
+            "message": "Параметры выполнения инструментов в цепочке размышлений успешно сохранены",
+            "runtime": runtime_data,
+        }
+
     return router
+

@@ -209,3 +209,4 @@ __all__ = [
     "OBJECT_NAME_INFORMATION",
     "RTL_OSVERSIONINFOEXW",
 ]
+

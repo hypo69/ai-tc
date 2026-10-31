@@ -139,3 +139,4 @@ def get_run_report(run_id: str) -> Dict[str, Any]:
     if not report:
         raise HTTPException(status_code=404, detail=f"Отчет о запуске '{run_id}' не найден")
     return report
+

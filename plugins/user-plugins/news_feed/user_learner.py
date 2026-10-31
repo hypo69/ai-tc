@@ -412,3 +412,4 @@ class UserNewsLearner:
 
         ranked.sort(key=lambda x: x.relevance_score, reverse=True)
         return ranked
+

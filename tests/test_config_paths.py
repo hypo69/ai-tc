@@ -3,7 +3,7 @@
 # Process Name: AI-Windows-Admin Tests - Config Paths
 # =============================================================================
 # Description:
-#   Модульные тесты для проверки конфигурационного параметра app_name ('AI-TC')
+#   Модульные тесты для проверки конфигурационного параметра app_name ('ai-tc')
 #   и корректного восстановления путей к data (%LOCALAPPDATA%), а также
 #   к logs и tmp (%APPDATA%).
 #
@@ -31,7 +31,7 @@ from src.config import app_name, app_dir, data_dir, logs_dir, tmp_dir, global_se
 
 
 def test_config_json_contains_app_name() -> None:
-    """Проверяет наличие параметра app_name со значением 'ai-tc' / 'AI-TC' в config.json."""
+    """Проверяет наличие параметра app_name со значением 'ai-tc' / 'ai-tc' в config.json."""
     config_file = __root__ / 'config.json'
     assert config_file.exists(), "Файл config.json должен существовать в корне проекта"
 
@@ -79,3 +79,4 @@ def test_appdata_logs_and_tmp_path_resolution() -> None:
     assert tmp_dir.name == 'tmp', "Каталог временных файлов должен называться 'tmp'"
     assert logs_dir.exists(), "Директория logs_dir должна существовать"
     assert tmp_dir.exists(), "Директория tmp_dir должна существовать"
+

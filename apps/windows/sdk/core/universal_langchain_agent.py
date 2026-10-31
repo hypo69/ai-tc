@@ -22,7 +22,7 @@
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 17:15:00
+# Updated: 2026-10-31 18:57:00
 # =============================================================================
 
 from __future__ import annotations
@@ -41,6 +41,7 @@ from logger import logger
 
 from apps.windows.sdk.core.tools.registry import ToolRegistry
 from apps.windows.sdk.core.tools.system_tools import register_system_tools
+from apps.windows.sdk.core.tools.database_tool import register_database_instruments
 from apps.windows.sdk.core.tools.dynamic_factory import DynamicToolFactory, CreateCustomToolMetaTool
 from apps.windows.sdk.core.agent_loop import extract_json_block
 
@@ -95,6 +96,11 @@ class UniversalLangChainAgent:
         self.model_name = resolved_model or "gemini-2.5-flash"
         self.registry = ToolRegistry()
         register_system_tools(self.registry)
+        try:
+            # Загружаем инструменты из базы ai_instruments (Hostinger MariaDB / SQLite)
+            register_database_instruments(self.registry)
+        except Exception as ex_db:
+            logger.warning(f"[UniversalLangChainAgent] Не удалось подгрузить базу ai_instruments: {ex_db}")
         self.factory = DynamicToolFactory(self.registry)
         self.meta_tool = CreateCustomToolMetaTool(self.factory)
         self.registry.register(self.meta_tool)
@@ -140,11 +146,28 @@ class UniversalLangChainAgent:
         return self._llm
 
     def _build_tools_description(self) -> str:
-        """Формирует текстовое описание доступных инструментов для промпта."""
-        items = []
+        """Формирует структурированное текстовое описание доступных инструментов для промпта."""
+        system_tools = []
+        db_tools = []
+        meta_tools = []
+
         for t in self.registry.list_tools():
-            items.append(f"- **{t.name}**: {t.description}")
-        return "\n".join(items)
+            if t.name == "create_custom_tool":
+                meta_tools.append(f"- **{t.name}**: {t.description}")
+            elif getattr(t, "is_dynamic", False):
+                db_tools.append(f"- **{t.name}**: {t.description}")
+            else:
+                system_tools.append(f"- **{t.name}**: {t.description}")
+
+        sections = []
+        if system_tools:
+            sections.append("#### Встроенные системные коллекторы:\n" + "\n".join(system_tools))
+        if db_tools:
+            sections.append("#### Специализированный арсенал инструментов (ai_instruments):\n" + "\n".join(db_tools))
+        if meta_tools:
+            sections.append("#### Мета-инструменты синтеза на лету:\n" + "\n".join(meta_tools))
+
+        return "\n\n".join(sections)
 
     def _build_system_prompt(self) -> str:
         """Создает системную инструкцию с описанием WikiLLM ящика инструментов и мета-инструмента."""
@@ -170,7 +193,7 @@ class UniversalLangChainAgent:
             "(например: `C:\\Program Files\\Google\\Drive File Stream\\132.0.0.0\\GoogleDriveFS.exe`).\n"
             "   - Если в телеметрии или результатах инструмента получен точный путь `Path` процесса, в `Start-Process` подставляй СТРОГО этот точный путь.\n"
             "   - Для безопасного перезапуска процессов используй шаблон, сохраняющий исходный путь:\n"
-            "     `$p = (Get-Process <Name> -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Path -First 1); Stop-Process -Name <Name> -ErrorAction SilentlyContinue; Start-Sleep -Seconds 3; if ($p -and (Test-Path $p)) { Start-Process $p }`\n"
+            "     `$p = (Get-Process <Name> | Select-Object -ExpandProperty Path -First 1); Stop-Process -Name <Name>; Start-Sleep -Seconds 3; if ($p -and (Test-Path $p)) { Start-Process $p }`\n"
             "   - Для Google Drive в корне каталога также всегда доступен официальный скрипт запуска: `Start-Process \"$env:ProgramFiles\\Google\\Drive File Stream\\launch.bat\"`.\n"
             "6. При формулировании итогового ответа используй понятный Markdown на русском языке с заголовками, списками и эмодзи.\n"
             "7. Если предлагаешь исправление или команду настройки, добавь в конце ответа блок SafeOps-действия:\n"
@@ -186,9 +209,12 @@ class UniversalLangChainAgent:
             "   - Если в ответе рассматриваются службы (services), процессы, сетевые подключения или драйверы, ОБЯЗАТЕЛЬНО "
             "для каждого рассматриваемого компонента выводи точную команду PowerShell в отдельном блоке кода ```powershell "
             "(например: `Get-Service -Name <ServiceName>`). WebGUI автоматически превратит каждый такой блок кода в интерактивный терминал с кнопкой «Run»!\n"
-            "   - В конце раздела обязательно приводи единую сводную команду для одновременного опроса всех названных служб:\n"
+            "   - СТРОЖАЙШЕЕ ПРАВИЛО: КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО использовать флаг `-ErrorAction SilentlyContinue` (или `-EA 0`)! "
+            "Ошибки выполнения никогда нельзя глушить или замалчивать — оператор и модель всегда должны видеть реальный текст ошибки в stderr!\n"
+            "   - Если службы или процессы могут отсутствовать, используй честный опрос по точной маске (*vmswitch*, *hyperv*, *hns*) "
+            "или системные командлеты Get-NetAdapter, Get-VMSwitch:\n"
             "     ```powershell\n"
-            "     Get-Service -Name <Svc1>, <Svc2>, <Svc3> | Select-Object Name, DisplayName, Status, StartType\n"
+            "     Get-Service -Name hns, *vmswitch* | Select-Object Name, DisplayName, Status, StartType\n"
             "     ```\n"
             "9. УПРАВЛЕНИЕ ЛОКАЛЬНЫМИ ПОЛЬЗОВАТЕЛЯМИ И УЧЕТНЫМИ ЗАПИСЯМИ (NET USER):\n"
             "   - Для любых задач аудита, проверки паролей, флагов PasswordRequired/Active, блокировки или удаления "
@@ -359,6 +385,8 @@ class UniversalLangChainAgent:
                 res_json = json.dumps(result_data, ensure_ascii=False, indent=2)[:3500]
                 conversation_log.append(f"\n[Вызов инструмента {called_tool}]: {json.dumps(args, ensure_ascii=False)}\n")
                 conversation_log.append(f"[Результат инструмента {called_tool}]:\n{res_json}\n")
+                if hasattr(exec_res, "message") and exec_res.message and ("Замечание:" in exec_res.message or "Предупреждение:" in exec_res.message):
+                    conversation_log.append(f"[Самопроверка системы]: {exec_res.message}\n")
 
                 yield {
                     "type": "tool_result",
@@ -431,3 +459,4 @@ class UniversalLangChainAgent:
 
 
 __all__ = ["UniversalLangChainAgent"]
+

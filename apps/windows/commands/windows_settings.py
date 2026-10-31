@@ -229,3 +229,4 @@ class WindowsSettingsExecutor:
         res = self.execute(command, rollback_params)
         del self._history[command]
         return res
+

@@ -17,7 +17,7 @@
 # Package: src.ai.orchestration
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-10-28 16:44:00
 # =============================================================================
 
 """Normalize model identifier for consistent comparison."""
@@ -66,6 +66,60 @@ def _normalize_model_name(name: str) -> str:
     return res
 normalize_model_name = _normalize_model_name
 
+
+def get_provider_config(provider: str) -> Dict[str, Any]:
+    """Возвращает словарь настроек указанного провайдера из активной конфигурации.
+
+    Args:
+        provider (str): Название провайдера ('gemini', 'gemini_cli', 'agy', 'foundry', 'ollama', 'hf', 'onnx', 'openai').
+
+    Returns:
+        Dict[str, Any]: Словарь конфигурации провайдера из секции ai_providers_and_models_configuration.providers.
+    """
+    prov: str = (provider or '').lower().strip()
+    try:
+        active_cfg = j_loads(_get_active_config_path())
+        if isinstance(active_cfg, dict):
+            ai_sec = active_cfg.get('ai_providers_and_models_configuration') or active_cfg.get('ai', {})
+            if isinstance(ai_sec, dict):
+                providers = ai_sec.get('providers', {})
+                if isinstance(providers, dict):
+                    prov_cfg = providers.get(prov, {})
+                    if isinstance(prov_cfg, dict):
+                        return prov_cfg
+    except Exception as exc:
+        logger.debug(f"[ModelManager] Ошибка чтения конфигурации провайдера {prov}: {exc}")
+    return {}
+
+
+def is_provider_enabled(provider: str) -> bool:
+    """Проверяет, включен (enabled) ли провайдер в активной конфигурации.
+
+    Если провайдер неактивен (enabled == False), сетевые запросы и обращение к нему исключаются.
+
+    Args:
+        provider (str): Название провайдера ('gemini', 'gemini_cli', 'agy', 'foundry', 'ollama', 'hf', 'onnx', 'openai').
+
+    Returns:
+        bool: True, если провайдер включен; False, если отключен.
+    """
+    prov: str = (provider or '').lower().strip()
+    if not prov:
+        return False
+
+    prov_cfg = get_provider_config(prov)
+    if 'enabled' in prov_cfg:
+        return bool(prov_cfg['enabled'])
+
+    try:
+        from src.config import is_provider_enabled as _cfg_is_prov_enabled
+        return _cfg_is_prov_enabled(prov)
+    except Exception:
+        pass
+
+    return prov in ('gemini', 'gemini_cli', 'agy')
+
+
 def load_unsupported_models(provider: str='gemini') -> Set[str]:
     """Load list of unsupported models from configuration files.
 
@@ -96,7 +150,7 @@ def load_unsupported_models(provider: str='gemini') -> Set[str]:
 
     global_cfg = j_loads(_get_active_config_path())
     if isinstance(global_cfg, dict):
-        ai_sec = global_cfg.get('ai', {})
+        ai_sec = global_cfg.get('ai_providers_and_models_configuration') or global_cfg.get('ai', {})
         if isinstance(ai_sec, dict):
             providers = ai_sec.get('providers', {})
             if isinstance(providers, dict):
@@ -156,24 +210,25 @@ def add_unsupported_model(provider: str='gemini', model_name: str='', reason: st
     active_cfg_path = _get_active_config_path()
     global_cfg = j_loads(active_cfg_path)
     if isinstance(global_cfg, dict):
-        ai_sec = global_cfg.get('ai', {})
+        ai_sec = global_cfg.get('ai_providers_and_models_configuration')
         if not isinstance(ai_sec, dict):
             ai_sec = {}
+            global_cfg['ai_providers_and_models_configuration'] = ai_sec
         providers = ai_sec.get('providers', {})
         if not isinstance(providers, dict):
             providers = {}
+            ai_sec['providers'] = providers
         prov_obj = providers.get(prov, {})
         if not isinstance(prov_obj, dict):
             prov_obj = {}
+            providers[prov] = prov_obj
         prov_list = prov_obj.get('unsupported_models', [])
         if not isinstance(prov_list, list):
             prov_list = []
         if norm_name not in prov_list:
             prov_list.append(norm_name)
             prov_obj['unsupported_models'] = sorted(list(set(prov_list)))
-            providers[prov] = prov_obj
-            ai_sec['providers'] = providers
-            global_cfg['ai'] = ai_sec
+            global_cfg.pop('ai', None)
             j_dumps(global_cfg, active_cfg_path)
     if prov in _CACHED_MODELS:
         _CACHED_MODELS[prov] = [m for m in _CACHED_MODELS[prov] if _normalize_model_name(m) != norm_name]
@@ -184,6 +239,8 @@ def add_unsupported_model(provider: str='gemini', model_name: str='', reason: st
 
 def _fetch_gemini_models_sync(api_key: str='', include_unsupported: bool=False) -> List[str]:
     """Synchronously fetch list of models for Gemini with optional filtering."""
+    if not is_provider_enabled('gemini'):
+        return []
     unsupported: Set[str] = load_unsupported_models('gemini')
     discovered: List[str] = []
     key_to_use: str = api_key
@@ -246,11 +303,11 @@ def _fetch_gemini_models_sync(api_key: str='', include_unsupported: bool=False) 
 
 def _fetch_foundry_models_sync(base_url: str='', include_unsupported: bool=False) -> List[str]:
     """Synchronously fetch list of models from local Foundry server."""
-    from src.config import ai_cfg
-    providers = getattr(ai_cfg, 'providers', {}) if ai_cfg else {}
-    foundry_cfg = providers.get('foundry', {}) if isinstance(providers, dict) else {}
-    base_url = base_url or (foundry_cfg.get('base_url', 'http://localhost:54837') if foundry_cfg else 'http://localhost:54837')
-    fallback_id = foundry_cfg.get('model', 'qwen2.5-1.5b-instruct-generic-cpu:4')
+    if not is_provider_enabled('foundry'):
+        return []
+    foundry_cfg = get_provider_config('foundry')
+    base_url = base_url or foundry_cfg.get('base_url', 'http://localhost:49618')
+    fallback_id = foundry_cfg.get('default_model') or foundry_cfg.get('model', 'qwen2.5-1.5b')
     unsupported: Set[str] = load_unsupported_models('foundry')
     import requests
     models: List[str] = []
@@ -274,11 +331,11 @@ def _fetch_foundry_models_sync(base_url: str='', include_unsupported: bool=False
 
 def _fetch_ollama_models_sync(base_url: str='', include_unsupported: bool=False) -> List[str]:
     """Synchronously fetch list of models from Ollama server."""
-    from src.config import ai_cfg
-    providers = getattr(ai_cfg, 'providers', {}) if ai_cfg else {}
-    ollama_cfg = providers.get('ollama', {}) if isinstance(providers, dict) else {}
-    base_url = base_url or (ollama_cfg.get('base_url', 'http://localhost:11434') if ollama_cfg else 'http://localhost:11434')
-    fallback_id = ollama_cfg.get('model', 'llama3.1')
+    if not is_provider_enabled('ollama'):
+        return []
+    ollama_cfg = get_provider_config('ollama')
+    base_url = base_url or ollama_cfg.get('base_url', 'http://localhost:11434')
+    fallback_id = ollama_cfg.get('default_model') or ollama_cfg.get('model', 'llama3.1')
     unsupported: Set[str] = load_unsupported_models('ollama')
     import requests
     models: List[str] = []
@@ -302,6 +359,8 @@ def _fetch_ollama_models_sync(base_url: str='', include_unsupported: bool=False)
 
 def _fetch_gemini_cli_models_sync(include_unsupported: bool=False) -> List[str]:
     """Synchronously fetch list of models for Gemini CLI with optional filtering."""
+    if not is_provider_enabled('gemini_cli'):
+        return []
     unsupported: Set[str] = load_unsupported_models('gemini_cli')
     if include_unsupported:
         combined = list(_DEFAULT_GEMINI_CLI_FALLBACK)
@@ -316,6 +375,8 @@ def _fetch_gemini_cli_models_sync(include_unsupported: bool=False) -> List[str]:
 
 def _fetch_hf_models_sync(include_unsupported: bool=False) -> List[str]:
     """Synchronously fetch list of cached HuggingFace models."""
+    if not is_provider_enabled('hf'):
+        return []
     unsupported: Set[str] = load_unsupported_models('hf')
     models: List[str] = []
     try:
@@ -338,6 +399,8 @@ def _fetch_hf_models_sync(include_unsupported: bool=False) -> List[str]:
 
 def _fetch_onnx_models_sync(include_unsupported: bool=False) -> List[str]:
     """Synchronously fetch list of ONNX models from local models/onnx directory, memory, and config."""
+    if not is_provider_enabled('onnx'):
+        return []
     unsupported: Set[str] = load_unsupported_models('onnx')
     discovered_models: Set[str] = set()
     try:
@@ -381,6 +444,8 @@ def _fetch_onnx_models_sync(include_unsupported: bool=False) -> List[str]:
 
 def _fetch_openai_compat_models_sync(include_unsupported: bool=False) -> List[str]:
     """Synchronously fetch list of OpenAI-compatible provider models."""
+    if not is_provider_enabled('openai'):
+        return []
     unsupported: Set[str] = load_unsupported_models('openai')
     global_cfg: Dict[str, Any] = j_loads(_get_active_config_path())
     models: List[str] = []
@@ -432,6 +497,8 @@ def get_available_models(provider: str='gemini', api_key: str='', force_refresh:
         True
     """
     prov: str = provider.lower().strip()
+    if not is_provider_enabled(prov):
+        return []
     if not force_refresh and (not include_unsupported) and (prov in _CACHED_MODELS) and _CACHED_MODELS[prov]:
         return list(_CACHED_MODELS[prov])
     result_models: List[str] = []
@@ -501,24 +568,39 @@ async def actualize_all_models(force_refresh: bool=True) -> Dict[str, List[str]]
         >>> 'gemini' in pool
         True
     """
-    logger.info('[ModelManager] Запуск актуализации моделей для всех провайдеров...')
+    logger.info('[ModelManager] Запуск актуализации моделей для активных провайдеров...')
     loop = asyncio.get_running_loop()
-    gemini_task = loop.run_in_executor(None, get_available_models, 'gemini', '', force_refresh)
-    gemini_cli_task = loop.run_in_executor(None, get_available_models, 'gemini_cli', '', force_refresh)
-    foundry_task = loop.run_in_executor(None, get_available_models, 'foundry', '', force_refresh)
-    ollama_task = loop.run_in_executor(None, get_available_models, 'ollama', '', force_refresh)
-    hf_task = loop.run_in_executor(None, get_available_models, 'hf', '', force_refresh)
-    onnx_task = loop.run_in_executor(None, get_available_models, 'onnx', '', force_refresh)
-    openai_task = loop.run_in_executor(None, get_available_models, 'openai', '', force_refresh)
-    gemini_res, gemini_cli_res, foundry_res, ollama_res, hf_res, onnx_res, openai_res = await asyncio.gather(gemini_task, gemini_cli_task, foundry_task, ollama_task, hf_task, onnx_task, openai_task, return_exceptions=True)
-    gemini_list: List[str] = gemini_res if isinstance(gemini_res, list) else []
-    gemini_cli_list: List[str] = gemini_cli_res if isinstance(gemini_cli_res, list) else []
-    foundry_list: List[str] = foundry_res if isinstance(foundry_res, list) else []
-    ollama_list: List[str] = ollama_res if isinstance(ollama_res, list) else []
-    hf_list: List[str] = hf_res if isinstance(hf_res, list) else []
-    onnx_list: List[str] = onnx_res if isinstance(onnx_res, list) else []
-    openai_list: List[str] = openai_res if isinstance(openai_res, list) else []
-    agy_list = get_available_models('agy', force_refresh=force_refresh)
-    result_pool: Dict[str, List[str]] = {'gemini': gemini_list, 'gemini_cli': gemini_cli_list, 'agy': agy_list, 'foundry': foundry_list, 'ollama': ollama_list, 'hf': hf_list, 'onnx': onnx_list, 'openai': openai_list}
+
+    tasks: Dict[str, Any] = {}
+    for p in ('gemini', 'gemini_cli', 'foundry', 'ollama', 'hf', 'onnx', 'openai'):
+        if is_provider_enabled(p):
+            tasks[p] = loop.run_in_executor(None, get_available_models, p, '', force_refresh)
+
+    gathered_keys = list(tasks.keys())
+    gathered_results = await asyncio.gather(*tasks.values(), return_exceptions=True) if tasks else []
+
+    results_by_prov: Dict[str, List[str]] = {}
+    for p, res in zip(gathered_keys, gathered_results):
+        results_by_prov[p] = res if isinstance(res, list) else []
+
+    gemini_list: List[str] = results_by_prov.get('gemini', [])
+    gemini_cli_list: List[str] = results_by_prov.get('gemini_cli', [])
+    foundry_list: List[str] = results_by_prov.get('foundry', [])
+    ollama_list: List[str] = results_by_prov.get('ollama', [])
+    hf_list: List[str] = results_by_prov.get('hf', [])
+    onnx_list: List[str] = results_by_prov.get('onnx', [])
+    openai_list: List[str] = results_by_prov.get('openai', [])
+    agy_list: List[str] = get_available_models('agy', force_refresh=force_refresh) if is_provider_enabled('agy') else []
+
+    result_pool: Dict[str, List[str]] = {
+        'gemini': gemini_list,
+        'gemini_cli': gemini_cli_list,
+        'agy': agy_list,
+        'foundry': foundry_list,
+        'ollama': ollama_list,
+        'hf': hf_list,
+        'onnx': onnx_list,
+        'openai': openai_list,
+    }
     logger.info(f'[ModelManager] Актуализация завершена: Gemini={len(gemini_list)}, Gemini_CLI={len(gemini_cli_list)}, AGY={len(agy_list)}, Foundry={len(foundry_list)}, Ollama={len(ollama_list)}, HF={len(hf_list)}, ONNX={len(onnx_list)}, OpenAI={len(openai_list)}')
     return result_pool

@@ -81,3 +81,4 @@ class WinRtNotificationListener:
         """Удаляет уведомление, чтобы убрать плашку с экрана."""
         if self._listener is not None:
             self._listener.remove_notification(notification_id)
+

@@ -4,19 +4,40 @@
  * =============================================================================
  * Description:
  *   Модуль управления подключением к изолированной базе данных инструментов
- *   ИИ-агента (ai_instruments.db: MariaDB direct TCP / REST API gateway / SQLite локально),
- *   проверки связи, статуса таблиц и сохранения активного профиля.
+ *   ИИ-агента (ai_instruments: Hostinger REST API gateway / MariaDB direct TCP /
+ *   SQLite локально), проверки связи, параметров рантайма и каталога инструментов.
  *
  * File: panel.js
  * Project: ai-windows-admin
  * Package: windows/api/webgui/tab_app_internals/panel_instruments_db
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 15:45:00
+ * Updated: 2026-10-31 18:12:00
  * =============================================================================
  */
 
-import { notifyUser } from '../common/ui_utils.js';
+import { notifyUser } from '../common/ui_utils.js?v=20261031_v3';
+import {
+  loadInstrumentsRuntimeConfig,
+  saveInstrumentsRuntimeConfig,
+  bindInstrumentsRuntimeButtons,
+} from './runtime.js?v=20261031_v3';
+import {
+  loadInstrumentsCatalog,
+  bindInstrumentsCatalogButtons,
+  openInstrumentEditorModal,
+  saveInstrumentFromModal,
+} from './catalog.js?v=20261031_v5';
+
+export {
+  loadInstrumentsRuntimeConfig,
+  saveInstrumentsRuntimeConfig,
+  bindInstrumentsRuntimeButtons,
+  loadInstrumentsCatalog,
+  bindInstrumentsCatalogButtons,
+  openInstrumentEditorModal,
+  saveInstrumentFromModal,
+};
 
 /**
  * Получение текущего активного режима подключения к БД инструментов.
@@ -366,6 +387,9 @@ export function bindInstrumentsDbButtons() {
       togglePassBtn.innerHTML = isPass ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
     });
   }
+
+  bindInstrumentsRuntimeButtons();
+  bindInstrumentsCatalogButtons();
 }
 
 /**
@@ -375,4 +399,6 @@ export function bindInstrumentsDbButtons() {
 export async function initInstrumentsDbPanel() {
   bindInstrumentsDbButtons();
   await loadInstrumentsDbConfig();
+  await loadInstrumentsRuntimeConfig();
+  await loadInstrumentsCatalog();
 }

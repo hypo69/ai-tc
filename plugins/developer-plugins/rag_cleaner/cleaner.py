@@ -113,3 +113,4 @@ class RAGDocumentCleanerCore:
                 if p.is_file():
                     all_chunks.extend(list(self.process_file(p)))
         return all_chunks
+

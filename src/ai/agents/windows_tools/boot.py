@@ -145,3 +145,4 @@ WINDOWS_BOOT_TOOLS = [
     windows_boot_recovery_audit,
     windows_boot_recovery_action,
 ]
+

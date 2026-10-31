@@ -818,3 +818,4 @@ class WindowsLanScanner:
 
 
 __all__ = ['LanDevice', 'WindowsLanScanner', 'OUI_VENDOR_MAP']
+

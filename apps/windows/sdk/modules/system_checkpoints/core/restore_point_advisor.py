@@ -768,3 +768,4 @@ class RestorePointAdvisor:
             f"Итоговое решение: {eval_res.decision.value} — {eval_res.summary}\n"
             f"Рекомендация: {eval_res.recommended_action}"
         )
+

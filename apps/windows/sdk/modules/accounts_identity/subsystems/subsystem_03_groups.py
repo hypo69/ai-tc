@@ -247,3 +247,4 @@ class GroupsSubsystem:
                         queue.append(path + [parent_group.name])
 
         return None
+

@@ -201,3 +201,4 @@ class CodeKnowledgeIndexer:
             count += len(ents)
 
         return count
+

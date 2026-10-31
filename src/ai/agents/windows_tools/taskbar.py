@@ -208,3 +208,4 @@ WINDOWS_TASKBAR_TOOLS = [
     windows_taskbar_audit,
     windows_taskbar_action,
 ]
+

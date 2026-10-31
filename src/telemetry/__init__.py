@@ -16,3 +16,4 @@
 from .async_client import AsyncTelemetryBatchClient
 
 __all__ = ["AsyncTelemetryBatchClient"]
+

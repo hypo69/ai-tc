@@ -285,3 +285,4 @@ class ToolChainStorage:
         except Exception as e:
             logger.error(f"Ошибка получения списка недавних запусков: {e}")
         return results
+

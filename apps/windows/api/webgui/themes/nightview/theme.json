@@ -38,7 +38,7 @@
     "--ui-success": "#16a34a",
     "--ui-warning": "#e65100",
     "--bs-warning": "#e65100",
-    "--status-warning-text": "#e65100",
+    "--status-warning-text": "#b45309",
     "--status-val-font-size": "calc(1em + 1pt)",
     "--ui-danger": "#dc2626",
     "--ui-info": "#0284c7",
@@ -61,7 +61,6 @@
     "--status-success-text": "#15803d",
     "--status-success-border": "rgba(22, 163, 74, 0.28)",
     "--status-warning-bg": "rgba(217, 119, 6, 0.12)",
-    "--status-warning-text": "#b45309",
     "--status-warning-border": "rgba(217, 119, 6, 0.28)",
     "--status-danger-bg": "rgba(220, 38, 38, 0.12)",
     "--status-danger-text": "#dc2626",
@@ -88,6 +87,8 @@
     "color-scheme": "light",
     "--bs-primary": "#1d4ed8",
     "--bs-info": "#0284c7",
-    "--bs-info-rgb": "2, 132, 199"
+    "--bs-info-rgb": "2, 132, 199",
+    "--modal-width": "80vw",
+    "--modal-height": "80vh"
   }
 }

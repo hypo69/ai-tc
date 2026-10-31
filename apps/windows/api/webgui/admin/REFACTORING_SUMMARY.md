@@ -101,15 +101,15 @@ admin/
 ### Созданные файлы
 
 ```
-✅ src/api/webgui/admin/main-refactored.js          - Оркестратор
-✅ src/api/webgui/admin/modules/auth-handler.js    - Аутентификация
-✅ src/api/webgui/admin/modules/tab-manager.js     - Вкладки
-✅ src/api/webgui/admin/modules/ui-handler.js      - UI
-✅ src/api/webgui/admin/modules/init-interface.js  - Инициализация
-✅ src/api/webgui/admin/modules/apps-sync.js       - Синхронизация
-✅ src/api/webgui/admin/ARCHITECTURE.md            - Документация архитектуры
-✅ src/api/webgui/admin/REFACTORING_GUIDE.md       - Гайд по миграции
-✅ src/api/webgui/admin/REFACTORING_SUMMARY.md     - Этот файл
+✅ apps/windows/api/webgui/admin/main-refactored.js          - Оркестратор
+✅ apps/windows/api/webgui/admin/modules/auth-handler.js    - Аутентификация
+✅ apps/windows/api/webgui/admin/modules/tab-manager.js     - Вкладки
+✅ apps/windows/api/webgui/admin/modules/ui-handler.js      - UI
+✅ apps/windows/api/webgui/admin/modules/init-interface.js  - Инициализация
+✅ apps/windows/api/webgui/admin/modules/apps-sync.js       - Синхронизация
+✅ apps/windows/api/webgui/admin/ARCHITECTURE.md            - Документация архитектуры
+✅ apps/windows/api/webgui/admin/REFACTORING_GUIDE.md       - Гайд по миграции
+✅ apps/windows/api/webgui/admin/REFACTORING_SUMMARY.md     - Этот файл
 ```
 
 ## 📊 Метрики улучшения

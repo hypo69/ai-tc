@@ -151,3 +151,4 @@ class ServicesCollector(TelemetryProvider):
             return val
         except OSError:
             return ''
+

@@ -29,7 +29,7 @@ from src.utils.common import (
     get_utc_timestamp_iso,
 )
 from src.app import AppContainer, AppRegistry
-from src.ai.wikillm.client import WikiLLMClient
+from apps.windows.wikillm.client import WikiLLMClient
 from src.telemetry.async_client import AsyncTelemetryBatchClient
 
 
@@ -169,3 +169,4 @@ async def test_async_telemetry_batch_client_delta():
 
     assert len(sent_batches) == 1
     assert len(sent_batches[0]) == 2
+

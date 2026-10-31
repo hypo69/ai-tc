@@ -16,7 +16,7 @@
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-22 14:40:00
+# Updated: 2026-10-28 16:32:00
 # =============================================================================
 
 from __future__ import annotations
@@ -54,7 +54,7 @@ def resolve_active_config_path(profile: str = "") -> Path:
 
 
 def save_ai_config(provider: str, model_name: str, config_path: Optional[Path] = None) -> bool:
-    """Сохраняет активный AI-провайдер и модель во все секции конфигурационного файла.
+    """Сохраняет активный AI-провайдер и модель в секцию ai_providers_and_models_configuration.
 
     Обновляет:
       1. ai_providers_and_models_configuration.default_provider
@@ -62,8 +62,6 @@ def save_ai_config(provider: str, model_name: str, config_path: Optional[Path] =
       3. ai_providers_and_models_configuration.providers[prov].enabled = True
       4. ai_providers_and_models_configuration.providers[prov].default_model = model_name
       5. ai_providers_and_models_configuration.providers[prov].model = model_name
-      6. ai.provider = prov
-      7. ai[prov].model = model_name
 
     Args:
         provider: Имя провайдера (gemini, agy, foundry, ollama, onnx, hf, openai, gemini_cli).
@@ -122,14 +120,8 @@ def save_ai_config(provider: str, model_name: str, config_path: Optional[Path] =
         ai_cfg["providers"][prov_key]["default_model"] = model_str
         ai_cfg["providers"][prov_key]["model"] = model_str
 
-        # 2. Обновляем секцию ai
-        if "ai" not in data or not isinstance(data["ai"], dict):
-            data["ai"] = {}
-
-        data["ai"]["provider"] = prov_key
-        if prov_key not in data["ai"] or not isinstance(data["ai"][prov_key], dict):
-            data["ai"][prov_key] = {}
-        data["ai"][prov_key]["model"] = model_str
+        # Удаляем устаревший рудиментарный блок "ai", если он присутствовал
+        data.pop("ai", None)
 
         target_path.parent.mkdir(parents=True, exist_ok=True)
         with open(target_path, "w", encoding="utf-8") as f:
@@ -146,3 +138,4 @@ __all__ = [
     "resolve_active_config_path",
     "save_ai_config",
 ]
+

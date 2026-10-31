@@ -271,3 +271,4 @@ def test_software_scanner_report_saving_and_retrieval(temp_storage: TelemetrySto
     assert len(orphans) == 1
     assert orphans[0]["product_name"] == "DeletedApp Service"
 
+

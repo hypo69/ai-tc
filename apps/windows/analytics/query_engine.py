@@ -574,3 +574,4 @@ class TelemetryQueryEngine:
             logger.error(f"Ошибка выборки клиентских процессов: {ex}")
             return {"status": "error", "message": str(ex), "processes": [], "sql": sql.strip()}
 
+

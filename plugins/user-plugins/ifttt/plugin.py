@@ -270,3 +270,4 @@ class IFTTTPlugin(BasePlugin):
                 "base_url": self.client.base_url,
             },
         }
+

@@ -1,0 +1,201 @@
+commands:
+  - id: linux.system.info
+    name: Сведения о системе Linux
+    platform: linux
+    category: system
+    executor: bash
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: linux.system.cpu
+    name: Загрузка и характеристики процессора Linux
+    platform: linux
+    category: system
+    executor: bash
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: linux.system.memory
+    name: Состояние оперативной памяти Linux (/proc/meminfo)
+    platform: linux
+    category: system
+    executor: bash
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: linux.system.disks
+    name: Диски и точки монтирования Linux (lsblk, df)
+    platform: linux
+    category: system
+    executor: bash
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: linux.system.uptime
+    name: Время непрерывной работы Linux
+    platform: linux
+    category: system
+    executor: bash
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: linux.system.boot_info
+    name: Журнал загрузки Linux (journalctl -b)
+    platform: linux
+    category: system
+    executor: bash
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: linux.system.environment
+    name: Переменные окружения Linux
+    platform: linux
+    category: system
+    executor: bash
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: linux.service.list
+    name: Список служб systemd Linux
+    platform: linux
+    category: services
+    executor: bash
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters: {}
+
+  - id: linux.service.status
+    name: Статус службы systemd Linux
+    platform: linux
+    category: services
+    executor: bash
+    privilege: standard
+    risk_level: low
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters:
+      service_name:
+        type: string
+        required: true
+
+  - id: linux.service.start
+    name: Запуск службы systemd Linux
+    platform: linux
+    category: services
+    executor: bash
+    privilege: administrator
+    risk_level: medium
+    timeout: 30
+    requires_confirmation: false
+    audit: true
+    parameters:
+      service_name:
+        type: string
+        required: true
+
+  - id: linux.service.stop
+    name: Остановка службы systemd Linux
+    platform: linux
+    category: services
+    executor: bash
+    privilege: administrator
+    risk_level: high
+    timeout: 30
+    requires_confirmation: true
+    audit: true
+    parameters:
+      service_name:
+        type: string
+        required: true
+
+  - id: linux.service.restart
+    name: Перезапуск службы systemd Linux
+    platform: linux
+    category: services
+    executor: bash
+    privilege: administrator
+    risk_level: high
+    timeout: 30
+    requires_confirmation: true
+    audit: true
+    parameters:
+      service_name:
+        type: string
+        required: true
+
+  - id: linux.service.enable
+    name: Включение автозапуска службы Linux
+    platform: linux
+    category: services
+    executor: bash
+    privilege: administrator
+    risk_level: high
+    timeout: 30
+    requires_confirmation: true
+    audit: true
+    parameters:
+      service_name:
+        type: string
+        required: true
+
+  - id: linux.service.disable
+    name: Отключение автозапуска службы Linux
+    platform: linux
+    category: services
+    executor: bash
+    privilege: administrator
+    risk_level: high
+    timeout: 30
+    requires_confirmation: true
+    audit: true
+    parameters:
+      service_name:
+        type: string
+        required: true
+
+  - id: linux.user.delete
+    name: Удаление пользователя Linux
+    platform: linux
+    category: users
+    executor: bash
+    privilege: administrator
+    risk_level: critical
+    timeout: 30
+    requires_confirmation: true
+    audit: true
+    parameters:
+      username:
+        type: string
+        required: true

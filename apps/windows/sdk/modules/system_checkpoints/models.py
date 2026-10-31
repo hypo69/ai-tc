@@ -378,3 +378,4 @@ class SmartRestorePointCreateRequest(BaseModel):
     force: bool = Field(default=False, description="Принудительное создание, даже если вердикт SKIP или MONITOR")
     checkpoint_type: CheckpointType = Field(default=CheckpointType.PERIODIC, description="Тип создаваемой контрольной точки")
 
+

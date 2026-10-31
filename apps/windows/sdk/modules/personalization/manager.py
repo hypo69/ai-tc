@@ -904,3 +904,4 @@ def get_personalization_manager() -> PersonalizationManager:
     if _personalization_manager_instance is None:
         _personalization_manager_instance = PersonalizationManager()
     return _personalization_manager_instance
+

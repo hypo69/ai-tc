@@ -55,3 +55,4 @@ class ExactResolver(BaseResolver):
             return None
 
         return self.storage.get_entity(canonical_key)
+

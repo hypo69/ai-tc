@@ -98,3 +98,4 @@ def test_router_sound_test_signal():
     data = response.json()
     assert data["status"] == "ok"
     assert data["sound"] == "asterisk"
+

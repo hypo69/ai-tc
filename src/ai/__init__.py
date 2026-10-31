@@ -13,7 +13,7 @@
 # Package: src.ai
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-10-28 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -29,9 +29,9 @@ from .providers.ollama import OllamaChatBase, OllamaClient
 from .providers.base import BaseChatProvider
 from .gemini import GoogleGenerativeAI
 from .agents import MediaSearchAgent, MCPClientManager
-from .orchestration import get_available_models, actualize_all_models, add_unsupported_model, load_unsupported_models, UnifiedChatModel
+from .orchestration import get_available_models, actualize_all_models, add_unsupported_model, load_unsupported_models, UnifiedChatModel, is_provider_enabled, get_provider_config
 from .rag import UnifiedKnowledgeHub, TextRAG, PixelRAG, LogRAG
-from .wikillm import WikiLLMEngine, WikiStorage
+from apps.windows.wikillm import WikiLLMEngine, WikiStorage
 
 __all__ = [
     'BaseChatProvider',
@@ -55,6 +55,8 @@ __all__ = [
     'actualize_all_models',
     'add_unsupported_model',
     'load_unsupported_models',
+    'is_provider_enabled',
+    'get_provider_config',
     'MediaSearchAgent',
     'MCPClientManager',
     'UnifiedKnowledgeHub',
@@ -64,3 +66,4 @@ __all__ = [
     'WikiLLMEngine',
     'WikiStorage',
 ]
+

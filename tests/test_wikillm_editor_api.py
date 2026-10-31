@@ -95,3 +95,4 @@ def test_wikillm_editor_profiles(client: TestClient):
     assert "score_threshold" in first
     assert "top_k" in first
     assert "fetch_k" in first
+

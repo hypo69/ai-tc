@@ -117,3 +117,4 @@ def test_incidents_insert_and_aggregation_spike_incident_id(storage: TelemetrySt
     res = storage.run_aggregation_pipeline()
     assert isinstance(res, dict)
 
+

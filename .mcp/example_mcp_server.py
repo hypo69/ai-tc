@@ -1,162 +1,278 @@
-"""
-Пример MCP сервера с кроссплатформенной поддержкой.
+# -*- coding: utf-8 -*-
+# =============================================================================
+# Process Name: Эталонный кроссплатформенный MCP-сервер (example_mcp_server.py)
+# =============================================================================
+# Description:
+#   Демонстрационный и диагностический MCP-сервер (STDIO) на базе
+#   MCP Python SDK v2 (`MCPServer`), реализующий стандартные паттерны
+#   работы с конфигурацией, переменными окружения и SSL-сертификатами
+#   в Windows, Linux и macOS.
+#
+#   Зачем нужен этот модуль:
+#     1. Эталонный шаблон для разработки новых MCP-серверов в соответствии
+#        с инженерными стандартами проекта (`ENGINEERING.md`, `DOCUMENTATION.md`).
+#     2. Предоставление диагностических MCP-инструментов для проверки путей,
+#        доступности порта FastAPI-сервера и установленных SSL-сертификатов.
+#
+# Usage Examples:
+#   Python API:
+#     from .example_mcp_server import get_project_info, check_server_status
+#     info_json = get_project_info()
+#
+# File: example_mcp_server.py
+# Project: AI Windows Admin (AI-TC)
+# Package: .mcp
+# Author: hypo69
+# Copyright: © 2026 hypo69
+# Updated: 2026-10-31 17:06:00
+# =============================================================================
 
-Этот файл показывает рекомендуемые паттерны для написания MCP серверов
-которые работают на Windows, Linux и macOS без изменений.
-
-Использование:
-    python .mcp/example_mcp_server.py
-    python3 .mcp/example_mcp_server.py
-"""
 from __future__ import annotations
+
+import json
 import sys
-import os
 from pathlib import Path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-from mcp.server.fastmcp import FastMCP
+
+_CURRENT_DIR = Path(__file__).resolve().parent
+_PROJECT_ROOT = _CURRENT_DIR.parent
+for _p in (str(_CURRENT_DIR), str(_PROJECT_ROOT)):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
+from mcp.server import MCPServer
+
+from logger import logger
+
 try:
-    from .config_helper import get_project_root, load_config, get_config_value, get_server_url, get_env_var, get_certs_dir, get_data_dir, is_port_open
+    from .config_helper import (
+        get_certs_dir,
+        get_config_value,
+        get_data_dir,
+        get_env_var,
+        get_project_root,
+        get_server_url,
+        is_port_open,
+        load_config,
+    )
 except ImportError:
-    from config_helper import get_project_root, load_config, get_config_value, get_server_url, get_env_var, get_certs_dir, get_data_dir, is_port_open
-try:
-    from logger import logger
-except ImportError:
+    from config_helper import (
+        get_certs_dir,
+        get_config_value,
+        get_data_dir,
+        get_env_var,
+        get_project_root,
+        get_server_url,
+        is_port_open,
+        load_config,
+    )
 
-    class SimpleLogger:
+mcp = MCPServer("Example-Server")
 
-        def info(self, msg):
-            logger.console(f'[INFO] {msg}')
 
-        def warning(self, msg):
-            logger.console(f'[WARN] {msg}')
-
-        def error(self, msg):
-            logger.console(f'[ERROR] {msg}')
-    logger = SimpleLogger()
-mcp = FastMCP('Example-Server')
-
-@mcp.tool()
+@mcp.tool(
+    name="get_project_info",
+    description="Получить общую информацию о проекте, платформе и конфигурации (кроссплатформенно)",
+)
 def get_project_info() -> str:
-    """
-    Получить информацию о проекте (кроссплатформенно).
-    
+    """Получение диагностических сведений о проекте и окружении Python.
+
     Returns:
-        JSON со сведениями о проекте
+        str: JSON-строка с метаданными проекта (`project_root`, `platform`, `server_url`).
+
+    Examples:
+        >>> data = json.loads(get_project_info())
+        >>> "project_root" in data
+        True
     """
     try:
         root = get_project_root()
         config = load_config()
-        info = {'project_root': str(root), 'platform': sys.platform, 'python_version': sys.version, 'config_exists': (root / 'config.json').exists(), 'env_exists': (root / '.env').exists(), 'server_url': get_server_url()}
-        return str(info)
-    except Exception as e:
-        logger.error(f'Error getting project info: {e}')
-        return f'Error: {e}'
+        info = {
+            "project_root": str(root),
+            "app_name": config.get("app_name", "AI-TC"),
+            "platform": sys.platform,
+            "python_version": sys.version,
+            "config_exists": (root / "config.json").exists(),
+            "env_exists": (root / ".env").exists(),
+            "server_url": get_server_url(),
+        }
+        return json.dumps(info, ensure_ascii=False, indent=2)
+    except Exception as exc:
+        logger.error(f"[example_mcp_server] Ошибка получения сведений о проекте: {exc}")
+        return json.dumps({"status": "error", "message": str(exc)}, ensure_ascii=False)
 
-@mcp.tool()
+
+@mcp.tool(
+    name="get_directories",
+    description="Получить пути к ключевым директориям проекта, сертификатов и данных",
+)
 def get_directories() -> str:
-    """
-    Получить важные директории (кроссплатформенно).
-    
+    """Получение кроссплатформенных путей к основным директориям приложения.
+
     Returns:
-        JSON с путями до директорий
+        str: JSON-строка со словарем путей (`project_root`, `certs_dir`, `data_dir`, `home`).
+
+    Examples:
+        >>> dirs = json.loads(get_directories())
+        >>> "data_dir" in dirs
+        True
     """
     try:
-        dirs = {'project_root': str(get_project_root()), 'certs_dir': str(get_certs_dir()), 'data_dir': str(get_data_dir()), 'home': str(Path.home())}
-        return str(dirs)
-    except Exception as e:
-        logger.error(f'Error getting directories: {e}')
-        return f'Error: {e}'
+        dirs = {
+            "project_root": str(get_project_root()),
+            "certs_dir": str(get_certs_dir()),
+            "data_dir": str(get_data_dir()),
+            "home": str(Path.home()),
+        }
+        return json.dumps(dirs, ensure_ascii=False, indent=2)
+    except Exception as exc:
+        logger.error(f"[example_mcp_server] Ошибка получения директорий: {exc}")
+        return json.dumps({"status": "error", "message": str(exc)}, ensure_ascii=False)
 
-@mcp.tool()
+
+@mcp.tool(
+    name="check_server_status",
+    description="Проверить сетевой статус и открытость порта основного сервера FastAPI",
+)
 def check_server_status() -> str:
-    """
-    Проверить status сервера (кроссплатформенно).
-    
+    """Проверка доступности сетевого порта центрального сервера FastAPI.
+
     Returns:
-        JSON со статусом сервера
+        str: JSON-строка со статусом сервера (`server_url`, `port`, `is_open`, `status`).
+
+    Examples:
+        >>> status = json.loads(check_server_status())
+        >>> "is_open" in status
+        True
     """
     try:
         server_url = get_server_url()
-        port = get_config_value('server.port', 8000)
-        host = '127.0.0.1'
-        is_open = is_port_open(host, port)
-        status = {'server_url': server_url, 'port': port, 'is_open': is_open, 'status': 'Running' if is_open else 'Not responding'}
-        return str(status)
-    except Exception as e:
-        logger.error(f'Error checking server status: {e}')
-        return f'Error: {e}'
+        port = int(get_config_value("server.port", 0) or 0)
+        host = str(get_config_value("server.host", "127.0.0.1")).strip() or "127.0.0.1"
+        if host == "0.0.0.0":
+            host = "127.0.0.1"
+        is_open = is_port_open(host=host, port=port) if port > 0 else False
+        status = {
+            "server_url": server_url,
+            "host": host,
+            "port": port,
+            "is_open": is_open,
+            "status": "Running" if is_open else "Not responding",
+        }
+        return json.dumps(status, ensure_ascii=False, indent=2)
+    except Exception as exc:
+        logger.error(f"[example_mcp_server] Ошибка проверки статуса сервера: {exc}")
+        return json.dumps({"status": "error", "message": str(exc)}, ensure_ascii=False)
 
-@mcp.tool()
+
+@mcp.tool(
+    name="read_config_value",
+    description="Прочитать значение параметра из config.json по ключу с точечной нотацией",
+)
 def read_config_value(key_path: str) -> str:
-    """
-    Прочитать значение из конфигурации.
-    
-    Args:
-        key_path: Путь ключей через точку (например: "server.port")
-    
-    Returns:
-        Значение или Error
-    """
-    try:
-        value = get_config_value(key_path)
-        return f"Value for '{key_path}': {value}"
-    except Exception as e:
-        logger.error(f'Error reading config: {e}')
-        return f'Error: {e}'
+    """Чтение параметра из файла `config.json` по иерархическому пути.
 
-@mcp.tool()
+    Args:
+        key_path (str): Путь ключей через точку (например, `'server.port'`).
+
+    Returns:
+        str: Строка со значением параметра или сообщение об ошибке.
+
+    Examples:
+        >>> "server.port" in read_config_value("server.port")
+        True
+    """
+    if not key_path or not key_path.strip():
+        return "Ошибка: Не указан путь ключа (key_path)"
+    try:
+        value = get_config_value(key_path.strip(), "")
+        return f"Значение для '{key_path.strip()}': {value}"
+    except Exception as exc:
+        logger.error(f"[example_mcp_server] Ошибка чтения конфигурации: {exc}")
+        return f"Ошибка: {exc}"
+
+
+@mcp.tool(
+    name="read_env_variable",
+    description="Прочитать значение переменной окружения из системы или .env",
+)
 def read_env_variable(var_name: str) -> str:
-    """
-    Прочитать переменную окружения.
-    
-    Args:
-        var_name: Имя переменной
-    
-    Returns:
-        Значение или сообщение что не найдено
-    """
-    try:
-        value = get_env_var(var_name)
-        if value:
-            return f"Environment variable '{var_name}': {value}"
-        else:
-            return f"Environment variable '{var_name}' not found"
-    except Exception as e:
-        logger.error(f'Error reading env variable: {e}')
-        return f'Error: {e}'
+    """Чтение переменной окружения по её имени.
 
-@mcp.tool()
-def list_certs() -> str:
-    """
-    List SSL сертификатов в кроссплатформенной директории.
-    
+    Args:
+        var_name (str): Имя переменной окружения.
+
     Returns:
-        List файлов сертификатов
+        str: Значение переменной или сообщение об её отсутствии.
+
+    Examples:
+        >>> "APP_NAME" in read_env_variable("APP_NAME")
+        True
+    """
+    if not var_name or not var_name.strip():
+        return "Ошибка: Не указано имя переменной окружения"
+    try:
+        clean_name = var_name.strip()
+        value = get_env_var(clean_name, "")
+        if value:
+            return f"Переменная окружения '{clean_name}': {value}"
+        return f"Переменная окружения '{clean_name}' не найдена"
+    except Exception as exc:
+        logger.error(f"[example_mcp_server] Ошибка чтения переменной окружения: {exc}")
+        return f"Ошибка: {exc}"
+
+
+@mcp.tool(
+    name="list_certs",
+    description="Получить список установленных SSL-сертификатов в системной директории сертификатов",
+)
+def list_certs() -> str:
+    """Получение списка файлов SSL-сертификатов (`.pem`, `.crt`) в директории сертификатов.
+
+    Returns:
+        str: Форматированный список найденных сертификатов или уведомление об их отсутствии.
+
+    Examples:
+        >>> isinstance(list_certs(), str)
+        True
     """
     try:
         certs_dir = get_certs_dir()
         if not certs_dir.exists():
-            return f'Certs directory does not exist: {certs_dir}'
-        certs = list(certs_dir.glob('*.pem')) + list(certs_dir.glob('*.crt'))
-        result = f'Certificates in {certs_dir}:\n'
+            return f"Директория сертификатов не существует: {certs_dir}"
+        certs = sorted(list(certs_dir.glob("*.pem")) + list(certs_dir.glob("*.crt")))
+        if not certs:
+            return f"Сертификаты не найдены в {certs_dir}"
+        lines = [f"Сертификаты в {certs_dir}:"]
         for cert in certs:
-            result += f'  - {cert.name}\n'
-        return result if certs else f'No certificates found in {certs_dir}'
-    except Exception as e:
-        logger.error(f'Error listing certs: {e}')
-        return f'Error: {e}'
+            lines.append(f"  - {cert.name}")
+        return "\n".join(lines)
+    except Exception as exc:
+        logger.error(f"[example_mcp_server] Ошибка получения списка сертификатов: {exc}")
+        return f"Ошибка: {exc}"
 
-def main():
-    """Главная function запуска сервера"""
-    logger.info('Starting Example MCP Server')
-    logger.info(f'Platform: {sys.platform}')
-    logger.info(f'Python: {sys.version}')
+
+def main() -> int:
+    """Запуск эталонного MCP-сервера в режиме STDIO.
+
+    Returns:
+        int: Код завершения (0 — успешно).
+
+    Examples:
+        >>> callable(main)
+        True
+    """
+    logger.info(f"[example_mcp_server] Запуск Example MCPServer (платформа={sys.platform})...")
     try:
-        mcp.run()
+        mcp.run(transport="stdio")
+        return 0
     except KeyboardInterrupt:
-        logger.info('Server stopped by user')
-    except Exception as e:
-        logger.error(f'Server error: {e}')
-if __name__ == '__main__':
-    main()
+        logger.info("[example_mcp_server] Сервер остановлен пользователем")
+        return 0
+    except Exception as exc:
+        logger.error(f"[example_mcp_server] Критическая ошибка сервера: {exc}")
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

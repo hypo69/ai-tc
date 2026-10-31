@@ -294,3 +294,4 @@ class ContractHardwareSensor:
             "max_value": self.max_value,
             "parent": self.parent,
         }
+

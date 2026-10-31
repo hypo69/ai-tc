@@ -6,7 +6,7 @@ description: Автоматический навык, исправляющий f
 # Навык: Автоматическое исправление frontmatter
 
 ## 🎯 Назначение
-Автоматически сканирует все `SKILL.md`‑файлы в каталоге `C:\Users\onela\AppData\Local\AI-TC\.agents\skills`,
+Автоматически сканирует все `SKILL.md`‑файлы в каталоге `C:\Users\onela\AppData\Local\ai-tc\.agents\skills`,
 - заключает строку `description:` в двойные кавычки, если она не заключена;
 - добавляет/обновляет строку `Updated: YYYY-MM-DD HH:MM:SS` сразу после первой границы `---`.
 

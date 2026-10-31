@@ -665,3 +665,4 @@ __all__ = [
     'WindowsAtomicCapabilitiesRegistry',
     'get_atomic_registry',
 ]
+

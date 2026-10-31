@@ -73,3 +73,4 @@ def run_plugins_command(args: argparse.Namespace) -> int:
         return 0
     logger.console(f'Unknown plugins subcommand: {sub}')
     return 1
+

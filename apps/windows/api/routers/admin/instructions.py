@@ -321,3 +321,4 @@ async def update_sources_raw(request: Request, data: RawSourcesUpdate) -> Dict[s
     _save_sources_raw(data.content)
     logger.info('Sources JSON updated via admin panel')
     return {'status': 'ok'}
+

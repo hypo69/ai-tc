@@ -159,3 +159,4 @@ class SysmonInspector:
                 "channel_verified": channel_active,
             }
         )
+

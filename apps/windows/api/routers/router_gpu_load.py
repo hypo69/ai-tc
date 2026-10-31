@@ -18,7 +18,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 20:42:00
+# Updated: 2026-10-31 18:55:00
 # =============================================================================
 
 from __future__ import annotations
@@ -237,6 +237,7 @@ def build_gpu_load(
     target_gpu_name: Optional[str] = None,
     available_gpus: Optional[List[Dict[str, Any]]] = None,
     current_gpu_index: int = 0,
+    snapshot_gpu: Optional[Dict[str, Any]] = None,
 ) -> GpuLoadResponse:
     """Собирает структурированные метрики конкретного GPU из списка сенсоров, паспорта и истории.
 
@@ -247,12 +248,13 @@ def build_gpu_load(
         target_gpu_name: Название целевой видеокарты для фильтрации сенсоров.
         available_gpus: Список всех видеокарт в системе.
         current_gpu_index: Индекс выбранной видеокарты.
+        snapshot_gpu: Срез снимка целевой видеокарты из system_snapshots.
 
     Returns:
         GpuLoadResponse: Полная информация по загрузке, температуре, памяти, спецификациям и истории GPU.
     """
     inv = inventory or {}
-    gpu_name = target_gpu_name or inv.get("name") or "GPU"
+    gpu_name = target_gpu_name or (snapshot_gpu.get("name") if snapshot_gpu else None) or inv.get("name") or "GPU"
     core_load: Optional[float] = None
     core_temp: Optional[float] = None
     hotspot_temp: Optional[float] = None
@@ -436,16 +438,24 @@ def build_gpu_load(
                     )
                 )
 
-    # Fallback на данные из последних сэмплов БД / инвентаря для отсутствующих метрик
+    # Fallback на данные из снимка / последних сэмплов БД / инвентаря для отсутствующих метрик
     latest_hist = history_samples[-1] if history_samples else {}
     if core_load is None:
-        if latest_hist.get("load_percent") is not None:
+        if snapshot_gpu and snapshot_gpu.get("load_percent") is not None:
+            core_load = float(snapshot_gpu["load_percent"])
+        elif latest_hist.get("load_percent") is not None:
             core_load = float(latest_hist["load_percent"])
         elif inv.get("utilization_gpu_pct") is not None:
             core_load = float(inv["utilization_gpu_pct"])
+        else:
+            core_load = 0.0
 
     if core_temp is None:
-        if latest_hist.get("temperature_gpu_c") is not None:
+        if snapshot_gpu and snapshot_gpu.get("temperature_celsius") is not None:
+            core_temp = float(snapshot_gpu["temperature_celsius"])
+        elif latest_hist.get("temperature_c") is not None:
+            core_temp = float(latest_hist["temperature_c"])
+        elif latest_hist.get("temperature_gpu_c") is not None:
             core_temp = float(latest_hist["temperature_gpu_c"])
         elif inv.get("temperature_gpu_c") is not None:
             core_temp = float(inv["temperature_gpu_c"])
@@ -460,18 +470,24 @@ def build_gpu_load(
         fan_pct = float(inv["fan_speed_pct"])
 
     if vram_total is None:
-        if latest_hist.get("memory_total_mb"):
-            vram_total = float(latest_hist["memory_total_mb"])
-        elif inv.get("memory_total_mb") is not None:
-            vram_total = float(inv["memory_total_mb"])
-        elif inv.get("vram_gb") is not None and float(inv["vram_gb"]) > 0:
-            vram_total = float(inv["vram_gb"]) * 1024.0
+        if snapshot_gpu:
+            vram_total = snapshot_gpu.get("dedicated_memory_mb") or (float(snapshot_gpu.get("memory_total_gb") or 0.0) * 1024.0 if snapshot_gpu.get("memory_total_gb") else None)
+        if vram_total is None:
+            if latest_hist.get("memory_total_mb"):
+                vram_total = float(latest_hist["memory_total_mb"])
+            elif inv.get("memory_total_mb") is not None:
+                vram_total = float(inv["memory_total_mb"])
+            elif inv.get("vram_gb") is not None and float(inv["vram_gb"]) > 0:
+                vram_total = float(inv["vram_gb"]) * 1024.0
 
     if vram_used is None:
-        if latest_hist.get("memory_used_mb") is not None:
-            vram_used = float(latest_hist["memory_used_mb"])
-        elif inv.get("memory_used_mb") is not None:
-            vram_used = float(inv["memory_used_mb"])
+        if snapshot_gpu:
+            vram_used = snapshot_gpu.get("memory_used_mb") or (float(snapshot_gpu.get("memory_used_gb") or 0.0) * 1024.0 if snapshot_gpu.get("memory_used_gb") else None)
+        if vram_used is None:
+            if latest_hist.get("memory_used_mb") is not None:
+                vram_used = float(latest_hist["memory_used_mb"])
+            elif inv.get("memory_used_mb") is not None:
+                vram_used = float(inv["memory_used_mb"])
 
     if vram_free is None and vram_total is not None and vram_used is not None:
         vram_free = max(0.0, vram_total - vram_used)
@@ -479,10 +495,10 @@ def build_gpu_load(
     if vram_pct is None and vram_total and vram_used is not None and vram_total > 0:
         vram_pct = round((vram_used / vram_total) * 100.0, 1)
 
-    # Добавляем движки из инвентаря GpuProber
-    inv_engines = inv.get("engines")
-    if isinstance(inv_engines, dict):
-        for eng_name, eng_val in inv_engines.items():
+    # Добавляем движки из снимка или инвентаря GpuProber
+    snap_engines = (snapshot_gpu.get("engines") if snapshot_gpu else None) or inv.get("engines")
+    if isinstance(snap_engines, dict):
+        for eng_name, eng_val in snap_engines.items():
             if eng_name not in engines_dict:
                 engines_dict[eng_name] = GpuEngineMetric(
                     name=eng_name,
@@ -898,7 +914,46 @@ def _fetch_single_gpu_data(
     except Exception as exc:
         logger.error(f"[router_gpu_load] Ошибка чтения метрик GPU из БД: {exc}", exc_info=True)
 
-    # 3. Собираем и возвращаем объект GPU на основе данных из БД
+    # 3. Извлечение актуальных параметров GPU из последнего снимка системы
+    snapshot_gpu: Optional[Dict[str, Any]] = None
+    try:
+        full_snap = store.get_latest_snapshot_full() or {}
+        gpus_in_snap = full_snap.get("gpus") or []
+        for g_s in gpus_in_snap:
+            if isinstance(g_s, dict):
+                s_name = g_s.get("name", "")
+                if _is_sensor_matching_gpu(s_name, target_name):
+                    snapshot_gpu = g_s
+                    break
+        if not snapshot_gpu and 0 <= target_idx < len(gpus_in_snap):
+            if isinstance(gpus_in_snap[target_idx], dict):
+                snapshot_gpu = gpus_in_snap[target_idx]
+    except Exception as ex:
+        logger.debug(f"[router_gpu_load] Ошибка извлечения GPU из снимка: {ex}")
+
+    if not snapshot_gpu:
+        try:
+            from apps.windows.sdk.modules.hardware.gpu_prober import GpuProber
+            prober_gpus = GpuProber().probe_all()
+            for pg in prober_gpus:
+                p_name = getattr(pg, 'name', '') or ''
+                if _is_sensor_matching_gpu(p_name, target_name):
+                    snapshot_gpu = {
+                        "name": pg.name,
+                        "vendor": getattr(pg, 'vendor', ''),
+                        "temperature_celsius": pg.temperature_gpu_c,
+                        "load_percent": pg.utilization_gpu_pct,
+                        "dedicated_memory_mb": pg.dedicated_memory_mb or pg.memory_total_mb,
+                        "memory_total_mb": pg.memory_total_mb,
+                        "memory_used_mb": pg.memory_used_mb,
+                        "engines": pg.engines,
+                        "driver_version": getattr(pg, 'driver_version', ''),
+                    }
+                    break
+        except Exception as ex:
+            logger.debug(f"[router_gpu_load] Fallback GpuProber error: {ex}")
+
+    # 4. Собираем и возвращаем объект GPU на основе данных из БД
     resp = build_gpu_load(
         sensors=matched_sensors,
         inventory=target_gpu,
@@ -906,6 +961,7 @@ def _fetch_single_gpu_data(
         target_gpu_name=target_name,
         available_gpus=available_gpus,
         current_gpu_index=target_idx,
+        snapshot_gpu=snapshot_gpu,
     )
     resp.meta["source"] = "telemetry_db"
     return resp
@@ -968,3 +1024,4 @@ __all__ = [
     "GpuHistoryPoint",
     "GpuSpecsInfo",
 ]
+

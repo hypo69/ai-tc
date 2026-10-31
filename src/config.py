@@ -20,7 +20,7 @@
 # Package: src
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-27 23:02:00
+# Updated: 2026-10-28 16:43:00
 # =============================================================================
 
 """Модуль основной системы (`config`)."""
@@ -58,7 +58,7 @@ app_name: str = (
     getattr(global_settings, 'app_name', None)
     or getattr(getattr(global_settings, 'app', None), 'app_name', None)
     or os.getenv('APP_NAME')
-    or 'AI-TC'
+    or 'ai-tc'
 )
 APP_NAME: str = app_name
 os.environ['APP_NAME'] = APP_NAME
@@ -93,8 +93,7 @@ for _dir in (data_dir, logs_dir, tmp_dir):
 
 server_cfg = getattr(global_settings, 'server', SimpleNamespace())
 
-# Для TC-режима (apps/windows/config.json) читаем ai_providers_and_models_configuration
-# Для обычного режима (config.json) читаем ai
+# Читаем единую конфигурацию ai_providers_and_models_configuration
 ai_cfg_section = getattr(global_settings, 'ai_providers_and_models_configuration', None)
 if ai_cfg_section is None:
     ai_cfg_section = getattr(global_settings, 'ai', SimpleNamespace())
@@ -159,6 +158,31 @@ def is_app_enabled(target_app_name: str) -> bool:
     return True
 
 
+def is_provider_enabled(provider_name: str) -> bool:
+    """Проверяет, активен (enabled) ли AI-провайдер согласно текущей конфигурации.
+
+    Args:
+        provider_name (str): Имя провайдера (например, 'gemini', 'foundry', 'ollama', 'hf', 'onnx', 'openai').
+
+    Returns:
+        bool: True, если провайдер включен (enabled == True); иначе False.
+    """
+    prov = (provider_name or '').lower().strip()
+    if not prov:
+        return False
+    providers = getattr(ai_cfg, 'providers', None)
+    if providers is not None:
+        prov_obj = getattr(providers, prov, None) if not isinstance(providers, dict) else providers.get(prov)
+        if prov_obj is not None:
+            enabled = getattr(prov_obj, 'enabled', None) if not isinstance(prov_obj, dict) else prov_obj.get('enabled')
+            if enabled is not None:
+                return bool(enabled)
+    # По умолчанию встроенные облачные клиенты включены, если не отключены явно
+    if prov in ('gemini', 'gemini_cli', 'agy'):
+        return True
+    return False
+
+
 def is_debug_mode() -> bool:
     """Проверяет, активен ли режим отладки (DEBUG / DEV).
 
@@ -192,3 +216,4 @@ def is_debug_mode() -> bool:
 
 from src.utils.ports import load_ports_config, PORTS_FILE
 ports_cfg = load_ports_config(PORTS_FILE)
+

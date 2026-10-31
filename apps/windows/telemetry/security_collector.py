@@ -619,3 +619,4 @@ __all__ = [
     'DEFAULT_DEFENDER_EVENT_IDS',
     'DEFENDER_CHANNEL',
 ]
+

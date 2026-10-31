@@ -222,3 +222,4 @@ def webp2png(webp_path: str, png_path: str) -> bool:
         logger.console(f"Error during conversion: {e}")
         return
 
+

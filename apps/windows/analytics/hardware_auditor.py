@@ -147,3 +147,4 @@ class HardwareAuditor:
         """
         devices = self._collector.collect_devices(sensors=sensors)
         return self.analyze_devices(devices)
+

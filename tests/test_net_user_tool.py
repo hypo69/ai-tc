@@ -166,3 +166,4 @@ async def test_net_user_delete_destructive() -> None:
         assert result.status == "ok"
         assert result.command_executed == 'net user user /delete'
         assert result.risk_level == RiskLevel.CRITICAL
+

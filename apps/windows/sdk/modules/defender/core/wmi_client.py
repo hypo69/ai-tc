@@ -136,3 +136,4 @@ class DefenderWmiClient:
         except Exception as e:
             logger.debug(f'WMI MSFT_MpThreatDetection fallback: {e}')
             return None
+

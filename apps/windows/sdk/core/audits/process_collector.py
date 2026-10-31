@@ -98,3 +98,4 @@ class ProcessCollector(TelemetryProvider):
         result = DomainAuditResult(domain_name='processes', title_ru='Интеллект процессов (Process Explorer)', status='warning' if findings else 'ok', findings=findings, metrics=metrics, scan_duration_ms=round(duration_ms, 2))
         self._last_result = result
         return result
+

@@ -18,11 +18,10 @@
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 09:53:00
+# Updated: 2026-10-30 12:55:00
 # =============================================================================
 
 from __future__ import annotations
-
 """Методы обслуживания, очистки старых записей, дефрагментации и агрегации телеметрии в SQLite (12 таблиц)."""
 
 import json
@@ -34,12 +33,17 @@ from typing import Any, Dict, List, Optional
 
 from .connection import TelemetryConnectionManager
 from .delta_tracker import SNAPSHOT_FIELDS, VOLATILE_FIELDS
+from .tiered_compactor import TelemetryTieredCompactor
 
 try:
     from logger import logger
 except ImportError:
     import logging
     logger = logging.getLogger(__name__)
+
+
+# Уровни агрегатов долгосрочной истории потребления железа и приложений
+HISTORY_TIERS = ('36h', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'proc_daily', 'proc_weekly', 'proc_all_time')
 
 
 class TelemetryMaintenance:
@@ -67,6 +71,23 @@ class TelemetryMaintenance:
         self.retention_days = max(1, int(retention_days))
         self.auto_vacuum_enabled = bool(auto_vacuum_enabled)
         self.buffer_file_path = buffer_file_path or (self._cm.db_path.parent / "telemetry_buffer.jsonl")
+        self._tiered_compactor = TelemetryTieredCompactor(self._cm)
+
+    def run_tiered_compaction(
+        self,
+        thorough_mode: bool = False,
+        now_epoch: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """Запускает каскадное многоуровневое усреднение снимков (5с -> 30с -> 3м -> 10м -> 36ч).
+
+        Args:
+            thorough_mode: Флаг режима тщательного сбора (при True усреднение и удаление отключаются).
+            now_epoch: Текущее время Unix epoch (опционально, для тестов).
+
+        Returns:
+            Dict[str, Any]: Отчет о количестве созданных бакетов и удаленных строк.
+        """
+        return self._tiered_compactor.run_tiered_compaction(thorough_mode=thorough_mode, now_epoch=now_epoch)
 
     def get_db_file_sizes(self) -> Dict[str, int]:
         """Возвращает физические размеры файлов БД на диске (DB, WAL, SHM) в байтах."""
@@ -332,7 +353,15 @@ class TelemetryMaintenance:
                 stats["process_snapshots"] = ps_cnt
 
             # 2. Снимки системы, сенсоры, агрегаты и файловые события
-            for tbl in ("system_snapshots", "sensor_polls", "telemetry_rollups", "process_file_events"):
+            # Агрегаты истории железа и приложений (HISTORY_TIERS) живут вечно, удаляется только транзитное
+            marks = ",".join("?" for _ in HISTORY_TIERS)
+            cursor.execute(f"SELECT COUNT(*) FROM telemetry_rollups WHERE tier NOT IN ({marks});", HISTORY_TIERS)
+            rollups_cnt = cursor.fetchone()[0]
+            if rollups_cnt > 0:
+                cursor.execute(f"DELETE FROM telemetry_rollups WHERE tier NOT IN ({marks});", HISTORY_TIERS)
+                stats["telemetry_rollups"] = rollups_cnt
+
+            for tbl in ("system_snapshots", "sensor_polls", "process_file_events"):
                 try:
                     cursor.execute(f"SELECT COUNT(*) FROM {tbl};")
                     count = cursor.fetchone()[0]
@@ -444,205 +473,26 @@ class TelemetryMaintenance:
             "deleted_snapshots": total_deleted_snaps,
         }
 
-    def aggregate_process_metrics_2min(self, cutoff_seconds: int = 120, outlier_cpu_threshold: float = 30.0) -> Dict[str, int]:
-        """Обобщает процессы старше двух минут по средним показателям в telemetry_rollups (tier='proc_2min')."""
-        if self._cm.read_only:
-            return {"rollups_created": 0, "outliers_saved": 0, "raw_deleted": 0}
-        now_epoch = datetime.now(timezone.utc).timestamp()
-        cutoff_epoch = now_epoch - cutoff_seconds
+    def purge_history(self, retention_days: int) -> int:
+        """Удаляет историю железа и приложений (агрегаты telemetry_rollups) старше срока хранения.
+
+        Args:
+            retention_days: Срок хранения в днях, 0 и меньше означает «хранить вечно».
+
+        Returns:
+            int: Количество удалённых строк истории.
+        """
+        if self._cm.read_only or retention_days <= 0:
+            return 0
+        threshold_epoch = datetime.now(timezone.utc).timestamp() - float(retention_days) * 86400.0
+        marks = ','.join('?' for _ in HISTORY_TIERS)
         with self._cm.lock, self._cm.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                '''
-                SELECT p.id, p.snapshot_id, p.timestamp, p.pid, p.name, p.status,
-                       p.cpu_percent, p.memory_mb, p.memory_percent, p.num_threads,
-                       p.username, s.created_at as snap_epoch
-                FROM process_snapshots p
-                JOIN system_snapshots s ON p.snapshot_id = s.id
-                WHERE p.sample_type = 'snapshot' AND s.created_at < ?
-                ORDER BY p.name, p.pid, s.created_at ASC
-                ''',
-                (cutoff_epoch,),
-            )
-            raw_rows = cursor.fetchall()
-            if not raw_rows:
-                return {"rollups_created": 0, "outliers_saved": 0, "raw_deleted": 0}
-
-            outlier_rows = []
-            for r in raw_rows:
-                cpu_val = float(r["cpu_percent"] or 0.0)
-                if cpu_val >= outlier_cpu_threshold:
-                    outlier_rows.append((
-                        r["snapshot_id"],
-                        r["timestamp"],
-                        r["snap_epoch"],
-                        r["pid"],
-                        r["name"],
-                        r["status"] or "running",
-                        cpu_val,
-                        float(r["memory_mb"] or 0.0),
-                        float(r["memory_percent"] or 0.0),
-                        int(r["num_threads"] or 1),
-                        r["username"] or "",
-                        json.dumps({"details": f"Outlier: CPU={cpu_val:.1f}%"}, ensure_ascii=False),
-                    ))
-            outliers_saved = 0
-            if outlier_rows:
-                cursor.executemany(
-                    '''
-                    INSERT INTO process_snapshots (
-                        sample_type, snapshot_id, timestamp, created_at, pid, name, status,
-                        cpu_percent, memory_mb, memory_percent, num_threads, username, is_outlier, raw_json
-                    ) VALUES ('outlier', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
-                    ''',
-                    outlier_rows,
-                )
-                outliers_saved = len(outlier_rows)
-
-            grouped = defaultdict(list)
-            for r in raw_rows:
-                grouped[(r["name"], r["pid"])].append(r)
-
-            rollup_rows = []
-            for (p_name, p_pid), procs in grouped.items():
-                cnt = len(procs)
-                cpus = [float(p["cpu_percent"] or 0.0) for p in procs]
-                mems = [float(p["memory_mb"] or 0.0) for p in procs]
-                threads = [int(p["num_threads"] or 1) for p in procs]
-                proc_outliers = sum(1 for c in cpus if c >= outlier_cpu_threshold)
-                p_start_ep = float(procs[0]["snap_epoch"])
-                p_end_ep = float(procs[-1]["snap_epoch"])
-                payload = {
-                    "period_start": procs[0]["timestamp"],
-                    "period_end": procs[-1]["timestamp"],
-                    "period_start_epoch": p_start_ep,
-                    "period_end_epoch": p_end_ep,
-                    "name": p_name,
-                    "pid": p_pid,
-                    "username": procs[-1]["username"] or "",
-                    "sample_count": cnt,
-                    "avg_cpu_percent": round(sum(cpus) / cnt, 2),
-                    "max_cpu_percent": round(max(cpus), 2),
-                    "min_cpu_percent": round(min(cpus), 2),
-                    "avg_memory_mb": round(sum(mems) / cnt, 2),
-                    "max_memory_mb": round(max(mems), 2),
-                    "min_memory_mb": round(min(mems), 2),
-                    "avg_num_threads": round(sum(threads) / cnt, 1),
-                    "outliers_count": proc_outliers,
-                }
-                rollup_rows.append((
-                    f"{p_name}:{p_pid}",
-                    p_start_ep,
-                    procs[0]["timestamp"],
-                    procs[-1]["timestamp"],
-                    p_start_ep,
-                    p_end_ep,
-                    cnt,
-                    payload["avg_cpu_percent"],
-                    payload["max_cpu_percent"],
-                    payload["avg_memory_mb"],
-                    payload["max_memory_mb"],
-                    json.dumps(payload, ensure_ascii=False),
-                    p_end_ep,
-                ))
-
-            if rollup_rows:
-                cursor.executemany(
-                    '''
-                    INSERT OR REPLACE INTO telemetry_rollups (
-                        tier, sensor_id, bucket_start, period_start, period_end,
-                        period_start_epoch, period_end_epoch, sample_count,
-                        cpu_avg, cpu_max, ram_avg, ram_max, payload_json, created_at
-                    ) VALUES ('proc_2min', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ''',
-                    rollup_rows,
-                )
-
-            raw_ids = [r["id"] for r in raw_rows]
-            cursor.execute(
-                f"DELETE FROM process_snapshots WHERE id IN ({','.join(['?'] * len(raw_ids))})",
-                raw_ids,
+            cursor = conn.execute(
+                f"DELETE FROM telemetry_rollups WHERE tier IN ({marks}) AND created_at < ?",
+                (*HISTORY_TIERS, threshold_epoch),
             )
             conn.commit()
-            return {"rollups_created": len(rollup_rows), "outliers_saved": outliers_saved, "raw_deleted": len(raw_ids)}
-
-    def aggregate_process_metrics_daily(self, cutoff_days: int = 1) -> Dict[str, int]:
-        """Обобщает 2-минутные агрегаты процессов в суточную статистику (tier='proc_daily')."""
-        if self._cm.read_only:
-            return {"daily_rollups_created": 0, "2min_rollups_cleaned": 0}
-        now_epoch = datetime.now(timezone.utc).timestamp()
-        cutoff_epoch = now_epoch - cutoff_days * 86400
-        with self._cm.lock, self._cm.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT * FROM telemetry_rollups WHERE tier = 'proc_2min' AND period_end_epoch < ? ORDER BY sensor_id, period_start_epoch ASC",
-                (cutoff_epoch,),
-            )
-            old_rollups = cursor.fetchall()
-            if not old_rollups:
-                return {"daily_rollups_created": 0, "2min_rollups_cleaned": 0}
-
-            grouped_daily = defaultdict(list)
-            for r in old_rollups:
-                d = dict(r)
-                pl = json.loads(d["payload_json"]) if d.get("payload_json") else {}
-                p_start = str(d.get("period_start") or pl.get("period_start") or "")
-                d_str = p_start[:10] if len(p_start) >= 10 else "unknown"
-                p_name = pl.get("name") or str(d.get("sensor_id") or "").split(":")[0]
-                grouped_daily[(d_str, p_name)].append({**d, **pl})
-
-            daily_rows = []
-            for (d_str, p_name), items in grouped_daily.items():
-                total_samples = sum(int(it.get("sample_count") or 1) for it in items)
-                if total_samples <= 0:
-                    continue
-                weighted_cpu = sum(float(it.get("avg_cpu_percent") or it.get("cpu_avg") or 0.0) * int(it.get("sample_count") or 1) for it in items) / total_samples
-                weighted_mem = sum(float(it.get("avg_memory_mb") or it.get("ram_avg") or 0.0) * int(it.get("sample_count") or 1) for it in items) / total_samples
-                max_cpu = max(float(it.get("max_cpu_percent") or it.get("cpu_max") or 0.0) for it in items)
-                max_mem = max(float(it.get("max_memory_mb") or it.get("ram_max") or 0.0) for it in items)
-                out_cnt = sum(int(it.get("outliers_count") or 0) for it in items)
-                last_seen = max(str(it.get("period_end") or "") for it in items)
-                try:
-                    b_start = float(int(d_str.replace("-", "")))
-                except ValueError:
-                    b_start = now_epoch
-                payload = {
-                    "date": d_str,
-                    "name": p_name,
-                    "sample_count": total_samples,
-                    "avg_cpu_percent": round(weighted_cpu, 2),
-                    "max_cpu_percent": round(max_cpu, 2),
-                    "avg_memory_mb": round(weighted_mem, 2),
-                    "max_memory_mb": round(max_mem, 2),
-                    "outliers_count": out_cnt,
-                    "last_seen": last_seen,
-                }
-                daily_rows.append((
-                    p_name,
-                    b_start,
-                    d_str,
-                    last_seen,
-                    total_samples,
-                    payload["avg_cpu_percent"],
-                    payload["max_cpu_percent"],
-                    payload["avg_memory_mb"],
-                    payload["max_memory_mb"],
-                    json.dumps(payload, ensure_ascii=False),
-                    now_epoch,
-                ))
-
-            if daily_rows:
-                cursor.executemany(
-                    '''
-                    INSERT OR REPLACE INTO telemetry_rollups (
-                        tier, sensor_id, bucket_start, period_start, period_end,
-                        sample_count, cpu_avg, cpu_max, ram_avg, ram_max, payload_json, created_at
-                    ) VALUES ('proc_daily', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ''',
-                    daily_rows,
-                )
-
-            del_ids = [r["id"] for r in old_rollups]
-            cursor.execute(f"DELETE FROM telemetry_rollups WHERE id IN ({','.join(['?'] * len(del_ids))})", del_ids)
-            conn.commit()
-            return {"daily_rollups_created": len(daily_rows), "2min_rollups_cleaned": len(del_ids)}
+            deleted = cursor.rowcount
+        if deleted:
+            logger.info(f"История старше {retention_days} дн. очищена: {deleted} строк")
+        return deleted

@@ -34,3 +34,4 @@ def plugin(ai_model: Any = None, config: Optional[dict] = None) -> GenerateRagCo
         GenerateRagCodebasePlugin: Configured plugin instance.
     """
     return GenerateRagCodebasePlugin(ai_model=ai_model, config=config)
+

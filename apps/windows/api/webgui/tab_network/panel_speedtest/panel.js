@@ -1,10 +1,44 @@
 /**
  * Модуль панели тестирования скорости интернета и пинга.
  * Файл: apps/windows/api/webgui/tab_network/panel_speedtest/panel.js
- * Updated: 2026-10-17 01:55:00
+ * Updated: 2026-10-30 11:05:00
  */
 
 let isSpeedtestRunning = false;
+
+/**
+ * Вспомогательная функция обновления текста для нескольких элементов.
+ * @param {string} selector - Селектор элементов
+ * @param {string} text - Новый текст
+ */
+function updateAllText(selector, text) {
+  document.querySelectorAll(selector).forEach(el => {
+    el.innerText = text;
+  });
+}
+
+/**
+ * Вспомогательная функция обновления HTML для нескольких элементов.
+ * @param {string} selector - Селектор элементов
+ * @param {string} html - Новый HTML
+ */
+function updateAllHtml(selector, html) {
+  document.querySelectorAll(selector).forEach(el => {
+    el.innerHTML = html;
+  });
+}
+
+/**
+ * Вспомогательная функция обновления состояния кнопок запуска тестирования скорости.
+ * @param {boolean} disabled - Флаг блокировки
+ * @param {string} html - Содержимое кнопки
+ */
+function updateAllButtons(disabled, html) {
+  document.querySelectorAll('#btn-run-speedtest, #sys-btn-run-speedtest, .btn-run-speedtest').forEach(btn => {
+    btn.disabled = disabled;
+    if (html) btn.innerHTML = html;
+  });
+}
 
 /**
  * Загружает последний сохраненный результат speedtest из кэша.
@@ -29,16 +63,9 @@ export async function runInternetSpeedtest() {
   if (isSpeedtestRunning) return;
   isSpeedtestRunning = true;
 
-  const btn = document.getElementById('btn-run-speedtest');
-  const statusText = document.getElementById('speedtest-status-text');
-  const summaryText = document.getElementById('speed-summary-text');
-
-  if (btn) {
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Тестирование...';
-  }
-  if (statusText) statusText.innerText = 'Измерение Ping, Download и Upload...';
-  if (summaryText) summaryText.innerText = 'Выполняется подключение к узлам Cloudflare & DNS серверам для замера скорости...';
+  updateAllButtons(true, '<span class="spinner-border spinner-border-sm me-1"></span> Тестирование...');
+  updateAllText('#speedtest-status-text, #sys-speedtest-status-text, .speedtest-status-text', 'Измерение Ping, Download и Upload...');
+  updateAllText('#speed-summary-text, #sys-speed-summary-text, .speed-summary-text', 'Выполняется подключение к узлам Cloudflare & DNS серверам для замера скорости...');
 
   try {
     const res = await fetch('/api/network/speedtest/run', { method: 'POST' });
@@ -46,17 +73,14 @@ export async function runInternetSpeedtest() {
     const data = await res.json();
 
     renderSpeedtestResults(data);
-    if (statusText) statusText.innerText = `Завершено в ${new Date().toLocaleTimeString()}`;
+    updateAllText('#speedtest-status-text, #sys-speedtest-status-text, .speedtest-status-text', `Завершено в ${new Date().toLocaleTimeString()}`);
   } catch (e) {
     console.error('[NetworkTab] Speedtest error:', e);
     window.showToast?.('Ошибка при выполнении теста скорости: ' + e.message, 'danger') || alert('Ошибка при выполнении теста скорости: ' + e.message);
-    if (statusText) statusText.innerText = 'Ошибка теста скорости';
+    updateAllText('#speedtest-status-text, #sys-speedtest-status-text, .speedtest-status-text', 'Ошибка теста скорости');
   } finally {
     isSpeedtestRunning = false;
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="bi bi-play-fill me-1"></i> Запустить тест скорости';
-    }
+    updateAllButtons(false, '<i class="bi bi-play-fill me-1"></i> Запустить тест скорости');
   }
 }
 
@@ -65,21 +89,6 @@ export async function runInternetSpeedtest() {
  * @param {Object} data - Результаты speedtest.
  */
 export function renderSpeedtestResults(data) {
-  const valDown = document.getElementById('speed-val-download');
-  const subDown = document.getElementById('speed-sub-download');
-  const valUp = document.getElementById('speed-val-upload');
-  const subUp = document.getElementById('speed-sub-upload');
-  const valPing = document.getElementById('speed-val-ping');
-  const subJitter = document.getElementById('speed-sub-jitter');
-  const valGrade = document.getElementById('speed-val-grade');
-  const subIsp = document.getElementById('speed-sub-isp');
-  const badgeIp = document.getElementById('speed-badge-ip');
-  const badgeLoc = document.getElementById('speed-badge-location');
-  const summaryText = document.getElementById('speed-summary-text');
-  const kpiSpeed = document.getElementById('net-kpi-speed');
-  const kpiPing = document.getElementById('net-kpi-ping');
-  const serversTbody = document.getElementById('speed-servers-tbody');
-
   const downMbps = data?.download?.speed_mbps || 0;
   const downMBs = data?.download?.speed_mb_s || 0;
   const upMbps = data?.upload?.speed_mbps || 0;
@@ -89,28 +98,28 @@ export function renderSpeedtestResults(data) {
   const meta = data?.meta || {};
   const quality = data?.quality || {};
 
-  if (valDown) valDown.innerText = `${downMbps} Mbps`;
-  if (subDown) subDown.innerText = `${downMBs} MB/s (${data?.download?.duration_s || 0}s)`;
-  if (valUp) valUp.innerText = `${upMbps} Mbps`;
-  if (subUp) subUp.innerText = `${upMBs} MB/s (${data?.upload?.duration_s || 0}s)`;
-  if (valPing) valPing.innerText = `${pingMs} ms`;
-  if (subJitter) subJitter.innerText = `Jitter: ${jitterMs} ms`;
+  updateAllText('#speed-val-download, #sys-speed-val-download, .speed-val-download', `${downMbps} Mbps`);
+  updateAllText('#speed-sub-download, #sys-speed-sub-download, .speed-sub-download', `${downMBs} MB/s (${data?.download?.duration_s || 0}s)`);
+  updateAllText('#speed-val-upload, #sys-speed-val-upload, .speed-val-upload', `${upMbps} Mbps`);
+  updateAllText('#speed-sub-upload, #sys-speed-sub-upload, .speed-sub-upload', `${upMBs} MB/s (${data?.upload?.duration_s || 0}s)`);
+  updateAllText('#speed-val-ping, #sys-speed-val-ping, .speed-val-ping', `${pingMs} ms`);
+  updateAllText('#speed-sub-jitter, #sys-speed-sub-jitter, .speed-sub-jitter', `Jitter: ${jitterMs} ms`);
 
-  if (valGrade) {
-    valGrade.innerText = quality.rating || '--';
-    valGrade.style.color = quality.color || '#fbbf24';
-  }
-  if (subIsp) subIsp.innerText = `Провайдер: ${meta.isp || 'Неизвестно'}`;
+  document.querySelectorAll('#speed-val-grade, #sys-speed-val-grade, .speed-val-grade').forEach(el => {
+    el.innerText = quality.rating || '--';
+    el.style.color = quality.color || 'var(--ui-warning, #fbbf24)';
+  });
 
-  if (badgeIp) badgeIp.innerText = `Внешний IP: ${meta.ip || '--'}`;
-  if (badgeLoc) badgeLoc.innerText = `Локация: ${meta.city || ''} ${meta.country || ''} (${meta.colo || 'Edge'})`.trim();
-  if (summaryText) summaryText.innerText = `${quality.grade || 'Готово'}. ${quality.summary || ''}`;
+  updateAllText('#speed-sub-isp, #sys-speed-sub-isp, .speed-sub-isp', `Провайдер: ${meta.isp || 'Неизвестно'}`);
+  updateAllText('#speed-badge-ip, #sys-speed-badge-ip, .speed-badge-ip', `Внешний IP: ${meta.ip || '--'}`);
+  updateAllText('#speed-badge-location, #sys-speed-badge-location, .speed-badge-location', `Локация: ${meta.city || ''} ${meta.country || ''} (${meta.colo || 'Edge'})`.trim());
+  updateAllText('#speed-summary-text, #sys-speed-summary-text, .speed-summary-text', `${quality.grade || 'Готово'}. ${quality.summary || ''}`);
 
-  if (kpiSpeed) kpiSpeed.innerText = `${downMbps} Mbps`;
-  if (kpiPing) kpiPing.innerText = `Ping: ${pingMs} ms`;
+  updateAllText('#net-kpi-speed', `${downMbps} Mbps`);
+  updateAllText('#net-kpi-ping', `Ping: ${pingMs} ms`);
 
-  if (serversTbody && Array.isArray(data?.servers)) {
-    serversTbody.innerHTML = data.servers.map(s => {
+  if (Array.isArray(data?.servers)) {
+    const rowsHtml = data.servers.map(s => {
       const isOnline = s.avg_ms > 0;
       const statusBadge = isOnline 
         ? '<span class="proto-badge status-badge-up">Online</span>' 
@@ -128,5 +137,7 @@ export function renderSpeedtestResults(data) {
         </tr>
       `;
     }).join('');
+
+    updateAllHtml('#speed-servers-tbody, #sys-speed-servers-tbody, .speed-servers-tbody', rowsHtml);
   }
 }

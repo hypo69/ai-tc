@@ -25,3 +25,4 @@ from apps.windows.system_checkpoints.tui import run_interactive_tui
 
 if __name__ == "__main__":
     run_interactive_tui()
+

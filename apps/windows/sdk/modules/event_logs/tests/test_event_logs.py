@@ -121,3 +121,4 @@ def test_event_logs_sqlite_data_first_and_refresh(client: TestClient):
     summary = resp_summary.json()
     assert summary['total_channels'] == report_data['total_channels']
 
+

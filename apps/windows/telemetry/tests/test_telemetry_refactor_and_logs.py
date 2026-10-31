@@ -100,3 +100,4 @@ async def test_web_interface_reads_logs_on_the_fly():
     assert 'events' in res
     assert 'total' in res
     assert isinstance(res['events'], list)
+

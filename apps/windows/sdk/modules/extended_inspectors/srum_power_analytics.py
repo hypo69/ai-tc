@@ -128,3 +128,4 @@ class SRUMPowerAnalytics:
         except Exception:
             pass
         return 'Balanced'
+

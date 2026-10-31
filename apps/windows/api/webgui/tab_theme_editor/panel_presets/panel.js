@@ -11,7 +11,7 @@
  * Package: apps/windows/api/webgui/tab_theme_editor/panel_presets
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 18:20:00
+ * Updated: 2026-10-31 17:05:00
  * =============================================================================
  */
 
@@ -65,19 +65,19 @@ export const PRESETS = {
     glassmorphism: false,
     crtScanlines: false,
     colors: {
-      bgBase: '#0b0f19',
-      bgSurface: '#111827',
-      bgElevated: '#1f2937',
-      bgNav: '#111827',
-      textPrimary: '#f9fafb',
-      textMuted: '#9ca3af',
+      bgBase: '#0f172a',
+      bgSurface: '#1e293b',
+      bgElevated: '#334155',
+      bgNav: '#1e293b',
+      textPrimary: '#f8fafc',
+      textMuted: '#94a3b8',
       accent: '#38bdf8',
       accentHover: '#0ea5e9',
-      border: '#374151',
-      borderStrong: '#4b5563',
-      success: '#10b981',
-      warning: '#f59e0b',
-      danger: '#ef4444',
+      border: '#334155',
+      borderStrong: '#475569',
+      success: '#34d399',
+      warning: '#fbbf24',
+      danger: '#f87171',
       info: '#38bdf8',
     }
   },
@@ -507,6 +507,12 @@ export function loadPreset(presetKey, onApplied = null) {
 
   setInputValue('range-kpi-height', preset.kpiHeight || 72);
   setTextContent('val-kpi-height', `${preset.kpiHeight || 72}px`);
+
+  setInputValue('range-modal-width', preset.modalWidth || 80);
+  setTextContent('val-modal-width', `${preset.modalWidth || 80}vw`);
+
+  setInputValue('range-modal-height', preset.modalHeight || 80);
+  setTextContent('val-modal-height', `${preset.modalHeight || 80}vh`);
 
   const densityRadio = document.getElementById(`density-${preset.density || 'normal'}`);
   if (densityRadio) densityRadio.checked = true;

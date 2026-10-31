@@ -180,3 +180,4 @@ class ProcessAuditManager:
                 results.append({'action': action, 'event_id': eid, 'target_file': target_filename, 'executable_path': exe_path, 'process_name': exe_path.replace('\\', '/').split('/')[-1] if exe_path else '', 'process_id': pid, 'user': user, 'timestamp': ev.get('timestamp')})
         return results
 __all__ = ['ProcessAuditManager', 'TelemetrySensorStatus', 'ProcessTreeNode']
+

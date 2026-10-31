@@ -708,3 +708,4 @@ class GpuProber:
         except Exception as exc:
             logger.debug(f'NPU probe error: {exc}')
         return npus
+

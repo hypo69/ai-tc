@@ -89,3 +89,4 @@ def test_tab_scenarios_execute_powershell_endpoint(client):
     data = response.json()
     assert data.get("success") is True
     assert "Pipelined Tab Scenarios OK" in data.get("stdout", "")
+

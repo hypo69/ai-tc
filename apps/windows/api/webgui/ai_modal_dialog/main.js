@@ -26,7 +26,7 @@
  * Package: apps.windows.api.webgui.ai_modal_dialog
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 20:35:00
+ * Updated: 2026-10-31 19:25:00
  * =============================================================================
  */
 
@@ -1391,43 +1391,155 @@
   }
 
   /**
-   * Форматирует Markdown разметку в читаемый HTML диалога.
+   * Форматирует Markdown разметку в читаемый и семантически корректный HTML диалога.
+   * Поддерживает блоки кода, инлайн-код, markdown таблицы, callout цитаты, заголовки,
+   * списки, разделители, жирный/курсив и ссылки.
    * @param {string} text Текст Markdown
    * @returns {string} HTML
    */
   function formatMarkdownText(text) {
     if (!text) return '';
-    let str = escapeHtml(text);
-    // Блоки кода ```код``` с детекцией PowerShell и подсветкой через Prism.js
+    let str = String(text);
+
+    // 1. Извлечение и защита многострочных блоков кода
+    const codeBlocks = [];
     str = str.replace(/```(\w+)?\s*([\s\S]*?)```/g, (match, lang, code) => {
       const rawCode = unescapeHtml(code).trim();
       const normalizedLang = (lang || '').toLowerCase().trim();
       const isPowershell = ['powershell', 'pwsh', 'ps1', 'ps'].includes(normalizedLang) ||
                            (!normalizedLang && isCommandLineString(rawCode));
-
+      let blockHtml = '';
       if (isPowershell) {
-        return renderInteractiveCommandWidget(rawCode, 'powershell');
+        blockHtml = renderInteractiveCommandWidget(rawCode, 'powershell');
+      } else if (['cmd', 'bat', 'batch'].includes(normalizedLang)) {
+        blockHtml = renderInteractiveCommandWidget(rawCode, 'cmd');
+      } else {
+        const displayLang = normalizedLang || (rawCode.startsWith('{') || rawCode.startsWith('[') ? 'json' : '');
+        blockHtml = `<pre class="uai-code-block p-2.5 rounded small my-2 font-monospace ${displayLang ? 'language-' + displayLang : ''}" style="overflow-x: auto;"><code>${escapeHtml(rawCode)}</code></pre>`;
       }
-      const prismLang = normalizedLang || (rawCode.startsWith('{') || rawCode.startsWith('[') ? 'json' : 'powershell');
-      return `<pre class="uai-code-block p-2.5 rounded small my-2 font-monospace language-${prismLang}" style="overflow-x: auto;"><code class="language-${prismLang}">${code}</code></pre>`;
+      codeBlocks.push(blockHtml);
+      return `\n\n@@@UAI_CODE_BLOCK_${codeBlocks.length - 1}@@@\n\n`;
     });
-    // Заголовки ####, ###, ##, #
-    str = str.replace(/^####\s+(.*$)/gim, '<h6 class="fw-bold text-info-emphasis mt-2 mb-1" style="font-size: 0.85rem;">$1</h6>');
-    str = str.replace(/^###\s+(.*$)/gim, '<h6 class="fw-bold text-info mt-2.5 mb-1 fs-6">$1</h6>');
-    str = str.replace(/^##\s+(.*$)/gim, '<h5 class="fw-bold text-info mt-3 mb-1.5 fs-6">$1</h5>');
-    str = str.replace(/^#\s+(.*$)/gim, '<h5 class="fw-bold text-info mt-3 mb-2">$1</h5>');
-    // Жирный текст **текст**
-    str = str.replace(/\*\*(.*?)\*\*/g, '<strong class="text-light">$1</strong>');
-    // Курсив *текст*
-    str = str.replace(/\*(.*?)\*/g, '<em class="text-secondary-emphasis">$1</em>');
-    // Инлайн код `код`
-    str = str.replace(/`([^`]+)`/g, '<code class="uai-inline-code px-1 py-0.5 rounded font-monospace small">$1</code>');
-    // Нумерованные списки 1. Текст
-    str = str.replace(/^\s*(\d+)\.\s+(.*$)/gim, '<div class="ms-2 mb-1 d-flex align-items-start gap-1.5"><span class="badge bg-secondary font-monospace" style="font-size: 0.72rem;">$1</span><span>$2</span></div>');
-    // Маркированные списки
-    str = str.replace(/^\s*[-*•]\s+(.*$)/gim, '<li class="ms-3 mb-1">$1</li>');
-    // Переносы строк
+
+    // 2. Извлечение и защита инлайн-кода `код`
+    const inlineCodes = [];
+    str = str.replace(/`([^`\n]+)`/g, (match, inline) => {
+      const cleanInline = inline.trim();
+      inlineCodes.push(`<code class="uai-inline-code px-1 py-0.5 rounded font-monospace small">${escapeHtml(cleanInline)}</code>`);
+      return `@@@UAI_INLINE_CODE_${inlineCodes.length - 1}@@@`;
+    });
+
+    // 3. Безопасное экранирование спецсимволов HTML в основном тексте
+    str = str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+
+    // Возвращаем &gt; в начале строк обратно в '>', чтобы работали цитаты `> `
+    str = str.replace(/^(\s*)&gt;/gm, '$1>');
+
+    // 4. Парсинг Markdown таблиц (| col1 | col2 |)
+    str = str.replace(/((?:^[ \t]*\|[^\n]+\|[ \t]*(?:\r?\n|$))+)/gm, (tableBlock) => {
+      const rows = tableBlock.trim().split('\n').map(r => r.trim()).filter(Boolean);
+      if (rows.length < 2) return tableBlock;
+      if (!/^[ \t]*\|(?:\s*:?-+:?\s*\|)+[ \t]*$/.test(rows[1])) {
+        return tableBlock;
+      }
+      const parseCells = (row) => {
+        const inner = row.replace(/^[ \t]*\|/, '').replace(/\|[ \t]*$/, '');
+        return inner.split('|').map(c => c.trim());
+      };
+
+      const headerCells = parseCells(rows[0]);
+      let theadHtml = '<thead><tr>' + headerCells.map(c => `<th class="py-1 px-2">${c}</th>`).join('') + '</tr></thead>';
+
+      let tbodyHtml = '<tbody>';
+      for (let r = 2; r < rows.length; r++) {
+        const cells = parseCells(rows[r]);
+        tbodyHtml += '<tr>' + cells.map(c => `<td class="py-1 px-2">${c}</td>`).join('') + '</tr>';
+      }
+      tbodyHtml += '</tbody>';
+
+      return `\n<div class="table-responsive my-2"><table class="table table-sm table-bordered uai-markdown-table mb-0">${theadHtml}${tbodyHtml}</table></div>\n`;
+    });
+
+    // 5. Блоки цитат и callout (> 💡, > ⚠️, > ❌, > ...)
+    str = str.replace(/((?:^[ \t]*>[^\n]*(?:\r?\n|$))+)/gm, (bqBlock) => {
+      const rawLines = bqBlock.split('\n')
+        .map(l => l.replace(/^[ \t]*>[ \t]?/, '').trim())
+        .filter(Boolean);
+      if (rawLines.length === 0) return '';
+
+      // Группируем последовательные строки в отдельные цитаты, если следующая строка начинается с callout-иконки
+      const groups = [];
+      let currentGroup = [];
+
+      rawLines.forEach(line => {
+        const isCalloutStart = /^[💡⚠️❌ℹ️]|^\[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/i.test(line);
+        if (isCalloutStart && currentGroup.length > 0) {
+          groups.push(currentGroup.join('<br>'));
+          currentGroup = [line];
+        } else {
+          currentGroup.push(line);
+        }
+      });
+      if (currentGroup.length > 0) {
+        groups.push(currentGroup.join('<br>'));
+      }
+
+      return groups.map(content => {
+        let bqClass = 'uai-blockquote';
+        if (/^[⚠️❌\s]|WARNING|DANGER|CAUTION/i.test(content) || content.includes('⚠️') || content.includes('❌')) {
+          bqClass += ' uai-bq-warning';
+        } else if (/^[💡\s]|TIP|RECOMMENDATION/i.test(content) || content.includes('💡')) {
+          bqClass += ' uai-bq-tip';
+        } else if (/^[ℹ️\s]|NOTE|INFO/i.test(content) || content.includes('ℹ️')) {
+          bqClass += ' uai-bq-info';
+        }
+        return `\n<blockquote class="${bqClass} my-2 p-2 border-start border-3 rounded-end">${content}</blockquote>\n`;
+      }).join('');
+    });
+
+    // 6. Заголовки ######, #####, ####, ###, ##, #
+    str = str.replace(/^[ \t]*######[ \t]+(.*$)/gm, '<h6 class="fw-bold text-info-emphasis mt-2 mb-1" style="font-size: 0.8rem;">$1</h6>');
+    str = str.replace(/^[ \t]*#####[ \t]+(.*$)/gm, '<h6 class="fw-bold text-info-emphasis mt-2 mb-1" style="font-size: 0.85rem;">$1</h6>');
+    str = str.replace(/^[ \t]*####[ \t]+(.*$)/gm, '<h6 class="fw-bold text-info-emphasis mt-2 mb-1" style="font-size: 0.9rem;">$1</h6>');
+    str = str.replace(/^[ \t]*###[ \t]+(.*$)/gm, '<h6 class="fw-bold text-info mt-2.5 mb-1.5 fs-6">$1</h6>');
+    str = str.replace(/^[ \t]*##[ \t]+(.*$)/gm, '<h5 class="fw-bold text-info mt-3 mb-2 fs-6">$1</h5>');
+    str = str.replace(/^[ \t]*#[ \t]+(.*$)/gm, '<h5 class="fw-bold text-info mt-3 mb-2">$1</h5>');
+
+    // 7. Горизонтальные линии ---, ***, ___
+    str = str.replace(/^[ \t]*(?:---|\*\*\*|___)[ \t]*$/gm, '<hr class="uai-divider my-2 border-secondary border-opacity-25">');
+
+    // 8. Ссылки [текст](url)
+    str = str.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="uai-markdown-link text-info text-decoration-underline">$1</a>');
+
+    // 9. Жирный и курсив
+    str = str.replace(/\*\*\*(.+?)\*\*\*/g, '<strong class="text-light"><em class="text-secondary-emphasis">$1</em></strong>');
+    str = str.replace(/\*\*(.+?)\*\*/g, '<strong class="text-light">$1</strong>');
+    str = str.replace(/(^|[^*])\*([^*]+?)\*([^*]|$)/g, '$1<em class="text-secondary-emphasis">$2</em>$3');
+
+    // 10. Нумерованные и маркированные списки
+    str = str.replace(/^[ \t]*(\d+)\.[ \t]+(.*$)/gm, '<div class="ms-2 mb-1 d-flex align-items-start gap-1.5"><span class="badge bg-secondary font-monospace" style="font-size: 0.72rem;">$1</span><span>$2</span></div>');
+    str = str.replace(/^[ \t]*[-*•][ \t]+(.*$)/gm, '<li class="ms-3 mb-1">$1</li>');
+
+    // 11. Переносы строк и очистка <br> вокруг блочных элементов
     str = str.replace(/\n/g, '<br>');
+    str = str.replace(/(?:<br\s*\/?>\s*)*(<\/?(?:div|blockquote|table|thead|tbody|tr|th|td|h[1-6]|ul|ol|li|hr|pre)[^>]*>)(?:<br\s*\/?>\s*)*/gi, '$1');
+    str = str.replace(/(?:<br\s*\/?>\s*)*(@@@UAI_(?:CODE_BLOCK|INLINE_CODE)_\d+@@@)(?:<br\s*\/?>\s*)*/gi, '$1');
+
+    // 12. Восстановление инлайн-кода
+    inlineCodes.forEach((codeHtml, idx) => {
+      str = str.replace(`@@@UAI_INLINE_CODE_${idx}@@@`, codeHtml);
+    });
+
+    // 13. Восстановление блоков кода
+    codeBlocks.forEach((blockHtml, idx) => {
+      str = str.replace(`@@@UAI_CODE_BLOCK_${idx}@@@`, blockHtml);
+    });
+
     return str;
   }
 
@@ -1520,7 +1632,7 @@
           techHtml += `
             <div class="p-2.5 mb-3 rounded bg-warning bg-opacity-10 border border-warning border-opacity-25 text-warning small">
               <strong class="d-flex align-items-center gap-1.5"><i class="bi bi-exclamation-triangle-fill"></i> Суть проблемы:</strong>
-              <div class="mt-1 text-light">${escapeHtml(issue)}</div>
+              <div class="mt-1 text-light">${formatMarkdownText(issue)}</div>
             </div>
           `;
         }
@@ -1533,7 +1645,7 @@
         if (rec && typeof rec === 'string' && !techAssessment.includes(rec)) {
           techHtml += `
             <div class="p-2.5 mb-2 rounded dialogue-block uai-recommendation-box bg-dark bg-opacity-50 border border-warning border-opacity-25">
-              <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация эксперта:</strong> <span class="text-light">${escapeHtml(rec)}</span>
+              <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация эксперта:</strong> <span class="text-light">${formatMarkdownText(rec)}</span>
             </div>
           `;
         }
@@ -1541,7 +1653,7 @@
         // Вердикт безопасности
         const verdict = obj.security_verdict || obj.verdict;
         if (verdict && typeof verdict === 'string' && !techAssessment.includes(verdict)) {
-          techHtml += `<div class="dialogue-block mb-2"><strong class="text-warning"><i class="bi bi-shield-check me-1"></i>Вердикт:</strong> <span class="text-light">${escapeHtml(verdict)}</span></div>`;
+          techHtml += `<div class="dialogue-block mb-2"><strong class="text-warning"><i class="bi bi-shield-check me-1"></i>Вердикт:</strong> <span class="text-light">${formatMarkdownText(verdict)}</span></div>`;
         }
 
         // Рекомендуемые действия
@@ -1609,7 +1721,7 @@
         html += `<div class="dialogue-block mb-2 text-light" style="line-height: 1.6;">${parseModelResponse(obj.answer)}</div>`;
       }
       if (obj.summary) {
-        html += `<div class="dialogue-block mb-2"><strong class="text-info"><i class="bi bi-card-text me-1"></i>Суть / Назначение:</strong> <span class="text-light">${escapeHtml(obj.summary)}</span></div>`;
+        html += `<div class="dialogue-block mb-2"><strong class="text-info"><i class="bi bi-card-text me-1"></i>Суть / Назначение:</strong> <span class="text-light">${formatMarkdownText(obj.summary)}</span></div>`;
       }
       if (obj.developer || obj.category) {
         const dev = escapeHtml(obj.developer || 'Неизвестен');
@@ -1617,15 +1729,15 @@
         html += `<div class="dialogue-block mb-2"><strong class="text-secondary"><i class="bi bi-building me-1"></i>Разработчик / Категория:</strong> <span class="text-light">${dev} (${cat})</span></div>`;
       }
       if (obj.security_verdict) {
-        html += `<div class="dialogue-block mb-2"><strong class="text-warning"><i class="bi bi-shield-check me-1"></i>Оценка безопасности:</strong> <span class="text-light">${escapeHtml(obj.security_verdict)}</span></div>`;
+        html += `<div class="dialogue-block mb-2"><strong class="text-warning"><i class="bi bi-shield-check me-1"></i>Оценка безопасности:</strong> <span class="text-light">${formatMarkdownText(obj.security_verdict)}</span></div>`;
       }
       if (obj.performance_impact) {
-        html += `<div class="dialogue-block mb-2"><strong class="text-info"><i class="bi bi-speedometer2 me-1"></i>Влияние на ресурсы:</strong> <span class="text-light">${escapeHtml(obj.performance_impact)}</span></div>`;
+        html += `<div class="dialogue-block mb-2"><strong class="text-info"><i class="bi bi-speedometer2 me-1"></i>Влияние на ресурсы:</strong> <span class="text-light">${formatMarkdownText(obj.performance_impact)}</span></div>`;
       }
       if (obj.recommendation) {
         html += `
           <div class="p-2 mb-2 rounded dialogue-block uai-recommendation-box bg-dark bg-opacity-50 border border-warning border-opacity-25">
-            <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация эксперта:</strong> <span class="text-light">${escapeHtml(obj.recommendation)}</span>
+            <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация эксперта:</strong> <span class="text-light">${formatMarkdownText(obj.recommendation)}</span>
           </div>
         `;
       }
@@ -1744,6 +1856,44 @@
       autoRun: false,
       actions: []
     }, options, { tableType: normalizedType, panelId: panelId });
+
+    // Множество вопросов, на которые уже был получен ответ (для деактивации в блоке быстрых вопросов)
+    const answeredQuestions = new Set();
+
+    function normalizeQuestionText(txt) {
+      if (!txt) return '';
+      return String(txt).trim().toLowerCase().replace(/^[«"'\s]+|[»"'\s]+$/g, '');
+    }
+
+    function markQuestionInUIAsAnswered(questionText) {
+      const norm = normalizeQuestionText(questionText);
+      if (!norm) return;
+      answeredQuestions.add(norm);
+
+      const container = document.getElementById('uai-chat-quick-buttons');
+      if (!container) return;
+
+      container.querySelectorAll('.chat-prompt-link').forEach(link => {
+        const linkNorm = normalizeQuestionText(link.dataset.prompt || link.textContent);
+        if (linkNorm === norm) {
+          link.classList.add('disabled', 'answered');
+          link.classList.remove('selected', 'active');
+          link.setAttribute('aria-disabled', 'true');
+          link.setAttribute('tabindex', '-1');
+          link.style.pointerEvents = 'none';
+          link.title = 'Ответ на этот вопрос уже получен';
+
+          const row = link.closest('.chat-prompt-row');
+          if (row) {
+            row.classList.add('answered');
+            const bullet = row.querySelector('.chat-prompt-bullet');
+            if (bullet) {
+              bullet.innerHTML = '<i class="bi bi-check2 text-success" title="Ответ получен" style="font-size: 0.95rem;"></i>';
+            }
+          }
+        }
+      });
+    }
 
     // Единый словарь метаданных строки для использования во всех обработчиках
     const metaDict = {};
@@ -2018,11 +2168,28 @@
         link.href = '#';
         link.className = 'chat-prompt-link ui-quick-prompt-btn text-decoration-none border-bottom border-primary border-opacity-50';
         link.dataset.prompt = qText;
-        link.title = 'Задать этот вопрос модели ИИ (одноразовый ответ)';
         link.textContent = `«${qText}»`;
+
+        const isAnswered = answeredQuestions.has(normalizeQuestionText(qText));
+        if (isAnswered) {
+          link.classList.add('disabled', 'answered');
+          link.setAttribute('aria-disabled', 'true');
+          link.setAttribute('tabindex', '-1');
+          link.style.pointerEvents = 'none';
+          link.title = 'Ответ на этот вопрос уже получен';
+          row.classList.add('answered');
+          bullet.innerHTML = '<i class="bi bi-check2 text-success" title="Ответ получен" style="font-size: 0.95rem;"></i>';
+        } else {
+          link.title = 'Задать этот вопрос модели ИИ (одноразовый ответ)';
+        }
+
         link.onclick = (e) => {
           e.preventDefault();
           e.stopPropagation();
+          // Если вопрос уже обработан и ответ получен, он заблокирован и больше недоступен для выбора
+          if (link.classList.contains('disabled') || link.getAttribute('aria-disabled') === 'true' || isAnswered) {
+            return;
+          }
           // 1. Помещаем наводящий вопрос в текстовое поле ввода
           if (chatInput) {
             chatInput.value = qText;
@@ -2119,9 +2286,29 @@
       const isVerified = Boolean(isFromWikiLLM || data.is_verified || data.source === 'wikillm');
       const isHeuristic = data.source === 'heuristic';
       const isGemini = data.source === 'gemini';
+      const isProcess = (opts.tableType === 'process' || (opts.panelId && opts.panelId.includes('process')));
+
+      let wikillmGeneralCard = '';
+      if (data.has_wikillm_general_data && data.general_summary) {
+        wikillmGeneralCard = `
+          <div class="card border-success bg-dark bg-opacity-75 p-2.5 mb-2.5 rounded shadow-sm">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-1">
+              <span class="badge border border-success text-success p-1 px-2 d-inline-flex align-items-center gap-1.5 small">
+                <i class="bi bi-shield-check"></i> База знаний WikiLLM (Общие данные)
+              </span>
+              <span class="small text-secondary fw-semibold">${escapeHtml(data.developer || '')} (${escapeHtml(data.category || '')})</span>
+            </div>
+            <div class="small text-light">
+              ${formatMarkdownText(data.general_summary)}
+            </div>
+          </div>
+        `;
+      }
 
       let sourceBadge = '';
-      if (isVerified) {
+      if (data.source === 'wikillm_resource_analysis') {
+        sourceBadge = `<div class="badge border border-info text-info p-1 px-2 mb-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-speedometer2"></i> Анализ текущего потребления и состояния ресурсов (Live Telemetry)</div>`;
+      } else if (isVerified) {
         sourceBadge = `<div class="badge border border-success text-success p-1 px-2 mb-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-shield-check"></i> База знаний WikiLLM (L1 Exact Cache)</div>`;
       } else if (isGemini) {
         sourceBadge = `<div class="badge border border-info text-info p-1 px-2 mb-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-stars"></i> AI Экспертный анализ (Web Grounding)</div>`;
@@ -2129,7 +2316,18 @@
         sourceBadge = `<div class="badge border border-secondary text-secondary p-1 px-2 mb-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-cpu"></i> Системный экспертный анализ (Телеметрия)</div>`;
       }
 
-      const actionBlock = isVerified ? `
+      const actionBlock = (data.has_wikillm_general_data && data.source === 'wikillm_resource_analysis') ? `
+        <div class="p-2 mt-2 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" id="uai-approval-container">
+          <div class="small text-success">
+            <i class="bi bi-check-circle-fill me-1"></i>Общие данные зафиксированы в WikiLLM. Анализ ресурсов сформирован по актуальной телеметрии.
+          </div>
+          <div class="d-flex align-items-center gap-1.5">
+            <button type="button" class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1.5" id="btn-uai-reanalyze">
+              <i class="bi bi-arrow-clockwise"></i> Обновить срез телеметрии
+            </button>
+          </div>
+        </div>
+      ` : isVerified ? `
         <div class="p-2 mt-2 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" id="uai-approval-container">
           <div class="small text-secondary">
             <i class="bi bi-database-check text-success me-1"></i>Справочные данные из локальной базы WikiLLM.
@@ -2154,14 +2352,32 @@
         </div>
       `;
 
+      // Если модель вернула развернутый текстовый отчет без структурированного summary
+      const isFullMarkdownReport = !data.summary && (data.raw_markdown || data.raw_response || data.analysis_report || data.answer || (typeof data === 'string'));
+      if (isFullMarkdownReport) {
+        const fullReportText = typeof data === 'string'
+          ? data
+          : (data.raw_markdown || data.raw_response || data.analysis_report || data.answer || JSON.stringify(data, null, 2));
+        aiExplanation.innerHTML = `
+          ${sourceBadge}
+          <div class="dialogue-block mb-3 text-light" style="line-height: 1.6;">
+            ${parseModelResponse(fullReportText)}
+          </div>
+          ${actionBlock}
+        `;
+        attachInteractiveCommandHandlers(aiExplanation);
+        return;
+      }
+
       aiExplanation.innerHTML = `
+        ${wikillmGeneralCard}
         ${sourceBadge}
-        <div class="mb-2"><strong class="text-info"><i class="bi bi-card-text me-1"></i>Назначение:</strong> ${escapeHtml(data.summary)}</div>
+        <div class="mb-2"><strong class="text-info"><i class="bi bi-cpu me-1"></i>${(data.has_wikillm_general_data || data.source === 'wikillm_resource_analysis') ? 'Анализ ресурсов:' : 'Назначение:'}</strong> ${formatMarkdownText(data.summary)}</div>
         <div class="mb-2"><strong class="text-secondary"><i class="bi bi-building me-1"></i>Разработчик / Категория:</strong> ${escapeHtml(data.developer || 'Неизвестен')} (${escapeHtml(data.category || 'Компонент')})</div>
-        <div class="mb-2"><strong class="text-warning"><i class="bi bi-shield-lock me-1"></i>Оценка безопасности:</strong> ${escapeHtml(data.security_verdict)}</div>
-        <div class="mb-2"><strong class="text-info"><i class="bi bi-speedometer2 me-1"></i>Влияние на ресурсы:</strong> ${escapeHtml(data.performance_impact)}</div>
+        <div class="mb-2"><strong class="text-warning"><i class="bi bi-shield-lock me-1"></i>Оценка безопасности:</strong> ${formatMarkdownText(data.security_verdict)}</div>
+        <div class="mb-2"><strong class="text-info"><i class="bi bi-speedometer2 me-1"></i>Влияние на ресурсы:</strong> ${formatMarkdownText(data.performance_impact)}</div>
         <div class="p-2 mb-2 rounded uai-recommendation-box">
-          <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация:</strong> ${escapeHtml(data.recommendation)}
+          <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация:</strong> ${formatMarkdownText(data.recommendation)}
         </div>
         ${data.action_steps && data.action_steps.length > 0 ? `
           <h6 class="uai-action-steps-title text-uppercase text-muted fw-bold mb-1">Рекомендуемые действия:</h6>
@@ -2241,6 +2457,93 @@
     }
 
     // Проверка наличия знаний в WikiLLM перед запросом к LLM
+    function renderDiagnosticResultWithPlaceholders(data) {
+      if (!aiExplanation) return;
+      if (Array.isArray(data.suggested_quick_questions) && data.suggested_quick_questions.length > 0) {
+        renderQuickButtons(data.suggested_quick_questions);
+      }
+
+      const generalSummary = data.general_summary || data.summary || '';
+      const devText = data.developer || 'Неизвестен';
+      const catText = data.category || 'Процесс Windows';
+
+      const wikillmGeneralCard = `
+        <div class="card border-success bg-dark bg-opacity-75 p-2.5 mb-2.5 rounded shadow-sm">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-1">
+            <span class="badge border border-success text-success p-1 px-2 d-inline-flex align-items-center gap-1.5 small">
+              <i class="bi bi-shield-check"></i> База знаний WikiLLM (Общие данные)
+            </span>
+            <span class="small text-secondary fw-semibold">${escapeHtml(devText)} (${escapeHtml(catText)})</span>
+          </div>
+          <div class="small text-light">
+            ${formatMarkdownText(generalSummary)}
+          </div>
+        </div>
+      `;
+
+      const sourceBadge = `<div class="badge border border-info text-info p-1 px-2 mb-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-speedometer2"></i> Анализ текущего потребления и состояния ресурсов (Live Telemetry)</div>`;
+
+      const spinnerPlaceholder = (text) => `
+        <div class="d-inline-flex align-items-center gap-2 text-info py-0.5">
+          <div class="spinner-border spinner-border-sm text-info" style="width: 0.85rem; height: 0.85rem;" role="status"></div>
+          <span class="text-secondary fst-italic small">${text}</span>
+        </div>
+      `;
+
+      aiExplanation.innerHTML = `
+        ${wikillmGeneralCard}
+        ${sourceBadge}
+        <div class="mb-2">
+          <strong class="text-info"><i class="bi bi-cpu me-1"></i>Анализ ресурсов:</strong>
+          <div class="mt-0.5">${spinnerPlaceholder('Выполняется экспресс-анализ текущего потребления параметров телеметрии...')}</div>
+        </div>
+        <div class="mb-2">
+          <strong class="text-secondary"><i class="bi bi-building me-1"></i>Разработчик / Категория:</strong> ${escapeHtml(devText)} (${escapeHtml(catText)})
+        </div>
+        <div class="mb-2">
+          <strong class="text-warning"><i class="bi bi-shield-lock me-1"></i>Оценка безопасности текущей сессии:</strong>
+          <div class="mt-0.5">${spinnerPlaceholder('Проверка прав, путей запуска и активных сетевых сокетов...')}</div>
+        </div>
+        <div class="mb-2">
+          <strong class="text-info"><i class="bi bi-speedometer2 me-1"></i>Влияние на ресурсы:</strong>
+          <div class="mt-0.5">${spinnerPlaceholder('Срез по подсистемам: ЦП, ОЗУ, Дисковый ввод-вывод, Сокеты...')}</div>
+        </div>
+        <div class="p-2 mb-2 rounded uai-recommendation-box">
+          <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация:</strong>
+          <div class="ms-1 d-inline-block">${spinnerPlaceholder('Формирование вердикта администратору...')}</div>
+        </div>
+        <div class="mb-2">
+          <h6 class="uai-action-steps-title text-uppercase text-muted fw-bold mb-1">Рекомендуемые действия:</h6>
+          <div class="ps-1">${spinnerPlaceholder('Определение практических шагов оптимизации...')}</div>
+        </div>
+        ${data.developer_advice ? `
+          <div class="uai-dev-advice-wrapper mt-3 pt-2 border-top border-secondary border-opacity-25">
+            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
+              <button class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1.5 py-1 px-3 rounded-pill uai-btn-toggle-dev" 
+                      type="button" data-bs-toggle="collapse" data-bs-target="#uai-dev-advice-collapse" aria-expanded="true">
+                <i class="bi bi-code-slash"></i>
+                <strong class="small">Советы разработчику &amp; Автоматизация</strong>
+                <i class="bi bi-chevron-down ms-1"></i>
+              </button>
+              <div class="d-flex align-items-center gap-1.5">
+                <span class="badge border border-info text-info small" style="font-size: 0.72rem;">
+                  <i class="bi bi-cpu me-1"></i>API &amp; Scripting
+                </span>
+              </div>
+            </div>
+            <div class="collapse show" id="uai-dev-advice-collapse">
+              <div class="p-3 rounded uai-dev-advice-box">
+                ${renderDevAdviceContent(data.developer_advice)}
+              </div>
+            </div>
+          </div>
+        ` : ''}
+        <div class="p-2 mt-2 rounded d-flex align-items-center justify-content-between flex-wrap gap-2 text-secondary small" id="uai-approval-container">
+          <div><i class="bi bi-hourglass-split me-1 text-info"></i>Общие данные загружены из WikiLLM. Ожидается ответ модели по текущему инстансу...</div>
+        </div>
+      `;
+    }
+
     async function checkWikiLLMKnowledge() {
       if (!aiExplanation) return;
       if (getAssistantMode() === 'model_only') {
@@ -2280,7 +2583,13 @@
         }, 4000);
 
         if (data && (data.is_verified || data.source === 'wikillm') && data.summary) {
-          renderDiagnosticResult(data, true);
+          const isProcess = (opts.tableType === 'process' || (opts.panelId && opts.panelId.includes('process')));
+          if (isProcess) {
+            renderDiagnosticResultWithPlaceholders(data);
+            executeDiagnostics(true, false, true);
+          } else {
+            renderDiagnosticResult(data, true);
+          }
         } else {
           const autoEnrichToggle = document.getElementById('toggle-auto-enrich-on-miss');
           if (autoEnrichToggle && autoEnrichToggle.checked) {
@@ -2309,7 +2618,7 @@
     }
 
     // Выполнение диагностического запроса к AI с передачей модели, провайдера и системной инструкции
-    async function executeDiagnostics(forceRefresh = false, autoSave = false) {
+    async function executeDiagnostics(forceRefresh = false, autoSave = false, isHybridProcess = false) {
       const aiExplanation = document.getElementById('uai-modal-ai-explanation');
       if (!aiExplanation) return;
 
@@ -2317,12 +2626,14 @@
       const currentModel = modelInput ? modelInput.value.trim() : '';
       const currentProvider = providerSelect ? providerSelect.value : 'gemini';
 
-      aiExplanation.innerHTML = `
-        <div class="d-flex align-items-center gap-2 py-2 text-info">
-          <div class="spinner-border spinner-border-sm" role="status"></div>
-          <span>Выполняется ${forceRefresh ? 'углубленный' : 'экспертный'} AI-анализ для «${escapeHtml(opts.title)}» (терпеливое ожидание ответа модели)...</span>
-        </div>
-      `;
+      if (!isHybridProcess) {
+        aiExplanation.innerHTML = `
+          <div class="d-flex align-items-center gap-2 py-2 text-info">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            <span>Выполняется ${forceRefresh ? 'углубленный' : 'экспертный'} AI-анализ для «${escapeHtml(opts.title)}» (терпеливое ожидание ответа модели)...</span>
+          </div>
+        `;
+      }
 
       const metaDict = {};
       (opts.metadata || []).forEach(m => {
@@ -2380,6 +2691,21 @@
       } catch (err) {
         // При ошибке: в WikiLLM НЕ записываем, выводим сообщение с расшифровкой и сырым JSON ответа
         const errInfo = decipherModelError(err);
+        if (isHybridProcess) {
+          const approvalContainer = document.getElementById('uai-approval-container');
+          if (approvalContainer) {
+            approvalContainer.className = 'card border-danger bg-dark bg-opacity-75 p-2.5 mt-2 text-light';
+            approvalContainer.innerHTML = `
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="small text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i>Сбой анализа телеметрии: ${escapeHtml(errInfo.friendlyReason || err.message || 'Ошибка модели')}</div>
+                <button type="button" class="btn btn-xs btn-outline-danger" id="btn-uai-modal-retry"><i class="bi bi-arrow-clockwise"></i> Повторить</button>
+              </div>
+            `;
+            const retryBtn = document.getElementById('btn-uai-modal-retry');
+            if (retryBtn) retryBtn.onclick = () => executeDiagnostics(true, false, true);
+            return;
+          }
+        }
         aiExplanation.innerHTML = `
           <div class="card border-danger bg-dark bg-opacity-75 p-3 mb-2 text-light">
             <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
@@ -2472,15 +2798,26 @@
       if (approveBtn) approveBtn.disabled = true;
 
       try {
+        const isProcApprove = (options.tableType === 'process' || (options.panelId && options.panelId.includes('process')));
+        let cleanTitle = options.title || '';
+        let cleanSummary = aiData.general_summary || aiData.summary || '';
+        let cleanPerf = aiData.performance_impact || '';
+        if (isProcApprove) {
+          cleanTitle = cleanTitle.replace(/[\s\[\(]+PID[:\s]*\d+[\s\]\)]*/gi, '').trim();
+          if (!cleanTitle) cleanTitle = (options.title || '').split(' ')[0].trim();
+          cleanPerf = 'Штатный профиль приложения (из базы знаний WikiLLM)';
+        }
+
         const payload = {
           canonical_key: aiData.canonical_key || undefined,
           table_type: options.tableType || 'generic',
-          title: options.title || '',
+          title: cleanTitle,
           subtitle: options.subtitle || '',
-          summary: aiData.summary || '',
+          summary: cleanSummary,
+          general_summary: cleanSummary,
           category: aiData.category || 'system',
           security_verdict: aiData.security_verdict || '',
-          performance_impact: aiData.performance_impact || '',
+          performance_impact: cleanPerf,
           recommendation: aiData.recommendation || '',
           action_steps: aiData.action_steps || [],
           developer_advice: aiData.developer_advice || '',
@@ -2733,6 +3070,9 @@
           statusBadge.innerHTML = '<i class="bi bi-robot me-1"></i>Ответ модели';
           statusBadge.style.display = 'inline-flex';
         }
+
+        // Помечаем вопрос как отвеченный, чтобы он стал неактивным и больше не был доступен для выбора
+        markQuestionInUIAsAnswered(qText);
       } catch (chatErr) {
         // При ошибке: в WikiLLM НЕ записываем, выводим сообщение с расшифровкой и сырым JSON ответа
         const chatErrInfo = decipherModelError(chatErr);
@@ -3212,6 +3552,7 @@
     openPromptEditor: openPromptEditor,
     insertVariable: insertVariable,
     escapeHtml: escapeHtml,
+    formatMarkdownText: formatMarkdownText,
     normalizeTableType: normalizeTableType,
     parseModelResponse: parseModelResponse,
     renderReadyToolWidget: renderReadyToolWidget

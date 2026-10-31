@@ -185,3 +185,4 @@ def test_rest_api_save_list_restore(env) -> None:
 
     assert client.post('/api/v1/versions/restore', json={'version_id': 12345}).status_code == 404
     assert client.post('/api/v1/versions/save', json={'file_path': str(target) + 'x'}).status_code == 404
+

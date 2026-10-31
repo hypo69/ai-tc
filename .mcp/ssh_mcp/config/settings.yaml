@@ -1,0 +1,49 @@
+application:
+  name: SSH MCP Server
+  version: 1.0.0
+
+server:
+  mode: hybrid
+  local:
+    transport: stdio
+  remote:
+    transport: streamable-http
+    host: 127.0.0.1
+    port: 8765
+    tls: true
+    cert_file: ""
+    key_file: ""
+    allowed_origins:
+      - "http://127.0.0.1"
+      - "https://127.0.0.1"
+
+ssh:
+  default_port: 22
+  connect_timeout: 15
+  command_timeout: 60
+  keepalive_interval: 30
+  max_reconnect_attempts: 3
+  host_key_verification: strict
+  known_hosts_path: ./data/known_hosts
+
+execution:
+  max_parallel_commands: 10
+  max_output_size_mb: 10
+  max_execution_time: 3600
+  max_file_transfer_mb: 100
+  allowed_paths: []
+
+security:
+  default_privilege: administrator
+  audit_enabled: true
+  approval_required_for_high_risk: true
+  approval_required_for_critical: true
+  api_token_env: SSH_MCP_API_TOKEN
+
+storage:
+  backend: sqlite
+  path: ./data/ssh_mcp.db
+
+logging:
+  level: INFO
+  audit: true

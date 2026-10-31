@@ -223,6 +223,16 @@ Updated: 2026-10-20 10:55:00
 </div>
 </div>
 <div class="col-sm-6">
+<label class="form-label text-muted fs-8 mb-1" for="tc-field-history-retention">Хранить историю потребления (железо и приложения):</label>
+<select class="form-select form-select-sm bg-dark text-white border-secondary" id="tc-field-history-retention">
+<option value="1m">Месяц</option>
+<option value="3m">3 месяца</option>
+<option value="6m">Полгода</option>
+<option value="1y">Год</option>
+<option value="forever" selected>Вечно</option>
+</select>
+</div>
+<div class="col-sm-6">
 <label class="form-label text-muted fs-8 mb-1">Интервал автоочистки БД (сек):</label>
 <div class="input-group input-group-sm">
 <input class="form-control bg-dark text-white border-secondary" id="tc-field-db-cleanup-interval" min="5" step="1" type="number" value="300.0"/>

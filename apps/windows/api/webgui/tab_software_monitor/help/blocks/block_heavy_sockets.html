@@ -1,0 +1,54 @@
+<!--
+=============================================================================
+Process Name: Windows Software Monitor - Atomic Help Block: Heavy Apps & Sockets
+=============================================================================
+Description:
+  Атомарный HTML-фрагмент справки по разделам «Ресурсоемкие программы» (heavy)
+  и «Конфигурации и сокеты» (sockets) во вкладке #tab-software-monitor.
+
+File: block_heavy_sockets.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_software_monitor/help/blocks
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-31 18:36:00
+=============================================================================
+-->
+<div class="card bg-body border-subtle shadow-sm mb-3 help-atomic-block" data-help-block="block_heavy_sockets">
+  <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between py-2 px-3">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-hdd-network text-info fs-5"></i>
+      <h6 class="mb-0 fw-bold text-body" data-i18n="softwareMonitorHelp.heavySockets.title">6. Ресурсоемкие программы и Сетевые сокеты</h6>
+    </div>
+    <span class="ui-badge ui-badge-neutral" data-i18n="softwareMonitorHelp.heavySockets.badge">Ресурсы и сеть</span>
+  </div>
+  <div class="card-body p-3">
+    <p class="small text-muted mb-3" data-i18n="softwareMonitorHelp.heavySockets.intro">
+      Оперативный мониторинг потребления ресурсов и сетевой активности работающего ПО:
+    </p>
+    <div class="row g-2">
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-lightning-fill text-warning"></i>
+            <span data-i18n="softwareMonitorHelp.heavySockets.heavyTitle">Ресурсоемкие программы (Heavy Resources)</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="softwareMonitorHelp.heavySockets.heavyDesc">
+            Выявляет фоновые процессы, потребляющие значительные доли ресурсов процессора (% CPU), оперативной памяти (Private Working Set) и интенсивный блочный ввод-вывод диска (Disk I/O).
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded border border-subtle bg-body-tertiary h-100">
+          <strong class="small text-body d-flex align-items-center gap-1.5 mb-1">
+            <i class="bi bi-diagram-2 text-info"></i>
+            <span data-i18n="softwareMonitorHelp.heavySockets.socketsTitle">Конфигурации и сетевые сокеты (Sockets &amp; Ports)</span>
+          </strong>
+          <p class="small text-muted mb-0" data-i18n="softwareMonitorHelp.heavySockets.socketsDesc">
+            Отображает список открытых локальных портов TCP/UDP, прослушиваемых сокетов (Listening) и установленных удаленных соединений (Established) с привязкой к конкретному PID и командной строке.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

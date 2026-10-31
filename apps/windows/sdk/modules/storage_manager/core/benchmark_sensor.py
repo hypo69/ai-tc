@@ -258,3 +258,4 @@ __all__ = [
     'get_storage_benchmark_sensor',
     'run_quick_storage_benchmark',
 ]
+

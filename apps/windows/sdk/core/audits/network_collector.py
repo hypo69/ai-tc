@@ -140,3 +140,4 @@ class NetworkCollector:
         except Exception as e:
             logger.debug(f'Ошибка при проверке брандмауэра: {e}')
         return {'firewall_enabled': True, 'engine': 'Default assumption'}
+

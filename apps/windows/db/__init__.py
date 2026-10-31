@@ -18,3 +18,4 @@
 from .db_adapter import DatabaseAdapter, db_adapter
 
 __all__ = ["DatabaseAdapter", "db_adapter"]
+

@@ -18,3 +18,4 @@
 
 from __future__ import annotations
 """Пакет тестов для модуля управления панелью задач и окнами Windows."""
+

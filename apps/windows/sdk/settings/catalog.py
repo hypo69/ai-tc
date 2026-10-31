@@ -120,3 +120,4 @@ WINDOWS_SETTINGS: Dict[str, Dict[str, Any]] = {
 def get_settings_catalog() -> Dict[str, SettingDefinition]:
     """Возвращает типизированный словарь определений каталога настроек."""
     return {k: SettingDefinition(**v) for k, v in WINDOWS_SETTINGS.items()}
+

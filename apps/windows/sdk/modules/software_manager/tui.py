@@ -71,3 +71,4 @@ class SoftwareManagerTUI:
 
 
 __all__ = ['SoftwareManagerTUI']
+

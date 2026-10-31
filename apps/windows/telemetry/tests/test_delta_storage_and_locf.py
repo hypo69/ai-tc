@@ -314,3 +314,4 @@ def test_memory_buffering_with_5s_batch_flush():
         shutil.rmtree(tmpdir, ignore_errors=True)
 
 
+

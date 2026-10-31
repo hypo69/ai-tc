@@ -16,7 +16,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 06:33:00
+# Updated: 2026-10-31 18:55:00
 # =============================================================================
 
 from __future__ import annotations
@@ -118,21 +118,36 @@ def build_memory_io(rows: List[Dict[str, Any]], store: Optional[TelemetryStorage
             if full_snap:
                 if total <= 0:
                     total = _f(full_snap.get("memory_total_gb"))
+                    if total <= 0 and isinstance(full_snap.get("memory"), dict):
+                        total = _f(full_snap["memory"].get("total_gb"))
                 if swap_pct <= 0:
                     swap_pct = _f(full_snap.get("swap_percent"))
+                    if swap_pct <= 0 and isinstance(full_snap.get("memory"), dict):
+                        swap_pct = _f(full_snap["memory"].get("swap_percent"))
+        except Exception:
+            pass
+
+    if total <= 0 and psutil:
+        try:
+            total = round(psutil.virtual_memory().total / (1024 ** 3), 2)
         except Exception:
             pass
 
     if total <= 0:
-        total = 16.0
+        total = 32.0
 
     if used <= 0 and total > 0 and pct > 0:
         used = round(total * pct / 100.0, 2)
     elif pct <= 0 and total > 0 and used > 0:
         pct = round((used / total) * 100.0, 1)
 
+    # Защита от рассогласования: занятая память не может превышать общий объем физической памяти
+    if total > 0 and used > total:
+        used = round(total * pct / 100.0, 2) if pct > 0 else total
+
     ram_name = f"{round(total)} GB RAM" if total > 0 else "RAM"
-    ram_summary = ""
+    free_ram = max(total - used, 0.0)
+    ram_summary = f"Всего: {round(total, 1)} GB | Занято: {round(used, 1)} GB | Доступно: {round(free_ram, 1)} GB"
 
     # Построение истории с LOCF для сглаживания пропусков в дельта-записях
     last_known_pct = pct
@@ -201,3 +216,4 @@ def init_router(storage: Optional[TelemetryStorage] = None) -> APIRouter:
 
 
 __all__ = ["init_router", "build_memory_io", "MemoryIoResponse"]
+

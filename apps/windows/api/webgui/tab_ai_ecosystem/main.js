@@ -11,7 +11,7 @@
  * Package: windows/api/webgui/tab_ai_ecosystem
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-13 14:05:00
+ * Updated: 2026-10-30 11:15:00
  * =============================================================================
  */
 
@@ -42,10 +42,15 @@
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    if (!container.hasChildNodes()) {
+    // Проверяем наличие значимого содержимого в контейнере
+    const hasMeaningfulContent = container.children.length > 0 && container.innerHTML.trim().length > 30;
+    if (!hasMeaningfulContent) {
       try {
         const res = await fetch(`${htmlUrl}?v=${Date.now()}`);
-        if (!res.ok) return;
+        if (!res.ok) {
+          console.warn(`[AiEcosystem] Ошибка загрузки HTML для ${containerId}: HTTP ${res.status}`);
+          return;
+        }
         container.innerHTML = await res.text();
       } catch (err) {
         console.warn(`[AiEcosystem] Ошибка загрузки HTML для ${containerId}:`, err);
@@ -57,7 +62,11 @@
       try {
         await loadScript(`${jsUrl}?v=${Date.now()}`);
         if (initFnName && typeof window[initFnName] === 'function') {
-          try { window[initFnName](); } catch (err) { console.debug(`[AiEcosystem] ${initFnName} error:`, err); }
+          try {
+            window[initFnName]();
+          } catch (err) {
+            console.debug(`[AiEcosystem] ${initFnName} error:`, err);
+          }
         }
       } catch (err) {
         console.warn(`[AiEcosystem] Ошибка скрипта для ${containerId}:`, err);
@@ -65,8 +74,24 @@
     }
   }
 
+  function bindSubTabNavEvents() {
+    const nav = document.getElementById('ai-ecosystem-subtabs-nav');
+    if (!nav || nav.dataset.bound) return;
+    nav.dataset.bound = 'true';
+
+    nav.addEventListener('click', (event) => {
+      const btn = event.target.closest('button[data-bs-toggle="pill"]');
+      if (!btn) return;
+      if (btn.id === 'subtab-ai-agents-btn') triggerSubTabInit('agents');
+      else if (btn.id === 'subtab-ai-skills-btn') triggerSubTabInit('skills');
+      else if (btn.id === 'subtab-ai-mcp-btn') triggerSubTabInit('mcp');
+    });
+  }
+
   async function loadSubPanes() {
-    // 1. Агенты
+    bindSubTabNavEvents();
+
+    // 1. Агенты (активная вкладка по умолчанию)
     await loadSubPane(
       'ai-agents-embed-container',
       '/html/tab_agents/index.html',
@@ -74,7 +99,7 @@
       'initAgentsTab'
     );
 
-    // 2. Навыки и MCP
+    // 2. Навыки и MCP (фоновая предзагрузка)
     await Promise.allSettled([
       loadSubPane(
         'ai-skills-embed-container',
@@ -131,4 +156,3 @@
     initAiEcosystemTab();
   }
 })();
-
