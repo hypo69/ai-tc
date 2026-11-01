@@ -13,7 +13,7 @@
 # Package: src.ai
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 16:45:00
+# Updated: 2026-11-01 11:32:00
 # =============================================================================
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ from .providers.huggingface import HFChatBase
 from .providers.ollama import OllamaChatBase, OllamaClient
 from .providers.base import BaseChatProvider
 from .gemini import GoogleGenerativeAI
-from .agents import MediaSearchAgent, MCPClientManager
+from .agents import MCPClientManager, MediaSearchAgent
 from .orchestration import get_available_models, actualize_all_models, add_unsupported_model, load_unsupported_models, UnifiedChatModel, is_provider_enabled, get_provider_config
 from .rag import UnifiedKnowledgeHub, TextRAG, PixelRAG, LogRAG
 from apps.windows.wikillm import WikiLLMEngine, WikiStorage

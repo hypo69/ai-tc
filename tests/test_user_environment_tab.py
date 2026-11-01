@@ -12,7 +12,7 @@
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 18:15:00
+# Updated: 2026-11-01 12:03:00
 # =============================================================================
 
 from __future__ import annotations
@@ -172,6 +172,35 @@ def test_panel_loader_excludes_user_environment():
     loader_content = loader_file.read_text(encoding="utf-8")
 
     assert "tab-user-environment" in loader_content
+
+
+def test_panel_windows_no_red_drill_and_uses_desktop_window_ai_prompt():
+    """Проверка отсутствия красной дрели в таблице окон и корректной конфигурации ИИ-помощника."""
+    html_file = Path("apps/windows/api/webgui/tab_user_environment/index.html")
+    html_content = html_file.read_text(encoding="utf-8")
+
+    panel_win_js = Path("apps/windows/api/webgui/tab_user_environment/panel_windows.js")
+    js_content = panel_win_js.read_text(encoding="utf-8")
+
+    # В таблице окон не должно быть кнопки красной дрели
+    assert "ue-btn-window-drill" not in js_content
+    assert "red_drill.png" not in js_content
+
+    # Модальное окно ИИ должно вызываться со специализированным типом desktop_window и panel-windows
+    assert "panelId: 'panel-windows'" in js_content
+    assert "tableType: 'desktop_window'" in js_content
+    assert "autoRun: true" in js_content
+    assert "window_role_hint" in js_content
+    assert "exe_path" in js_content
+    assert "cmdline" in js_content
+
+    # Проверка наличия шаблона desktop_window и panel-windows в менеджере промптов
+    from apps.windows.api.diagnostics_prompt_manager import prompt_manager
+    tmpl = prompt_manager.get_template("desktop_window", panel_id="panel-windows")
+    assert tmpl.table_type == "desktop_window"
+    assert "HWND" in tmpl.prompt_template
+    assert "WM_CLOSE" in tmpl.prompt_template
+
 
 
 

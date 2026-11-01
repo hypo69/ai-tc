@@ -17,14 +17,11 @@
  * Package: windows/api/webgui/apps/modules
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 19:45:00
+ * Updated: 2026-11-01 12:03:00
  * =============================================================================
  */
 
 export const APP_TAB_DEFS = [
-  // Мост к приложению Умная история файлов (apps/ai_assistant)
-  { id: 'ai_assistant', tab: 'ai-assistant', tabId: 'tab-ai-assistant', html: '', js: '' },
-
   // Консолидированные панели
   { id: 'smart_restore', tab: 'smart-restore', tabId: 'tab-smart-restore', html: '/html/tab_smart_restore/index.html?v=20261016_v1', js: '/html/tab_smart_restore/main.js?v=20261016_v1' },
   { id: 'windows_user_settings', tab: 'windows-settings', tabId: 'tab-windows-settings', html: '/html/tab_windows_settings/index.html?v=20261015_v1', js: '/html/tab_windows_settings/main.js?v=20261015_v1' },

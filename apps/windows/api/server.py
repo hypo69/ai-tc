@@ -14,7 +14,7 @@
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 13:25:00
+# Updated: 2026-11-01 12:03:00
 # =============================================================================
 
 from __future__ import annotations
@@ -42,9 +42,6 @@ _CONFIG_PATH = _MODULE_DIR / "config.json"
 _WEBGUI_DIR = _MODULE_DIR / "webgui"
 _TC_INDEX = _WEBGUI_DIR / "apps" / "index.html"
 _PROJECT_ROOT = _MODULE_DIR.parents[2]
-_AI_ASSISTANT_DIR = _PROJECT_ROOT / "apps" / "ai_assistant"
-_AI_ASSISTANT_WEBGUI = _AI_ASSISTANT_DIR / "api" / "webgui"
-_AI_ASSISTANT_INDEX = _AI_ASSISTANT_WEBGUI / "index.html"
 _COMMON_WEBGUI_DIR = COMMON_WEBGUI_DIR
 
 
@@ -297,22 +294,6 @@ def create_app() -> FastAPI:
     discover_and_register_routers(app, "apps.windows", exclude_modules=registered_modules)
 
     # -------------------------------------------------------------------------
-    # Мост к REST API приложению Умная история файлов (apps/ai_assistant)
-    # -------------------------------------------------------------------------
-    try:
-        from apps.ai_assistant.api.routers.router_file_history import router as ai_history_router
-        from apps.ai_assistant.api.routers.router_git_wikillm import router as ai_wikillm_router
-        from apps.ai_assistant.api.routers.router_knowledge import router as ai_knowledge_router
-        from apps.ai_assistant.api.routers.router_models import router as ai_models_router
-        from apps.ai_assistant.router import router as ai_version_history_router
-
-        for ai_r in (ai_history_router, ai_wikillm_router, ai_knowledge_router, ai_models_router, ai_version_history_router):
-            safe_include_router(app, ai_r)
-        logger.info("[Bridge] Роутеры API AI Assistant (Умная история файлов) успешно подключены")
-    except Exception as exc:
-        logger.warning(f"[Bridge] Ошибка подключения роутеров AI Assistant: {exc}")
-
-    # -------------------------------------------------------------------------
     # Роутеры экосистемы ИИ и администрирования (/api/skills, /api/plugins, /api/mcp, /api/admin)
     # -------------------------------------------------------------------------
     try:
@@ -331,6 +312,16 @@ def create_app() -> FastAPI:
         logger.info("[Bridge] Роутеры экосистемы ИИ (skills, plugins, mcp, admin) успешно подключены")
     except Exception as exc:
         logger.warning(f"[Bridge] Ошибка подключения роутеров экосистемы ИИ: {exc}")
+
+    # -------------------------------------------------------------------------
+    # Роутер Unified RAG (/api/rag/*)
+    # -------------------------------------------------------------------------
+    try:
+        from src.ai.rag.router import init_router as init_rag_router
+        safe_include_router(app, init_rag_router())
+        logger.info("[Bridge] Роутер Unified RAG (/api/rag/*) успешно подключен")
+    except Exception as exc:
+        logger.warning(f"[Bridge] Ошибка подключения роутера Unified RAG: {exc}")
 
     # -------------------------------------------------------------------------
     # Системные и UI точки входа
@@ -368,30 +359,10 @@ def create_app() -> FastAPI:
             )
         return HTMLResponse("<h1>TC WebGUI (apps/index.html) not found</h1>", status_code=404)
 
-    # AI Assistant UI точки входа (Умная история файлов)
-    @app.get("/ai_assistant", response_class=HTMLResponse, include_in_schema=False)
-    @app.get("/ai_assistant/", response_class=HTMLResponse, include_in_schema=False)
-    @app.get("/ai-assistant", response_class=HTMLResponse, include_in_schema=False)
-    @app.get("/ai-assistant/", response_class=HTMLResponse, include_in_schema=False)
-    @app.get("/smart-history", response_class=HTMLResponse, include_in_schema=False)
-    @app.get("/smart-history/", response_class=HTMLResponse, include_in_schema=False)
-    async def ai_assistant_index() -> Response:
-        """Возвращает веб-интерфейс приложения Умная история файлов (apps/ai_assistant)."""
-        if _AI_ASSISTANT_INDEX.exists():
-            return FileResponse(
-                _AI_ASSISTANT_INDEX,
-                headers={
-                    "Cache-Control": "no-cache, no-store, must-revalidate",
-                    "Pragma": "no-cache",
-                    "Expires": "0",
-                },
-            )
-        return HTMLResponse("<h1>AI Assistant WebGUI index.html not found</h1>", status_code=404)
-
     @app.get("/api/v1/bridge/status", tags=["bridge"])
     @app.get("/api/bridge/status", tags=["bridge"])
     async def get_bridge_status() -> Dict[str, Any]:
-        """Возвращает статус моста между приложениями Windows API и AI Assistant."""
+        """Возвращает статус веб-интерфейса Windows API."""
         return {
             "status": "ok",
             "service": "ai-windows-admin-bridge",
@@ -400,11 +371,6 @@ def create_app() -> FastAPI:
                     "name": "AI Windows Admin (TC)",
                     "url": "/tc",
                     "webgui_exists": _TC_INDEX.exists(),
-                },
-                "ai_assistant": {
-                    "name": "Умная история файлов",
-                    "url": "/ai_assistant",
-                    "webgui_exists": _AI_ASSISTANT_INDEX.exists(),
                 },
             },
         }
@@ -590,16 +556,10 @@ def create_app() -> FastAPI:
         except Exception as exc:
             return {"status": "error", "message": str(exc), "themes": []}
 
-    # Статические файлы TC и AI Assistant
+    # Статические файлы TC
     if _WEBGUI_DIR.exists():
-        if _AI_ASSISTANT_WEBGUI.exists():
-            app.mount("/webinterface", SmartMultiDirStaticFiles(_WEBGUI_DIR, _AI_ASSISTANT_WEBGUI, _COMMON_WEBGUI_DIR), name="tc-webinterface")
-            app.mount("/html", SmartMultiDirStaticFiles(_WEBGUI_DIR, _AI_ASSISTANT_WEBGUI, _COMMON_WEBGUI_DIR), name="tc-html")
-            app.mount("/ai_assistant/html", StaticFiles(directory=str(_AI_ASSISTANT_WEBGUI)), name="ai-html")
-            app.mount("/ai_assistant/static", StaticFiles(directory=str(_AI_ASSISTANT_WEBGUI)), name="ai-static")
-        else:
-            app.mount("/webinterface", SmartMultiDirStaticFiles(_WEBGUI_DIR, _COMMON_WEBGUI_DIR), name="tc-webinterface")
-            app.mount("/html", SmartMultiDirStaticFiles(_WEBGUI_DIR, _COMMON_WEBGUI_DIR), name="tc-html")
+        app.mount("/webinterface", SmartMultiDirStaticFiles(_WEBGUI_DIR, _COMMON_WEBGUI_DIR), name="tc-webinterface")
+        app.mount("/html", SmartMultiDirStaticFiles(_WEBGUI_DIR, _COMMON_WEBGUI_DIR), name="tc-html")
 
         if (_WEBGUI_DIR / "apps").exists():
             app.mount("/apps/static", StaticFiles(directory=_WEBGUI_DIR / "apps"), name="tc-apps-static")

@@ -17,7 +17,7 @@
  * Package: windows/api/webgui/core
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 19:45:00
+ * Updated: 2026-11-01 12:02:30
  * =============================================================================
  */
 
@@ -93,8 +93,8 @@ export const TAB_DEFINITIONS = [
   { id: 'theme_editor', label: 'Редактор тем оформления', icon: 'bi-palette2', tab: 'theme-editor', tabId: 'tab-theme-editor', html: '/html/tab_theme_editor/index.html?v=20261020_v2', js: '/html/tab_theme_editor/main.js?v=20261020_v2' },
   { id: 'app_internals', label: 'Внутренняя кухня', icon: '🛠️', tab: 'app-internals', tabId: 'tab-app-internals', html: '/html/tab_app_internals/index.html?v=20261031_v7', js: '/html/tab_app_internals/main.js?v=20261031_v7' },
   { id: 'sound_settings', label: 'Настройка звука', icon: 'bi-volume-up', tab: 'sound-settings', tabId: 'tab-sound-settings', html: '/html/tab_sound_settings/index.html?v=20261027_v1', js: '/html/tab_sound_settings/main.js?v=20261027_v1' },
-  { id: 'user_environment', label: 'Окружение пользователя', icon: 'bi-person-workspace', tab: 'user-environment', tabId: 'tab-user-environment', html: '/html/tab_user_environment/index.html?v=20261031_v1', js: '/html/tab_user_environment/main.js?v=20261031_v1' },
-  { id: 'user_enviroment', label: 'Окружение пользователя', icon: 'bi-person-workspace', tab: 'user-enviroment', tabId: 'tab-user-enviroment', html: '/html/tab_user_environment/index.html?v=20261031_v1', js: '/html/tab_user_environment/main.js?v=20261031_v1' },
+  { id: 'user_environment', label: 'Окружение пользователя', icon: 'bi-person-workspace', tab: 'user-environment', tabId: 'tab-user-environment', html: '/html/tab_user_environment/index.html?v=20261101_v1', js: '/html/tab_user_environment/main.js?v=20261101_v1' },
+  { id: 'user_enviroment', label: 'Окружение пользователя', icon: 'bi-person-workspace', tab: 'user-enviroment', tabId: 'tab-user-enviroment', html: '/html/tab_user_environment/index.html?v=20261101_v1', js: '/html/tab_user_environment/main.js?v=20261101_v1' },
   { id: 'sitemap', label: 'Карта сайта (Sitemap)', icon: 'bi-diagram-3-fill', tab: 'sitemap', tabId: 'tab-sitemap', html: '/html/tab_sitemap/index.html?v=20261015_v1', js: '/html/tab_sitemap/main.js?v=20261015_v1' }
 ];
 

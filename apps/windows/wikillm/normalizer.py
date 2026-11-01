@@ -16,7 +16,7 @@
 # Package: apps.windows.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-01 11:59:00
 # =============================================================================
 
 from __future__ import annotations
@@ -210,6 +210,13 @@ class CanonicalKeyNormalizer:
             norm_code = cls.normalize_hex_code(raw_title)
             prefix = "ntstatus" if norm_code.startswith("0xc") else "win32"
             return f"{prefix}:{norm_code}"
+
+        # Если окно рабочего стола (desktop_window / window)
+        if raw_type in ("desktop_window", "desktop_windows", "window", "windows", "hwnd"):
+            title_slug = re.sub(r"[^a-zA-Z0-9а-яА-ЯёЁ_\-]+", "_", raw_title.lower()).strip("_")
+            sub_slug = re.sub(r"[^a-zA-Z0-9_\-.]+", "_", (subtitle or "").split("(")[0].strip().lower()).strip("_")
+            combined_slug = f"{sub_slug}:{title_slug[:48]}" if sub_slug and title_slug else (title_slug[:64] or sub_slug or "unspecified")
+            return f"desktop_window:{combined_slug}"
 
         # Если process
         if raw_type in ("process", "proc") or raw_title.lower().endswith(".exe"):

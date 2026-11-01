@@ -12,23 +12,20 @@
 # Package: apps.common.webgui
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:05:00
+# Updated: 2026-11-01 12:03:00
 # =============================================================================
 
 from __future__ import annotations
 
 import os
-from contextvars import ContextVar
 from pathlib import Path
-from typing import Any, Optional, Sequence
+from typing import Any, Optional
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import Response
 
-_current_dirs_context: ContextVar[Optional[list[Path]]] = ContextVar("_current_dirs_context", default=None)
-
 
 class SmartMultiDirStaticFiles(StaticFiles):
-    """Статический файловый обработчик с объединением каталогов и динамическим приоритетом.
+    """Статический файловый обработчик с объединением каталогов.
 
     Позволяет прозрачно раздавать статические ассеты из каталога конкретного
     приложения с автоматическим fallback на общий каталог apps/common/webgui.
@@ -56,8 +53,7 @@ class SmartMultiDirStaticFiles(StaticFiles):
             tuple[str, Optional[os.stat_result]]: Полный путь к файлу и его stat,
             либо пустая строка и None в случае отсутствия файла.
         """
-        target_dirs = _current_dirs_context.get() or self.directories
-        for directory in target_dirs:
+        for directory in self.directories:
             if not directory.exists():
                 continue
             full_path = os.path.realpath(os.path.join(directory, path))
@@ -69,7 +65,7 @@ class SmartMultiDirStaticFiles(StaticFiles):
         return "", None
 
     async def get_response(self, path: str, scope: Any) -> Response:
-        """Формирует HTTP-ответ с учетом динамического приоритета по Referer.
+        """Формирует HTTP-ответ со статическим файлом.
 
         Args:
             path: Запрашиваемый путь к файлу.
@@ -78,20 +74,7 @@ class SmartMultiDirStaticFiles(StaticFiles):
         Returns:
             Response: Ответ со статическим файлом.
         """
-        headers = dict(scope.get("headers", []))
-        referer = headers.get(b"referer", b"").decode("utf-8", errors="ignore").lower()
-
-        # Если запрос пришел из контекста ai_assistant, приоритизируем соответствующий каталог безопасно для конкурентных запросов
-        if "ai_assistant" in referer or "ai-assistant" in referer or "smart-history" in referer:
-            ai_dirs = [d for d in self.directories if "ai_assistant" in str(d).lower()]
-            other_dirs = [d for d in self.directories if "ai_assistant" not in str(d).lower()]
-            token = _current_dirs_context.set(ai_dirs + other_dirs)
-            try:
-                response = await super().get_response(path, scope)
-            finally:
-                _current_dirs_context.reset(token)
-        else:
-            response = await super().get_response(path, scope)
+        response = await super().get_response(path, scope)
 
         lower_path = path.lower()
         if lower_path.endswith((".js", ".mjs", ".css", ".html", ".json")):

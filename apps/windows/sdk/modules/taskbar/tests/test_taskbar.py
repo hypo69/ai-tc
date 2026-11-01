@@ -13,7 +13,7 @@
 # Package: apps.windows.sdk.modules.taskbar.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-01 12:03:00
 # =============================================================================
 
 from __future__ import annotations
@@ -94,9 +94,27 @@ def test_models_validation():
         is_maximized=False,
         is_foreground=True,
         rect=rect,
+        exe_path="C:\\Windows\\System32\\notepad.exe",
+        cmdline="notepad.exe test.txt",
+        window_role_hint="Стандартное прикладное окно рабочего стола",
     )
     assert win.hwnd == 12345
     assert win.title == "Тестовое окно"
+    assert win.exe_path == "C:\\Windows\\System32\\notepad.exe"
+
+    # Проверка классификации технического микро-окна (например, 2x2 или 32x32)
+    tiny_rect = WindowRect(left=0, top=0, right=2, bottom=2, width=2, height=2)
+    role = WindowManager._classify_window_role(
+        rect=tiny_rect,
+        is_minimized=False,
+        is_topmost=False,
+        is_tool_window=True,
+        is_layered=False,
+        is_no_activate=True,
+        owner_hwnd=0,
+        style_flags=["WS_VISIBLE", "WS_EX_TOOLWINDOW"],
+    )
+    assert "2×2" in role
 
 
 def test_history_manager_record_and_rollback(temp_db: Path):

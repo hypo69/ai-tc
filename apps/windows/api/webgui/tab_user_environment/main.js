@@ -10,14 +10,14 @@
  *
  * Usage Examples:
  *   HTML Integration:
- *     <script src="/html/tab_user_environment/main.js?v=20261031_v1" type="module"></script>
+ *     <script src="/html/tab_user_environment/main.js?v=20261101_v1" type="module"></script>
  *
  * File: main.js
  * Project: ai-windows-admin
  * Package: windows/api/webgui/tab_user_environment
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 15:54:00
+ * Updated: 2026-11-01 12:02:30
  * =============================================================================
  */
 
@@ -34,7 +34,7 @@ import {
   bindWindowsEvents,
   openWindowCopilotModal,
   executeWindowAction
-} from './panel_windows.js';
+} from './panel_windows.js?v=20261101_v1';
 import { loadFocusState, bindFocusEvents } from './panel_focus.js';
 import { loadPersonalizationState, bindPersonalizationEvents } from './panel_personalization.js';
 import { loadHistory, rollbackLast, bindHistoryEvents } from './panel_history.js';

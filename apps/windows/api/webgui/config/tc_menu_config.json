@@ -278,14 +278,6 @@
         "visible": false
       },
       {
-        "id": "ai_assistant",
-        "label": "Умная история файлов (Smart File History)",
-        "icon": "bi-clock-history",
-        "tab": "tab-ai-assistant",
-        "order": 25,
-        "visible": false
-      },
-      {
         "id": "sound_settings",
         "label": "Звук и громкость",
         "icon": "bi-volume-up",

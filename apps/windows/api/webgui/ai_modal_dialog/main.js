@@ -26,7 +26,7 @@
  * Package: apps.windows.api.webgui.ai_modal_dialog
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 19:25:00
+ * Updated: 2026-11-01 12:00:30
  * =============================================================================
  */
 
@@ -116,6 +116,7 @@
     if (low === 'autorun' || low === 'autoruns') return 'startup';
     if (low === 'power' || low === 'powersession' || low === 'power_session' || low === 'power_sessions' || low === 'power_lifecycle') return 'power_session';
     if (low === 'powerevent' || low === 'power_event' || low === 'power_events') return 'power_event';
+    if (low === 'window' || low === 'windows' || low === 'desktop_window' || low === 'desktop_windows' || low === 'hwnd') return 'desktop_window';
     return low;
   }
 

@@ -13,12 +13,6 @@
       "description": "Мониторинг и управление Cloudflare Tunnel (/api/cloudflared/*)"
     },
     {
-      "module": "apps.ai_assistant.router",
-      "factory": "init_router",
-      "enabled": false,
-      "description": "Модуль умной истории версий AI Assistant (/api/v1/ai-assistant/version-history/*)"
-    },
-    {
       "module": "apps.windows.api.routers.router_procedural_tools",
       "factory": "init_router",
       "enabled": true,
@@ -42,6 +36,12 @@
       "enabled": true,
       "inject_app": true,
       "description": "Windows diagnostics & hardware (/api/windows/*)"
+    },
+    {
+      "module": "src.ai.rag.router",
+      "factory": "init_router",
+      "enabled": true,
+      "description": "Unified RAG, Pixel RAG, and Codebase AST RAG (/api/rag/*)"
     },
     {
       "module": "apps.windows.sdk.modules.window_control_plane.router",

@@ -380,6 +380,17 @@ function createTabCardHtml(tab) {
             </ul>
           </div>
 
+          <!-- Кнопка перехода на вкладку 
+          <div class="d-flex justify-content-end pt-2 border-top border-secondary-subtle">
+            <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 px-3 py-1.5 w-100 justify-content-center btn-open-tab"
+                    type="button"
+                    data-tab-id="${escapeHtml(tab.tabId)}"
+                    title="Открыть раздел ${escapeHtml(tab.title)}">
+              <span>Открыть вкладку</span>
+              <i class="bi bi-arrow-right-short fs-6"></i>
+            </button>
+                    -->
+                    
           <!-- Кнопка перехода на вкладку -->
           <div class="d-flex justify-content-end pt-2 border-top border-secondary-subtle">
             <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 px-3 py-1.5 w-100 justify-content-center btn-open-tab"

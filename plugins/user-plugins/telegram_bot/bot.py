@@ -12,7 +12,7 @@
 # Package: plugins.telegram_bot
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 20:55:00
+# Updated: 2026-11-01 12:03:00
 # =============================================================================
 #   Изменения:
 #     - Исправлен импорт AudioDiarizationService (src.ai.audio_diarization -> src.ai.voice.audio_diarization)
@@ -582,41 +582,6 @@ class TelegramBotEngine:
             logger.error(f"Error processing audio attachment: {exc}", exc_info=True)
             await update.message.reply_text(f"❌ Ошибка обработки аудио: {exc}")
 
-    async def _check_and_trigger_workspace_scenario(
-        self,
-        update: Update,
-        filename_or_text: str,
-    ) -> bool:
-        """Реактивно проверяет триггер специального сценария и выполняет его при поступлении сообщения."""
-        if not filename_or_text:
-            return False
-        try:
-            from apps.ai_assistant.core.telegram_workspace_scenario import TelegramWorkspaceScenarioService
-            from apps.ai_assistant.core.workspace_manager import WorkspaceManager
-
-            scenario_service = TelegramWorkspaceScenarioService()
-            if scenario_service.is_trigger_file(filename_or_text):
-                wm = WorkspaceManager()
-                await scenario_service.trigger_scenario(
-                    wm=wm,
-                    workspace_id="דוד_משה",
-                    trigger_source="telegram_bot",
-                    trigger_file_name=filename_or_text,
-                    delay_seconds=10.0,
-                    wait_for_completion=False,
-                )
-                if update.message:
-                    await update.message.reply_text(
-                        f"⚡ *Событие обработано:* триггер «{filename_or_text}» активирован!\n\n"
-                        "Специальный сценарий для рабочей области «דוד משה» запущен, "
-                        "файл формируется и добавляется в Obsidian Vault.",
-                        parse_mode="Markdown",
-                    )
-                return True
-        except Exception as exc:
-            logger.warning(f"[TelegramBotEngine] Ошибка при проверке триггера сценария: {exc}")
-        return False
-
     async def _handle_voice_dialog(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Handle incoming voice messages."""
         if not update.message or not update.message.voice:
@@ -632,8 +597,6 @@ class TelegramBotEngine:
             return
         audio = update.message.audio
         name = audio.file_name or f"audio_{getattr(audio, 'file_unique_id', 'clip')}.mp3"
-        if await self._check_and_trigger_workspace_scenario(update, name):
-            return
         await self._save_and_process_audio(update, context, audio, name)
 
     async def _handle_document_dialog(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -642,8 +605,6 @@ class TelegramBotEngine:
             return
         doc = update.message.document
         name = doc.file_name or f"doc_{getattr(doc, 'file_unique_id', 'file')}.dat"
-        if await self._check_and_trigger_workspace_scenario(update, name):
-            return
         await self._save_and_process_audio(update, context, doc, name)
 
     # ── Text & Callback Query Handlers ────────────────────────────────────────
@@ -725,10 +686,6 @@ class TelegramBotEngine:
                 "нажмите кнопку *«Привязать Telegram»* или отправьте сюда полученный код командой `/link <КОД>`.",
                 parse_mode="Markdown",
             )
-            return
-
-        # Реактивная проверка сценария по тексту входящего сообщения
-        if await self._check_and_trigger_workspace_scenario(update, user_text):
             return
 
         # If AI model is attached, query AI model

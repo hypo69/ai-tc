@@ -53,5 +53,4 @@ apps/
 | **Google Cloud Monitor** | `python -m apps.gcloud_monitor` | `8104` | `/api/gcloud/*` | Cloud Logging, metrics, IAM security audit, and AI diagnostics. |
 | **Website Monitor** | `python -m apps.website_monitor` | `8106` | `/api/v1/website-monitor/*` | GA4 Data API, Google Search Console metrics, and latency/uptime probes. |
 | **User Assistant** | `python -m apps.user_assistant` | `8107` | `/api/v1/assistant/*` | Personal agenda, Gmail and Google Calendar integration. |
-| **AI Assistant (Smart History)** | `python -m apps.ai_assistant` | `8107` | `/api/v1/ai-assistant/*` | Интеллектуальный ассистент с координатором умной истории версий (Git + WikiLLM + RAG), верификацией diff и графом связей. |
 

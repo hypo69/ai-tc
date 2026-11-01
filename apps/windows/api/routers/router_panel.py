@@ -18,7 +18,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 15:50:00
+# Updated: 2026-11-01 12:03:00
 # =============================================================================
 
 from __future__ import annotations
@@ -534,18 +534,6 @@ def _resolve_panel_sql(panel_id: str) -> Dict[str, str]:
     if hyphen_id in PANEL_SQL_REGISTRY:
         return PANEL_SQL_REGISTRY[hyphen_id]
 
-    # Проверка панелей AI Assistant (Умная история файлов)
-    try:
-        from apps.ai_assistant.api.routers.router_panel import (
-            PANEL_SQL_REGISTRY as AI_PANEL_SQL_REGISTRY,
-            _resolve_panel_key as _resolve_ai_panel_key,
-        )
-        ai_key = _resolve_ai_panel_key(clean_id)
-        if ai_key in AI_PANEL_SQL_REGISTRY:
-            return AI_PANEL_SQL_REGISTRY[ai_key]
-    except Exception:
-        pass
-
     # Проверка, начинается ли идентификатор с известных доменов
     if norm_id.startswith("models") or norm_id.startswith("model"):
         return {
@@ -622,29 +610,6 @@ def init_router() -> APIRouter:
         meta = _resolve_panel_sql(panel_id)
         sql_template = meta.get("sql", "SELECT * FROM system_snapshots ORDER BY id DESC LIMIT :limit;")
         table_name = meta.get("table", "system_snapshots")
-
-        # Проверка и делегирование в панель AI Assistant (Умная история файлов)
-        try:
-            from apps.ai_assistant.api.routers.router_panel import (
-                PANEL_SQL_REGISTRY as AI_PANEL_SQL_REGISTRY,
-                _resolve_panel_key as _resolve_ai_panel_key,
-                get_panel_data as get_ai_panel_data,
-            )
-            ai_key = _resolve_ai_panel_key(panel_id)
-            if ai_key in AI_PANEL_SQL_REGISTRY or panel_id.startswith(("panel-timeline", "panel-commits", "panel-diff", "panel-wikillm", "panel-rag", "panel-verification", "panel-system-status", "panel-knowledge")):
-                ai_resp = await get_ai_panel_data(panel_id=panel_id, limit=limit)
-                return PanelDataResponse(
-                    status=ai_resp.status,
-                    panel_id=ai_resp.panel_id,
-                    query_type=ai_resp.query_type,
-                    table=ai_resp.table,
-                    sql=ai_resp.sql,
-                    count=ai_resp.count,
-                    timestamp=ai_resp.timestamp,
-                    data=ai_resp.data,
-                )
-        except Exception as ai_exc:
-            logger.debug(f"[Panel Router] Fallback с AI Assistant панели {panel_id}: {ai_exc}")
 
         storage = TelemetryStorage.get_instance(read_only=True)
         now_iso = datetime.now(timezone.utc).isoformat()

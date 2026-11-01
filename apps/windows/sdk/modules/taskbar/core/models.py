@@ -14,7 +14,7 @@
 # Package: apps.windows.sdk.modules.taskbar.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-01 11:57:00
 # =============================================================================
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ class WindowRect(BaseModel):
 
 
 class WindowItem(BaseModel):
-    """Информация об окне рабочего стола Windows."""
+    """Информация об окне рабочего стола Windows и связанном процессе."""
     hwnd: int = Field(..., description="Дескриптор окна (HWND)")
     title: str = Field("", description="Заголовок окна")
     process_id: int = Field(0, description="Идентификатор процесса (PID)")
@@ -46,6 +46,27 @@ class WindowItem(BaseModel):
     is_maximized: bool = Field(False, description="Флаг развернутого состояния (IsZoomed)")
     is_foreground: bool = Field(False, description="Флаг активного окна на переднем плане")
     rect: WindowRect = Field(default_factory=WindowRect, description="Геометрия окна")
+    # Расширенная телеметрия Win32 и процесса для ИИ-диагностики
+    thread_id: int = Field(0, description="Идентификатор потока окна (TID)")
+    parent_pid: int = Field(0, description="Идентификатор родительского процесса (PPID)")
+    parent_process_name: str = Field("", description="Имя родительского процесса")
+    exe_path: str = Field("", description="Полный путь к исполняемому файлу процесса")
+    cmdline: str = Field("", description="Командная строка запуска процесса")
+    username: str = Field("", description="Учетная запись владельца процесса")
+    process_status: str = Field("", description="Статус процесса в ОС (running, sleeping и др.)")
+    memory_mb: float = Field(0.0, description="Потребление оперативной памяти процессом (Working Set, МБ)")
+    threads_count: int = Field(0, description="Количество потоков процесса")
+    owner_hwnd: int = Field(0, description="Дескриптор окна-владельца (GW_OWNER)")
+    is_hung: bool = Field(False, description="Признак зависания окна (IsHungAppWindow)")
+    is_topmost: bool = Field(False, description="Окно поверх всех остальных (WS_EX_TOPMOST)")
+    is_tool_window: bool = Field(False, description="Вспомогательное инструментальное окно (WS_EX_TOOLWINDOW)")
+    is_app_window: bool = Field(False, description="Принудительное отображение на панели задач (WS_EX_APPWINDOW)")
+    is_layered: bool = Field(False, description="Многослойное или прозрачное окно-оверлей (WS_EX_LAYERED)")
+    is_no_activate: bool = Field(False, description="Окно без перехвата фокуса ввода (WS_EX_NOACTIVATE)")
+    style_hex: str = Field("", description="Шестнадцатеричная маска стилей GWL_STYLE")
+    ex_style_hex: str = Field("", description="Шестнадцатеричная маска расширенных стилей GWL_EXSTYLE")
+    style_flags: List[str] = Field(default_factory=list, description="Расшифрованные флаги стилей окна Win32")
+    window_role_hint: str = Field("", description="Автоматическая классификация роли и типа окна")
 
 
 class WindowMoveRequest(BaseModel):

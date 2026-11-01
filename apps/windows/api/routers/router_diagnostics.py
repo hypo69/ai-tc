@@ -19,7 +19,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 19:10:00
+# Updated: 2026-11-01 11:59:15
 # =============================================================================
 
 from __future__ import annotations
@@ -1805,6 +1805,21 @@ def _generate_heuristic_questions(req: DiagnosticSuggestQuestionsRequest) -> Lis
     tt = (req.table_type or "generic").lower()
     t = req.title or "данного компонента"
 
+    panel = (req.panel_id or "").lower()
+    meta = req.metadata or {}
+    if tt in ("desktop_window", "desktop_windows", "window", "windows", "hwnd") or panel == "panel-windows":
+        proc_label = meta.get("process_name") or meta.get("Процесс") or req.subtitle or "процесса-владельца"
+        cls_label = meta.get("class_name") or meta.get("Класс окна (Win32)") or "Win32"
+        dims_label = meta.get("Габариты (Ш × В)") or meta.get("Габариты") or ""
+        if any(tiny in str(dims_label) for tiny in ("2 × 2", "2x2", "32 × 32", "32x32", "1 × 1", "0 × 0")):
+            q1 = f"Почему окно «{t}» процесса {proc_label} имеет технический микро-размер ({dims_label}) и зачем оно нужно?"
+        else:
+            q1 = f"Какую именно роль выполняет окно «{t}» (класс {cls_label}) в работе процесса {proc_label}?"
+        return [
+            q1,
+            f"Что произойдет с приложением {proc_label}, если принудительно закрыть это окно (WM_CLOSE)?",
+            "Безопасно ли данное окно и не перехватывает ли оно глобальный фокус ввода или экран?",
+        ]
     if tt in ("power_session", "panel-system-control-4"):
         return [
             f"Какова точная причина и процесс-инициатор завершения сессии «{t}»?",

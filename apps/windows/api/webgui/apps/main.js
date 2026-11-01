@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/apps
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 18:45:00
+ * Updated: 2026-11-01 12:03:00
  * =============================================================================
  */
 
@@ -26,7 +26,7 @@
 import { setupGlobalApi, setupThemeAndLang } from './modules/init-interface.js';
 import { fetchAppsStatus, updateModelBadge } from './modules/status-manager.js';
 import { initModelTester, sendModelPing } from './modules/model-tester.js';
-import { APP_TAB_DEFS } from './modules/tabs-config.js?v=20261030_v1';
+import { APP_TAB_DEFS } from './modules/tabs-config.js?v=20261101_v1';
 import { applyTranslations } from '../js/i18n.js';
 import { switchTab, loadTab, setupTabClicks } from '../js/tab-core.js?v=20261031_v4';
 import { loadPanelData, initPanels } from '../js/panel-loader.js';
@@ -491,12 +491,6 @@ async function buildMenu(appsMap = {}, customCfg = null) {
           e.preventDefault();
           e.stopPropagation();
           await executeLaunchItem(item, iconEl);
-        };
-      } else if (item.id === 'ai_assistant' || item.tab === 'tab-ai-assistant') {
-        btn.title = 'Перейти в приложение Умная история файлов';
-        btn.onclick = (e) => {
-          e.preventDefault();
-          window.location.href = '/ai_assistant';
         };
       } else {
         btn.dataset.tab = item.tab;

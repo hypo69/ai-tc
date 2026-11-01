@@ -16,7 +16,7 @@
 # Package: apps.windows
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 20:50:00
+# Updated: 2026-11-01 11:35:00
 # =============================================================================
 
 """Роутер диагностики, управления окнами, персонализации, идентификации и безопасности Windows."""
@@ -774,9 +774,16 @@ def init_router(app: Optional[Any]=None, state: Optional[Any]=None) -> APIRouter
     from apps.windows.wikillm.router import init_router as init_wikillm_router
     from src.ai.rag.router import init_router as init_rag_router
     from apps.windows.sdk.modules.programms_history_deep_researh.router import router as prog_history_router
+
+    if app is not None:
+        try:
+            from apps.windows.api.server import safe_include_router
+            safe_include_router(app, init_rag_router())
+        except Exception:
+            app.include_router(init_rag_router())
+
     router.include_router(init_capabilities_router())
     router.include_router(init_wikillm_router())
-    router.include_router(init_rag_router())
     router.include_router(prog_history_router)
     try:
         from apps.windows.sdk.modules.storage_manager.router import init_router as init_storage_router
