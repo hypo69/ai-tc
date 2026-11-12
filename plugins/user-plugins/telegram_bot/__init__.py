@@ -46,4 +46,3 @@ def plugin(ai_model: Any = None, config: Optional[dict] = None) -> TelegramBotPl
         'telegram_bot'
     """
     return TelegramBotPlugin(ai_model=ai_model, config=config)
-

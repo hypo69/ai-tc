@@ -18,7 +18,7 @@
 # Package: src.ai.rag
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 18:32:00
+# Updated: 2026-11-10 18:12:00
 # =============================================================================
 
 from __future__ import annotations
@@ -29,20 +29,34 @@ import datetime
 import hashlib
 import json
 import math
+import os
 import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from logger import logger
-from apps.windows.wikillm.models import (
-    ArtifactType,
-    Claim,
-    DiagnosticKnowledge,
-    KnowledgeEntity,
-    KnowledgeSource,
-    ResolutionAction,
-)
-from apps.windows.wikillm.storage import WikiStorage
+try:
+    from apps.windows.wikillm.models import (
+        ArtifactType,
+        Claim,
+        DiagnosticKnowledge,
+        KnowledgeEntity,
+        KnowledgeSource,
+        ResolutionAction,
+    )
+    from apps.windows.wikillm.storage import WikiStorage
+except ImportError:
+    from src.ai.wikillm.models import (
+        ArtifactType,
+        Claim,
+        DiagnosticKnowledge,
+        KnowledgeEntity,
+        KnowledgeSource,
+        ResolutionAction,
+    )
+    from src.ai.wikillm.storage import WikiStorage
+
+_WORD_RE = re.compile(r"\w+")
 
 
 class LogRAG:
@@ -91,12 +105,20 @@ class LogRAG:
             self.chunks = []
 
     def _save(self) -> None:
-        """Сохранение чанков логов на диск."""
+        """Атомарное сохранение чанков логов на диск через временный файл."""
+        c_file = self._get_chunks_file()
+        tmp_file = c_file.with_suffix(".json.tmp")
         try:
-            with open(self._get_chunks_file(), "w", encoding="utf-8") as f:
+            with open(tmp_file, "w", encoding="utf-8") as f:
                 json.dump(self.chunks[-self.max_chunks :], f, ensure_ascii=False, indent=2)
+            os.replace(tmp_file, c_file)
         except Exception as e:
             logger.error(f"[LogRAG] Ошибка сохранения чанков: {e}")
+            if tmp_file.exists():
+                try:
+                    tmp_file.unlink()
+                except OSError:
+                    pass
 
     def add_log_chunk(
         self,
@@ -122,7 +144,7 @@ class LogRAG:
         Returns:
             Словарь добавленного чанка.
         """
-        now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        now_str = datetime.datetime.now(datetime.timezone.utc).isoformat()
         chunk_entry = {
             "id": chunk_id,
             "title": title,
@@ -182,14 +204,14 @@ class LogRAG:
         if not self.chunks or not query.strip():
             return []
 
-        q_terms = [t.lower() for t in re.findall(r"\w+", query)]
+        q_terms = [t.lower() for t in _WORD_RE.findall(query)]
         if not q_terms:
             return []
 
         doc_count = len(self.chunks)
         df: collections.Counter[str] = collections.Counter()
         for chunk in self.chunks:
-            words = set(re.findall(r"\w+", f"{chunk.get('title', '')} {chunk.get('content', '')}".lower()))
+            words = set(_WORD_RE.findall(f"{chunk.get('title', '')} {chunk.get('content', '')}".lower()))
             for term in q_terms:
                 if term in words:
                     df[term] += 1
@@ -200,7 +222,7 @@ class LogRAG:
                 continue
 
             text = f"{chunk.get('title', '')} {chunk.get('content', '')} {chunk.get('provider', '')}".lower()
-            tokens = re.findall(r"\w+", text)
+            tokens = _WORD_RE.findall(text)
             if not tokens:
                 continue
 
@@ -229,9 +251,11 @@ class LogRAG:
     def get_stats(self) -> Dict[str, Any]:
         """Возвращает статистику адаптивного RAG логов."""
         channels = collections.Counter(c.get("channel", "Unknown") for c in self.chunks)
+        wiki_stats = self.wiki_storage.get_stats()
+        wiki_count = wiki_stats.get("total_entities", 0) if isinstance(wiki_stats, dict) else getattr(wiki_stats, "total_entities", 0)
         return {
             "total_chunks": len(self.chunks),
             "channels": dict(channels),
-            "wiki_entities_count": self.wiki_storage.get_stats().total_entities,
+            "wiki_entities_count": wiki_count,
         }
 

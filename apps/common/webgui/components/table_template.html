@@ -1,0 +1,82 @@
+<!--
+=============================================================================
+Process Name: Common WebGUI - Reference Table Template Component
+=============================================================================
+Description:
+  Эталонный декларативный компонент и HTML-шаблон (<template>) для построения
+  адаптивных таблиц с динамическими данными, тумблером 100% и ползунком ресайзера.
+
+Usage Examples:
+  HTML Include:
+    <!--#include file="components/table_template.html" -->
+  JS Clone:
+    const tmpl = document.getElementById('tmpl-resizable-table').content.cloneNode(true);
+
+File: table_template.html
+Project: ai-windows-admin
+Package: apps.common.webgui.components
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-11-01 16:25:00
+=============================================================================
+-->
+
+<!-- Reusable Template for Resizable Dynamic Tables -->
+<template id="tmpl-resizable-table">
+  <div class="winadmin-panel sys-panel card" data-panel-id="panel-table-dynamic" id="panel-table-dynamic">
+    <!-- 1. Панель заголовка и действий -->
+    <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <span class="panel-title"><i class="bi bi-table me-1 text-primary"></i> <span class="slot-title">Заголовок реестра</span></span>
+        <span class="ui-badge ui-badge-neutral slot-badge" id="dynamic-table-badge">0 записей</span>
+      </div>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <!-- Кнопка 100% высоты без скроллера -->
+        <button class="btn btn-xs btn-outline-secondary btn-table-expand-100" 
+                id="dynamic-btn-table-expand" 
+                data-target-container="dynamic-table-container" 
+                title="Раскрыть таблицу на 100% высоты без скроллера" data-i18n-title="titles.auto.100">
+          100%
+        </button>
+        <!-- Слот для дополнительных фильтров или действий -->
+        <div class="slot-actions"></div>
+        <!-- Быстрый поиск -->
+        <div class="input-group input-group-sm" style="width: 220px;">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input class="form-control" id="dynamic-filter-input" placeholder="Поиск в таблице..." type="text"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Скроллируемый адаптивный контейнер таблицы -->
+    <div class="p-0 table-responsive" 
+         id="dynamic-table-container" 
+         data-resizable-table="true" 
+         style="min-height: 140px; max-height: 480px; overflow-y: auto;">
+      <table class="table table-hover align-middle mb-0 winadmin-table" id="dynamic-table">
+        <thead class="sticky-top">
+          <tr class="slot-thead-tr">
+            <th style="width: 36px; text-align: center;" title="Drill-down: Детальный анализ" data-i18n-title="table.drillDownTitle"></th>
+            <th>Сущность</th>
+            <th>Параметр</th>
+            <th>Статус</th>
+            <th class="text-end" style="width: 120px;">Действия</th>
+          </tr>
+        </thead>
+        <tbody id="dynamic-tbody">
+          <tr>
+            <td colspan="5" class="text-center text-muted p-4 slot-empty-msg">Загрузка данных...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 3. Нижний интерактивный ползунок изменения высоты -->
+    <div class="sys-table-resizer" 
+         id="dynamic-table-resizer" 
+         data-container-id="dynamic-table-container" 
+         title="Потяните для изменения высоты таблицы (двойной клик — авто-высота)" data-i18n-title="titles.auto.">
+      <div class="sys-table-resizer-grip"></div>
+    </div>
+  </div>
+</template>

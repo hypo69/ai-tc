@@ -12,18 +12,16 @@
 # Package: plugins.telegram_channel_rag
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:39:20
 # =============================================================================
 
-"""Telegram Channel & User Subscription Manager.
-
-Provides centralized management for the global pool of indexed Telegram channels,
-persists user subscription profiles, attaches existing channel RAGs without duplicate
-scraping, and performs federated search across multiple channels.
-"""
+"""Менеджер пула индексов Telegram-каналов и подписок пользователей."""
 
 from __future__ import annotations
 
 import json
+import os
+import threading
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -35,60 +33,64 @@ from plugins.telegram_channel_rag.indexer import TelegramChannelIndexer
 
 
 class ChannelManager:
-    """Manages channel RAG pool and user channel subscriptions.
+    """Управляет пулом RAG-индексов Telegram-каналов и подписками пользователей.
 
     Attributes:
-        base_storage_dir (Path): Base directory for storing channel indexes.
-        sub_file (Path): JSON file tracking user-channel subscriptions.
-        index_cache (Dict[str, TelegramChannelIndexer]): In-memory cache of channel indexers.
+        base_storage_dir (Path): Базовая директория хранения индексов каналов.
+        sub_file (Path): JSON-файл учёта подписок пользователей на каналы.
+        index_cache (Dict[str, TelegramChannelIndexer]): Кеш индексаторов каналов в памяти.
     """
 
     def __init__(self, base_storage_dir: Optional[Path] = None) -> None:
-        """Initialize the ChannelManager.
+        """Инициализирует менеджер каналов.
 
         Args:
-            base_storage_dir (Optional[Path]): Directory where channel indexes reside.
+            base_storage_dir (Optional[Path]): Директория для хранения индексов каналов.
         """
         if base_storage_dir is None:
-            self.base_storage_dir = __root__ / "data" / "telegram_rag"
+            self.base_storage_dir = (__root__ / "data" / "telegram_rag").resolve()
         else:
-            self.base_storage_dir = Path(base_storage_dir)
+            self.base_storage_dir = Path(base_storage_dir).resolve()
 
         self.base_storage_dir.mkdir(parents=True, exist_ok=True)
         self.sub_file: Path = self.base_storage_dir / "user_subscriptions.json"
         self.index_cache: Dict[str, TelegramChannelIndexer] = {}
+        self._lock = threading.RLock()
 
     def _sanitize_channel(self, channel_input: str) -> str:
-        """Normalize channel name or link into clean username."""
+        """Нормализует имя или ссылку канала в безопасное имя пользователя."""
         collector = TelegramMessageCollector(channel_username=channel_input)
         return collector.channel_username
 
     def _load_subscriptions(self) -> Dict[str, List[str]]:
-        """Load user subscriptions dictionary from disk.
-
-        Returns:
-            Dict[str, List[str]]: Mapping of user_id to list of subscribed channel names.
-        """
-        if self.sub_file.exists():
-            try:
-                data = json.loads(self.sub_file.read_text(encoding="utf-8"))
-                if isinstance(data, dict):
-                    return data
-            except Exception as exc:
-                logger.error(f"Error loading user subscriptions from {self.sub_file}: {exc}")
-        return {}
+        """Загружает словарь подписок пользователей с диска."""
+        with self._lock:
+            if self.sub_file.exists():
+                try:
+                    data = json.loads(self.sub_file.read_text(encoding="utf-8"))
+                    if isinstance(data, dict):
+                        return data
+                except Exception as exc:
+                    logger.error(f"Ошибка загрузки подписок пользователей из {self.sub_file}: {exc}")
+            return {}
 
     def _save_subscriptions(self, data: Dict[str, List[str]]) -> None:
-        """Save user subscriptions dictionary to disk.
-
-        Args:
-            data (Dict[str, List[str]]): User subscriptions mapping.
-        """
-        try:
-            self.sub_file.parent.mkdir(parents=True, exist_ok=True)
-            self.sub_file.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-        except Exception as exc:
-            logger.error(f"Error saving user subscriptions to {self.sub_file}: {exc}")
+        """Атомарно сохраняет словарь подписок пользователей на диск."""
+        with self._lock:
+            try:
+                self.sub_file.parent.mkdir(parents=True, exist_ok=True)
+                tmp_path = self.sub_file.with_name(f".{self.sub_file.name}.tmp")
+                try:
+                    tmp_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+                    os.replace(tmp_path, self.sub_file)
+                finally:
+                    if tmp_path.exists():
+                        try:
+                            tmp_path.unlink()
+                        except OSError:
+                            pass
+            except Exception as exc:
+                logger.error(f"Ошибка сохранения подписок пользователей в {self.sub_file}: {exc}")
 
     def list_available_channels(self) -> List[Dict[str, Any]]:
         """List all indexed channels present in the system pool.
@@ -322,4 +324,3 @@ class ChannelManager:
         # Sort all matched results by score descending
         all_matches.sort(key=lambda x: x.get("score", 0.0), reverse=True)
         return all_matches[:top_k]
-

@@ -9,4 +9,3 @@ def plugin(ai_model: Any = None, config: Optional[dict] = None) -> MarkdownNotes
 
 
 __all__ = ["MarkdownNotesPlugin", "plugin"]
-

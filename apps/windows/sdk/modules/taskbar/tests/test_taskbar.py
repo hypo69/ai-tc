@@ -13,7 +13,7 @@
 # Package: apps.windows.sdk.modules.taskbar.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 12:03:00
+# Updated: 2026-11-01 13:46:00
 # =============================================================================
 
 from __future__ import annotations
@@ -24,6 +24,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+import winreg
 
 from apps.windows.sdk.modules.taskbar.core.app_manager import TaskbarAppManager
 from apps.windows.sdk.modules.taskbar.core.command_registry import (
@@ -194,4 +195,55 @@ def test_fastapi_history_endpoints(client: TestClient):
     # 6. Rollback last
     resp_rbl = client.post("/api/v1/taskbar/history/rollback-last")
     assert resp_rbl.status_code in (200, 400)
+
+
+def test_taskbar_settings_ucpd_permission_error():
+    """Проверка корректной обработки PermissionError (UCPD) при записи TaskbarDa."""
+    mgr = TaskbarSettingsManager()
+    with patch("winreg.CreateKeyEx") as mock_key_ex:
+        mock_key_ex.return_value.__enter__.return_value = MagicMock()
+        with patch("winreg.SetValueEx", side_effect=PermissionError(5, "Отказано в доступе")):
+            res = mgr._write_registry_dword(winreg.HKEY_CURRENT_USER, "dummy_key", "TaskbarDa", 1)
+            assert res is False
+
+    # Проверка вызова update_settings с защищенным widgets_visible
+    with patch.object(mgr, "_write_registry_dword", return_value=False):
+        with patch.object(mgr, "notify_settings_changed"):
+            update_res = mgr.update_settings(TaskbarSettingsUpdate(widgets_visible=True))
+            assert update_res["status"] == "SUCCESS"
+            assert update_res["applied_changes"].get("widgets_visible_blocked") is True
+
+
+def test_ucpd_status_and_toggle_api(client: TestClient, controller: TaskbarController):
+    """Тестирование получения статуса UCPD и переключения через API."""
+    mock_status = {
+        "supported": True,
+        "enabled": True,
+        "is_running": True,
+        "start_type": 1,
+        "task_disabled": False,
+        "reboot_pending": False,
+        "message": "UCPD active",
+    }
+    with patch.object(controller.settings_mgr, "get_ucpd_status", return_value=mock_status):
+        resp = client.get("/api/v1/taskbar/ucpd")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["supported"] is True
+        assert data["enabled"] is True
+
+    mock_toggle_res = {
+        "status": "SUCCESS",
+        "enabled": False,
+        "reboot_required": True,
+        "ucpd_status": {**mock_status, "enabled": False},
+        "message": "UCPD disabled",
+    }
+    with patch.object(controller.settings_mgr, "set_ucpd_state", return_value=mock_toggle_res):
+        resp_post = client.post("/api/v1/taskbar/ucpd", json={"enabled": False})
+        assert resp_post.status_code == 200
+        res_data = resp_post.json()
+        assert res_data["status"] == "SUCCESS"
+        assert res_data["enabled"] is False
+
 

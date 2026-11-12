@@ -18,7 +18,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 13:25:00
+# Updated: 2026-11-03 15:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ from .admin import (  # noqa: F401 - импорт регистрирует эн�
     skills,
 )
 from .admin.mcp import admin_mcp_router, mcp_router  # noqa: F401
-from .admin.routers import plugins_router, router, router_apps, skills_router  # noqa: F401
+from .admin.routers import plugins_router, router, router_v1, router_apps, skills_router  # noqa: F401
 
 
 def init_router() -> APIRouter:

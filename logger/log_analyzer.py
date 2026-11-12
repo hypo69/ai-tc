@@ -3,7 +3,7 @@
 # Process Name: AI-Windows-Admin Logger - Log Analyzer
 # =============================================================================
 # Description:
-#   Intelligent log analyzer with Gemini AI integration.
+#   Интеллектуальный анализатор логов с интеграцией ИИ (Gemini / UnifiedChatModel).
 #
 # Usage Examples:
 #   Python API:
@@ -16,21 +16,14 @@
 # Package: logger
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-27 23:03:00
+# Updated: 2026-11-10 18:15:00
 # =============================================================================
 
-"""Intelligent log analyzer with Gemini AI integration.
+"""Интеллектуальный анализатор логов с интеграцией ИИ.
 
-Provides functionality for analyzing application logs using Google Generative AI (Gemini),
-automatic report generation, and Master Journal maintenance for system state tracking.
-
-Functions:
-    - Log analysis with AI assistance
-    - Automatic report generation
-    - Master Journal creation and maintenance
-    - Detailed error report creation
-    - System state tracking
-    - Intelligent log rotation and cleanup"""
+Обеспечивает анализ журналов приложения с помощью языковой модели,
+автоматическую генерацию отчётов и ведение сводного журнала состояния системы (Master Journal).
+"""
 
 import os
 import asyncio
@@ -39,40 +32,45 @@ import logging
 import tempfile
 from pathlib import Path
 from typing import Optional, List
-from concurrent.futures import ThreadPoolExecutor
 from src.ai import UnifiedChatModel
 from logger import logger
 from header import __root__
-import json
 
 
 def _get_app_name() -> str:
-    """Возвращает название приложения из окружения, конфигурации или 'ai-tc'."""
+    """Возвращает название приложения из окружения или конфигурации."""
     if os.environ.get('APP_NAME'):
         return os.environ['APP_NAME']
     try:
-        cfg = __root__ / 'config.json'
-        if cfg.exists():
-            with open(cfg, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                return data.get('app_name') or data.get('app', {}).get('app_name') or 'ai-tc'
+        from logger.logger import _resolve_app_name
+        return _resolve_app_name()
     except Exception:
-        pass
-    return 'ai-tc'
+        return __root__.name if __root__.exists() else 'AI-Assistant'
 
 
 def get_default_log_dir() -> Path:
     """Возвращает целевую директорию логов."""
-    env_dir = os.environ.get('AITC_LOGS_DIR') or os.environ.get('AI_TC_LOGS_DIR') or os.environ.get('AI_WINDOWS_ADMIN_LOGS_DIR') or os.environ.get('LOG_DIR')
+    env_dir = (
+        os.environ.get('AITC_LOGS_DIR')
+        or os.environ.get('AI_TC_LOGS_DIR')
+        or os.environ.get('AI_WINDOWS_ADMIN_LOGS_DIR')
+        or os.environ.get('LOG_DIR')
+    )
     if env_dir:
         return Path(env_dir)
     appdata = os.environ.get('APPDATA') or os.environ.get('LOCALAPPDATA')
     base_dir = Path(appdata) if appdata and os.path.exists(appdata) else Path.home() / '.config'
     return base_dir / _get_app_name() / 'logs'
 
+
 def get_default_reports_dir() -> Path:
     """Возвращает целевую директорию отчетов."""
-    env_dir = os.environ.get('AITC_REPORTS_DIR') or os.environ.get('AI_TC_REPORTS_DIR') or os.environ.get('AI_WINDOWS_ADMIN_REPORTS_DIR') or os.environ.get('REPORTS_DIR')
+    env_dir = (
+        os.environ.get('AITC_REPORTS_DIR')
+        or os.environ.get('AI_TC_REPORTS_DIR')
+        or os.environ.get('AI_WINDOWS_ADMIN_REPORTS_DIR')
+        or os.environ.get('REPORTS_DIR')
+    )
     if env_dir:
         return Path(env_dir)
     appdata = os.environ.get('APPDATA') or os.environ.get('LOCALAPPDATA')
@@ -88,14 +86,10 @@ CHECK_INTERVAL_SECONDS: int = 60
 MAX_REPORTS_FOR_JOURNAL: int = 10
 
 def get_max_size_bytes() -> float:
-    """
-    Receives максимальный размер лог-файла из конфигурации.
-    
+    """Получает максимальный размер лог-файла из конфигурации.
+
     Returns:
-        float: Максимальный размер в байтах.
-        
-    Raises:
-        Returns default value (10MB) if config is not available.
+        float: Максимальный размер в байтах (по умолчанию 10 МБ).
     """
     try:
         from src.config import logging_cfg
@@ -105,83 +99,110 @@ def get_max_size_bytes() -> float:
         logger.debug(f'Не удалось прочитать конфиг размера лога: {ex}')
         return DEFAULT_MAX_SIZE_MB * 1024 * 1024
 
-async def analyze_log_file(file_path: Path, ai_model: UnifiedChatModel) -> bool:
+
+def _read_log_tail_bounded(file_path: Path, max_chars: int = MAX_CHARS_FOR_ANALYSIS) -> str:
+    """Безопасно читает хвост лог-файла без загрузки гигабайтных файлов целиком в ОЗУ.
+
+    Args:
+        file_path: Путь к файлу лога.
+        max_chars: Максимальное количество символов для анализа.
+
+    Returns:
+        Строка с последними символами лога.
     """
-    Анализирует лог-файл с помощью AI и creates отчёт.
-    
+    file_size = file_path.stat().st_size
+    max_bytes_to_read = max_chars * 4
+    with open(file_path, 'rb') as bf:
+        if file_size > max_bytes_to_read:
+            bf.seek(file_size - max_bytes_to_read)
+        raw_bytes = bf.read(max_bytes_to_read)
+    text = raw_bytes.decode('utf-8', errors='ignore')
+    return text[-max_chars:] if len(text) > max_chars else text
+
+
+def _write_text_atomic(target_path: Path, text: str) -> None:
+    """Атомарно записывает текстовый файл через временный файл в той же директории."""
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = target_path.with_name(f'.{target_path.name}.tmp')
+    try:
+        with open(tmp_path, 'w', encoding='utf-8') as f:
+            f.write(text)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, target_path)
+    finally:
+        if tmp_path.exists():
+            try:
+                tmp_path.unlink()
+            except OSError:
+                pass
+
+
+async def analyze_log_file(file_path: Path, ai_model: UnifiedChatModel) -> bool:
+    """Анализирует лог-файл с помощью ИИ и создаёт отчёт.
+
     Процесс:
-    1. Reads содержимое лог-файла
-    2. Sends на анализ Gemini AI (максимум 500KB для экономии квоты)
-    3. Saves результат в виде Markdown отчёта
-    4. Очищает исходный лог-файл
-    
+    1. Считывает хвост лог-файла с защитой памяти (максимум 500 КБ символов).
+    2. Отправляет на анализ ИИ-модели.
+    3. Атомарно сохраняет результат в виде Markdown-отчёта.
+    4. Очищает исходный лог-файл.
+
     Args:
         file_path: Путь к лог-файлу для анализа.
         ai_model: Инициализированный экземпляр UnifiedChatModel.
-        
+
     Returns:
-        bool: True если анализ прошёл successfully, False в случае ошибки.
+        bool: True, если анализ прошёл успешно, иначе False.
     """
     try:
         if not file_path.exists() or not file_path.is_file():
             logger.warning(f'Лог-файл не найден: {file_path}')
             return False
         try:
-            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                content = f.read()
+            content = await asyncio.to_thread(_read_log_tail_bounded, file_path, MAX_CHARS_FOR_ANALYSIS)
         except Exception as ex:
-            logger.error(f'Error при чтении лог-файла {file_path.name}: {ex}')
+            logger.error(f'Ошибка при чтении лог-файла {file_path.name}: {ex}')
             return False
         if not content.strip():
             logger.debug(f'Лог-файл {file_path.name} пуст, пропуск анализа')
             return True
-        logger.info(f'Начало умного анализа лога {file_path.name} (размер: {len(content)} символов)...')
-        if len(content) > MAX_CHARS_FOR_ANALYSIS:
-            logger.warning(f'Лог {file_path.name} слишком большой ({len(content)} символов), анализирую только последние {MAX_CHARS_FOR_ANALYSIS} символов')
-            content = content[-MAX_CHARS_FOR_ANALYSIS:]
+        logger.info(f'Начало умного анализа лога {file_path.name} (размер выборки: {len(content)} символов)...')
         prompt = f'\nПроанализируй следующий лог-файл ({file_path.name}).\nВыяви ошибки, предупреждения, критические проблемы, а также общие тренды и дай рекомендации по исправлению.\nОтвет предоставь на русском языке в чистом формате Markdown.\n\nСодержимое лога:\n{content}\n'
         try:
             report_text = await ai_model.ask(prompt)
         except Exception as ex:
-            logger.error(f'Error при запросе к Gemini AI: {ex}')
-            report_text = f'# Отчет об анализе лога {file_path.name}\n\nError при запросе к AI: {ex}'
+            logger.error(f'Ошибка при запросе к Gemini AI: {ex}')
+            report_text = f'# Отчет об анализе лога {file_path.name}\n\nОшибка при запросе к ИИ: {ex}'
         if not report_text:
             report_text = f'# Отчет об анализе лога {file_path.name}\n\nНе удалось получить анализ от модели Gemini.'
         REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        timestamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d_%H%M%S')
         report_name = f'report_{file_path.stem}_{timestamp}.md'
         report_path = REPORTS_DIR / report_name
         try:
-            with open(report_path, 'w', encoding='utf-8') as f:
-                f.write(report_text)
+            await asyncio.to_thread(_write_text_atomic, report_path, report_text)
         except Exception as ex:
-            logger.error(f'Error при сохранении отчёта {report_name}: {ex}')
+            logger.error(f'Ошибка при сохранении отчёта {report_name}: {ex}')
             return False
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.truncate(0)
         except Exception as ex:
-            logger.error(f'Error при очистке лог-файла {file_path.name}: {ex}')
-        logger.info(f'✓ Лог {file_path.name} successfully проанализирован. Отчет сохранен в {report_name}')
+            logger.error(f'Ошибка при очистке лог-файла {file_path.name}: {ex}')
+        logger.info(f'Лог {file_path.name} успешно проанализирован. Отчет сохранен в {report_name}')
         return True
     except Exception as ex:
-        logger.error(f'Критическая Error при анализе лог-файла {file_path.name}: {ex}')
+        logger.error(f'Критическая ошибка при анализе лог-файла {file_path.name}: {ex}')
         return False
 
 async def update_master_journal(ai_model: UnifiedChatModel) -> bool:
-    """
-    Creates главный журнал (Master Journal) из последних отчётов анализа.
-    
-    Процесс:
-    1. Собирает последние N отчётов об анализе
-    2. Sends их на анализ Gemini для синтеза
-    3. Saves результат в master_journal.md
-    
+    """Создаёт сводный главный журнал (Master Journal) из последних отчётов анализа.
+
     Args:
         ai_model: Инициализированный экземпляр UnifiedChatModel.
-        
+
     Returns:
-        bool: True если журнал successfully обновлён, False в случае ошибки.
+        bool: True, если журнал успешно обновлён, иначе False.
     """
     try:
         if not REPORTS_DIR.exists():
@@ -195,11 +216,10 @@ async def update_master_journal(ai_model: UnifiedChatModel) -> bool:
         reports_content: List[str] = []
         for p in report_files[:MAX_REPORTS_FOR_JOURNAL]:
             try:
-                with open(p, 'r', encoding='utf-8', errors='ignore') as f:
-                    content = f.read()
-                    reports_content.append(f'### Файл: {p.name}\n{content}\n')
+                content = await asyncio.to_thread(_read_log_tail_bounded, p, MAX_CHARS_FOR_ANALYSIS)
+                reports_content.append(f'### Файл: {p.name}\n{content}\n')
             except Exception as ex:
-                logger.warning(f'Error при чтении отчёта {p.name}: {ex}')
+                logger.warning(f'Ошибка при чтении отчёта {p.name}: {ex}')
                 continue
         if not reports_content:
             logger.warning('Не удалось прочитать ни один отчёт для главного журнала')
@@ -209,21 +229,20 @@ async def update_master_journal(ai_model: UnifiedChatModel) -> bool:
         try:
             master_text = await ai_model.ask(prompt)
         except Exception as ex:
-            logger.error(f'Error при запросе к Gemini AI для главного журнала: {ex}')
-            master_text = f'# Общий журнал анализа логов\n\nError при создании синтеза: {ex}'
+            logger.error(f'Ошибка при запросе к Gemini AI для главного журнала: {ex}')
+            master_text = f'# Общий журнал анализа логов\n\nОшибка при создании синтеза: {ex}'
         if not master_text:
             master_text = '# Общий журнал анализа логов\n\nНе удалось получить общий анализ от модели Gemini.'
         master_path = REPORTS_DIR / 'master_journal.md'
         try:
-            with open(master_path, 'w', encoding='utf-8') as f:
-                f.write(master_text)
+            await asyncio.to_thread(_write_text_atomic, master_path, master_text)
         except Exception as ex:
-            logger.error(f'Error при сохранении главного журнала: {ex}')
+            logger.error(f'Ошибка при сохранении главного журнала: {ex}')
             return False
-        logger.info('✓ Общий журнал (master_journal.md) successfully обновлен')
+        logger.info('Общий журнал (master_journal.md) успешно обновлен')
         return True
     except Exception as ex:
-        logger.error(f'Критическая Error при обновлении общего журнала логов: {ex}')
+        logger.error(f'Критическая ошибка при обновлении общего журнала логов: {ex}')
         return False
 
 async def log_analyzer_loop() -> None:

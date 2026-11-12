@@ -19,7 +19,7 @@
 #     url = get_base_url()
 #
 # File: fastapi_mcp_server.py
-# Project: AI Windows Admin (AI-TC)
+# Project: AI Windows Admin (ai-tc)
 # Package: .mcp
 # Author: hypo69
 # Copyright: © 2026 hypo69

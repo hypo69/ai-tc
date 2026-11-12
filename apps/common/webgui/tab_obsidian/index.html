@@ -1,0 +1,280 @@
+<!--
+=============================================================================
+Process Name: Common WebGUI - Obsidian Knowledge Base Tab
+=============================================================================
+Description:
+  Интерактивная вкладка локальной базы знаний и заметок Obsidian
+  (apps/common/webgui/tab_obsidian).
+  Обеспечивает:
+  - Проводник заметок хранилища (Vault), облако тегов и полнотекстовый поиск.
+  - Двухоконный редактор Markdown со Split-предпросмотром, поддержкой
+    вики-ссылок [[...]], тегов #тег, Obsidian Callouts и интерактивных задач.
+  - Интерактивный 2D граф связей (Graph View) между заметками.
+  - Инспектор обратных ссылок (Backlinks) и неразмеченных упоминаний.
+  - Быстрое создание обычных и ежедневных заметок (Daily Notes) с фиксацией в Git.
+
+Usage Examples:
+  Ленивая загрузка через tab-core.js:
+    /html/tab_obsidian/index.html?v=20261030_v1
+
+File: index.html
+Project: ai-assistant
+Package: apps/common/webgui/tab_obsidian
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-30 16:45:00
+=============================================================================
+-->
+
+<link rel="stylesheet" href="/html/tab_obsidian/style.css?v=20261030_v1">
+
+<div class="container-fluid p-2 d-flex flex-column gap-2" id="obsidian-tab-root">
+
+  <!-- 1. Верхняя панель управления и статистика Vault -->
+  <div class="tab-header d-flex justify-content-between align-items-center flex-wrap gap-2 px-2 py-1" id="obs-top-header-block">
+    <div class="d-flex align-items-center gap-2">
+      <span class="fs-4" id="obs-header-icon">🪨</span>
+      <div>
+        <h1 class="h6 mb-0 fw-bold d-flex align-items-center gap-2" id="obs-main-title">
+          <span data-i18n="obsidian.title">База знаний Obsidian</span>
+          <span class="badge bg-primary-subtle text-primary border" id="obs-vault-name-badge">Vault</span>
+        </h1>
+        <p class="text-muted small mb-0 font-size-80" data-i18n="obsidian.subtitle" id="obs-main-subtitle">
+          Локальное хранилище Markdown, двусторонние связи [[...]], граф знаний и ежедневные заметки
+        </p>
+      </div>
+    </div>
+
+    <!-- Статистика хранилища (Vault Summary Badges) -->
+    <div class="d-flex align-items-center flex-wrap gap-1" id="obs-stats-bar">
+      <span class="badge bg-body-secondary text-body border" id="obs-badge-notes-count" title="Всего заметок в хранилище" data-i18n-title="obsidian.badgeNotesCountTitle">
+        📄 <span id="obs-stat-notes-val">0</span> <span data-i18n="obsidian.stats.notes">заметок</span>
+      </span>
+      <span class="badge bg-body-secondary text-body border" id="obs-badge-links-count" title="Всего связей между заметками" data-i18n-title="obsidian.badgeLinksCountTitle">
+        🔗 <span id="obs-stat-links-val">0</span> <span data-i18n="obsidian.stats.links">связей</span>
+      </span>
+      <span class="badge bg-body-secondary text-body border" id="obs-badge-tags-count" title="Уникальных тегов" data-i18n-title="obsidian.badgeTagsCountTitle">
+        🏷️ <span id="obs-stat-tags-val">0</span> <span data-i18n="obsidian.stats.tags">тегов</span>
+      </span>
+      <span class="badge bg-body-secondary text-body border" id="obs-badge-orphans-count" title="Заметки без связей" data-i18n-title="obsidian.badgeOrphansCountTitle">
+        🏝️ <span id="obs-stat-orphans-val">0</span> <span data-i18n="obsidian.stats.orphans">сирот</span>
+      </span>
+    </div>
+
+    <!-- Режимы отображения и действия -->
+    <div class="d-flex align-items-center gap-2" id="obs-view-actions-block">
+      <!-- Переключатель режимов вида -->
+      <div class="btn-group btn-group-sm" role="group" id="obs-view-modes-group" aria-label="Режимы отображения">
+        <button type="button" class="btn btn-outline-secondary" id="obs-mode-btn-edit" data-i18n-title="obsidian.modes.editTitle" title="Только редактор">
+          ✏️ <span class="d-none d-md-inline" data-i18n="obsidian.modes.edit">Редактор</span>
+        </button>
+        <button type="button" class="btn btn-outline-secondary active" id="obs-mode-btn-split" data-i18n-title="obsidian.modes.splitTitle" title="Раздельный вид">
+          🌓 <span class="d-none d-md-inline" data-i18n="obsidian.modes.split">Раздельный</span>
+        </button>
+        <button type="button" class="btn btn-outline-secondary" id="obs-mode-btn-preview" data-i18n-title="obsidian.modes.previewTitle" title="Предпросмотр">
+          📖 <span class="d-none d-md-inline" data-i18n="obsidian.modes.preview">Просмотр</span>
+        </button>
+        <button type="button" class="btn btn-outline-primary" id="obs-mode-btn-graph" data-i18n-title="obsidian.modes.graphTitle" title="Граф знаний">
+          🕸️ <span class="d-none d-md-inline" data-i18n="obsidian.modes.graph">Граф</span>
+        </button>
+      </div>
+
+      <!-- Кнопки действий -->
+      <div class="d-flex align-items-center gap-1" id="obs-quick-actions-group">
+        <button type="button" class="btn btn-sm btn-primary d-flex align-items-center gap-1" id="obs-btn-new-note" data-i18n-title="obsidian.actions.newNoteTitle" title="Создать новую заметку">
+          ➕ <span class="d-none d-lg-inline" data-i18n="obsidian.actions.newNote">Новая заметка</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" id="obs-btn-daily-note" data-i18n-title="obsidian.actions.dailyNoteTitle" title="Открыть или создать ежедневную заметку">
+          📅 <span class="d-none d-lg-inline" data-i18n="obsidian.actions.dailyNote">Ежедневная</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="obs-btn-refresh-vault" data-i18n-title="obsidian.actions.refreshTitle" title="Обновить базу знаний">
+          🔄
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Панель инструментов Markdown форматирования -->
+  <div class="d-flex align-items-center flex-wrap gap-1 px-2 py-1 border rounded bg-body-tertiary" id="obs-markdown-tools-bar">
+    <div class="btn-group btn-group-sm" role="group">
+      <button type="button" class="btn btn-outline-secondary px-2" id="obs-tool-h1" title="Заголовок H1" data-i18n-title="obsidian.toolH1Title">H1</button>
+      <button type="button" class="btn btn-outline-secondary px-2" id="obs-tool-h2" title="Заголовок H2" data-i18n-title="obsidian.toolH2Title">H2</button>
+      <button type="button" class="btn btn-outline-secondary px-2" id="obs-tool-h3" title="Заголовок H3" data-i18n-title="obsidian.toolH3Title">H3</button>
+    </div>
+    <div class="btn-group btn-group-sm" role="group">
+      <button type="button" class="btn btn-outline-secondary px-2" id="obs-tool-bold" title="Жирный текст (**текст**)" data-i18n-title="obsidian.toolBoldTitle"><strong>B</strong></button>
+      <button type="button" class="btn btn-outline-secondary px-2" id="obs-tool-italic" title="Курсив (*текст*)" data-i18n-title="obsidian.toolItalicTitle"><em>I</em></button>
+      <button type="button" class="btn btn-outline-secondary px-2" id="obs-tool-strike" title="Зачеркнутый (~~текст~~)" data-i18n-title="obsidian.toolStrikeTitle"><s>S</s></button>
+      <button type="button" class="btn btn-outline-secondary px-2" id="obs-tool-quote" title="Цитата (> цитата)">&rdquo;</button>
+    </div>
+    <div class="btn-group btn-group-sm" role="group">
+      <button type="button" class="btn btn-outline-secondary px-2" id="obs-tool-wikilink" title="Вставить вики-ссылку [[Заметка]]" data-i18n-title="obsidian.toolWikilinkTitle">[[ ]]</button>
+      <button type="button" class="btn btn-outline-secondary px-2" id="obs-tool-tag" title="Вставить тег #тег" data-i18n-title="obsidian.toolTagTitle">#</button>
+      <button type="button" class="btn btn-outline-secondary px-2" id="obs-tool-task" title="Вставить чекбокс задачи (- [ ])" data-i18n-title="obsidian.toolTaskTitle">☑</button>
+      <button type="button" class="btn btn-outline-secondary px-2" id="obs-tool-callout" title="Вставить блок Callout (> [!NOTE])">📌</button>
+      <button type="button" class="btn btn-outline-secondary px-2" id="obs-tool-code" title="Блок кода (```)" data-i18n-title="obsidian.toolCodeTitle"><code>&lt;/&gt;</code></button>
+      <button type="button" class="btn btn-outline-secondary px-2" id="obs-tool-table" title="Вставить Markdown таблицу" data-i18n-title="titles.auto.markdown">▦</button>
+      <button type="button" class="btn btn-outline-secondary px-2" id="obs-tool-math" title="Формула LaTeX ($$)" data-i18n-title="titles.auto.latex">∑</button>
+    </div>
+    <span class="ms-auto small text-muted font-monospace" id="obs-editor-stats-counter">Слов: 0 | Символов: 0</span>
+  </div>
+
+  <!-- 3. Основная рабочая область (Рабочий стол Obsidian: Список заметок | Редактор/Предпросмотр/Граф | Связи) -->
+  <div class="obs-workspace-container d-flex gap-2 flex-grow-1" id="obs-workspace-container">
+
+    <!-- Левая панель: Навигатор хранилища, поиск и теги -->
+    <div class="obs-sidebar border rounded d-flex flex-column p-2 bg-body" id="obs-left-sidebar">
+      <!-- Поиск по заметкам -->
+      <div class="input-group input-group-sm mb-2" id="obs-search-input-group">
+        <span class="input-group-text bg-transparent">🔍</span>
+        <input type="text" class="form-control" id="obs-search-notes-input" placeholder="Поиск заметок и тегов..." data-i18n-placeholder="obsidian.searchPlaceholder">
+        <button class="btn btn-outline-secondary" type="button" id="obs-btn-clear-search" title="Очистить поиск" data-i18n-title="titles.auto.">✕</button>
+      </div>
+
+      <!-- Облако тегов -->
+      <div class="obs-tag-cloud-wrapper mb-2 border-bottom pb-2" id="obs-tag-cloud-container">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="small fw-semibold text-muted" data-i18n="obsidian.tagsTitle">Теги хранилища</span>
+          <button class="btn btn-link btn-xs p-0 text-decoration-none text-muted" id="obs-btn-reset-tag-filter" title="Сбросить фильтр тегов" data-i18n-title="titles.auto.">Все</button>
+        </div>
+        <div class="obs-tag-pills d-flex flex-wrap gap-1" id="obs-tag-pills-list"></div>
+      </div>
+
+      <!-- Список заметок -->
+      <div class="obs-notes-list-header d-flex justify-content-between align-items-center px-1 mb-1">
+        <span class="small fw-semibold text-muted" data-i18n="obsidian.notesListTitle">Заметки</span>
+        <span class="badge bg-secondary-subtle text-secondary" id="obs-filtered-notes-count">0</span>
+      </div>
+      <div class="obs-notes-scroll-list flex-grow-1 overflow-auto" id="obs-notes-items-list"></div>
+    </div>
+
+    <!-- Центральная область: Редактор / Предпросмотр / Граф знаний -->
+    <div class="obs-content-area flex-grow-1 border rounded d-flex flex-column bg-body overflow-hidden" id="obs-main-content-area">
+
+      <!-- Заголовок активной заметки -->
+      <div class="obs-note-header px-3 py-2 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2 bg-body-tertiary" id="obs-active-note-header">
+        <div class="d-flex align-items-center gap-2 text-truncate">
+          <span class="fs-5" id="obs-active-note-icon">📝</span>
+          <div class="text-truncate">
+            <h2 class="h6 mb-0 fw-bold text-truncate" id="obs-active-note-title">Выберите заметку</h2>
+            <div class="small text-muted font-monospace text-truncate font-size-75" id="obs-active-note-path">хранилище/заметка.md</div>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-1" id="obs-active-note-actions">
+          <button class="btn btn-xs btn-outline-danger" id="obs-btn-delete-note" title="Удалить текущую заметку" data-i18n-title="titles.auto.">🗑️</button>
+          <button class="btn btn-xs btn-outline-secondary" id="obs-btn-toggle-inspector" title="Показать/скрыть связи" data-i18n-title="titles.auto.">🔗 Связи</button>
+        </div>
+      </div>
+
+      <!-- Контейнер редактора и предпросмотра (Split View) -->
+      <div class="obs-split-view-container flex-grow-1 d-flex overflow-hidden" id="obs-split-viewport">
+        <!-- Левое окно: Редактор исходного текста Markdown -->
+        <div class="obs-editor-pane d-flex flex-column flex-grow-1 h-100 overflow-hidden" id="obs-editor-pane">
+          <textarea class="form-control font-monospace border-0 rounded-0 flex-grow-1 p-3" id="obs-markdown-textarea" placeholder="Начните писать Markdown заметку... Используйте [[вики-ссылки]] и #теги" spellcheck="false"></textarea>
+        </div>
+
+        <!-- Разделитель для изменения ширины -->
+        <div class="obs-split-resizer" id="obs-split-resizer"></div>
+
+        <!-- Правое окно: Живой рендер Markdown Obsidian -->
+        <div class="obs-preview-pane flex-grow-1 h-100 p-3 overflow-auto border-start" id="obs-preview-pane">
+          <div class="obs-rendered-markdown" id="obs-rendered-markdown-content"></div>
+        </div>
+      </div>
+
+      <!-- Полноэкранный интерактивный граф связей (Graph View) -->
+      <div class="obs-graph-view-container flex-grow-1 d-none position-relative overflow-hidden" id="obs-graph-viewport">
+        <canvas class="w-100 h-100" id="obs-graph-canvas"></canvas>
+        <div class="obs-graph-overlay-controls position-absolute top-0 end-0 m-3 p-2 border rounded bg-body-tertiary d-flex flex-column gap-1 shadow-sm">
+          <span class="small fw-semibold text-muted text-center">Граф связей</span>
+          <div class="btn-group-vertical btn-group-sm">
+            <button class="btn btn-outline-secondary" id="obs-graph-zoom-in" title="Приблизить" data-i18n-title="titles.auto.">➕</button>
+            <button class="btn btn-outline-secondary" id="obs-graph-zoom-out" title="Отдалить" data-i18n-title="titles.auto.">➖</button>
+            <button class="btn btn-outline-secondary" id="obs-graph-zoom-reset" title="Сбросить масштаб" data-i18n-title="titles.auto.">🎯</button>
+          </div>
+          <button class="btn btn-xs btn-outline-primary mt-1" id="obs-graph-close-btn">Закрыть граф</button>
+        </div>
+      </div>
+
+      <!-- Нижняя панель сохранения и статуса Git -->
+      <div class="obs-save-bar px-3 py-2 border-top d-flex align-items-center justify-content-between gap-2 bg-body-tertiary" id="obs-save-status-bar">
+        <div class="d-flex align-items-center gap-2 flex-grow-1 max-w-500">
+          <input type="text" class="form-control form-control-sm" id="obs-commit-message-input" placeholder="Сообщение коммита Git (опционально)..." data-i18n-placeholder="obsidian.commitPlaceholder">
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="small text-muted font-size-80" id="obs-save-indicator-msg">Все изменения сохранены</span>
+          <button type="button" class="btn btn-sm btn-primary d-flex align-items-center gap-1" id="obs-btn-save-note">
+            💾 <span data-i18n="obsidian.saveBtn">Сохранить</span> <span class="badge bg-white text-dark small ms-1 font-size-75">Ctrl+S</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая панель: Инспектор связей (Backlinks, Outgoing, Mentions) -->
+    <div class="obs-inspector-sidebar border rounded d-flex flex-column p-2 bg-body" id="obs-right-sidebar">
+      <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+        <h3 class="h6 mb-0 fw-bold d-flex align-items-center gap-1">
+          <span>🔗</span> <span data-i18n="obsidian.inspectorTitle">Связи заметки</span>
+        </h3>
+        <button class="btn btn-xs btn-outline-secondary" id="obs-btn-close-inspector">✕</button>
+      </div>
+
+      <div class="obs-inspector-scroll flex-grow-1 overflow-auto d-flex flex-column gap-3">
+        <!-- 1. Входящие обратные ссылки (Backlinks) -->
+        <div class="obs-inspector-section" id="obs-backlinks-section">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="small fw-semibold text-primary">Входящие ссылки (Backlinks)</span>
+            <span class="badge bg-primary-subtle text-primary" id="obs-backlinks-count-badge">0</span>
+          </div>
+          <div class="obs-backlinks-list d-flex flex-column gap-1" id="obs-backlinks-list"></div>
+        </div>
+
+        <!-- 2. Неразмеченные упоминания (Unlinked Mentions) -->
+        <div class="obs-inspector-section" id="obs-unlinked-section">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="small fw-semibold text-warning-emphasis">Несвязанные упоминания</span>
+            <span class="badge bg-warning-subtle text-warning-emphasis" id="obs-unlinked-count-badge">0</span>
+          </div>
+          <div class="obs-unlinked-list d-flex flex-column gap-1" id="obs-unlinked-list"></div>
+        </div>
+
+        <!-- 3. Исходящие ссылки (Outgoing Links) -->
+        <div class="obs-inspector-section" id="obs-outgoing-section">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="small fw-semibold text-secondary">Исходящие ссылки (Outgoing)</span>
+            <span class="badge bg-secondary-subtle text-secondary" id="obs-outgoing-count-badge">0</span>
+          </div>
+          <div class="obs-outgoing-list d-flex flex-column gap-1" id="obs-outgoing-list"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Модальное окно создания новой заметки -->
+  <div class="modal fade" id="modal-obsidian-create-note" tabindex="-1" aria-labelledby="modalObsCreateTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border">
+        <div class="modal-header">
+          <h5 class="modal-title fs-6 fw-bold" id="modalObsCreateTitle">➕ Создание новой заметки Obsidian</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Название заметки</label>
+            <input type="text" class="form-control form-control-sm" id="obs-new-note-title" placeholder="Моя новая заметка" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Папка (опционально)</label>
+            <input type="text" class="form-control form-control-sm" id="obs-new-note-folder" placeholder="Например: Notes или Projects/AI">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="button" class="btn btn-sm btn-primary" id="obs-btn-confirm-create-note">Создать</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

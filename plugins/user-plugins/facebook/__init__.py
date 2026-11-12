@@ -46,4 +46,3 @@ def plugin(ai_model: Any = None, config: Optional[dict] = None) -> FacebookPlugi
         'facebook'
     """
     return FacebookPlugin(ai_model=ai_model, config=config)
-

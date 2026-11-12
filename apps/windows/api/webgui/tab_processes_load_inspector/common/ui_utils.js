@@ -1,7 +1,7 @@
 /**
  * Общие вспомогательные утилиты для вкладки инспектора процессов.
  * Файл: apps/windows/api/webgui/tab_processes_load_inspector/common/ui_utils.js
- * Updated: 2026-10-31 19:25:00
+ * Updated: 2026-11-12 02:30:00
  */
 
 export const TAB_ID = 'tab-processes-load-inspector';
@@ -28,10 +28,10 @@ export function isProcessesTabActive() {
  */
 export function normalizeSubTabId(subtabId) {
   if (!subtabId) return 'manager';
-  const s = String(subtabId).toLowerCase().trim().replace(/^#/, '');
+  const s = String(subtabId).toLowerCase().trim().replace(/^#/, '').replace(/^panel-/, '');
   if (s.includes('leak')) return 'leaks';
   if (s.includes('top') || s.includes('stream') || s.includes('host') || s.includes('live')) return 'top';
-  if (s.includes('net') || s.includes('socket')) return 'net';
+  if (s.includes('network-activity-by-process') || s.includes('network') || s.includes('net') || s.includes('socket')) return 'network-activity-by-process';
   if (s.includes('file') || s.includes('watch')) return 'files';
   if (s.includes('manager') || s.includes('task') || s.includes('pm') || s.includes('app')) return 'manager';
   return 'manager';
@@ -49,7 +49,7 @@ export function getActiveSubTabId() {
   if (topPane && topPane.classList.contains('active')) return 'top';
 
   const netPane = document.getElementById('subpane-proc-net');
-  if (netPane && netPane.classList.contains('active')) return 'net';
+  if (netPane && netPane.classList.contains('active')) return 'network-activity-by-process';
 
   const filesPane = document.getElementById('subpane-proc-files');
   if (filesPane && filesPane.classList.contains('active')) return 'files';
@@ -98,7 +98,7 @@ export function updateUrlWithPanel(panelId) {
   if (typeof history === 'undefined' || typeof location === 'undefined') return;
   const canonical = normalizeSubTabId(panelId);
   const search = location.search || '';
-  const newHash = `#${TAB_ID}#${canonical}`;
+  const newHash = `#${TAB_ID}#panel-${canonical}`;
   if (location.hash !== newHash) {
     try {
       history.replaceState(null, null, `${location.pathname}${search}${newHash}`);

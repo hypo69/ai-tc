@@ -149,4 +149,3 @@ async def test_youtube_mp3_plugin_actions_and_tools() -> None:
     # 3. Проверка обновления конфигурации
     plg.update_config({"default_quality": "320", "download_dir": "data/downloads/custom"})
     assert plg.downloader.default_quality == "320"
-

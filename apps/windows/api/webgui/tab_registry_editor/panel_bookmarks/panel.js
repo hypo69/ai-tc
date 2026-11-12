@@ -1,7 +1,7 @@
 /**
  * Модуль панели закладок часто используемых веток реестра.
- * Файл: apps/windows/api/webgui/tab_registry_viewer/panel_bookmarks/panel.js
- * Updated: 2026-10-17 01:55:00
+ * Файл: apps/windows/api/webgui/tab_registry_editor/panel_bookmarks/panel.js
+ * Updated: 2026-11-01 14:38:00
  */
 
 /**

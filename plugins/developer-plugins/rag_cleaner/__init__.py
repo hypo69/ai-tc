@@ -7,4 +7,3 @@ __all__ = ["RAGCleanerPlugin", "plugin"]
 
 def plugin(ai_model: Any = None, config: Optional[dict] = None) -> RAGCleanerPlugin:
     return RAGCleanerPlugin(ai_model=ai_model, config=config)
-

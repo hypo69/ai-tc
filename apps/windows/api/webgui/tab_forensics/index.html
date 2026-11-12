@@ -19,7 +19,7 @@ Usage Examples:
  * Package: windows/api/webgui/tab_forensics
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 16:35:00
+ * Updated: 2026-11-01 12:50:00
  * =============================================================================
 -->
 <style>
@@ -32,14 +32,6 @@ Usage Examples:
     border: 1px solid var(--border-color);
     border-radius: 8px;
     overflow: hidden;
-  }
-  .diag-panel-header {
-    background: var(--surface-2);
-    padding: 8px 14px;
-    border-bottom: 1px solid var(--border-color);
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--nav-active);
   }
   .about-ai-pulse-icon {
     width: 42px;
@@ -62,7 +54,7 @@ Usage Examples:
       <span class="tab-header-icon fs-4 text-warning">🛡️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Цифровая криминалистика и Форензика</h3>
+          <h3 class="tab-header-title mb-0">Цифровая криминалистика и Форензика</h3>
           
         </div>
         <small class="tab-header-subtitle text-secondary">Анализ артефактов Windows, хронология запусков UserAssist, анализ Prefetch, Shimcache и активности USB</small>
@@ -94,10 +86,10 @@ Usage Examples:
     <!-- Active Foreground Window Card -->
     <div class="col-12 col-lg-6">
       <div class="diag-panel h-100" data-panel-id="panel-forensics-1" id="panel-forensics-1">
-        <div class="diag-panel-header d-flex justify-content-between align-items-center">
+        <div class="panel-header d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-window-stack text-primary"></i>
-            <span class="text-body">Текущее активное окно в фокусе (Foreground Window)</span>
+            <span class="panel-title">Текущее активное окно в фокусе (Foreground Window)</span>
           </div>
           <span class="badge bg-success-subtle text-success border border-success" id="diag-forensics-live-badge">Live Focus</span>
         </div>
@@ -125,10 +117,10 @@ Usage Examples:
     <!-- Privacy Sensors (Camera & Mic Radar) -->
     <div class="col-12 col-lg-6">
       <div class="diag-panel h-100" data-panel-id="panel-forensics-2" id="panel-forensics-2">
-        <div class="diag-panel-header d-flex justify-content-between align-items-center">
+        <div class="panel-header d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-camera-video-fill text-danger"></i>
-            <span class="text-body">Контроль доступа к камере и микрофону (Privacy Radar)</span>
+            <span class="panel-title">Контроль доступа к камере и микрофону (Privacy Radar)</span>
           </div>
           <span class="badge bg-body-secondary border border-secondary text-body">ConsentStore</span>
         </div>
@@ -181,10 +173,10 @@ Usage Examples:
     <!-- Subpane 1: Хронологический таймлайн активности и переключения окон -->
     <div class="tab-pane fade show active" id="subpane-forensics-timeline" role="tabpanel" aria-labelledby="subtab-forensics-timeline-btn">
       <div class="diag-panel mb-3" data-panel-id="panel-forensics-timeline" id="panel-forensics-timeline">
-        <div class="diag-panel-header d-flex justify-content-between align-items-center">
+        <div class="panel-header d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-clock-history text-info"></i>
-            <span class="text-body">Хронологический таймлайн активности и переключения окон (Telemetry Timeline)</span>
+            <span class="panel-title">Хронологический таймлайн активности и переключения окон (Telemetry Timeline)</span>
           </div>
           <span class="badge bg-primary" id="diag-timeline-count">0 записей</span>
         </div>
@@ -210,10 +202,10 @@ Usage Examples:
     <!-- Subpane 2: Форензика запуска программ из реестра Windows (UserAssist ROT13) -->
     <div class="tab-pane fade" id="subpane-forensics-userassist" role="tabpanel" aria-labelledby="subtab-forensics-userassist-btn">
       <div class="diag-panel" data-panel-id="panel-forensics-3" id="panel-forensics-3">
-        <div class="diag-panel-header d-flex justify-content-between align-items-center">
+        <div class="panel-header d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-archive text-secondary"></i>
-            <span class="text-body">Форензика запуска программ из реестра Windows (UserAssist ROT13)</span>
+            <span class="panel-title">Форензика запуска программ из реестра Windows (UserAssist ROT13)</span>
           </div>
           <span class="badge bg-secondary" id="diag-userassist-count">0 записей</span>
         </div>

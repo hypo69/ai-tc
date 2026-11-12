@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/apps
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 12:03:00
+ * Updated: 2026-11-12 02:25:00
  * =============================================================================
  */
 
@@ -26,14 +26,15 @@
 import { setupGlobalApi, setupThemeAndLang } from './modules/init-interface.js';
 import { fetchAppsStatus, updateModelBadge } from './modules/status-manager.js';
 import { initModelTester, sendModelPing } from './modules/model-tester.js';
-import { APP_TAB_DEFS } from './modules/tabs-config.js?v=20261101_v1';
+import { APP_TAB_DEFS } from './modules/tabs-config.js?v=20261111_v1';
 import { applyTranslations } from '../js/i18n.js';
 import { switchTab, loadTab, setupTabClicks } from '../js/tab-core.js?v=20261031_v4';
 import { loadPanelData, initPanels } from '../js/panel-loader.js';
 
 // Глобальный экспорт
-window.switchTab = switchTab;
-window.switchToTab = switchTab;
+window.switchTab = switchAppTab;
+window.switchToTab = switchAppTab;
+window.switchAppTab = switchAppTab;
 window.sendModelPing = sendModelPing;
 window.initModelTester = initModelTester;
 window.loadPanelData = loadPanelData;
@@ -139,7 +140,7 @@ export async function switchAppTab(tabId) {
     tabId = 'tab-software-monitor';
     setTimeout(() => {
       if (typeof window.switchSoftwareSubTab === 'function') {
-        window.switchSoftwareSubTab('ninite');
+        window.switchSoftwareSubTab('packages', 'block-ninite');
       }
     }, 70);
   } else if (tabId === 'tab-startup-auditor' || tabId === 'startup-auditor' || tabId === 'windows_startup_auditor') {
@@ -264,7 +265,7 @@ export async function switchAppTab(tabId) {
   } else if (subPanel && (normId === 'tab-software-monitor' || normId === 'software-monitor' || normId === 'tab-software-scanner' || normId === 'software-scanner')) {
     setTimeout(() => {
       if (typeof window.switchSoftwareSubTab === 'function') {
-        window.switchSoftwareSubTab(subPanel);
+        window.switchSoftwareSubTab(subPanel, blockId, false);
       }
     }, 70);
   } else if (subPanel && (normId === 'tab-app-internals' || normId === 'app-internals')) {

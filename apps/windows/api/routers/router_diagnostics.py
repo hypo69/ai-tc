@@ -19,7 +19,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 11:59:15
+# Updated: 2026-11-01 13:08:00
 # =============================================================================
 
 from __future__ import annotations
@@ -343,7 +343,11 @@ async def _collect_expanded_process_telemetry(
     if canonical_key and canonical_key.startswith("process:"):
         clean_proc_name = canonical_key.replace("process:", "").strip().lower()
     elif req.title:
-        clean_proc_name = req.title.split()[0].strip().lower()
+        m_exe = re.search(r"([a-zA-Z0-9_\-\.]+\.exe)", f"{req.title} {req.subtitle or ''}", re.IGNORECASE)
+        if m_exe:
+            clean_proc_name = m_exe.group(1).lower()
+        else:
+            clean_proc_name = req.title.split()[0].strip().lower()
 
     if not target_pid and clean_proc_name:
         try:
@@ -401,6 +405,26 @@ async def _collect_expanded_process_telemetry(
     for m_key in ("memory_working_set_mb", "memory_private_bytes_mb", "memory_peak_working_set_mb", "handles_count", "thread_count", "active_sockets_count"):
         if m_key in req.metadata and req.metadata[m_key] is not None and not telemetry.get(m_key):
             telemetry[m_key] = req.metadata[m_key]
+
+    # Подгрузка недавней истории телеметрии (сэмплы процесса во времени)
+    try:
+        from apps.windows.telemetry.sqlite import TelemetryStorage
+        storage = TelemetryStorage.get_instance(read_only=True)
+        if target_pid and target_pid > 0:
+            hist_rows = storage.get_process_history(pid=target_pid, limit=10)
+            if hist_rows:
+                telemetry["recent_telemetry_history"] = [
+                    {
+                        "timestamp": r.get("created_at") or r.get("timestamp"),
+                        "cpu_percent": r.get("cpu_percent", 0.0),
+                        "memory_mb": r.get("memory_mb", 0.0),
+                        "handles": r.get("num_handles", 0),
+                        "threads": r.get("num_threads", 0),
+                    }
+                    for r in hist_rows[:10]
+                ]
+    except Exception as h_err:
+        logger.debug(f"[RouterDiagnostics] Не удалось подгрузить историю телеметрии: {h_err}")
 
     # Обогащаем данными о группе процессов, если это сводная группа
     if raw_dict.get("subprocesses") or raw_dict.get("instance_count", 1) > 1 or req.metadata.get("is_group"):
@@ -909,24 +933,44 @@ try {{
 }}
 """
         elif is_process_type and expanded_telemetry:
-            # Общих данных в WikiLLM пока нет: запрашиваем и общую идентификацию (general_summary), и анализ ресурсов
-            prompt = f"""[АКТУАЛЬНАЯ ТЕЛЕМЕТРИЯ ПРОЦЕССА (EXPANDED RUNTIME TELEMETRY JSON)]:
+            # Общих данных в WikiLLM пока нет: запрашиваем и общую справочную информацию (что это, для чего, назначение, применение), и динамический анализ ресурсов
+            sys_instruction = (
+                "Ты — ведущий системный архитектор Windows, эксперт по внутреннему устройству ОС (Windows Internals) и аналитик производительности. "
+                "В базе знаний WikiLLM пока нет справочной информации об этой программе. "
+                "Твоя задача состоит из двух обязательных уровней: "
+                "1. Собрать полную общеописательную справочную информацию о программе: что это за ПО, для чего создано, его главное назначение в Windows, сценарии и области применения, официальный разработчик/вендор и базовое доверие. Это описание будет сохранено в базе знаний WikiLLM. "
+                "2. Провести детальный экспертный анализ текущего потребления и состояния ресурсов запущенного инстанса процесса по предоставленной телеметрии и истории сэмплов. "
+                "Отвечай строго в формате чистого JSON на русском языке."
+            )
+            prompt = f"""[АКТУАЛЬНАЯ ТЕЛЕМЕТРИЯ И ИСТОРИЯ ПРОЦЕССА (EXPANDED RUNTIME TELEMETRY JSON)]:
 {json.dumps(expanded_telemetry, ensure_ascii=False, indent=2)}
 
 [ЗАДАНИЕ ДЛЯ ЭКСПЕРТА ПО ПРОЦЕССАМ И РЕСУРСАМ WINDOWS]:
-Проведи детальный аудит процесса. В базе знаний WikiLLM пока нет общих данных об этой программе.
-Определи общее назначение программы (general_summary) И проведи анализ текущего потребления ресурсов по предоставленной телеметрии:
-- CPU: {expanded_telemetry.get('cpu_percent', 0)}%, RAM: {expanded_telemetry.get('memory_working_set_mb', 0)} MB, Handles: {expanded_telemetry.get('handles_count', 0)}, Threads: {expanded_telemetry.get('thread_count', 1)}.
+В базе знаний WikiLLM пока нет справочной информации об этом процессе ({expanded_telemetry.get('process_name') or req.title}).
+Выполни комплексный анализ, состоящий из двух ключевых уровней:
+
+УРОВЕНЬ 1. ОБЩЕОПИСАТЕЛЬНАЯ СПРАВОЧНАЯ ИНФОРМАЦИЯ О ПРОГРАММЕ (для сохранения в WikiLLM):
+- Что это за программа / исполняемый файл ({expanded_telemetry.get('process_name') or req.title})
+- Для чего она создана, её главное назначение в экосистеме Windows
+- Где и как она применяется (пользовательский интерфейс, фоновый агент, системная служба, компонент фреймворка, утилита)
+- Точный официальный разработчик / вендор (например Microsoft Corporation, Google, Valve, etc.)
+- Сформируй развернутое, емкое и структурированное описание в поле "general_summary" (без временных PID и сиюминутных цифр ОЗУ).
+
+УРОВЕНЬ 2. АНАЛИЗ ТЕКУЩЕГО ПОТРЕБЛЕНИЯ И СОСТОЯНИЯ РЕСУРСОВ:
+- Оценка текущего потребления ресурсов по телеметрии: CPU ({expanded_telemetry.get('cpu_percent', 0)}%), RAM Working Set ({expanded_telemetry.get('memory_working_set_mb', 0)} MB), Private Bytes ({expanded_telemetry.get('memory_private_bytes_mb', 0)} MB), Handles ({expanded_telemetry.get('handles_count', 0)}), Threads ({expanded_telemetry.get('thread_count', 1)}), сокеты ({expanded_telemetry.get('active_sockets_count', 0)}).
+- Оценка динамики и стабильности по истории сэмплов (если есть).
+- Оценка безопасности текущей сессии запуска (путь, права, сетевые соединения).
+- Практическая рекомендация администратору и шаги действий.
 
 Верни СТРОГО валидный JSON следующей схемы:
 {{
-  "general_summary": "Краткое общее описание программы (что это за ПО, назначение, официальный вендор/сайт, легитимность)",
-  "summary": "Анализ текущего потребления и состояния ресурсов: подробная оценка работы процесса (PID {expanded_telemetry.get('pid', '-')}), оценка нагрузки на CPU ({expanded_telemetry.get('cpu_percent', 0)}%) и память (WS: {expanded_telemetry.get('memory_working_set_mb', 0)} MB), оценка дескрипторов ({expanded_telemetry.get('handles_count', 0)}) и потоков ({expanded_telemetry.get('thread_count', 1)}). Диагностика текущего поведения.",
-  "developer": "Точный разработчик / вендор",
-  "category": "Категория процесса",
+  "general_summary": "Развернутая справочная информация о программе: что это за ПО, для чего создано, его назначение и применение в Windows, официальный вендор и легитимность (для фиксации в WikiLLM).",
+  "summary": "Анализ текущего потребления и состояния ресурсов: подробная оценка работы инстанса (PID {expanded_telemetry.get('pid', '-')}), нагрузка на CPU ({expanded_telemetry.get('cpu_percent', 0)}%) и память (WS: {expanded_telemetry.get('memory_working_set_mb', 0)} MB, Private: {expanded_telemetry.get('memory_private_bytes_mb', 0)} MB), оценка дескрипторов ({expanded_telemetry.get('handles_count', 0)}) и потоков ({expanded_telemetry.get('thread_count', 1)}). Диагностика поведения.",
+  "developer": "Официальный разработчик / вендор программы",
+  "category": "Категория программы (Интерактивное приложение / Системная утилита / Фоновая служба / Компонент ОС)",
   "performance_impact": "Детальный срез по подсистемам: ЦП, ОЗУ, Диск, Сеть, Дескрипторы.",
   "security_verdict": "Оценка безопасности сессии и прав запуска.",
-  "recommendation": "Практическая рекомендация по ресурсам процесса.",
+  "recommendation": "Практическая рекомендация администратору по ресурсам процесса.",
   "action_steps": ["Рекомендованное действие 1", "Рекомендованное действие 2"]
 }}
 """
@@ -1069,6 +1113,48 @@ try {{
                 eff_dev = data.get("developer") or (dev_text if wikillm_entity else (req.subtitle or "Неизвестен"))
                 eff_cat = data.get("category") or (wikillm_entity.category if wikillm_entity else "Диагностика")
 
+                # Извлекаем чистое имя исполняемого файла процесса
+                proc_file_clean = ""
+                if is_process_type:
+                    m_exe = re.search(r"([a-zA-Z0-9_\-\.]+\.exe)", f"{req.title} {canonical_key or ''} {req.subtitle or ''}", re.IGNORECASE)
+                    if m_exe:
+                        proc_file_clean = m_exe.group(1).lower()
+                    elif canonical_key and canonical_key.startswith("process:"):
+                        proc_file_clean = canonical_key.replace("process:", "").strip().lower()
+                    elif req.title:
+                        proc_file_clean = req.title.split()[0].strip().lower()
+
+                # Автоматически сохраняем общеописательные данные процесса в WikiLLM, если их там еще не было
+                auto_saved_to_wikillm = False
+                if is_process_type and not wikillm_entity and gen_sum and len(gen_sum.strip()) >= 15:
+                    try:
+                        from apps.windows.wikillm.router import approve_knowledge as auto_approve_knowledge, ApproveKnowledgeRequest
+                        proc_key_name = proc_file_clean or (canonical_key.replace("process:", "") if canonical_key else "process")
+                        auto_approve_req = ApproveKnowledgeRequest(
+                            canonical_key=f"process:{proc_key_name.lower()}",
+                            title=proc_key_name,
+                            developer=eff_dev,
+                            category=eff_cat,
+                            summary=gen_sum.strip(),
+                            general_summary=gen_sum.strip(),
+                            performance_impact="Штатный профиль приложения (из базы знаний WikiLLM)",
+                            security_verdict=data.get("security_verdict") or "Легитимный процесс (верифицировано)",
+                            recommendation="Оставить без изменений.",
+                            action_steps=data.get("action_steps") or ["Действий не требуется."],
+                            developer_advice=str(dev_advice) if dev_advice else "",
+                            table_type="process",
+                        )
+                        await auto_approve_knowledge(auto_approve_req)
+                        auto_saved_to_wikillm = True
+                        logger.info(f"[WikiLLM] Общеописательная информация о процессе '{proc_key_name}' успешно автоматически зафиксирована в WikiLLM.")
+                    except Exception as auto_save_ex:
+                        logger.warning(f"[WikiLLM] Авто-сохранение общеописательных данных процесса в WikiLLM завершилось ошибкой: {auto_save_ex}")
+
+                eff_canonical = f"process:{proc_file_clean.lower()}" if (is_process_type and proc_file_clean) else (matched_key if wikillm_entity else canonical_key)
+                has_general = bool(wikillm_entity or auto_saved_to_wikillm or (is_process_type and gen_sum))
+                is_ver = bool(wikillm_entity or auto_saved_to_wikillm)
+                eff_source = "wikillm_resource_analysis" if (wikillm_entity or auto_saved_to_wikillm) else prov
+
                 return DiagnosticExplainResponse(
                     summary=data.get("summary", ""),
                     developer=eff_dev,
@@ -1078,11 +1164,11 @@ try {{
                     recommendation=data.get("recommendation", "Оставить как есть."),
                     action_steps=data.get("action_steps", ["Проверьте актуальность конфигурации."]),
                     developer_advice=str(dev_advice),
-                    canonical_key=matched_key if wikillm_entity else canonical_key,
-                    source="wikillm_resource_analysis" if wikillm_entity else prov,
-                    is_verified=bool(wikillm_entity),
+                    canonical_key=eff_canonical,
+                    source=eff_source,
+                    is_verified=is_ver,
                     general_summary=gen_sum,
-                    has_wikillm_general_data=bool(wikillm_entity),
+                    has_wikillm_general_data=has_general,
                     telemetry_data=expanded_telemetry if is_process_type else None,
                 )
 

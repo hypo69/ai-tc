@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 14:51:00
+ * Updated: 2026-11-12 01:25:00
  * =============================================================================
  */
 
@@ -348,14 +348,32 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   МОДАЛЬНЫЕ ОКНА
+   МОДАЛЬНЫЕ ОКНА (Стандарт геометрии 90vw × 90vh согласно WEBGUI.md § 5.4)
    ═══════════════════════════════════════════════════════════════════════════ */
-.modal-content {
+.modal .modal-dialog {
+  --bs-modal-width: var(--modal-size-w, var(--modal-width, 90vw));
+  width: var(--modal-size-w, var(--modal-width, 90vw));
+  max-width: var(--modal-size-w, var(--modal-width, 90vw));
+  height: var(--modal-size-h, var(--modal-height, 90vh));
+  max-height: var(--modal-size-h, var(--modal-height, 90vh));
+  min-height: var(--modal-size-h, var(--modal-height, 90vh));
+  margin: 5vh auto;
+  display: flex;
+  align-items: center;
+}
+
+.modal .modal-content {
+  width: 100%;
+  height: 100%;
+  max-height: var(--modal-size-h, var(--modal-height, 90vh));
+  min-height: var(--modal-size-h, var(--modal-height, 90vh));
   background-color: var(--modal-bg);
   border: 1px solid var(--modal-border);
   color: var(--modal-text);
-  border-radius: 8px;
+  border-radius: var(--radius-md, 8px);
   box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-header {
@@ -588,10 +606,12 @@
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
-   Интерактивный ползунок изменения высоты таблиц (.sys-table-resizer)
+   Интерактивный ползунок изменения высоты таблиц (.sys-table-resizer, .slc-table-resizer)
    и кнопка раскрытия на 100% без скроллера (.btn-table-expand-100)
    ─────────────────────────────────────────────────────────────────────────── */
-.sys-table-resizer {
+.sys-table-resizer,
+.slc-table-resizer,
+.table-resizer {
   height: 9px;
   cursor: row-resize;
   background: var(--surface-2);
@@ -606,11 +626,17 @@
 }
 
 .sys-table-resizer:hover,
-.sys-table-resizer.resizing {
+.sys-table-resizer.resizing,
+.slc-table-resizer:hover,
+.slc-table-resizer.resizing,
+.table-resizer:hover,
+.table-resizer.resizing {
   background: var(--nav-active, #0dcaf0);
 }
 
-.sys-table-resizer-grip {
+.sys-table-resizer-grip,
+.slc-table-resizer-grip,
+.table-resizer-grip {
   width: 42px;
   height: 3px;
   background: var(--border-strong, #6c757d);
@@ -621,7 +647,11 @@
 }
 
 .sys-table-resizer:hover .sys-table-resizer-grip,
-.sys-table-resizer.resizing .sys-table-resizer-grip {
+.sys-table-resizer.resizing .sys-table-resizer-grip,
+.slc-table-resizer:hover .slc-table-resizer-grip,
+.slc-table-resizer.resizing .slc-table-resizer-grip,
+.table-resizer:hover .table-resizer-grip,
+.table-resizer.resizing .table-resizer-grip {
   background: #ffffff;
   opacity: 1;
 }
@@ -1784,8 +1814,10 @@ h3.panel-header,
   line-height: 1;
 }
 
-/* ── 10. Кнопка-иконка сворачивания/разворачивания таблиц (Красная дрель) ─── */
-.panel-toggle-drill {
+/* ── 10. Кнопка-иконка сворачивания/разворачивания и Drill-Down (Красная дрель) ─── */
+.panel-toggle-drill,
+.btn-drilldown-proc,
+.sys-drill-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1800,18 +1832,26 @@ h3.panel-header,
   border-radius: 4px;
 }
 
-.panel-toggle-drill:hover {
+.panel-toggle-drill:hover,
+.btn-drilldown-proc:hover,
+.sys-drill-btn:hover {
   opacity: 0.85;
   transform: scale(1.15);
 }
 
-.panel-toggle-drill:active {
+.panel-toggle-drill:active,
+.btn-drilldown-proc:active,
+.sys-drill-btn:active {
   transform: scale(0.92);
 }
 
-.panel-toggle-drill img {
-  width: 20px;
-  height: 20px;
+.panel-toggle-drill img,
+.btn-drilldown-proc img,
+.sys-drill-btn img {
+  width: 18px;
+  height: 18px;
+  max-width: 18px;
+  max-height: 18px;
   object-fit: contain;
   display: block;
   pointer-events: none;
@@ -2032,4 +2072,156 @@ h3.panel-header,
 
 .text-pre-wrap {
   white-space: pre-wrap !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   КУРСОР НАЖИМАЮЩЕГО ПАЛЬЦА (CURSOR: POINTER) ДЛЯ ТАБЛИЦ И КОМПОНЕНТОВ
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. Таблицы: строки, ячейки и заголовки сортировки */
+table tbody tr,
+.table tbody tr,
+.ui-table tbody tr,
+.sys-proc-table tbody tr,
+.slc-table tbody tr,
+.ui-spec-table tbody tr,
+.about-sys-spec-table tbody tr,
+.sysctl-spec-table tbody tr,
+.def-spec-table tbody tr,
+.winadmin-spec-table tbody tr,
+.winadmin-table tbody tr,
+.net-table tbody tr,
+.pwr-table tbody tr,
+.reg-table tbody tr,
+.sw-audit-table tbody tr,
+.hw-table tbody tr,
+.bm-table tbody tr,
+.apl-table tbody tr,
+.sa-table tbody tr,
+.gdesktop-table tbody tr,
+.wb-table tbody tr,
+.spec-table-unified tbody tr,
+.interactive-table-row,
+.interactive-row,
+.table-hover tbody tr {
+  cursor: pointer;
+}
+
+/* Информационные строки-заглушки и индикаторы загрузки без перехода */
+table tbody tr.non-clickable,
+table tbody tr:has(td[colspan]:only-child),
+.table tbody tr:has(td[colspan]:only-child),
+table tbody tr:has(.spinner-border) {
+  cursor: default;
+}
+
+/* Кликабельные ячейки, действия и элементы внутри таблиц */
+table td[onclick],
+table th[onclick],
+table td[data-action],
+table th[data-action],
+table td[data-bs-toggle],
+table th[data-bs-toggle],
+table td[role="button"],
+table th[role="button"],
+table th.sortable,
+table th[data-sort],
+table th.sorting,
+table th.sorting_asc,
+table th.sorting_desc,
+table td button,
+table td .btn,
+table td a,
+table td .badge,
+table td .ui-badge,
+table td i[class*="bi-"],
+table td .action-btn,
+table td .drill-btn,
+.sys-table-resizer,
+.table-resizer,
+.btn-table-expand-100 {
+  cursor: pointer !important;
+}
+
+/* 2. Общие интерактивные элементы управления и кнопки */
+button,
+.btn,
+.ui-btn,
+[role="button"],
+a,
+a[href],
+.nav-link,
+.dropdown-item,
+.page-link,
+.accordion-button,
+.btn-close,
+.tab-header-icon,
+.ui-subnav-btn,
+.subnav-btn,
+.filter-btn,
+[data-filter],
+.film-chip,
+.film-interactive-chip,
+.chip,
+summary,
+.tree-node-title,
+.sys-tree-title,
+.ui-tree-title,
+.about-sys-tree-title {
+  cursor: pointer;
+}
+
+/* 3. Формы, чекбоксы, радио-кнопки, переключатели и метки */
+input[type="checkbox"],
+input[type="radio"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="file"],
+input[type="range"],
+select,
+.form-select,
+.form-check-input,
+.form-check-label,
+label[for],
+.form-switch .form-check-input,
+.form-switch label {
+  cursor: pointer !important;
+}
+
+/* 4. Кликабельные карточки, бейджи, виджеты и элементы с обработчиками событий */
+[onclick],
+[data-bs-toggle],
+[data-bs-target],
+[data-action],
+[data-clickable],
+.clickable,
+.cursor-pointer,
+.pointer,
+.badge[onclick],
+.ui-badge[onclick],
+.badge[data-bs-toggle],
+.ui-badge[data-bs-toggle],
+.badge.clickable,
+.ui-badge.clickable,
+.badge[role="button"],
+.ui-badge[role="button"],
+.card[onclick],
+.ui-kpi-card[onclick],
+.gauge-card[onclick],
+.gauge-card[role="button"],
+[data-ai-tooltip],
+[data-term] {
+  cursor: pointer;
+}
+
+/* Заблокированные элементы */
+button:disabled,
+.btn:disabled,
+.btn.disabled,
+input:disabled,
+select:disabled,
+[aria-disabled="true"],
+.disabled {
+  cursor: not-allowed !important;
 }

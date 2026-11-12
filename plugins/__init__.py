@@ -10,7 +10,7 @@
 # Project: ai-breadboard
 # Package: plugins
 # Author: hypo69
-# Updated: 2026-10-28 18:28:00
+# Updated: 2026-11-10 14:37:00
 # Copyright: © 2026 hypo69
 # =============================================================================
 
@@ -241,4 +241,3 @@ def load_plugins(ai_model: Any = None, include_disabled: bool = False) -> Dict[s
             logger.error(f"Не удалось загрузить плагин из '{item.name}': {exc}", exc_info=True)
 
     return plugins
-

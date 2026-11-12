@@ -10,7 +10,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:25:00
+# Updated: 2026-11-01 12:40:00
 # =============================================================================
 
 from __future__ import annotations
@@ -55,7 +55,7 @@ class DatabaseConfigSchema(BaseModel):
     """Схема общей конфигурации базы данных WikiLLM."""
     engine: str = Field(default="mariadb", description="Целевой движок: mariadb или sqlite")
     mariadb: MariaDBSettingsSchema = Field(default_factory=MariaDBSettingsSchema)
-    sqlite_path: str = Field(default="data/windows_wikillm/knowledge.db", description="Путь к SQLite")
+    sqlite_path: str = Field(default="%ProgramData%/{app_name}/apps/windows/knowledge.db", description="Путь к SQLite")
 
 
 class DatabaseActionRequest(BaseModel):
@@ -352,6 +352,16 @@ async def import_data_from_sqlite(req: Optional[DatabaseActionRequest] = None) -
     sqlite_path = req.sqlite_path if req and req.sqlite_path else None
     custom_cfg = _extract_mariadb_cfg(db, req)
     return db.import_from_sqlite(sqlite_path=sqlite_path, cfg=custom_cfg)
+
+
+@router.post("/db/migrate")
+async def trigger_db_migration(source_path: Optional[str] = None, target_path: Optional[str] = None) -> Dict[str, Any]:
+    """Выполняет перенос базы знаний SQLite строго по путям из конфигурации."""
+    from apps.windows.db.paths import migrate_system_knowledge_db
+    res = migrate_system_knowledge_db(source_template=source_path, target_template=target_path)
+    if not res.get("ok"):
+        raise HTTPException(status_code=500, detail=res.get("error") or "Ошибка миграции базы данных")
+    return res
 
 
 # ------------------------------------------------------------------------------

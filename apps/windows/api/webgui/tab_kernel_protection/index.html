@@ -1,0 +1,333 @@
+<!--
+=============================================================================
+Process Name: Windows Web Interface - Kernel & Protection Tab
+=============================================================================
+Description:
+  Клиентский веб-интерфейс управления системными драйверами Windows,
+  мониторинга файловых фильтров и диагностики блокировок (Kernel & Protection).
+
+Usage Examples:
+    Web Route:
+      /windows/api/webgui/tab_kernel_protection/index.html
+
+File: index.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_kernel_protection
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-11-01 14:40:00
+=============================================================================
+-->
+
+<style>
+  .kp-container {
+    padding: 0.5rem 0.75rem;
+  }
+  .kp-card {
+    background: var(--surface-1, #1e222b);
+    border: 1px solid var(--border-color, #2d3340);
+    border-radius: 8px;
+    padding: 0.85rem;
+    height: 100%;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+  .kp-card:hover {
+    border-color: var(--primary, #0d6efd);
+  }
+  .kp-badge-active {
+    background: var(--status-success-bg, rgba(34, 197, 94, 0.15));
+    color: var(--status-success-text, #22c55e);
+    border: 1px solid var(--status-success-border, rgba(34, 197, 94, 0.3));
+  }
+  .kp-badge-disabled {
+    background: var(--status-danger-bg, rgba(239, 68, 68, 0.15));
+    color: var(--status-danger-text, #ef4444);
+    border: 1px solid var(--status-danger-border, rgba(239, 68, 68, 0.3));
+  }
+  .kp-badge-warning {
+    background: var(--status-warning-bg, rgba(245, 158, 11, 0.15));
+    color: var(--status-warning-text, #f59e0b);
+    border: 1px solid var(--status-warning-border, rgba(245, 158, 11, 0.3));
+  }
+  .kp-badge-info {
+    background: var(--status-info-bg, rgba(14, 165, 233, 0.15));
+    color: var(--status-info-text, #0ea5e9);
+    border: 1px solid var(--status-info-border, rgba(14, 165, 233, 0.3));
+  }
+  .kp-clickable-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+  }
+  .kp-clickable-row:hover {
+    background-color: var(--nav-hover-bg, rgba(255, 255, 255, 0.05)) !important;
+  }
+  .kp-verdict-box {
+    background: var(--surface-2, #181b22);
+    border: 1px solid var(--border-color, #2d3340);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+</style>
+
+<div class="kp-container">
+  <!-- Заголовок вкладки -->
+  <div class="tab-header d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <span class="tab-header-icon fs-3">🛡️</span>
+      <div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <h3 class="tab-header-title mb-0">Защита ядра и драйверы Windows</h3>
+          <span class="badge kp-badge-info font-monospace" id="kp-drivers-counter">0 драйверов</span>
+        </div>
+        <small class="tab-header-subtitle text-secondary">
+          Windows System Protection & Enforcement: инвентарь драйверов, высоты минифильтров, статус HVCI/UCPD и диагностика блокировок
+        </small>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm btn-outline-secondary" id="kp-btn-refresh" title="Обновить данные">
+        <i class="bi bi-arrow-clockwise me-1"></i> Обновить
+      </button>
+    </div>
+  </div>
+
+  <!-- Навигация суб-вкладок -->
+  <ul class="nav nav-pills mb-3 gap-2" id="kp-subtabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active btn-sm" id="subtab-kp-overview-btn" data-bs-toggle="pill" data-bs-target="#subpane-kp-overview" type="button" role="tab">
+        <i class="bi bi-shield-check me-1"></i> Механизмы защиты ядра
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link btn-sm" id="subtab-kp-drivers-btn" data-bs-toggle="pill" data-bs-target="#subpane-kp-drivers" type="button" role="tab">
+        <i class="bi bi-hdd-stack me-1"></i> Системные драйверы
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link btn-sm" id="subtab-kp-minifilters-btn" data-bs-toggle="pill" data-bs-target="#subpane-kp-minifilters" type="button" role="tab">
+        <i class="bi bi-funnel me-1"></i> Файловые минифильтры (fltmc)
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link btn-sm" id="subtab-kp-blocker-btn" data-bs-toggle="pill" data-bs-target="#subpane-kp-blocker" type="button" role="tab">
+        <i class="bi bi-search-heart me-1"></i> Диагностика блокировок (Blocker Detection)
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link btn-sm" id="subtab-kp-safeops-btn" data-bs-toggle="pill" data-bs-target="#subpane-kp-safeops" type="button" role="tab">
+        <i class="bi bi-sliders me-1"></i> Безопасное управление (SafeOps)
+      </button>
+    </li>
+  </ul>
+
+  <!-- Контент суб-вкладок -->
+  <div class="tab-content" id="kp-subtabs-content">
+
+    <!-- 1. Механизмы защиты ядра -->
+    <div class="tab-pane fade show active" id="subpane-kp-overview" role="tabpanel">
+      <div class="row g-3 mb-3" id="kp-mechanisms-grid">
+        <div class="col-12 text-center py-4 text-secondary">
+          <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+          Сбор телеметрии механизмов защиты Windows...
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Инвентарь системных драйверов -->
+    <div class="tab-pane fade" id="subpane-kp-drivers" role="tabpanel">
+      <!-- Панель фильтров и поиска -->
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="btn-group btn-group-sm" role="group" id="kp-category-filter">
+          <button type="button" class="btn btn-outline-secondary active" data-category="all">Все</button>
+          <button type="button" class="btn btn-outline-secondary" data-category="security">Защита (Security)</button>
+          <button type="button" class="btn btn-outline-secondary" data-category="minifilter">Минифильтры</button>
+          <button type="button" class="btn btn-outline-secondary" data-category="system">Системные</button>
+          <button type="button" class="btn btn-outline-secondary" data-category="third_party">Сторонние</button>
+        </div>
+        <div class="input-group input-group-sm" style="max-width: 320px;">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" class="form-control" id="kp-driver-search" placeholder="Поиск драйвера (.sys, имя)...">
+        </div>
+      </div>
+
+      <!-- Таблица драйверов -->
+      <div class="table-responsive rounded border border-secondary border-opacity-25">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light table-opacity-10">
+            <tr>
+              <th>Имя драйвера / Служба</th>
+              <th>Состояние</th>
+              <th>Режим запуска</th>
+              <th>Категория</th>
+              <th>Критичность</th>
+              <th>Назначение / Роль защиты</th>
+            </tr>
+          </thead>
+          <tbody id="kp-drivers-tbody">
+            <tr>
+              <td colspan="6" class="text-center py-4 text-secondary">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                Загрузка каталога драйверов...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. Файловые минифильтры -->
+    <div class="tab-pane fade" id="subpane-kp-minifilters" role="tabpanel">
+      <div class="alert alert-secondary d-flex align-items-center gap-2 mb-3 py-2" role="alert">
+        <i class="bi bi-info-circle-fill fs-5"></i>
+        <div class="small">
+          <strong>File System Minifilters</strong> перехватывают операции файлового ввода-вывода (IRP). Высота фильтра (<strong>Altitude</strong>) определяет строгий порядок обработки вызовов в стеке ввода-вывода Windows.
+        </div>
+      </div>
+
+      <div class="table-responsive rounded border border-secondary border-opacity-25">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light table-opacity-10">
+            <tr>
+              <th>Имя фильтра</th>
+              <th>Высота (Altitude)</th>
+              <th>Группа высоты (Microsoft Altitude Group)</th>
+              <th>Экземпляров</th>
+              <th>Кадр</th>
+              <th>Назначение</th>
+            </tr>
+          </thead>
+          <tbody id="kp-minifilters-tbody">
+            <tr>
+              <td colspan="6" class="text-center py-4 text-secondary">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                Опрос диспетчера минифильтров (fltmc)...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4. Диагностика блокировок (Operation Blocker Detection) -->
+    <div class="tab-pane fade" id="subpane-kp-blocker" role="tabpanel">
+      <div class="row g-3">
+        <!-- Левая колонка: форма запроса -->
+        <div class="col-lg-5">
+          <div class="kp-verdict-box">
+            <h5 class="mb-3 d-flex align-items-center gap-2">
+              <i class="bi bi-shield-slash text-warning"></i>
+              Расследование Access Denied
+            </h5>
+            <p class="small text-secondary mb-3">
+              Проверка гипотез блокировки: разделение обычного отказа в правах от фильтрации драйвером (UCPD, WdFilter), механизмов Tamper Protection или политик GPO.
+            </p>
+
+            <!-- Быстрые пресеты -->
+            <label class="form-label small fw-semibold">Типовые цели для расследования:</label>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              <button type="button" class="btn btn-xs btn-outline-info kp-preset-btn" data-type="registry_key" data-path="Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice">
+                🌐 Ассоциация HTTP (UserChoice / UCPD)
+              </button>
+              <button type="button" class="btn btn-xs btn-outline-info kp-preset-btn" data-type="registry_key" data-path="Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDa">
+                📑 Виджеты TaskbarDa (UCPD)
+              </button>
+              <button type="button" class="btn btn-xs btn-outline-info kp-preset-btn" data-type="registry_key" data-path="HKLM\SOFTWARE\Microsoft\Windows Defender\Features">
+                🛡️ Defender Features (Tamper Protection)
+              </button>
+              <button type="button" class="btn btn-xs btn-outline-info kp-preset-btn" data-type="file_path" data-path="C:\Windows\System32\drivers\etc\hosts">
+                📄 Файл hosts (NTFS DACL)
+              </button>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Тип целевого объекта:</label>
+              <select class="form-select form-select-sm" id="kp-blocker-target-type">
+                <option value="registry_key">Ключ реестра (Registry Key)</option>
+                <option value="file_path">Файл / Каталог на диске (File Path)</option>
+                <option value="service">Системная служба / Драйвер (Service)</option>
+                <option value="system_setting">Системный параметр (System Setting)</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Целевой путь / Имя объекта:</label>
+              <input type="text" class="form-control form-control-sm font-monospace" id="kp-blocker-target-path" placeholder="Например: Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice">
+            </div>
+
+            <button type="button" class="btn btn-primary btn-sm w-100" id="kp-btn-start-investigation">
+              <i class="bi bi-cpu me-1"></i> Запустить расследование причины блокировки
+            </button>
+          </div>
+        </div>
+
+        <!-- Правая колонка: результат расследования -->
+        <div class="col-lg-7">
+          <div class="kp-verdict-box" id="kp-blocker-result-box">
+            <div class="text-center py-5 text-secondary">
+              <i class="bi bi-clipboard2-check fs-1 d-block mb-2 text-opacity-50"></i>
+              Выберите цель или пресет слева и нажмите <strong>Запустить расследование</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Безопасное управление (SafeOps) -->
+    <div class="tab-pane fade" id="subpane-kp-safeops" role="tabpanel">
+      <div class="row g-3">
+        <div class="col-lg-7">
+          <div class="kp-verdict-box mb-3">
+            <h5 class="mb-2"><i class="bi bi-shield-shaded text-success me-2"></i>Регламент SafeOps для драйверов ядра</h5>
+            <p class="small text-secondary mb-3">
+              В отличие от обычных твикеров, AI-TC классифицирует компоненты по уровню критичности. Отключение драйверов класса <strong>CRITICAL</strong> блокируется программно во избежание сбоя системы (BSOD).
+            </p>
+
+            <div class="border rounded p-3 mb-3 border-secondary border-opacity-25">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                  <h6 class="mb-0">UCPD (User Choice Protection Driver)</h6>
+                  <small class="text-secondary">Уровень критичности: <strong>MEDIUM</strong> | Реверсивность: <strong>100%</strong></small>
+                </div>
+                <span class="badge kp-badge-info" id="kp-safeops-ucpd-status">Определение...</span>
+              </div>
+              <p class="small text-secondary mb-3">
+                Драйвер блокирует скрипты смены браузера по умолчанию. Вы можете временно деактивировать его с сохранением контрольной точки, применить изменения и вернуть штатный режим.
+              </p>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-warning" id="kp-btn-disable-ucpd">
+                  <i class="bi bi-pause-circle me-1"></i> Временно деактивировать UCPD
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-success" id="kp-btn-enable-ucpd">
+                  <i class="bi bi-play-circle me-1"></i> Восстановить штатный UCPD
+                </button>
+              </div>
+            </div>
+
+            <div class="border rounded p-3 border-secondary border-opacity-25 opacity-75">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                  <h6 class="mb-0">WdFilter & WdBoot (Microsoft Defender)</h6>
+                  <small class="text-secondary">Уровень критичности: <strong class="text-danger">CRITICAL</strong></small>
+                </div>
+                <span class="badge kp-badge-disabled">Защищено от отключения</span>
+              </div>
+              <p class="small text-secondary mb-0">
+                Отключение запрещено. Попытка деактивации файлового фильтра приводит к отказу системной безопасности и блокируется ядром Defender Tamper Protection.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="kp-verdict-box">
+            <h6 class="mb-3"><i class="bi bi-clock-history me-2"></i>Журнал действий SafeOps</h6>
+            <div id="kp-safeops-log" class="small font-monospace text-secondary">
+              <div>Ожидание действий пользователя...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

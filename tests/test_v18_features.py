@@ -15,7 +15,7 @@
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-19 00:26:00
+# Updated: 2026-11-03 16:03:00
 # =============================================================================
 
 from __future__ import annotations
@@ -121,8 +121,8 @@ class TestV18FeaturesSuite(unittest.TestCase):
         del_res = asyncio.run(delete_agy_key("test_v18_agy_key"))
         self.assertEqual(del_res.get("status"), "success")
 
-        # Проверка UI в models_tab/index.html
-        models_html = _PROJECT_ROOT / "apps" / "windows" / "api" / "webgui" / "models_tab" / "index.html"
+        # Проверка UI в tab_models/index.html
+        models_html = _PROJECT_ROOT / "apps" / "windows" / "api" / "webgui" / "tab_models" / "index.html"
         self.assertTrue(models_html.is_file())
         models_content = models_html.read_text(encoding="utf-8")
         self.assertIn('id="agy-keys-table"', models_content)

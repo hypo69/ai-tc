@@ -26,7 +26,7 @@
  * Package: apps.windows.api.webgui.ai_modal_dialog
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 19:25:00
+ * Updated: 2026-11-01 13:12:00
  * =============================================================================
  */
 
@@ -34,46 +34,50 @@
 // Enables interactive row inspection, WikiLLM grounding, in-place system instruction editing, and AI contextual explanation.
 
 (function () {
-    // ---------------------------------------------------------------------
-    // Подключаем PrismJS (CSS + JS) для подсветки JSON в блоках .uai-data-preview
-    // ---------------------------------------------------------------------
-    const prismCss = document.createElement('link');
-    prismCss.rel = 'stylesheet';
-    prismCss.href = '/static/prism/prism.css?v=20261020_v1';
-    document.head.appendChild(prismCss);
-
-    const prismJs = document.createElement('script');
-    prismJs.src = '/static/prism/prism.js?v=20261020_v1';
-    prismJs.defer = true;
-    document.head.appendChild(prismJs);
-
-    /**
-     * Применяет Prism‑подсветку к всем элементам <pre class="uai-data-preview">.
-     * Убирает ограничения высоты/скролла.
-     */
-    function applyPrismToDataPreviews() {
-      const blocks = document.querySelectorAll('pre.uai-data-preview');
-      blocks.forEach((el) => {
-        el.classList.add('language-json');
-        el.style.maxHeight = 'none';
-        el.style.overflow = 'visible';
-        if (window.Prism) {
-          Prism.highlightElement(el);
-        }
-      });
-    }
-
-    // Наблюдатель за изменениями DOM, чтобы подсветка срабатывала при добавлении новых блоков
-    const observer = new MutationObserver((mutations) => {
-      for (const m of mutations) {
-        if (m.addedNodes.length) {
-          applyPrismToDataPreviews();
-        }
-      }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
   const MODAL_ID = 'universal-ai-table-modal';
   const PROMPT_MODAL_ID = 'universal-ai-prompt-editor-modal';
+
+  /**
+   * Возвращает текущий режим работы ассистента: 'model_only' или 'model_wikillm'.
+   * @returns {'model_only'|'model_wikillm'}
+   */
+  function getAssistantMode() {
+    try {
+      const saved = localStorage.getItem('uai_assistant_mode');
+      if (saved === 'model_only' || saved === 'model_wikillm') return saved;
+    } catch (_) {}
+    return 'model_wikillm';
+  }
+
+  /**
+   * Устанавливает и сохраняет режим работы ассистента.
+   * @param {'model_only'|'model_wikillm'} mode
+   */
+  function setAssistantMode(mode) {
+    try {
+      localStorage.setItem('uai_assistant_mode', mode);
+    } catch (_) {}
+    updateModeButtonsUI(mode);
+  }
+
+  /**
+   * Актуализирует активное визуальное состояние кнопок переключателя режима.
+   * @param {'model_only'|'model_wikillm'} [mode]
+   */
+  function updateModeButtonsUI(mode) {
+    const curMode = mode || getAssistantMode();
+    const btnOnly = document.getElementById('btn-mode-model-only');
+    const btnWiki = document.getElementById('btn-mode-model-wikillm');
+    if (btnOnly && btnWiki) {
+      if (curMode === 'model_only') {
+        btnOnly.classList.add('active');
+        btnWiki.classList.remove('active');
+      } else {
+        btnWiki.classList.add('active');
+        btnOnly.classList.remove('active');
+      }
+    }
+  }
 
   /**
    * Возвращает текущий активный код языка интерфейса (ru, en, etc.).
@@ -112,6 +116,7 @@
     if (low === 'autorun' || low === 'autoruns') return 'startup';
     if (low === 'power' || low === 'powersession' || low === 'power_session' || low === 'power_sessions' || low === 'power_lifecycle') return 'power_session';
     if (low === 'powerevent' || low === 'power_event' || low === 'power_events') return 'power_event';
+    if (low === 'window' || low === 'windows' || low === 'desktop_window' || low === 'desktop_windows' || low === 'hwnd') return 'desktop_window';
     return low;
   }
 
@@ -145,11 +150,20 @@
               <!-- AI Contextual Diagnostic Card (Чистый ответ ИИ и интерактивный диалог) -->
               <div class="card border-info p-3 uai-ai-section mb-3" id="uai-modal-ai-section">
                 <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-                  <div class="d-flex align-items-center gap-2">
+                  <div class="d-flex align-items-center gap-2 flex-wrap">
                     <h6 class="fw-bold text-info mb-0"><i class="bi bi-robot me-1"></i> AI Contextual Explanation</h6>
                     <span class="badge border border-info text-info small px-2 py-0.5" id="uai-modal-web-status" title="Сведения обогащаются поиском в интернете">
                       <i class="bi bi-globe me-1"></i>Web Grounding
                     </span>
+                    <!-- Переключатель режима: только модель / модель + wikillm -->
+                    <div class="uai-mode-toggle-group ms-1" role="group" aria-label="Режим работы AI-ассистента" id="uai-assistant-mode-group">
+                      <button type="button" class="uai-mode-btn" data-mode="model_only" id="btn-mode-model-only" title="Прямой запрос к модели без использования и проверки базы знаний WikiLLM">
+                        <i class="bi bi-cpu me-1"></i>Только модель
+                      </button>
+                      <button type="button" class="uai-mode-btn active" data-mode="model_wikillm" id="btn-mode-model-wikillm" title="Комплексный режим: сначала проверяется локальная база знаний WikiLLM, контекст обогащается статьями и доступно сохранение знаний">
+                        <i class="bi bi-database-check me-1"></i>Модель + WikiLLM
+                      </button>
+                    </div>
                   </div>
                   <div class="d-flex align-items-center gap-1.5 flex-wrap">
                     <label class="d-flex align-items-center gap-1 small text-secondary me-1" style="font-size: 0.78rem; cursor: pointer;" title="Авто-обогащение через Gemini при Cache Miss (01_FRONTEND.md)">
@@ -1378,43 +1392,155 @@
   }
 
   /**
-   * Форматирует Markdown разметку в читаемый HTML диалога.
+   * Форматирует Markdown разметку в читаемый и семантически корректный HTML диалога.
+   * Поддерживает блоки кода, инлайн-код, markdown таблицы, callout цитаты, заголовки,
+   * списки, разделители, жирный/курсив и ссылки.
    * @param {string} text Текст Markdown
    * @returns {string} HTML
    */
   function formatMarkdownText(text) {
     if (!text) return '';
-    let str = escapeHtml(text);
-    // Блоки кода ```код``` с детекцией PowerShell и подсветкой через Prism.js
+    let str = String(text);
+
+    // 1. Извлечение и защита многострочных блоков кода
+    const codeBlocks = [];
     str = str.replace(/```(\w+)?\s*([\s\S]*?)```/g, (match, lang, code) => {
       const rawCode = unescapeHtml(code).trim();
       const normalizedLang = (lang || '').toLowerCase().trim();
       const isPowershell = ['powershell', 'pwsh', 'ps1', 'ps'].includes(normalizedLang) ||
                            (!normalizedLang && isCommandLineString(rawCode));
-
+      let blockHtml = '';
       if (isPowershell) {
-        return renderInteractiveCommandWidget(rawCode, 'powershell');
+        blockHtml = renderInteractiveCommandWidget(rawCode, 'powershell');
+      } else if (['cmd', 'bat', 'batch'].includes(normalizedLang)) {
+        blockHtml = renderInteractiveCommandWidget(rawCode, 'cmd');
+      } else {
+        const displayLang = normalizedLang || (rawCode.startsWith('{') || rawCode.startsWith('[') ? 'json' : '');
+        blockHtml = `<pre class="uai-code-block p-2.5 rounded small my-2 font-monospace ${displayLang ? 'language-' + displayLang : ''}" style="overflow-x: auto;"><code>${escapeHtml(rawCode)}</code></pre>`;
       }
-      const prismLang = normalizedLang || (rawCode.startsWith('{') || rawCode.startsWith('[') ? 'json' : 'powershell');
-      return `<pre class="uai-code-block p-2.5 rounded small my-2 font-monospace language-${prismLang}" style="overflow-x: auto;"><code class="language-${prismLang}">${code}</code></pre>`;
+      codeBlocks.push(blockHtml);
+      return `\n\n@@@UAI_CODE_BLOCK_${codeBlocks.length - 1}@@@\n\n`;
     });
-    // Заголовки ####, ###, ##, #
-    str = str.replace(/^####\s+(.*$)/gim, '<h6 class="fw-bold text-info-emphasis mt-2 mb-1" style="font-size: 0.85rem;">$1</h6>');
-    str = str.replace(/^###\s+(.*$)/gim, '<h6 class="fw-bold text-info mt-2.5 mb-1 fs-6">$1</h6>');
-    str = str.replace(/^##\s+(.*$)/gim, '<h5 class="fw-bold text-info mt-3 mb-1.5 fs-6">$1</h5>');
-    str = str.replace(/^#\s+(.*$)/gim, '<h5 class="fw-bold text-info mt-3 mb-2">$1</h5>');
-    // Жирный текст **текст**
-    str = str.replace(/\*\*(.*?)\*\*/g, '<strong class="text-light">$1</strong>');
-    // Курсив *текст*
-    str = str.replace(/\*(.*?)\*/g, '<em class="text-secondary-emphasis">$1</em>');
-    // Инлайн код `код`
-    str = str.replace(/`([^`]+)`/g, '<code class="uai-inline-code px-1 py-0.5 rounded font-monospace small">$1</code>');
-    // Нумерованные списки 1. Текст
-    str = str.replace(/^\s*(\d+)\.\s+(.*$)/gim, '<div class="ms-2 mb-1 d-flex align-items-start gap-1.5"><span class="badge bg-secondary font-monospace" style="font-size: 0.72rem;">$1</span><span>$2</span></div>');
-    // Маркированные списки
-    str = str.replace(/^\s*[-*•]\s+(.*$)/gim, '<li class="ms-3 mb-1">$1</li>');
-    // Переносы строк
+
+    // 2. Извлечение и защита инлайн-кода `код`
+    const inlineCodes = [];
+    str = str.replace(/`([^`\n]+)`/g, (match, inline) => {
+      const cleanInline = inline.trim();
+      inlineCodes.push(`<code class="uai-inline-code px-1 py-0.5 rounded font-monospace small">${escapeHtml(cleanInline)}</code>`);
+      return `@@@UAI_INLINE_CODE_${inlineCodes.length - 1}@@@`;
+    });
+
+    // 3. Безопасное экранирование спецсимволов HTML в основном тексте
+    str = str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+
+    // Возвращаем &gt; в начале строк обратно в '>', чтобы работали цитаты `> `
+    str = str.replace(/^(\s*)&gt;/gm, '$1>');
+
+    // 4. Парсинг Markdown таблиц (| col1 | col2 |)
+    str = str.replace(/((?:^[ \t]*\|[^\n]+\|[ \t]*(?:\r?\n|$))+)/gm, (tableBlock) => {
+      const rows = tableBlock.trim().split('\n').map(r => r.trim()).filter(Boolean);
+      if (rows.length < 2) return tableBlock;
+      if (!/^[ \t]*\|(?:\s*:?-+:?\s*\|)+[ \t]*$/.test(rows[1])) {
+        return tableBlock;
+      }
+      const parseCells = (row) => {
+        const inner = row.replace(/^[ \t]*\|/, '').replace(/\|[ \t]*$/, '');
+        return inner.split('|').map(c => c.trim());
+      };
+
+      const headerCells = parseCells(rows[0]);
+      let theadHtml = '<thead><tr>' + headerCells.map(c => `<th class="py-1 px-2">${c}</th>`).join('') + '</tr></thead>';
+
+      let tbodyHtml = '<tbody>';
+      for (let r = 2; r < rows.length; r++) {
+        const cells = parseCells(rows[r]);
+        tbodyHtml += '<tr>' + cells.map(c => `<td class="py-1 px-2">${c}</td>`).join('') + '</tr>';
+      }
+      tbodyHtml += '</tbody>';
+
+      return `\n<div class="table-responsive my-2"><table class="table table-sm table-bordered uai-markdown-table mb-0">${theadHtml}${tbodyHtml}</table></div>\n`;
+    });
+
+    // 5. Блоки цитат и callout (> 💡, > ⚠️, > ❌, > ...)
+    str = str.replace(/((?:^[ \t]*>[^\n]*(?:\r?\n|$))+)/gm, (bqBlock) => {
+      const rawLines = bqBlock.split('\n')
+        .map(l => l.replace(/^[ \t]*>[ \t]?/, '').trim())
+        .filter(Boolean);
+      if (rawLines.length === 0) return '';
+
+      // Группируем последовательные строки в отдельные цитаты, если следующая строка начинается с callout-иконки
+      const groups = [];
+      let currentGroup = [];
+
+      rawLines.forEach(line => {
+        const isCalloutStart = /^[💡⚠️❌ℹ️]|^\[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/i.test(line);
+        if (isCalloutStart && currentGroup.length > 0) {
+          groups.push(currentGroup.join('<br>'));
+          currentGroup = [line];
+        } else {
+          currentGroup.push(line);
+        }
+      });
+      if (currentGroup.length > 0) {
+        groups.push(currentGroup.join('<br>'));
+      }
+
+      return groups.map(content => {
+        let bqClass = 'uai-blockquote';
+        if (/^[⚠️❌\s]|WARNING|DANGER|CAUTION/i.test(content) || content.includes('⚠️') || content.includes('❌')) {
+          bqClass += ' uai-bq-warning';
+        } else if (/^[💡\s]|TIP|RECOMMENDATION/i.test(content) || content.includes('💡')) {
+          bqClass += ' uai-bq-tip';
+        } else if (/^[ℹ️\s]|NOTE|INFO/i.test(content) || content.includes('ℹ️')) {
+          bqClass += ' uai-bq-info';
+        }
+        return `\n<blockquote class="${bqClass} my-2 p-2 border-start border-3 rounded-end">${content}</blockquote>\n`;
+      }).join('');
+    });
+
+    // 6. Заголовки ######, #####, ####, ###, ##, #
+    str = str.replace(/^[ \t]*######[ \t]+(.*$)/gm, '<h6 class="fw-bold text-info-emphasis mt-2 mb-1" style="font-size: 0.8rem;">$1</h6>');
+    str = str.replace(/^[ \t]*#####[ \t]+(.*$)/gm, '<h6 class="fw-bold text-info-emphasis mt-2 mb-1" style="font-size: 0.85rem;">$1</h6>');
+    str = str.replace(/^[ \t]*####[ \t]+(.*$)/gm, '<h6 class="fw-bold text-info-emphasis mt-2 mb-1" style="font-size: 0.9rem;">$1</h6>');
+    str = str.replace(/^[ \t]*###[ \t]+(.*$)/gm, '<h6 class="fw-bold text-info mt-2.5 mb-1.5 fs-6">$1</h6>');
+    str = str.replace(/^[ \t]*##[ \t]+(.*$)/gm, '<h5 class="fw-bold text-info mt-3 mb-2 fs-6">$1</h5>');
+    str = str.replace(/^[ \t]*#[ \t]+(.*$)/gm, '<h5 class="fw-bold text-info mt-3 mb-2">$1</h5>');
+
+    // 7. Горизонтальные линии ---, ***, ___
+    str = str.replace(/^[ \t]*(?:---|\*\*\*|___)[ \t]*$/gm, '<hr class="uai-divider my-2 border-secondary border-opacity-25">');
+
+    // 8. Ссылки [текст](url)
+    str = str.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="uai-markdown-link text-info text-decoration-underline">$1</a>');
+
+    // 9. Жирный и курсив
+    str = str.replace(/\*\*\*(.+?)\*\*\*/g, '<strong class="text-light"><em class="text-secondary-emphasis">$1</em></strong>');
+    str = str.replace(/\*\*(.+?)\*\*/g, '<strong class="text-light">$1</strong>');
+    str = str.replace(/(^|[^*])\*([^*]+?)\*([^*]|$)/g, '$1<em class="text-secondary-emphasis">$2</em>$3');
+
+    // 10. Нумерованные и маркированные списки
+    str = str.replace(/^[ \t]*(\d+)\.[ \t]+(.*$)/gm, '<div class="ms-2 mb-1 d-flex align-items-start gap-1.5"><span class="badge bg-secondary font-monospace" style="font-size: 0.72rem;">$1</span><span>$2</span></div>');
+    str = str.replace(/^[ \t]*[-*•][ \t]+(.*$)/gm, '<li class="ms-3 mb-1">$1</li>');
+
+    // 11. Переносы строк и очистка <br> вокруг блочных элементов
     str = str.replace(/\n/g, '<br>');
+    str = str.replace(/(?:<br\s*\/?>\s*)*(<\/?(?:div|blockquote|table|thead|tbody|tr|th|td|h[1-6]|ul|ol|li|hr|pre)[^>]*>)(?:<br\s*\/?>\s*)*/gi, '$1');
+    str = str.replace(/(?:<br\s*\/?>\s*)*(@@@UAI_(?:CODE_BLOCK|INLINE_CODE)_\d+@@@)(?:<br\s*\/?>\s*)*/gi, '$1');
+
+    // 12. Восстановление инлайн-кода
+    inlineCodes.forEach((codeHtml, idx) => {
+      str = str.replace(`@@@UAI_INLINE_CODE_${idx}@@@`, codeHtml);
+    });
+
+    // 13. Восстановление блоков кода
+    codeBlocks.forEach((blockHtml, idx) => {
+      str = str.replace(`@@@UAI_CODE_BLOCK_${idx}@@@`, blockHtml);
+    });
+
     return str;
   }
 
@@ -1507,7 +1633,7 @@
           techHtml += `
             <div class="p-2.5 mb-3 rounded bg-warning bg-opacity-10 border border-warning border-opacity-25 text-warning small">
               <strong class="d-flex align-items-center gap-1.5"><i class="bi bi-exclamation-triangle-fill"></i> Суть проблемы:</strong>
-              <div class="mt-1 text-light">${escapeHtml(issue)}</div>
+              <div class="mt-1 text-light">${formatMarkdownText(issue)}</div>
             </div>
           `;
         }
@@ -1520,7 +1646,7 @@
         if (rec && typeof rec === 'string' && !techAssessment.includes(rec)) {
           techHtml += `
             <div class="p-2.5 mb-2 rounded dialogue-block uai-recommendation-box bg-dark bg-opacity-50 border border-warning border-opacity-25">
-              <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация эксперта:</strong> <span class="text-light">${escapeHtml(rec)}</span>
+              <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация эксперта:</strong> <span class="text-light">${formatMarkdownText(rec)}</span>
             </div>
           `;
         }
@@ -1528,7 +1654,7 @@
         // Вердикт безопасности
         const verdict = obj.security_verdict || obj.verdict;
         if (verdict && typeof verdict === 'string' && !techAssessment.includes(verdict)) {
-          techHtml += `<div class="dialogue-block mb-2"><strong class="text-warning"><i class="bi bi-shield-check me-1"></i>Вердикт:</strong> <span class="text-light">${escapeHtml(verdict)}</span></div>`;
+          techHtml += `<div class="dialogue-block mb-2"><strong class="text-warning"><i class="bi bi-shield-check me-1"></i>Вердикт:</strong> <span class="text-light">${formatMarkdownText(verdict)}</span></div>`;
         }
 
         // Рекомендуемые действия
@@ -1596,7 +1722,7 @@
         html += `<div class="dialogue-block mb-2 text-light" style="line-height: 1.6;">${parseModelResponse(obj.answer)}</div>`;
       }
       if (obj.summary) {
-        html += `<div class="dialogue-block mb-2"><strong class="text-info"><i class="bi bi-card-text me-1"></i>Суть / Назначение:</strong> <span class="text-light">${escapeHtml(obj.summary)}</span></div>`;
+        html += `<div class="dialogue-block mb-2"><strong class="text-info"><i class="bi bi-card-text me-1"></i>Суть / Назначение:</strong> <span class="text-light">${formatMarkdownText(obj.summary)}</span></div>`;
       }
       if (obj.developer || obj.category) {
         const dev = escapeHtml(obj.developer || 'Неизвестен');
@@ -1604,15 +1730,15 @@
         html += `<div class="dialogue-block mb-2"><strong class="text-secondary"><i class="bi bi-building me-1"></i>Разработчик / Категория:</strong> <span class="text-light">${dev} (${cat})</span></div>`;
       }
       if (obj.security_verdict) {
-        html += `<div class="dialogue-block mb-2"><strong class="text-warning"><i class="bi bi-shield-check me-1"></i>Оценка безопасности:</strong> <span class="text-light">${escapeHtml(obj.security_verdict)}</span></div>`;
+        html += `<div class="dialogue-block mb-2"><strong class="text-warning"><i class="bi bi-shield-check me-1"></i>Оценка безопасности:</strong> <span class="text-light">${formatMarkdownText(obj.security_verdict)}</span></div>`;
       }
       if (obj.performance_impact) {
-        html += `<div class="dialogue-block mb-2"><strong class="text-info"><i class="bi bi-speedometer2 me-1"></i>Влияние на ресурсы:</strong> <span class="text-light">${escapeHtml(obj.performance_impact)}</span></div>`;
+        html += `<div class="dialogue-block mb-2"><strong class="text-info"><i class="bi bi-speedometer2 me-1"></i>Влияние на ресурсы:</strong> <span class="text-light">${formatMarkdownText(obj.performance_impact)}</span></div>`;
       }
       if (obj.recommendation) {
         html += `
           <div class="p-2 mb-2 rounded dialogue-block uai-recommendation-box bg-dark bg-opacity-50 border border-warning border-opacity-25">
-            <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация эксперта:</strong> <span class="text-light">${escapeHtml(obj.recommendation)}</span>
+            <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация эксперта:</strong> <span class="text-light">${formatMarkdownText(obj.recommendation)}</span>
           </div>
         `;
       }
@@ -1732,6 +1858,44 @@
       actions: []
     }, options, { tableType: normalizedType, panelId: panelId });
 
+    // Множество вопросов, на которые уже был получен ответ (для деактивации в блоке быстрых вопросов)
+    const answeredQuestions = new Set();
+
+    function normalizeQuestionText(txt) {
+      if (!txt) return '';
+      return String(txt).trim().toLowerCase().replace(/^[«"'\s]+|[»"'\s]+$/g, '');
+    }
+
+    function markQuestionInUIAsAnswered(questionText) {
+      const norm = normalizeQuestionText(questionText);
+      if (!norm) return;
+      answeredQuestions.add(norm);
+
+      const container = document.getElementById('uai-chat-quick-buttons');
+      if (!container) return;
+
+      container.querySelectorAll('.chat-prompt-link').forEach(link => {
+        const linkNorm = normalizeQuestionText(link.dataset.prompt || link.textContent);
+        if (linkNorm === norm) {
+          link.classList.add('disabled', 'answered');
+          link.classList.remove('selected', 'active');
+          link.setAttribute('aria-disabled', 'true');
+          link.setAttribute('tabindex', '-1');
+          link.style.pointerEvents = 'none';
+          link.title = 'Ответ на этот вопрос уже получен';
+
+          const row = link.closest('.chat-prompt-row');
+          if (row) {
+            row.classList.add('answered');
+            const bullet = row.querySelector('.chat-prompt-bullet');
+            if (bullet) {
+              bullet.innerHTML = '<i class="bi bi-check2 text-success" title="Ответ получен" style="font-size: 0.95rem;"></i>';
+            }
+          }
+        }
+      });
+    }
+
     // Единый словарь метаданных строки для использования во всех обработчиках
     const metaDict = {};
     (opts.metadata || []).forEach(m => {
@@ -1773,6 +1937,26 @@
     if (typeBadge) typeBadge.textContent = `Тип: ${opts.tableType}`;
     if (providerSelect && opts.provider) providerSelect.value = opts.provider;
     if (modelInput) modelInput.value = opts.model || '';
+
+    // Актуализируем визуальное состояние переключателя режима
+    updateModeButtonsUI();
+
+    const btnModelOnly = document.getElementById('btn-mode-model-only');
+    const btnModelWiki = document.getElementById('btn-mode-model-wikillm');
+    if (btnModelOnly) {
+      btnModelOnly.onclick = () => {
+        if (getAssistantMode() === 'model_only') return;
+        setAssistantMode('model_only');
+        executeDiagnostics(true, false);
+      };
+    }
+    if (btnModelWiki) {
+      btnModelWiki.onclick = () => {
+        if (getAssistantMode() === 'model_wikillm') return;
+        setAssistantMode('model_wikillm');
+        checkWikiLLMKnowledge();
+      };
+    }
 
     // Очистка предыдущего диалога дополнительных вопросов
     const existingThread = document.getElementById('uai-qa-conversation-thread');
@@ -1985,11 +2169,28 @@
         link.href = '#';
         link.className = 'chat-prompt-link ui-quick-prompt-btn text-decoration-none border-bottom border-primary border-opacity-50';
         link.dataset.prompt = qText;
-        link.title = 'Задать этот вопрос модели ИИ (одноразовый ответ)';
         link.textContent = `«${qText}»`;
+
+        const isAnswered = answeredQuestions.has(normalizeQuestionText(qText));
+        if (isAnswered) {
+          link.classList.add('disabled', 'answered');
+          link.setAttribute('aria-disabled', 'true');
+          link.setAttribute('tabindex', '-1');
+          link.style.pointerEvents = 'none';
+          link.title = 'Ответ на этот вопрос уже получен';
+          row.classList.add('answered');
+          bullet.innerHTML = '<i class="bi bi-check2 text-success" title="Ответ получен" style="font-size: 0.95rem;"></i>';
+        } else {
+          link.title = 'Задать этот вопрос модели ИИ (одноразовый ответ)';
+        }
+
         link.onclick = (e) => {
           e.preventDefault();
           e.stopPropagation();
+          // Если вопрос уже обработан и ответ получен, он заблокирован и больше недоступен для выбора
+          if (link.classList.contains('disabled') || link.getAttribute('aria-disabled') === 'true' || isAnswered) {
+            return;
+          }
           // 1. Помещаем наводящий вопрос в текстовое поле ввода
           if (chatInput) {
             chatInput.value = qText;
@@ -2060,7 +2261,9 @@
             raw_data: options.rawContent || '',
             model: currentModel || undefined,
             provider: currentProvider || undefined,
-            lang: currentLang || undefined
+            lang: currentLang || undefined,
+            use_wikillm: (getAssistantMode() !== 'model_only'),
+            force_refresh: (getAssistantMode() === 'model_only')
           })
         }, 15000);
 
@@ -2075,6 +2278,8 @@
       }
     }
 
+    let cachedWikiData = null;
+
     function renderDiagnosticResult(data, isFromWikiLLM = false) {
       if (!aiExplanation) return;
       if (Array.isArray(data.suggested_quick_questions) && data.suggested_quick_questions.length > 0) {
@@ -2086,18 +2291,24 @@
       const isGemini = data.source === 'gemini';
       const isProcess = (opts.tableType === 'process' || (opts.panelId && opts.panelId.includes('process')));
 
+      const effGeneralSummary = data.general_summary || (cachedWikiData && (cachedWikiData.general_summary || cachedWikiData.summary)) || (isVerified && isProcess && data.summary) || '';
+      const effDev = data.developer || (cachedWikiData && cachedWikiData.developer) || 'Неизвестен';
+      const effCat = data.category || (cachedWikiData && cachedWikiData.category) || 'Процесс Windows';
+      const hasGeneral = Boolean(effGeneralSummary && (data.has_wikillm_general_data || isVerified || cachedWikiData || isProcess));
+
       let wikillmGeneralCard = '';
-      if (data.has_wikillm_general_data && data.general_summary) {
+      if (hasGeneral && effGeneralSummary) {
         wikillmGeneralCard = `
-          <div class="card border-success bg-dark bg-opacity-75 p-2.5 mb-2.5 rounded shadow-sm">
+          <div class="card border-success bg-dark bg-opacity-75 p-2.5 mb-2.5 rounded shadow-sm" id="uai-wikillm-card">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-1">
               <span class="badge border border-success text-success p-1 px-2 d-inline-flex align-items-center gap-1.5 small">
-                <i class="bi bi-shield-check"></i> База знаний WikiLLM (Общие данные)
+                <i class="bi bi-shield-check"></i> База знаний WikiLLM (Справочные данные о программе)
               </span>
-              <span class="small text-secondary fw-semibold">${escapeHtml(data.developer || '')} (${escapeHtml(data.category || '')})</span>
+              <span class="small text-secondary fw-semibold">${escapeHtml(effDev)} (${escapeHtml(effCat)})</span>
             </div>
             <div class="small text-light">
-              ${escapeHtml(data.general_summary)}
+              <div class="mb-1"><strong class="text-success"><i class="bi bi-info-circle me-1"></i>О программе, назначение и применение:</strong></div>
+              <div id="uai-wikillm-text">${formatMarkdownText(effGeneralSummary)}</div>
             </div>
           </div>
         `;
@@ -2114,7 +2325,18 @@
         sourceBadge = `<div class="badge border border-secondary text-secondary p-1 px-2 mb-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-cpu"></i> Системный экспертный анализ (Телеметрия)</div>`;
       }
 
-      const actionBlock = (data.has_wikillm_general_data && data.source === 'wikillm_resource_analysis') ? `
+      const actionBlock = (isProcess && (data.has_wikillm_general_data || isVerified || cachedWikiData)) ? `
+        <div class="p-2 mt-2 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" id="uai-approval-container">
+          <div class="small text-success">
+            <i class="bi bi-check-circle-fill me-1"></i>Справочные данные зафиксированы в WikiLLM. Анализ ресурсов сформирован по актуальной телеметрии.
+          </div>
+          <div class="d-flex align-items-center gap-1.5">
+            <button type="button" class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1.5" id="btn-uai-reanalyze">
+              <i class="bi bi-arrow-clockwise"></i> Обновить срез телеметрии
+            </button>
+          </div>
+        </div>
+      ` : (data.has_wikillm_general_data && data.source === 'wikillm_resource_analysis') ? `
         <div class="p-2 mt-2 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" id="uai-approval-container">
           <div class="small text-success">
             <i class="bi bi-check-circle-fill me-1"></i>Общие данные зафиксированы в WikiLLM. Анализ ресурсов сформирован по актуальной телеметрии.
@@ -2150,15 +2372,32 @@
         </div>
       `;
 
+      // Если модель вернула развернутый текстовый отчет без структурированного summary
+      const isFullMarkdownReport = !data.summary && (data.raw_markdown || data.raw_response || data.analysis_report || data.answer || (typeof data === 'string'));
+      if (isFullMarkdownReport) {
+        const fullReportText = typeof data === 'string'
+          ? data
+          : (data.raw_markdown || data.raw_response || data.analysis_report || data.answer || JSON.stringify(data, null, 2));
+        aiExplanation.innerHTML = `
+          ${sourceBadge}
+          <div class="dialogue-block mb-3 text-light" style="line-height: 1.6;">
+            ${parseModelResponse(fullReportText)}
+          </div>
+          ${actionBlock}
+        `;
+        attachInteractiveCommandHandlers(aiExplanation);
+        return;
+      }
+
       aiExplanation.innerHTML = `
         ${wikillmGeneralCard}
         ${sourceBadge}
-        <div class="mb-2"><strong class="text-info"><i class="bi bi-cpu me-1"></i>${(data.has_wikillm_general_data || data.source === 'wikillm_resource_analysis') ? 'Анализ ресурсов:' : 'Назначение:'}</strong> ${escapeHtml(data.summary)}</div>
+        <div class="mb-2"><strong class="text-info"><i class="bi bi-cpu me-1"></i>${(isProcess || data.has_wikillm_general_data || data.source === 'wikillm_resource_analysis') ? 'Анализ текущего потребления ресурсов:' : 'Назначение:'}</strong> ${formatMarkdownText(data.summary)}</div>
         <div class="mb-2"><strong class="text-secondary"><i class="bi bi-building me-1"></i>Разработчик / Категория:</strong> ${escapeHtml(data.developer || 'Неизвестен')} (${escapeHtml(data.category || 'Компонент')})</div>
-        <div class="mb-2"><strong class="text-warning"><i class="bi bi-shield-lock me-1"></i>Оценка безопасности:</strong> ${escapeHtml(data.security_verdict)}</div>
-        <div class="mb-2"><strong class="text-info"><i class="bi bi-speedometer2 me-1"></i>Влияние на ресурсы:</strong> ${escapeHtml(data.performance_impact)}</div>
+        <div class="mb-2"><strong class="text-warning"><i class="bi bi-shield-lock me-1"></i>Оценка безопасности:</strong> ${formatMarkdownText(data.security_verdict)}</div>
+        <div class="mb-2"><strong class="text-info"><i class="bi bi-speedometer2 me-1"></i>Влияние на ресурсы:</strong> ${formatMarkdownText(data.performance_impact)}</div>
         <div class="p-2 mb-2 rounded uai-recommendation-box">
-          <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация:</strong> ${escapeHtml(data.recommendation)}
+          <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация:</strong> ${formatMarkdownText(data.recommendation)}
         </div>
         ${data.action_steps && data.action_steps.length > 0 ? `
           <h6 class="uai-action-steps-title text-uppercase text-muted fw-bold mb-1">Рекомендуемые действия:</h6>
@@ -2244,20 +2483,22 @@
         renderQuickButtons(data.suggested_quick_questions);
       }
 
+      cachedWikiData = data;
       const generalSummary = data.general_summary || data.summary || '';
       const devText = data.developer || 'Неизвестен';
       const catText = data.category || 'Процесс Windows';
 
       const wikillmGeneralCard = `
-        <div class="card border-success bg-dark bg-opacity-75 p-2.5 mb-2.5 rounded shadow-sm">
+        <div class="card border-success bg-dark bg-opacity-75 p-2.5 mb-2.5 rounded shadow-sm" id="uai-wikillm-card">
           <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-1">
             <span class="badge border border-success text-success p-1 px-2 d-inline-flex align-items-center gap-1.5 small">
-              <i class="bi bi-shield-check"></i> База знаний WikiLLM (Общие данные)
+              <i class="bi bi-shield-check"></i> База знаний WikiLLM (Справочные данные о программе)
             </span>
             <span class="small text-secondary fw-semibold">${escapeHtml(devText)} (${escapeHtml(catText)})</span>
           </div>
           <div class="small text-light">
-            ${formatMarkdownText(generalSummary)}
+            <div class="mb-1"><strong class="text-success"><i class="bi bi-info-circle me-1"></i>О программе, назначение и применение:</strong></div>
+            <div id="uai-wikillm-text">${formatMarkdownText(generalSummary)}</div>
           </div>
         </div>
       `;
@@ -2275,27 +2516,27 @@
         ${wikillmGeneralCard}
         ${sourceBadge}
         <div class="mb-2">
-          <strong class="text-info"><i class="bi bi-cpu me-1"></i>Анализ ресурсов:</strong>
-          <div class="mt-0.5">${spinnerPlaceholder('Выполняется экспресс-анализ текущего потребления параметров телеметрии...')}</div>
+          <strong class="text-info"><i class="bi bi-cpu me-1"></i>Анализ текущего потребления ресурсов:</strong>
+          <div class="mt-0.5" id="uai-dyn-summary">${spinnerPlaceholder('Выполняется экспресс-анализ текущего потребления параметров телеметрии...')}</div>
         </div>
         <div class="mb-2">
           <strong class="text-secondary"><i class="bi bi-building me-1"></i>Разработчик / Категория:</strong> ${escapeHtml(devText)} (${escapeHtml(catText)})
         </div>
         <div class="mb-2">
           <strong class="text-warning"><i class="bi bi-shield-lock me-1"></i>Оценка безопасности текущей сессии:</strong>
-          <div class="mt-0.5">${spinnerPlaceholder('Проверка прав, путей запуска и активных сетевых сокетов...')}</div>
+          <div class="mt-0.5" id="uai-dyn-security">${spinnerPlaceholder('Проверка прав, путей запуска и активных сетевых сокетов...')}</div>
         </div>
         <div class="mb-2">
           <strong class="text-info"><i class="bi bi-speedometer2 me-1"></i>Влияние на ресурсы:</strong>
-          <div class="mt-0.5">${spinnerPlaceholder('Срез по подсистемам: ЦП, ОЗУ, Дисковый ввод-вывод, Сокеты...')}</div>
+          <div class="mt-0.5" id="uai-dyn-performance">${spinnerPlaceholder('Срез по подсистемам: ЦП, ОЗУ, Дисковый ввод-вывод, Сокеты...')}</div>
         </div>
         <div class="p-2 mb-2 rounded uai-recommendation-box">
           <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация:</strong>
-          <div class="ms-1 d-inline-block">${spinnerPlaceholder('Формирование вердикта администратору...')}</div>
+          <div class="ms-1 d-inline-block" id="uai-dyn-recommendation">${spinnerPlaceholder('Формирование вердикта администратору...')}</div>
         </div>
         <div class="mb-2">
           <h6 class="uai-action-steps-title text-uppercase text-muted fw-bold mb-1">Рекомендуемые действия:</h6>
-          <div class="ps-1">${spinnerPlaceholder('Определение практических шагов оптимизации...')}</div>
+          <div class="ps-1" id="uai-dyn-actions">${spinnerPlaceholder('Определение практических шагов оптимизации...')}</div>
         </div>
         ${data.developer_advice ? `
           <div class="uai-dev-advice-wrapper mt-3 pt-2 border-top border-secondary border-opacity-25">
@@ -2327,6 +2568,11 @@
 
     async function checkWikiLLMKnowledge() {
       if (!aiExplanation) return;
+      if (getAssistantMode() === 'model_only') {
+        // В режиме «только модель» сразу выполняем прямой запрос к модели
+        executeDiagnostics(true, false);
+        return;
+      }
       aiExplanation.innerHTML = `
         <div class="d-flex align-items-center gap-2 py-2 text-secondary">
           <div class="spinner-border spinner-border-sm" role="status"></div>
@@ -2358,7 +2604,8 @@
           })
         }, 4000);
 
-        if (data && (data.is_verified || data.source === 'wikillm') && data.summary) {
+        if (data && (data.is_verified || data.source === 'wikillm') && (data.general_summary || data.summary)) {
+          cachedWikiData = data;
           const isProcess = (opts.tableType === 'process' || (opts.panelId && opts.panelId.includes('process')));
           if (isProcess) {
             renderDiagnosticResultWithPlaceholders(data);
@@ -2437,7 +2684,8 @@
             metadata: Object.assign({}, metaDict, opts.requestData || {}),
             raw_data: opts.rawContent || '',
             web_search: true,
-            force_refresh: Boolean(forceRefresh)
+            force_refresh: (getAssistantMode() === 'model_only') ? true : Boolean(forceRefresh),
+            use_wikillm: (getAssistantMode() !== 'model_only')
           })
         }, 0);
 
@@ -2446,6 +2694,15 @@
             message: data?.error?.message || 'Модель не вернула диагностическое заключение',
             errorData: data
           };
+        }
+
+        if (cachedWikiData) {
+          if (!data.general_summary) {
+            data.general_summary = cachedWikiData.general_summary || cachedWikiData.summary;
+          }
+          if (!data.developer || data.developer === 'Неизвестен') data.developer = cachedWikiData.developer;
+          if (!data.category || data.category === 'Диагностика') data.category = cachedWikiData.category;
+          data.has_wikillm_general_data = true;
         }
 
         renderDiagnosticResult(data, false);
@@ -2460,7 +2717,7 @@
             }
           }));
         } catch (_) {}
-        if (autoSave && data && data.summary && !data.error && data.source !== 'not_found' && data.source !== 'heuristic' && !isModelErrorText(data.summary)) {
+        if (getAssistantMode() !== 'model_only' && autoSave && data && data.summary && !data.error && data.source !== 'not_found' && data.source !== 'heuristic' && !isModelErrorText(data.summary)) {
           approveInWikiLLM(data, opts);
         }
       } catch (err) {
@@ -2716,7 +2973,8 @@
           prompt: qText,
           question: qText,
           stream: true,
-          force_refresh: Boolean(forceRefresh),
+          force_refresh: (getAssistantMode() === 'model_only') ? true : Boolean(forceRefresh),
+          use_wikillm: (getAssistantMode() !== 'model_only'),
           system_instruction: currentSysInstruction || undefined,
           model: (modelInput ? modelInput.value.trim() : '') || undefined,
           provider: (providerSelect ? providerSelect.value : 'gemini'),
@@ -2844,6 +3102,9 @@
           statusBadge.innerHTML = '<i class="bi bi-robot me-1"></i>Ответ модели';
           statusBadge.style.display = 'inline-flex';
         }
+
+        // Помечаем вопрос как отвеченный, чтобы он стал неактивным и больше не был доступен для выбора
+        markQuestionInUIAsAnswered(qText);
       } catch (chatErr) {
         // При ошибке: в WikiLLM НЕ записываем, выводим сообщение с расшифровкой и сырым JSON ответа
         const chatErrInfo = decipherModelError(chatErr);
@@ -3323,6 +3584,7 @@
     openPromptEditor: openPromptEditor,
     insertVariable: insertVariable,
     escapeHtml: escapeHtml,
+    formatMarkdownText: formatMarkdownText,
     normalizeTableType: normalizeTableType,
     parseModelResponse: parseModelResponse,
     renderReadyToolWidget: renderReadyToolWidget

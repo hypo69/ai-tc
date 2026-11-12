@@ -12,7 +12,7 @@
 # Package: apps.common.webgui
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 12:03:00
+# Updated: 2026-11-10 14:31:50
 # =============================================================================
 
 from __future__ import annotations
@@ -53,15 +53,21 @@ class SmartMultiDirStaticFiles(StaticFiles):
             tuple[str, Optional[os.stat_result]]: Полный путь к файлу и его stat,
             либо пустая строка и None в случае отсутствия файла.
         """
+        clean_rel = (path or "").replace("\x00", "").lstrip("/\\")
         for directory in self.directories:
             if not directory.exists():
                 continue
-            full_path = os.path.realpath(os.path.join(directory, path))
-            if os.path.commonpath([full_path, str(directory)]) == str(directory):
-                try:
-                    return full_path, os.stat(full_path)
-                except (FileNotFoundError, NotADirectoryError):
-                    continue
+            dir_resolved = directory.resolve()
+            try:
+                candidate = (dir_resolved / clean_rel).resolve()
+                candidate.relative_to(dir_resolved)
+            except (ValueError, OSError):
+                continue
+            full_path = str(candidate)
+            try:
+                return full_path, os.stat(full_path)
+            except (FileNotFoundError, NotADirectoryError, OSError):
+                continue
         return "", None
 
     async def get_response(self, path: str, scope: Any) -> Response:

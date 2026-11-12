@@ -17,7 +17,7 @@
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 18:45:00
+ * Updated: 2026-11-12 02:25:00
  * =============================================================================
  */
 
@@ -36,23 +36,74 @@
 
 const OFFCANVAS_IDS = ['leftSideNavOffcanvas', 'appsSideNavOffcanvas'];
 
+const TAB_ALIASES = {
+  'user-enviroment': 'tab-user-environment',
+  'tab-user-enviroment': 'tab-user-environment',
+  'user-environment': 'tab-user-environment',
+  'accounts-identity': 'tab-windows-admin',
+  'tab-accounts-identity': 'tab-windows-admin',
+  'windows-admin': 'tab-windows-admin',
+  'system-control': 'tab-system-control',
+  'tab-system-logs': 'tab-system-control',
+  'system-logs': 'tab-system-control',
+  'taskbar-controller': 'tab-taskbar',
+  'tab-taskbar-controller': 'tab-taskbar',
+  'taskbar': 'tab-taskbar'
+};
+
+const CONSOLIDATED_PARENTS = {
+  'tab-telemetry-control': 'tab-app-internals',
+  'tab-telemetry-config': 'tab-app-internals',
+  'tab-models': 'tab-app-internals',
+  'tab-system-logs': 'tab-app-internals',
+  'tab-performance-tracing': 'tab-app-internals',
+  'tab-log-settings': 'tab-app-internals',
+  'tab-agents': 'tab-ai-ecosystem',
+  'tab-skills': 'tab-ai-ecosystem',
+  'tab-mcp': 'tab-ai-ecosystem',
+  'tab-storage-manager': 'tab-storage-management',
+  'tab-storage-wear': 'tab-storage-management',
+  'tab-defender': 'tab-defender-firewall',
+  'tab-defender-firewall': 'tab-defender-firewall',
+  'tab-firewall-manager': 'tab-defender-firewall',
+  'tab-software-audit': 'tab-software-monitor',
+  'tab-software-manager': 'tab-software-monitor',
+  'tab-software-transparency': 'tab-software-monitor',
+  'tab-ninite-updater': 'tab-software-monitor',
+  'tab-startup-auditor': 'tab-software-monitor',
+  'tab-software-scanner': 'tab-software-monitor',
+  'tab-software-monitor': 'tab-software-monitor',
+  'tab-forensics': 'tab-system-control',
+  'tab-forensics-timeline': 'tab-system-control',
+  'tab-forensics-userassist': 'tab-system-control',
+  'tab-throttling': 'tab-system-control',
+};
+
 let currentActiveTabId = null;
 const registeredPollers = new Map();
 const processingFlags = new Map(); // хранит флаг isProcessing для каждой вкладки
 
 /**
- * Приводит идентификатор вкладки к стандартному виду 'tab-xxx'.
+ * Приводит идентификатор вкладки к стандартному виду 'tab-xxx' с учетом алиасов.
  * @param {string} tabId 
  * @returns {string}
  */
 export function normalizeTabId(tabId) {
   if (!tabId) return '';
-  const base = String(tabId).replace(/^#/, '').split('#')[0];
-  return base.startsWith('tab-') ? base : `tab-${base}`;
+  const base = String(tabId).replace(/^#/, '').split('#')[0].trim().toLowerCase();
+  if (TAB_ALIASES[base]) return TAB_ALIASES[base];
+  const withTab = base.startsWith('tab-') ? base : `tab-${base}`;
+  return TAB_ALIASES[withTab] || withTab;
 }
 
 /**
  * Проверяет, активна ли сейчас вкладка (видна пользователю и вкладка браузера в фокусе).
+ * Приоритет проверки:
+ * 1. Состояние видимости документа браузера (document.hidden)
+ * 2. URL hash браузера (наивысшая согласованность роутинга)
+ * 3. currentActiveTabId оркестратора
+ * 4. DOM класс .tab-pane.active
+ * 
  * @param {string} tabId 
  * @returns {boolean}
  */
@@ -61,40 +112,37 @@ export function isTabActive(tabId) {
   if (typeof document !== 'undefined' && document.hidden) {
     return false;
   }
-  if (currentActiveTabId === normId) {
-    return true;
+
+  // 1. Проверка по URL hash: строгая согласованность с адресной строкой
+  if (typeof location !== 'undefined' && location.hash) {
+    const hashBase = location.hash.replace(/^#/, '').split('#')[0].trim();
+    if (hashBase) {
+      const activeFromHash = normalizeTabId(hashBase);
+      if (activeFromHash === normId) {
+        return true;
+      }
+      const consolidatedParent = CONSOLIDATED_PARENTS[normId];
+      if (consolidatedParent && consolidatedParent === activeFromHash) {
+        return true;
+      }
+      // Если в хэше явно открыта другая вкладка, целевая вкладка гарантированно не активна
+      return false;
+    }
   }
-  // Поддержка суб-панелей консолидированных вкладок (App Internals, AI Ecosystem, Storage Management)
-  const consolidatedParent = {
-    'tab-telemetry-control': 'tab-app-internals',
-    'tab-telemetry-config': 'tab-app-internals',
-    'tab-models': 'tab-app-internals',
-    'tab-system-logs': 'tab-app-internals',
-    'tab-performance-tracing': 'tab-app-internals',
-    'tab-log-settings': 'tab-app-internals',
-    'tab-agents': 'tab-ai-ecosystem',
-    'tab-skills': 'tab-ai-ecosystem',
-    'tab-mcp': 'tab-ai-ecosystem',
-    'tab-storage-manager': 'tab-storage-management',
-    'tab-storage-wear': 'tab-storage-management',
-    'tab-defender': 'tab-defender-firewall',
-    'tab-defender-firewall': 'tab-defender-firewall',
-    'tab-firewall-manager': 'tab-defender-firewall',
-    'tab-software-audit': 'tab-software-monitor',
-    'tab-software-manager': 'tab-software-monitor',
-    'tab-software-transparency': 'tab-software-monitor',
-    'tab-ninite-updater': 'tab-software-monitor',
-    'tab-startup-auditor': 'tab-software-monitor',
-    'tab-software-scanner': 'tab-software-monitor',
-    'tab-software-monitor': 'tab-software-monitor',
-    'tab-forensics': 'tab-system-control',
-    'tab-forensics-timeline': 'tab-system-control',
-    'tab-forensics-userassist': 'tab-system-control',
-    'tab-throttling': 'tab-system-control',
-  }[normId];
-  if (consolidatedParent && currentActiveTabId === consolidatedParent) {
-    return true;
+
+  // 2. Проверка по текущему внутреннему идентификатору
+  if (currentActiveTabId) {
+    if (currentActiveTabId === normId) {
+      return true;
+    }
+    const consolidatedParent = CONSOLIDATED_PARENTS[normId];
+    if (consolidatedParent && currentActiveTabId === consolidatedParent) {
+      return true;
+    }
+    return false;
   }
+
+  // 3. Fallback по DOM-классу контейнера
   const pane = document.getElementById(normId);
   return pane ? pane.classList.contains('active') : false;
 }
@@ -109,8 +157,8 @@ export function getActivePanel(tabId = null) {
   const clean = hash.replace(/^#/, '');
   const parts = clean.split('#');
   if (parts.length < 2) return null;
-  const currentTab = parts[0];
-  if (tabId && normalizeTabId(currentTab) !== normalizeTabId(tabId)) {
+  const currentTab = normalizeTabId(parts[0]);
+  if (tabId && currentTab !== normalizeTabId(tabId)) {
     return null;
   }
   return parts[1] || null;
@@ -119,8 +167,8 @@ export function getActivePanel(tabId = null) {
 /**
  * Проверяет, активна ли панель на вкладке согласно URL hash (#tab_id#panel_id).
  * Если панель не активна в URL (или вкладка не активна) — возвращает false.
- * @param {string} tabId - Идентификатор вкладки (например, 'tab-workspace' или 'tab-windows-admin')
- * @param {string} [panelId] - Идентификатор панели (например, 'panel-overview' или 'panel_documents')
+ * @param {string} tabId - Идентификатор вкладки (например, 'tab-system-control' или 'tab-user-environment')
+ * @param {string} [panelId] - Идентификатор панели (например, 'event-logs' или 'panel-taskbar')
  * @param {string} [defaultPanel] - Панель по умолчанию, если в хэше указана только вкладка
  * @returns {boolean}
  */
@@ -138,7 +186,7 @@ export function isPanelActive(tabId, panelId = null, defaultPanel = null) {
       const cleanTarget = String(panelId).toLowerCase().replace(/[-_]/g, '');
       return cleanDef === cleanTarget;
     }
-    return false;
+    return true;
   }
   const cleanActive = activePanel.toLowerCase().replace(/[-_]/g, '');
   const cleanTarget = String(panelId).toLowerCase().replace(/[-_]/g, '');
@@ -146,18 +194,27 @@ export function isPanelActive(tabId, panelId = null, defaultPanel = null) {
 }
 
 /**
- * Устанавливает активную панель в URL hash (#tab_id#panel_id).
+ * Устанавливает активную панель и опциональный блок в URL hash (#tab_<tab>#panel-<panel>[#block-<block>]).
  * @param {string} tabId 
  * @param {string} panelId 
+ * @param {string|null} [blockId=null]
  */
-export function setPanelHash(tabId, panelId) {
+export function setPanelHash(tabId, panelId, blockId = null) {
   if (!tabId || !panelId) return;
   const normTab = normalizeTabId(tabId);
-  const newHash = `#${normTab}#${panelId}`;
+  const cleanPanel = String(panelId).replace(/^#/, '');
+  const normPanel = cleanPanel.startsWith('panel-') ? cleanPanel : `panel-${cleanPanel}`;
+  let blockSuffix = '';
+  if (blockId) {
+    const cleanBlock = String(blockId).replace(/^#/, '');
+    const normBlock = cleanBlock.startsWith('block-') ? cleanBlock : `block-${cleanBlock}`;
+    blockSuffix = `#${normBlock}`;
+  }
+  const newHash = `#${normTab}#${normPanel}${blockSuffix}`;
   if (typeof location !== 'undefined' && location.hash !== newHash) {
     try {
       history.replaceState(null, null, newHash);
-      document.dispatchEvent(new CustomEvent('panel:activated', { detail: { tabId: normTab, panelId } }));
+      document.dispatchEvent(new CustomEvent('panel:activated', { detail: { tabId: normTab, panelId: normPanel, blockId } }));
     } catch (_) {}
   }
 }
@@ -183,7 +240,12 @@ function startPoller(poller, immediate = false) {
   if (!poller.enabled || !isTabActive(poller.tabId)) return;
 
   const runTick = async () => {
-    if (!poller.enabled || !isTabActive(poller.tabId) || poller.inFlight) return;
+    if (!poller.enabled || !isTabActive(poller.tabId) || poller.inFlight) {
+      if (!isTabActive(poller.tabId)) {
+        stopPoller(poller);
+      }
+      return;
+    }
     poller.inFlight = true;
     try {
       await poller.pollFn();
@@ -302,12 +364,10 @@ export function switchTab(tabId, targetSubPanelId = null) {
     } catch (e) {}
   }
 
-  // 2. Мгновенная деактивация опросников предыдущей вкладки
-  if (prevTabId && prevTabId !== id) {
-    for (const poller of registeredPollers.values()) {
-      if (poller.tabId === prevTabId) {
-        stopPoller(poller);
-      }
+  // 2. Мгновенная деактивация ВСЕХ опросников, не относящихся к целевой вкладке
+  for (const poller of registeredPollers.values()) {
+    if (poller.tabId !== id) {
+      stopPoller(poller);
     }
   }
 
@@ -399,7 +459,8 @@ export function switchTab(tabId, targetSubPanelId = null) {
       }
     } else if (effectiveSubPanel && (id === 'tab-software-monitor' || id === 'tab-software-scanner') && typeof window.switchSoftwareSubTab === 'function') {
       try {
-        window.switchSoftwareSubTab(effectiveSubPanel);
+        const blockId = parts.find((p) => p.startsWith('block-')) || null;
+        window.switchSoftwareSubTab(effectiveSubPanel, blockId, false);
       } catch (err) {
         console.debug('switchSoftwareSubTab error:', err);
       }
@@ -536,7 +597,9 @@ export function setupTabClicks() {
       document.body.style.overflow = '';
       document.body.style.pointerEvents = '';
 
-      if (typeof window.switchTab === 'function') {
+      if (typeof window.switchAppTab === 'function') {
+        window.switchAppTab(btn.dataset.tab);
+      } else if (typeof window.switchTab === 'function') {
         window.switchTab(btn.dataset.tab);
       } else {
         switchTab(btn.dataset.tab);

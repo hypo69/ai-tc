@@ -1,0 +1,156 @@
+<!--
+=============================================================================
+Process Name: Common WebGUI - Studio Code Central File Editor Tab
+=============================================================================
+Description:
+  Центральное окно редактирования файлов в стиле Visual Studio Code (Studio Code)
+  с поддержкой открытых вкладок для каждого файла, переключением между ними,
+  предпросмотром Markdown, встроенным видеоплеером (HTML5 Video), аудиоплеером,
+  нумерацией строк, статистикой символов/строк, сохранением с фиксацией в Git (Ctrl+S)
+  и открытием файлов в системных приложениях.
+
+Usage Examples:
+  Ленивая загрузка через tab-core.js:
+    /html/tab_file_editor/index.html?v=20261106_v1
+
+File: index.html
+Project: ai-assistant
+Package: apps/common/webgui/tab_file_editor
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-11-10 18:15:00
+=============================================================================
+-->
+
+<link rel="stylesheet" href="/html/tab_file_editor/style.css?v=20261106_v1">
+
+<div class="wasm-editor-shell shadow-sm d-flex flex-column h-100" id="wasm-file-editor-root">
+
+  <!-- 1. Верхняя полоса открытых файловых вкладок (VS Code Tabs Bar) -->
+  <div class="wasm-editor-tabs-bar d-flex align-items-center justify-content-between px-2" id="fe-open-tabs-bar-wrapper">
+    <div class="d-flex align-items-center gap-1 overflow-x-auto flex-grow-1" id="fe-open-tabs-bar">
+      <!-- Динамически заполняется вкладками открытых файлов -->
+    </div>
+    <div class="d-flex align-items-center gap-1 ms-2">
+      <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-1.5" id="fe-btn-new-file" data-i18n-title="fileEditor.newFileTitle" title="Создать новый файл">
+        <i class="bi bi-plus-lg"></i>
+      </button>
+      <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-1.5" id="fe-btn-close-all" data-i18n-title="fileEditor.closeAllTitle" title="Закрыть все вкладки">
+        <i class="bi bi-x-square"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. Подшапка активного файла и панель инструментов (стиль Быстрого редактора) -->
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 px-3 py-1.5 bg-body-tertiary border-bottom border-subtle" id="fe-active-file-toolbar">
+    <div class="d-flex align-items-center gap-2 overflow-hidden me-2">
+      <i class="bi bi-file-earmark-code text-primary fs-5" id="fe-active-file-icon"></i>
+      <div>
+        <div class="fw-bold text-truncate small" id="fe-active-file-name" data-i18n="fileEditor.noFileSelected">Файл не выбран</div>
+        <div class="font-size-75 text-muted font-monospace text-truncate" id="fe-active-file-path">---</div>
+      </div>
+    </div>
+
+    <!-- Режимы Редактор / Предпросмотр (для Markdown и др.) + Действия -->
+    <div class="d-flex align-items-center gap-2 flex-wrap ms-auto">
+      <!-- Режимы: Редактор / Вид/Редактор / Вид -->
+      <div class="btn-group btn-group-sm d-none" id="fe-view-mode-group" role="group">
+        <button type="button" class="btn btn-sm btn-outline-primary active py-0.5 px-2" id="fe-tab-mode-code" data-i18n-title="ide.editorTabCodeTitle" title="Редактор">
+          <i class="bi bi-pencil me-1"></i><span data-i18n="ide.editorTabCode" id="fe-mode-code-text">Редактор</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-primary py-0.5 px-2" id="fe-tab-mode-split" data-i18n-title="ide.editorTabSplitTitle" title="Вид/Редактор">
+          <i class="bi bi-layout-split me-1"></i><span data-i18n="ide.editorTabSplit" id="fe-mode-split-text">Вид/Редактор</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-primary py-0.5 px-2" id="fe-tab-mode-preview" data-i18n-title="ide.editorTabViewTitle" title="Вид">
+          <i class="bi bi-eye me-1"></i><span data-i18n="ide.editorTabView" id="fe-mode-preview-text">Вид</span>
+        </button>
+      </div>
+
+      <!-- Открыть в системном приложении -->
+      <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 py-0.5 px-2" id="fe-btn-system-open" data-i18n-title="titles.ide.openInSystemEditor" title="Открыть в ассоциированном приложении системы" type="button">
+        <i class="bi bi-box-arrow-up-right"></i>
+        <span class="d-none d-md-inline" data-i18n="ide.openInSystem" id="fe-open-system-text">В системе</span>
+      </button>
+
+      <!-- Сохранить изменения (Ctrl+S) -->
+      <button class="btn btn-sm btn-primary d-flex align-items-center gap-1.5 py-0.5 px-2.5 shadow-sm" id="fe-btn-save" data-i18n-title="fileEditor.saveTitle" title="Сохранить изменения и зафиксировать в Git (Ctrl+S)" type="button">
+        <i class="bi bi-floppy-fill"></i>
+        <span data-i18n="fileEditor.saveBtn" id="fe-save-btn-text">Сохранить (Ctrl+S)</span>
+      </button>
+
+      <!-- Сохранить как... (Ctrl+Shift+S) -->
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-0.5 px-2" id="fe-btn-save-as" data-i18n-title="fileEditor.saveAsTitle" title="Сохранить файл под другим именем (Ctrl+Shift+S)" type="button">
+        <i class="bi bi-save2"></i>
+        <span class="d-none d-lg-inline" data-i18n="fileEditor.saveAsBtn" id="fe-save-as-btn-text">Сохранить как...</span>
+      </button>
+
+      <!-- Сохранить все (Ctrl+Alt+S / Ctrl+K S) -->
+      <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5 py-0.5 px-2" id="fe-btn-save-all" data-i18n-title="fileEditor.saveAllTitle" title="Сохранить все открытые файлы (Ctrl+Alt+S / Ctrl+K S)" type="button">
+        <i class="bi bi-collection-fill"></i>
+        <span class="d-none d-lg-inline" data-i18n="fileEditor.saveAllBtn" id="fe-save-all-btn-text">Сохранить все</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 3. Центральная область сцены редактора -->
+  <div class="position-relative flex-grow-1 d-flex flex-column overflow-hidden" id="fe-editor-body" style="min-height: 480px;">
+
+    <!-- Заглушка: Нет открытых вкладок -->
+    <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1 p-4 text-center text-muted" id="fe-empty-state">
+      <i class="bi bi-code-square text-secondary fs-1 d-block mb-2"></i>
+      <h6 data-i18n="fileEditor.emptyTitle" id="fe-empty-title">Нет открытых файлов</h6>
+      <p class="small text-muted mb-0" data-i18n="fileEditor.emptyHint" id="fe-empty-hint">Выберите файл в проводнике слева или создайте новый.</p>
+    </div>
+
+    <!-- Заглушка: Бинарный файл -->
+    <div class="p-4 text-center text-muted d-none flex-column align-items-center justify-content-center flex-grow-1" id="fe-binary-notice">
+      <i class="bi bi-file-earmark-binary text-secondary fs-1 d-block mb-2"></i>
+      <h6 data-i18n="ide.binaryFileTitle" id="fe-binary-title">Бинарный файл</h6>
+      <p class="small text-muted mb-3" data-i18n="ide.binaryFileDesc" id="fe-binary-desc">Данный файл не является текстовым и не может редактироваться в веб-редакторе.</p>
+      <button class="btn btn-sm btn-primary" id="fe-btn-binary-open" type="button" data-i18n="ide.openInAssociatedApp">Открыть в ассоциированном приложении</button>
+    </div>
+
+    <!-- Текстовый редактор с нумерацией строк -->
+    <div class="wasm-code-stage flex-grow-1 d-none" id="fe-text-stage">
+      <div class="wasm-line-gutter" id="fe-line-gutter">1</div>
+      <textarea class="wasm-code-textarea flex-grow-1" id="fe-code-textarea" spellcheck="false" data-i18n-placeholder="fileEditor.editorPlaceholder" placeholder="Начните ввод текста..."></textarea>
+      <!-- Предпросмотр Markdown -->
+      <div class="border-start border-subtle p-3 bg-body overflow-auto flex-grow-1 d-none" id="fe-markdown-preview" style="min-height: 400px; font-size: 14px; line-height: 1.6;"></div>
+    </div>
+
+    <!-- Встроенный медиаплеер (Видео, Аудио, Изображения) без выхода за рамки технологии -->
+    <div class="p-3 d-none flex-column align-items-center justify-content-center flex-grow-1 overflow-auto bg-body-tertiary" id="fe-media-stage">
+      <div class="w-100 d-flex flex-column align-items-center justify-content-center" style="max-width: 960px;">
+        <!-- Встроенный видеоплеер HTML5 -->
+        <video controls playsinline class="w-100 rounded shadow-sm border border-subtle d-none" id="fe-media-video" style="max-height: 72vh; background-color: var(--surface-2);"></video>
+        <!-- Встроенный аудиоплеер HTML5 -->
+        <div class="w-100 p-4 rounded bg-body border border-subtle shadow-sm d-none" id="fe-media-audio-container">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-file-earmark-music text-primary fs-3"></i>
+            <div>
+              <div class="fw-semibold small" id="fe-media-audio-title" data-i18n="fileEditor.mediaAudioTitle">Аудиозапись</div>
+              <div class="font-size-75 text-muted" id="fe-media-audio-subtitle" data-i18n="fileEditor.mediaAudioDesc">Воспроизведение через встроенный медиаплеер</div>
+            </div>
+          </div>
+          <audio controls class="w-100" id="fe-media-audio"></audio>
+        </div>
+        <!-- Встроенный просмотр изображений -->
+        <img class="img-fluid rounded shadow-sm border border-subtle d-none" id="fe-media-image" style="max-height: 72vh; object-fit: contain;" alt="Preview" />
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 4. Нижняя панель: коммит Git и статистика строк/символов (стиль Быстрого редактора) -->
+  <div class="p-2 bg-body-tertiary border-top border-subtle d-flex flex-wrap align-items-center justify-content-between gap-2" id="fe-bottom-bar">
+    <div class="d-flex align-items-center gap-2 flex-grow-1" style="max-width: 600px;">
+      <input type="text" class="form-control form-control-sm" id="fe-commit-msg-input" placeholder="Сообщение коммита Git (опционально)..." data-i18n-placeholder="placeholders.ide.commitMsgOptional" autocomplete="off">
+    </div>
+    <div class="d-flex align-items-center gap-3 font-size-75 text-muted ms-auto">
+      <span id="fe-editor-stats" data-i18n="ide.editorStatsDefault">Строк: 0 | Символов: 0</span>
+      <span class="font-monospace" id="fe-editor-cursor">Ln 1, Col 1</span>
+      <span class="badge bg-secondary-subtle text-secondary" id="fe-save-status"></span>
+    </div>
+  </div>
+
+</div>

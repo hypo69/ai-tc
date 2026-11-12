@@ -1,7 +1,7 @@
 /**
  * Модуль управления API-ключами Google Gemini (ротация, квоты, проверка валидности).
  * Файл: apps/windows/api/webgui/tab_models/panel_gemini_keys/panel.js
- * Updated: 2026-10-17 02:15:00
+ * Updated: 2026-11-03 15:53:00
  */
 
 import { escapeHtml, showModelsNotification } from '../common/ui_utils.js';
@@ -17,7 +17,7 @@ export async function refreshKeysList(container) {
   try {
     container.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Загрузка ключей...</td></tr>';
     const fetchFn = (window.api && window.api.fetch) || fetch;
-    const res = await fetchFn('/api/keys/');
+    const res = await fetchFn('/api/v1/keys');
     const keysData = typeof res.json === 'function' ? await res.json() : res;
     const keys = Array.isArray(keysData) ? keysData : (keysData.keys || []);
 
@@ -165,7 +165,7 @@ export async function refreshKeysList(container) {
 export async function activateApiKey(name, container) {
   try {
     const fetchFn = (window.api && window.api.fetch) || fetch;
-    await fetchFn(`/api/keys/${encodeURIComponent(name)}/activate`, {
+    await fetchFn(`/api/v1/keys/${encodeURIComponent(name)}/activate`, {
       method: 'POST'
     });
     showModelsNotification(`Ключ "${name}" успешно назначен активным`, 'success');
@@ -241,8 +241,8 @@ export async function runKeyTest(keyName, message, model, container, provider = 
 
   try {
     const endpoint = provider === 'agy'
-      ? `/api/keys/agy/${encodeURIComponent(keyName)}/test`
-      : `/api/keys/${encodeURIComponent(keyName)}/test`;
+      ? `/api/v1/keys/agy/${encodeURIComponent(keyName)}/test`
+      : `/api/v1/keys/${encodeURIComponent(keyName)}/test`;
 
     const fetchFn = (window.api && window.api.fetch) || fetch;
     const response = await fetchFn(endpoint, {
@@ -311,7 +311,7 @@ export async function runKeyTest(keyName, message, model, container, provider = 
 export async function toggleKeyStatus(name, newStatus, container) {
   try {
     const fetchFn = (window.api && window.api.fetch) || fetch;
-    await fetchFn(`/api/keys/${name}`, {
+    await fetchFn(`/api/v1/keys/${name}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus })
@@ -330,7 +330,7 @@ export async function toggleKeyStatus(name, newStatus, container) {
 export async function resetKeyQuota(name, container) {
   try {
     const fetchFn = (window.api && window.api.fetch) || fetch;
-    await fetchFn(`/api/keys/${name}/reset-quota`, { method: 'POST' });
+    await fetchFn(`/api/v1/keys/${name}/reset-quota`, { method: 'POST' });
     showModelsNotification(`Квота для ключа "${name}" успешно сброшена`, 'success');
     await refreshKeysList(container);
   } catch (err) {
@@ -346,7 +346,7 @@ export async function deleteKey(name, container) {
   if (!confirm(`Вы уверены, что хотите удалить ключ "${name}"?`)) return;
   try {
     const fetchFn = (window.api && window.api.fetch) || fetch;
-    await fetchFn(`/api/keys/${name}`, { method: 'DELETE' });
+    await fetchFn(`/api/v1/keys/${name}`, { method: 'DELETE' });
     showModelsNotification(`Ключ "${name}" успешно удален`, 'success');
     await refreshKeysList(container);
   } catch (err) {

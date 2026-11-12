@@ -9,7 +9,7 @@
  * Файл: apps/windows/api/webgui/tab_models/main.js
  * Пакет: windows/api/webgui/tab_models
  * Автор: hypo69
- * Updated: 2026-10-17 01:05:00
+ * Updated: 2026-11-03 15:55:00
  * =============================================================================
  */
 
@@ -292,7 +292,7 @@ export async function initModelsTab() {
       const originalText = refreshKeysBtn.textContent;
       refreshKeysBtn.textContent = '⏳ Сброс...';
       try {
-        const res = await window.api.fetch('/api/keys/reset-all', { method: 'POST' });
+        const res = await window.api.fetch('/api/v1/keys/reset-all', { method: 'POST' });
         showModelsNotification(res.message || 'Квоты всех ключей успешно сброшены', 'success');
       } catch (err) {
         console.error('Ошибка сброса квот:', err);
@@ -321,7 +321,7 @@ export async function initModelsTab() {
 
       addKeyBtn.disabled = true;
       try {
-        await window.api.fetch('/api/keys', {
+        await window.api.fetch('/api/v1/keys', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, api_key: apiKey, status: 'active' })
@@ -368,7 +368,7 @@ export async function initModelsTab() {
       const originalText = refreshAgyKeysBtn.textContent;
       refreshAgyKeysBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Сброс...';
       try {
-        await window.api.fetch('/api/keys/agy/reset-all', { method: 'POST' });
+        await window.api.fetch('/api/v1/keys/agy/reset-all', { method: 'POST' });
         showModelsNotification('Все квоты ключей AGY успешно сброшены!', 'success');
       } catch (err) {
         console.error('Ошибка сброса квот AGY:', err);
@@ -397,7 +397,7 @@ export async function initModelsTab() {
 
       addAgyKeyBtn.disabled = true;
       try {
-        await window.api.fetch('/api/keys/agy', {
+        await window.api.fetch('/api/v1/keys/agy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, api_key: apiKey, status: 'active' })

@@ -17,7 +17,7 @@
 # Project: ai-windows-admin
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:20:00
+# Updated: 2026-11-01 13:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -99,54 +99,56 @@ def launch_gui(
                         finally:
                             el_adapter.terminate_running_instances()
                         return
-    # Attempt to launch WebView2 (pywebview)
-    try:
-        import webview
-        # Setup system tray for WebView2
-        def _setup_webview_tray(window: Any, is_force_exit: list[bool]) -> None:
-            """Инициализирует и запускает системный трей для окна WebView2."""
-            try:
-                import pystray
-                from PIL import Image
-                icon_path = Path(__file__).parent / "assets" / "icon256.png"
-                if not icon_path.exists():
-                    icon_path = Path(__file__).parent / "assets" / "favicon.ico"
-                img = Image.open(icon_path) if icon_path.exists() else Image.new("RGBA", (64, 64), (37, 99, 235, 255))
-                tray_state: Dict[str, Any] = {"tray": None}
-                def _on_show(icon: Any, item: Any = None) -> None:
-                    window.show()
-                    window.restore()
-                def _on_quit(icon: Any, item: Any = None) -> None:
-                    is_force_exit[0] = True
-                    if tray_state["tray"]:
-                        tray_state["tray"].stop()
-                    window.destroy()
-                menu = pystray.Menu(
-                    pystray.MenuItem("Показать AI Assistant", _on_show, default=True),
-                    pystray.Menu.SEPARATOR,
-                    pystray.MenuItem("Выход", _on_quit),
-                )
-                tray = pystray.Icon("AIAssistant", img, "AI Assistant", menu)
-                tray_state["tray"] = tray
-                tray.run()
-            except Exception as exc:
-                logger.warning(f"[WARN] Не удалось инициализировать системный трей pywebview: {exc}")
-        # Окно открывается развёрнутым на весь экран (100%)
-        window = webview.create_window("AI Assistant", url, width=1200, height=800, maximized=True)
-        is_force_exit = [False]
-        def _on_closing() -> bool:
-            if not is_force_exit[0]:
-                window.hide()
-                return False
-            return True
-        window.events.closing += _on_closing
-        threading.Thread(target=_setup_webview_tray, args=(window, is_force_exit), daemon=True).start()
-        webview.start(storage_path=str(profile_path), private_mode=False)
-        return
-    except Exception as exc:
-        logger.warning(f"[WARN] Окно WebView недоступно ({exc}). Запуск в браузере: {url}")
 
-    # Fallback to system browser
+    if engine == "webview2":
+        # Attempt to launch WebView2 (pywebview)
+        try:
+            import webview
+            # Setup system tray for WebView2
+            def _setup_webview_tray(window: Any, is_force_exit: list[bool]) -> None:
+                """Инициализирует и запускает системный трей для окна WebView2."""
+                try:
+                    import pystray
+                    from PIL import Image
+                    icon_path = Path(__file__).parent / "assets" / "icon256.png"
+                    if not icon_path.exists():
+                        icon_path = Path(__file__).parent / "assets" / "favicon.ico"
+                    img = Image.open(icon_path) if icon_path.exists() else Image.new("RGBA", (64, 64), (37, 99, 235, 255))
+                    tray_state: Dict[str, Any] = {"tray": None}
+                    def _on_show(icon: Any, item: Any = None) -> None:
+                        window.show()
+                        window.restore()
+                    def _on_quit(icon: Any, item: Any = None) -> None:
+                        is_force_exit[0] = True
+                        if tray_state["tray"]:
+                            tray_state["tray"].stop()
+                        window.destroy()
+                    menu = pystray.Menu(
+                        pystray.MenuItem("Показать AI Assistant", _on_show, default=True),
+                        pystray.Menu.SEPARATOR,
+                        pystray.MenuItem("Выход", _on_quit),
+                    )
+                    tray = pystray.Icon("AIAssistant", img, "AI Assistant", menu)
+                    tray_state["tray"] = tray
+                    tray.run()
+                except Exception as exc:
+                    logger.warning(f"[WARN] Не удалось инициализировать системный трей pywebview: {exc}")
+            # Окно открывается развёрнутым на весь экран (100%)
+            window = webview.create_window("AI Assistant", url, width=1200, height=800, maximized=True)
+            is_force_exit = [False]
+            def _on_closing() -> bool:
+                if not is_force_exit[0]:
+                    window.hide()
+                    return False
+                return True
+            window.events.closing += _on_closing
+            threading.Thread(target=_setup_webview_tray, args=(window, is_force_exit), daemon=True).start()
+            webview.start(storage_path=str(profile_path), private_mode=False)
+            return
+        except Exception as exc:
+            logger.warning(f"[WARN] Окно WebView недоступно ({exc}). Запуск в браузере: {url}")
+
+    # По умолчанию ("browser") или fallback: открытие системного браузера без подъема тяжелого WebView2 runtime
     import webbrowser
     webbrowser.open(url)
     if server_thread:

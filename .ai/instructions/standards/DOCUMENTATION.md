@@ -352,7 +352,7 @@ active_connections = set()
 ```powershell
 <#
 =============================================================================
-Process Name: AI-Windows-Admin Automation - Start FastApi Server
+Process Name: ai-assistant Automation - Start FastApi Server
 =============================================================================
 Description:
   Запуск FastAPI сервера и оркестрация рабочих процессов бэкенда.
@@ -367,7 +367,7 @@ Description:
     - Background (-bg): запуск в скрытом режиме службы с фиксацией PID.
 
 File: Run-Unicorn.ps1
-Project: ai-windows-admin
+Project: ai-assistant
 Package: launchers
 Author: hypo69
 Copyright: © 2026 hypo69

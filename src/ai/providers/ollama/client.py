@@ -16,7 +16,7 @@
 # Package: src.ai.providers.ollama
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 16:52:00
 # =============================================================================
 
 """Клиент для работы с Ollama."""
@@ -26,21 +26,23 @@ import aiohttp
 from typing import Optional, Dict, Any, List
 from logger import logger
 
+_OLLAMA_TIMEOUT = aiohttp.ClientTimeout(total=120.0, connect=5.0, sock_read=115.0)
+
 class OllamaClient:
     """Клиент для работы с Ollama."""
 
     def __init__(self, base_url: Optional[str]='') -> None:
-        """Initialization клиента."""
+        """Инициализация клиента."""
         self.base_url = base_url or os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
         self.session: Any = False
         logger.info(f'OllamaClient initialized with base_url={self.base_url}')
 
     async def _get_session(self) -> aiohttp.ClientSession:
         if not self.session or self.session.closed:
-            self.session = aiohttp.ClientSession()
+            self.session = aiohttp.ClientSession(timeout=_OLLAMA_TIMEOUT)
         return self.session
 
-    async def generate_text(self, prompt: str, model: str, temperature: float=0.7, max_tokens: int=2048, messages: Optional[List[Dict[str, str]]]=[]) -> Dict[str, Any]:
+    async def generate_text(self, prompt: str, model: str, temperature: float=0.7, max_tokens: int=2048, messages: Optional[List[Dict[str, str]]]=None) -> Dict[str, Any]:
         """Генерация текста через OpenAI-совместимый API Ollama."""
         session = await self._get_session()
         url = f'{self.base_url}/v1/chat/completions'
@@ -50,7 +52,7 @@ class OllamaClient:
         payload = {'model': model, 'messages': messages, 'temperature': temperature, 'max_tokens': max_tokens}
         try:
             logger.info(f'Sending request to Ollama API: {url}')
-            async with session.post(url, json=payload, headers=headers, timeout=120) as response:
+            async with session.post(url, json=payload, headers=headers, timeout=_OLLAMA_TIMEOUT) as response:
                 if response.status == 200:
                     data = await response.json()
                     choices = data.get('choices', [])

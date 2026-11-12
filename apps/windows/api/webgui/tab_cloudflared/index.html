@@ -34,17 +34,6 @@
     border-radius: 8px;
     overflow: hidden;
   }
-  .cf-panel-header {
-    background: var(--surface-panel-header, rgba(255, 255, 255, 0.05));
-    border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
-    padding: 0.5rem 0.85rem;
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--primary-accent, #38bdf8);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
   .cf-log-terminal {
     background: var(--surface-terminal, #020617);
     color: var(--text-terminal, #cbd5e1);
@@ -124,8 +113,8 @@
     <!-- Журнал логов -->
     <div class="col-lg-7">
       <div class="cf-panel h-100">
-        <div class="cf-panel-header">
-          <span><i class="bi bi-terminal me-1"></i> Журнал cloudflared.log</span>
+        <div class="panel-header">
+          <span class="panel-title"><i class="bi bi-terminal me-1"></i> Журнал cloudflared.log</span>
           <span class="badge bg-secondary" id="cf-log-count-badge">50 строк</span>
         </div>
         <div class="p-3">
@@ -139,8 +128,8 @@
     <!-- ИИ-диагностика и рекомендации -->
     <div class="col-lg-5">
       <div class="cf-panel h-100">
-        <div class="cf-panel-header">
-          <span><i class="bi bi-heart-pulse-fill text-danger me-1"></i> Диагностика & Рекомендации</span>
+        <div class="panel-header">
+          <span class="panel-title"><i class="bi bi-heart-pulse-fill text-danger me-1"></i> Диагностика & Рекомендации</span>
           <button class="btn btn-sm btn-outline-info py-0 px-2" id="btn-cf-run-diagnostics">Диагностировать</button>
         </div>
         <div class="p-3">

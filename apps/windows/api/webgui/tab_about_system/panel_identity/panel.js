@@ -9,7 +9,7 @@
  * - Телеметрию батареи и профилей электропитания
  * - Профили брандмауэра Windows Defender и статус UAC
  * 
- * Updated: 2026-10-30 11:15:00
+ * Updated: 2026-11-03 14:05:00
  */
 
 import { apiFetch, setText, setStatusText, setFormattedStatusHtml, formatStatusHtml, setHtml, escapeHtml } from '../common/ui_utils.js?v=20261028_v4';
@@ -208,13 +208,21 @@ export function renderMonitorsSpec(monitors) {
   const container = document.getElementById('about-spec-monitors');
   if (!container) return;
 
-  if (!Array.isArray(monitors) || monitors.length === 0) {
+  // Фильтруем фиктивные виртуальные дисплеи Session 0 (WinDisc)
+  const validMonitors = (Array.isArray(monitors) ? monitors : []).filter(m => {
+    if (!m) return false;
+    const dev = String(m.device || '').toLowerCase();
+    const name = String(m.name || '').toLowerCase();
+    return !dev.includes('windisc') && !name.includes('windisc');
+  });
+
+  if (validMonitors.length === 0) {
     container.innerHTML = '<span class="text-muted">Мониторы не обнаружены</span>';
     return;
   }
 
   // Сортируем: сначала основной монитор, затем остальные по имени устройства
-  const sorted = [...monitors].sort((a, b) => {
+  const sorted = [...validMonitors].sort((a, b) => {
     if (a.is_primary && !b.is_primary) return -1;
     if (!a.is_primary && b.is_primary) return 1;
     return String(a.device || '').localeCompare(String(b.device || ''));
@@ -235,9 +243,10 @@ export function renderMonitorsSpec(monitors) {
     const isVertical = orientation.includes('вертикаль') || orientation.includes('портрет') || height > width;
 
     // Метка основного / дополнительного дисплея
+    const devTitle = m.device ? ` [${escapeHtml(m.device)}]` : '';
     const badgeDisplay = isPrimary
-      ? `<span class="ui-badge ui-badge-info font-monospace" title="Основной системный дисплей">${idx + 1} • Основной</span>`
-      : `<span class="ui-badge ui-badge-neutral font-monospace" title="Дополнительный дисплей">${idx + 1}</span>`;
+      ? `<span class="ui-badge ui-badge-info font-monospace" title="Основной системный дисплей${devTitle}">${idx + 1} • Основной</span>`
+      : `<span class="ui-badge ui-badge-neutral font-monospace" title="Дополнительный дисплей${devTitle}">${idx + 1}</span>`;
 
     // Метка ориентации (для каждого дисплея: альбомная или портретная)
     const orientBadge = isVertical
@@ -249,6 +258,16 @@ export function renderMonitorsSpec(monitors) {
       ? `<span class="text-muted font-monospace small ms-1" title="Видеоадаптер: ${escapeHtml(m.adapter)}"><i class="bi bi-gpu-card me-1"></i>${escapeHtml(m.adapter)}</span>`
       : '';
 
+    // Серийный номер
+    const snHtml = m.serial_number && String(m.serial_number).trim() !== '' && String(m.serial_number).trim() !== '0'
+      ? `<span class="text-muted font-monospace small ms-1" title="Серийный номер: ${escapeHtml(m.serial_number)}"><i class="bi bi-upc-scan me-1"></i>S/N: ${escapeHtml(m.serial_number)}</span>`
+      : '';
+
+    // Дата производства / Service Tag
+    const prodDateHtml = m.production_date && String(m.production_date).trim() !== ''
+      ? `<span class="ui-badge ui-badge-neutral font-monospace ms-1" style="font-size: 0.72rem;" title="Дата производства / Service Tag"><i class="bi bi-calendar-event me-1"></i>${escapeHtml(m.production_date)}</span>`
+      : '';
+
     return `
       <div class="d-flex align-items-center gap-2.5 flex-wrap py-0.5">
         ${badgeDisplay}
@@ -256,6 +275,8 @@ export function renderMonitorsSpec(monitors) {
         <span class="text-info font-monospace small ms-1">${resText}</span>
         ${orientBadge}
         ${adapterHtml}
+        ${snHtml}
+        ${prodDateHtml}
       </div>
     `;
   }).join('');

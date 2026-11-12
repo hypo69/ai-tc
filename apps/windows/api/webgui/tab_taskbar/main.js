@@ -8,7 +8,7 @@
  *
  * File: main.js
  * Package: apps/windows/api/webgui/tab_taskbar
- * Updated: 2026-10-31 15:55:00
+ * Updated: 2026-11-01 17:30:00
  * =============================================================================
  */
 
@@ -79,11 +79,47 @@ function bindEvents() {
 }
 
 /**
+ * Проверяет, активна ли вкладка Taskbar.
+ * @returns {boolean}
+ */
+export function isTaskbarTabActive() {
+  if (typeof document !== 'undefined' && document.hidden) return false;
+  if (typeof window.isTabActive === 'function') {
+    return Boolean(
+      window.isTabActive('tab-taskbar') ||
+      window.isTabActive('taskbar') ||
+      window.isTabActive('tab-taskbar-controller') ||
+      window.isTabActive('taskbar-controller')
+    );
+  }
+  const pane = document.getElementById('tab-taskbar') || document.getElementById('tab-taskbar-controller');
+  return pane ? pane.classList.contains('active') : false;
+}
+
+/**
  * Инициализация вкладки Taskbar.
  */
 export async function init() {
   bindEvents();
+  if (!isTaskbarTabActive()) {
+    return;
+  }
   await refreshAll();
+}
+
+/**
+ * Хук активации вкладки Taskbar (вызывается tab-core при переключении).
+ */
+export async function activate() {
+  if (!isTaskbarTabActive()) return;
+  await refreshAll();
+}
+
+/**
+ * Хук деактивации вкладки Taskbar.
+ */
+export function deactivate() {
+  // Засыпание фоновых процессов при уходе из вкладки
 }
 
 // Глобальные действия над окнами для HTML inline onclick
@@ -121,6 +157,8 @@ window._taskbarActions = {
 window._rollbackAction = (historyId) => rollbackAction(historyId, refreshAll);
 window._executeCommandDirect = (cmdId) => executeCommandDirect(cmdId, loadHistory);
 window.initTaskbarTab = init;
+window.activateTaskbarTab = activate;
+window.deactivateTaskbarTab = deactivate;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => init());

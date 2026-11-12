@@ -10,9 +10,8 @@
  * - panel_defender_logs: статус защиты, антивирусные события Defender, блокировки CFA/ASR
  * - panel_forensics: поведенческая форензика, UserAssist ROT13, активность окон, микрофон/камера
  * - panel_throttling: детекция термального троттлинга (PROCHOT), Power Limit (PL1/PL2), задержки DPC/ISR, шина GPU PCIe, дампы BSOD
- * - panel_activity: журнал действий администратора
  * 
- * Updated: 2026-10-31 18:32:00
+ * Updated: 2026-11-12 02:30:00
  */
 
 import { adjustMainStreamHeight, initTableResizers, t } from './common/ui_utils.js';
@@ -20,11 +19,10 @@ import { initSummaryDashboard, loadFailuresSummary } from './panel_summary/panel
 import { initEventLogsPanel, scanChannels, loadEvents, getCurrentChannel, getCurrentFilePath, getCachedEvents, getCachedChannels } from './panel_event_logs/panel.js';
 import { showEventDetails } from './panel_event_logs/modal.js';
 import { initRagPanel, fetchRagStatus, setRagEventDetailsCallback } from './panel_rag/panel.js';
-import { initPowerLifecyclePanel, loadPowerData, stopPowerUptimeCounter as stopPowerLifecycleUptimeCounter } from './panel_power_lifecycle/panel.js';
+import { initPowerLifecyclePanel, loadPowerData, stopPowerUptimeCounter as stopPowerLifecycleUptimeCounter } from './panel_power_lifecycle/panel.js?v=20261101_v2';
 import { initDefenderLogsPanel, loadDefenderData } from './panel_defender_logs/panel.js';
 import { initForensicsPanel, loadForensicsData, switchForensicsSubTab } from './panel_forensics/panel.js';
 import { initThrottlingPanel, loadThrottlingData, stopThrottlingPolling } from './panel_throttling/panel.js';
-import { initActivityPanel, loadSccActivityLogs } from './panel_activity/panel.js';
 import { loadAuditDigest } from './panel_smart_digest/panel.js';
 import { loadIncidents, loadTimeline } from './panel_smart_digest/incidents_timeline.js';
 
@@ -44,14 +42,13 @@ function isSystemControlTabActive() {
 }
 
 function normalizeSystemControlSource(sourceId) {
-  const s = String(sourceId).toLowerCase().trim().replace(/^#/, '');
+  const s = String(sourceId).toLowerCase().trim().replace(/^#/, '').replace(/^panel-/, '');
   if (s.includes('summary')) return 'summary-dashboard';
   if (s.includes('event')) return 'event-logs';
   if (s.includes('defender')) return 'defender-logs';
   if (s.includes('power')) return 'power-lifecycle';
   if (s.includes('forensic')) return 'forensics';
   if (s.includes('throttling') || s.includes('throttle')) return 'throttling';
-  if (s.includes('activity')) return 'activity';
   return 'summary-dashboard';
 }
 
@@ -62,8 +59,17 @@ function getSystemControlPanelFromHash() {
   const parts = cleanHash.split('#');
   if (parts.length >= 2) {
     const p1 = parts[1];
-    const p2 = parts[2] || null;
-    const sub = p2 || (p1.includes('userassist') ? 'userassist' : (p1.includes('timeline') ? 'timeline' : null));
+    const blockPart = parts.find((p) => p.startsWith('block-'));
+    let sub = null;
+    if (blockPart) {
+      sub = blockPart.replace(/^block-/, '');
+    } else if (parts[2]) {
+      sub = parts[2].replace(/^block-/, '');
+    } else if (p1.includes('userassist')) {
+      sub = 'userassist';
+    } else if (p1.includes('timeline')) {
+      sub = 'timeline';
+    }
     return { source: normalizeSystemControlSource(p1), subtab: sub };
   }
   return { source: 'summary-dashboard', subtab: null };
@@ -72,11 +78,12 @@ function getSystemControlPanelFromHash() {
 function updateUrlWithSource(source, subtab = null) {
   const canonical = normalizeSystemControlSource(source);
   const search = location.search || '';
-  let hashSuffix = canonical;
-  if (canonical === 'forensics' && subtab) {
-    hashSuffix = `${canonical}#${subtab}`;
+  let blockSuffix = '';
+  if (canonical === 'forensics') {
+    const rawSub = subtab ? String(subtab).replace(/^block-/, '') : 'userassist';
+    blockSuffix = `#block-${rawSub}`;
   }
-  const newHash = `#tab-system-control#${hashSuffix}`;
+  const newHash = `#tab-system-control#panel-${canonical}${blockSuffix}`;
   if (location.hash !== newHash) {
     history.replaceState(null, '', `${location.pathname}${search}${newHash}`);
   }
@@ -89,7 +96,6 @@ function fetchActiveSourceData(force = false) {
   // Изоляция фонового опроса: отсечение неактивных источников
   if (activeSource !== 'summary-dashboard' && canonical === 'summary-dashboard') return;
   if (activeSource !== 'event-logs' && canonical === 'event-logs') return;
-  if (activeSource !== 'activity' && canonical === 'activity') return;
   if (activeSource !== 'power-lifecycle' && canonical === 'power-lifecycle') return;
   if (activeSource !== 'defender-logs' && canonical === 'defender-logs') return;
   if (activeSource !== 'forensics' && canonical === 'forensics') return;
@@ -101,8 +107,6 @@ function fetchActiveSourceData(force = false) {
     if (activeMode === 'live' || activeMode === 'errors') {
       loadEvents(force, activeMode);
     }
-  } else if (canonical === 'activity') {
-    loadSccActivityLogs(force, isSystemControlTabActive);
   } else if (canonical === 'power-lifecycle') {
     loadPowerData(force, isSystemControlTabActive);
   } else if (canonical === 'defender-logs') {
@@ -154,8 +158,6 @@ function startPolling() {
       loadForensicsData(false, isSystemControlTabActive);
     } else if (can === 'throttling') {
       loadThrottlingData(false, isSystemControlTabActive);
-    } else if (can === 'activity') {
-      loadSccActivityLogs(false, isSystemControlTabActive);
     } else if (can === 'power-lifecycle') {
       loadPowerData(false, isSystemControlTabActive);
     }
@@ -174,7 +176,6 @@ function setSource(source, updateUrl = true, subtab = null) {
     { id: 'btn-source-power-lifecycle', source: 'power-lifecycle' },
     { id: 'btn-source-forensics', source: 'forensics' },
     { id: 'btn-source-throttling', source: 'throttling' },
-    { id: 'btn-source-activity', source: 'activity' },
   ];
 
   sourceBtns.forEach(b => {
@@ -223,7 +224,6 @@ function applySourceAndMode(source, mode, forceRefresh = false) {
   const incidentsContainer = document.getElementById('slc-incidents-container');
   const timelineContainer = document.getElementById('slc-timeline-container');
   const rawContainer = document.getElementById('slc-raw-container');
-  const activityContainer = document.getElementById('slc-activity-container');
   const eventLogsContainer = document.getElementById('slc-event-logs-container');
   const powerLifecycleContainer = document.getElementById('slc-power-lifecycle-container');
   const defenderLogsContainer = document.getElementById('slc-defender-logs-container');
@@ -232,7 +232,7 @@ function applySourceAndMode(source, mode, forceRefresh = false) {
   const filterRow = document.getElementById('slc-filter-row');
   const sidebar = document.getElementById('slc-channel-tree-sidebar');
   const mainStreamCol = document.getElementById('slc-main-stream-column');
-  const mainStreamHeader = document.querySelector('#slc-main-stream-column .slc-panel-header');
+  const mainStreamHeader = document.querySelector('#slc-main-stream-column .panel-header');
 
   if (summaryContainer) summaryContainer.classList.add('d-none');
 
@@ -247,15 +247,12 @@ function applySourceAndMode(source, mode, forceRefresh = false) {
   if (source === 'event-logs') {
     if (panelControl1) panelControl1.classList.remove('d-none');
     if (mainRow) mainRow.classList.remove('d-none');
-  } else if (source === 'activity') {
-    if (panelControl1) panelControl1.classList.add('d-none');
-    if (mainRow) mainRow.classList.remove('d-none');
   } else {
     if (panelControl1) panelControl1.classList.add('d-none');
     if (mainRow) mainRow.classList.add('d-none');
   }
 
-  [tableContainer, auditContainer, ragContainer, incidentsContainer, timelineContainer, rawContainer, activityContainer, eventLogsContainer, powerLifecycleContainer, defenderLogsContainer, forensicsContainer, throttlingContainer].forEach(el => {
+  [tableContainer, auditContainer, ragContainer, incidentsContainer, timelineContainer, rawContainer, eventLogsContainer, powerLifecycleContainer, defenderLogsContainer, forensicsContainer, throttlingContainer].forEach(el => {
     if (el) el.classList.add('d-none');
   });
 
@@ -300,9 +297,6 @@ function applySourceAndMode(source, mode, forceRefresh = false) {
     if (throttlingContainer) throttlingContainer.classList.remove('d-none');
     initThrottlingPanel();
     loadThrottlingData(forceRefresh, isSystemControlTabActive);
-  } else if (source === 'activity') {
-    if (activityContainer) activityContainer.classList.remove('d-none');
-    loadSccActivityLogs(forceRefresh, isSystemControlTabActive);
   } else if (source === 'event-logs') {
     if (!getCachedChannels() || getCachedChannels().length === 0) {
       scanChannels(false);
@@ -374,7 +368,6 @@ export function initSystemControlTab() {
   initDefenderLogsPanel();
   initForensicsPanel();
   initThrottlingPanel();
-  initActivityPanel();
   initTableResizers();
 
   const sourceBtns = [
@@ -384,7 +377,6 @@ export function initSystemControlTab() {
     { id: 'btn-source-power-lifecycle', source: 'power-lifecycle' },
     { id: 'btn-source-forensics', source: 'forensics' },
     { id: 'btn-source-throttling', source: 'throttling' },
-    { id: 'btn-source-activity', source: 'activity' },
   ];
 
   sourceBtns.forEach(b => {

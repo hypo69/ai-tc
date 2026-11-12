@@ -12,27 +12,30 @@
 # Package: plugins.news_feed
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 16:43:00
 # =============================================================================
 
-"""Aggregator and AI summarization engine for smart news feed."""
+"""Агрегатор и ИИ-движок суммаризации для умной ленты новостей."""
 
 from __future__ import annotations
 
 import asyncio
+from datetime import datetime, timezone
 import hashlib
-import json
 import re
 import time
+from typing import Any, Dict, List, Optional
+import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, Dict, List, Optional
 
-from header import __root__
 from logger import logger
-from plugins.news_feed.models import NewsArticleModel, UserFeedbackRequest, UserInterestProfile
+from plugins.news_feed.models import NewsArticleModel
 from plugins.news_feed.user_learner import UserNewsLearner
+
+_HTML_TAG_RE = re.compile(r"<[^>]+>")
+_WHITESPACE_RE = re.compile(r"\s+")
+_MAX_RSS_BYTES = 2 * 1024 * 1024
 
 
 # Default reliable public RSS feeds across diverse tech/science/world categories
@@ -71,12 +74,11 @@ DEFAULT_RSS_FEEDS = [
 
 
 def _clean_html(html_text: str) -> str:
-    """Strip HTML tags and unescape common entities."""
+    """Очищает текст от HTML-тегов и схлопывает пробельные символы."""
     if not html_text:
         return ""
-    clean = re.sub(r"<[^>]+>", " ", html_text)
-    clean = re.sub(r"\s+", " ", clean).strip()
-    return clean
+    clean = _HTML_TAG_RE.sub(" ", html_text)
+    return _WHITESPACE_RE.sub(" ", clean).strip()
 
 
 class NewsEngine:
@@ -118,13 +120,18 @@ class NewsEngine:
         if not url:
             return articles
 
+        parsed_url = urllib.parse.urlparse(url)
+        if parsed_url.scheme not in ("http", "https"):
+            logger.warning(f"Отклонена небезопасная схема URL RSS-источника: {url}")
+            return articles
+
         try:
             req = urllib.request.Request(
                 url,
                 headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AI-Breadboard-News/1.0"}
             )
             with urllib.request.urlopen(req, timeout=8) as resp:
-                content = resp.read()
+                content = resp.read(_MAX_RSS_BYTES)
 
             root = ET.fromstring(content)
 
@@ -292,7 +299,7 @@ class NewsEngine:
         Returns:
             Dict[str, Any]: Structured digest with AI narrative and key links.
         """
-        feed = self.get_personalized_feed(user_id=user_id, limit=6)
+        feed = await asyncio.to_thread(self.get_personalized_feed, user_id=user_id, limit=6)
         if not feed:
             return {
                 "title": "Персональный дайджест новостей",
@@ -328,8 +335,7 @@ class NewsEngine:
             digest_text = "Главные персонализированные новости на сегодня:"
 
         return {
-            "title": f"Персональный ИИ-дайджест ({datetime.now().strftime('%d.%m.%Y')})",
+            "title": f"Персональный ИИ-дайджест ({datetime.now(timezone.utc).strftime('%d.%m.%Y')})",
             "digest_text": digest_text,
             "articles": [a.model_dump() for a in feed]
         }
-

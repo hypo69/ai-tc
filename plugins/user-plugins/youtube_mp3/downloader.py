@@ -10,7 +10,7 @@
 # Package: plugins.user-plugins.youtube_mp3
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 18:43:00
+# Updated: 2026-11-10 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -30,6 +30,8 @@ try:
     import yt_dlp
 except ImportError:
     yt_dlp = None
+
+_YOUTUBE_HOST_RE = re.compile(r"(youtube\.com|youtu\.be)", re.IGNORECASE)
 
 
 class YouTubeMP3Downloader:
@@ -65,7 +67,7 @@ class YouTubeMP3Downloader:
         clean = (url or "").strip()
         if not clean:
             raise ValueError("URL видео не может быть пустым.")
-        if not re.search(r"(youtube\.com|youtu\.be)", clean, re.IGNORECASE):
+        if not _YOUTUBE_HOST_RE.search(clean):
             raise ValueError(f"Ссылка не является валидным адресом YouTube: '{clean}'")
         return clean
 
@@ -80,6 +82,7 @@ class YouTubeMP3Downloader:
             "no_warnings": True,
             "extract_flat": False,
             "skip_download": True,
+            "socket_timeout": 15,
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -138,6 +141,7 @@ class YouTubeMP3Downloader:
             "quiet": True,
             "no_warnings": True,
             "windowsfilenames": True,
+            "socket_timeout": 20,
         }
 
         ffmpeg_bin = shutil.which("ffmpeg")
@@ -207,4 +211,3 @@ class YouTubeMP3Downloader:
         if h > 0:
             return f"{h:02d}:{m:02d}:{s:02d}"
         return f"{m:02d}:{s:02d}"
-

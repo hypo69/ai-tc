@@ -11,13 +11,10 @@
 # Package: plugins.telegram_channel_rag
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:39:50
 # =============================================================================
 
-"""Telegram Multi-Channel RAG & Fast Search Plugin Module.
-
-Integrates Telegram channel message collection (via web preview or export file),
-channel pool reuse, user subscriptions, and fast search returning exact Telegram message links.
-"""
+"""Модуль плагина мульти-канального RAG и быстрого поиска по Telegram-каналам."""
 
 from __future__ import annotations
 
@@ -427,4 +424,3 @@ class TelegramChannelRagPlugin(BasePlugin):
             "text": f"Found {len(results)} relevant Telegram messages across monitored channels.",
             "results": results,
         }
-

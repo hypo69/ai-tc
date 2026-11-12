@@ -9,11 +9,11 @@
  *   и автоматическое обновление вновь добавляемых элементов через MutationObserver.
  *
  * File: global-i18n.js
- * Project: ai-windows-admin
- * Package: windows/api/webgui/js
+ * Project: ai-assistant
+ * Package: apps/common/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-13 11:20:00
+ * Updated: 2026-11-10 18:18:00
  * =============================================================================
  */
 
@@ -32,9 +32,12 @@
 
     init() {
       this.detectLanguage();
+      this.syncRtlDirection();
       this.loadTranslations(this.lang).then(() => {
         this.applyTranslations(document);
         this.startObserver();
+        window.dispatchEvent(new CustomEvent('i18n:ready', { detail: { lang: this.lang } }));
+        window.dispatchEvent(new CustomEvent('i18n:languageChanged', { detail: { lang: this.lang } }));
       });
 
       // Перехват смены языка через события
@@ -43,6 +46,22 @@
           this.setLanguage(e.newValue);
         }
       });
+    },
+
+    syncRtlDirection() {
+      const isRtl = (this.lang === 'he' || this.lang === 'ar');
+      document.documentElement.setAttribute('dir', isRtl ? 'rtl' : 'ltr');
+      document.documentElement.setAttribute('lang', this.lang);
+      const offcanvasEl = document.getElementById('leftSideNavOffcanvas');
+      if (offcanvasEl) {
+        if (isRtl) {
+          offcanvasEl.classList.remove('offcanvas-start');
+          offcanvasEl.classList.add('offcanvas-end');
+        } else {
+          offcanvasEl.classList.remove('offcanvas-end');
+          offcanvasEl.classList.add('offcanvas-start');
+        }
+      }
     },
 
     detectLanguage() {
@@ -123,7 +142,26 @@
           break;
         }
       }
-      return val !== null && val !== undefined ? String(val) : (fallback !== null ? fallback : key);
+      if (val !== null && val !== undefined && val !== key) {
+        return String(val);
+      }
+      // Каскадный fallback на язык по умолчанию (ru), если в текущем языке ключ отсутствует
+      if (this.lang !== DEFAULT_LANG) {
+        const ruDict = this.translations[DEFAULT_LANG] || {};
+        let ruVal = ruDict;
+        for (const part of parts) {
+          if (ruVal && typeof ruVal === 'object' && part in ruVal) {
+            ruVal = ruVal[part];
+          } else {
+            ruVal = null;
+            break;
+          }
+        }
+        if (ruVal !== null && ruVal !== undefined && ruVal !== key) {
+          return String(ruVal);
+        }
+      }
+      return fallback !== null ? fallback : key;
     },
 
     async setLanguage(newLang) {
@@ -133,6 +171,7 @@
         localStorage.setItem('app_language', newLang);
       } catch (e) {}
 
+      this.syncRtlDirection();
       await this.loadTranslations(newLang);
       this.applyTranslations(document);
 
@@ -173,9 +212,43 @@
           if (translated && translated !== key) {
             el.setAttribute('title', translated);
             el.setAttribute('data-bs-title', translated);
+            el.setAttribute('data-original-title', translated);
           }
         }
       });
+
+      // Метки optgroup и элементов с label (data-i18n-label)
+      container.querySelectorAll('[data-i18n-label]').forEach((el) => {
+        const key = el.getAttribute('data-i18n-label');
+        if (key) {
+          const translated = this.t(key);
+          if (translated && translated !== key) {
+            el.setAttribute('label', translated);
+            el.label = translated;
+          }
+        }
+      });
+
+      // Атрибуты доступности (data-i18n-aria-label)
+      container.querySelectorAll('[data-i18n-aria-label]').forEach((el) => {
+        const key = el.getAttribute('data-i18n-aria-label');
+        if (key) {
+          const translated = this.t(key);
+          if (translated && translated !== key) {
+            el.setAttribute('aria-label', translated);
+          }
+        }
+      });
+
+      // Заголовок документа (title с data-i18n)
+      const pageTitleEl = document.querySelector('title[data-i18n]');
+      if (pageTitleEl) {
+        const titleKey = pageTitleEl.getAttribute('data-i18n');
+        const translatedTitle = this.t(titleKey);
+        if (translatedTitle && translatedTitle !== titleKey) {
+          document.title = translatedTitle;
+        }
+      }
     },
 
     startObserver() {

@@ -8,26 +8,213 @@
  *
  * Usage Examples:
  *   HTML Link Tag:
- *     <link rel="stylesheet" href="/windows/api/webgui/css/variables.css?v=20261004_v17">
+ *     <link rel="stylesheet" href="/apps/common/webgui/css/variables.css?v=20261004_v17">
  *
  * File: variables.css
- * Project: ai-windows-admin
- * Package: windows/api/webgui/css
+ * Project: ai-assistant
+ * Package: apps/common/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 20:05:00
+ * Updated: 2026-11-03 14:11:00
  * =============================================================================
  */
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   THEME VARIABLES — AI Windows Admin WebGUI
+   THEME VARIABLES — AI-Assistant WebGUI
    Дизайн-токены и CSS-переменные для всех тем оформления
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── 1. Светлая тема Windows System Light (Нейтрально-серый Slate-200) ─────── */
+/* ── 0. Корневые переменные и тема по умолчанию: Dark Slate (Тёмный сланец) ── */
 :root,
+[data-theme="dark"],
+[data-theme="theme-dark-slate"],
+[data-bs-theme="dark"],
+body.theme-dark-slate {
+  color-scheme: dark;
+  --color-scheme: dark;
+  /* Фоны (глубокие контрастные поверхности тёмной темы по умолчанию) */
+  --bg-color:        #0b0f19;   /* глубокий темный сланец фон страницы */
+  --surface-1:       #111827;   /* контрастные карточки, панели */
+  --surface-2:       #1f2937;   /* четкие хедеры карточек и тулбары */
+  --card-bg:         #111827;
+  --card-text:       #f9fafb;   /* яркий чистый читаемый текст */
+  --nav-bg:          #0b0f19;
+  --modal-bg:        #111827;
+  --modal-text:      #f9fafb;
+  --modal-size-w:    90vw;
+  --modal-size-h:    90vh;
+  --modal-width:     90vw;
+  --modal-height:    90vh;
+
+  /* UI Kit токены (themes.css) */
+  --ui-bg-base:             #0b0f19;
+  --ui-bg-surface:          #111827;
+  --ui-bg-surface-elevated: #1f2937;
+  --ui-border-color:        #374151;
+  --ui-border-color-subtle: rgba(75, 85, 99, 0.4);
+  --ui-text-primary:        #f9fafb;
+  --ui-text-secondary:      #9ca3af;
+  --ui-text-muted:          #6b7280;
+  --ui-accent:              #38bdf8;
+  --ui-accent-hover:        #0ea5e9;
+  --ui-danger:              #ef4444;
+  --ui-warning:             #f59e0b;
+  --ui-success:             #10b981;
+  --ui-info:                #38bdf8;
+
+  /* Bootstrap 5.3 адаптация тёмной темы */
+  --bs-body-bg:             #0b0f19;
+  --bs-body-bg-rgb:         11, 15, 25;
+  --bs-body-color:          #f9fafb;
+  --bs-secondary-color:     var(--text-muted);
+  --bs-secondary-color-rgb: 156, 163, 175;
+  --bs-tertiary-bg:         #1f2937;
+  --bs-secondary-bg:        #1f2937;
+  --bs-card-bg:             #111827;
+  --bs-card-color:          #f9fafb;
+  --bs-modal-bg:            #111827;
+  --bs-modal-color:         #f9fafb;
+  --bs-list-group-bg:       #111827;
+  --bs-dropdown-bg:         #111827;
+  --bs-border-color:        #374151;
+
+  /* Текст */
+  --text-color:             #f9fafb;
+  --text-muted:             #9ca3af;
+  --text-silver:            #e2e8f0;
+  --badge-info-solid-bg:    #1f6feb;
+  --badge-info-solid-text:  var(--text-silver);
+  --nav-text:               #b0bdcc;
+  --nav-active:             #58a6ff;
+  --nav-hover-bg:           #222d3d;
+
+  /* Линии и границы */
+  --border-color:           #374151;
+  --border-strong:          #596b82;
+  --border-subtle:          #252d38;
+  --border-contrast:        #70849d;
+  --divider-color:          #374151;
+  --modal-border:           #374151;
+  --card-border:            #374151;
+
+  /* Тени */
+  --shadow-xs:  0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-sm:  0 2px 6px rgba(0, 0, 0, 0.45);
+  --shadow-md:  0 6px 16px rgba(0, 0, 0, 0.55);
+  --shadow-lg:  0 10px 30px rgba(0, 0, 0, 0.65);
+
+  /* Чат */
+  --chat-user-bg:    #1f6feb;
+  --chat-user-text:  #ffffff;
+  --chat-bot-bg:     #1e293b;
+  --chat-bot-text:   #f9fafb;
+
+  /* Скроллбар */
+  --scrollbar-track: #0b0f19;
+  --scrollbar-thumb: #4e5b6e;
+
+  /* Статусы и бейджи */
+  --badge-warning-bg: rgba(245, 158, 11, 0.15);
+  --badge-warning-text: #f59e0b;
+  --badge-warning-border: rgba(245, 158, 11, 0.3);
+  --badge-danger-bg: rgba(239, 68, 68, 0.15);
+  --badge-danger-text: #ef4444;
+  --badge-danger-border: rgba(239, 68, 68, 0.3);
+  --badge-success-bg: rgba(16, 185, 129, 0.15);
+  --badge-success-text: #10b981;
+  --badge-success-border: rgba(16, 185, 129, 0.3);
+  --badge-info-bg: rgba(56, 189, 248, 0.15);
+  --badge-info-text: #38bdf8;
+  --badge-info-border: rgba(56, 189, 248, 0.3);
+  --badge-neutral-bg: #1f2937;
+  --badge-neutral-text: #9ca3af;
+  --badge-neutral-border: #374151;
+
+  --status-success-bg: rgba(16, 185, 129, 0.15);
+  --status-success-text: #10b981;
+  --status-success-border: rgba(16, 185, 129, 0.3);
+  --status-warning-bg: rgba(245, 158, 11, 0.15);
+  --status-warning-text: #f59e0b;
+  --status-warning-border: rgba(245, 158, 11, 0.3);
+  --status-danger-bg: rgba(239, 68, 68, 0.15);
+  --status-danger-text: #ef4444;
+  --status-danger-border: rgba(239, 68, 68, 0.3);
+  --status-info-bg: rgba(56, 189, 248, 0.15);
+  --status-info-text: #38bdf8;
+  --status-info-border: rgba(56, 189, 248, 0.3);
+
+  /* Алерты */
+  --alert-success-bg:     #123321;
+  --alert-success-border: #3fb950;
+  --alert-success-text:   #8df397;
+  --alert-danger-bg:      #3b181d;
+  --alert-danger-border:  #f85149;
+  --alert-danger-text:    #ff9b94;
+  --alert-warning-bg:     #38290f;
+  --alert-warning-border: #d29922;
+  --alert-warning-text:   #f5cf6d;
+  --alert-info-bg:        #122744;
+  --alert-info-border:    #388bfd;
+  --alert-info-text:      #a5d6ff;
+
+  /* Геометрия и радиусы */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Типографика */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+  --badge-font-size: calc(0.75rem + 1pt);
+
+  /* Токены командной строки и консоли терминала */
+  --terminal-bg:        #0d1117;
+  --terminal-text:      #f0f6fc;
+  --terminal-header-bg: #161b22;
+  --terminal-border:    #30363d;
+  --terminal-prompt:    #2ea043;
+
+  /* Каскадные токены KPI-карточек */
+  --kpi-bg:         var(--surface-1);
+  --kpi-border:     var(--border-color);
+  --kpi-accent:     var(--nav-active);
+  --kpi-min-height: 72px;
+  --kpi-padding:    0.65rem 0.9rem;
+  --kpi-val-size:   1.25rem;
+  --kpi-label-size: 0.72rem;
+  --kpi-sub-size:   0.72rem;
+
+  /* Каскадные токены панелей */
+  --panel-bg:        var(--surface-1);
+  --panel-border:    var(--border-color);
+  --panel-header-bg: var(--surface-2);
+  --panel-header-color: var(--text-color);
+  --panel-header-font-size: 1.75rem;
+
+  /* Каскадные токены заголовка вкладки (Tab Header) */
+  --tab-header-title-size: 1.35rem;
+  --tab-header-title-color: var(--text-color);
+  --tab-header-title-weight: 700;
+  --tab-header-subtitle-color: var(--text-muted);
+  --tab-header-subtitle-size: 0.82rem;
+  --tab-header-icon-size: 1.5rem;
+  --tab-header-gap: 0.5rem;
+  --tab-header-margin-bottom: 0.5rem;
+
+  /* Каскадные токены суб-навигации */
+  --subnav-btn-padding: 0.35rem 0.75rem;
+  --subnav-font-size:   0.82rem;
+}
+
+/* ── 1. Светлая тема Windows System Light (Нейтрально-серый Slate-200) ─────── */
 [data-theme="light"],
-[data-theme="theme-light-enterprise"] {
+[data-theme="theme-light-enterprise"],
+[data-bs-theme="light"],
+body.theme-light,
+body.theme-light-enterprise {
+  color-scheme: light;
+  --color-scheme: light;
   /* Фоны (комфортный серый задний фон страницы и мягкие светло-серые поверхности карточек) */
   --bg-color:        #e2e8f0;   /* мягкий нейтрально-серый задний фон страницы (Slate-200) */
   --surface-1:       #eaedf2;   /* карточки, панели, мягкая матовая светло-серая поверхность */
@@ -37,13 +224,12 @@
   --nav-bg:          #e2e8f0;
   --bs-body-bg:      #e2e8f0;
   --bs-body-bg-rgb:  226, 232, 240;
+  --bs-secondary-color: var(--text-muted);
+  --bs-secondary-color-rgb: 63, 63, 70;
 
   /* Текст высокой четкости и контрастности для комфортного чтения */
   --text-color:      #0f172a;   /* глубокий четкий темный текст */
-  --text-muted:      #475569;
-  --text-silver:           #e2e8f0;   /* единый серебряный/светло-серый цвет шрифта вместо белого */
-  --badge-info-solid-bg:   #0284c7;   /* темно-синий/инфо фон для сплошных бейджей bg-info */
-  --badge-info-solid-text: var(--text-silver); /* светло-серый серебряный шрифт */   /* темный нейтральный slate для высокой читаемости подписей и параметров */
+  --text-muted:      #475569;   /* темный нейтральный slate для высокой читаемости подписей и параметров */
   --nav-text:        #1e293b;   /* контрастный текст навигации */
   --nav-active:      #0284c7;   /* четкий сапфирово-синий акцент */
   --nav-hover-bg:    #cbd5e1;
@@ -55,8 +241,6 @@
   --border-contrast: #64748b;   /* контрастные рамки */
   --divider-color:   #cbd5e1;
   --modal-border:    #cbd5e1;
-  --modal-width:     90vw;
-  --modal-height:    90vh;
 
   /* Тени (мягкие) */
   --shadow-xs:  0 1px 2px rgba(15, 23, 42, 0.05);
@@ -101,8 +285,7 @@
   /* Типографика */
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-  --badge-font-size: calc(0.75rem + 1pt);
-  --status-val-font-size: calc(1em + 1pt);
+  --badge-font-size: 0.72rem;
 
   /* Токены командной строки и консоли терминала */
   --terminal-bg:        #0d1117;
@@ -127,16 +310,6 @@
   --panel-header-bg: var(--surface-2);
   --panel-header-color: var(--text-color);
   --panel-header-font-size: 1.75rem;
-  --panel-header-font-size-sm: 1rem;
-
-  /* Каскадные токены таблиц */
-  --table-bg:           var(--surface-1);
-  --table-row-bg:       var(--surface-1);
-  --table-color:        var(--text-color);
-  --table-border-color: var(--border-color);
-  --table-header-bg:    var(--surface-2);
-  --table-header-color: var(--text-muted);
-  --table-hover-bg:     var(--nav-hover-bg);
 
   /* Каскадные токены заголовка вкладки (Tab Header) */
   --tab-header-title-size: 1.35rem;
@@ -151,11 +324,6 @@
   /* Каскадные токены суб-навигации */
   --subnav-btn-padding: 0.35rem 0.75rem;
   --subnav-font-size:   0.82rem;
-
-  /* Каскадные токены заголовка модели оборудования (System Inspector / Сводка) */
-  --sys-metric-title-color:  #2b0d14; /* очень темное почти черное бордо */
-  --sys-metric-title-size:   1.05rem;
-  --sys-metric-title-shadow: 0 1px 2px rgba(43, 13, 20, 0.18);
 
   /* Статусные цвета — светлая тема */
   --status-success-bg:     #dcfce7;
@@ -177,54 +345,52 @@
 
 /* Переопределения типографики для светлой темы Windows System Light (увеличение бейджей на 1pt) */
 [data-theme="light"] {
-  --badge-font-size: calc(0.75rem + 1pt);
-  --status-val-font-size: calc(1em + 1pt);
+  --badge-font-size: calc(0.72rem + 1pt);
 }
 
-/* ── 1b. Аутентичная светлая тема NightView (Тёплая бумага / Warm Paper) ───── */
-[data-theme="nightview"] {
+/* ── 1b. Аутентичная светлая тема NightView (Тёплая бумага) и NightView 70% ─── */
+[data-theme="nightview"],
+[data-theme="nightview-70"] {
+  color-scheme: light;
+  --color-scheme: light;
   /* Фоны (мягкие теплые бежево-серые поверхности в стиле NightView / бумага) */
-  --bg-color:        #f5f2eb;   /* мягкий комфортный светлый фон страницы (Warm Paper) */
-  --surface-1:       #f6f1e8;   /* мягкая теплая бумага (без белого) */
-  --surface-2:       #eee8dd;   /* хедеры карточек, тулбары, разделители */
+  --bg-color:        #ede6d9;   /* мягкий приглушенный теплый фон страницы (Warm Paper) */
+  --surface-1:       #f6f1e8;   /* карточки, панели, мягкая бумажная поверхность */
+  --surface-2:       #e2dac9;   /* хедеры карточек, тулбары, разделители */
   --card-bg:         #f6f1e8;
   --card-text:       #18181b;   /* четкий глубокий антрацитовый текст максимальной читаемости */
-  --nav-bg:          #f5f2eb;
-  --bs-body-bg:      #f5f2eb;
-  --bs-body-bg-rgb:  245, 242, 235;
-  --bs-info:         #0284c7;
-  --bs-info-rgb:     2, 132, 199;
-  --bs-primary:      #1d4ed8;
-  --bs-primary-rgb:  29, 78, 216;
-  --ui-bg-base:      #f5f2eb;
+  --nav-bg:          #f6f1e8;
+  --bs-body-bg:      #ede6d9;
+  --bs-body-bg-rgb:  237, 230, 217;
+  --bs-secondary-color: var(--text-muted);
+  --bs-secondary-color-rgb: 63, 63, 70;
+  --ui-bg-base:      #ede6d9;
   --ui-bg-surface:   #f6f1e8;
-  --ui-bg-surface-elevated: #eee8dd;
+  --ui-bg-surface-elevated: #e2dac9;
 
   /* Текст высокой четкости и контрастности для комфортного ночного чтения */
   --text-color:      #18181b;   /* глубокий четкий темный текст */
-  --text-muted:      #4b5563;   /* четкий темный slate для высокой читаемости подписей и параметров */
+  --text-muted:      #3f3f46;   /* темный нейтральный slate для высокой читаемости подписей и параметров */
   --ui-text-primary: #18181b;
-  --ui-text-secondary: #4b5563;
-  --ui-text-muted:   #6b7280;
-  --text-silver:           #e2e8f0;   /* единый серебряный/светло-серый цвет шрифта вместо белого */
-  --badge-info-solid-bg:   #0284c7;   /* глубокий темно-синий фон бейджа bg-info */
-  --badge-info-solid-text: var(--text-silver); /* светло-серый серебряный шрифт на темно-синем бейдже */
-  --nav-text:        #18181b;   /* контрастный текст навигации */
+  --ui-text-secondary: #3f3f46;
+  --ui-text-muted:   #52525b;
+  --text-silver:           #27272a;
+  --badge-info-solid-bg:   #1d4ed8;
+  --badge-info-solid-text: #f6f1e8;
+  --nav-text:        #27272a;   /* контрастный текст навигации */
   --nav-active:      #1d4ed8;   /* четкий сапфирово-синий акцент */
   --ui-accent:       #1d4ed8;
   --ui-accent-hover: #1e40af;
-  --nav-hover-bg:    #eee8dd;
+  --nav-hover-bg:    #eae4d8;
 
   /* Линии и границы */
-  --border-color:    #ded7cb;   /* четкий теплый контур */
+  --border-color:    #cfc5b4;   /* четкий теплый контур */
   --border-strong:   #9ca3af;   /* выразительные активные границы */
-  --border-subtle:   #eae4d8;   /* деликатные внутренние разделители */
+  --border-subtle:   #ded6c7;   /* деликатные внутренние разделители */
   --border-contrast: #71717a;   /* контрастные рамки */
-  --divider-color:   #ded7cb;
-  --modal-border:    #ded7cb;
-  --modal-width:     90vw;
-  --modal-height:    90vh;
-  --ui-border-color: #ded7cb;
+  --divider-color:   #cfc5b4;
+  --modal-border:    #cfc5b4;
+  --ui-border-color: #cfc5b4;
 
   /* Тени (мягкие теплые) */
   --shadow-xs:  0 1px 2px rgba(50, 40, 30, 0.05);
@@ -244,65 +410,48 @@
 
   /* Модальные окна */
   --modal-bg:        #f6f1e8;
-  --modal-text:      #18181b;
+  --modal-text:      #2b2723;
 
   /* Алерты — светлая тема NightView (пастельные комфортные тона) */
-  --alert-success-bg:     rgba(22, 163, 74, 0.12);
-  --alert-success-border: rgba(22, 163, 74, 0.28);
-  --alert-success-text:   #15803d;
-  --alert-danger-bg:      rgba(220, 38, 38, 0.12);
-  --alert-danger-border:  rgba(220, 38, 38, 0.28);
-  --alert-danger-text:    #dc2626;
-  --alert-warning-bg:     rgba(217, 119, 6, 0.12);
-  --alert-warning-border: rgba(217, 119, 6, 0.28);
-  --alert-warning-text:   #b45309;
-  --alert-info-bg:        rgba(2, 132, 199, 0.12);
-  --alert-info-border:    rgba(2, 132, 199, 0.28);
-  --alert-info-text:      #0284c7;
+  --alert-success-bg:     #e7f2e9;
+  --alert-success-border: #98c9a0;
+  --alert-success-text:   #185223;
+  --alert-danger-bg:      #f6e6e6;
+  --alert-danger-border:  #e19f9d;
+  --alert-danger-text:    #7e1f1f;
+  --alert-warning-bg:     #f8f0dd;
+  --alert-warning-border: #dfc279;
+  --alert-warning-text:   #704705;
+  --alert-info-bg:        #e5eef7;
+  --alert-info-border:    #97bcdb;
+  --alert-info-text:      #184674;
 
   /* Статусные цвета */
-  --status-success-bg:     rgba(22, 163, 74, 0.12);
-  --status-success-text:   #15803d;
-  --status-success-border: rgba(22, 163, 74, 0.28);
-  --status-danger-bg:      rgba(220, 38, 38, 0.12);
-  --status-danger-text:    #dc2626;
-  --status-danger-border:  rgba(220, 38, 38, 0.28);
-  --status-warning-bg:     rgba(217, 119, 6, 0.12);
-  --status-warning-text:   #e65100;
-  --status-warning-border: rgba(230, 81, 0, 0.28);
-  --status-info-bg:        rgba(2, 132, 199, 0.12);
-  --status-info-text:      #0284c7;
-  --status-info-border:    rgba(2, 132, 199, 0.28);
-  --ui-success:            #16a34a;
-  --ui-warning:            #e65100;
-  --bs-warning:            #e65100;
-  --bs-warning-rgb:        230, 81, 0;
-  --badge-warning-bg:      #fef3c7;
-  --badge-warning-text:    #78350f;
-  --badge-warning-border:  #fcd34d;
-  --ui-danger:             #dc2626;
-  --ui-info:               #0284c7;
+  --status-success-bg:     #e7f2e9;
+  --status-success-text:   #185223;
+  --status-success-border: #98c9a0;
+  --status-danger-bg:      #f6e6e6;
+  --status-danger-text:    #7e1f1f;
+  --status-danger-border:  #e19f9d;
+  --status-warning-bg:     #f8f0dd;
+  --status-warning-text:   #704705;
+  --status-warning-border: #dfc279;
+  --status-info-bg:        #e5eef7;
+  --status-info-text:      #184674;
+  --status-info-border:    #97bcdb;
+  --ui-success:            #185223;
+  --ui-warning:            #b43418;
+  --ui-danger:             #9e2b17;
+  --ui-info:               #184674;
 
-  /* Токены таблиц NightView (Аутентичная тёплая бумага #f6f1e8) */
-  --table-bg:              #f6f1e8;
-  --table-row-bg:          #f6f1e8;
-  --table-header-bg:       #eee8dd;
-  --table-border-color:    #ded7cb;
-  --table-color:           #18181b;
-
-  --about-card-bg: var(--surface-1);
-  --badge-font-size: calc(0.75rem + 1pt);
-  --status-val-font-size: calc(1em + 1pt);
-  --status-val-font-size: calc(1em + 1pt);
-
-  /* Каскадные токены заголовка модели оборудования (System Inspector) */
-  --sys-metric-title-color:  #2b0d14; /* очень темное почти черное бордо на теплой бумаге */
-  --sys-metric-title-size:   1.05rem;
-  --sys-metric-title-shadow: 0 1px 2px rgba(43, 13, 20, 0.18);
+  --about-card-bg: linear-gradient(135deg, #f6f1e8 0%, #ede6d9 100%);
+  --badge-font-size: calc(0.72rem + 1pt);
 }
 
 /* ── 2. Светлая кирпичная тема (Brick / Terracotta) ────────────────────────── */
 [data-theme="brick"] {
+  color-scheme: light;
+  --color-scheme: light;
   /* Фоны (теплые клинкерные и терракотовые поверхности без слепящего белого) */
   --bg-color:        #f7f3ee;   /* теплый светлый фон клинкера */
   --surface-1:       #fcfaf6;   /* мягкие теплые карточки */
@@ -310,13 +459,12 @@
   --card-bg:         #fcfaf6;
   --card-text:       #2c221e;
   --nav-bg:          #fcfaf6;
+  --bs-secondary-color: var(--text-muted);
+  --bs-secondary-color-rgb: 63, 63, 70;
 
   /* Текст */
   --text-color:      #2c221e;   /* глубокий теплый антрацит */
-  --text-muted:      #7d6b63;
-  --text-silver:           #ede8e3;
-  --badge-info-solid-bg:   #9a3412;
-  --badge-info-solid-text: var(--text-silver);   /* теплый приглушенный */
+  --text-muted:      #7d6b63;   /* теплый приглушенный */
   --nav-text:        #59473f;
   --nav-active:      #b84228;   /* благородный терракотово-кирпичный */
   --nav-hover-bg:    #f7e6dc;
@@ -328,8 +476,6 @@
   --border-contrast: #8f5843;
   --divider-color:   #dfcebf;
   --modal-border:    #dfcebf;
-  --modal-width:     90vw;
-  --modal-height:    90vh;
 
   /* Тени (теплые) */
   --shadow-xs:  0 1px 2px rgba(130, 70, 50, 0.05);
@@ -398,16 +544,6 @@
   --panel-header-bg: var(--surface-2);
   --panel-header-color: var(--text-color);
   --panel-header-font-size: 1.75rem;
-  --panel-header-font-size-sm: 1rem;
-
-  /* Каскадные токены таблиц */
-  --table-bg:           var(--surface-1);
-  --table-row-bg:       var(--surface-1);
-  --table-color:        var(--text-color);
-  --table-border-color: var(--border-color);
-  --table-header-bg:    var(--surface-2);
-  --table-header-color: var(--text-muted);
-  --table-hover-bg:     var(--nav-hover-bg);
 
   /* Каскадные токены заголовка вкладки (Tab Header) */
   --tab-header-title-size: 1.35rem;
@@ -422,11 +558,6 @@
   /* Каскадные токены суб-навигации */
   --subnav-btn-padding: 0.35rem 0.75rem;
   --subnav-font-size:   0.82rem;
-
-  /* Каскадные токены заголовка модели оборудования (System Inspector) */
-  --sys-metric-title-color:  #3b0a0a; /* темный клинкерный бордо */
-  --sys-metric-title-size:   1.05rem;
-  --sys-metric-title-shadow: 0 1px 2px rgba(59, 10, 10, 0.18);
 
   /* Статусные цвета */
   --status-success-bg:     #e2f3e8;
@@ -446,137 +577,36 @@
   --status-info-border:    #9bc4e2;
 }
 
-/* ── 3a. Тёмная сланцевая тема Dark Slate (Slate-900 / Sky-400) ───────────── */
-[data-theme="theme-dark-slate"],
-html.theme-dark-slate,
-body.theme-dark-slate {
-  /* Фоны (глубокий благородный сланец Slate) */
-  --bg-color:        #0f172a;   /* Slate-900: глубокий сланцевый фон */
-  --surface-1:       #1e293b;   /* Slate-800: матовые сланцевые карточки */
-  --surface-2:       #334155;   /* Slate-700: хедеры карточек и тулбары */
-  --card-bg:         #1e293b;
-  --card-text:       #f8fafc;
-  --nav-bg:          #1e293b;
-  --bs-body-bg:      #0f172a;
-  --bs-body-bg-rgb:  15, 23, 42;
-  --ui-bg-base:      #0f172a;
-  --ui-bg-surface:   #1e293b;
-  --ui-bg-surface-elevated: #334155;
-
-  /* Текст высокой четкости и контрастности */
-  --text-color:      #f8fafc;   /* Slate-50: чистый яркий текст */
-  --text-muted:      #94a3b8;   /* Slate-400 */
-  --ui-text-primary: #f8fafc;
-  --ui-text-secondary: #cbd5e1;
-  --ui-text-muted:   #94a3b8;
-  --nav-text:        #cbd5e1;
-  --nav-active:      #38bdf8;   /* Sky-400: фирменный лазурный акцент */
-  --ui-accent:       #38bdf8;
-  --ui-accent-hover: #0ea5e9;
-  --nav-hover-bg:    #334155;
-
-  /* Линии и границы */
-  --border-color:    #334155;
-  --border-strong:   #475569;
-  --border-subtle:   rgba(100, 116, 139, 0.25);
-  --border-contrast: #64748b;
-  --divider-color:   #334155;
-  --modal-border:    #334155;
-  --modal-width:     90vw;
-  --modal-height:    90vh;
-  --ui-border-color: #334155;
-
-  /* Тени */
-  --shadow-xs:  0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-sm:  0 2px 6px rgba(0, 0, 0, 0.45);
-  --shadow-md:  0 6px 16px rgba(0, 0, 0, 0.55);
-  --shadow-lg:  0 10px 30px rgba(0, 0, 0, 0.65);
-
-  /* Модальные окна */
-  --modal-bg:        #1e293b;
-  --modal-text:      #f8fafc;
-
-  /* Алерты */
-  --alert-success-bg:     #064e3b;
-  --alert-success-border: #059669;
-  --alert-success-text:   #a7f3d0;
-  --alert-danger-bg:      #450a0a;
-  --alert-danger-border:  #dc2626;
-  --alert-danger-text:    #fecaca;
-  --alert-warning-bg:     #451a03;
-  --alert-warning-border: #d97706;
-  --alert-warning-text:   #fde68a;
-  --alert-info-bg:        #0c4a6e;
-  --alert-info-border:    #0284c7;
-  --alert-info-text:      #bae6fd;
-
-  /* Статусные цвета */
-  --status-success-bg:     rgba(52, 211, 153, 0.15);
-  --status-success-text:   #34d399;
-  --status-success-border: rgba(52, 211, 153, 0.3);
-  --status-danger-bg:      rgba(248, 113, 113, 0.15);
-  --status-danger-text:    #f87171;
-  --status-danger-border:  rgba(248, 113, 113, 0.3);
-  --status-warning-bg:     rgba(251, 191, 36, 0.15);
-  --status-warning-text:   #fbbf24;
-  --status-warning-border: rgba(251, 191, 36, 0.3);
-  --status-info-bg:        rgba(56, 189, 248, 0.15);
-  --status-info-text:      #38bdf8;
-  --status-info-border:    rgba(56, 189, 248, 0.3);
-  --ui-success:            #34d399;
-  --ui-warning:            #fbbf24;
-  --ui-danger:             #f87171;
-  --ui-info:               #38bdf8;
-
-  --about-card-bg: linear-gradient(135deg, #1e293b 0%, #162032 100%);
-  --badge-font-size: calc(0.72rem + 1pt);
-
-  --bs-card-bg: #1e293b;
-  --bs-card-color: #f8fafc;
-  --bs-modal-bg: #1e293b;
-  --bs-modal-color: #f8fafc;
-  --bs-offcanvas-bg: #1e293b;
-  --bs-tertiary-bg: #334155;
-  --bs-secondary-bg: #334155;
-  --bs-list-group-bg: #1e293b;
-  --bs-body-color-rgb:  248, 250, 252;
-  --bs-emphasis-color:  #f8fafc;
-  --bs-emphasis-color-rgb: 248, 250, 252;
-  --bs-secondary-color: #cbd5e1;
-  --bs-secondary-color-rgb: 203, 213, 225;
-  --bs-tertiary-color:  #94a3b8;
-  --bs-tertiary-color-rgb: 148, 163, 184;
-  --bs-heading-color:   #f8fafc;
-  --bs-link-color:      #38bdf8;
-  --bs-link-hover-color: #7dd3fc;
-  --bs-secondary-bg-subtle: #334155;
-  --bs-secondary-border-subtle: #475569;
-  --bs-border-color-translucent: rgba(255, 255, 255, 0.15);
-  --bs-list-group-color: #f8fafc;
-  --bs-list-group-action-color: #f8fafc;
-  --bs-list-group-action-hover-color: #38bdf8;
-  --bs-list-group-action-hover-bg: #334155;
-  --bs-dropdown-bg: #1e293b;
-  --bs-dropdown-color: #f8fafc;
-  --bs-dropdown-border-color: #334155;
-  --bs-border-color: #334155;
-  --bs-primary: #38bdf8;
-  --bs-primary-rgb: 56, 189, 248;
-  --bs-info: #38bdf8;
-  --bs-info-rgb: 56, 189, 248;
-
-  --panel-bg: #1e293b;
-  --panel-header-bg: #334155;
-  --panel-header-color: #f8fafc;
-  --panel-header-font-size: 1.75rem;
-  --tab-header-title-color: #f8fafc;
-  --tab-header-subtitle-color: #94a3b8;
-}
-
 /* ── 3. Тёмная высококонтрастная тема (Dark High-Contrast) ────────────────── */
 [data-theme="dark"] {
+  color-scheme: dark;
+  --color-scheme: dark;
   /* Фоны (глубокие контрастные поверхности) */
   --bg-color:        #0b0f17;   /* глубокий темный фон страницы */
+  --bs-body-bg:      #0b0f17;
+  --bs-body-bg-rgb:  11, 15, 23;
+  --bs-body-color:   #f3f6fa;
+  --bs-secondary-color: var(--text-muted);
+  --bs-secondary-color-rgb: 63, 63, 70;
+  --bs-tertiary-bg:  #1e2633;
+  --bs-secondary-bg: #1e2633;
+  --bs-card-bg:      #151b23;
+  --bs-card-color:   #f3f6fa;
+  --bs-modal-bg:     #151b23;
+  --bs-modal-color:  #f3f6fa;
+  --bs-list-group-bg:#151b23;
+  --bs-dropdown-bg:  #151b23;
+  --bs-border-color: #3b4758;
+  --ui-bg-base:      #0b0f17;
+  --ui-bg-surface:   #151b23;
+  --ui-bg-surface-elevated: #1e2633;
+  --ui-border-color: #3b4758;
+  --ui-border-color-subtle: #252d38;
+  --ui-text-primary: #f3f6fa;
+  --ui-text-secondary: #a3b1c2;
+  --ui-text-muted:   #64748b;
+  --ui-accent:       #58a6ff;
+  --ui-accent-hover: #1f6feb;   /* глубокий темный фон страницы */
   --surface-1:       #151b23;   /* контрастные карточки */
   --surface-2:       #1e2633;   /* четкие хедеры карточек и тулбары */
   --card-bg:         #151b23;
@@ -585,10 +615,7 @@ body.theme-dark-slate {
 
   /* Текст */
   --text-color:      #f3f6fa;   /* яркий текст высокой контрастности */
-  --text-muted:      #a3b1c2;
-  --text-silver:           #e2e8f0;
-  --badge-info-solid-bg:   #1f6feb;
-  --badge-info-solid-text: var(--text-silver);   /* легко различимый вторичный текст */
+  --text-muted:      #a3b1c2;   /* легко различимый вторичный текст */
   --nav-text:        #b0bdcc;
   --nav-active:      #58a6ff;   /* яркий синий активный акцент */
   --nav-hover-bg:    #222d3d;
@@ -600,8 +627,6 @@ body.theme-dark-slate {
   --border-contrast: #70849d;   /* акцентные контуры */
   --divider-color:   #3b4758;
   --modal-border:    #3b4758;
-  --modal-width:     90vw;
-  --modal-height:    90vh;
 
   /* Тени (глубокие, отделяющие слои) */
   --shadow-xs:  0 1px 3px rgba(0, 0, 0, 0.4);
@@ -670,16 +695,6 @@ body.theme-dark-slate {
   --panel-header-bg: var(--surface-2);
   --panel-header-color: var(--text-color);
   --panel-header-font-size: 1.75rem;
-  --panel-header-font-size-sm: 1rem;
-
-  /* Каскадные токены таблиц */
-  --table-bg:           var(--surface-1);
-  --table-row-bg:       var(--surface-1);
-  --table-color:        var(--text-color);
-  --table-border-color: var(--border-color);
-  --table-header-bg:    var(--surface-2);
-  --table-header-color: var(--text-muted);
-  --table-hover-bg:     var(--nav-hover-bg);
 
   /* Каскадные токены заголовка вкладки (Tab Header) */
   --tab-header-title-size: 1.35rem;
@@ -694,11 +709,6 @@ body.theme-dark-slate {
   /* Каскадные токены суб-навигации */
   --subnav-btn-padding: 0.35rem 0.75rem;
   --subnav-font-size:   0.82rem;
-
-  /* Каскадные токены заголовка модели оборудования (System Inspector) */
-  --sys-metric-title-color:  #fda4af; /* мягкий благородный пастельно-бордовый с высокой контрастностью */
-  --sys-metric-title-size:   1.05rem;
-  --sys-metric-title-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
 
   /* Статусные цвета */
   --status-success-bg:     #174828;
@@ -720,8 +730,34 @@ body.theme-dark-slate {
 
 /* ── 4. Тёмная тема «Терминал» (Terminal / Matrix / CRT Phosphor) ─────────── */
 [data-theme="terminal"] {
+  color-scheme: dark;
+  --color-scheme: dark;
   /* Фоны (глубокий смоляной черный с зеленым отливом) */
   --bg-color:        #060a06;   /* фоновый CRT-черный */
+  --bs-body-bg:      #060a06;
+  --bs-body-bg-rgb:  6, 10, 6;
+  --bs-body-color:   #d8ffd8;
+  --bs-secondary-color: var(--text-muted);
+  --bs-secondary-color-rgb: 63, 63, 70;
+  --bs-tertiary-bg:  #101c12;
+  --bs-secondary-bg: #101c12;
+  --bs-card-bg:      #0b120c;
+  --bs-card-color:   #d8ffd8;
+  --bs-modal-bg:     #0b120c;
+  --bs-modal-color:  #d8ffd8;
+  --bs-list-group-bg:#0b120c;
+  --bs-dropdown-bg:  #0b120c;
+  --bs-border-color: #1a4223;
+  --ui-bg-base:      #060a06;
+  --ui-bg-surface:   #0b120c;
+  --ui-bg-surface-elevated: #101c12;
+  --ui-border-color: #1a4223;
+  --ui-border-color-subtle: #0f2b14;
+  --ui-text-primary: #d8ffd8;
+  --ui-text-secondary: #6cb878;
+  --ui-text-muted:   #599863;
+  --ui-accent:       #00ff66;
+  --ui-accent-hover: #39ff14;   /* фоновый CRT-черный */
   --surface-1:       #0b120c;   /* карточки терминала */
   --surface-2:       #101c12;   /* шапки с изумрудным свечением */
   --card-bg:         #0b120c;
@@ -730,10 +766,7 @@ body.theme-dark-slate {
 
   /* Текст */
   --text-color:      #d8ffd8;   /* неоновый зеленый фосфорный текст */
-  --text-muted:      #599863;
-  --text-silver:           #d1fae5;
-  --badge-info-solid-bg:   #0c2533;
-  --badge-info-solid-text: var(--text-silver);   /* приглушенный фосфор */
+  --text-muted:      #599863;   /* приглушенный фосфор */
   --nav-text:        #6cb878;
   --nav-active:      #00ff66;   /* электрический неоново-зеленый */
   --nav-hover-bg:    #152618;
@@ -745,8 +778,6 @@ body.theme-dark-slate {
   --border-contrast: #39ff14;
   --divider-color:   #1a4223;
   --modal-border:    #00ff66;
-  --modal-width:     90vw;
-  --modal-height:    90vh;
 
   /* Тени (неоновое свечение фосфора) */
   --shadow-xs:  0 0 3px rgba(0, 255, 102, 0.15);
@@ -815,16 +846,6 @@ body.theme-dark-slate {
   --panel-header-bg: var(--surface-2);
   --panel-header-color: var(--text-color);
   --panel-header-font-size: 1.75rem;
-  --panel-header-font-size-sm: 1rem;
-
-  /* Каскадные токены таблиц */
-  --table-bg:           var(--surface-1);
-  --table-row-bg:       var(--surface-1);
-  --table-color:        var(--text-color);
-  --table-border-color: var(--border-color);
-  --table-header-bg:    var(--surface-2);
-  --table-header-color: var(--text-muted);
-  --table-hover-bg:     var(--nav-hover-bg);
 
   /* Каскадные токены заголовка вкладки (Tab Header) */
   --tab-header-title-size: 1.35rem;
@@ -839,11 +860,6 @@ body.theme-dark-slate {
   /* Каскадные токены суб-навигации */
   --subnav-btn-padding: 0.35rem 0.75rem;
   --subnav-font-size:   0.82rem;
-
-  /* Каскадные токены заголовка модели оборудования (System Inspector) */
-  --sys-metric-title-color:  #d8ffd8;
-  --sys-metric-title-size:   1.05rem;
-  --sys-metric-title-shadow: 0 0 6px rgba(0, 255, 102, 0.35);
 
   /* Статусные цвета */
   --status-success-bg:     #0c2914;

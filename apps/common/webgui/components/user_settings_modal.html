@@ -1,0 +1,514 @@
+<!--
+=============================================================================
+Process Name: WebGUI Components - User Settings Modal Component
+=============================================================================
+Description:
+  Универсальный декларативный компонент модального окна пользовательских
+  настроек (тема оформления, язык локализации, проверка доступности модели,
+  управление профилем Google OAuth, редактор тем, кеш браузера, а также
+  вкладка конфигурации сетевых подключений: Hostinger MariaDB, SQLite, FTP, SSH,
+  SMTP и IMAP).
+  Соответствует стандарту геометрии 90vw × 90vh (WEBGUI.md § 5.4).
+
+Usage Examples:
+  HTML Include / Component Injection:
+    <!--#include file="components/user_settings_modal.html" -->
+    import { ensureUserSettingsModal } from '/html/js/userSettings.js';
+
+File: user_settings_modal.html
+Project: ai-assistant
+Package: apps.common.webgui.components
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-11-03 16:50:00
+=============================================================================
+-->
+
+<!-- Модальное окно настроек пользователя (Тема и Язык) -->
+<div aria-hidden="true" aria-labelledby="userSettingsModalLabel" class="modal fade" id="userSettingsModal" tabindex="-1">
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+<div class="modal-content shadow">
+<div class="modal-header d-flex align-items-center justify-content-between">
+<div class="d-flex align-items-center gap-2 flex-wrap min-w-0">
+<h5 class="modal-title d-flex align-items-center gap-2 mb-0" id="userSettingsModalLabel">
+<i class="bi bi-person-gear text-primary"></i>
+<span data-i18n="userSettings.title" id="user-settings-modal-header-title">Пользовательские настройки</span>
+</h5>
+<span class="badge bg-primary-subtle text-primary border border-primary-subtle d-inline-flex align-items-center gap-1.5 cursor-pointer user-settings-model-badge ms-1" data-bs-dismiss="modal" data-i18n-title="userSettings.activeModelBadgeTitle" data-tab="tab-models" id="user-settings-active-model-badge-top" onclick="if(window.openModelsTab){window.openModelsTab();}else if(window.switchTab){window.switchTab('tab-models');}else if(window.switchToTab){window.switchToTab('tab-models');}" title="Активная модель: нажмите для выбора">
+<i class="bi bi-cpu text-primary"></i>
+<span class="user-settings-model-val" id="modal-header-active-model-name">...</span>
+<i class="bi bi-box-arrow-up-right font-size-75 ms-1"></i>
+</span>
+</div>
+<button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+</div>
+
+<!-- Тело модального окна настроек интерфейса -->
+<div class="modal-body p-3" id="modal-user-settings-body">
+
+<!-- Навигация по вкладкам модального окна -->
+<ul class="nav nav-tabs mb-3 border-secondary-subtle" id="user-settings-nav-tabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active d-flex align-items-center gap-1.5" id="user-settings-tab-btn-general" data-bs-toggle="tab" data-bs-target="#user-settings-pane-general" type="button" role="tab" aria-selected="true">
+      <i class="bi bi-sliders text-primary"></i>
+      <span data-i18n="userSettings.tabGeneral">Основные настройки</span>
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link d-flex align-items-center gap-1.5" id="user-settings-tab-btn-connections" data-bs-toggle="tab" data-bs-target="#user-settings-pane-connections" type="button" role="tab" aria-selected="false">
+      <i class="bi bi-hdd-network text-info"></i>
+      <span data-i18n="userSettings.tabConnections">Сетевые подключения и БД</span>
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content" id="user-settings-tab-content">
+
+<!-- Вкладка 1: Основные настройки -->
+<div class="tab-pane fade show active" id="user-settings-pane-general" role="tabpanel" aria-labelledby="user-settings-tab-btn-general">
+
+<!-- Карточка авторизованного пользователя Google OAuth -->
+<div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3 d-none" data-panel-id="panel-webgui-1" id="user-settings-auth-card">
+<!-- Строка профиля с аватаром и информацией о пользователе -->
+<div class="d-flex align-items-center gap-3" id="user-settings-profile-row">
+<!-- Фото профиля пользователя Google -->
+<img class="rounded-circle border border-2 border-primary d-none object-fit-cover" height="48" id="user-settings-avatar" src="" width="48"/>
+<!-- Резервная иконка аватара при отсутствии фото -->
+<div class="rounded-circle bg-primary-subtle text-primary p-2 d-flex align-items-center justify-content-center avatar-48" id="user-settings-avatar-fallback">
+<i class="bi bi-person-fill fs-4" id="user-settings-avatar-icon"></i>
+</div>
+<!-- Колонка сведений о пользователе -->
+<div class="flex-grow-1 min-w-0" id="user-settings-info-col">
+<!-- Строка имени пользователя и бейджа роли -->
+<div class="d-flex align-items-center gap-2" id="user-settings-name-badge-row">
+<!-- Отображаемое имя пользователя -->
+<strong class="text-truncate" data-i18n="userSettings.userDefault" id="user-settings-name">Пользователь</strong>
+<!-- Бейдж системной роли пользователя -->
+<span class="badge bg-primary" data-i18n="ui.ide.txt_e3afed00" id="user-settings-role-badge">Admin</span>
+</div>
+<!-- Электронная почта пользователя -->
+<div class="small text-muted text-truncate" data-i18n="ui.ide.txt_1919bfc4" id="user-settings-email">email@gmail.com</div>
+<!-- Индикатор статуса синхронизации с Google OAuth -->
+<div class="small mt-1 text-muted" id="user-settings-google-badge">
+<i class="bi bi-google text-danger me-1"></i><span data-i18n="userSettings.googleOAuth" id="user-settings-google-oauth-label">Google OAuth:</span> <span class="text-success fw-bold" data-i18n="userSettings.googleSynced" id="user-settings-google-status">Синхронизирован</span>
+</div>
+</div>
+<!-- Кнопка выхода из учётной записи -->
+<button class="btn btn-outline-danger btn-sm btn-user-logout" data-i18n-title="userSettings.logout" id="user-settings-logout-btn" title="Выйти" type="button">
+<i class="bi bi-box-arrow-right"></i>
+</button>
+</div>
+</div>
+<!-- Карточка гостевого режима и входа через Google OAuth -->
+<div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3 text-center" data-panel-id="panel-webgui-2" id="user-settings-guest-card">
+<!-- Описание авторизации и доступа к сервисам Google -->
+<div class="text-muted small mb-2" id="user-settings-auth-desc">
+<i class="bi bi-shield-lock me-1"></i> <span data-i18n="userSettings.authDesc" id="user-settings-auth-desc-text">Авторизация и синхронизация аккаунта</span>
+</div>
+<!-- Кнопка входа через Google OAuth 2.0 -->
+<button class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2 btn-google-login" id="user-settings-google-btn" type="button">
+<i class="bi bi-google"></i>
+<span data-i18n="userSettings.signInGoogle" id="user-settings-google-btn-text">Войти через Google (OAuth 2.0)</span>
+</button>
+<div class="small text-muted mt-2 font-size-75" data-i18n="userSettings.googleSyncServicesHint" id="user-settings-google-sync-hint">
+  Синхронизация с Google Drive, Docs, Calendar и Contacts
+</div>
+</div>
+<!-- Контейнер выбора языка интерфейса (i18n) -->
+<div class="mb-3" id="modal-lang-container">
+<!-- Заголовок поля выбора языка интерфейса -->
+<label class="form-label fw-semibold small d-flex align-items-center gap-2" for="modal-lang-selector" id="modal-lang-selector-label">
+<i class="bi bi-translate text-info"></i>
+<span data-i18n="userSettings.language" id="modal-lang-selector-text">Язык интерфейса</span>
+</label>
+<!-- Выпадающий список выбора языка интерфейса -->
+<select class="form-select lang-selector" data-i18n-title="userSettings.languageSelectTitle" id="modal-lang-selector" title="Выбор языка интерфейса">
+<!-- Опция русского языка (ru-RU) -->
+<option data-i18n="ui.ide.txt_051d7ea9" id="opt-lang-ru" value="ru-RU">Русский (ru-RU)</option>
+<!-- Опция английского языка (en-US) -->
+<option data-i18n="ui.ide.txt_a44c7293" id="opt-lang-en" value="en-US">English (en-US)</option>
+<!-- Опция иврита (he-IL) -->
+<option data-i18n="ui.ide.txt_da0ae119" id="opt-lang-he" value="he-IL">עברית (he-IL)</option>
+<!-- Опция украинского языка (uk-UA) -->
+<option data-i18n="ui.ide.txt_ceae3e80" id="opt-lang-uk" value="uk-UA">Українська (uk-UA)</option>
+</select>
+</div>
+<!-- Контейнер выбора темы оформления интерфейса -->
+<div class="mb-2" id="modal-theme-container">
+<!-- Заголовок поля выбора темы оформления -->
+<label class="form-label fw-semibold small d-flex align-items-center gap-2" for="modal-theme-selector" id="modal-theme-selector-label">
+<i class="bi bi-palette text-warning"></i>
+<span data-i18n="userSettings.theme" id="modal-theme-selector-text">Тема оформления</span>
+</label>
+<!-- Выпадающий список тем оформления -->
+<select class="form-select theme-selector" data-i18n-title="userSettings.themeSelectTitle" id="modal-theme-selector" title="Выбор темы оформления">
+<!-- Системная адаптивная тема -->
+<option data-i18n="userSettings.themeSystem" id="opt-theme-system" value="system">🌓 Системная</option>
+<!-- Группа тёмных тем интерфейса -->
+<optgroup data-i18n-label="userSettings.themeGroupDark" id="optgroup-themes-dark" label="🌙 Тёмные темы">
+<!-- Стандартная тёмная тема -->
+<option data-i18n="userSettings.themeDark" id="opt-theme-dark" value="dark">🌙 Стандартная тёмная</option>
+<!-- Тёмная сланцевая тема Dark Slate -->
+<option data-i18n="userSettings.themeDarkSlate" id="opt-theme-dark-slate" selected="" value="theme-dark-slate">🌑 Dark Slate (Тёмный сланец)</option>
+<!-- Неоновая киберпанк тема Cyberpunk Neon -->
+<option data-i18n="userSettings.themeCyberpunk" id="opt-theme-cyberpunk" value="theme-cyberpunk">⚡ Cyberpunk Neon (Киберпанк неон)</option>
+<!-- Консольная тема Terminal (Matrix / CRT) -->
+<option data-i18n="userSettings.themeTerminal" id="opt-theme-terminal" value="terminal">📟 Терминал (Matrix / CRT)</option>
+<!-- Скандинавская морозная тема Nordic Frost -->
+<option data-i18n="userSettings.themeNordicFrost" id="opt-theme-nordic-frost" value="nordic-frost">❄️ Nordic Frost (Скандинавский морозный)</option>
+<!-- Глубокая сине-зеленая тема Solarized Deep -->
+<option data-i18n="userSettings.themeSolarizedDark" id="opt-theme-solarized-dark" value="solarized-dark">🌲 Solarized Deep (Глубокий сине-зеленый)</option>
+<!-- Тема высокой контрастности High Contrast -->
+<option data-i18n="userSettings.themeHighContrast" id="opt-theme-high-contrast" value="theme-high-contrast">👁️ High Contrast (Высокая контрастность)</option>
+</optgroup>
+<!-- Группа светлых тем интерфейса -->
+<optgroup data-i18n-label="userSettings.themeGroupLight" id="optgroup-themes-light" label="☀️ Светлые темы">
+<!-- Кирпичная тема Terracotta Brick -->
+<option data-i18n="userSettings.themeBrick" id="opt-theme-brick" value="brick">🧱 Кирпичная (Терракота)</option>
+<!-- Стандартная светлая тема Light / NightView -->
+<option data-i18n="userSettings.themeLight" id="opt-theme-light" value="light">🪟 Windows System Light</option>
+<!-- Тёплая бумажная тема NightView -->
+<option data-i18n="userSettings.themeNightview" id="opt-theme-nightview" value="nightview">📖 NightView (Тёплая бумага)</option>
+<!-- Тёплая бумажная тема NightView 70% со 100% стилем NightView и масштабом 70% -->
+<option data-i18n="userSettings.themeNightview70" id="opt-theme-nightview-70" value="nightview-70">📖 NightView 70% (Тёплая бумага 70%)</option>
+<!-- Корпоративная светлая тема Light Enterprise -->
+<option data-i18n="userSettings.themeLightEnterprise" id="opt-theme-light-enterprise" value="theme-light-enterprise">🏢 Light Enterprise (Светлый корпоративный)</option>
+</optgroup>
+</select>
+</div>
+<!-- Секция быстрой проверки доступности активной AI-модели -->
+<div class="pt-2 border-top border-secondary-subtle mt-3" id="modal-model-ping-section">
+<div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2" id="modal-model-ping-header">
+<span class="fw-semibold small d-flex align-items-center gap-2 text-body" id="modal-model-ping-title">
+<i class="bi bi-cpu text-primary"></i>
+<span data-i18n="userSettings.modelPingTitle" id="modal-model-ping-title-text">Проверка доступности модели</span>
+</span>
+<span class="badge bg-primary-subtle text-primary border border-primary-subtle d-inline-flex align-items-center gap-1.5 cursor-pointer user-settings-model-badge" data-bs-dismiss="modal" data-i18n-title="userSettings.activeModelBadgeTitle" data-tab="tab-models" id="user-settings-active-model-badge" onclick="if(window.openModelsTab){window.openModelsTab();}else if(window.switchTab){window.switchTab('tab-models');}else if(window.switchToTab){window.switchToTab('tab-models');}" title="Активная модель: нажмите для выбора">
+<i class="bi bi-stars text-warning"></i>
+<span class="user-settings-model-val" id="user-settings-active-model-name">...</span>
+<i class="bi bi-box-arrow-up-right font-size-75 ms-1"></i>
+</span>
+</div>
+<div class="input-group input-group-sm mb-2" id="model-ping-input-group">
+<input class="form-control form-control-sm" data-i18n-placeholder="userSettings.modelPingPlaceholder" id="model-ping-input" placeholder="Введите сообщение..." type="text" value="Проверка доступности модели"/>
+<button class="btn btn-sm btn-primary d-flex align-items-center gap-1.5 px-3" id="btn-model-ping-send" type="button">
+<i class="bi bi-send-fill" id="model-ping-btn-icon"></i>
+<span data-i18n="userSettings.modelPingSendBtn" id="model-ping-btn-text">Отправить</span>
+</button>
+</div>
+<div class="d-none" id="model-ping-response-container">
+<label class="form-label small text-muted mb-1 fw-semibold" data-i18n="userSettings.modelPingResponseLabel" id="model-ping-response-label">Ответ модели:</label>
+<div class="small p-2 rounded bg-body-tertiary border text-break font-monospace pre-scrollable-220" id="model-ping-response"></div>
+</div>
+</div>
+<!-- Секция навигации в Редактор тем оформления -->
+<div class="pt-2 border-top border-secondary-subtle mt-3" id="modal-theme-editor-section">
+<!-- Кнопка перехода в Редактор тем оформления -->
+<button class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2" data-bs-dismiss="modal" data-tab="tab-theme-editor" id="modal-btn-open-theme-editor" type="button">
+<i class="bi bi-palette2 text-primary"></i>
+<span data-i18n="userSettings.themeEditorBtn" id="modal-btn-open-theme-editor-label">Редактор тем оформления</span>
+</button>
+<!-- Описание возможностей редактора тем -->
+<div class="text-muted small text-center mt-1 font-size-75" data-i18n="userSettings.themeEditorDesc" id="modal-theme-editor-desc">
+              Размеры, цвета, скругления, типографика и элементы
+            </div>
+</div>
+<!-- Секция диспетчера кеша браузера -->
+<div class="pt-2 border-top border-secondary-subtle mt-3" id="modal-cache-manager-section">
+<!-- Кнопка открытия диалога управления кешем браузера -->
+<button class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2" data-ai-tooltip="true" data-bs-target="#cacheManagerModal" data-bs-toggle="modal" data-i18n-title="cacheManager.title" data-term="clear_cache" id="btn-open-cache-manager" title="Кеш браузера" type="button">
+<i class="bi bi-hdd-stack text-secondary"></i>
+<span data-i18n="userSettings.cacheManagerBtn" id="modal-cache-manager-btn-label">Кеш браузера и хранилище данных</span>
+</button>
+<!-- Описание функций управления локальными данными и дисковой квотой -->
+<div class="text-muted small text-center mt-1 font-size-75" data-i18n="userSettings.cacheManagerDesc" id="modal-cache-manager-desc">
+              Управление локальными данными, IndexedDB и дисковой квотой
+            </div>
+</div>
+
+</div>
+
+
+<!-- Вкладка 2: Сетевые подключения и БД -->
+<div class="tab-pane fade" id="user-settings-pane-connections" role="tabpanel" aria-labelledby="user-settings-tab-btn-connections">
+
+<!-- Баннер заголовка соединений -->
+<div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3" id="conn-settings-header-card">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <div>
+      <h6 class="fw-bold mb-1 d-flex align-items-center gap-2">
+        <i class="bi bi-hdd-network text-info"></i>
+        <span data-i18n="userSettings.connectionsTitle">Конфигурация баз данных и внешних сервисов</span>
+      </h6>
+      <div class="small text-muted" data-i18n="userSettings.connectionsDesc">
+        Управление реквизитами доступа к Hostinger MariaDB, SQLite, FTP, SSH, SMTP и IMAP
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-body-secondary text-body border border-secondary-subtle px-2 py-1.5" id="conn-active-status-badge">
+        <i class="bi bi-shield-check text-success me-1"></i> <span id="conn-status-summary-text">Готов к работе</span>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- Секция 1: Hostinger MariaDB & Базы инструментов -->
+<div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3" id="conn-sec-hostinger-card">
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <div class="fw-semibold small d-flex align-items-center gap-2">
+      <i class="bi bi-database text-warning"></i>
+      <span data-i18n="userSettings.connHostingerTitle">Hostinger MariaDB & Базы инструментов</span>
+    </div>
+    <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-size-75" id="test-db-result-badge">Не проверено</span>
+  </div>
+  <div class="small text-muted mb-3 font-size-75" data-i18n="userSettings.connHostingerDesc">
+    Удаленная MariaDB на сервере Hostinger и локальный кэш SQLite
+  </div>
+
+  <div class="row g-2 mb-2">
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connEngine">Движок хранения</label>
+      <select class="form-select form-select-sm" id="conn-db-engine">
+        <option value="mariadb" data-i18n="userSettings.connEngineDirect">MariaDB (Hostinger Direct TCP)</option>
+        <option value="hostinger" data-i18n="userSettings.connEngineApi">Hostinger PHP REST API шлюз</option>
+        <option value="sqlite" data-i18n="userSettings.connEngineSqlite">Локальный SQLite</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-5">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connHost">Хост сервера</label>
+      <input class="form-control form-control-sm" id="conn-hostinger-host" placeholder="srv1502.hstgr.io" type="text" value="srv1502.hstgr.io"/>
+    </div>
+    <div class="col-12 col-md-3">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connPort">Порт</label>
+      <input class="form-control form-control-sm" id="conn-hostinger-port" placeholder="3306" type="number" value="3306"/>
+    </div>
+  </div>
+
+  <div class="row g-2 mb-2">
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connDatabase">Имя базы данных</label>
+      <input class="form-control form-control-sm" id="conn-hostinger-db" placeholder="u177424397_comp_knowledge" type="text" value="u177424397_comp_knowledge"/>
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connUser">Пользователь</label>
+      <input class="form-control form-control-sm" id="conn-hostinger-user" placeholder="u177424397_davidka" type="text" value="u177424397_davidka"/>
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connPassword">Пароль</label>
+      <input class="form-control form-control-sm" id="conn-hostinger-pass" placeholder="••••••••" type="password" value="@Davidka#1969"/>
+    </div>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connFallbackIp">Резервный IP</label>
+      <input class="form-control form-control-sm" id="conn-hostinger-fallback-ip" placeholder="77.37.35.16" type="text" value="77.37.35.16"/>
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connApiUrl">URL PHP API шлюза</label>
+      <input class="form-control form-control-sm" id="conn-hostinger-api-url" placeholder="https://srv1502.hstgr.io/wikillm_hostinger.php" type="text" value="https://srv1502.hstgr.io/wikillm_hostinger.php"/>
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connSqlitePath">Путь к файлу SQLite</label>
+      <input class="form-control form-control-sm" id="conn-sqlite-path" placeholder="data/ai_instruments/ai_instruments.db" type="text" value="data/ai_instruments/ai_instruments.db"/>
+    </div>
+  </div>
+
+  <div class="d-flex align-items-center justify-content-end">
+    <button class="btn btn-outline-warning btn-sm d-flex align-items-center gap-1.5" id="btn-test-db-conn" type="button">
+      <i class="bi bi-lightning-charge"></i>
+      <span data-i18n="userSettings.btnTestDb">Проверить БД</span>
+    </button>
+  </div>
+</div>
+
+<!-- Секция 2: FTP / SFTP -->
+<div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3" id="conn-sec-ftp-card">
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <div class="fw-semibold small d-flex align-items-center gap-2">
+      <i class="bi bi-folder-symlink text-success"></i>
+      <span data-i18n="userSettings.connFtpTitle">FTP / SFTP подключение</span>
+    </div>
+    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle font-size-75" id="test-ftp-result-badge">Не проверено</span>
+  </div>
+  <div class="small text-muted mb-3 font-size-75" data-i18n="userSettings.connFtpDesc">
+    Файловый доступ для резервного копирования и синхронизации
+  </div>
+
+  <div class="row g-2 mb-2">
+    <div class="col-12 col-md-3">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connProtocol">Протокол</label>
+      <select class="form-select form-select-sm" id="conn-ftp-protocol">
+        <option value="ftp">FTP</option>
+        <option value="ftps">FTPS (Explicit TLS)</option>
+        <option value="sftp">SFTP (SSH File Transfer)</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-6">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connHost">Хост сервера</label>
+      <input class="form-control form-control-sm" id="conn-ftp-host" placeholder="ftp.hostinger.com" type="text"/>
+    </div>
+    <div class="col-12 col-md-3">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connPort">Порт</label>
+      <input class="form-control form-control-sm" id="conn-ftp-port" placeholder="21" type="number" value="21"/>
+    </div>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connUser">Пользователь</label>
+      <input class="form-control form-control-sm" id="conn-ftp-user" placeholder="ftp_user" type="text"/>
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connPassword">Пароль</label>
+      <input class="form-control form-control-sm" id="conn-ftp-pass" placeholder="••••••••" type="password"/>
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connRemoteDir">Удаленный каталог</label>
+      <input class="form-control form-control-sm" id="conn-ftp-remote-dir" placeholder="/public_html" type="text" value="/"/>
+    </div>
+  </div>
+
+  <div class="d-flex align-items-center justify-content-end">
+    <button class="btn btn-outline-success btn-sm d-flex align-items-center gap-1.5" id="btn-test-ftp-conn" type="button">
+      <i class="bi bi-lightning-charge"></i>
+      <span data-i18n="userSettings.btnTestFtp">Проверить FTP</span>
+    </button>
+  </div>
+</div>
+
+<!-- Секция 3: SSH -->
+<div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3" id="conn-sec-ssh-card">
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <div class="fw-semibold small d-flex align-items-center gap-2">
+      <i class="bi bi-terminal text-info"></i>
+      <span data-i18n="userSettings.connSshTitle">SSH доступ</span>
+    </div>
+    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle font-size-75" id="test-ssh-result-badge">Не проверено</span>
+  </div>
+  <div class="small text-muted mb-3 font-size-75" data-i18n="userSettings.connSshDesc">
+    Удаленное терминальное управление и безопасные туннели
+  </div>
+
+  <div class="row g-2 mb-2">
+    <div class="col-12 col-md-6">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connHost">Хост сервера</label>
+      <input class="form-control form-control-sm" id="conn-ssh-host" placeholder="ssh.hostinger.com" type="text"/>
+    </div>
+    <div class="col-12 col-md-2">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connPort">Порт</label>
+      <input class="form-control form-control-sm" id="conn-ssh-port" placeholder="22" type="number" value="22"/>
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connUser">Пользователь</label>
+      <input class="form-control form-control-sm" id="conn-ssh-user" placeholder="root" type="text"/>
+    </div>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connAuthType">Тип аутентификации</label>
+      <select class="form-select form-select-sm" id="conn-ssh-auth-type">
+        <option value="password" data-i18n="userSettings.connAuthPassword">По паролю</option>
+        <option value="key" data-i18n="userSettings.connAuthKey">По приватному ключу</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connPassword">Пароль</label>
+      <input class="form-control form-control-sm" id="conn-ssh-pass" placeholder="••••••••" type="password"/>
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connKeyPath">Путь к ключу (.pem / .ppk)</label>
+      <input class="form-control form-control-sm" id="conn-ssh-key-path" placeholder="~/.ssh/id_rsa" type="text"/>
+    </div>
+  </div>
+
+  <div class="d-flex align-items-center justify-content-end">
+    <button class="btn btn-outline-info btn-sm d-flex align-items-center gap-1.5" id="btn-test-ssh-conn" type="button">
+      <i class="bi bi-lightning-charge"></i>
+      <span data-i18n="userSettings.btnTestSsh">Проверить SSH</span>
+    </button>
+  </div>
+</div>
+
+<!-- Секция 4: Почта (SMTP / IMAP) -->
+<div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3" id="conn-sec-mail-card">
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <div class="fw-semibold small d-flex align-items-center gap-2">
+      <i class="bi bi-envelope-at text-danger"></i>
+      <span data-i18n="userSettings.connMailTitle">Почтовые соединения (SMTP / IMAP)</span>
+    </div>
+    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle font-size-75" id="test-mail-result-badge">Не проверено</span>
+  </div>
+  <div class="small text-muted mb-3 font-size-75" data-i18n="userSettings.connMailDesc">
+    Отправка уведомлений и чтение почтовой корреспонденции
+  </div>
+
+  <div class="row g-2 mb-2">
+    <div class="col-12 col-md-4">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connSmtpHost">SMTP хост</label>
+      <input class="form-control form-control-sm" id="conn-smtp-host" placeholder="smtp.gmail.com" type="text" value="smtp.gmail.com"/>
+    </div>
+    <div class="col-12 col-md-2">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connSmtpPort">SMTP порт</label>
+      <input class="form-control form-control-sm" id="conn-smtp-port" placeholder="587" type="number" value="587"/>
+    </div>
+    <div class="col-12 col-md-3">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connImapHost">IMAP хост</label>
+      <input class="form-control form-control-sm" id="conn-imap-host" placeholder="imap.gmail.com" type="text" value="imap.gmail.com"/>
+    </div>
+    <div class="col-12 col-md-3">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connImapPort">IMAP порт</label>
+      <input class="form-control form-control-sm" id="conn-imap-port" placeholder="993" type="number" value="993"/>
+    </div>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-12 col-md-6">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connUser">Пользователь / Email</label>
+      <input class="form-control form-control-sm" id="conn-mail-user" placeholder="user@gmail.com" type="email"/>
+    </div>
+    <div class="col-12 col-md-6">
+      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connPassword">Пароль приложения</label>
+      <input class="form-control form-control-sm" id="conn-mail-pass" placeholder="••••••••" type="password"/>
+    </div>
+  </div>
+
+  <div class="d-flex align-items-center justify-content-end">
+    <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1.5" id="btn-test-mail-conn" type="button">
+      <i class="bi bi-lightning-charge"></i>
+      <span data-i18n="userSettings.btnTestMail">Проверить почту</span>
+    </button>
+  </div>
+</div>
+
+<!-- Панель сохранения подключений -->
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-2 border-top border-secondary-subtle">
+  <div class="d-flex align-items-center gap-2">
+    <button class="btn btn-primary btn-sm d-flex align-items-center gap-1.5 px-3" id="btn-save-connections" type="button">
+      <i class="bi bi-check2-circle"></i>
+      <span data-i18n="userSettings.btnSaveConnections">Сохранить подключения</span>
+    </button>
+    <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5" id="btn-reset-connections" type="button">
+      <i class="bi bi-arrow-counterclockwise"></i>
+      <span data-i18n="userSettings.btnResetConnections">Сбросить</span>
+    </button>
+  </div>
+  <div class="small text-muted" id="conn-save-feedback"></div>
+</div>
+
+</div>
+
+
+</div>
+</div>
+
+<!-- Подвал модального окна настроек с кнопкой закрытия -->
+<div class="modal-footer py-2" id="modal-user-settings-footer">
+<!-- Кнопка закрытия модального окна настроек -->
+<button class="btn btn-secondary btn-sm" data-bs-dismiss="modal" data-i18n="userSettings.close" id="modal-user-settings-close-btn" type="button">Закрыть</button>
+</div>
+
+</div>
+</div>
+</div>

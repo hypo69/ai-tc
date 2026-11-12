@@ -678,6 +678,8 @@
     "subtabModelsTitle": "Управление провайдерами и моделями ИИ (Windows AI, Ollama, Gemini, Foundry Local)",
     "subtabLogsLabel": "Центр логов",
     "subtabLogsTitle": "Просмотр внутренних логов программы ai-tc",
+    "subtabActivityLabel": "Журнал активности",
+    "subtabActivityTitle": "Журнал внутренней активности и операций приложения/системы",
     "subtabEtwLabel": "Трассировка ETW",
     "subtabEtwTitle": "Низкоуровневая трассировка системных событий ETW ядра Windows",
     "subtabSettingsLabel": "Параметры",

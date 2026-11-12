@@ -16,7 +16,7 @@
 # Package: apps.windows.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 17:29:00
 # =============================================================================
 
 from __future__ import annotations
@@ -111,12 +111,12 @@ class WikiLLMEngine:
                 artifact = await self._async_queue.get()
                 canonical_key = CanonicalKeyNormalizer.compute_canonical_key(artifact)
                 # Проверяем, не разрешен ли уже артефакт
-                existing = self.storage.get_entity(canonical_key)
+                existing = await asyncio.to_thread(self.storage.get_entity, canonical_key)
                 if not existing:
                     logger.debug(f"[Worker-{worker_id}] Асинхронное разрешение через Gemini: {canonical_key}")
                     entity = await self.gemini_resolver.resolve(artifact)
                     if entity:
-                        self.storage.save_entity(entity)
+                        await asyncio.to_thread(self.storage.save_entity, entity)
                         self._stats["l4_gemini_resolutions"] += 1
                         logger.info(f"[Worker-{worker_id}] Артефакт {canonical_key} успешно сохранен в базе знаний.")
                 self._async_queue.task_done()
@@ -150,7 +150,7 @@ class WikiLLMEngine:
 
         # Фиксация наблюдения
         if record_observation and canonical_key and canonical_key != "unknown:unspecified":
-            self.storage.record_observation(canonical_key, co_occurring_keys=co_occurring_keys)
+            await asyncio.to_thread(self.storage.record_observation, canonical_key, co_occurring_keys)
 
         # Level 1: Exact Match (SQLite O(1))
         entity = await self.exact_resolver.resolve(artifact)
@@ -203,7 +203,7 @@ class WikiLLMEngine:
             entity = await self.gemini_resolver.resolve(artifact)
             if entity:
                 # Валидация и самообучение: сохранение в SQLite
-                self.storage.save_entity(entity)
+                await asyncio.to_thread(self.storage.save_entity, entity)
                 self._stats["l4_gemini_resolutions"] += 1
                 elapsed_ms = (time.perf_counter() - start_time) * 1000.0
                 return ResolutionResult(

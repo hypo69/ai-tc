@@ -18,7 +18,7 @@
 # Package: scripts.cli
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 16:32:00
+# Updated: 2026-11-11 23:37:00
 # =============================================================================
 
 """Cross-platform installation system for AI Windows Admin.
@@ -134,8 +134,8 @@ class Installer:
                         logger.console(f'[WARN]')
                         if result.stderr:
                             logger.console(f'    {result.stderr[:100]}')
-            logger.console('  Installing Google AI providers (gemini, agy)...', end=' ', flush=True)
-            subprocess.run([str(pip_exe), 'install', 'google-genai', 'google-antigravity', 'langchain-google-genai'], capture_output=True, text=True)
+            logger.console('  Installing Google AI & LangGraph providers (gemini, agy, langgraph)...', end=' ', flush=True)
+            subprocess.run([str(pip_exe), 'install', 'google-genai', 'google-antigravity', 'langchain', 'langchain-core', 'langchain-google-genai', 'langgraph'], capture_output=True, text=True)
             logger.console('[OK]')
             logger.console()
             return True

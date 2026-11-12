@@ -12,7 +12,7 @@
  * Package: windows/api/webgui/tab_app_internals/panel_wikillm_db
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 17:25:00
+ * Updated: 2026-11-01 12:40:00
  * =============================================================================
  */
 
@@ -83,7 +83,7 @@ export function updateActiveDbBanner(engine, connType) {
   if (!badge || !detail) return;
 
   if (engine === 'sqlite') {
-    const path = document.getElementById('wikillm-db-sqlite-path')?.value || '%ProgramData%/{app_name}/windows/knowledge.db';
+    const path = document.getElementById('wikillm-db-sqlite-path')?.value || '%ProgramData%/{app_name}/apps/windows/knowledge.db';
     const resolvedPathEl = document.getElementById('wikillm-db-resolved-path');
     const resolvedPath = resolvedPathEl?.textContent || '';
     badge.innerHTML = '<i class="bi bi-hdd me-1"></i>Локальная база (SQLite)';
@@ -157,7 +157,7 @@ export async function loadWikiLLMDbConfig() {
     // Поле SQLite
     const s = data.sqlite || {};
     if (document.getElementById('wikillm-db-sqlite-path')) {
-      document.getElementById('wikillm-db-sqlite-path').value = s.path || '%ProgramData%/{app_name}/windows/knowledge.db';
+      document.getElementById('wikillm-db-sqlite-path').value = s.path || '%ProgramData%/{app_name}/apps/windows/knowledge.db';
     }
     if (document.getElementById('wikillm-db-resolved-path') && s.resolved_path) {
       document.getElementById('wikillm-db-resolved-path').textContent = s.resolved_path;
@@ -184,7 +184,7 @@ export function getDbFormParams() {
     return {
       engine: 'sqlite',
       connection_type: 'sqlite',
-      sqlite_path: document.getElementById('wikillm-db-sqlite-path')?.value || 'data/windows_wikillm/knowledge.db'
+      sqlite_path: document.getElementById('wikillm-db-sqlite-path')?.value || '%ProgramData%/{app_name}/apps/windows/knowledge.db'
     };
   }
 
@@ -199,7 +199,7 @@ export function getDbFormParams() {
       password: document.getElementById('wikillm-db-pass')?.value || '',
       ip_fallback: document.getElementById('wikillm-db-ip-fallback')?.value || '77.37.35.16',
       connect_timeout: parseInt(document.getElementById('wikillm-db-direct-timeout')?.value || '10', 10),
-      sqlite_path: document.getElementById('wikillm-db-sqlite-path')?.value || 'data/windows_wikillm/knowledge.db'
+      sqlite_path: document.getElementById('wikillm-db-sqlite-path')?.value || '%ProgramData%/{app_name}/apps/windows/knowledge.db'
     };
   }
 
@@ -210,7 +210,7 @@ export function getDbFormParams() {
     php_api_key: document.getElementById('wikillm-db-php-key')?.value || '',
     database: document.getElementById('wikillm-db-api-name')?.value || 'u177424397_comp_knowledge',
     connect_timeout: parseInt(document.getElementById('wikillm-db-api-timeout')?.value || '15', 10),
-    sqlite_path: document.getElementById('wikillm-db-sqlite-path')?.value || 'data/windows_wikillm/knowledge.db'
+    sqlite_path: document.getElementById('wikillm-db-sqlite-path')?.value || '%ProgramData%/{app_name}/apps/windows/knowledge.db'
   };
 }
 
@@ -238,7 +238,7 @@ export async function saveWikiLLMDbConfig() {
       php_api_url: document.getElementById('wikillm-db-php-url')?.value || 'https://srv1502.hstgr.io/wikillm_hostinger.php',
       php_api_key: document.getElementById('wikillm-db-php-key')?.value || ''
     },
-    sqlite_path: document.getElementById('wikillm-db-sqlite-path')?.value || 'data/windows_wikillm/knowledge.db'
+    sqlite_path: document.getElementById('wikillm-db-sqlite-path')?.value || '%ProgramData%/{app_name}/apps/windows/knowledge.db'
   };
 
   try {

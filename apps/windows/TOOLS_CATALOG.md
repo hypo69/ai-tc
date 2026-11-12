@@ -1,4 +1,4 @@
-<!-- Updated: 2026-10-10 16:35:00 -->
+<!-- Updated: 2026-11-01 13:00:00 -->
 # 🪟 Каталог инструментов подсистемы Windows (`apps/windows`)
 
 Комплексный справочник и реестр инструментов, доменных модулей, низкоуровневых FFI-интерфейсов, аналитических движков, AI-агентов и CLI/TUI утилит, входящих в состав архитектурного стека `apps/windows`.
@@ -9,7 +9,7 @@
 
 1. [Архитектурный обзор и принцип работы](#-архитектурный-обзор)
 2. [CLI и TUI интерфейсы (Точки входа)](#1-cli-и-tui-интерфейсы)
-3. [Ядро SDK, оркестраторы и цепочки инструментов (SDK Core & Tool Chains)](#2-ядро-sdk-и-оркестраторы-sdk-core)
+3. [Ядро SDK и оркестраторы (SDK Core)](#2-ядро-sdk-и-оркестраторы-sdk-core)
 4. [Динамический реестр инструментов для AI-агентов](#3-динамический-реестр-инструментов-для-ai-агентов)
 5. [Доменные модули SDK (29 функциональных подсистем)](#4-доменные-модули-sdk-29-подсистем)
 6. [Слой телеметрии и аналитики (Telemetry & Analytics)](#5-слой-телеметрии-и-аналитики)
@@ -76,10 +76,6 @@ flowchart TD
 
 | Компонент / Файл | Класс / Функция | Назначение |
 |---|---|---|
-| [`tool_chains/engine.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/tool_chains/engine.py) | `ToolChainExecutionEngine` | Исполнительный движок цепочек инструментов с защитой SafeOps, динамическим ветвлением, компенсацией и протоколированием. |
-| [`tool_chains/planner.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/tool_chains/planner.py) | `ToolChainPlanner` | Семантический планировщик графа шагов из естественно-языкового намерения пользователя. |
-| [`tool_chains/storage.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/tool_chains/storage.py) | `ToolChainStorage` | SQLite хранилище шаблонов цепочек, истории запусков, вызовов инструментов и доказательств. |
-| [`tool_chains/catalog.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/tool_chains/catalog.py) | `get_builtin_chains` | Встроенный каталог типовых цепочек (диагностика портов, расследование SSD, безопасный перезапуск служб). |
 | [`safe_executor.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/safe_executor.py) | `SafeExecutor` | Движок безопасного исполнения команд с поддержкой Dry-Run, валидацией рисков и созданием бэкапов. |
 | [`root_cause_engine.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/root_cause_engine.py) | `RootCauseEngine` | Построение графа инцидентов и расследование первопричин сбоев по временным шкалам. |
 | [`correlation_engine.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/sdk/core/correlation_engine.py) | `CorrelationEngine` | Междоменная корреляция событий (CPU + EventLog + Disk IO + Network Drops). |

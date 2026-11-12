@@ -1,0 +1,44 @@
+{
+  "app_name": "code_helper",
+  "version": "1.0.0",
+  "description": "Автономная система RAG исходного кода и диагностики с базой знаний MariaDB на Hostinger",
+  "storage": {
+    "engine": "mariadb",
+    "sqlite": {
+      "path": "data/code_helper/code_helper.db"
+    },
+    "hostinger": {
+      "connection_type": "direct",
+      "host": "srv1502.hstgr.io",
+      "ip_fallback": "77.37.35.16",
+      "port": 3306,
+      "user": "u177424397_code_help_adm",
+      "password": "@Davidka#1969",
+      "database": "u177424397_code_helper",
+      "charset": "utf8mb4",
+      "connect_timeout": 10
+    }
+  },
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8105,
+    "workers": 1
+  },
+  "indexing": {
+    "default_project_root": ".",
+    "exclude_dirs": [
+      ".git",
+      "__pycache__",
+      "venv",
+      ".venv",
+      "node_modules",
+      ".pytest_cache",
+      ".mypy_cache",
+      "dist",
+      "build",
+      "site-packages"
+    ],
+    "include_markdown": true,
+    "batch_size": 64
+  }
+}

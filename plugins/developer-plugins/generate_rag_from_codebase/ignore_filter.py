@@ -11,13 +11,10 @@
 # Package: plugins.generate_rag_from_codebase
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:37:30
 # =============================================================================
 
-"""Ignore filter and secret detector for codebase RAG ingestion.
-
-Handles path exclusions based on standard ignore patterns and .ragignore rules,
-along with regex-based secret detection and redaction.
-"""
+"""Фильтр исключений путей и детектор секретов для индексации кодовой базы в RAG."""
 
 from __future__ import annotations
 
@@ -27,7 +24,7 @@ import re
 from typing import List, Optional, Sequence
 
 
-# Common secret patterns
+# Предкомпилированные шаблоны для обнаружения секретов и ключей API
 SECRET_PATTERNS: List[re.Pattern[str]] = [
     re.compile(r"(?i)(api[_-]?key|secret[_-]?key|auth[_-]?token|password|passwd|jwt[_-]?secret)\s*[:=]\s*['\"]?([A-Za-z0-9_\-\.]{8,})['\"]?"),
     re.compile(r"AIza[0-9A-Za-z-_]{35}"),  # Google API key
@@ -37,28 +34,32 @@ SECRET_PATTERNS: List[re.Pattern[str]] = [
     re.compile(r"AKIA[0-9A-Z]{16}"),       # AWS Access Key
 ]
 
+_EXCLUDED_DIR_PARTS: frozenset[str] = frozenset(
+    {".git", ".venv", "venv", "env", "__pycache__", "logs", "site", "SANDBOX", "node_modules"}
+)
+
 
 class IgnoreFilter:
-    """Filter to exclude unwanted paths and redact confidential credentials.
+    """Фильтр для исключения служебных путей и маскирования конфиденциальных данных.
 
     Attributes:
-        ignore_patterns (List[str]): List of glob match patterns to ignore.
-        base_dir (Path): Base project directory root.
+        ignore_patterns (List[str]): Список glob-шаблонов для игнорирования.
+        base_dir (Path): Корневая директория проекта.
     """
 
     def __init__(self, base_dir: Path, ignore_patterns: Optional[Sequence[str]] = None) -> None:
-        """Initialize the filter.
+        """Инициализирует фильтр исключений.
 
         Args:
-            base_dir (Path): Project root directory.
-            ignore_patterns (Optional[Sequence[str]]): List of pattern strings.
+            base_dir (Path): Корневая директория проекта.
+            ignore_patterns (Optional[Sequence[str]]): Начальный список шаблонов игнорирования.
         """
         self.base_dir = Path(base_dir).resolve()
         self.ignore_patterns: List[str] = list(ignore_patterns or [])
         self._load_ragignore()
 
     def _load_ragignore(self) -> None:
-        """Load .ragignore file from the project root if present."""
+        """Загружает правила из файла .ragignore в корне проекта при его наличии."""
         ragignore_path = self.base_dir / ".ragignore"
         if ragignore_path.exists():
             try:
@@ -71,13 +72,13 @@ class IgnoreFilter:
                 pass
 
     def is_ignored(self, path: Path) -> bool:
-        """Check if a path matches any ignore rule.
+        """Проверяет, подпадает ли путь под правила игнорирования.
 
         Args:
-            path (Path): Path to inspect.
+            path (Path): Проверяемый путь.
 
         Returns:
-            bool: True if the path should be ignored, False otherwise.
+            bool: True, если путь должен быть проигнорирован, иначе False.
         """
         try:
             rel_path = path.resolve().relative_to(self.base_dir).as_posix()
@@ -85,10 +86,10 @@ class IgnoreFilter:
             rel_path = path.as_posix()
 
         parts = rel_path.split("/")
-        
-        # Check explicit parts
+
+        # O(1) проверка по множеству исключённых каталогов
         for part in parts:
-            if part in {".git", ".venv", "venv", "env", "__pycache__", "logs", "site", "SANDBOX"}:
+            if part in _EXCLUDED_DIR_PARTS:
                 return True
 
         for pattern in self.ignore_patterns:
@@ -132,4 +133,3 @@ class IgnoreFilter:
         for pattern in SECRET_PATTERNS:
             redacted = pattern.sub("[REDACTED_SECRET]", redacted)
         return redacted
-

@@ -11,7 +11,7 @@
 # Package: apps.windows.api.routers.about_system
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-20 18:41:00
+# Updated: 2026-11-01 15:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -142,6 +142,127 @@ def get_clean_system_timezone() -> str:
         return windows_sdk.modules.regional.get_timezone_display_string()
     except Exception:
         return "UTC+03:00"
+
+
+def format_wmi_date(date_str: Optional[str]) -> Optional[str]:
+    """Преобразует дату формата WMI /Date(ms)/ или ISO в читаемую строку 'YYYY-MM-DD HH:MM:SS'."""
+    if not date_str:
+        return None
+    raw = str(date_str).strip()
+    if not raw or raw.lower() in ("never", "none", "null", "бессрочно", "никогда"):
+        return "Никогда"
+    m = re.search(r"\d{10,13}", raw)
+    if m:
+        try:
+            val = int(m.group())
+            sec = val / 1000.0 if len(m.group()) >= 12 else float(val)
+            dt = datetime.fromtimestamp(sec)
+            if dt.year > 2099:
+                return "Никогда"
+            return dt.strftime("%Y-%m-%d %H:%M:%S")
+        except Exception:
+            pass
+    return raw
+
+
+def get_user_password_details(username: str) -> Dict[str, Any]:
+    """
+    Возвращает информацию о состоянии пароля пользователя и параметрах политики.
+
+    Args:
+        username: Имя локального пользователя.
+
+    Returns:
+        Словарь с флагами пароля, датами и глобальной политикой.
+    """
+    res = {
+        "password_required": True,
+        "password_never_expires": False,
+        "cannot_change_password": False,
+        "password_last_set": None,
+        "password_expires": None,
+        "bad_password_count": 0,
+        "min_password_length": 0,
+        "max_password_age_days": 42,
+        "lockout_threshold": 0,
+    }
+    try:
+        from apps.windows.sdk.modules.accounts_identity import get_accounts_identity_service
+        srv = get_accounts_identity_service()
+        user_acc = srv.get_user(username)
+        if user_acc:
+            res["password_required"] = user_acc.password_required
+            res["password_never_expires"] = user_acc.password_never_expires
+            res["cannot_change_password"] = user_acc.cannot_change_password
+            res["password_last_set"] = format_wmi_date(user_acc.password_last_set)
+            if user_acc.password_never_expires:
+                res["password_expires"] = "Никогда (бессрочный)"
+            else:
+                res["password_expires"] = format_wmi_date(user_acc.password_expires)
+            res["bad_password_count"] = user_acc.bad_password_count
+
+        policy = srv.get_password_policy()
+        if policy:
+            res["min_password_length"] = policy.min_password_length
+            res["max_password_age_days"] = policy.max_password_age_days
+            res["lockout_threshold"] = policy.lockout_threshold
+    except Exception as exc:
+        logger.debug(f"[router_about_system] Ошибка сбора сведений о пароле: {exc}")
+    return res
+
+
+def change_user_password_helper(username: str, new_password: str) -> Dict[str, Any]:
+    """Смена или установка нового пароля локального пользователя."""
+    target_user = username.strip() or os.environ.get("USERNAME", "User")
+    if not re.match(r"^[a-zA-Z0-9_\-\.]{1,64}$", target_user):
+        return {"status": "error", "username": target_user, "message": "Недопустимое имя пользователя."}
+    if not new_password:
+        return {"status": "error", "username": target_user, "message": "Пароль не может быть пустым."}
+    try:
+        from apps.windows.sdk.modules.accounts_identity import get_accounts_identity_service
+        srv = get_accounts_identity_service()
+        policy = srv.get_password_policy()
+        if policy and len(new_password) < policy.min_password_length:
+            return {
+                "status": "error",
+                "username": target_user,
+                "message": f"Пароль должен содержать не менее {policy.min_password_length} символов (политика хоста).",
+            }
+        success = srv.reset_user_password(target_user, new_password)
+        if success:
+            return {"status": "ok", "username": target_user, "message": f"Пароль пользователя '{target_user}' успешно изменен."}
+        return {
+            "status": "error",
+            "username": target_user,
+            "message": f"Не удалось изменить пароль пользователя '{target_user}'. Проверьте права администратора и сложность пароля.",
+        }
+    except Exception as exc:
+        logger.error(f"[router_about_system] Ошибка смены пароля: {exc}", exc_info=True)
+        return {"status": "error", "username": target_user, "message": f"Внутренняя ошибка: {exc}"}
+
+
+def set_password_policy_helper(
+    min_length: Optional[int] = None,
+    max_age_days: Optional[int] = None,
+    lockout_threshold: Optional[int] = None,
+) -> Dict[str, Any]:
+    """Настройка глобальной политики безопасности паролей хоста."""
+    try:
+        from apps.windows.sdk.modules.accounts_identity import get_accounts_identity_service
+        srv = get_accounts_identity_service()
+        success = srv.set_password_policy(
+            min_length=min_length,
+            max_age_days=max_age_days,
+            lockout_threshold=lockout_threshold,
+        )
+        if success:
+            return {"status": "ok", "message": "Глобальная политика безопасности паролей успешно обновлена."}
+        return {"status": "error", "message": "Не удалось применить политику паролей. Требуются права администратора."}
+    except Exception as exc:
+        logger.error(f"[router_about_system] Ошибка изменения политики паролей: {exc}", exc_info=True)
+        return {"status": "error", "message": f"Внутренняя ошибка: {exc}"}
+
+
 
 
 

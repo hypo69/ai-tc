@@ -6,7 +6,7 @@
  * - Расчет индекса здоровья системы и надежности каналов
  * - Анализ стабильности электропитания и истории операций
  * 
- * Updated: 2026-10-20 19:15:00
+ * Updated: 2026-11-11 23:20:00
  */
 
 import { escapeHtml, formatTime, getSeverityClass, t } from '../common/ui_utils.js';
@@ -173,68 +173,6 @@ export function renderAuditDigest(data, fromCache = false) {
 }
 
 /**
- * Аудит журнала активности администратора.
- * @param {HTMLElement} contentEl
- */
-export async function loadActivityAudit(contentEl) {
-  contentEl.innerHTML = `<div class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm text-info me-2"></div>Аудит журнала активности и операций...</div>`;
-  try {
-    const res = await fetch('/api/v1/system_logs/activity');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const logs = data.logs || [];
-    const totalCount = logs.length;
-    const okCount = logs.filter(l => l.status === 'SUCCESS' || l.status === 'OK').length;
-    const failCount = totalCount - okCount;
-    const healthScore = totalCount > 0 ? Math.round((okCount / totalCount) * 100) : 100;
-
-    const actionCounts = {};
-    logs.forEach(l => {
-      const a = l.action || 'Unknown';
-      actionCounts[a] = (actionCounts[a] || 0) + 1;
-    });
-    const topActions = Object.entries(actionCounts).map(([action, count]) => ({ action, count })).sort((a, b) => b.count - a.count).slice(0, 5);
-
-    contentEl.innerHTML = `
-      <div class="row g-2 mb-3">
-        <div class="col-sm-3 col-6">
-          <div class="slc-card p-2 text-center">
-            <div class="text-muted small">Всего действий</div>
-            <div class="fs-4 fw-bold font-monospace text-info">${totalCount}</div>
-          </div>
-        </div>
-        <div class="col-sm-3 col-6">
-          <div class="slc-card p-2 text-center">
-            <div class="text-muted small">Успешно</div>
-            <div class="fs-4 fw-bold font-monospace text-success">${okCount}</div>
-          </div>
-        </div>
-        <div class="col-sm-3 col-6">
-          <div class="slc-card p-2 text-center">
-            <div class="text-muted small">Ошибки / Сбои</div>
-            <div class="fs-4 fw-bold font-monospace ${failCount > 0 ? 'text-danger' : 'text-muted'}">${failCount}</div>
-          </div>
-        </div>
-        <div class="col-sm-3 col-6">
-          <div class="slc-card p-2 text-center">
-            <div class="text-muted small">Индекс надёжности</div>
-            <div class="fs-4 fw-bold font-monospace ${healthScore >= 80 ? 'text-success' : 'text-warning'}">${healthScore}/100</div>
-          </div>
-        </div>
-      </div>
-      <div class="slc-card p-3 mb-3">
-        <div class="fw-bold small mb-2"><i class="bi bi-pie-chart text-info me-1"></i> Топ выполняемых действий в приложении:</div>
-        <div class="d-flex flex-wrap gap-1.5">
-          ${topActions.map(ta => `<span class="badge bg-dark border border-secondary text-info px-2 py-1 font-monospace">${escapeHtml(ta.action)}: <strong class="text-light">${ta.count}</strong></span>`).join('') || '<span class="text-muted small">Нет данных</span>'}
-        </div>
-      </div>
-    `;
-  } catch (e) {
-    contentEl.innerHTML = `<div class="alert alert-danger">Ошибка проведения аудита: ${escapeHtml(e.message)}</div>`;
-  }
-}
-
-/**
  * Аудит стабильности электропитания и сессий.
  * @param {HTMLElement} contentEl
  */
@@ -294,10 +232,6 @@ export async function loadAuditDigest(targetChannel, activeSource = 'event-logs'
   const contentEl = document.getElementById('slc-audit-content');
   if (!contentEl) return;
 
-  if (activeSource === 'activity') {
-    loadActivityAudit(contentEl);
-    return;
-  }
   if (activeSource === 'power-lifecycle') {
     loadPowerAudit(contentEl);
     return;

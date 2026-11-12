@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/tab_telemetry_control
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 17:48:00
+ * Updated: 2026-11-11 20:37:00
  * =============================================================================
  */
 
@@ -270,23 +270,139 @@
     }
   }
 
+  function applyTaskStatusUi(task) {
+    const badge = document.getElementById('tc-ctrl-task-status-badge');
+    const labelEl = document.getElementById('tc-ctrl-install-task-label');
+    const btn = document.getElementById('tc-ctrl-btn-install-task');
+
+    if (!badge && !labelEl) return;
+
+    if (task && task.exists) {
+      const stateText = task.state || 'Ready';
+      if (task.enabled !== false) {
+        if (badge) {
+          badge.className = 'ui-badge ui-badge-success';
+          badge.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i>Task Scheduler: ${stateText} (при старте ПК)`;
+        }
+        if (labelEl) labelEl.textContent = 'Переустановить службу (Task Scheduler)';
+        if (btn) {
+          btn.classList.remove('btn-outline-warning');
+          btn.classList.add('btn-outline-success');
+        }
+      } else {
+        if (badge) {
+          badge.className = 'ui-badge ui-badge-warning';
+          badge.innerHTML = `<i class="bi bi-pause-circle-fill me-1"></i>Task Scheduler: Отключена`;
+        }
+        if (labelEl) labelEl.textContent = 'Включить и обновить (Task Scheduler)';
+      }
+      if (badge && task.run_as_user) {
+        badge.title = `Задача: ${task.task_name || 'AI-Windows-Admin-Telemetry'} | Пользователь: ${task.run_as_user} | Триггер: ${task.schedule_type || 'AtStartup'}`;
+      }
+    } else {
+      if (badge) {
+        badge.className = 'ui-badge ui-badge-neutral';
+        badge.innerHTML = '<i class="bi bi-calendar2-x me-1"></i>Task Scheduler: Не установлена';
+      }
+      if (labelEl) labelEl.textContent = 'Установить службу (Task Scheduler)';
+    }
+  }
+
+  async function loadTaskSchedulerStatus() {
+    try {
+      const res = await fetch(`/api/windows/telemetry/config/task-scheduler/status?v=${Date.now()}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      applyTaskStatusUi(data.task || null);
+    } catch (err) {
+      console.debug('[TelemetryControl] Ошибка проверки статуса Task Scheduler:', err);
+      const badge = document.getElementById('tc-ctrl-task-status-badge');
+      if (badge) {
+        badge.className = 'ui-badge ui-badge-neutral';
+        badge.innerHTML = '<i class="bi bi-question-circle me-1"></i>Task Scheduler: Неизвестно';
+      }
+    }
+  }
+
+  async function installTelemetryTask() {
+    const btn = document.getElementById('tc-ctrl-btn-install-task');
+    const icon = document.getElementById('tc-ctrl-install-task-icon');
+    const labelEl = document.getElementById('tc-ctrl-install-task-label');
+    const prevText = labelEl ? labelEl.textContent : 'Установить службу (Task Scheduler)';
+
+    try {
+      if (btn) btn.disabled = true;
+      if (icon) icon.className = 'spinner-border spinner-border-sm';
+      if (labelEl) labelEl.textContent = 'Установка в Task Scheduler...';
+
+      const intervalVal = parseFloat(document.getElementById('tc-ctrl-fast-interval')?.value || '5.0') || 5.0;
+      const topProcVal = parseInt(document.getElementById('tc-ctrl-top-processes')?.value || '10', 10) || 10;
+
+      const res = await fetch('/api/windows/telemetry/config/task-scheduler/install', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'hybrid',
+          interval: intervalVal,
+          top_processes: topProcVal,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.detail || `HTTP ${res.status}`);
+      }
+
+      if (data.task) {
+        applyTaskStatusUi(data.task);
+      } else {
+        await loadTaskSchedulerStatus();
+      }
+
+      const msg = data.message || 'Телеметрия установлена в Task Scheduler с запуском при старте ПК';
+      if (window.showToast) {
+        window.showToast(msg, 'success');
+      } else {
+        alert(msg);
+      }
+    } catch (err) {
+      console.error('[TelemetryControl] Ошибка установки задачи Task Scheduler:', err);
+      if (labelEl) labelEl.textContent = prevText;
+      if (window.showToast) {
+        window.showToast('Ошибка установки в Task Scheduler: ' + err.message, 'danger');
+      } else {
+        alert('Ошибка установки в Task Scheduler: ' + err.message);
+      }
+    } finally {
+      if (btn) btn.disabled = false;
+      if (icon) icon.className = 'bi bi-calendar2-plus-fill';
+    }
+  }
+
+  function bindClickOnce(id, handler) {
+    const el = document.getElementById(id);
+    if (!el || el.dataset.bound === '1') return;
+    el.dataset.bound = '1';
+    el.addEventListener('click', handler);
+  }
+
   function initTelemetryControlTab() {
     loadConfig();
+    loadTaskSchedulerStatus();
 
-    const refreshBtn = document.getElementById('tc-ctrl-btn-refresh');
-    if (refreshBtn) refreshBtn.addEventListener('click', loadConfig);
-
-    const saveBtn = document.getElementById('tc-ctrl-btn-save');
-    if (saveBtn) saveBtn.addEventListener('click', saveConfig);
-
-    const runSeqBtn = document.getElementById('tc-ctrl-btn-run-heavy-seq');
-    if (runSeqBtn) runSeqBtn.addEventListener('click', runHeavySequentially);
-
-    const compactBtn = document.getElementById('tc-ctrl-btn-compact-now');
-    if (compactBtn) compactBtn.addEventListener('click', runCascadeCompaction);
+    bindClickOnce('tc-ctrl-btn-refresh', () => {
+      loadConfig();
+      loadTaskSchedulerStatus();
+    });
+    bindClickOnce('tc-ctrl-btn-save', saveConfig);
+    bindClickOnce('tc-ctrl-btn-run-heavy-seq', runHeavySequentially);
+    bindClickOnce('tc-ctrl-btn-compact-now', runCascadeCompaction);
+    bindClickOnce('tc-ctrl-btn-install-task', installTelemetryTask);
   }
 
   window.initTelemetryControlTab = initTelemetryControlTab;
+  window.installTelemetryTask = installTelemetryTask;
+  window.loadTaskSchedulerStatus = loadTaskSchedulerStatus;
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initTelemetryControlTab);
   } else {

@@ -1,0 +1,286 @@
+/*
+ * =============================================================================
+ * Process Name: Common WebGUI - Universal Rust+Wasm File Editor Styles
+ * =============================================================================
+ * Description:
+ *   Таблица стилей универсального редактора файлов (tab_file_editor).
+ *   Строго использует дизайн-токены CSS-переменных (var(--...)) без хардкода
+ *   цветов, обеспечивая полную адаптивность для всех тем оформления.
+ *
+ * File: style.css
+ * Project: ai-windows-admin
+ * Package: apps/common/webgui/tab_file_editor
+ * Author: hypo69
+ * Copyright: © 2026 hypo69
+ * Updated: 2026-11-10 18:15:00
+ * =============================================================================
+ */
+
+.wasm-editor-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 115px);
+  background: var(--bg-color, var(--bs-body-bg));
+  color: var(--text-color, var(--bs-body-color));
+  border: 1px solid var(--border-color, var(--bs-border-color));
+  border-radius: var(--radius-md, 0.5rem);
+  overflow: hidden;
+}
+
+/* Полоса открытых вкладок редактора в стиле VS Code */
+.wasm-editor-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--surface-2, var(--bs-tertiary-bg));
+  border-bottom: 1px solid var(--border-color, var(--bs-border-color));
+  overflow-x: auto;
+  min-height: 38px;
+}
+
+.wasm-tab-item,
+.wasm-open-file-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm, 0.35rem);
+  border: 1px solid transparent;
+  background: var(--surface-1, var(--bs-body-bg));
+  color: var(--text-color, var(--bs-body-color));
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: border-color 0.15s ease;
+}
+
+.wasm-tab-item.active,
+.wasm-open-file-tab.active {
+  border-color: var(--ui-accent, var(--bs-primary));
+  font-weight: 600;
+}
+
+.wasm-tab-close,
+.wasm-open-file-tab-close {
+  border: none;
+  background: transparent;
+  color: var(--text-muted, var(--bs-secondary-color));
+  font-size: 0.75rem;
+  padding: 0 0.15rem;
+  line-height: 1;
+}
+
+/* Рабочая область редактора: сайдбар файлов + центральный холст + правый инспектор */
+.wasm-editor-workbench {
+  display: grid;
+  grid-template-columns: 240px 1fr 260px;
+  flex: 1;
+  min-height: 540px;
+  overflow: hidden;
+}
+
+.wasm-editor-workbench.hide-left {
+  grid-template-columns: 0px 1fr 260px;
+}
+
+.wasm-editor-workbench.hide-right {
+  grid-template-columns: 240px 1fr 0px;
+}
+
+.wasm-editor-workbench.hide-left.hide-right {
+  grid-template-columns: 1fr;
+}
+
+.wasm-editor-sidepanel {
+  background: var(--surface-1, var(--bs-body-bg));
+  border-inline-end: 1px solid var(--border-color, var(--bs-border-color));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.wasm-editor-inspector {
+  background: var(--surface-1, var(--bs-body-bg));
+  border-inline-start: 1px solid var(--border-color, var(--bs-border-color));
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.wasm-editor-file-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.35rem;
+}
+
+.wasm-editor-file-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius-sm, 0.35rem);
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--text-color, var(--bs-body-color));
+}
+
+.wasm-editor-file-item:hover,
+.wasm-editor-file-item.active {
+  background: var(--surface-2, var(--bs-tertiary-bg));
+}
+
+/* Контейнер текстового/кодового редактора с нумерацией строк */
+.wasm-code-stage {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  min-height: 480px;
+  overflow: hidden;
+  background: var(--bg-color, var(--bs-body-bg));
+}
+
+.wasm-line-gutter {
+  width: 54px;
+  padding: 0.75rem 0.5rem;
+  text-align: right;
+  font-family: var(--bs-font-monospace, monospace);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  user-select: none;
+  overflow: hidden;
+  background: var(--surface-2, var(--bs-tertiary-bg));
+  color: var(--text-muted, var(--bs-secondary-color));
+  border-inline-end: 1px solid var(--border-color, var(--bs-border-color));
+}
+
+.wasm-code-textarea {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: 0.75rem;
+  font-family: var(--bs-font-monospace, monospace);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  background: var(--bg-color, var(--bs-body-bg));
+  color: var(--text-color, var(--bs-body-color));
+  tab-size: 2;
+}
+
+.wasm-split-preview {
+  flex: 1;
+  min-width: 42%;
+  max-height: 580px;
+  overflow-y: auto;
+  padding: 1rem;
+  border-inline-start: 1px solid var(--border-color, var(--bs-border-color));
+  background: var(--surface-1, var(--bs-body-bg));
+}
+
+/* Режимы отображения редактора: Редактор, Вид/Редактор (Split), Вид */
+.wasm-code-stage.wasm-split-mode .wasm-line-gutter {
+  display: block;
+}
+
+.wasm-code-stage.wasm-split-mode .wasm-code-textarea {
+  flex: 1 1 50%;
+  width: 50%;
+  max-width: calc(50% - 27px);
+}
+
+.wasm-code-stage.wasm-split-mode #fe-markdown-preview {
+  flex: 1 1 50%;
+  width: 50%;
+  max-width: 50%;
+  display: block !important;
+}
+
+.wasm-code-stage.wasm-preview-mode .wasm-line-gutter,
+.wasm-code-stage.wasm-preview-mode .wasm-code-textarea {
+  display: none !important;
+}
+
+.wasm-code-stage.wasm-preview-mode #fe-markdown-preview {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 100%;
+  border-inline-start: none !important;
+  display: block !important;
+}
+
+/* Сетка Hex-редактора в стиле VS Code Hex Editor */
+.wasm-hex-grid-wrapper {
+  flex: 1;
+  max-height: 540px;
+  overflow: auto;
+  font-family: var(--bs-font-monospace, monospace);
+  font-size: 0.8rem;
+  padding: 0.5rem;
+}
+
+.wasm-hex-row {
+  display: grid;
+  grid-template-columns: 88px repeat(16, 28px) 16px 160px;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.wasm-hex-row:hover {
+  background: var(--surface-2, var(--bs-tertiary-bg));
+}
+
+.wasm-hex-offset {
+  color: var(--text-muted, var(--bs-secondary-color));
+  user-select: none;
+}
+
+.wasm-hex-cell {
+  text-align: center;
+  padding: 1px 2px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.wasm-hex-cell.selected {
+  border-color: var(--ui-accent, var(--bs-primary));
+  background: var(--surface-2, var(--bs-tertiary-bg));
+  font-weight: 700;
+}
+
+.wasm-hex-cell.modified {
+  border-color: var(--bs-warning);
+  font-weight: 700;
+}
+
+.wasm-hex-ascii {
+  padding-inline-start: 0.5rem;
+  letter-spacing: 1px;
+  color: var(--text-muted, var(--bs-secondary-color));
+}
+
+/* Нижняя строка состояния VS Code Status Bar */
+.wasm-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  background: var(--surface-2, var(--bs-tertiary-bg));
+  border-top: 1px solid var(--border-color, var(--bs-border-color));
+}
+
+@media (max-width: 1199px) {
+  .wasm-editor-workbench {
+    grid-template-columns: 1fr;
+  }
+}

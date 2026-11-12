@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_sound_settings
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-27 12:05:00
+Updated: 2026-11-01 12:50:00
 =============================================================================
 -->
 <div class="container-fluid p-3 sound-tab-wrapper d-flex flex-column gap-3" style="max-width: 1000px; margin: 0 auto;">
@@ -47,13 +47,13 @@ Updated: 2026-10-27 12:05:00
 
   <!-- Карточка 1: Громкость системных звуков (System Sounds) -->
   <div class="card border-secondary-subtle shadow-sm bg-body">
-    <div class="card-header bg-body-tertiary border-bottom border-secondary-subtle d-flex align-items-center justify-content-between py-3">
+    <div class="panel-header border-bottom border-secondary-subtle d-flex align-items-center justify-content-between py-3">
       <div class="d-flex align-items-center gap-2">
         <div class="rounded-circle bg-warning-subtle text-warning d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
           <i class="bi bi-bell-fill"></i>
         </div>
         <div>
-          <div class="fw-bold">Системные звуки Windows (System Sounds)</div>
+          <span class="panel-title">Системные звуки Windows (System Sounds)</span>
           <div class="text-muted small">Громкость звуковых уведомлений, диалоговых окон, кликов и системных оповещений</div>
         </div>
       </div>
@@ -98,13 +98,13 @@ Updated: 2026-10-27 12:05:00
 
   <!-- Карточка 2: Мастер-громкость и устройство вывода -->
   <div class="card border-secondary-subtle shadow-sm bg-body">
-    <div class="card-header bg-body-tertiary border-bottom border-secondary-subtle d-flex align-items-center justify-content-between py-3">
+    <div class="panel-header border-bottom border-secondary-subtle d-flex align-items-center justify-content-between py-3">
       <div class="d-flex align-items-center gap-2">
         <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
           <i class="bi bi-speaker-fill"></i>
         </div>
         <div>
-          <div class="fw-bold">Основное аудиоустройство (Master Volume)</div>
+          <span class="panel-title">Основное аудиоустройство (Master Volume)</span>
           <div class="text-muted small" id="sound-default-device-name">Загрузка информации об устройстве...</div>
         </div>
       </div>
@@ -135,13 +135,13 @@ Updated: 2026-10-27 12:05:00
 
   <!-- Карточка 3: Аудио-микшер процессов (Volume Mixer) -->
   <div class="card border-secondary-subtle shadow-sm bg-body">
-    <div class="card-header bg-body-tertiary border-bottom border-secondary-subtle d-flex align-items-center justify-content-between py-3">
+    <div class="panel-header border-bottom border-secondary-subtle d-flex align-items-center justify-content-between py-3">
       <div class="d-flex align-items-center gap-2">
         <div class="rounded-circle bg-info-subtle text-info d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.1rem;">
           <i class="bi bi-sliders"></i>
         </div>
         <div>
-          <div class="fw-bold">Микшер громкости приложений (Volume Mixer)</div>
+          <span class="panel-title">Микшер громкости приложений (Volume Mixer)</span>
           <div class="text-muted small">Индивидуальная регулировка громкости запущенных программ со звуковыми потоками</div>
         </div>
       </div>
@@ -159,10 +159,10 @@ Updated: 2026-10-27 12:05:00
 
   <!-- Карточка 4: Системные инструменты настройки звука Windows -->
   <div class="card border-secondary-subtle shadow-sm bg-body">
-    <div class="card-header bg-body-tertiary border-bottom border-secondary-subtle py-3">
+    <div class="panel-header border-bottom border-secondary-subtle py-3">
       <div class="fw-bold d-flex align-items-center gap-2">
         <i class="bi bi-tools text-primary"></i>
-        <span>Системные инструменты звука Windows</span>
+        <span class="panel-title">Системные инструменты звука Windows</span>
       </div>
     </div>
     <div class="card-body p-3 d-flex flex-wrap gap-2">

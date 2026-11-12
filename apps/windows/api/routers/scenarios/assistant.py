@@ -11,7 +11,7 @@
 # Package: apps.windows.api.routers.scenarios
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-12 06:20:00
+# Updated: 2026-11-10 16:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -352,9 +352,8 @@ async def _execute_disk_benchmark_telemetry_step() -> ScenarioStepResult:
     """Выполняет экспресс-бенчмарк всех накопителей через StorageBenchmarkSensor и фиксирует телеметрию."""
     t0 = time.perf_counter()
     try:
-        from apps.windows.sdk.modules.storage_manager.core.benchmark_sensor import get_storage_benchmark_sensor
-        sensor = get_storage_benchmark_sensor()
-        report = await asyncio.to_thread(sensor.run_quick_benchmark, None, 16, 1)
+        from apps.windows.telemetry.service import TelemetryLoggerService
+        report = await asyncio.to_thread(TelemetryLoggerService.get_instance().run_disk_benchmark, 16, 1)
         dur_ms = (time.perf_counter() - t0) * 1000
         summary = report.get("summary", "Бенчмарк дисков завершен")
         drives_count = report.get("drives_count", 0)

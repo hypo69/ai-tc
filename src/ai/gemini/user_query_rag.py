@@ -17,7 +17,7 @@
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 14:43:00
 # =============================================================================
 
 from __future__ import annotations
@@ -227,10 +227,7 @@ def clean_invalid_user_rag_entries(user_id, api_key: str='') -> int:
         return 0
 
 def _prune_if_needed(rag: GeminiRAG, user_id) -> None:
-    """Delete oldest documents if index exceeds _MAX_DOCS_PER_USER.
-
-    Strategy: read meta.timestamp from all docs, delete 10% oldest.
-    """
+    """Удаляет 10% самых старых документов за O(N), если размер индекса превышает _MAX_DOCS_PER_USER."""
     count = rag.count()
     if count < _MAX_DOCS_PER_USER:
         return
@@ -242,9 +239,10 @@ def _prune_if_needed(rag: GeminiRAG, user_id) -> None:
             ts = float(meta.get('timestamp', 0))
             parsed.append((doc_id, ts))
         parsed.sort(key=lambda x: x[1])
-        to_delete = parsed[:max(1, count // 10)]
-        for doc_id, _ in to_delete:
-            rag.delete_document(doc_id)
-        logger.info(f'UserRAG [{user_id}]: deleted {len(to_delete)} old records (was {count})')
+        to_delete_ids = {doc_id for doc_id, _ in parsed[:max(1, count // 10)]}
+        rag.metadatas = [m for m in rag.metadatas if m.get('id') not in to_delete_ids]
+        rag._rebuild_index()
+        rag._save()
+        logger.info(f'UserRAG [{user_id}]: удалено {len(to_delete_ids)} устаревших записей (было {count})')
     except Exception as ex:
-        logger.error(f'Error pruning user RAG {user_id}', ex, False)
+        logger.error(f'Ошибка очистки старых записей RAG пользователя {user_id}', ex, False)

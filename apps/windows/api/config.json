@@ -330,7 +330,7 @@
       "module": "apps.windows.api.routers.router_keys",
       "factory": "init_router",
       "enabled": true,
-      "description": "Управление API ключами и квоты Gemini (/api/keys/*)"
+      "description": "Управление API ключами и квоты Gemini (/api/v1/keys/*)"
     },
     {
       "module": "apps.windows.sdk.software_scanner.router",

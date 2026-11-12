@@ -11,7 +11,7 @@
  * Package: apps/windows/api/webgui/tab_theme_editor/panel_tokens
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 20:05:00
+ * Updated: 2026-11-01 12:45:00
  * =============================================================================
  */
 
@@ -476,7 +476,7 @@ export function generateCssString() {
   css += `.btn, .form-control, .form-select, .badge {\n  border-radius: ${tokens['--radius-sm']} !important;\n}\n\n`;
   css += '/* Заголовки панелей (panel-header, размер H3) */\n';
   css += `.panel-header {\n  font-size: ${tokens['--panel-header-font-size']} !important;\n  color: ${tokens['--panel-header-color']} !important;\n  background-color: ${tokens['--panel-header-bg']} !important;\n}\n\n`;
-  css += `h3.panel-header, .panel-header h3, .panel-header .panel-title {\n  font-size: ${tokens['--panel-header-font-size']} !important;\n  color: ${tokens['--panel-header-color']} !important;\n}\n\n`;
+  css += `.panel-title, .panel-header .panel-title, h3.panel-header, .panel-header h3 {\n  font-size: ${tokens['--panel-header-font-size']} !important;\n  color: ${tokens['--panel-header-color']} !important;\n}\n\n`;
   css += '/* Заголовки страниц и вкладок (tab-header) */\n';
   css += `.tab-header-title, .tab-header h3, .ui-tab-header h3 {\n  font-size: ${tokens['--tab-header-title-size']} !important;\n  color: ${tokens['--tab-header-title-color']} !important;\n  background: transparent !important;\n  border: none !important;\n  padding: 0 !important;\n}\n`;
   css += `.tab-header-subtitle, .tab-header small, .ui-tab-header small {\n  color: ${tokens['--tab-header-subtitle-color']} !important;\n}\n`;

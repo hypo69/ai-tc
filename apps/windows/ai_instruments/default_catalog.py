@@ -6,7 +6,7 @@
 #   Полный каталог проверенных инструментов ИИ-агента, синтезированных из:
 #     1. Модулей и коллекторов apps/windows/sdk (15 доменных коллекторов,
 #        DiagnosticsEngine, SafeSystemParamManager, WindowsAtomicCapabilitiesRegistry,
-#        System32Catalog, ToolChains)
+#        System32Catalog)
 #     2. Навыков проекта в .agents/skills/* (mouse, usb, printers, dormant-software,
 #        folder-sharing, hardware-production-date, network-ports, services-status,
 #        storage-controller, telemetry-process, windows-admin-toolkit, system-control)
@@ -21,7 +21,7 @@
 # Package: apps.windows.ai_instruments
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:46:00
+# Updated: 2026-11-01 13:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -117,10 +117,10 @@ DEFAULT_AGENT_INSTRUMENTS: List[Dict[str, Any]] = [
         "name": "Мониторинг процессов с интенсивным дисковым вводом-выводом (I/O)",
         "tool_type": "powershell",
         "command": "Get-CimInstance Win32_Process | Sort-Object WriteTransferCount -Descending | Select-Object -First 15 ProcessId, Name, @{N='ReadMB';E={[math]::Round($_.ReadTransferCount/1MB,1)}}, @{N='WriteMB';E={[math]::Round($_.WriteTransferCount/1MB,1)}}, HandleCount, ExecutablePath | ConvertTo-Json -Compress",
-        "description": "Определение процессов-лидеров по объёму чтения и записи на диск (ToolChain: diag.storage.ssd_write_spikes).",
+        "description": "Определение процессов-лидеров по объёму чтения и записи на диск.",
         "target_entity": "process",
         "risk_level": "safe",
-        "author_agent": "windows_sdk_toolchains",
+        "author_agent": "windows_sdk_diagnostics",
         "tags": ["#process", "#io", "#ssd", "#storage"],
     },
     {

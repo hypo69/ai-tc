@@ -16,7 +16,7 @@
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 11:15:00
+# Updated: 2026-11-03 14:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -1082,6 +1082,8 @@ class SystemCollector(TelemetryHistoryMixin):
                     info.cbSize = ctypes.sizeof(MONITORINFOEXW)
                     user32.GetMonitorInfoW(h_mon, ctypes.byref(info))
                     dev = info.szDevice
+                    if not dev or 'windisc' in str(dev).lower():
+                        return True
                     w = info.rcMonitor.right - info.rcMonitor.left
                     h = info.rcMonitor.bottom - info.rcMonitor.top
                     is_prim = bool(info.dwFlags & 1)
@@ -1110,6 +1112,28 @@ class SystemCollector(TelemetryHistoryMixin):
                 user32.EnumDisplayMonitors(None, None, cb_type(_enum_cb), 0)
             except Exception as ex:
                 logger.debug(f'Failed to query connected monitors: {ex}')
+        if not monitors:
+            if getattr(self, '_storage', None):
+                try:
+                    inv = self._storage.get_monitor_inventory()
+                    if inv:
+                        for im in inv:
+                            if 'windisc' not in str(im.get('device', '')).lower():
+                                monitors.append(MonitorInfo(
+                                    device=im.get('device', '\\\\.\\DISPLAY1'),
+                                    name=im.get('name', 'Display Monitor'),
+                                    vendor=im.get('vendor', ''),
+                                    serial_number=im.get('serial_number', ''),
+                                    adapter=im.get('adapter', ''),
+                                    width=int(im.get('width', 1920) or 1920),
+                                    height=int(im.get('height', 1080) or 1080),
+                                    frequency_hz=int(im.get('frequency_hz', 60) or 60),
+                                    bits_per_pixel=int(im.get('bits_per_pixel', 32) or 32),
+                                    is_primary=bool(im.get('is_primary')),
+                                    orientation=im.get('orientation', 'горизонтальная'),
+                                ))
+                except Exception as inv_err:
+                    logger.debug(f'Ошибка извлечения мониторов из инвентаря: {inv_err}')
         if not monitors:
             monitors.append(MonitorInfo(device='\\\\.\\DISPLAY1', name='Primary Monitor', adapter='Display Adapter', width=1920, height=1080, frequency_hz=60, bits_per_pixel=32, is_primary=True, orientation='горизонтальная'))
         self._monitors_cached = monitors

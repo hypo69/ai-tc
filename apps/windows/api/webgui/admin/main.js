@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/admin
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-30 18:15:00
+ * Updated: 2026-11-03 15:52:00
  * =============================================================================
  */
 
@@ -237,20 +237,20 @@ window.api = {
   // Google Workspace Accounts Pool API
   googleAccounts: {
     async list() {
-      return window.api.fetch('/api/admin/google-accounts');
+      return window.api.fetch('/api/v1/admin/google-accounts');
     },
     async get(name) {
-      return window.api.fetch(`/api/admin/google-accounts/${encodeURIComponent(name)}`);
+      return window.api.fetch(`/api/v1/admin/google-accounts/${encodeURIComponent(name)}`);
     },
     async create(data) {
-      return window.api.fetch('/api/admin/google-accounts', {
+      return window.api.fetch('/api/v1/admin/google-accounts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
     },
     async upload(formData) {
-      const response = await fetch('/api/admin/google-accounts/upload', {
+      const response = await fetch('/api/v1/admin/google-accounts/upload', {
         method: 'POST',
         body: formData
       });
@@ -265,22 +265,22 @@ window.api = {
       return response.json();
     },
     async setDefault(name) {
-      return window.api.fetch(`/api/admin/google-accounts/${encodeURIComponent(name)}/default`, {
+      return window.api.fetch(`/api/v1/admin/google-accounts/${encodeURIComponent(name)}/default`, {
         method: 'POST'
       });
     },
     async resetStatus(name) {
-      return window.api.fetch(`/api/admin/google-accounts/${encodeURIComponent(name)}/reset-status`, {
+      return window.api.fetch(`/api/v1/admin/google-accounts/${encodeURIComponent(name)}/reset-status`, {
         method: 'POST'
       });
     },
     async test(name) {
-      return window.api.fetch(`/api/admin/google-accounts/${encodeURIComponent(name)}/test`, {
+      return window.api.fetch(`/api/v1/admin/google-accounts/${encodeURIComponent(name)}/test`, {
         method: 'POST'
       });
     },
     async delete(name) {
-      return window.api.fetch(`/api/admin/google-accounts/${encodeURIComponent(name)}`, {
+      return window.api.fetch(`/api/v1/admin/google-accounts/${encodeURIComponent(name)}`, {
         method: 'DELETE'
       });
     }
@@ -349,6 +349,9 @@ function onTabSwitched(targetId) {
   } else if (cleanId === 'tab-models' && typeof window.initModelsTab === 'function') {
     console.log('[AdminInterface] Switching to models tab...');
     window.initModelsTab();
+  } else if (cleanId === 'tab-issues' && typeof window.initIssuesTab === 'function') {
+    console.log('[AdminInterface] Switching to GitHub Issues tab...');
+    window.initIssuesTab();
   } else if (cleanId === 'tab-agents' && typeof window.initAgentsTab === 'function') {
     console.log('[AdminInterface] Switching to agents tab...');
     window.initAgentsTab();
@@ -721,6 +724,7 @@ async function initInterface() {
     loadTabContent('news', `/html/tab_news/index.html?v=${cb}`, `/html/tab_news/main.js?v=${cb}`),
     loadTabContent('logs', `/html/logs/index.html?v=${cb}`, `/html/logs/main.js?v=${cb}`),
     loadTabContent('help', `/html/help/index.html?v=${cb}`, `/html/help/main.js?v=${cb}`),
+    loadTabContent('issues', `/html/tab_issues/index.html?v=${cb}`, `/html/tab_issues/main.js?v=${cb}`),
   ];
 
   // Определение и фильтрация вкладок микроприложений (/apps)

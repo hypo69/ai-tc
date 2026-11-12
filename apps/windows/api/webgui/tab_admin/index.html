@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_admin
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 10:55:00
+Updated: 2026-11-01 12:50:00
 =============================================================================
 -->
 <!-- System Admin Tab -->
@@ -28,7 +28,7 @@ Updated: 2026-10-20 10:55:00
       <span class="tab-header-icon fs-4 text-warning">⚙️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Центральное управление системой</h3>
+          <h3 class="tab-header-title mb-0">Центральное управление системой</h3>
           
         </div>
         <small class="tab-header-subtitle text-secondary">Мониторинг ядра, системные сервисы, провайдеры моделей и глобальное администрирование</small>
@@ -215,9 +215,9 @@ Updated: 2026-10-20 10:55:00
 </div>
 <!-- Background Schedulers Management Section -->
 <div class="card shadow-sm border-secondary-subtle mb-3" data-panel-id="panel-admin-fonovye-periodicheskie-zadachi-s" id="scheduler-management-card">
-<div class="card-header bg-body-tertiary d-flex flex-wrap justify-content-between align-items-center py-2 gap-2">
+<div class="panel-header d-flex flex-wrap justify-content-between align-items-center py-2 gap-2">
 <div class="d-flex align-items-center gap-2">
-<span class="fw-bold"><i class="bi bi-clock-history text-info me-2"></i>⏱️ Фоновые периодические задачи (Schedulers)</span>
+<span class="panel-title"><i class="bi bi-clock-history text-info me-2"></i>⏱️ Фоновые периодические задачи (Schedulers)</span>
 <span class="badge bg-success-subtle text-success" id="sched-main-badge">Активен</span>
 </div>
 <div class="d-flex gap-2">
@@ -292,8 +292,8 @@ Updated: 2026-10-20 10:55:00
 </div>
 <!-- Storage & Disks Management Section -->
 <div class="card shadow-sm border-secondary-subtle mb-3" data-panel-id="panel-admin-upravlenie-diskami-i-nakopitel" id="panel-admin-upravlenie-diskami-i-nakopitel">
-<div class="card-header bg-body-tertiary d-flex flex-wrap justify-content-between align-items-center py-2 gap-2">
-<span class="fw-bold"><i class="bi bi-hdd-network text-warning me-2"></i>💾 Управление дисками и накопителями</span>
+<div class="panel-header d-flex flex-wrap justify-content-between align-items-center py-2 gap-2">
+<span class="panel-title"><i class="bi bi-hdd-network text-warning me-2"></i>💾 Управление дисками и накопителями</span>
 <button class="btn btn-outline-info btn-sm" onclick="rescanStorageDrives()">
 <i class="bi bi-arrow-clockwise me-1"></i> Пересканировать диски
       </button>
@@ -306,9 +306,9 @@ Updated: 2026-10-20 10:55:00
 </div>
 <!-- User Telemetry & Ngrok Tunnel Section -->
 <div class="card shadow-sm border-secondary-subtle mb-4" data-panel-id="panel-admin-aktivnost-polzovateley-i-tun" id="panel-admin-aktivnost-polzovateley-i-tun">
-<div class="card-header bg-body-tertiary d-flex flex-wrap justify-content-between align-items-center py-2 gap-2">
+<div class="panel-header d-flex flex-wrap justify-content-between align-items-center py-2 gap-2">
 <div class="d-flex align-items-center gap-2">
-<span class="fw-bold"><i class="bi bi-graph-up-arrow text-info me-2"></i>📊 Активность пользователей и туннель Ngrok</span>
+<span class="panel-title"><i class="bi bi-graph-up-arrow text-info me-2"></i>📊 Активность пользователей и туннель Ngrok</span>
 <span class="badge bg-secondary-subtle text-secondary" id="ngrok-status-badge">Туннель: проверка...</span>
 </div>
 <div class="d-flex gap-2">

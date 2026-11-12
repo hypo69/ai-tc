@@ -3,46 +3,46 @@
 # Process Name: Base Plugin Interface Definition
 # =============================================================================
 # Description:
-#   Provides the foundational abstract base class for all modular plugins in the
-#   AI Breadboard platform, defining lifecycle, metadata, actions, and handling.
+#   Предоставляет базовый абстрактный класс для всех модульных плагинов платформы,
+#   определяющий жизненный цикл, метаданные, действия и обработку сообщений.
 #
 # File: base.py
 # Project: ai-breadboard
 # Package: plugins
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:37:10
 # =============================================================================
 
-"""Base plugin module for modular extension system.
+"""Модуль базового интерфейса модульной системы плагинов.
 
-Defines the BasePlugin abstract interface that all AI Breadboard plugins must
-inherit from to ensure seamless lifecycle management, configuration, action
-execution, and AI routing.
+Определяет абстрактный класс BasePlugin, от которого наследуются все плагины
+для управления жизненным циклом, конфигурацией, выполнением действий и маршрутизацией ИИ.
 """
 
 from __future__ import annotations
 
 import abc
 import inspect
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
 from logger import logger
 
 
 class BasePlugin(abc.ABC):
-    """Abstract base class for all system plugins.
+    """Абстрактный базовый класс для всех системных и пользовательских плагинов.
 
     Attributes:
-        name (str): Unique machine-readable identifier for the plugin.
-        title (str): Human-readable display title.
-        version (str): Semantic version string of the plugin.
-        description (str): Short summary of the plugin's responsibilities.
-        icon (str): Emoji or icon identifier representing the plugin.
-        category (str): Functional category (e.g., 'communication', 'media', 'tools').
-        enabled (bool): Current active status of the plugin.
-        ai_model (Any): Optional AI model instance passed for inference.
-        config (Dict[str, Any]): Plugin runtime configuration dictionary.
+        name (str): Уникальный машиночитаемый идентификатор плагина.
+        title (str): Отображаемый заголовок плагина.
+        version (str): Семантическая версия плагина.
+        description (str): Краткое описание назначения плагина.
+        icon (str): Эмодзи или иконка плагина.
+        category (str): Функциональная категория ('communication', 'media', 'tools' и др.).
+        enabled (bool): Текущий статус активности плагина.
+        ai_model (Any): Опциональный экземпляр ИИ-модели.
+        config (Dict[str, Any]): Словарь конфигурации времени выполнения.
     """
 
     name: str = "base_plugin"
@@ -55,27 +55,27 @@ class BasePlugin(abc.ABC):
     category: str = "general"
     enabled: bool = True
     is_system: bool = True
-    scope: str = "system"  # 'system', 'developer', or 'user'
+    scope: str = "system"  # 'system', 'developer' или 'user'
 
     def __init__(self, ai_model: Any = None, config: Optional[Dict[str, Any]] = None) -> None:
-        """Initialize the plugin instance.
+        """Инициализирует экземпляр плагина.
 
         Args:
-            ai_model (Any): Optional language or multimodal AI model instance.
-            config (Optional[Dict[str, Any]]): Initial configuration overrides.
+            ai_model (Any): Опциональный экземпляр языковой модели.
+            config (Optional[Dict[str, Any]]): Начальные переопределения конфигурации.
         """
         self.ai_model: Any = ai_model
         self.config: Dict[str, Any] = config or {}
         self.is_running: bool = False
 
     def get_title(self, lang: Optional[str] = "en") -> str:
-        """Return the localized title for the requested language.
+        """Возвращает локализованный заголовок для запрошенного языка.
 
         Args:
-            lang (Optional[str]): Language code (e.g. 'ru', 'en').
+            lang (Optional[str]): Код языка (например, 'ru', 'en').
 
         Returns:
-            str: Localized title if available, otherwise default title.
+            str: Локализованный заголовок или заголовок по умолчанию.
         """
         if not lang:
             return self.title
@@ -87,13 +87,13 @@ class BasePlugin(abc.ABC):
         return self.title
 
     def get_description(self, lang: Optional[str] = "en") -> str:
-        """Return the localized description for the requested language.
+        """Возвращает локализованное описание для запрошенного языка.
 
         Args:
-            lang (Optional[str]): Language code (e.g. 'ru', 'en').
+            lang (Optional[str]): Код языка (например, 'ru', 'en').
 
         Returns:
-            str: Localized description if available, otherwise default description.
+            str: Локализованное описание или описание по умолчанию.
         """
         if not lang:
             return self.description
@@ -105,14 +105,13 @@ class BasePlugin(abc.ABC):
         return self.description
 
     def get_manifest(self, lang: Optional[str] = None) -> Dict[str, Any]:
-        """Return the plugin manifest schema and metadata.
+        """Возвращает схему манифеста и метаданные плагина.
 
         Args:
-            lang (Optional[str]): Optional language code for localized metadata.
+            lang (Optional[str]): Опциональный код языка для локализации метаданных.
 
         Returns:
-            Dict[str, Any]: Dictionary containing plugin metadata, status,
-                actions, tools, and configurable fields.
+            Dict[str, Any]: Словарь с метаданными, статусом, действиями, инструментами и полями настроек.
         """
         resolved_title = self.get_title(lang) if lang else self.title
         resolved_desc = self.get_description(lang) if lang else self.description
@@ -136,86 +135,48 @@ class BasePlugin(abc.ABC):
         }
 
     def get_tools(self) -> List[Dict[str, Any]]:
-        """Return list of LLM function calling tool definitions.
-
-        Returns:
-            List[Dict[str, Any]]: Tool declarations adhering to standard tool schemas.
-        """
+        """Возвращает список деклараций инструментов для вызова функций LLM."""
         return []
 
     def get_actions(self) -> List[Dict[str, Any]]:
-        """Return list of executable admin actions exposed to the web UI.
-
-        Returns:
-            List[Dict[str, Any]]: Action descriptor dictionaries.
-        """
+        """Возвращает список доступных административных действий для WebGUI."""
         return []
 
     def get_config_fields(self) -> List[Dict[str, Any]]:
-        """Return UI configuration field specifications.
-
-        Returns:
-            List[Dict[str, Any]]: List of field descriptors (id, label, type, default, etc.).
-        """
+        """Возвращает спецификации полей конфигурации для WebGUI."""
         return []
 
     def get_router(self) -> Optional[Any]:
-        """Return optional FastAPI APIRouter instance exposed by this plugin.
-
-        Returns:
-            Optional[APIRouter]: Router instance if this plugin provides HTTP endpoints.
-        """
+        """Возвращает опциональный экземпляр FastAPI APIRouter плагина."""
         return None
 
     def update_config(self, new_config: Dict[str, Any]) -> None:
-        """Update runtime configuration dictionary.
-
-        Args:
-            new_config (Dict[str, Any]): Key-value pairs to merge into config.
-        """
+        """Обновляет словарь конфигурации времени выполнения."""
         self.config.update(new_config)
-        logger.info(f"Plugin '{self.name}' configuration updated.")
+        logger.info(f"Конфигурация плагина '{self.name}' обновлена.")
 
     async def start(self) -> None:
-        """Start the plugin background workers and services.
-
-        Subclasses should override this method to perform initialization logic.
-        """
+        """Запускает фоновые обработчики и сервисы плагина."""
         self.is_running = True
-        logger.info(f"Plugin '{self.name}' started.")
+        logger.info(f"Плагин '{self.name}' запущен.")
 
     async def stop(self) -> None:
-        """Stop running background workers and release resources.
-
-        Subclasses should override this method to perform clean shutdown logic.
-        """
+        """Останавливает фоновые обработчики и освобождает ресурсы."""
         self.is_running = False
-        logger.info(f"Plugin '{self.name}' stopped.")
+        logger.info(f"Плагин '{self.name}' остановлен.")
 
     async def health_check(self) -> Dict[str, Any]:
-        """Perform a health check and return diagnostic information.
-
-        Returns:
-            Dict[str, Any]: Health status dictionary with timestamps and states.
-        """
+        """Выполняет проверку состояния здоровья плагина со строгой меткой времени UTC ISO 8601."""
         return {
             "name": self.name,
             "enabled": self.enabled,
             "is_running": self.is_running,
             "status": "healthy" if self.enabled else "disabled",
-            "last_check": datetime.utcnow().isoformat(),
+            "last_check": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
     async def execute_action(self, action_id: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Execute a declared admin action by identifier.
-
-        Args:
-            action_id (str): Unique identifier of the action to execute.
-            params (Optional[Dict[str, Any]]): Parameters for the action.
-
-        Returns:
-            Dict[str, Any]: Execution result containing status and payload.
-        """
+        """Выполняет объявленное административное действие по его идентификатору."""
         return {
             "success": False,
             "error": f"Action '{action_id}' is not implemented on plugin '{self.name}'.",
@@ -223,14 +184,5 @@ class BasePlugin(abc.ABC):
 
     @abc.abstractmethod
     async def handle(self, message: str, **kwargs: Any) -> AsyncGenerator[Dict[str, Any], None]:
-        """Handle incoming request or message stream.
-
-        Args:
-            message (str): Incoming message or user prompt.
-            **kwargs (Any): Additional context parameters.
-
-        Yields:
-            Dict[str, Any]: Streamed output events and result chunks.
-        """
+        """Обрабатывает входящий запрос или поток сообщений."""
         yield {"status": "complete", "text": ""}
-

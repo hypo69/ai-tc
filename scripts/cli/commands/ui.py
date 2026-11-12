@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Cli Commands - UI Capture
+# Process Name: AI-Windows-Admin Scripts Cli Commands - UI Capture & Audit
 # =============================================================================
 # Description:
-#   Команды управления и захвата веб-интерфейсов (ui).
+#   Команды управления, аудита и захвата веб-интерфейсов (ui).
 #
 # Usage Examples:
 #   Python API:
@@ -14,12 +14,12 @@
 # Package: scripts.cli.commands
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:44
+# Updated: 2026-11-03 15:00:00
 # =============================================================================
 
 from __future__ import annotations
 from logger import logger
-"""Команды захвата веб-интерфейсов (ui)."""
+"""Команды захвата и аудита веб-интерфейсов (ui)."""
 
 import argparse
 from .common import run_script
@@ -40,14 +40,30 @@ def register_ui_parser(subparsers: argparse._SubParsersAction) -> None:
     capture_parser.add_argument('--full-page', action='store_true', help='Сохранять всю страницу целиком')
     capture_parser.add_argument('--debug', action='store_true', help='Включить видимый браузер и отладку')
 
+    ui_subparsers.add_parser('check-user-settings', help='Аудит и проверка контрактов единого модального окна настроек')
+    sync_parser = ui_subparsers.add_parser('sync-user-settings', help='Синхронизация окна настроек между AI-TC, AI-Assistant и AI-Breadboard')
+    sync_parser.add_argument('--source', default='AI-TC', choices=['AI-TC', 'AI-Assistant', 'AI-Breadboard'], help='Исходный проект для эталона')
+
 
 def run_ui_command(args: argparse.Namespace) -> int:
-    """Делегирование операций захвата UI утилите tools/capture_ui.py.
+    """Делегирование операций захвата и аудита UI соответствующим утилитам.
 
     :параметр args: Аргументы командной строки namespace.
     :возвращает: Код завершения процесса.
     """
     sub = getattr(args, 'subcommand', None)
+    if sub == 'check-user-settings':
+        return run_script(
+            '.agents/skills/user-settings-sync-agent/scripts/verify_modal_integrity.py'
+        )
+
+    if sub == 'sync-user-settings':
+        source = getattr(args, 'source', 'AI-TC')
+        return run_script(
+            '.agents/skills/user-settings-sync-agent/scripts/sync_user_settings.py',
+            ['--source', source]
+        )
+
     if sub == 'capture':
         extra = []
         if getattr(args, 'url', None):
@@ -68,4 +84,3 @@ def run_ui_command(args: argparse.Namespace) -> int:
 
     logger.console(f'Неизвестная подкоманда ui: {sub}')
     return 1
-

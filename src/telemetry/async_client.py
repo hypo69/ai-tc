@@ -12,12 +12,13 @@
 # Package: src.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 20:45:00
+# Updated: 2026-11-10 14:35:00
 # =============================================================================
 
 from __future__ import annotations
 
 import asyncio
+from datetime import datetime, timezone
 import time
 from typing import Any, Callable, Dict, List, Optional
 
@@ -33,9 +34,12 @@ class AsyncTelemetryBatchClient:
 
     Уменьшает объем передаваемых данных за счет фильтрации неизменных метрик
     и группировки пакетов с отправкой раз в 30 секунд или по достижению лимита.
+    Гарантирует ограничение буфера в памяти для предотвращения утечек (OOM).
     """
 
     KEY_METRICS = {"cpu_percent", "gpu_percent", "memory_used_mb", "disk_free_gb", "errors_count"}
+    MAX_BUFFER_CAPACITY = 1000
+    MAX_LAST_METRICS_KEYS = 2000
 
     def __init__(
         self,
@@ -50,8 +54,8 @@ class AsyncTelemetryBatchClient:
             max_batch_size: Максимальный размер пакета перед принудительным сбросом.
             sink_callback: Коллбэк-приемник отправляемых пакетов.
         """
-        self.interval = batch_interval_seconds
-        self.max_batch_size = max_batch_size
+        self.interval = max(0.1, float(batch_interval_seconds))
+        self.max_batch_size = max(1, int(max_batch_size))
         self.sink = sink_callback
         self._buffer: List[Dict[str, Any]] = []
         self._last_metrics: Dict[str, Any] = {}
@@ -68,6 +72,8 @@ class AsyncTelemetryBatchClient:
         Returns:
             Отфильтрованный сжатый словарь метрик.
         """
+        if not isinstance(current_metrics, dict):
+            return {}
         delta = {}
         for key, val in current_metrics.items():
             # Ключевые метрики включаем всегда
@@ -78,6 +84,9 @@ class AsyncTelemetryBatchClient:
             if key not in self._last_metrics or self._last_metrics[key] != val:
                 delta[key] = val
 
+        # Защита от неограниченного роста словаря состояния метрик
+        if len(self._last_metrics) + len(current_metrics) > self.MAX_LAST_METRICS_KEYS:
+            self._last_metrics.clear()
         self._last_metrics.update(current_metrics)
         return delta
 
@@ -93,10 +102,14 @@ class AsyncTelemetryBatchClient:
 
         payload = {
             "timestamp": time.time(),
+            "timestamp_iso": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "metrics": filtered,
         }
 
         async with self._lock:
+            # Защита буфера от переполнения памяти при сбоях приемника
+            if len(self._buffer) >= self.MAX_BUFFER_CAPACITY:
+                self._buffer.pop(0)
             self._buffer.append(payload)
             should_flush = len(self._buffer) >= self.max_batch_size
 
@@ -129,15 +142,18 @@ class AsyncTelemetryBatchClient:
         return batch_to_send
 
     async def start_periodic_worker(self) -> None:
-        """Запускает фоновую задачу циклического сброса буфера раз в 30 секунд."""
+        """Запускает фоновую задачу циклического сброса буфера раз в заданный интервал."""
         self._running = True
-        while self._running:
-            await asyncio.sleep(self.interval)
-            await self.flush()
+        try:
+            while self._running:
+                await asyncio.sleep(self.interval)
+                await self.flush()
+        except asyncio.CancelledError:
+            self._running = False
+            raise
 
     def stop_worker(self) -> None:
         """Останавливает циклический рабочий процесс."""
         self._running = False
         if self._flush_task and not self._flush_task.done():
             self._flush_task.cancel()
-

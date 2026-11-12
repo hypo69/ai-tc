@@ -5,16 +5,14 @@
 # Description:
 #   Клиент для взаимодействия с API WhatsApp (Meta Cloud API / Green API / Webhook).
 #   Обеспечивает валидацию телефонных номеров, формирование полезной нагрузки,
-#   отправку текстовых сообщений и оповещений о входящей почте.
-#
-# Examples:
-#   >>> client = WhatsAppClient(token="...", phone_number_id="...")
-#   >>> client.send_message(to="+79991234567", message="Привет!")
+#   отправку текстовых сообщений и оповещений о входящей почте с поддержкой
+#   Exponential Backoff + Jitter и проверкой безопасности URL.
 #
 # File: client.py
 # Package: plugins.user-plugins.whatsapp
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 16:40:00
 # =============================================================================
 """Модуль клиента для отправки сообщений в WhatsApp через внешние API."""
 
@@ -23,16 +21,23 @@ from __future__ import annotations
 import json
 import logging
 import os
-import re
 from pathlib import Path
+import random
+import re
+import time
 from typing import Any, Dict, Optional
-import urllib.request
 import urllib.error
+import urllib.parse
+import urllib.request
 
 try:
     from logger.logger import logger
 except ImportError:
     logger = logging.getLogger("whatsapp_plugin")
+
+_NON_DIGITS_RE = re.compile(r"\D")
+_RETRYABLE_HTTP_CODES = frozenset({429, 500, 502, 503, 504})
+_MAX_RETRIES = 3
 
 
 def normalize_phone_number(phone: str) -> str:
@@ -44,8 +49,7 @@ def normalize_phone_number(phone: str) -> str:
     Returns:
         str: Строка из одних цифр (напр. '79991234567').
     """
-    digits = re.sub(r"\D", "", phone or "")
-    return digits
+    return _NON_DIGITS_RE.sub("", phone or "")
 
 
 class WhatsAppClient:
@@ -60,17 +64,8 @@ class WhatsAppClient:
         config_path: Optional[Path] = None,
         timeout: int = 15,
     ) -> None:
-        """Инициализация клиента WhatsApp.
-
-        Args:
-            token (Optional[str]): Токен доступа (Meta Graph API / Green API).
-            phone_number_id (Optional[str]): ID номера телефона отправителя Meta.
-            api_version (str): Версия Graph API (по умолчанию 'v18.0').
-            provider (str): Тип провайдера ('cloud_api', 'green_api', 'webhook').
-            config_path (Optional[Path]): Путь к пользовательскому файлу secrets.json.
-            timeout (int): Таймаут сетевых запросов в секундах.
-        """
-        self.timeout = timeout
+        """Инициализация клиента WhatsApp."""
+        self.timeout = max(1, int(timeout))
         self.api_version = api_version
         self.provider = provider
         self._load_config(token, phone_number_id, config_path)
@@ -134,12 +129,27 @@ class WhatsAppClient:
             or ""
         )
 
-    def test_connection(self) -> Dict[str, Any]:
-        """Проверяет корректность параметров подключения к API.
+    def _urlopen_with_retry(self, req: urllib.request.Request) -> bytes:
+        """Выполняет HTTP-запрос с проверкой схемы URL, таймаутом и Exponential Backoff + Jitter."""
+        parsed = urllib.parse.urlparse(req.full_url)
+        if parsed.scheme not in ("http", "https"):
+            raise ValueError(f"Недопустимая схема URL: {parsed.scheme}")
 
-        Returns:
-            Dict[str, Any]: Результат проверки соединения.
-        """
+        for attempt in range(_MAX_RETRIES):
+            try:
+                with urllib.request.urlopen(req, timeout=self.timeout) as response:
+                    return response.read()
+            except urllib.error.HTTPError as ex:
+                if ex.code not in _RETRYABLE_HTTP_CODES or attempt == _MAX_RETRIES - 1:
+                    raise
+            except urllib.error.URLError:
+                if attempt == _MAX_RETRIES - 1:
+                    raise
+            time.sleep((0.4 * (2 ** attempt)) + random.uniform(0.05, 0.2))
+        raise RuntimeError("Превышено число попыток подключения к API WhatsApp")
+
+    def test_connection(self) -> Dict[str, Any]:
+        """Проверяет корректность параметров подключения к API."""
         if self.provider == "webhook":
             if not self.webhook_url:
                 return {"success": False, "error": "Не указан WHATSAPP_WEBHOOK_URL"}
@@ -157,18 +167,17 @@ class WhatsAppClient:
                     "success": False,
                     "error": "Не задан WHATSAPP_PHONE_NUMBER_ID для Meta Cloud API.",
                 }
-            # Проверочный запрос метаданных номера в Meta Graph API
             url = f"https://graph.facebook.com/{self.api_version}/{self.phone_number_id}"
             req = urllib.request.Request(url, headers={"Authorization": f"Bearer {self.token}"})
             try:
-                with urllib.request.urlopen(req, timeout=self.timeout) as response:
-                    res_body = json.loads(response.read().decode("utf-8"))
-                    return {
-                        "success": True,
-                        "provider": "cloud_api",
-                        "phone_number_id": self.phone_number_id,
-                        "details": res_body,
-                    }
+                raw_bytes = self._urlopen_with_retry(req)
+                res_body = json.loads(raw_bytes.decode("utf-8"))
+                return {
+                    "success": True,
+                    "provider": "cloud_api",
+                    "phone_number_id": self.phone_number_id,
+                    "details": res_body,
+                }
             except urllib.error.HTTPError as ex:
                 err_text = ex.read().decode("utf-8", errors="replace")
                 logger.error(f"[whatsapp_client] Ошибка Graph API: {err_text}")
@@ -179,15 +188,7 @@ class WhatsAppClient:
         return {"success": True, "provider": self.provider}
 
     def send_message(self, to: str, message: str) -> Dict[str, Any]:
-        """Отправляет текстовое сообщение в WhatsApp.
-
-        Args:
-            to (str): Номер телефона получателя.
-            message (str): Текст сообщения.
-
-        Returns:
-            Dict[str, Any]: Ответ API с подтверждением отправки.
-        """
+        """Отправляет текстовое сообщение в WhatsApp."""
         recipient = normalize_phone_number(to or self.default_recipient)
         if not recipient:
             return {"success": False, "error": "Не указан номер получателя (recipient phone number)."}
@@ -195,7 +196,6 @@ class WhatsAppClient:
         if not message or not message.strip():
             return {"success": False, "error": "Текст сообщения не может быть пустым."}
 
-        # Режим отправки через Meta WhatsApp Cloud API
         if self.provider == "cloud_api":
             if not self.token or not self.phone_number_id:
                 return {
@@ -219,18 +219,18 @@ class WhatsAppClient:
             req = urllib.request.Request(url, data=data_bytes, headers=headers, method="POST")
 
             try:
-                with urllib.request.urlopen(req, timeout=self.timeout) as response:
-                    res_body = json.loads(response.read().decode("utf-8"))
-                    msg_id = ""
-                    if "messages" in res_body and res_body["messages"]:
-                        msg_id = res_body["messages"][0].get("id", "")
-                    return {
-                        "success": True,
-                        "provider": "cloud_api",
-                        "recipient": recipient,
-                        "whatsapp_message_id": msg_id,
-                        "response": res_body,
-                    }
+                raw_bytes = self._urlopen_with_retry(req)
+                res_body = json.loads(raw_bytes.decode("utf-8"))
+                msg_id = ""
+                if "messages" in res_body and res_body["messages"]:
+                    msg_id = res_body["messages"][0].get("id", "")
+                return {
+                    "success": True,
+                    "provider": "cloud_api",
+                    "recipient": recipient,
+                    "whatsapp_message_id": msg_id,
+                    "response": res_body,
+                }
             except urllib.error.HTTPError as ex:
                 err_text = ex.read().decode("utf-8", errors="replace")
                 logger.error(f"[whatsapp_client] Ошибка отправки WhatsApp: {err_text}")
@@ -239,7 +239,6 @@ class WhatsAppClient:
                 logger.error(f"[whatsapp_client] Сетевая ошибка при отправке в WhatsApp: {ex}")
                 return {"success": False, "error": str(ex)}
 
-        # Режим Generic Webhook
         if self.provider == "webhook" and self.webhook_url:
             payload = {"to": recipient, "message": message}
             data_bytes = json.dumps(payload).encode("utf-8")
@@ -250,9 +249,9 @@ class WhatsAppClient:
                 method="POST",
             )
             try:
-                with urllib.request.urlopen(req, timeout=self.timeout) as response:
-                    res_text = response.read().decode("utf-8", errors="replace")
-                    return {"success": True, "provider": "webhook", "response": res_text}
+                raw_bytes = self._urlopen_with_retry(req)
+                res_text = raw_bytes.decode("utf-8", errors="replace")
+                return {"success": True, "provider": "webhook", "response": res_text}
             except Exception as ex:
                 return {"success": False, "error": str(ex)}
 
@@ -262,15 +261,7 @@ class WhatsAppClient:
         }
 
     def send_email_alert(self, to: str, email_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Форматирует и отправляет сводку о входящем письме в WhatsApp.
-
-        Args:
-            to (str): Номер телефона получателя.
-            email_data (Dict[str, Any]): Данные письма (sender, subject, date, body_text).
-
-        Returns:
-            Dict[str, Any]: Результат отправки.
-        """
+        """Форматирует и отправляет сводку о входящем письме в WhatsApp."""
         sender = email_data.get("sender") or email_data.get("from") or "Неизвестный отправитель"
         subject = email_data.get("subject") or "(без темы)"
         date_str = email_data.get("date") or ""
@@ -285,4 +276,3 @@ class WhatsAppClient:
             f"💬 *Содержимое:*\n{preview}"
         )
         return self.send_message(to=to, message=formatted_msg)
-

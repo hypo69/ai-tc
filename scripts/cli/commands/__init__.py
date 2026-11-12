@@ -16,7 +16,7 @@
 # Package: scripts.cli.commands
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 21:07:00
+# Updated: 2026-11-10 18:14:00
 # =============================================================================
 
 from __future__ import annotations
@@ -37,9 +37,10 @@ from .network import register_network_parser, run_network_command
 from .ui import register_ui_parser, run_ui_command
 from .test_cmd import register_test_parser, run_test_command
 from .investigate import register_investigate_parser, run_investigate_command
+from .paperless import register_paperless_parser, run_paperless_command
 
-# Utility for launching external commands
 from ..utils import run_command
+
 
 def register_headers_parser(subparsers: argparse._SubParsersAction) -> None:
     """Регистрирует парсер для команды `headers`.
@@ -49,19 +50,22 @@ def register_headers_parser(subparsers: argparse._SubParsersAction) -> None:
     headers_sub = headers_parser.add_subparsers(dest='subcommand', help='Подкоманды headers')
     headers_sub.add_parser('update', help='Обновить заголовки во всех поддерживаемых файлах')
 
+
 def run_headers_command(args: argparse.Namespace) -> int:
     """Обработчик команды `headers`.
     Поддерживаемая подкоманда: `update`.
     """
     if getattr(args, 'subcommand', None) == 'update':
+        from header import __root__
         return run_command(
             ['python', 'tools/update_file_headers.py'],
             cwd=__root__,
             WaitMsBeforeAsync=5000,
             toolAction='Обновление заголовков файлов',
-            toolSummary='Запуск скрипта update_file_headers'
+            toolSummary='Запуск скрипта update_file_headers',
         )
     return 1
+
 
 COMMAND_HANDLERS: Dict[str, Callable[[argparse.Namespace], int]] = {
     'skills': run_skills_command,
@@ -77,6 +81,7 @@ COMMAND_HANDLERS: Dict[str, Callable[[argparse.Namespace], int]] = {
     'test': run_test_command,
     'headers': run_headers_command,
     'investigate': run_investigate_command,
+    'paperless': run_paperless_command,
 }
 
 
@@ -95,6 +100,7 @@ def register_all_parsers(subparsers: argparse._SubParsersAction) -> None:
     register_headers_parser(subparsers)
     register_test_parser(subparsers)
     register_investigate_parser(subparsers)
+    register_paperless_parser(subparsers)
 
     # Assist CLI Gateway
     assist_parser = subparsers.add_parser('assist', help='Assistant management (start, stop, status, providers, etc.)')
@@ -115,4 +121,3 @@ __all__ = [
     'run_network_command',
     'run_ui_command',
 ]
-

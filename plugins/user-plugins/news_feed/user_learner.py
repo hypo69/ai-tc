@@ -11,19 +11,23 @@
 # Package: plugins.news_feed
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 16:43:00
 # =============================================================================
 
-"""Adaptive learning engine for personalizing user news feeds."""
+"""Адаптивный движок обучения для персонализации новостных лент пользователей."""
 
 from __future__ import annotations
 
+from collections import OrderedDict
+from contextlib import contextmanager
+from datetime import datetime, timezone
 import json
 import math
+from pathlib import Path
 import re
 import sqlite3
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+import threading
+from typing import Any, Dict, Iterator, List, Optional
 
 from header import __root__
 from logger import logger
@@ -60,19 +64,13 @@ _STOP_WORDS_EN = {
     "while", "who", "whom", "why", "with", "would", "you", "your", "yours", "yourself", "yourselves"
 }
 
-ALL_STOP_WORDS = _STOP_WORDS_RU | _STOP_WORDS_EN
+ALL_STOP_WORDS: frozenset[str] = frozenset(_STOP_WORDS_RU | _STOP_WORDS_EN)
+_KEYWORD_TOKEN_RE = re.compile(r"[a-zA-Zа-яА-ЯёЁ0-9_\-\+#]{2,}")
+_MAX_PROFILES_CACHE = 256
 
 
 def extract_keywords(text: str, tags: Optional[List[str]] = None) -> List[str]:
-    """Extract clean lemmatized/normalized keywords from title, summary, and tags.
-
-    Args:
-        text (str): Source text.
-        tags (Optional[List[str]]): Additional explicit tags.
-
-    Returns:
-        List[str]: Clean distinct keyword tokens.
-    """
+    """Извлекает нормализованные ключевые слова из заголовка, описания и тегов."""
     if not text and not tags:
         return []
 
@@ -84,7 +82,7 @@ def extract_keywords(text: str, tags: Optional[List[str]] = None) -> List[str]:
                 tokens.append(clean_tag)
 
     if text:
-        words = re.findall(r"[a-zA-Zа-яА-ЯёЁ0-9_\-\+#]{2,}", text.lower())
+        words = _KEYWORD_TOKEN_RE.findall(text.lower())
         for w in words:
             w_clean = w.strip("-_#+")
             if len(w_clean) >= 3 and w_clean not in ALL_STOP_WORDS and not w_clean.isdigit():
@@ -94,55 +92,62 @@ def extract_keywords(text: str, tags: Optional[List[str]] = None) -> List[str]:
 
 
 class UserNewsLearner:
-    """Manages adaptive interest vectors, feedback training, and scoring."""
+    """Управляет адаптивными векторами интересов, обучением по обратной связи и ранжированием."""
 
     def __init__(self, db_path: Optional[Path] = None) -> None:
-        """Initialize learner with SQLite storage.
-
-        Args:
-            db_path (Optional[Path]): Path to database.
-        """
+        """Инициализирует обучающий модуль с хранилищем SQLite."""
         if db_path is None:
             db_path = __root__ / "data" / "news_service.db"
         self.db_path = db_path
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self._profiles_cache: Dict[str, UserInterestProfile] = {}
+        self._lock = threading.RLock()
+        self._profiles_cache: OrderedDict[str, UserInterestProfile] = OrderedDict()
         self._init_db()
 
-    def _get_connection(self) -> sqlite3.Connection:
-        """Create a sqlite connection."""
-        conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
+    @contextmanager
+    def _get_connection(self) -> Iterator[sqlite3.Connection]:
+        """Создаёт соединение SQLite с режимом WAL и гарантированным закрытием."""
+        conn = sqlite3.connect(str(self.db_path), timeout=15.0, check_same_thread=False)
         conn.row_factory = sqlite3.Row
-        return conn
+        try:
+            conn.execute("PRAGMA journal_mode=WAL;")
+            conn.execute("PRAGMA synchronous=NORMAL;")
+            conn.execute("PRAGMA busy_timeout=15000;")
+            yield conn
+        finally:
+            conn.close()
 
     def _init_db(self) -> None:
-        """Initialize user news preferences and feedback tables."""
-        with self._get_connection() as conn:
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS user_news_profiles (
-                    user_id TEXT PRIMARY KEY,
-                    topic_weights TEXT NOT NULL,
-                    negative_keywords TEXT NOT NULL,
-                    source_weights TEXT NOT NULL,
-                    custom_sources TEXT NOT NULL,
-                    min_relevance_threshold REAL DEFAULT 0.3,
-                    interaction_count INTEGER DEFAULT 0,
-                    updated_at TEXT NOT NULL
+        """Инициализирует таблицы пользовательских профилей и истории обратной связи."""
+        with self._lock, self._get_connection() as conn:
+            with conn:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS user_news_profiles (
+                        user_id TEXT PRIMARY KEY,
+                        topic_weights TEXT NOT NULL,
+                        negative_keywords TEXT NOT NULL,
+                        source_weights TEXT NOT NULL,
+                        custom_sources TEXT NOT NULL,
+                        min_relevance_threshold REAL DEFAULT 0.3,
+                        interaction_count INTEGER DEFAULT 0,
+                        updated_at TEXT NOT NULL
+                    )
+                """)
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS user_news_feedback_history (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id TEXT NOT NULL,
+                        article_id TEXT NOT NULL,
+                        action TEXT NOT NULL,
+                        article_title TEXT,
+                        article_tags TEXT,
+                        category TEXT,
+                        created_at TEXT NOT NULL
+                    )
+                """)
+                conn.execute(
+                    "CREATE INDEX IF NOT EXISTS idx_news_feedback_user_id ON user_news_feedback_history(user_id);"
                 )
-            """)
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS user_news_feedback_history (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id TEXT NOT NULL,
-                    article_id TEXT NOT NULL,
-                    action TEXT NOT NULL,
-                    article_title TEXT,
-                    article_tags TEXT,
-                    category TEXT,
-                    created_at TEXT NOT NULL
-                )
-            """)
-            conn.commit()
 
     def get_profile(self, user_id: str = "default") -> UserInterestProfile:
         """Load or create the learned interest profile for a given user.
@@ -153,14 +158,16 @@ class UserNewsLearner:
         Returns:
             UserInterestProfile: Active profile instance.
         """
-        if user_id in self._profiles_cache:
-            return self._profiles_cache[user_id]
+        with self._lock:
+            if user_id in self._profiles_cache:
+                self._profiles_cache.move_to_end(user_id)
+                return self._profiles_cache[user_id]
 
-        with self._get_connection() as conn:
-            row = conn.execute(
-                "SELECT * FROM user_news_profiles WHERE user_id = ?",
-                (user_id,)
-            ).fetchone()
+            with self._get_connection() as conn:
+                row = conn.execute(
+                    "SELECT * FROM user_news_profiles WHERE user_id = ?",
+                    (user_id,)
+                ).fetchone()
 
             if row:
                 try:
@@ -175,14 +182,16 @@ class UserNewsLearner:
                         updated_at=row["updated_at"]
                     )
                 except Exception as e:
-                    logger.error(f"Error parsing news profile for {user_id}: {e}")
+                    logger.error(f"Ошибка разбора новостного профиля {user_id}: {e}")
                     profile = self._create_default_profile(user_id)
             else:
                 profile = self._create_default_profile(user_id)
                 self.save_profile(profile)
 
-        self._profiles_cache[user_id] = profile
-        return profile
+            self._profiles_cache[user_id] = profile
+            while len(self._profiles_cache) > _MAX_PROFILES_CACHE:
+                self._profiles_cache.popitem(last=False)
+            return profile
 
     def _create_default_profile(self, user_id: str) -> UserInterestProfile:
         """Create baseline default profile with balanced seed weights."""
@@ -330,11 +339,13 @@ class UserNewsLearner:
             float: Normalized score between 0.0 and 1.0.
         """
         keywords = extract_keywords(f"{article.title} {article.summary}", article.tags)
-        
-        # Check negative keywords first
+        keywords_set = set(keywords)
+        title_lower = article.title.lower()
+
+        # Быстрая проверка стоп-тем за O(1) по множеству токенов
         for neg in profile.negative_keywords:
-            if neg in keywords or neg in article.title.lower():
-                return 0.05  # Highly penalized
+            if neg in keywords_set or neg in title_lower:
+                return 0.05
 
         matched_weight = 0.0
         total_checks = 0
@@ -412,4 +423,3 @@ class UserNewsLearner:
 
         ranked.sort(key=lambda x: x.relevance_score, reverse=True)
         return ranked
-

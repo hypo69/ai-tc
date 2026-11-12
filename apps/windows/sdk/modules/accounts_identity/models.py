@@ -17,7 +17,7 @@
 # Package: apps.windows.sdk.modules.accounts_identity
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 17:59:00
+# Updated: 2026-11-01 15:25:00
 # =============================================================================
 
 """Модели данных и схемы для подсистемы Accounts & Identity Windows."""
@@ -298,4 +298,41 @@ class IdentityGraph(BaseModel):
     nodes: List[IdentityGraphNode] = Field(default_factory=list)
     edges: List[IdentityGraphEdge] = Field(default_factory=list)
     summary: Dict[str, Any] = Field(default_factory=dict)
+
+
+class UserUacConfig(BaseModel):
+    """Конфигурация параметров контроля учетных записей (UAC) для пользователя Windows."""
+    username: str
+    sid: str = ""
+    is_admin: bool = False
+    uac_role: str = "standard"  # "admin" | "standard"
+    is_builtin_admin: bool = False
+    filter_admin_token: bool = False
+    enable_lua: bool = True
+    consent_prompt_behavior_admin: int = 5
+    consent_prompt_behavior_user: int = 3
+    prompt_on_secure_desktop: bool = True
+    enable_virtualization: bool = True
+    enabled: bool = True
+    password_never_expires: bool = False
+    cannot_change_password: bool = False
+    password_required: bool = True
+    password_expired: bool = False
+    groups: List[str] = Field(default_factory=list)
+
+
+class UserUacUpdateRequest(BaseModel):
+    """Модель обновления параметров UAC и учетной записи пользователя."""
+    uac_role: Optional[str] = None  # "admin" или "standard"
+    filter_admin_token: Optional[bool] = None
+    consent_prompt_behavior_admin: Optional[int] = None
+    consent_prompt_behavior_user: Optional[int] = None
+    prompt_on_secure_desktop: Optional[bool] = None
+    enable_virtualization: Optional[bool] = None
+    enabled: Optional[bool] = None
+    password_never_expires: Optional[bool] = None
+    cannot_change_password: Optional[bool] = None
+    password_required: Optional[bool] = None
+    password_expired: Optional[bool] = None
+
 

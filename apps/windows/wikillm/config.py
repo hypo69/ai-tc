@@ -16,7 +16,7 @@
 # Package: apps.windows.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:15:00
+# Updated: 2026-11-01 12:40:00
 # =============================================================================
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ class WikiLLMConfig(BaseModel):
     """Модель конфигурации WikiLLM."""
 
     database_path: str = Field(
-        default="%ProgramData%/{app_name}/windows/knowledge.db",
+        default="%ProgramData%/{app_name}/apps/windows/knowledge.db",
         description="Путь к SQLite базе знаний WikiLLM",
     )
 

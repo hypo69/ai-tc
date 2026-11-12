@@ -16,7 +16,7 @@
 # Package: scripts.cli
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-10-25 19:36:00
 # =============================================================================
 
 """Cross-platform utility functions for system operations."""
@@ -87,18 +87,21 @@ def get_process_on_port(port: int) -> Optional[Tuple[int, str]]:
     """
     try:
         if sys.platform == 'win32':
-            output = subprocess.run(['netstat', '-aon'], capture_output=True, text=True, check=False).stdout
+            output = subprocess.run(['netstat', '-ano'], capture_output=True, text=True, check=False).stdout
             for line in output.split('\n'):
-                if f':{port}' in line and 'LISTENING' in line:
-                    parts = line.split()
-                    if len(parts) > 4:
-                        pid_str = parts[-1]
-                        try:
-                            pid = int(pid_str)
+                line = line.strip()
+                if not line or not line.upper().startswith('TCP'):
+                    continue
+                parts = line.split()
+                if len(parts) >= 4 and parts[1].endswith(f':{port}'):
+                    pid_str = parts[-1]
+                    try:
+                        pid = int(pid_str)
+                        if pid > 0:
                             proc_name = get_process_name(pid)
                             return (pid, proc_name)
-                        except (ValueError, Exception):
-                            pass
+                    except (ValueError, Exception):
+                        pass
         else:
             try:
                 output = subprocess.run(['lsof', '-i', f':{port}'], capture_output=True, text=True, check=False).stdout

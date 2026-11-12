@@ -3,38 +3,46 @@
 # Process Name: Facebook Graph API Client Interface
 # =============================================================================
 # Description:
-#   Provides an asynchronous HTTP client for interacting with Facebook Graph API,
-#   supporting feed posts, link sharing, photo publishing, and account inspection.
+#   Асинхронный HTTP-клиент для взаимодействия с Facebook Graph API:
+#   публикация записей, ссылок, фотографий и инспекция страниц с поддержкой
+#   явных таймаутов и Exponential Backoff + Jitter.
 #
 # File: client.py
 # Project: ai-breadboard
 # Package: plugins.facebook
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 16:40:00
 # =============================================================================
 
-"""Facebook Graph API client module.
+"""Модуль клиента Facebook Graph API.
 
-Handles network requests to Facebook Graph API endpoints, providing typed methods
-for posting messages, media, inspecting pages, and validating authentication tokens.
+Обрабатывает сетевые запросы к эндпоинтам Facebook Graph API, предоставляя
+типизированные методы публикации сообщений, медиафайлов, получения информации
+о страницах и проверки токенов авторизации.
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+import asyncio
+import random
+from typing import Any, Dict, Optional
 import httpx
 
 from logger import logger
 
+_RETRYABLE_STATUS_CODES = frozenset({429, 500, 502, 503, 504})
+_MAX_RETRIES = 3
+
 
 class FacebookGraphClient:
-    """Asynchronous client for interacting with the Facebook Graph API.
+    """Асинхронный клиент для взаимодействия с Facebook Graph API.
 
     Attributes:
-        page_id (str): Default target Facebook Page ID.
-        access_token (str): Facebook Page or User access token.
-        api_version (str): Facebook Graph API version (e.g., 'v19.0').
-        base_url (str): Computed base URL for the Graph API endpoints.
+        page_id (str): Идентификатор целевой страницы Facebook по умолчанию.
+        access_token (str): Токен доступа страницы или пользователя Facebook.
+        api_version (str): Версия Facebook Graph API (например, 'v19.0').
+        base_url (str): Базовый URL эндпоинтов Graph API.
     """
 
     def __init__(
@@ -43,12 +51,12 @@ class FacebookGraphClient:
         access_token: str = "",
         api_version: str = "v19.0",
     ) -> None:
-        """Initialize the Facebook Graph API client.
+        """Инициализирует клиент Facebook Graph API.
 
         Args:
-            page_id (str): Target Facebook Page ID.
-            access_token (str): Valid Page or User access token.
-            api_version (str): Graph API version tag. Defaults to 'v19.0'.
+            page_id (str): Идентификатор целевой страницы Facebook.
+            access_token (str): Валидный токен доступа страницы или пользователя.
+            api_version (str): Тег версии Graph API. По умолчанию 'v19.0'.
         """
         self.page_id: str = str(page_id).strip()
         self.access_token: str = access_token.strip()
@@ -56,12 +64,38 @@ class FacebookGraphClient:
         self.base_url: str = f"https://graph.facebook.com/{self.api_version}"
 
     def is_configured(self) -> bool:
-        """Check if minimum required credentials (token) are configured.
+        """Проверяет, задан ли минимально необходимый токен доступа.
 
         Returns:
-            bool: True if an access token is present, False otherwise.
+            bool: True, если токен доступа настроен, иначе False.
         """
         return bool(self.access_token)
+
+    async def _request_with_retry(
+        self,
+        method: str,
+        url: str,
+        timeout_sec: float = 30.0,
+        **kwargs: Any,
+    ) -> httpx.Response:
+        """Выполняет HTTP-запрос с раздельными таймаутами и Exponential Backoff + Jitter."""
+        timeout = httpx.Timeout(connect=5.0, read=timeout_sec, write=timeout_sec, pool=5.0)
+        last_exc: Optional[Exception] = None
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            for attempt in range(_MAX_RETRIES):
+                try:
+                    response = await client.request(method, url, **kwargs)
+                    if response.status_code not in _RETRYABLE_STATUS_CODES or attempt == _MAX_RETRIES - 1:
+                        return response
+                except httpx.RequestError as exc:
+                    last_exc = exc
+                    if attempt == _MAX_RETRIES - 1:
+                        raise
+                backoff = (0.5 * (2 ** attempt)) + random.uniform(0.05, 0.25)
+                await asyncio.sleep(backoff)
+        if last_exc is not None:
+            raise last_exc
+        raise RuntimeError("Не удалось выполнить запрос к Facebook Graph API")
 
     async def publish_post(
         self,
@@ -70,16 +104,16 @@ class FacebookGraphClient:
         page_id: Optional[str] = None,
         access_token: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Publish a text message and optional URL link to a Facebook Page or feed.
+        """Публикует текстовое сообщение и опциональную ссылку на странице Facebook.
 
         Args:
-            message (str): Text body of the post.
-            link (Optional[str]): Optional web URL to attach as a link preview.
-            page_id (Optional[str]): Target Page ID. Falls back to self.page_id or 'me'.
-            access_token (Optional[str]): Override access token. Falls back to self.access_token.
+            message (str): Текст публикации.
+            link (Optional[str]): Опциональный URL для прикрепления превью ссылки.
+            page_id (Optional[str]): Целевой ID страницы (по умолчанию self.page_id или 'me').
+            access_token (Optional[str]): Переопределяющий токен доступа.
 
         Returns:
-            Dict[str, Any]: API response containing 'id' or error details.
+            Dict[str, Any]: Ответ API с 'id' созданного поста или описанием ошибки.
         """
         token = access_token or self.access_token
         if not token:
@@ -96,20 +130,19 @@ class FacebookGraphClient:
             payload["link"] = link
 
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.post(url, data=payload)
-                data = response.json()
+            response = await self._request_with_retry("POST", url, timeout_sec=30.0, data=payload)
+            data = response.json()
 
-                if response.is_success and "id" in data:
-                    logger.info(f"Facebook post published successfully: ID={data['id']}")
-                    return {"success": True, "id": data["id"], "data": data}
+            if response.is_success and "id" in data:
+                logger.info(f"Пост Facebook успешно опубликован: ID={data['id']}")
+                return {"success": True, "id": data["id"], "data": data}
 
-                error_msg = self._extract_error(data, response.status_code)
-                logger.error(f"Facebook publish post failed: {error_msg}")
-                return {"success": False, "error": error_msg, "status_code": response.status_code, "raw": data}
+            error_msg = self._extract_error(data, response.status_code)
+            logger.error(f"Ошибка публикации поста в Facebook: {error_msg}")
+            return {"success": False, "error": error_msg, "status_code": response.status_code, "raw": data}
 
         except Exception as exc:
-            logger.error(f"Network error during Facebook post publication: {exc}", exc_info=True)
+            logger.error(f"Сетевая ошибка при публикации поста в Facebook: {exc}", exc_info=True)
             return {"success": False, "error": str(exc)}
 
     async def publish_photo(
@@ -121,18 +154,18 @@ class FacebookGraphClient:
         page_id: Optional[str] = None,
         access_token: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Publish a photo with a caption to a Facebook Page or user albums.
+        """Публикует фотографию с подписью на странице Facebook.
 
         Args:
-            caption (str): Description or caption text for the photo.
-            photo_url (Optional[str]): Remote accessible URL of the image.
-            photo_bytes (Optional[bytes]): Raw binary content of the photo file.
-            filename (str): Name of the file when uploading raw bytes.
-            page_id (Optional[str]): Target Page ID. Falls back to self.page_id or 'me'.
-            access_token (Optional[str]): Override access token. Falls back to self.access_token.
+            caption (str): Подпись к фотографии.
+            photo_url (Optional[str]): Публичный URL изображения.
+            photo_bytes (Optional[bytes]): Бинарное содержимое файла изображения.
+            filename (str): Имя файла при загрузке байтов.
+            page_id (Optional[str]): Целевой ID страницы.
+            access_token (Optional[str]): Переопределяющий токен доступа.
 
         Returns:
-            Dict[str, Any]: API response containing 'id' and 'post_id' or error details.
+            Dict[str, Any]: Ответ API с 'id' и 'post_id' или деталями ошибки.
         """
         token = access_token or self.access_token
         if not token:
@@ -147,27 +180,26 @@ class FacebookGraphClient:
         }
 
         try:
-            async with httpx.AsyncClient(timeout=45.0) as client:
-                if photo_bytes:
-                    files = {"source": (filename, photo_bytes, "image/jpeg")}
-                    response = await client.post(url, data=data_payload, files=files)
-                elif photo_url:
-                    data_payload["url"] = photo_url
-                    response = await client.post(url, data=data_payload)
-                else:
-                    return {"success": False, "error": "Neither photo_url nor photo_bytes was provided."}
+            if photo_bytes:
+                files = {"source": (filename, photo_bytes, "image/jpeg")}
+                response = await self._request_with_retry("POST", url, timeout_sec=45.0, data=data_payload, files=files)
+            elif photo_url:
+                data_payload["url"] = photo_url
+                response = await self._request_with_retry("POST", url, timeout_sec=45.0, data=data_payload)
+            else:
+                return {"success": False, "error": "Neither photo_url nor photo_bytes was provided."}
 
-                data = response.json()
-                if response.is_success and "id" in data:
-                    logger.info(f"Facebook photo published successfully: ID={data['id']}")
-                    return {"success": True, "id": data["id"], "post_id": data.get("post_id"), "data": data}
+            data = response.json()
+            if response.is_success and "id" in data:
+                logger.info(f"Фотография Facebook успешно опубликована: ID={data['id']}")
+                return {"success": True, "id": data["id"], "post_id": data.get("post_id"), "data": data}
 
-                error_msg = self._extract_error(data, response.status_code)
-                logger.error(f"Facebook publish photo failed: {error_msg}")
-                return {"success": False, "error": error_msg, "status_code": response.status_code, "raw": data}
+            error_msg = self._extract_error(data, response.status_code)
+            logger.error(f"Ошибка публикации фотографии в Facebook: {error_msg}")
+            return {"success": False, "error": error_msg, "status_code": response.status_code, "raw": data}
 
         except Exception as exc:
-            logger.error(f"Network error during Facebook photo publication: {exc}", exc_info=True)
+            logger.error(f"Сетевая ошибка при публикации фото в Facebook: {exc}", exc_info=True)
             return {"success": False, "error": str(exc)}
 
     async def get_page_info(
@@ -176,16 +208,7 @@ class FacebookGraphClient:
         access_token: Optional[str] = None,
         fields: str = "id,name,fan_count,followers_count,link,about,is_published",
     ) -> Dict[str, Any]:
-        """Fetch metadata and public stats for a target Facebook Page.
-
-        Args:
-            page_id (Optional[str]): Page ID or 'me'.
-            access_token (Optional[str]): Override access token.
-            fields (str): Comma-separated list of Graph API fields to request.
-
-        Returns:
-            Dict[str, Any]: Page details or error dictionary.
-        """
+        """Получает метаданные и публичную статистику целевой страницы Facebook."""
         token = access_token or self.access_token
         if not token:
             return {"success": False, "error": "Access token is missing or not configured."}
@@ -195,32 +218,24 @@ class FacebookGraphClient:
         params = {"fields": fields, "access_token": token}
 
         try:
-            async with httpx.AsyncClient(timeout=20.0) as client:
-                response = await client.get(url, params=params)
-                data = response.json()
+            response = await self._request_with_retry("GET", url, timeout_sec=20.0, params=params)
+            data = response.json()
 
-                if response.is_success and "id" in data:
-                    return {"success": True, "data": data}
+            if response.is_success and "id" in data:
+                return {"success": True, "data": data}
 
-                error_msg = self._extract_error(data, response.status_code)
-                return {"success": False, "error": error_msg, "status_code": response.status_code}
+            error_msg = self._extract_error(data, response.status_code)
+            return {"success": False, "error": error_msg, "status_code": response.status_code}
 
         except Exception as exc:
-            logger.error(f"Error fetching Facebook page info: {exc}")
+            logger.error(f"Ошибка получения информации о странице Facebook: {exc}")
             return {"success": False, "error": str(exc)}
 
     async def get_accounts(
         self,
         access_token: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Fetch list of Facebook Pages managed by the authenticated user.
-
-        Args:
-            access_token (Optional[str]): User access token with 'pages_show_list' permission.
-
-        Returns:
-            Dict[str, Any]: List of managed page accounts with Page IDs and tokens.
-        """
+        """Получает список страниц Facebook, управляемых текущим пользователем."""
         token = access_token or self.access_token
         if not token:
             return {"success": False, "error": "Access token is missing or not configured."}
@@ -229,26 +244,21 @@ class FacebookGraphClient:
         params = {"access_token": token}
 
         try:
-            async with httpx.AsyncClient(timeout=20.0) as client:
-                response = await client.get(url, params=params)
-                data = response.json()
+            response = await self._request_with_retry("GET", url, timeout_sec=20.0, params=params)
+            data = response.json()
 
-                if response.is_success and "data" in data:
-                    return {"success": True, "accounts": data["data"]}
+            if response.is_success and "data" in data:
+                return {"success": True, "accounts": data["data"]}
 
-                error_msg = self._extract_error(data, response.status_code)
-                return {"success": False, "error": error_msg, "status_code": response.status_code}
+            error_msg = self._extract_error(data, response.status_code)
+            return {"success": False, "error": error_msg, "status_code": response.status_code}
 
         except Exception as exc:
-            logger.error(f"Error fetching Facebook accounts: {exc}")
+            logger.error(f"Ошибка получения аккаунтов Facebook: {exc}")
             return {"success": False, "error": str(exc)}
 
     async def test_connection(self) -> Dict[str, Any]:
-        """Verify API token validity and connectivity against the Graph API.
-
-        Returns:
-            Dict[str, Any]: Diagnostic verification result.
-        """
+        """Проверяет валидность токена API и доступность Graph API."""
         if not self.is_configured():
             return {
                 "success": False,
@@ -276,15 +286,7 @@ class FacebookGraphClient:
         }
 
     def _extract_error(self, data: Dict[str, Any], status_code: int) -> str:
-        """Extract user-friendly error message from Graph API error response.
-
-        Args:
-            data (Dict[str, Any]): Parsed JSON payload from Facebook.
-            status_code (int): HTTP status code.
-
-        Returns:
-            str: Descriptive error string.
-        """
+        """Извлекает понятное сообщение об ошибке из ответа Graph API."""
         if isinstance(data, dict) and "error" in data:
             err = data["error"]
             if isinstance(err, dict):
@@ -298,4 +300,3 @@ class FacebookGraphClient:
                 return details
             return str(err)
         return f"HTTP {status_code} request failed"
-

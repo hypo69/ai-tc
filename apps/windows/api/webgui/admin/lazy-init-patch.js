@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/admin
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-30 13:25:00
+ * Updated: 2026-11-03 14:41:44
  * =============================================================================
  */
 
@@ -113,6 +113,7 @@ window.addEventListener('load', async () => {
     { tabName: 'news', htmlUrl: `/html/tab_news/index.html`, jsUrl: `/html/tab_news/main.js` },
     { tabName: 'logs', htmlUrl: `/html/logs/index.html`, jsUrl: `/html/logs/main.js` },
     { tabName: 'help', htmlUrl: `/html/help/index.html`, jsUrl: `/html/help/main.js` },
+    { tabName: 'issues', htmlUrl: `/html/tab_issues/index.html`, jsUrl: `/html/tab_issues/main.js` },
     
     // Микроприложения (с привязкой к ID приложения в конфиге профиля)
     { tabName: 'network', appId: 'network_terminal', htmlUrl: `/html/tab_network/index.html`, jsUrl: `/html/tab_network/main.js` },
@@ -126,7 +127,7 @@ window.addEventListener('load', async () => {
     { tabName: 'system-control', appId: 'system_control_center', htmlUrl: `/html/tab_system_control/index.html?v=20261020_v4`, jsUrl: `/html/tab_system_control/main.js?v=20261020_v4` },
     { tabName: 'system-logs', appId: 'system_log_viewer', htmlUrl: `/html/tab_system_logs/index.html`, jsUrl: `/html/tab_system_logs/main.js` },
     { tabName: 'software-audit', appId: 'software_audit', htmlUrl: `/html/tab_software_audit/index.html`, jsUrl: `/html/tab_software_audit/main.js` },
-    { tabName: 'registry-viewer', appId: 'registry_viewer', htmlUrl: `/html/tab_registry_viewer/index.html`, jsUrl: `/html/tab_registry_viewer/main.js` },
+    { tabName: 'registry-editor', appId: 'registry_editor', htmlUrl: `/html/tab_registry_editor/index.html`, jsUrl: `/html/tab_registry_editor/main.js` },
     { tabName: 'startup-auditor', appId: 'windows_startup_auditor', htmlUrl: `/html/tab_startup_auditor/index.html`, jsUrl: `/html/tab_startup_auditor/main.js` },
     { tabName: 'windows-backup', appId: 'windows_backup_manager', htmlUrl: `/html/tab_windows_backup/index.html?v=20260924_v2`, jsUrl: `/html/tab_windows_backup/main.js?v=20260924_v2` },
     { tabName: 'wikipedia-research', appId: 'wikipedia_research', htmlUrl: `/html/tab_wikipedia_research/index.html`, jsUrl: `/html/tab_wikipedia_research/main.js` },

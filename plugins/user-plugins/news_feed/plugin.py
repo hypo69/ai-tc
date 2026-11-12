@@ -11,12 +11,14 @@
 # Package: plugins.news_feed
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 16:43:00
 # =============================================================================
 
-"""Smart News Feed and Personalization Plugin."""
+"""Плагин умной ленты новостей и персонализации."""
 
 from __future__ import annotations
 
+import asyncio
 import json
 from pathlib import Path
 from typing import Any, AsyncGenerator, Dict, List, Optional
@@ -108,11 +110,11 @@ class NewsFeedPlugin(BasePlugin):
         ]
 
     async def execute_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
-        """Execute agent tool invocation."""
+        """Выполняет вызов инструмента агента ИИ."""
         user_id = arguments.get("user_id", "default")
         if tool_name == "get_smart_news":
             limit = int(arguments.get("limit", 5))
-            feed = self.engine.get_personalized_feed(user_id=user_id, limit=limit)
+            feed = await asyncio.to_thread(self.engine.get_personalized_feed, user_id=user_id, limit=limit)
             return [a.model_dump() for a in feed]
         elif tool_name == "generate_news_digest":
             return await self.engine.generate_user_digest(user_id=user_id)
@@ -148,17 +150,17 @@ class NewsFeedPlugin(BasePlugin):
         ]
 
     async def execute_action(self, action_id: str, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Execute plugin UI action."""
+        """Выполняет пользовательское действие плагина из UI."""
         user_id = (payload or {}).get("user_id", "default")
         if action_id == "refresh_feeds":
-            arts = self.engine.refresh_news()
+            arts = await asyncio.to_thread(self.engine.refresh_news)
             return {"status": "ok", "message": f"Лента обновлена. Загружено {len(arts)} новостей."}
         elif action_id == "generate_digest":
             digest = await self.engine.generate_user_digest(user_id=user_id)
             return {"status": "ok", "digest": digest}
         elif action_id == "reset_learning_profile":
             new_profile = self.engine.learner._create_default_profile(user_id=user_id)
-            self.engine.learner.save_profile(new_profile)
+            await asyncio.to_thread(self.engine.learner.save_profile, new_profile)
             return {"status": "ok", "message": "Профиль обучения успешно сброшен к базовым настройкам."}
         return {"status": "error", "message": f"Action '{action_id}' not found."}
 
@@ -189,7 +191,7 @@ class NewsFeedPlugin(BasePlugin):
             }
             return
 
-        articles = self.engine.get_personalized_feed(user_id=user_id, limit=limit)
+        articles = await asyncio.to_thread(self.engine.get_personalized_feed, user_id=user_id, limit=limit)
         feed_data = [a.model_dump() for a in articles]
 
         if not articles:
@@ -220,4 +222,3 @@ class NewsFeedPlugin(BasePlugin):
 def plugin(ai_model: Any = None, config: Optional[Dict[str, Any]] = None) -> NewsFeedPlugin:
     """Plugin factory function."""
     return NewsFeedPlugin(ai_model=ai_model, config=config)
-

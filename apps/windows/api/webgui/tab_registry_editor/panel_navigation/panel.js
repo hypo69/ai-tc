@@ -1,7 +1,7 @@
 /**
  * Модуль навигации по ульям (hives) и путям реестра.
- * Файл: apps/windows/api/webgui/tab_registry_viewer/panel_navigation/panel.js
- * Updated: 2026-10-17 01:55:00
+ * Файл: apps/windows/api/webgui/tab_registry_editor/panel_navigation/panel.js
+ * Updated: 2026-11-01 14:38:00
  */
 
 let currentHive = 'HKEY_LOCAL_MACHINE';

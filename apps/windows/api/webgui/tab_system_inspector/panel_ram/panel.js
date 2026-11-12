@@ -12,7 +12,7 @@
  * Package: windows/api/webgui/tab_system_inspector/panel_ram
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 00:17:00
+ * Updated: 2026-11-01 16:10:00
  * =============================================================================
  */
 
@@ -143,6 +143,12 @@ export function updateRamTelemetry(memoryData) {
   const memioSwap = document.getElementById('sys-memio-swap');
   if (memioSwap) memioSwap.innerText = `Файл подкачки: ${swapPct.toFixed(1)}%`;
 
+  const freeGb = Number(memoryData.available_gb || (totalGb - usedGb));
+  const set = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
+  set('sys-ram-kpi-used', `${usedGb.toFixed(1)} GB`);
+  set('sys-ram-kpi-free', `${freeGb.toFixed(1)} GB`);
+  set('sys-ram-kpi-swap', `${swapPct.toFixed(1)}%`);
+
   const ramGauge = document.getElementById('sys-metric-ram-gauge');
   if (ramGauge) ramGauge.innerHTML = createGaugeSvg(pct, 130, 74);
   const ramSlider = document.getElementById('sys-metric-ram-slider');
@@ -173,6 +179,11 @@ function updateRamUi(data) {
   set('sys-memio-used', `${usedGb.toFixed(1)} / ${totalGb.toFixed(1)} GB (свободно ${freeGb.toFixed(1)} GB)`);
   set('sys-memio-swap', `Файл подкачки: ${swapPct.toFixed(1)}%`);
   set('sys-memio-ts', data.timestamp ? new Date(data.timestamp).toLocaleTimeString() : '--');
+
+  set('sys-ram-kpi-used', `${usedGb.toFixed(1)} GB`);
+  set('sys-ram-kpi-free', `${freeGb.toFixed(1)} GB`);
+  set('sys-ram-kpi-swap', `${swapPct.toFixed(1)}%`);
+  set('sys-ram-kpi-io', formatBytesPerSec((Number(io.read_bytes_sec || 0)) + (Number(io.write_bytes_sec || 0))));
 
   const ramGauge = document.getElementById('sys-metric-ram-gauge');
   if (ramGauge) ramGauge.innerHTML = createGaugeSvg(pct, 130, 74);

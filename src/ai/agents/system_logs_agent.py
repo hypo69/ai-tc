@@ -18,7 +18,7 @@
 # Package: src.ai.agents
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 16:49:00
 # =============================================================================
 
 from __future__ import annotations
@@ -35,6 +35,8 @@ from src.ai.agents.tools import system_logs_analyzer
 class SystemLogsAgent:
     """Автономный агент диагностики системных журналов Windows."""
     _WORD_NUMBERS = {'один': 1, 'одна': 1, 'два': 2, 'две': 2, 'три': 3, 'четыре': 4, 'пять': 5, 'шесть': 6, 'семь': 7, 'восемь': 8, 'девять': 9, 'десять': 10, 'одиннадцать': 11, 'двенадцать': 12, 'тринадцать': 13, 'четырнадцать': 14, 'пятнадцать': 15, 'двадцать': 20, 'тридцать': 30, 'сорок': 40, 'пятьдесят': 50, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'ten': 10, 'twenty': 20, 'thirty': 30}
+    _DAYS_RE = re.compile(r'(\d+)\s*(?:дн|day|дней|дня|день)')
+    _WEEKS_RE = re.compile(r'(\d+)\s*(?:недел|week)')
 
     def __init__(self, ai_model: Any=None) -> None:
         """Инициализация SystemLogsAgent.
@@ -54,14 +56,14 @@ class SystemLogsAgent:
             int: Количество дней для анализа (по умолчанию 20).
         """
         q_lower = user_query.lower()
-        digit_match = re.search('(\\d+)\\s*(?:дн|day|дней|дня|день)', q_lower)
+        digit_match = self._DAYS_RE.search(q_lower)
         if digit_match:
             try:
                 days = int(digit_match.group(1))
                 return max(1, min(days, 30))
             except ValueError:
                 pass
-        week_match = re.search('(\\d+)\\s*(?:недел|week)', q_lower)
+        week_match = self._WEEKS_RE.search(q_lower)
         if week_match:
             try:
                 weeks = int(week_match.group(1))

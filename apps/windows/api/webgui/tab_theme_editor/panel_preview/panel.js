@@ -11,7 +11,7 @@
  * Package: apps/windows/api/webgui/tab_theme_editor/panel_preview
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 18:20:00
+ * Updated: 2026-11-01 12:45:00
  * =============================================================================
  */
 
@@ -45,7 +45,7 @@ export function updateLivePreview() {
   const panelH3Size = tokens['--panel-header-font-size'];
   const panelH3Color = tokens['--panel-header-color'];
   const panelH3Bg = tokens['--panel-header-bg'];
-  sandbox.querySelectorAll('.preview-panel-header-card .panel-header, .preview-panel-header-card h3.panel-header').forEach((el) => {
+  sandbox.querySelectorAll('.preview-panel-header-card .panel-header, .preview-panel-header-card .panel-title').forEach((el) => {
     if (panelH3Size) el.style.fontSize = panelH3Size;
     if (panelH3Color) el.style.color = panelH3Color;
   });

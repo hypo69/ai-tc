@@ -26,7 +26,7 @@
  * Package: apps.windows.api.webgui.ai_modal_dialog
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 12:00:30
+ * Updated: 2026-11-01 13:12:00
  * =============================================================================
  */
 
@@ -2278,6 +2278,8 @@
       }
     }
 
+    let cachedWikiData = null;
+
     function renderDiagnosticResult(data, isFromWikiLLM = false) {
       if (!aiExplanation) return;
       if (Array.isArray(data.suggested_quick_questions) && data.suggested_quick_questions.length > 0) {
@@ -2289,18 +2291,24 @@
       const isGemini = data.source === 'gemini';
       const isProcess = (opts.tableType === 'process' || (opts.panelId && opts.panelId.includes('process')));
 
+      const effGeneralSummary = data.general_summary || (cachedWikiData && (cachedWikiData.general_summary || cachedWikiData.summary)) || (isVerified && isProcess && data.summary) || '';
+      const effDev = data.developer || (cachedWikiData && cachedWikiData.developer) || 'Неизвестен';
+      const effCat = data.category || (cachedWikiData && cachedWikiData.category) || 'Процесс Windows';
+      const hasGeneral = Boolean(effGeneralSummary && (data.has_wikillm_general_data || isVerified || cachedWikiData || isProcess));
+
       let wikillmGeneralCard = '';
-      if (data.has_wikillm_general_data && data.general_summary) {
+      if (hasGeneral && effGeneralSummary) {
         wikillmGeneralCard = `
-          <div class="card border-success bg-dark bg-opacity-75 p-2.5 mb-2.5 rounded shadow-sm">
+          <div class="card border-success bg-dark bg-opacity-75 p-2.5 mb-2.5 rounded shadow-sm" id="uai-wikillm-card">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-1">
               <span class="badge border border-success text-success p-1 px-2 d-inline-flex align-items-center gap-1.5 small">
-                <i class="bi bi-shield-check"></i> База знаний WikiLLM (Общие данные)
+                <i class="bi bi-shield-check"></i> База знаний WikiLLM (Справочные данные о программе)
               </span>
-              <span class="small text-secondary fw-semibold">${escapeHtml(data.developer || '')} (${escapeHtml(data.category || '')})</span>
+              <span class="small text-secondary fw-semibold">${escapeHtml(effDev)} (${escapeHtml(effCat)})</span>
             </div>
             <div class="small text-light">
-              ${formatMarkdownText(data.general_summary)}
+              <div class="mb-1"><strong class="text-success"><i class="bi bi-info-circle me-1"></i>О программе, назначение и применение:</strong></div>
+              <div id="uai-wikillm-text">${formatMarkdownText(effGeneralSummary)}</div>
             </div>
           </div>
         `;
@@ -2317,7 +2325,18 @@
         sourceBadge = `<div class="badge border border-secondary text-secondary p-1 px-2 mb-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-cpu"></i> Системный экспертный анализ (Телеметрия)</div>`;
       }
 
-      const actionBlock = (data.has_wikillm_general_data && data.source === 'wikillm_resource_analysis') ? `
+      const actionBlock = (isProcess && (data.has_wikillm_general_data || isVerified || cachedWikiData)) ? `
+        <div class="p-2 mt-2 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" id="uai-approval-container">
+          <div class="small text-success">
+            <i class="bi bi-check-circle-fill me-1"></i>Справочные данные зафиксированы в WikiLLM. Анализ ресурсов сформирован по актуальной телеметрии.
+          </div>
+          <div class="d-flex align-items-center gap-1.5">
+            <button type="button" class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1.5" id="btn-uai-reanalyze">
+              <i class="bi bi-arrow-clockwise"></i> Обновить срез телеметрии
+            </button>
+          </div>
+        </div>
+      ` : (data.has_wikillm_general_data && data.source === 'wikillm_resource_analysis') ? `
         <div class="p-2 mt-2 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" id="uai-approval-container">
           <div class="small text-success">
             <i class="bi bi-check-circle-fill me-1"></i>Общие данные зафиксированы в WikiLLM. Анализ ресурсов сформирован по актуальной телеметрии.
@@ -2373,7 +2392,7 @@
       aiExplanation.innerHTML = `
         ${wikillmGeneralCard}
         ${sourceBadge}
-        <div class="mb-2"><strong class="text-info"><i class="bi bi-cpu me-1"></i>${(data.has_wikillm_general_data || data.source === 'wikillm_resource_analysis') ? 'Анализ ресурсов:' : 'Назначение:'}</strong> ${formatMarkdownText(data.summary)}</div>
+        <div class="mb-2"><strong class="text-info"><i class="bi bi-cpu me-1"></i>${(isProcess || data.has_wikillm_general_data || data.source === 'wikillm_resource_analysis') ? 'Анализ текущего потребления ресурсов:' : 'Назначение:'}</strong> ${formatMarkdownText(data.summary)}</div>
         <div class="mb-2"><strong class="text-secondary"><i class="bi bi-building me-1"></i>Разработчик / Категория:</strong> ${escapeHtml(data.developer || 'Неизвестен')} (${escapeHtml(data.category || 'Компонент')})</div>
         <div class="mb-2"><strong class="text-warning"><i class="bi bi-shield-lock me-1"></i>Оценка безопасности:</strong> ${formatMarkdownText(data.security_verdict)}</div>
         <div class="mb-2"><strong class="text-info"><i class="bi bi-speedometer2 me-1"></i>Влияние на ресурсы:</strong> ${formatMarkdownText(data.performance_impact)}</div>
@@ -2464,20 +2483,22 @@
         renderQuickButtons(data.suggested_quick_questions);
       }
 
+      cachedWikiData = data;
       const generalSummary = data.general_summary || data.summary || '';
       const devText = data.developer || 'Неизвестен';
       const catText = data.category || 'Процесс Windows';
 
       const wikillmGeneralCard = `
-        <div class="card border-success bg-dark bg-opacity-75 p-2.5 mb-2.5 rounded shadow-sm">
+        <div class="card border-success bg-dark bg-opacity-75 p-2.5 mb-2.5 rounded shadow-sm" id="uai-wikillm-card">
           <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-1">
             <span class="badge border border-success text-success p-1 px-2 d-inline-flex align-items-center gap-1.5 small">
-              <i class="bi bi-shield-check"></i> База знаний WikiLLM (Общие данные)
+              <i class="bi bi-shield-check"></i> База знаний WikiLLM (Справочные данные о программе)
             </span>
             <span class="small text-secondary fw-semibold">${escapeHtml(devText)} (${escapeHtml(catText)})</span>
           </div>
           <div class="small text-light">
-            ${formatMarkdownText(generalSummary)}
+            <div class="mb-1"><strong class="text-success"><i class="bi bi-info-circle me-1"></i>О программе, назначение и применение:</strong></div>
+            <div id="uai-wikillm-text">${formatMarkdownText(generalSummary)}</div>
           </div>
         </div>
       `;
@@ -2495,27 +2516,27 @@
         ${wikillmGeneralCard}
         ${sourceBadge}
         <div class="mb-2">
-          <strong class="text-info"><i class="bi bi-cpu me-1"></i>Анализ ресурсов:</strong>
-          <div class="mt-0.5">${spinnerPlaceholder('Выполняется экспресс-анализ текущего потребления параметров телеметрии...')}</div>
+          <strong class="text-info"><i class="bi bi-cpu me-1"></i>Анализ текущего потребления ресурсов:</strong>
+          <div class="mt-0.5" id="uai-dyn-summary">${spinnerPlaceholder('Выполняется экспресс-анализ текущего потребления параметров телеметрии...')}</div>
         </div>
         <div class="mb-2">
           <strong class="text-secondary"><i class="bi bi-building me-1"></i>Разработчик / Категория:</strong> ${escapeHtml(devText)} (${escapeHtml(catText)})
         </div>
         <div class="mb-2">
           <strong class="text-warning"><i class="bi bi-shield-lock me-1"></i>Оценка безопасности текущей сессии:</strong>
-          <div class="mt-0.5">${spinnerPlaceholder('Проверка прав, путей запуска и активных сетевых сокетов...')}</div>
+          <div class="mt-0.5" id="uai-dyn-security">${spinnerPlaceholder('Проверка прав, путей запуска и активных сетевых сокетов...')}</div>
         </div>
         <div class="mb-2">
           <strong class="text-info"><i class="bi bi-speedometer2 me-1"></i>Влияние на ресурсы:</strong>
-          <div class="mt-0.5">${spinnerPlaceholder('Срез по подсистемам: ЦП, ОЗУ, Дисковый ввод-вывод, Сокеты...')}</div>
+          <div class="mt-0.5" id="uai-dyn-performance">${spinnerPlaceholder('Срез по подсистемам: ЦП, ОЗУ, Дисковый ввод-вывод, Сокеты...')}</div>
         </div>
         <div class="p-2 mb-2 rounded uai-recommendation-box">
           <strong class="text-warning"><i class="bi bi-lightbulb me-1"></i>Рекомендация:</strong>
-          <div class="ms-1 d-inline-block">${spinnerPlaceholder('Формирование вердикта администратору...')}</div>
+          <div class="ms-1 d-inline-block" id="uai-dyn-recommendation">${spinnerPlaceholder('Формирование вердикта администратору...')}</div>
         </div>
         <div class="mb-2">
           <h6 class="uai-action-steps-title text-uppercase text-muted fw-bold mb-1">Рекомендуемые действия:</h6>
-          <div class="ps-1">${spinnerPlaceholder('Определение практических шагов оптимизации...')}</div>
+          <div class="ps-1" id="uai-dyn-actions">${spinnerPlaceholder('Определение практических шагов оптимизации...')}</div>
         </div>
         ${data.developer_advice ? `
           <div class="uai-dev-advice-wrapper mt-3 pt-2 border-top border-secondary border-opacity-25">
@@ -2583,7 +2604,8 @@
           })
         }, 4000);
 
-        if (data && (data.is_verified || data.source === 'wikillm') && data.summary) {
+        if (data && (data.is_verified || data.source === 'wikillm') && (data.general_summary || data.summary)) {
+          cachedWikiData = data;
           const isProcess = (opts.tableType === 'process' || (opts.panelId && opts.panelId.includes('process')));
           if (isProcess) {
             renderDiagnosticResultWithPlaceholders(data);
@@ -2672,6 +2694,15 @@
             message: data?.error?.message || 'Модель не вернула диагностическое заключение',
             errorData: data
           };
+        }
+
+        if (cachedWikiData) {
+          if (!data.general_summary) {
+            data.general_summary = cachedWikiData.general_summary || cachedWikiData.summary;
+          }
+          if (!data.developer || data.developer === 'Неизвестен') data.developer = cachedWikiData.developer;
+          if (!data.category || data.category === 'Диагностика') data.category = cachedWikiData.category;
+          data.has_wikillm_general_data = true;
         }
 
         renderDiagnosticResult(data, false);

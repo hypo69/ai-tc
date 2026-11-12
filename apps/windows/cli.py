@@ -18,7 +18,7 @@
 # Package: apps.windows
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:58:16
+# Updated: 2026-11-01 13:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -106,107 +106,8 @@ def main() -> None:
     parser.add_argument('--process-provenance', type=str, nargs='?', const='all', help='Построить граф происхождения процессов (User -> Process -> Parent -> Service -> Task)')
     parser.add_argument('--power-lifecycle', action='store_true', help='Реконструировать таймлайн жизненного цикла ОС (Boot -> Sleep -> Wake -> Shutdown -> Crash)')
     parser.add_argument('--sysmon-status', action='store_true', help='Проверить статус и конфигурацию Sysmon Observability Layer')
-    # Windows Tool Chains Orchestrator
-    parser.add_argument('--chain-list', action='store_true', help='Отобразить список всех доступных шаблонов цепочек инструментов')
-    parser.add_argument('--chain-run', type=str, help='Запустить цепочку инструментов по её ID (например: diag.network.port_availability)')
-    parser.add_argument('--chain-intent', type=str, help='Спланировать и запустить цепочку инструментов по естественному запросу')
-    parser.add_argument('--chain-dry-run', action='store_true', help='Выполнить цепочку инструментов в безопасном режиме симуляции (Dry-Run)')
     parser.add_argument('--event-limit', type=int, default=25, help='Лимит событий для выборки (по умолчанию: 25)')
     args = parser.parse_args()
-
-    if args.chain_list or args.chain_run or args.chain_intent:
-        from apps.windows.sdk.core.tool_chains.storage import ToolChainStorage
-        from apps.windows.sdk.core.tool_chains.planner import ToolChainPlanner
-        from apps.windows.sdk.core.tool_chains.engine import ToolChainExecutionEngine
-        from apps.windows.sdk.core.tool_chains.catalog import get_builtin_chains
-
-        storage = ToolChainStorage()
-        for c_item in get_builtin_chains().values():
-            storage.save_definition(c_item)
-
-        if args.chain_list:
-            chains = storage.list_definitions()
-            if args.json:
-                logger.console(json.dumps(chains, ensure_ascii=False, indent=2))
-                return
-            logger.console('\n=== КАТАЛОГ ШАБЛОНОВ ЦЕПОЧЕК ИНСТРУМЕНТОВ (TOOL CHAINS) ===')
-            for c in chains:
-                logger.console(f" * [{c['chain_id']}] {c['title_ru']}")
-                logger.console(f"     Категория: {c['category']} | Стартовый шаг: {c['initial_step_id']}")
-                logger.console(f"     Описание:  {c['description']}\n")
-            return
-
-        planner = ToolChainPlanner()
-        engine = ToolChainExecutionEngine(storage=storage)
-
-        if args.chain_run:
-            chain_def = get_builtin_chains().get(args.chain_run)
-            if not chain_def:
-                raw = storage.get_definition(args.chain_run)
-                if not raw:
-                    logger.console(f"[!] Ошибка: Цепочка '{args.chain_run}' не найдена в каталоге.")
-                    return
-                from apps.windows.contracts.enums import CapabilityCategory
-                from apps.windows.sdk.core.tool_chains.models import ChainDefinition, ChainStepDefinition
-                steps_dict = {
-                    s_id: ChainStepDefinition(
-                        step_id=s["step_id"],
-                        tool_id=s["tool_id"],
-                        name_ru=s.get("name_ru", s_id),
-                        description=s.get("description", ""),
-                        arguments=s.get("arguments", {}),
-                        next_step_id=s.get("next_step_id"),
-                    )
-                    for s_id, s in raw.get("steps", {}).items()
-                }
-                chain_def = ChainDefinition(
-                    chain_id=raw["chain_id"],
-                    title_ru=raw["title_ru"],
-                    description=raw.get("description", ""),
-                    category=CapabilityCategory(raw.get("category", "processes")),
-                    initial_step_id=raw["initial_step_id"],
-                    steps=steps_dict,
-                )
-        else:
-            chain_def = planner.plan_from_intent(args.chain_intent)
-
-        logger.console(f"\n[*] Запуск цепочки: {chain_def.title_ru} (Режим: {'DRY-RUN' if args.chain_dry_run else 'REAL'})")
-        logger.console(f"    Идентификатор: {chain_def.chain_id} | Шагов в плане: {len(chain_def.steps)}")
-        logger.console('─' * 70)
-
-        report = asyncio.run(engine.execute_chain(
-            chain=chain_def,
-            user_intent=args.chain_intent or chain_def.title_ru,
-            dry_run=args.chain_dry_run,
-        ))
-
-        if args.json:
-            logger.console(json.dumps(report.to_dict(), ensure_ascii=False, indent=2))
-            return
-
-        logger.console(f"\n[+] СТАТУС ВЫПОЛНЕНИЯ: {report.status.value} (Время: {report.total_duration_ms:.1f} мс)")
-        logger.console(f"    ID запуска (Run ID): {report.run_id}")
-        if report.restore_point_created:
-            logger.console(f"    Создана точка восстановления: {report.restore_point_id}")
-        if report.rolled_back:
-            logger.console("    [!] Был выполнен автоматический откат / компенсация")
-
-        logger.console('\n[*] ВЫПОЛНЕННЫЕ ШАГИ:')
-        for s in report.steps_executed:
-            badge = "✅" if s.status.value == "SUCCESS" else "❌"
-            logger.console(f"  {badge} [{s.step_id}] {s.tool_id} -> {s.status.value} ({s.duration_ms:.1f} мс)")
-            if s.stdout and not args.chain_dry_run:
-                logger.console(f"      Вывод: {s.stdout.strip()[:100]}")
-            if s.error_message:
-                logger.console(f"      Ошибка: {s.error_message}")
-
-        if report.root_cause_identified:
-            logger.console(f"\n[!] ВЫЯВЛЕННАЯ ПЕРВОПРИЧИНА:\n    {report.root_cause_identified}")
-
-        logger.console('\n[i] СВОДНЫЕ ВЫВОДЫ:')
-        for f in report.findings_summary:
-            logger.console(f"  - {f}")
-        return
 
     if args.security_status or args.security_tail or args.security_search or args.security_user or args.security_process or args.security_failed_logons or args.security_collect or args.security_correlate:
         from apps.windows.telemetry.security_collector import WindowsSecurityCollector

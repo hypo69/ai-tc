@@ -12,12 +12,13 @@
 # Package: plugins.generate_rag_from_codebase
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:38:10
 # =============================================================================
 
-"""Codebase RAG generator plugin module.
+"""Модуль плагина генерации RAG-индекса кодовой базы.
 
-Integrates AST Python code analysis, hierarchical Markdown sectioning, secret filtering,
-multi-index naming, user directory isolation, and dual (Symbol + Vector) indexing.
+Объединяет AST-анализ кода Python, иерархическое разбиение Markdown, фильтрацию секретов,
+поддержку мульти-индексов, пользовательскую изоляцию и двойной поиск (символьный + векторный).
 """
 
 from __future__ import annotations
@@ -37,6 +38,9 @@ from plugins.generate_rag_from_codebase.ignore_filter import IgnoreFilter
 from plugins.generate_rag_from_codebase.md_parser import MarkdownParser
 from plugins.generate_rag_from_codebase.symbol_index import CodeSymbolIndex
 from plugins.generate_rag_from_codebase.vector_indexer import CodebaseVectorIndexer
+
+# Максимальный размер индексируемого файла (5 МБ)
+MAX_INDEXED_FILE_BYTES: int = 5 * 1024 * 1024
 
 
 class GenerateRagCodebasePlugin(BasePlugin):
@@ -139,7 +143,16 @@ class GenerateRagCodebasePlugin(BasePlugin):
             Path: Absolute directory path.
         """
         clean_name = self._sanitize_index_name(index_name)
-        target_dir = __root__ / "data" / "rag_index" / clean_name
+        if user_id is not None:
+            try:
+                from src.user_manager import user_manager
+                user_root = user_manager.get_user_directory(int(user_id), create=True)
+                target_dir = user_root / "rag" / clean_name
+            except Exception:
+                target_dir = __root__ / "data" / "users" / str(user_id) / "rag" / clean_name
+        else:
+            target_dir = __root__ / "data" / "rag_index" / clean_name
+
         target_dir.mkdir(parents=True, exist_ok=True)
         return target_dir
 
@@ -284,7 +297,14 @@ class GenerateRagCodebasePlugin(BasePlugin):
 
     def list_available_indexes(self, user_id: Optional[int | str] = None) -> List[Dict[str, Any]]:
         """List all saved codebase indexes for the user or system."""
-        base_dir = __root__ / "data" / "rag_index"
+        if user_id is not None:
+            try:
+                from src.user_manager import user_manager
+                base_dir = user_manager.get_user_directory(int(user_id), create=True) / "rag"
+            except Exception:
+                base_dir = __root__ / "data" / "users" / str(user_id) / "rag"
+        else:
+            base_dir = __root__ / "data" / "rag_index"
 
         results = []
         if not base_dir.exists():
@@ -384,11 +404,13 @@ class GenerateRagCodebasePlugin(BasePlugin):
                 if p.is_file() and not custom_filter.is_ignored(p):
                     candidate_paths.append(p)
 
-        # 2. Parse files
+        # 2. Разбор файлов с проверкой лимита размера
         for path in candidate_paths:
             suffix = path.suffix.lower()
 
             try:
+                if path.stat().st_size > MAX_INDEXED_FILE_BYTES:
+                    continue
                 content = path.read_text(encoding="utf-8", errors="replace")
             except Exception:
                 continue
@@ -451,7 +473,16 @@ class GenerateRagCodebasePlugin(BasePlugin):
             "index_dir": str(target_index_dir),
         }
         meta_file = target_index_dir / "meta.json"
-        meta_file.write_text(json.dumps(meta_info, indent=2, ensure_ascii=False), encoding="utf-8")
+        tmp_meta = meta_file.with_name(".meta.json.tmp")
+        try:
+            tmp_meta.write_text(json.dumps(meta_info, indent=2, ensure_ascii=False), encoding="utf-8")
+            os.replace(tmp_meta, meta_file)
+        finally:
+            if tmp_meta.exists():
+                try:
+                    tmp_meta.unlink()
+                except OSError:
+                    pass
 
         # Update active default in-memory instances if matching
         if idx_name == self.default_index_name and user_id is None:
@@ -623,4 +654,3 @@ class GenerateRagCodebasePlugin(BasePlugin):
                 "chunks": code_chunks
             }
         }
-

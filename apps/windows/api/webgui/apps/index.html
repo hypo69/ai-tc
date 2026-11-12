@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/apps
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 12:03:00
+ * Updated: 2026-11-01 16:15:00
  * =============================================================================
 -->
 
@@ -397,10 +397,13 @@ Package: windows/api/webgui/apps
     <div id="tab-software-audit" class="tab-pane fade"></div>
 
     <!-- Registry Viewer Tab -->
-    <div id="tab-registry-viewer" class="tab-pane fade"></div>
+    <div id="tab-registry-editor" class="tab-pane fade"></div>
 
     <!-- Microsoft Defender Security & Firewall Tab -->
     <div id="tab-defender-firewall" class="tab-pane fade"></div>
+
+    <!-- Kernel & Protection Tab -->
+    <div id="tab-kernel-protection" class="tab-pane fade"></div>
 
     <!-- Startup Auditor Tab -->
     <div id="tab-startup-auditor" class="tab-pane fade"></div>
@@ -537,7 +540,7 @@ Package: windows/api/webgui/apps
 <script src="/html/js/appConfigEditor.js?v=20261008_v3"></script>
 <script src="/html/js/table-resizer.js?v=20261028_v1"></script>
 <script type="module" src="/html/js/panel-loader.js?v=20261028_v5"></script>
-<script type="module" src="/html/apps/main.js?v=20261101_v1"></script>
+<script type="module" src="/html/apps/main.js?v=20261101_v2"></script>
 <script>
   function switchToApp(appName, event) {
     if (event) {

@@ -8,44 +8,74 @@
  *
  * Usage Examples:
  *   HTML Link Tag:
- *     <link rel="stylesheet" href="/windows/api/webgui/css/overrides.css?v=20261004_v17">
+ *     <link rel="stylesheet" href="/apps/common/webgui/css/overrides.css?v=20261004_v17">
  *
  * File: overrides.css
- * Project: ai-windows-admin
- * Package: windows/api/webgui/css
+ * Project: ai-assistant
+ * Package: apps/common/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 14:45:00
+ * Updated: 2026-11-03 14:09:00
  * =============================================================================
  */
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   THEME OVERRIDES & COMPATIBILITY — AI Windows Admin WebGUI
+   THEME OVERRIDES & COMPATIBILITY — AI-Assistant WebGUI
    Адаптивные переопределения Bootstrap и компонентов для светлых и тёмных тем
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 0. Глобальная адаптация токенов Bootstrap под активную тему ───────────── */
+:root,
+[data-bs-theme],
+[data-theme] {
+  --bs-secondary-color: var(--text-muted) !important;
+}
+
+/* Принудительное наследование токена темы для всех приглушенных элементов */
+.text-muted,
+.text-body-secondary,
+label.text-muted,
+span.text-muted,
+small.text-muted,
+p.text-muted,
+div.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Лейблы и пояснения в навигационных панелях */
+.main-nav-container .text-muted,
+.main-nav-container label.text-muted {
+  color: var(--text-muted) !important;
+}
 
 /* ── Light & Brick Themes — Переопределения Bootstrap и утилит ─────────────── */
 [data-theme="light"],
 [data-theme="nightview"],
+[data-theme="nightview-70"],
 [data-theme="theme-light-enterprise"],
 [data-theme="brick"],
 :root[data-bs-theme="light"],
 html[data-bs-theme="light"] {
   --bs-body-bg: var(--bg-color);
   --bs-body-bg-rgb: 226, 232, 240;
+  --bs-body-color: var(--text-color);
   --bs-card-bg: var(--surface-1);
+  --bs-card-color: var(--text-color);
   --bs-modal-bg: var(--modal-bg, var(--surface-1));
   --bs-offcanvas-bg: var(--surface-1);
   --bs-tertiary-bg: var(--surface-2);
   --bs-tertiary-bg-rgb: 219, 226, 234;
   --bs-secondary-bg: var(--surface-2);
   --bs-secondary-bg-rgb: 219, 226, 234;
+  --bs-secondary-color: var(--text-muted);
   --bs-list-group-bg: var(--surface-1);
   --bs-dropdown-bg: var(--surface-1);
+  --bs-dropdown-color: var(--text-color);
 }
 
 [data-theme="light"] body,
 [data-theme="nightview"] body,
+[data-theme="nightview-70"] body,
 [data-theme="theme-light-enterprise"] body,
 [data-theme="brick"] body,
 html[data-bs-theme="light"] body {
@@ -54,6 +84,7 @@ html[data-bs-theme="light"] body {
 
 [data-theme="light"],
 [data-theme="nightview"],
+[data-theme="nightview-70"],
 [data-theme="theme-light-enterprise"],
 [data-theme="brick"] {
   /* Инпуты, к которым JS или Bootstrap добавил bg-dark (терминал PowerShell консоли исключен) */
@@ -112,10 +143,23 @@ html[data-bs-theme="light"] body {
   }
 
   .form-control:not(.bg-dark):not(.uai-cmd-input),
-  .form-select:not(.bg-dark):not(.uai-opt-shell):not(.uai-opt-timeout) {
+  .form-select:not(.bg-dark):not(.uai-opt-shell):not(.uai-opt-timeout),
+  .lang-selector,
+  .theme-selector {
     background-color: var(--surface-1) !important;
     color: var(--text-color) !important;
     border-color: var(--border-color) !important;
+    color-scheme: light;
+  }
+
+  .form-select option,
+  .form-select optgroup,
+  select option,
+  select optgroup,
+  .lang-selector option,
+  .theme-selector option {
+    background-color: var(--surface-1) !important;
+    color: var(--text-color) !important;
   }
 
   /* Высококонтрастные читаемые цвета текста в светлой теме NightView / Brick */
@@ -161,9 +205,9 @@ html[data-bs-theme="light"] body {
   .btn-outline-secondary.active,
   .btn-check:checked + .btn-outline-secondary,
   .btn-check:active + .btn-outline-secondary {
-    background-color: #64748b !important;
-    color: #ffffff !important;
-    border-color: #64748b !important;
+    background-color: var(--ui-border-strong, #64748b) !important;
+    color: var(--text-silver, #ffffff) !important;
+    border-color: var(--ui-border-strong, #64748b) !important;
   }
 
   .btn-outline-info {
@@ -176,9 +220,9 @@ html[data-bs-theme="light"] body {
   .btn-outline-info.active,
   .btn-check:checked + .btn-outline-info,
   .btn-check:active + .btn-outline-info {
-    background-color: #0284c7 !important;
-    color: #ffffff !important;
-    border-color: #0284c7 !important;
+    background-color: var(--ui-accent, #0284c7) !important;
+    color: var(--text-silver, #ffffff) !important;
+    border-color: var(--ui-accent, #0284c7) !important;
   }
 
   .btn-outline-warning {
@@ -191,9 +235,9 @@ html[data-bs-theme="light"] body {
   .btn-outline-warning.active,
   .btn-check:checked + .btn-outline-warning,
   .btn-check:active + .btn-outline-warning {
-    background-color: #d97706 !important;
-    color: #ffffff !important;
-    border-color: #d97706 !important;
+    background-color: var(--ui-warning, #d97706) !important;
+    color: var(--text-silver, #ffffff) !important;
+    border-color: var(--ui-warning, #d97706) !important;
   }
 
   .btn-outline-primary {
@@ -329,7 +373,7 @@ html[data-bs-theme="light"] body {
   }
 
   /* pre/code без явного светлого фона */
-  pre:not(.prompt-dump-details pre):not(.uai-cmd-output):not(.uai-data-preview):not(.uai-matrix-preview) {
+  pre:not(.prompt-dump-details pre) {
     background-color: var(--surface-2) !important;
     color: var(--text-color) !important;
     border: 1px solid var(--border-color);
@@ -543,13 +587,28 @@ html[data-bs-theme="light"] body {
 [data-theme="nightview"] .about-sys-badge-warn,
 [data-theme="nightview"] .diag-badge-critical,
 [data-theme="nightview"] .diag-badge-warning,
-[data-theme="nightview"] .diag-badge-normal {
+[data-theme="nightview"] .diag-badge-normal,
+[data-theme="nightview-70"] .badge,
+[data-theme="nightview-70"] .ui-badge,
+[data-theme="nightview-70"] .status-badge-unified,
+[data-theme="nightview-70"] .about-sys-badge-ok,
+[data-theme="nightview-70"] .about-sys-badge-warn,
+[data-theme="nightview-70"] .diag-badge-critical,
+[data-theme="nightview-70"] .diag-badge-warning,
+[data-theme="nightview-70"] .diag-badge-normal {
   font-size: calc(0.72rem + 1pt);
 }
 
 /* ── Dark & Terminal Themes — Высококонтрастные переопределения ─────────────── */
 [data-theme="dark"],
-[data-theme="terminal"] {
+[data-theme="theme-dark-slate"],
+[data-theme="terminal"],
+[data-theme="theme-cyberpunk"],
+[data-theme="theme-high-contrast"],
+[data-theme="nordic-frost"],
+[data-theme="solarized-dark"],
+body.theme-dark-slate {
+  --bs-secondary-color: var(--text-muted) !important;
   .card-header.bg-light,
   .card-footer.bg-light,
   .modal-header.bg-light,
@@ -597,8 +656,7 @@ html[data-bs-theme="light"] body {
     color: var(--nav-active);
   }
 
-  pre:not(.uai-cmd-output):not(.uai-data-preview):not(.uai-matrix-preview),
-  code, kbd, samp {
+  pre, code, kbd, samp {
     color: #39ff14 !important;
     background-color: #060a06 !important;
     border: 1px solid #1a4223;
@@ -623,45 +681,4 @@ html[data-bs-theme="light"] body {
     color: #39ff14 !important;
     border-bottom: 2px solid #00ff66 !important;
   }
-}
-
-
-/* ── Принудительный консольный стиль для вывода команд терминала во всех темах ── */
-.uai-cmd-output,
-pre.uai-cmd-output,
-.font-monospace.uai-cmd-output,
-.uai-ready-tool-card .uai-cmd-output,
-.uai-code-runner-box .uai-cmd-output,
-pre[id^="uai-term-"][id$="-output"],
-[data-bs-theme] pre.uai-cmd-output,
-[data-theme] pre.uai-cmd-output,
-body pre.uai-cmd-output {
-  background-color: #000000 !important;
-  background: #000000 !important;
-  color: #ffffff !important;
-  font-family: var(--font-mono, "Cascadia Code", "Consolas", "Courier New", monospace) !important;
-  font-weight: bold !important;
-  border: 1px solid #30363d !important;
-  border-radius: 4px !important;
-}
-
-/* ── Блок предпросмотра данных телеметрии: 70% ширины, высота по содержимому без скроллеров ── */
-.uai-data-preview,
-.uai-matrix-preview,
-pre.uai-data-preview,
-pre.uai-matrix-preview,
-pre.uai-data-preview.uai-matrix-preview,
-[data-bs-theme] pre.uai-data-preview,
-[data-theme] pre.uai-data-preview,
-body pre.uai-data-preview {
-  width: 70% !important;
-  max-width: 70% !important;
-  height: auto !important;
-  max-height: none !important;
-  overflow: visible !important;
-  overflow-y: visible !important;
-  overflow-x: hidden !important;
-  white-space: pre-wrap !important;
-  word-break: break-all !important;
-  overflow-wrap: anywhere !important;
 }

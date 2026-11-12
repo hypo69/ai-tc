@@ -18,7 +18,7 @@
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 16:46:00
 # =============================================================================
 
 """Модуль реализации компонента `GoogleGenerativeAICore` системы AI-Windows-Admin."""
@@ -47,11 +47,24 @@ def _resolve_default_gemini_model() -> str:
             if gemini_sec:
                 model = getattr(gemini_sec, 'model', None) or getattr(gemini_sec, 'default_model', None)
                 if model:
-                    return str(model)
+                    return str(model).strip()
         default_model = getattr(ai_cfg, 'default_model', None)
         if default_model:
-            return str(default_model)
-    return 'gemini-3.1-flash-lite'
+            return str(default_model).strip()
+    try:
+        from header import __root__
+        import json
+        cfg_path = __root__ / 'config.json'
+        if cfg_path.exists():
+            with open(cfg_path, 'r', encoding='utf-8') as f:
+                c = json.load(f)
+            sec = c.get('ai_providers_and_models_configuration', {})
+            gem_m = sec.get('providers', {}).get('gemini', {}).get('model') or sec.get('providers', {}).get('gemini', {}).get('default_model') or sec.get('default_model')
+            if gem_m:
+                return str(gem_m).strip()
+    except Exception:
+        pass
+    return ''
 
 
 _DEFAULT_MODEL: str = _resolve_default_gemini_model()
@@ -164,11 +177,13 @@ class GoogleGenerativeAICore:
             self._chat = self._start_chat()
 
     def _get_exhausted_error_msg(self) -> str:
-        """Formation сообщения об исчерпании всех доступных API-ключей.
+        """Формирование сообщения об исчерпании всех доступных API-ключей.
 
         Returns:
             str: Текст сообщения об ошибке с диагностической информацией.
         """
+        if not getattr(self, '_all_keys_exhausted', False) and getattr(self, '_last_exception', ''):
+            return self._get_retry_exhausted_error_msg(self.model_name)
         msg: str = 'Error: Все API ключи исчерпаны.'
         mode: str = getattr(server_cfg, 'mode', 'DEV').upper()
         if mode == 'DEV':
@@ -179,6 +194,20 @@ class GoogleGenerativeAICore:
             elif self._last_exception:
                 msg += f'\n[DEV Детали]: {self._last_exception}'
         return msg
+
+    def _get_retry_exhausted_error_msg(self, active_model: str) -> str:
+        """Формирование сообщения об исчерпании попыток обращения к модели.
+
+        Args:
+            active_model (str): Наименование используемой модели.
+
+        Returns:
+            str: Текст сообщения об ошибке с сохранением исходной причины.
+        """
+        ex_lower = (self._last_exception or '').lower()
+        if any(w in ex_lower for w in ['overload', 'unavailable', '503', 'high demand']):
+            return f'Error: Модель Gemini ({active_model}) перегружена на стороне Google. Пожалуйста, повторите попытку позже.\n[Детали]: {self._last_exception}'
+        return f'Error: Превышено количество попыток обращения к модели Gemini ({active_model}).\n[Детали]: {self._last_exception or "Нет ответа"}'
 
     def _record_error(self, ex: Exception | str) -> None:
         """Фиксация последней возникшей ошибки в диагностическом хранилище.
@@ -219,6 +248,28 @@ class GoogleGenerativeAICore:
         if idx >= 0:
             self._key_names_active = [n for i, n in enumerate(self._key_names_active) if i != idx]
 
+    def _rotate_api_key_soft(self) -> bool:
+        """Мягкая ротация ключа при временном rate-limit без суточной блокировки.
+
+        Returns:
+            bool: True при успешной ротации, False если в пуле 1 ключ или меньше.
+        """
+        if len(self.api_keys) <= 1:
+            return False
+        curr_key = self.api_keys.pop(0)
+        self.api_keys.append(curr_key)
+        if self._key_names_active:
+            curr_name = self._key_names_active.pop(0)
+            self._key_names_active.append(curr_name)
+        if self.api_key_owners:
+            curr_owner = self.api_key_owners.pop(0)
+            self.api_key_owners.append(curr_owner)
+        self.api_key = self.api_keys[0]
+        key_name: str = self._key_names_active[0] if self._key_names_active else '?'
+        logger.info(f'GoogleGenerativeAI: Мягкое переключение на следующий ключ: {key_name}')
+        self._client = genai.Client(api_key=self.api_key)
+        return True
+
     def _switch_api_key(self) -> bool:
         """Переключение на следующий доступный API-ключ из пула.
 
@@ -252,18 +303,25 @@ class GoogleGenerativeAICore:
         """Переключение на следующую поддерживаемую модель в пуле.
 
         Returns:
-            bool: True при успешном переключении, False если list пуст.
+            bool: True при успешном переключении, False если список пуст.
         """
-        active_pool: list[str] = self.get_available_models()
-        if not active_pool:
-            active_pool = ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-3.6-flash', 'gemini-3.7-flash', 'gemini-pro-latest']
+        next_model: Optional[str] = None
         try:
-            idx: int = active_pool.index(self.model_name)
-            next_idx: int = (idx + 1) % len(active_pool)
-        except ValueError:
-            next_idx = 0
-        next_model: str = active_pool[next_idx]
-        if next_model == self.model_name and len(active_pool) <= 1:
+            from src.ai.orchestration.model_pool_state import switch_model as pool_switch_model
+            next_model = pool_switch_model('gemini', self.model_name)
+        except Exception as ex:
+            logger.debug(f'GoogleGenerativeAI: Не удалось получить модель из пула: {ex}')
+        if not next_model:
+            active_pool: list[str] = self.get_available_models()
+            if not active_pool:
+                active_pool = ['gemini-3.8-flash', 'gemini-flash-lite-latest', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-pro-latest']
+            try:
+                idx: int = active_pool.index(self.model_name)
+                next_idx: int = (idx + 1) % len(active_pool)
+            except ValueError:
+                next_idx = 0
+            next_model = active_pool[next_idx]
+        if next_model == self.model_name:
             return False
         logger.info(f'GoogleGenerativeAI: Смена модели {self.model_name} -> {next_model}')
         self.model_name = next_model
@@ -283,7 +341,7 @@ class GoogleGenerativeAICore:
         """
         active_pool: list[str] = self.get_available_models()
         if not active_pool:
-            active_pool = ['gemini-3.1-flash-lite', 'gemini-flash-lite-latest', 'gemini-3.6-flash', 'gemini-3.7-flash', 'gemini-pro-latest']
+            return False
         try:
             idx: int = active_pool.index(self.model_name)
         except ValueError:

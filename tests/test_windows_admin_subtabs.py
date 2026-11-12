@@ -8,13 +8,14 @@ Description:
     - Соответствие структуры навигации эталонам tab-system-control и tab-processes-load-inspector
     - Корректность вложенности панелей и баланс корневого контейнера windows-admin-root
     - Экспорт и работоспособность функции switchWindowsAdminSubTab в main.js
+    - Контроль размеров и стилизации иконки дрели (red_drill.png) в пользователях
 
 File: test_windows_admin_subtabs.py
 Project: ai-windows-admin
 Package: tests
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 19:03:00
+Updated: 2026-11-12 01:25:00
 =============================================================================
 """
 
@@ -86,4 +87,31 @@ def test_windows_admin_main_js_subtab_switching() -> None:
     assert "window.switchWindowsAdminSubTab = switchWindowsAdminSubTab;" in content
     assert "subtab-winadmin-" in content
     assert "new window.bootstrap.Tab(btn).show()" in content
+
+
+def test_windows_admin_users_drilldown_icon_sizing() -> None:
+    """Проверяет корректное ограничение размеров и стилизацию иконки дрели (red_drill.png) в пользователях."""
+    # 1. Проверяем шаблон разметки и стили в tab_windows_admin/index.html
+    html_file = _WEBGUI_DIR / "tab_windows_admin" / "index.html"
+    assert html_file.exists(), f"Файл {html_file} не найден"
+    html_content = html_file.read_text(encoding="utf-8")
+    assert ".btn-drilldown-proc" in html_content, "Стиль .btn-drilldown-proc должен быть определен в tab_windows_admin/index.html"
+    assert ".btn-drilldown-proc img" in html_content, "Селектор .btn-drilldown-proc img должен быть определен в tab_windows_admin/index.html"
+    assert "width: 18px" in html_content or "max-width: 18px" in html_content
+
+    # 2. Проверяем генерацию строки пользователя в panel_users/panel.js
+    panel_js = _WEBGUI_DIR / "tab_windows_admin" / "panel_users" / "panel.js"
+    assert panel_js.exists(), f"Файл {panel_js} не найден"
+    panel_content = panel_js.read_text(encoding="utf-8")
+    assert "btn-drilldown-proc" in panel_content
+    assert "red_drill.png" in panel_content
+    # Проверяем явное ограничение размеров на теге img во избежание огромного размера
+    assert "width: 18px" in panel_content and "height: 18px" in panel_content
+
+    # 3. Проверяем наличие глобального правила в components.css
+    css_file = _WEBGUI_DIR / "css" / "components.css"
+    assert css_file.exists(), f"Файл {css_file} не найден"
+    css_content = css_file.read_text(encoding="utf-8")
+    assert ".btn-drilldown-proc" in css_content, "Класс .btn-drilldown-proc должен быть зарегистрирован в components.css"
+
 

@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-03 15:51:00
  * =============================================================================
  */
 
@@ -185,10 +185,10 @@ window.api.mcp = window.api.mcp || {
 // Google Workspace Accounts API wrapper
 window.api.googleAccounts = window.api.googleAccounts || {
   async list() {
-    return await window.api.fetch('/api/admin/google-accounts');
+    return await window.api.fetch('/api/v1/admin/google-accounts');
   },
   async upload(formData) {
-    const r = await fetch('/api/admin/google-accounts/upload', {
+    const r = await fetch('/api/v1/admin/google-accounts/upload', {
       method: 'POST',
       body: formData
     });
@@ -200,29 +200,29 @@ window.api.googleAccounts = window.api.googleAccounts || {
     return await r.json();
   },
   async create(params) {
-    return await window.api.fetch('/api/admin/google-accounts', {
+    return await window.api.fetch('/api/v1/admin/google-accounts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params)
     });
   },
   async setDefault(name) {
-    return await window.api.fetch(`/api/admin/google-accounts/${encodeURIComponent(name)}/default`, {
+    return await window.api.fetch(`/api/v1/admin/google-accounts/${encodeURIComponent(name)}/default`, {
       method: 'POST'
     });
   },
   async resetStatus(name) {
-    return await window.api.fetch(`/api/admin/google-accounts/${encodeURIComponent(name)}/reset-status`, {
+    return await window.api.fetch(`/api/v1/admin/google-accounts/${encodeURIComponent(name)}/reset-status`, {
       method: 'POST'
     });
   },
   async test(name) {
-    return await window.api.fetch(`/api/admin/google-accounts/${encodeURIComponent(name)}/test`, {
+    return await window.api.fetch(`/api/v1/admin/google-accounts/${encodeURIComponent(name)}/test`, {
       method: 'POST'
     });
   },
   async delete(name) {
-    return await window.api.fetch(`/api/admin/google-accounts/${encodeURIComponent(name)}`, {
+    return await window.api.fetch(`/api/v1/admin/google-accounts/${encodeURIComponent(name)}`, {
       method: 'DELETE'
     });
   }

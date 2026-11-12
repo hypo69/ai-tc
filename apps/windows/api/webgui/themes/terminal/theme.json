@@ -6,9 +6,5 @@
   "icon": "bi-terminal-fill",
   "iconColor": "text-success",
   "description": "Тёмная тема в ретро-стиле зеленого фосфорного терминала с моноширинными акцентами",
-  "baseType": "dark",
-  "tokens": {
-    "--modal-width": "90vw",
-    "--modal-height": "90vh"
-  }
+  "baseType": "dark"
 }

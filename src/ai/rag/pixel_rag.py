@@ -19,7 +19,7 @@
 # Package: src.ai.rag
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 16:55:00
 # =============================================================================
 
 from __future__ import annotations
@@ -70,12 +70,19 @@ class PixelRAG:
             self.items = []
 
     def _save(self) -> None:
-        """Сохранение каталога изображений на диск."""
+        """Атомарное сохранение каталога изображений на диск."""
+        tmp_file = self.meta_file.with_suffix(".json.tmp")
         try:
-            with open(self.meta_file, "w", encoding="utf-8") as f:
+            with open(tmp_file, "w", encoding="utf-8") as f:
                 json.dump(self.items, f, ensure_ascii=False, indent=2)
+            os.replace(tmp_file, self.meta_file)
         except Exception as e:
             logger.error(f"[PixelRAG] Ошибка сохранения каталога pixel: {e}")
+            if tmp_file.exists():
+                try:
+                    tmp_file.unlink()
+                except OSError:
+                    pass
 
     @staticmethod
     def compute_visual_fingerprint(data: bytes) -> Dict[str, Any]:
@@ -173,15 +180,16 @@ class PixelRAG:
         """
         fp = self.compute_visual_fingerprint(data)
         item_id = f"img_{fp['sha256'][:16]}"
-        dest_path = self.storage_dir / f"{item_id}_{filename}"
+        safe_filename = Path(filename or "screenshot.png").name
+        dest_path = self.storage_dir / f"{item_id}_{safe_filename}"
         dest_path.write_bytes(data)
 
         return self.index_image_file(
             file_path=dest_path,
-            title=title or filename,
+            title=title or safe_filename,
             ocr_text=ocr_text,
             metadata=metadata,
-            filename=filename,
+            filename=safe_filename,
         )
 
     def search_by_text(self, query: str, top_k: int = 5) -> List[Dict[str, Any]]:
@@ -265,4 +273,3 @@ class PixelRAG:
         """Очищает каталог и сохраненные скриншоты."""
         self.items = []
         self._save()
-

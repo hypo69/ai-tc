@@ -14,7 +14,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_windows_backup
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 10:55:00
+Updated: 2026-11-01 12:50:00
 =============================================================================
 -->
 
@@ -72,17 +72,6 @@ Updated: 2026-10-20 10:55:00
     box-shadow: var(--shadow-xs, 0 1px 3px rgba(0, 0, 0, 0.08));
     margin-bottom: 0.75rem;
   }
-  .wb-panel-header {
-    background: var(--surface-2) !important;
-    border-bottom: 1px solid var(--border-color) !important;
-    padding: 0.45rem 0.85rem;
-    font-weight: 600;
-    font-size: 0.82rem;
-    color: var(--text-color);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
   .wb-table {
     margin-bottom: 0;
     font-size: 0.8rem;
@@ -135,7 +124,7 @@ Updated: 2026-10-20 10:55:00
       <span class="tab-header-icon fs-4 text-warning">💾</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Резервное копирование и управление данными</h3>
+          <h3 class="tab-header-title mb-0">Резервное копирование и управление данными</h3>
           
         </div>
         <small class="tab-header-subtitle text-secondary">Пользовательские папки, системные библиотеки, служба File History, теневые копии томов (VSS) и аудит</small>
@@ -231,10 +220,10 @@ Updated: 2026-10-20 10:55:00
     <div class="tab-pane fade show active" id="wb-pane-storage" role="tabpanel">
       <!-- User Shell Folders Storage & Relocation Management -->
       <div class="wb-panel">
-        <div class="wb-panel-header">
+        <div class="panel-header">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-hdd-network-fill text-info"></i>
-            <span>Пользовательские директории и перенос на вторичные диски</span>
+            <span class="panel-title">Пользовательские директории и перенос на вторичные диски</span>
           </div>
           <div class="d-flex align-items-center gap-2">
             <span class="badge bg-primary-subtle text-primary border border-primary-subtle" id="wb-total-user-size">Объем: 0 ГБ</span>
@@ -277,10 +266,10 @@ Updated: 2026-10-20 10:55:00
 
       <!-- System Libraries (.library-ms) -->
       <div class="wb-panel mb-0">
-        <div class="wb-panel-header">
+        <div class="panel-header">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-folder-symlink text-info"></i>
-            <span>Системные библиотеки Windows (.library-ms)</span>
+            <span class="panel-title">Системные библиотеки Windows (.library-ms)</span>
           </div>
           <div class="d-flex align-items-center gap-2">
             <button class="btn btn-xs btn-outline-info py-0 px-2" id="wb-btn-quick-add-folder" style="font-size: 0.72rem;" title="Добавить папку в существующую библиотеку">
@@ -318,10 +307,10 @@ Updated: 2026-10-20 10:55:00
         <div class="col-12 col-lg-6">
           <!-- File History Config -->
           <div class="wb-panel">
-            <div class="wb-panel-header">
+            <div class="panel-header">
               <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-clock-history text-primary"></i>
-                <span>Настройка File History (История файлов)</span>
+                <span class="panel-title">Настройка File History (История файлов)</span>
               </div>
             </div>
             <div class="p-2.5" style="font-size: 0.8rem;" id="wb-fh-details">
@@ -352,10 +341,10 @@ Updated: 2026-10-20 10:55:00
 
           <!-- Recommendations and Health Checklist -->
           <div class="wb-panel mb-0">
-            <div class="wb-panel-header">
+            <div class="panel-header">
               <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-shield-check text-success"></i>
-                <span>Рекомендации безопасности данных</span>
+                <span class="panel-title">Рекомендации безопасности данных</span>
               </div>
             </div>
             <div class="p-2.5" style="max-height: 200px; overflow-y: auto;">
@@ -370,10 +359,10 @@ Updated: 2026-10-20 10:55:00
         <div class="col-12 col-lg-6">
           <!-- VSS Snapshots -->
           <div class="wb-panel">
-            <div class="wb-panel-header">
+            <div class="panel-header">
               <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-camera text-warning"></i>
-                <span>Теневые копии томов VSS (Volume Shadow Copies)</span>
+                <span class="panel-title">Теневые копии томов VSS (Volume Shadow Copies)</span>
               </div>
               <span class="badge bg-body-secondary border text-muted" id="wb-vss-count">0 шт.</span>
             </div>
@@ -398,10 +387,10 @@ Updated: 2026-10-20 10:55:00
 
           <!-- RAG Search in File History Archive -->
           <div class="wb-panel mb-0">
-            <div class="wb-panel-header">
+            <div class="panel-header">
               <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-search-heart text-info"></i>
-                <span>RAG поиск по архивам бэкапа</span>
+                <span class="panel-title">RAG поиск по архивам бэкапа</span>
               </div>
               <button class="btn btn-xs btn-outline-primary py-0 px-2" id="wb-btn-rag-sync" title="Индексировать новые версии файлов" style="font-size: 0.72rem;">
                 <i class="bi bi-arrow-repeat me-1"></i>Синхронизация
@@ -426,10 +415,10 @@ Updated: 2026-10-20 10:55:00
     <!-- ========================================== -->
     <div class="tab-pane fade" id="wb-pane-audit" role="tabpanel">
       <div class="wb-panel mb-0">
-        <div class="wb-panel-header">
+        <div class="panel-header">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-trash3-fill text-danger"></i>
-            <span>Журнал аудита изменения и удаления файлов (Event 4663 / 4660)</span>
+            <span class="panel-title">Журнал аудита изменения и удаления файлов (Event 4663 / 4660)</span>
           </div>
           <div class="d-flex align-items-center gap-2">
             <button class="btn btn-xs btn-outline-info py-0 px-2" id="wb-btn-configure-sacl" title="Настроить SACL Delete для папки" style="font-size: 0.72rem;">

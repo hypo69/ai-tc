@@ -11,18 +11,16 @@
 # Package: plugins.generate_rag_from_codebase
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:38:00
 # =============================================================================
 
-"""Vector indexer and search retrieval for codebase RAG.
-
-Calculates vector representations for structured code and markdown chunks,
-supports cosine similarity search, and filters by document type or module.
-"""
+"""Векторный индексатор и поисковый движок TF-IDF для RAG кодовой базы."""
 
 from __future__ import annotations
 
 import json
 import math
+import os
 from pathlib import Path
 import re
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -194,15 +192,27 @@ class CodebaseVectorIndexer:
         return results
 
     def save(self) -> None:
-        """Save chunk definitions, vocabulary, IDF and vectors to index directory."""
+        """Атомарно сохраняет чанки, словарь, IDF и матрицу векторов в каталог индекса."""
         self.index_dir.mkdir(parents=True, exist_ok=True)
         chunks_file = self.index_dir / "chunks.json"
         vocab_file = self.index_dir / "vocab.json"
         idf_file = self.index_dir / "idf.npy"
         vectors_file = self.index_dir / "vectors.npy"
 
-        chunks_file.write_text(json.dumps(self.chunks, indent=2, ensure_ascii=False), encoding="utf-8")
-        vocab_file.write_text(json.dumps(self.vocab, indent=2, ensure_ascii=False), encoding="utf-8")
+        for target_file, payload in (
+            (chunks_file, json.dumps(self.chunks, indent=2, ensure_ascii=False)),
+            (vocab_file, json.dumps(self.vocab, indent=2, ensure_ascii=False)),
+        ):
+            tmp_file = target_file.with_name(f".{target_file.name}.tmp")
+            try:
+                tmp_file.write_text(payload, encoding="utf-8")
+                os.replace(tmp_file, target_file)
+            finally:
+                if tmp_file.exists():
+                    try:
+                        tmp_file.unlink()
+                    except OSError:
+                        pass
 
         if self.idf is not None:
             np.save(str(idf_file), self.idf)
@@ -231,4 +241,3 @@ class CodebaseVectorIndexer:
             return True
         except Exception:
             return False
-

@@ -4,21 +4,26 @@
  * =============================================================================
  * Описание:
  *   Отображение локальных и доменных пользователей, фильтрация (администраторы,
- *   скрытые, онлайн), создание учетных записей, отключение сессий, удаление
- *   и вызов модального окна универсального ИИ-досье (AIModalDialog).
+ *   скрытые, онлайн), создание учетных записей, настройка параметров UAC
+ *   (Admin Approval Mode, уровень согласия, виртуализация, SAM-флаги),
+ *   отключение сессий, удаление и вызов универсального ИИ-досье (AIModalDialog).
  *
  * Файл: apps/windows/api/webgui/tab_windows_admin/panel_users/panel.js
  * Пакет: windows/api/webgui/tab_windows_admin
  * Автор: hypo69
- * Updated: 2026-10-20 17:18:00
+ * Updated: 2026-11-12 01:25:00
  * =============================================================================
  */
 
 import { escapeHtml } from '../common/ui_utils.js';
 import { fetchStatus } from '../panel_overview/panel.js';
+import { openUserResourcesModal } from './resources_modal.js';
+import { openUserSecurityModal, handleSaveUserUac } from './security_modal.js';
 
 let _accountsCache = [];
 let currentUserFilter = 'all';
+
+export { openUserResourcesModal, openUserSecurityModal, handleSaveUserUac };
 
 export function getAccountsCache() {
   return _accountsCache;
@@ -51,7 +56,7 @@ export async function fetchAccounts(filterType = currentUserFilter) {
     console.error('[WinAdminTab] Ошибка загрузки аккаунтов:', e);
     const tbody = document.getElementById('winadmin-users-tbody');
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger p-3">Ошибка загрузки аккаунтов: ${escapeHtml(e.message)}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger p-3">Ошибка загрузки аккаунтов: ${escapeHtml(e.message)}</td></tr>`;
     }
   }
 }
@@ -65,7 +70,7 @@ export function renderUsersTable(accounts) {
   if (!tbody) return;
 
   if (!accounts || accounts.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted p-3">Учетные записи по выбранному фильтру не найдены</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted p-3">Учетные записи по выбранному фильтру не найдены</td></tr>';
     return;
   }
 
@@ -83,7 +88,9 @@ export function renderUsersTable(accounts) {
     }
 
     const resInfo = u.process_count > 0
-      ? `<span class="text-info">${u.process_count} проц.</span> <span class="text-muted">(${u.memory_rss_mb || 0} MB)</span>`
+      ? `<button class="btn btn-xs btn-outline-info py-0.5 px-2 d-inline-flex align-items-center gap-1 btn-open-user-resources no-modal-trigger" data-user="${escapeHtml(u.name)}" title="Просмотр потребляемых ресурсов пользователя ${escapeHtml(u.name)}">
+          <i class="bi bi-cpu"></i> <span>${u.process_count} проц.</span> <span class="text-muted small">(${u.memory_rss_mb || 0} MB)</span>
+        </button>`
       : '<span class="text-muted">-</span>';
 
     const profInfo = u.profile_size_mb > 0
@@ -93,8 +100,21 @@ export function renderUsersTable(accounts) {
     const groupsStr = (u.groups && u.groups.length > 0) ? u.groups.join(', ') : 'Users';
     const fullNameDesc = u.full_name ? `${escapeHtml(u.full_name)}` : (u.description ? `<span class="text-muted">${escapeHtml(u.description)}</span>` : '<span class="text-muted">—</span>');
 
+    const uacBadge = u.is_admin
+      ? `<button class="btn btn-xs btn-outline-warning py-0.5 px-2 d-inline-flex align-items-center gap-1 btn-open-user-uac" data-user="${escapeHtml(u.name)}" title="Настроить UAC для ${escapeHtml(u.name)}">
+          <i class="bi bi-shield-lock-fill"></i> Admin UAC
+        </button>`
+      : `<button class="btn btn-xs btn-outline-info py-0.5 px-2 d-inline-flex align-items-center gap-1 btn-open-user-uac" data-user="${escapeHtml(u.name)}" title="Настроить UAC для ${escapeHtml(u.name)}">
+          <i class="bi bi-shield-check"></i> Standard UAC
+        </button>`;
+
     return `
       <tr class="winadmin-user-row" data-idx="${idx}" style="cursor: pointer;" title="Нажмите для открытия досье Principal">
+        <td class="text-center no-modal-trigger" style="width: 36px;">
+          <button type="button" class="btn-drilldown-proc btn-user-security-drilldown" data-user="${escapeHtml(u.name)}" title="Безопасность и параметры учетной записи: ${escapeHtml(u.name)}">
+            <img src="/html/assets/red_drill.png?v=20261112_v1" alt="Безопасность пользователя" style="width: 18px; height: 18px; vertical-align: middle;">
+          </button>
+        </td>
         <td>
           <div class="d-flex align-items-center gap-1.5">
             <i class="bi bi-person-circle text-primary fs-6"></i>
@@ -110,6 +130,9 @@ export function renderUsersTable(accounts) {
         <td>
           <div class="text-truncate text-secondary small" style="max-width: 140px;" title="${escapeHtml(groupsStr)}">${escapeHtml(groupsStr)}</div>
           <div class="font-monospace text-muted small text-truncate" style="max-width: 130px;" title="${escapeHtml(u.sid || '')}">${escapeHtml((u.sid || '').slice(-12) || '-')}</div>
+        </td>
+        <td>
+          ${uacBadge}
         </td>
         <td class="small">
           ${profInfo}
@@ -138,6 +161,30 @@ export function renderUsersTable(accounts) {
       const idx = parseInt(row.getAttribute('data-idx'), 10);
       const u = accounts[idx];
       if (u) openUserAiModal(u);
+    };
+  });
+
+  tbody.querySelectorAll('.btn-user-security-drilldown').forEach(btn => {
+    btn.onclick = (evt) => {
+      evt.stopPropagation();
+      const user = btn.getAttribute('data-user');
+      if (user) openUserSecurityModal(user);
+    };
+  });
+
+  tbody.querySelectorAll('.btn-open-user-uac').forEach(btn => {
+    btn.onclick = (evt) => {
+      evt.stopPropagation();
+      const user = btn.getAttribute('data-user');
+      if (user) openUserUacModal(user);
+    };
+  });
+
+  tbody.querySelectorAll('.btn-open-user-resources').forEach(btn => {
+    btn.onclick = (evt) => {
+      evt.stopPropagation();
+      const user = btn.getAttribute('data-user');
+      if (user) openUserResourcesModal(user);
     };
   });
 
@@ -182,6 +229,14 @@ export function filterUsersTable(query) {
 }
 
 /**
+ * Открытие модального окна настройки UAC (перенаправление на вкладку UAC в #userSecurityModal).
+ * @param {string} username - Имя учетной записи.
+ */
+export function openUserUacModal(username) {
+  openUserSecurityModal(username, 'uac');
+}
+
+/**
  * Открытие универсального модального окна ИИ-ассистента для учетной записи Windows.
  * @param {Object|string} identifierOrObj - Объект пользователя или имя учетной записи.
  */
@@ -209,6 +264,7 @@ export async function openUserAiModal(identifierOrObj) {
 
   const badges = [
     { text: u.is_admin ? 'Администратор' : 'Пользователь', class: u.is_admin ? 'ui-badge ui-badge-danger' : 'ui-badge ui-badge-primary' },
+    { text: u.is_admin ? 'Admin UAC' : 'Standard UAC', class: u.is_admin ? 'ui-badge ui-badge-warning' : 'ui-badge ui-badge-info' },
     { text: u.is_logged_in ? 'В сети' : 'Офлайн', class: u.is_logged_in ? 'ui-badge ui-badge-success' : 'ui-badge ui-badge-neutral' }
   ];
   if (u.is_hidden) badges.push({ text: 'Скрытый', class: 'ui-badge ui-badge-neutral' });
@@ -217,6 +273,7 @@ export async function openUserAiModal(identifierOrObj) {
   const metadata = [
     { label: 'Имя пользователя', value: u.name },
     { label: 'Полное имя', value: u.full_name || '—' },
+    { label: 'Контроль UAC', value: u.is_admin ? 'Admin Approval Mode (Разделение токенов)' : 'Standard User (Запрос пароля / Ограниченный)' },
     { label: 'Описание', value: u.description || '—' },
     { label: 'SID субъекта', value: u.sid || '—', isCode: true },
     { label: 'Группы безопасности', value: (u.groups && u.groups.length > 0) ? u.groups.join(', ') : 'Users' },
@@ -228,14 +285,25 @@ export async function openUserAiModal(identifierOrObj) {
   globalModal.show({
     icon: '👤',
     title: `Пользователь: ${u.name}`,
-    subtitle: `SID: ${u.sid || '—'} | ${u.is_logged_in ? 'В сети' : 'Офлайн'}`,
+    subtitle: `SID: ${u.sid || '—'} | ${u.is_logged_in ? 'В сети' : 'Офлайн'} | UAC: ${u.is_admin ? 'Admin' : 'Standard'}`,
     panelId: 'panel-winadmin-users',
     tableType: 'user_account',
     badges: badges,
     metadata: metadata,
     rawTitle: 'Телеметрия учетной записи Windows',
     rawContent: JSON.stringify(u, null, 2),
-    requestData: u
+    requestData: u,
+    actions: [
+      {
+        label: 'Настройка UAC',
+        icon: 'bi-shield-lock',
+        class: 'btn-outline-warning',
+        onClick: () => {
+          if (globalModal.hide) globalModal.hide();
+          openUserUacModal(u.name);
+        }
+      }
+    ]
   });
 }
 

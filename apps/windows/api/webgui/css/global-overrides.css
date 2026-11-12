@@ -15,7 +15,7 @@
  * Package: windows/api/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 19:15:00
+ * Updated: 2026-11-01 14:15:00
  * =============================================================================
  */
 
@@ -125,24 +125,15 @@
   box-shadow: var(--shadow-xs, 0 1px 3px rgba(0, 0, 0, 0.1));
 }
 
-/* ── 6. Универсальные заголовки панелей (.panel-header, размер H3) ──────────── */
+/* ── 6. Универсальные заголовки панелей (.panel-header и .panel-title) ─────── */
 
-.panel-header,
-.ui-panel-header,
-.about-sys-panel-header,
-.def-panel-header,
-.sysctl-panel-header,
-.winadmin-panel-header,
-.diag-panel-header,
-.wb-panel-header,
-.assistant-panel-header,
-.sys-panel-header {
+.panel-header {
   background: var(--panel-header-bg, var(--surface-2)) !important;
-  border-bottom: 1px solid var(--border-color);
-  padding: var(--panel-header-padding, 0.6rem 1rem);
+  border-bottom: 1px solid var(--border-color) !important;
+  padding: var(--panel-header-padding, 0.65rem 1rem);
   font-size: var(--panel-header-font-size, 1.75rem) !important;
   font-weight: 600;
-  color: var(--panel-header-color, var(--text-color)) !important;
+  color: var(--panel-header-color, var(--nav-active, var(--text-color))) !important;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -150,42 +141,28 @@
   gap: 0.5rem;
 }
 
+.panel-title,
+.panel-header .panel-title,
 h3.panel-header,
 .panel-header h3,
-.ui-panel-header h3,
-.about-sys-panel-header h3,
-.diag-panel-header h3,
-.wb-panel-header h3,
-.winadmin-panel-header h3,
-.panel-header > div > span,
-.panel-header > span {
+.panel-header h6,
+.panel-header > div > span:not(.badge):not(.ui-badge):not(.small),
+.panel-header > span:not(.badge):not(.ui-badge):not(.small) {
   font-size: var(--panel-header-font-size, 1.75rem) !important;
-  color: var(--panel-header-color, var(--text-color)) !important;
+  font-weight: 600 !important;
+  color: var(--panel-header-color, var(--nav-active, var(--text-color))) !important;
   line-height: 1.3;
   margin: 0;
 }
 
-/* ── 6.0. Компактные заголовки панелей уровня H6 (для таблиц спецификаций) ─── */
-.ui-panel-header.ui-panel-header-sm,
-.ui-panel-header.panel-header-sm,
-[data-panel-id="panel-about-hardware-spec"] .ui-panel-header,
-[data-panel-id="panel-about-user-security"] .ui-panel-header {
-  font-size: var(--panel-header-font-size-sm, 1rem) !important;
-  padding: 0.45rem 0.85rem !important;
+.panel-header .badge,
+.panel-header .ui-badge {
+  font-size: var(--badge-font-size, calc(0.75rem + 1pt)) !important;
 }
 
-[data-panel-id="panel-about-hardware-spec"] .ui-panel-header h6,
-[data-panel-id="panel-about-hardware-spec"] .ui-panel-header span,
-[data-panel-id="panel-about-hardware-spec"] .ui-panel-header i,
-[data-panel-id="panel-about-user-security"] .ui-panel-header h6,
-[data-panel-id="panel-about-user-security"] .ui-panel-header span,
-[data-panel-id="panel-about-user-security"] .ui-panel-header i,
-.ui-panel-header h6,
-.ui-panel-header .panel-title-sm {
-  font-size: var(--panel-header-font-size-sm, 1rem) !important;
-  font-weight: 600 !important;
-  line-height: 1.3 !important;
-  margin: 0 !important;
+.panel-header small,
+.panel-header .small {
+  font-size: 0.78rem !important;
 }
 
 /* ── 6.1. Заголовки страниц и вкладок (.tab-header, .tab-header-title) ─────── */
@@ -855,8 +832,7 @@ table td.text-center[colspan]:not([colspan="1"]),
 /* ── 34. Универсальные панели с адаптивным заголовком панели ───────────────── */
 
 @media (max-width: 575px) {
-  .panel-header,
-  .ui-panel-header {
+  .panel-header {
     font-size: calc(var(--panel-header-font-size, 1.75rem) * 0.8) !important;
     padding: 0.4rem 0.6rem;
   }
@@ -923,6 +899,8 @@ table td.text-center[colspan]:not([colspan="1"]),
 /* ── 42. Универсальные панели с адаптивным значением заголовка панели ──────── */
 
 @media (max-width: 575px) {
+  .panel-title,
+  .panel-header .panel-title,
   .panel-header h3,
   h3.panel-header {
     font-size: calc(var(--panel-header-font-size, 1.75rem) * 0.8) !important;
@@ -992,4 +970,143 @@ table td.text-center[colspan]:not([colspan="1"]),
   .ui-card-header {
     font-size: 0.7rem;
   }
+}
+
+/* ── 51. Универсальный курсор нажимающего пальца (cursor: pointer) для всех кликабельных полей ── */
+
+/* Таблицы: строки и интерактивные ячейки */
+table tbody tr,
+.table tbody tr,
+.ui-table tbody tr,
+.sys-proc-table tbody tr,
+.slc-table tbody tr,
+.ui-spec-table tbody tr,
+.about-sys-spec-table tbody tr,
+.sysctl-spec-table tbody tr,
+.def-spec-table tbody tr,
+.winadmin-spec-table tbody tr,
+.winadmin-table tbody tr,
+.net-table tbody tr,
+.pwr-table tbody tr,
+.reg-table tbody tr,
+.sw-audit-table tbody tr,
+.hw-table tbody tr,
+.bm-table tbody tr,
+.apl-table tbody tr,
+.sa-table tbody tr,
+.gdesktop-table tbody tr,
+.wb-table tbody tr,
+.spec-table-unified tbody tr,
+.interactive-table-row,
+.interactive-row,
+.table-hover tbody tr {
+  cursor: pointer;
+}
+
+table tbody tr.non-clickable,
+table tbody tr:has(td[colspan]:only-child),
+.table tbody tr:has(td[colspan]:only-child),
+table tbody tr:has(.spinner-border) {
+  cursor: default;
+}
+
+table td[onclick],
+table th[onclick],
+table td[data-action],
+table th[data-action],
+table td[data-bs-toggle],
+table th[data-bs-toggle],
+table td[role="button"],
+table th[role="button"],
+table th.sortable,
+table th[data-sort],
+table th.sorting,
+table th.sorting_asc,
+table th.sorting_desc,
+table td button,
+table td .btn,
+table td a,
+table td .badge,
+table td .ui-badge,
+table td i[class*="bi-"],
+table td .action-btn,
+table td .drill-btn,
+.sys-table-resizer,
+.table-resizer,
+.btn-table-expand-100 {
+  cursor: pointer !important;
+}
+
+/* Все кликабельные элементы и элементы с обработчиками */
+button,
+.btn,
+.ui-btn,
+[role="button"],
+a,
+a[href],
+.nav-link,
+.dropdown-item,
+.page-link,
+.accordion-button,
+.btn-close,
+.tab-header-icon,
+.ui-subnav-btn,
+.subnav-btn,
+.filter-btn,
+[data-filter],
+.film-chip,
+.film-interactive-chip,
+.chip,
+summary,
+.tree-node-title,
+.sys-tree-title,
+.ui-tree-title,
+.about-sys-tree-title,
+input[type="checkbox"],
+input[type="radio"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="file"],
+input[type="range"],
+select,
+.form-select,
+.form-check-input,
+.form-check-label,
+label[for],
+.form-switch .form-check-input,
+.form-switch label,
+[onclick],
+[data-bs-toggle],
+[data-bs-target],
+[data-action],
+[data-clickable],
+.clickable,
+.cursor-pointer,
+.pointer,
+.badge[onclick],
+.ui-badge[onclick],
+.badge[data-bs-toggle],
+.ui-badge[data-bs-toggle],
+.badge.clickable,
+.ui-badge.clickable,
+.badge[role="button"],
+.ui-badge[role="button"],
+.card[onclick],
+.ui-kpi-card[onclick],
+.gauge-card[onclick],
+.gauge-card[role="button"],
+[data-ai-tooltip],
+[data-term] {
+  cursor: pointer;
+}
+
+button:disabled,
+.btn:disabled,
+.btn.disabled,
+input:disabled,
+select:disabled,
+[aria-disabled="true"],
+.disabled {
+  cursor: not-allowed !important;
 }

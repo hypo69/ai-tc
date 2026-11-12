@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_voice
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 10:55:00
+Updated: 2026-11-01 12:50:00
 =============================================================================
 -->
 <!-- Voice Diarization & Audio Analyzer Tab -->
@@ -28,7 +28,7 @@ Updated: 2026-10-20 10:55:00
       <span class="tab-header-icon fs-4 text-warning">🎙️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Распознавание речи и Диаризация</h3>
+          <h3 class="tab-header-title mb-0">Распознавание речи и Диаризация</h3>
           <span class="badge bg-dark font-monospace p-2">Gemini Multimodal Audio</span>
         </div>
         <small class="tab-header-subtitle text-secondary">Транскрибация аудиозаписей через локальные модели Whisper, определение дикторов и экспорт текста</small>
@@ -42,7 +42,7 @@ Updated: 2026-10-20 10:55:00
 <!-- Microphone Live Recording Card -->
 <div class="card shadow-sm border-0 mb-3" data-panel-id="panel-voice-zapis-s-mikrofona" id="panel-voice-zapis-s-mikrofona">
 <div class="panel-header d-flex justify-content-between align-items-center">
-<h3 class="panel-header mb-0"><i class="bi bi-broadcast me-2 text-danger"></i><span data-i18n="voice.recordTitle">Запись с микрофона</span></h3>
+<span class="panel-title"><i class="bi bi-broadcast me-2 text-danger"></i><span data-i18n="voice.recordTitle">Запись с микрофона</span></span>
 <span class="badge bg-danger font-monospace d-none" id="vtab-record-timer">00:00</span>
 </div>
 <div class="card-body text-center p-4">
@@ -66,7 +66,7 @@ Updated: 2026-10-20 10:55:00
 <!-- File Upload Card -->
 <div class="card shadow-sm border-0 mb-3" data-panel-id="panel-voice-zagruzka-audiofayla" id="panel-voice-zagruzka-audiofayla">
 <div class="panel-header d-flex justify-content-between align-items-center">
-<h3 class="panel-header mb-0"><i class="bi bi-cloud-arrow-up me-2 text-info"></i><span data-i18n="voice.uploadTitle">Загрузка аудиофайла</span></h3>
+<span class="panel-title"><i class="bi bi-cloud-arrow-up me-2 text-info"></i><span data-i18n="voice.uploadTitle">Загрузка аудиофайла</span></span>
 </div>
 <div class="card-body">
 <div class="border border-2 border-dashed rounded p-4 text-center cursor-pointer mb-2 bg-body-secondary bg-opacity-25" id="vtab-dropzone" style="border-style: dashed !important;">
@@ -83,7 +83,7 @@ Updated: 2026-10-20 10:55:00
 <!-- Audio Analysis Settings -->
 <div class="card shadow-sm border-0" data-panel-id="panel-voice-parametry-raspoznavaniya" id="panel-voice-parametry-raspoznavaniya">
 <div class="panel-header">
-<h3 class="panel-header mb-0"><i class="bi bi-sliders me-2"></i>Параметры распознавания</h3>
+<span class="panel-title"><i class="bi bi-sliders me-2"></i>Параметры распознавания</span>
 </div>
 <div class="card-body">
 <div class="mb-2">
@@ -114,7 +114,7 @@ Updated: 2026-10-20 10:55:00
 <div class="col-lg-7 col-md-12">
 <div class="card shadow-sm border-0 mb-3" data-panel-id="panel-voice-rezultat-analiza-i-stenogramm" id="vtab-result-card">
 <div class="panel-header d-flex justify-content-between align-items-center">
-<h3 class="panel-header mb-0"><i class="bi bi-file-text me-2 text-warning"></i><span data-i18n="voice.resultTitle">Результат анализа и стенограмма</span></h3>
+<span class="panel-title"><i class="bi bi-file-text me-2 text-warning"></i><span data-i18n="voice.resultTitle">Результат анализа и стенограмма</span></span>
 <div class="d-flex align-items-center gap-2">
 <button class="btn btn-success btn-sm d-none" id="vtab-btn-save-rag">
 <i class="bi bi-floppy me-1"></i> <span data-i18n="voice.saveToRag">Сохранить в RAG</span>

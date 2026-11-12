@@ -11,7 +11,7 @@
 # Package: apps.windows.api.routers.about_system
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-28 14:30:00
+# Updated: 2026-11-01 15:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -312,6 +312,15 @@ class RegionalOptionsResponse(BaseModel):
     language_packs: List[LanguagePackInfo] = Field(default_factory=list, description="Список языковых пакетов Windows")
     os_install_language: str = Field(default="", description="Основной язык установленной системы (InstallLanguage)")
     display_language: str = Field(default="", description="Текущий язык интерфейса Windows (Display Language)")
+    password_required: bool = Field(default=True, description="Требуется ли пароль для учетной записи")
+    password_never_expires: bool = Field(default=False, description="Является ли пароль бессрочным")
+    cannot_change_password: bool = Field(default=False, description="Запрещено ли пользователю менять пароль")
+    password_last_set: Optional[str] = Field(default=None, description="Дата последней смены пароля")
+    password_expires: Optional[str] = Field(default=None, description="Срок действия пароля")
+    bad_password_count: int = Field(default=0, description="Количество неудачных попыток ввода пароля")
+    min_password_length: int = Field(default=0, description="Минимальная длина пароля по политике безопасности")
+    max_password_age_days: int = Field(default=42, description="Максимальный срок действия пароля в днях")
+    lockout_threshold: int = Field(default=0, description="Порог блокировки учетной записи")
 
 
 class SetTimezoneRequest(BaseModel):
@@ -346,12 +355,41 @@ class UpdateUserProfileRequest(BaseModel):
     username: str = Field(default="", description="Имя учетной записи (если пусто - текущий пользователь)")
     full_name: Optional[str] = Field(default=None, description="Полное имя пользователя")
     description: Optional[str] = Field(default=None, description="Описание учетной записи")
+    password_never_expires: Optional[bool] = Field(default=None, description="Флаг: пароль не имеет срока действия")
+    cannot_change_password: Optional[bool] = Field(default=None, description="Флаг: запретить пользователю менять пароль")
+    password_required: Optional[bool] = Field(default=None, description="Флаг: требовать наличие пароля")
 
 
 class UpdateUserProfileResponse(BaseModel):
     """Ответ на обновление информации пользователя."""
     status: str = Field(default="ok", description="Статус операции (ok/error)")
     username: str = Field(default="", description="Имя пользователя")
+    message: str = Field(default="", description="Информационное сообщение")
+
+
+class ChangeUserPasswordRequest(BaseModel):
+    """Запрос на установку или смену пароля локального пользователя."""
+    username: str = Field(default="", description="Имя учетной записи (если пусто - текущий пользователь)")
+    new_password: str = Field(..., min_length=1, max_length=128, description="Новый пароль учетной записи")
+
+
+class ChangeUserPasswordResponse(BaseModel):
+    """Ответ на запрос установки или смены пароля пользователя."""
+    status: str = Field(default="ok", description="Статус операции (ok/error)")
+    username: str = Field(default="", description="Имя учетной записи")
+    message: str = Field(default="", description="Информационное сообщение")
+
+
+class SetPasswordPolicyRequest(BaseModel):
+    """Запрос на изменение глобальной политики безопасности паролей хоста."""
+    min_password_length: Optional[int] = Field(default=None, ge=0, le=128, description="Минимальная длина пароля")
+    max_password_age_days: Optional[int] = Field(default=None, ge=0, le=999, description="Максимальный срок действия пароля в днях")
+    lockout_threshold: Optional[int] = Field(default=None, ge=0, le=999, description="Порог блокировки учетной записи")
+
+
+class SetPasswordPolicyResponse(BaseModel):
+    """Ответ на изменение глобальной политики безопасности паролей."""
+    status: str = Field(default="ok", description="Статус операции (ok/error)")
     message: str = Field(default="", description="Информационное сообщение")
 
 

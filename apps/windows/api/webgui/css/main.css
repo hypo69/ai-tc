@@ -13,37 +13,37 @@
  *
  * Usage Examples:
  *   HTML Link Tag:
- *     <link rel="stylesheet" href="/src/api/webgui/css/main.css?v=20261006_v5">
+ *     <link rel="stylesheet" href="/src/api/webgui/css/main.css?v=20261101_v5">
  *
  * File: main.css
  * Project: ai-windows-admin
  * Package: src/api/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 17:05:00
+ * Updated: 2026-11-12 01:25:00
  * =============================================================================
  */
 
 /* 1. Дизайн-токены и переменные тем (светлая NightView/кирпичная/тёмная/терминал) */
-@import "variables.css?v=20261031_v1";
+@import "variables.css?v=20261101_v5";
 
 /* 2. Базовые стили страницы, скроллбары и контейнеры вкладок */
-@import "base.css?v=20261018_v2";
+@import "base.css?v=20261101_v5";
 
 /* 3. Навигационная панель, вкладки, выпадающие меню и переключатели */
-@import "nav.css?v=20261008_v1";
+@import "nav.css?v=20261101_v5";
 
 /* 4. Общие UI-компоненты (карточки, формы, кнопки, модалки, таблицы, бейджи, чипы) */
-@import "components.css?v=20261031_v1";
+@import "components.css?v=20261112_v1";
 
 /* 5. Чат, сообщения, сайдбар истории диалогов и дебаггер */
-@import "chat.css?v=20261008_v1";
+@import "chat.css?v=20261101_v5";
 
 /* 6. Управление торрентами, поиск релизов, карточки трекеров */
-@import "torrents.css?v=20261008_v1";
+@import "torrents.css?v=20261101_v5";
 
 /* 7. Адаптивные переопределения и совместимость тем с Bootstrap */
-@import "overrides.css?v=20261031_v1";
+@import "overrides.css?v=20261101_v5";
 
 /* 8. Глобальные переопределения для минимизации дублирования CSS */
-@import "global-overrides.css?v=20261020_v15";
+@import "global-overrides.css?v=20261101_v5";

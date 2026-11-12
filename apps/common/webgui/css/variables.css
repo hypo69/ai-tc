@@ -8,26 +8,213 @@
  *
  * Usage Examples:
  *   HTML Link Tag:
- *     <link rel="stylesheet" href="/windows/api/webgui/css/variables.css?v=20261004_v17">
+ *     <link rel="stylesheet" href="/apps/common/webgui/css/variables.css?v=20261004_v17">
  *
  * File: variables.css
- * Project: ai-windows-admin
- * Package: windows/api/webgui/css
+ * Project: ai-assistant
+ * Package: apps/common/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 14:00:00
+ * Updated: 2026-11-03 14:11:00
  * =============================================================================
  */
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   THEME VARIABLES — AI Windows Admin WebGUI
+   THEME VARIABLES — AI-Assistant WebGUI
    Дизайн-токены и CSS-переменные для всех тем оформления
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── 1. Светлая тема Windows System Light (Нейтрально-серый Slate-200) ─────── */
+/* ── 0. Корневые переменные и тема по умолчанию: Dark Slate (Тёмный сланец) ── */
 :root,
+[data-theme="dark"],
+[data-theme="theme-dark-slate"],
+[data-bs-theme="dark"],
+body.theme-dark-slate {
+  color-scheme: dark;
+  --color-scheme: dark;
+  /* Фоны (глубокие контрастные поверхности тёмной темы по умолчанию) */
+  --bg-color:        #0b0f19;   /* глубокий темный сланец фон страницы */
+  --surface-1:       #111827;   /* контрастные карточки, панели */
+  --surface-2:       #1f2937;   /* четкие хедеры карточек и тулбары */
+  --card-bg:         #111827;
+  --card-text:       #f9fafb;   /* яркий чистый читаемый текст */
+  --nav-bg:          #0b0f19;
+  --modal-bg:        #111827;
+  --modal-text:      #f9fafb;
+  --modal-size-w:    90vw;
+  --modal-size-h:    90vh;
+  --modal-width:     90vw;
+  --modal-height:    90vh;
+
+  /* UI Kit токены (themes.css) */
+  --ui-bg-base:             #0b0f19;
+  --ui-bg-surface:          #111827;
+  --ui-bg-surface-elevated: #1f2937;
+  --ui-border-color:        #374151;
+  --ui-border-color-subtle: rgba(75, 85, 99, 0.4);
+  --ui-text-primary:        #f9fafb;
+  --ui-text-secondary:      #9ca3af;
+  --ui-text-muted:          #6b7280;
+  --ui-accent:              #38bdf8;
+  --ui-accent-hover:        #0ea5e9;
+  --ui-danger:              #ef4444;
+  --ui-warning:             #f59e0b;
+  --ui-success:             #10b981;
+  --ui-info:                #38bdf8;
+
+  /* Bootstrap 5.3 адаптация тёмной темы */
+  --bs-body-bg:             #0b0f19;
+  --bs-body-bg-rgb:         11, 15, 25;
+  --bs-body-color:          #f9fafb;
+  --bs-secondary-color:     var(--text-muted);
+  --bs-secondary-color-rgb: 156, 163, 175;
+  --bs-tertiary-bg:         #1f2937;
+  --bs-secondary-bg:        #1f2937;
+  --bs-card-bg:             #111827;
+  --bs-card-color:          #f9fafb;
+  --bs-modal-bg:            #111827;
+  --bs-modal-color:         #f9fafb;
+  --bs-list-group-bg:       #111827;
+  --bs-dropdown-bg:         #111827;
+  --bs-border-color:        #374151;
+
+  /* Текст */
+  --text-color:             #f9fafb;
+  --text-muted:             #9ca3af;
+  --text-silver:            #e2e8f0;
+  --badge-info-solid-bg:    #1f6feb;
+  --badge-info-solid-text:  var(--text-silver);
+  --nav-text:               #b0bdcc;
+  --nav-active:             #58a6ff;
+  --nav-hover-bg:           #222d3d;
+
+  /* Линии и границы */
+  --border-color:           #374151;
+  --border-strong:          #596b82;
+  --border-subtle:          #252d38;
+  --border-contrast:        #70849d;
+  --divider-color:          #374151;
+  --modal-border:           #374151;
+  --card-border:            #374151;
+
+  /* Тени */
+  --shadow-xs:  0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-sm:  0 2px 6px rgba(0, 0, 0, 0.45);
+  --shadow-md:  0 6px 16px rgba(0, 0, 0, 0.55);
+  --shadow-lg:  0 10px 30px rgba(0, 0, 0, 0.65);
+
+  /* Чат */
+  --chat-user-bg:    #1f6feb;
+  --chat-user-text:  #ffffff;
+  --chat-bot-bg:     #1e293b;
+  --chat-bot-text:   #f9fafb;
+
+  /* Скроллбар */
+  --scrollbar-track: #0b0f19;
+  --scrollbar-thumb: #4e5b6e;
+
+  /* Статусы и бейджи */
+  --badge-warning-bg: rgba(245, 158, 11, 0.15);
+  --badge-warning-text: #f59e0b;
+  --badge-warning-border: rgba(245, 158, 11, 0.3);
+  --badge-danger-bg: rgba(239, 68, 68, 0.15);
+  --badge-danger-text: #ef4444;
+  --badge-danger-border: rgba(239, 68, 68, 0.3);
+  --badge-success-bg: rgba(16, 185, 129, 0.15);
+  --badge-success-text: #10b981;
+  --badge-success-border: rgba(16, 185, 129, 0.3);
+  --badge-info-bg: rgba(56, 189, 248, 0.15);
+  --badge-info-text: #38bdf8;
+  --badge-info-border: rgba(56, 189, 248, 0.3);
+  --badge-neutral-bg: #1f2937;
+  --badge-neutral-text: #9ca3af;
+  --badge-neutral-border: #374151;
+
+  --status-success-bg: rgba(16, 185, 129, 0.15);
+  --status-success-text: #10b981;
+  --status-success-border: rgba(16, 185, 129, 0.3);
+  --status-warning-bg: rgba(245, 158, 11, 0.15);
+  --status-warning-text: #f59e0b;
+  --status-warning-border: rgba(245, 158, 11, 0.3);
+  --status-danger-bg: rgba(239, 68, 68, 0.15);
+  --status-danger-text: #ef4444;
+  --status-danger-border: rgba(239, 68, 68, 0.3);
+  --status-info-bg: rgba(56, 189, 248, 0.15);
+  --status-info-text: #38bdf8;
+  --status-info-border: rgba(56, 189, 248, 0.3);
+
+  /* Алерты */
+  --alert-success-bg:     #123321;
+  --alert-success-border: #3fb950;
+  --alert-success-text:   #8df397;
+  --alert-danger-bg:      #3b181d;
+  --alert-danger-border:  #f85149;
+  --alert-danger-text:    #ff9b94;
+  --alert-warning-bg:     #38290f;
+  --alert-warning-border: #d29922;
+  --alert-warning-text:   #f5cf6d;
+  --alert-info-bg:        #122744;
+  --alert-info-border:    #388bfd;
+  --alert-info-text:      #a5d6ff;
+
+  /* Геометрия и радиусы */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Типографика */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+  --badge-font-size: calc(0.75rem + 1pt);
+
+  /* Токены командной строки и консоли терминала */
+  --terminal-bg:        #0d1117;
+  --terminal-text:      #f0f6fc;
+  --terminal-header-bg: #161b22;
+  --terminal-border:    #30363d;
+  --terminal-prompt:    #2ea043;
+
+  /* Каскадные токены KPI-карточек */
+  --kpi-bg:         var(--surface-1);
+  --kpi-border:     var(--border-color);
+  --kpi-accent:     var(--nav-active);
+  --kpi-min-height: 72px;
+  --kpi-padding:    0.65rem 0.9rem;
+  --kpi-val-size:   1.25rem;
+  --kpi-label-size: 0.72rem;
+  --kpi-sub-size:   0.72rem;
+
+  /* Каскадные токены панелей */
+  --panel-bg:        var(--surface-1);
+  --panel-border:    var(--border-color);
+  --panel-header-bg: var(--surface-2);
+  --panel-header-color: var(--text-color);
+  --panel-header-font-size: 1.75rem;
+
+  /* Каскадные токены заголовка вкладки (Tab Header) */
+  --tab-header-title-size: 1.35rem;
+  --tab-header-title-color: var(--text-color);
+  --tab-header-title-weight: 700;
+  --tab-header-subtitle-color: var(--text-muted);
+  --tab-header-subtitle-size: 0.82rem;
+  --tab-header-icon-size: 1.5rem;
+  --tab-header-gap: 0.5rem;
+  --tab-header-margin-bottom: 0.5rem;
+
+  /* Каскадные токены суб-навигации */
+  --subnav-btn-padding: 0.35rem 0.75rem;
+  --subnav-font-size:   0.82rem;
+}
+
+/* ── 1. Светлая тема Windows System Light (Нейтрально-серый Slate-200) ─────── */
 [data-theme="light"],
-[data-theme="theme-light-enterprise"] {
+[data-theme="theme-light-enterprise"],
+[data-bs-theme="light"],
+body.theme-light,
+body.theme-light-enterprise {
+  color-scheme: light;
+  --color-scheme: light;
   /* Фоны (комфортный серый задний фон страницы и мягкие светло-серые поверхности карточек) */
   --bg-color:        #e2e8f0;   /* мягкий нейтрально-серый задний фон страницы (Slate-200) */
   --surface-1:       #eaedf2;   /* карточки, панели, мягкая матовая светло-серая поверхность */
@@ -37,6 +224,8 @@
   --nav-bg:          #e2e8f0;
   --bs-body-bg:      #e2e8f0;
   --bs-body-bg-rgb:  226, 232, 240;
+  --bs-secondary-color: var(--text-muted);
+  --bs-secondary-color-rgb: 63, 63, 70;
 
   /* Текст высокой четкости и контрастности для комфортного чтения */
   --text-color:      #0f172a;   /* глубокий четкий темный текст */
@@ -159,8 +348,11 @@
   --badge-font-size: calc(0.72rem + 1pt);
 }
 
-/* ── 1b. Аутентичная светлая тема NightView (Тёплая бумага / Warm Paper) ───── */
-[data-theme="nightview"] {
+/* ── 1b. Аутентичная светлая тема NightView (Тёплая бумага) и NightView 70% ─── */
+[data-theme="nightview"],
+[data-theme="nightview-70"] {
+  color-scheme: light;
+  --color-scheme: light;
   /* Фоны (мягкие теплые бежево-серые поверхности в стиле NightView / бумага) */
   --bg-color:        #ede6d9;   /* мягкий приглушенный теплый фон страницы (Warm Paper) */
   --surface-1:       #f6f1e8;   /* карточки, панели, мягкая бумажная поверхность */
@@ -170,6 +362,8 @@
   --nav-bg:          #f6f1e8;
   --bs-body-bg:      #ede6d9;
   --bs-body-bg-rgb:  237, 230, 217;
+  --bs-secondary-color: var(--text-muted);
+  --bs-secondary-color-rgb: 63, 63, 70;
   --ui-bg-base:      #ede6d9;
   --ui-bg-surface:   #f6f1e8;
   --ui-bg-surface-elevated: #e2dac9;
@@ -180,6 +374,9 @@
   --ui-text-primary: #18181b;
   --ui-text-secondary: #3f3f46;
   --ui-text-muted:   #52525b;
+  --text-silver:           #27272a;
+  --badge-info-solid-bg:   #1d4ed8;
+  --badge-info-solid-text: #f6f1e8;
   --nav-text:        #27272a;   /* контрастный текст навигации */
   --nav-active:      #1d4ed8;   /* четкий сапфирово-синий акцент */
   --ui-accent:       #1d4ed8;
@@ -253,6 +450,8 @@
 
 /* ── 2. Светлая кирпичная тема (Brick / Terracotta) ────────────────────────── */
 [data-theme="brick"] {
+  color-scheme: light;
+  --color-scheme: light;
   /* Фоны (теплые клинкерные и терракотовые поверхности без слепящего белого) */
   --bg-color:        #f7f3ee;   /* теплый светлый фон клинкера */
   --surface-1:       #fcfaf6;   /* мягкие теплые карточки */
@@ -260,6 +459,8 @@
   --card-bg:         #fcfaf6;
   --card-text:       #2c221e;
   --nav-bg:          #fcfaf6;
+  --bs-secondary-color: var(--text-muted);
+  --bs-secondary-color-rgb: 63, 63, 70;
 
   /* Текст */
   --text-color:      #2c221e;   /* глубокий теплый антрацит */
@@ -378,8 +579,34 @@
 
 /* ── 3. Тёмная высококонтрастная тема (Dark High-Contrast) ────────────────── */
 [data-theme="dark"] {
+  color-scheme: dark;
+  --color-scheme: dark;
   /* Фоны (глубокие контрастные поверхности) */
   --bg-color:        #0b0f17;   /* глубокий темный фон страницы */
+  --bs-body-bg:      #0b0f17;
+  --bs-body-bg-rgb:  11, 15, 23;
+  --bs-body-color:   #f3f6fa;
+  --bs-secondary-color: var(--text-muted);
+  --bs-secondary-color-rgb: 63, 63, 70;
+  --bs-tertiary-bg:  #1e2633;
+  --bs-secondary-bg: #1e2633;
+  --bs-card-bg:      #151b23;
+  --bs-card-color:   #f3f6fa;
+  --bs-modal-bg:     #151b23;
+  --bs-modal-color:  #f3f6fa;
+  --bs-list-group-bg:#151b23;
+  --bs-dropdown-bg:  #151b23;
+  --bs-border-color: #3b4758;
+  --ui-bg-base:      #0b0f17;
+  --ui-bg-surface:   #151b23;
+  --ui-bg-surface-elevated: #1e2633;
+  --ui-border-color: #3b4758;
+  --ui-border-color-subtle: #252d38;
+  --ui-text-primary: #f3f6fa;
+  --ui-text-secondary: #a3b1c2;
+  --ui-text-muted:   #64748b;
+  --ui-accent:       #58a6ff;
+  --ui-accent-hover: #1f6feb;   /* глубокий темный фон страницы */
   --surface-1:       #151b23;   /* контрастные карточки */
   --surface-2:       #1e2633;   /* четкие хедеры карточек и тулбары */
   --card-bg:         #151b23;
@@ -503,8 +730,34 @@
 
 /* ── 4. Тёмная тема «Терминал» (Terminal / Matrix / CRT Phosphor) ─────────── */
 [data-theme="terminal"] {
+  color-scheme: dark;
+  --color-scheme: dark;
   /* Фоны (глубокий смоляной черный с зеленым отливом) */
   --bg-color:        #060a06;   /* фоновый CRT-черный */
+  --bs-body-bg:      #060a06;
+  --bs-body-bg-rgb:  6, 10, 6;
+  --bs-body-color:   #d8ffd8;
+  --bs-secondary-color: var(--text-muted);
+  --bs-secondary-color-rgb: 63, 63, 70;
+  --bs-tertiary-bg:  #101c12;
+  --bs-secondary-bg: #101c12;
+  --bs-card-bg:      #0b120c;
+  --bs-card-color:   #d8ffd8;
+  --bs-modal-bg:     #0b120c;
+  --bs-modal-color:  #d8ffd8;
+  --bs-list-group-bg:#0b120c;
+  --bs-dropdown-bg:  #0b120c;
+  --bs-border-color: #1a4223;
+  --ui-bg-base:      #060a06;
+  --ui-bg-surface:   #0b120c;
+  --ui-bg-surface-elevated: #101c12;
+  --ui-border-color: #1a4223;
+  --ui-border-color-subtle: #0f2b14;
+  --ui-text-primary: #d8ffd8;
+  --ui-text-secondary: #6cb878;
+  --ui-text-muted:   #599863;
+  --ui-accent:       #00ff66;
+  --ui-accent-hover: #39ff14;   /* фоновый CRT-черный */
   --surface-1:       #0b120c;   /* карточки терминала */
   --surface-2:       #101c12;   /* шапки с изумрудным свечением */
   --card-bg:         #0b120c;

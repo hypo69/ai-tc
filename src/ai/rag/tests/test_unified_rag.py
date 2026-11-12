@@ -13,7 +13,7 @@
 # Package: src.ai.rag.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 18:30:30
+# Updated: 2026-11-10 18:12:00
 # =============================================================================
 
 from __future__ import annotations
@@ -30,7 +30,10 @@ from src.ai.rag.pixel_rag import PixelRAG
 from src.ai.rag.log_rag import LogRAG
 from src.ai.rag.router import init_router
 from src.ai.rag.unified_hub import UnifiedKnowledgeHub
-from apps.windows.wikillm.models import ArtifactType, KnowledgeEntity, KnowledgeSource
+try:
+    from apps.windows.wikillm.models import ArtifactType, KnowledgeEntity, KnowledgeSource
+except ImportError:
+    from src.ai.wikillm.models import ArtifactType, KnowledgeEntity, KnowledgeSource
 
 
 def test_text_rag_crud_and_search(tmp_path: Path) -> None:

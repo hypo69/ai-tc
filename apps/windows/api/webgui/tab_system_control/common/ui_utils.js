@@ -4,7 +4,7 @@
  * Включает экранирование HTML, форматирование времени, определение классов важности событий,
  * настройку ресайзеров таблиц и динамический расчет высоты контейнеров.
  * 
- * Updated: 2026-10-17 00:26:00
+ * Updated: 2026-11-11 23:20:00
  */
 
 /**
@@ -107,7 +107,6 @@ export function initTableResizers() {
 
   setupResizer('el-table-resizer', 'el-table-container', 520, 140, 1500);
   setupResizer('slc-table-resizer', 'slc-table-container', 560, 140, 1500);
-  setupResizer('scc-activity-table-resizer', 'scc-activity-table-container', 480, 140, 1500);
   setupResizer('pwr-sessions-table-resizer', 'pwr-sessions-table-container', 520, 140, 1500);
   setupResizer('pwr-events-table-resizer', 'pwr-events-table-container', 520, 140, 1500);
   setupResizer('def-events-table-resizer', 'def-events-table-container', 520, 140, 1500);
@@ -126,7 +125,6 @@ export function adjustMainStreamHeight() {
     'slc-incidents-container',
     'slc-timeline-container',
     'slc-raw-container',
-    'scc-activity-table-container',
     'pwr-sessions-table-container',
     'pwr-events-table-container',
     'def-events-table-container'

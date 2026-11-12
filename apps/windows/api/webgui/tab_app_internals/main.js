@@ -18,13 +18,17 @@ import {
 import {
   initTooltipsEditorPanel,
 } from './panel_tooltips_editor/panel.js?v=20261031_v1';
+import {
+  initAppInternalsActivityPanel,
+  loadAppInternalsActivityLogs,
+} from './panel_activity/panel.js?v=20261111_v1';
 /**
  * =============================================================================
  * Process Name: Windows App Internals Tab - Main Orchestrator
  * =============================================================================
  * Description:
  *   Модульный клиентский оркестратор консолидированной панели «Внутренняя кухня».
- *   Координирует суб-панели телеметрии, моделей, логов, ETW-трассировки,
+ *   Координирует суб-панели телеметрии, моделей, логов, журнала активности, ETW-трассировки,
  *   системных настроек, базы знаний подсказок по системе (локальный SQLite)
  *   и базы инструментов агента (сервер Hostinger) с поддержкой двухуровневой
  *   URL-маршрутизации (#tab-app-internals#<panel_id>#block-<block_id>).
@@ -34,7 +38,7 @@ import {
  * Package: windows/api/webgui/tab_app_internals
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 19:45:00
+ * Updated: 2026-11-11 23:20:00
  * =============================================================================
  */
 
@@ -43,7 +47,7 @@ import {
   switchAppInternalsSubTab,
   switchAppInternalsBlock,
   triggerSubTabInit,
-} from './panel_subtabs/panel.js?v=20261031_v5';
+} from './panel_subtabs/panel.js?v=20261111_v1';
 import {
   TAB_ID,
   isAppInternalsTabActive,
@@ -54,7 +58,7 @@ import {
   getPanelFromHash,
   getBlockFromHash,
   updateUrlWithPanel,
-} from './common/ui_utils.js?v=20261031_v5';
+} from './common/ui_utils.js?v=20261111_v1';
 import {
   initWikiLLMSettingsPanel,
   bindWikiLLMButtons,
@@ -76,7 +80,9 @@ import {
   loadInstrumentsCatalog,
   openInstrumentEditorModal,
   saveInstrumentFromModal,
-} from './panel_instruments_db/panel.js?v=20261031_v5';
+  exportInstrumentsCatalogCsv,
+  importInstrumentsCatalogCsv,
+} from './panel_instruments_db/panel.js?v=20261101_v1';
 
 let isAppInternalsInitialized = false;
 
@@ -169,6 +175,8 @@ window.bindInstrumentsCatalogButtons = bindInstrumentsCatalogButtons;
 window.loadInstrumentsCatalog = loadInstrumentsCatalog;
 window.openInstrumentEditorModal = openInstrumentEditorModal;
 window.saveInstrumentFromModal = saveInstrumentFromModal;
+window.exportInstrumentsCatalogCsv = exportInstrumentsCatalogCsv;
+window.importInstrumentsCatalogCsv = importInstrumentsCatalogCsv;
 window.bindWikiLLMButtons = bindWikiLLMButtons;
 window.loadWikiLLMSettings = loadWikiLLMSettings;
 window.initWikiLLMEditor = initWikiLLMEditor;
@@ -179,6 +187,8 @@ window.openHelpFile = openFile;
 window.saveCurrentHelpFile = saveCurrentFile;
 window.previewCurrentHelpFile = previewCurrentFile;
 window.initTooltipsEditorPanel = initTooltipsEditorPanel;
+window.initAppInternalsActivityPanel = initAppInternalsActivityPanel;
+window.loadAppInternalsActivityLogs = loadAppInternalsActivityLogs;
 window.initCodebaseRagPanel = initCodebaseRagPanel;
 window.loadCodebaseIndexes = loadCodebaseIndexes;
 window.bindCodebaseRagButtons = bindCodebaseRagButtons;

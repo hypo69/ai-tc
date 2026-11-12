@@ -678,6 +678,8 @@
     "subtabModelsTitle": "Manage AI providers and models (Windows AI, Ollama, Gemini, Foundry Local)",
     "subtabLogsLabel": "Logs Center",
     "subtabLogsTitle": "Inspect ai-tc internal application logs",
+    "subtabActivityLabel": "Activity Log",
+    "subtabActivityTitle": "Internal application and system operations activity log",
     "subtabEtwLabel": "ETW Tracing",
     "subtabEtwTitle": "Low-level Windows kernel ETW event tracing",
     "subtabSettingsLabel": "Settings",

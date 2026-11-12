@@ -3,13 +3,9 @@
 # Process Name: IFTTT Maker Webhook Connector and Dispatcher
 # =============================================================================
 # Description:
-#   Provides an asynchronous client to trigger smart home events via the IFTTT Webhooks
-#   Maker service with custom parameters and JSON payloads.
-#
-# Examples:
-#   >>> client = IFTTTClient()
-#   >>> result = await client.trigger_event("living_room_lights_on", value1="warm_white")
-#   >>> print(result["status"])
+#   Асинхронный клиент для вызова событий умного дома через сервис IFTTT Webhooks
+#   Maker с поддержкой пользовательских параметров, JSON-нагрузки, явных таймаутов
+#   и Exponential Backoff + Jitter.
 #
 # File: client.py
 # Project: ai-breadboard
@@ -18,14 +14,16 @@
 # Class: IFTTTClient
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 16:40:00
 # =============================================================================
 
 from __future__ import annotations
 
-import json
+import asyncio
 import os
 from pathlib import Path
-from typing import Any, Dict
+import random
+from typing import Any, Dict, Optional
 
 import aiohttp
 
@@ -33,14 +31,17 @@ from header import __root__
 from logger import logger
 from src.utils.jjson import j_loads_ns
 
+_RETRYABLE_STATUS = frozenset({429, 500, 502, 503, 504})
+_MAX_RETRIES = 3
+
 
 class IFTTTClient:
-    """Asynchronous client for interacting with the IFTTT Webhook Maker Channel.
+    """Асинхронный клиент для взаимодействия с каналом IFTTT Webhook Maker.
 
     Attributes:
-        webhook_key (str): Default IFTTT Webhooks Maker key.
-        base_url (str): Base URL for IFTTT Maker Webhooks.
-        timeout_seconds (int): Network request timeout in seconds.
+        webhook_key (str): Ключ IFTTT Webhooks Maker по умолчанию.
+        base_url (str): Базовый URL IFTTT Maker Webhooks.
+        timeout_seconds (int): Таймаут сетевого запроса в секундах.
     """
 
     def __init__(
@@ -49,17 +50,10 @@ class IFTTTClient:
         config_path: Path = Path("config.json"),
         timeout_seconds: int = 10,
     ) -> None:
-        """Initialization of IFTTTClient with key and configuration parameters.
-
-        Args:
-            webhook_key (str): Optional override for the IFTTT Webhooks API key.
-            config_path (Path): Path to configuration file. Defaults to 'config.json'.
-            timeout_seconds (int): Maximum HTTP timeout in seconds. Defaults to 10.
-        """
-        self.timeout_seconds: int = timeout_seconds
+        """Инициализация IFTTTClient с ключом и параметрами конфигурации."""
+        self.timeout_seconds: int = max(1, int(timeout_seconds))
         self.base_url: str = "https://maker.ifttt.com/trigger"
 
-        # Load key from environment or configuration
         env_key = os.environ.get("IFTTT_WEBHOOK_KEY", "") or os.environ.get("IFTTT_KEY", "")
         if webhook_key:
             self.webhook_key: str = webhook_key
@@ -70,37 +64,27 @@ class IFTTTClient:
             ifttt_cfg = getattr(cfg, "ifttt", object())
             self.webhook_key = getattr(ifttt_cfg, "webhook_key", "")
 
-        logger.debug(f"[IFTTTClient] Initialized with key configured: {bool(self.webhook_key)}")
+        logger.debug(f"[IFTTTClient] Инициализирован (ключ настроен: {bool(self.webhook_key)})")
 
     def is_configured(self) -> bool:
-        """Return True if IFTTT webhook key is set."""
+        """Возвращает True, если ключ IFTTT webhook задан."""
         return bool(self.webhook_key)
 
     def get_status(self) -> Dict[str, Any]:
-        """Check status and readiness of IFTTT client.
-
-        Returns:
-            Dict[str, Any]: Status summary dictionary.
-
-        Examples:
-            >>> client = IFTTTClient()
-            >>> status = client.get_status()
-            >>> status["configured"]
-            True
-        """
+        """Возвращает статус готовности клиента IFTTT."""
         configured: bool = self.is_configured()
         return {
             "configured": configured,
-            "masked_key": f"{self.webhook_key[:4]}...{self.webhook_key[-4:]}" if len(self.webhook_key) >= 8 else ("configured" if configured else "not_configured"),
+            "masked_key": (
+                f"{self.webhook_key[:4]}...{self.webhook_key[-4:]}"
+                if len(self.webhook_key) >= 8
+                else ("configured" if configured else "not_configured")
+            ),
             "base_url": self.base_url,
         }
 
     async def test_connection(self) -> Dict[str, Any]:
-        """Test connectivity and key validity by sending a ping event.
-
-        Returns:
-            Dict[str, Any]: Connection test result.
-        """
+        """Проверяет соединение и валидность ключа отправкой тестового события ping."""
         if not self.is_configured():
             return {
                 "success": False,
@@ -125,30 +109,13 @@ class IFTTTClient:
         value1: str = "",
         value2: str = "",
         value3: str = "",
-        json_payload: Dict[str, Any] = {},
+        json_payload: Optional[Dict[str, Any]] = None,
         webhook_key: str = "",
     ) -> Dict[str, Any]:
-        """Trigger an IFTTT Webhook event with values or structured JSON payload.
-
-        Args:
-            event_name (str): The name of the IFTTT Webhook event to trigger.
-            value1 (str): Optional first value passed to the applet.
-            value2 (str): Optional second value passed to the applet.
-            value3 (str): Optional third value passed to the applet.
-            json_payload (Dict[str, Any]): Optional arbitrary JSON payload sent to /json endpoint.
-            webhook_key (str): Optional override key for this specific call.
-
-        Returns:
-            Dict[str, Any]: Execution result containing 'status', 'event', 'response', or 'error'.
-
-        Examples:
-            >>> client = IFTTTClient(webhook_key="test_key")
-            >>> res = await client.trigger_event("turn_light_on", value1="bedroom")
-            >>> res["status"]
-            'success'
-        """
-        if not event_name:
-            logger.warning("[IFTTTClient] Attempted to trigger event with empty event_name.")
+        """Вызывает событие IFTTT Webhook с параметрами или произвольной JSON-нагрузкой."""
+        clean_event = (event_name or "").strip()
+        if not clean_event:
+            logger.warning("[IFTTTClient] Попытка вызова события с пустым event_name.")
             return {
                 "status": "error",
                 "error": "event_name cannot be empty",
@@ -157,19 +124,18 @@ class IFTTTClient:
 
         active_key = webhook_key or self.webhook_key
         if not active_key:
-            logger.error("[IFTTTClient] IFTTT Webhook key is not configured.")
+            logger.error("[IFTTTClient] Ключ IFTTT Webhook не настроен.")
             return {
                 "status": "error",
                 "error": "IFTTT_WEBHOOK_KEY is not set. Please set it in .env or config.json.",
-                "event": event_name,
+                "event": clean_event,
             }
 
-        # Select endpoint format
         if json_payload:
-            endpoint = f"{self.base_url}/{event_name}/json/with/key/{active_key}"
-            payload_data = json_payload
+            endpoint = f"{self.base_url}/{clean_event}/json/with/key/{active_key}"
+            payload_data: Dict[str, Any] = dict(json_payload)
         else:
-            endpoint = f"{self.base_url}/{event_name}/with/key/{active_key}"
+            endpoint = f"{self.base_url}/{clean_event}/with/key/{active_key}"
             payload_data = {}
             if value1:
                 payload_data["value1"] = value1
@@ -178,40 +144,56 @@ class IFTTTClient:
             if value3:
                 payload_data["value3"] = value3
 
-        logger.info(f"[IFTTTClient] Dispatching event '{event_name}' to IFTTT Maker Webhooks.")
+        logger.info(f"[IFTTTClient] Отправка события '{clean_event}' в IFTTT Maker Webhooks.")
 
-        timeout = aiohttp.ClientTimeout(total=self.timeout_seconds)
-        try:
-            async with aiohttp.ClientSession(timeout=timeout) as session:
-                async with session.post(
-                    endpoint,
-                    json=payload_data,
-                    headers={"Content-Type": "application/json"},
-                ) as response:
-                    resp_text = await response.text()
-                    if response.status == 200:
-                        logger.info(f"[IFTTTClient] Event '{event_name}' triggered successfully: {resp_text.strip()}")
-                        return {
-                            "status": "success",
-                            "event": event_name,
-                            "http_code": response.status,
-                            "message": resp_text.strip(),
-                        }
-                    else:
-                        logger.error(f"[IFTTTClient] Event '{event_name}' failed with status {response.status}: {resp_text}")
-                        return {
-                            "status": "error",
-                            "event": event_name,
-                            "http_code": response.status,
-                            "error": resp_text.strip(),
-                        }
-        except Exception as e:
-            logger.error(f"[IFTTTClient] Exception while triggering event '{event_name}': {e}")
-            return {
-                "status": "error",
-                "event": event_name,
-                "error": str(e),
-            }
+        timeout = aiohttp.ClientTimeout(
+            total=float(self.timeout_seconds),
+            connect=min(5.0, float(self.timeout_seconds)),
+            sock_read=float(self.timeout_seconds),
+        )
+        last_err = ""
+        for attempt in range(_MAX_RETRIES):
+            try:
+                async with aiohttp.ClientSession(timeout=timeout) as session:
+                    async with session.post(
+                        endpoint,
+                        json=payload_data,
+                        headers={"Content-Type": "application/json"},
+                    ) as response:
+                        resp_text = await response.text()
+                        if response.status == 200:
+                            logger.info(f"[IFTTTClient] Событие '{clean_event}' успешно вызвано: {resp_text.strip()}")
+                            return {
+                                "status": "success",
+                                "event": clean_event,
+                                "http_code": response.status,
+                                "message": resp_text.strip(),
+                            }
+                        if response.status not in _RETRYABLE_STATUS or attempt == _MAX_RETRIES - 1:
+                            logger.error(f"[IFTTTClient] Ошибка события '{clean_event}' ({response.status}): {resp_text}")
+                            return {
+                                "status": "error",
+                                "event": clean_event,
+                                "http_code": response.status,
+                                "error": resp_text.strip(),
+                            }
+                        last_err = f"HTTP {response.status}: {resp_text.strip()}"
+            except Exception as exc:
+                last_err = str(exc)
+                if attempt == _MAX_RETRIES - 1:
+                    logger.error(f"[IFTTTClient] Исключение при вызове события '{clean_event}': {exc}")
+                    return {
+                        "status": "error",
+                        "event": clean_event,
+                        "error": str(exc),
+                    }
+            await asyncio.sleep((0.4 * (2 ** attempt)) + random.uniform(0.05, 0.2))
+
+        return {
+            "status": "error",
+            "event": clean_event,
+            "error": last_err or "Unknown IFTTT error",
+        }
 
 
 async def send_ifttt_event(
@@ -219,27 +201,10 @@ async def send_ifttt_event(
     value1: str = "",
     value2: str = "",
     value3: str = "",
-    json_payload: Dict[str, Any] = {},
+    json_payload: Optional[Dict[str, Any]] = None,
     webhook_key: str = "",
 ) -> Dict[str, Any]:
-    """Convenience helper function to trigger an IFTTT event.
-
-    Args:
-        event_name (str): IFTTT Maker event name.
-        value1 (str): First value parameter.
-        value2 (str): Second value parameter.
-        value3 (str): Third value parameter.
-        json_payload (Dict[str, Any]): Arbitrary JSON data payload.
-        webhook_key (str): Optional override key.
-
-    Returns:
-        Dict[str, Any]: Result dictionary.
-
-    Examples:
-        >>> result = await send_ifttt_event("air_conditioner_cool", value1="22C")
-        >>> result["status"]
-        'success'
-    """
+    """Вспомогательная функция для вызова события IFTTT."""
     client = IFTTTClient(webhook_key=webhook_key)
     return await client.trigger_event(
         event_name=event_name,
@@ -248,4 +213,3 @@ async def send_ifttt_event(
         value3=value3,
         json_payload=json_payload,
     )
-

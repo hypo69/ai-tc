@@ -17,7 +17,7 @@
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 18:45:00
+ * Updated: 2026-11-12 02:25:00
  * =============================================================================
  */
 
@@ -89,7 +89,8 @@ const TABS = {
   'services-manager':         ['/html/tab_services_manager/index.html',         '/html/tab_services_manager/main.js'],
   'task-scheduler':           ['/html/tab_task_scheduler/index.html',           '/html/tab_task_scheduler/main.js'],
   'process-manager':          ['/html/tab_process_manager/index.html',          '/html/tab_process_manager/main.js'],
-  'registry-viewer':          ['/html/tab_registry_viewer/index.html',          '/html/tab_registry_viewer/main.js'],
+  'registry-editor':          ['/html/tab_registry_editor/index.html',          '/html/tab_registry_editor/main.js'],
+  'registry-viewer':          ['/html/tab_registry_editor/index.html',          '/html/tab_registry_editor/main.js'],
   'software-manager':         ['/html/tab_software_manager/index.html',         '/html/tab_software_manager/main.js'],
 
   // Безопасность и Целостность
@@ -357,10 +358,10 @@ export function switchMainTab(tabId) {
         window.switchSystemControlSource(subPanel);
       }
     }, 70);
-  } else if (subPanel && (tabId === 'tab-software-scanner' || tabId === 'software-scanner')) {
+  } else if (subPanel && (tabId === 'tab-software-scanner' || tabId === 'software-scanner' || tabId === 'tab-software-monitor' || tabId === 'software-monitor')) {
     setTimeout(() => {
       if (typeof window.switchSoftwareSubTab === 'function') {
-        window.switchSoftwareSubTab(subPanel);
+        window.switchSoftwareSubTab(subPanel, blockId, false);
       }
     }, 70);
   } else if (subPanel && (tabId === 'tab-app-internals' || tabId === 'app-internals')) {

@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_system_logs
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 15:22:00
+Updated: 2026-11-01 12:50:00
 =============================================================================
 -->
 <style>
@@ -85,18 +85,6 @@ Updated: 2026-10-20 15:22:00
     height: auto !important;
     display: block !important;
     flex-direction: unset !important;
-  }
-  .slc-panel-header {
-    background: var(--surface-2) !important;
-    border-bottom: 1px solid var(--border-color) !important;
-    padding: 0.6rem 1rem;
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--nav-active);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
   }
   .slc-tree-list {
     flex: 1 1 auto;
@@ -306,7 +294,7 @@ Updated: 2026-10-20 15:22:00
       <span class="tab-header-icon fs-4 text-warning">📋</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Просмотр системных логов Windows</h3>
+          <h3 class="tab-header-title mb-0">Просмотр системных логов Windows</h3>
           
         </div>
         <small class="tab-header-subtitle text-secondary">Централизованная таблица записей Event Log с мгновенной фильтрацией, пагинацией и экспортом в CSV/JSON</small>
@@ -442,8 +430,8 @@ Updated: 2026-10-20 15:22:00
 <!-- Channel & Source Tree Sidebar -->
 <div class="col-lg-3">
 <div class="slc-panel h-100" data-panel-id="panel-system-logs-2" id="panel-system-logs-2">
-<div class="slc-panel-header">
-<span><i class="bi bi-folder2-open me-2"></i>Log Channels Tree</span>
+<div class="panel-header">
+<span class="panel-title"><i class="bi bi-folder2-open me-2"></i>Log Channels Tree</span>
 <span class="badge bg-secondary" id="slc-channel-count-badge">0</span>
 </div>
 <div class="p-2 border-bottom border-secondary">
@@ -457,8 +445,8 @@ Updated: 2026-10-20 15:22:00
 <!-- Events / Incidents Main Stream -->
 <div class="col-lg-9">
 <div class="slc-panel h-100" data-panel-id="panel-system-logs-semanticheskiy-rag-poisk-po-log" id="panel-system-logs-semanticheskiy-rag-poisk-po-log">
-<div class="slc-panel-header">
-<span id="slc-main-view-title"><i class="bi bi-list-columns-reverse me-2"></i>Live Windows Event Stream</span>
+<div class="panel-header">
+<span class="panel-title" id="slc-main-view-title"><i class="bi bi-list-columns-reverse me-2"></i>Live Windows Event Stream</span>
 <div class="d-flex align-items-center gap-2">
 <span class="badge bg-dark border border-secondary text-info d-none align-items-center gap-1" id="slc-cache-date-badge" title="Время сохранения журнала в кеше браузера">
   <i class="bi bi-clock-history"></i> <span id="slc-cache-date-text">Кеш: -</span>
@@ -502,8 +490,8 @@ Updated: 2026-10-20 15:22:00
 <!-- Dynamic Log RAG Search Container (Hidden by default) -->
 <div class="p-3 d-none" id="slc-rag-container" style="max-height: 580px; overflow-y: auto;">
 <div class="card border-info mb-3 shadow" data-panel-id="panel-system-logs-semanticheskiy-rag-poisk-po-log" id="panel-system-logs-semanticheskiy-rag-poisk-po-log" style="background: var(--surface-1);">
-<div class="card-header d-flex justify-content-between align-items-center" style="background: var(--surface-2);">
-<span class="text-info fw-bold"><i class="bi bi-search me-2"></i>Семантический RAG-поиск по логам</span>
+<div class="panel-header d-flex justify-content-between align-items-center">
+<span class="panel-title"><i class="bi bi-search me-2"></i>Семантический RAG-поиск по логам</span>
 <button class="btn btn-sm btn-outline-info rounded-pill px-3" id="btn-slc-rag-rebuild">
 <i class="bi bi-arrow-repeat me-1"></i> Перестроить RAG-индекс
               </button>

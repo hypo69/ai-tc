@@ -11,7 +11,7 @@
 # Package: apps.windows.api.routers.admin
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 18:05:00
+# Updated: 2026-11-01 14:35:00
 # =============================================================================
 
 from __future__ import annotations
@@ -152,13 +152,13 @@ APPS_REGISTRY: List[Dict[str, Any]] = [
         "icon": "📊",
     },
     {
-        "id": "registry_viewer",
-        "key": "registry_viewer",
-        "tab": "tab-registry-viewer",
-        "folder": "registry_viewer",
-        "aliases": ["registry_viewer", "registry", "regedit", "reg_viewer", "tab-registry-viewer"],
-        "name": "Registry Viewer",
-        "ru_name": "Просмотр реестра (Registry Viewer)",
+        "id": "registry_editor",
+        "key": "registry_editor",
+        "tab": "tab-registry-editor",
+        "folder": "registry_editor",
+        "aliases": ["registry_editor", "registry_viewer", "registry", "regedit", "reg_viewer", "tab-registry-editor", "tab-registry-viewer"],
+        "name": "Registry Editor",
+        "ru_name": "Редактор реестра (Registry Editor)",
         "icon": "🗝️",
     },
     {

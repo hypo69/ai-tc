@@ -25,7 +25,7 @@
 # Package: root
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-27 23:02:00
+# Updated: 2026-11-10 18:24:00
 # =============================================================================
 
 import json
@@ -101,10 +101,15 @@ def _load_app_name(root: Path) -> str:
         try:
             with open(cfg, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                return data.get('app_name') or data.get('app', {}).get('app_name') or 'ai-tc'
+                return (
+                    data.get('app_name')
+                    or data.get('app', {}).get('app_name')
+                    or data.get('global_settings', {}).get('application_name')
+                    or root.name
+                )
         except Exception:
             pass
-    return 'ai-tc'
+    return root.name
 
 
 APP_NAME: str = _load_app_name(__root__)

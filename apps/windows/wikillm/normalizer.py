@@ -16,7 +16,7 @@
 # Package: apps.windows.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 11:59:00
+# Updated: 2026-11-01 13:06:00
 # =============================================================================
 
 from __future__ import annotations
@@ -167,8 +167,9 @@ class CanonicalKeyNormalizer:
                 return f"registry:{cls.normalize_registry_path(query)}"
 
             # Проверка на процесс (*.exe)
-            if query.lower().endswith(".exe"):
-                return f"process:{query.lower()}"
+            exe_query_match = re.search(r"([a-zA-Z0-9_\-\.]+\.exe)", query, re.IGNORECASE)
+            if exe_query_match:
+                return f"process:{exe_query_match.group(1).lower()}"
 
             # Проверка на драйвер (*.sys)
             if query.lower().endswith(".sys"):
@@ -219,8 +220,12 @@ class CanonicalKeyNormalizer:
             return f"desktop_window:{combined_slug}"
 
         # Если process
-        if raw_type in ("process", "proc") or raw_title.lower().endswith(".exe"):
-            clean_proc = raw_title.split()[0].lower() if raw_title else "unknown.exe"
+        if raw_type in ("process", "proc") or raw_title.lower().endswith(".exe") or ".exe" in raw_title.lower():
+            exe_match = re.search(r"([a-zA-Z0-9_\-\.]+\.exe)", f"{raw_title} {subtitle or ''}", re.IGNORECASE)
+            if exe_match:
+                clean_proc = exe_match.group(1).lower()
+            else:
+                clean_proc = raw_title.split()[0].lower() if raw_title else "unknown.exe"
             return f"process:{clean_proc}"
 
         # Если service

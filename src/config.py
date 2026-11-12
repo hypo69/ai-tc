@@ -4,23 +4,20 @@
 # =============================================================================
 # Description:
 #   Модуль основной системы (`config`).
-#   Определяет глобальные параметры конфигурации, загрузку config.json,
-#   разрешение рабочих путей (%LOCALAPPDATA%/<app_name>/data) и путей к логам
-#   и временным файлам (%APPDATA%/<app_name>/logs, %APPDATA%/<app_name>/tmp).
+#   Управляет конфигурацией, параметрами сервера, AI-провайдерами,
+#   а также системными путями (рабочая директория, data, logs, tmp).
 #
 # Usage Examples:
 #   Python API:
-#     from src.config import app_name, app_dir, data_dir, logs_dir, tmp_dir
-#     from src.config import is_app_enabled
-#
-#     print(app_name, data_dir, logs_dir, tmp_dir)
+#     from src.config import app_name, WORKING_DIR, DATA_DIR, LOGS_DIR, TMP_DIR
+#     from src.config import app_dir, data_dir, logs_dir, tmp_dir, is_app_enabled
 #
 # File: config.py
 # Project: ai-windows-admin
 # Package: src
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 16:43:00
+# Updated: 2026-11-10 18:11:00
 # =============================================================================
 
 """Модуль основной системы (`config`)."""
@@ -32,7 +29,12 @@ from src.utils.jjson import j_loads_ns
 from header import __root__
 from logger import logger
 
-_cfg_env = os.getenv('AITC_CONFIG') or os.getenv('AI_TC_CONFIG') or os.getenv('AIWINDOWSADMIN_CONFIG') or os.getenv('CONFIG_FILE')
+_cfg_env = (
+    os.getenv('AITC_CONFIG')
+    or os.getenv('AI_TC_CONFIG')
+    or os.getenv('AIWINDOWSADMIN_CONFIG')
+    or os.getenv('CONFIG_FILE')
+)
 if _cfg_env:
     _cfg_path = Path(_cfg_env)
     if _cfg_path.is_absolute() and _cfg_path.exists():
@@ -53,43 +55,71 @@ if not CONFIG_FILE.exists() and (__root__ / 'config.json').exists():
 
 global_settings = j_loads_ns(CONFIG_FILE)
 
-# Название рабочей директории и приложения
-app_name: str = (
+# Название рабочей директории и приложения из конфигурации или окружения
+app_name: str = str(
     getattr(global_settings, 'app_name', None)
     or getattr(getattr(global_settings, 'app', None), 'app_name', None)
     or os.getenv('APP_NAME')
-    or 'ai-tc'
+    or (__root__.name if __root__.exists() else 'AI-Assistant')
 )
 APP_NAME: str = app_name
 os.environ['APP_NAME'] = APP_NAME
 
-# Базовые системные пути окружения
-localappdata_base: str = os.getenv('LOCALAPPDATA') or str(Path.home() / 'AppData' / 'Local')
-appdata_base: str = os.getenv('APPDATA') or str(Path.home() / 'AppData' / 'Roaming')
+# Базовые системные каталоги окружения
+localappdata_base: str = os.environ.get('LOCALAPPDATA') or str(Path.home() / 'AppData' / 'Local')
+appdata_base: str = os.environ.get('APPDATA') or str(Path.home() / 'AppData' / 'Roaming')
+
+LOCALAPPDATA_DIR: Path = Path(localappdata_base)
+APPDATA_DIR: Path = Path(appdata_base)
 
 # Рабочая директория: %LOCALAPPDATA% / app_name
-app_dir: Path = Path(localappdata_base) / APP_NAME
-if not app_dir.exists() and __root__.exists():
-    app_dir = __root__
+WORKING_DIR: Path = LOCALAPPDATA_DIR / APP_NAME
+app_dir: Path = WORKING_DIR if WORKING_DIR.exists() or not __root__.exists() else __root__
 APP_DIR: Path = app_dir
 
 # Внутренний путь к хранилищу данных data
-data_dir: Path = app_dir / 'data' if (app_dir / 'data').exists() else (__root__ / 'data')
-DATA_DIR: Path = data_dir
+if (WORKING_DIR / 'data').exists():
+    DATA_DIR: Path = WORKING_DIR / 'data'
+elif (app_dir / 'data').exists():
+    DATA_DIR = app_dir / 'data'
+else:
+    DATA_DIR = __root__ / 'data'
+data_dir: Path = DATA_DIR
 
 # Пути к логам и временным файлам tmp: %APPDATA% / app_name / logs и tmp
-appdata_dir: Path = Path(appdata_base) / APP_NAME
-logs_dir: Path = appdata_dir / 'logs'
-tmp_dir: Path = appdata_dir / 'tmp'
-LOGS_DIR: Path = logs_dir
-TMP_DIR: Path = tmp_dir
+appdata_dir: Path = APPDATA_DIR / APP_NAME
+LOGS_DIR: Path = appdata_dir / 'logs'
+TMP_DIR: Path = appdata_dir / 'tmp'
+TEMP_DIR: Path = TMP_DIR
+logs_dir: Path = LOGS_DIR
+tmp_dir: Path = TMP_DIR
 
-# Автоматическое создание служебных каталогов
-for _dir in (data_dir, logs_dir, tmp_dir):
-    try:
-        _dir.mkdir(parents=True, exist_ok=True)
-    except Exception as _e:
-        logger.warning(f"Не удалось создать служебный каталог {_dir}: {_e}")
+
+def get_app_paths() -> dict[str, Path]:
+    """Возвращает словарь основных системных путей приложения.
+
+    Returns:
+        dict[str, Path]: Словарь с путями working_dir, data_dir, logs_dir, tmp_dir.
+    """
+    return {
+        'working_dir': WORKING_DIR,
+        'data_dir': DATA_DIR,
+        'logs_dir': LOGS_DIR,
+        'tmp_dir': TMP_DIR,
+    }
+
+
+def ensure_app_dirs() -> None:
+    """Создает основные рабочие директории (data, logs, tmp) при их отсутствии."""
+    for directory in (DATA_DIR, LOGS_DIR, TMP_DIR):
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+        except Exception as exc:
+            logger.warning(f'Не удалось создать директорию {directory}: {exc}')
+
+
+# Гарантируем создание необходимых системных папок
+ensure_app_dirs()
 
 server_cfg = getattr(global_settings, 'server', SimpleNamespace())
 
@@ -106,27 +136,16 @@ storage_cfg = getattr(global_settings, 'storage', SimpleNamespace())
 
 # Устанавливаем значение по умолчанию, если users_dir не задан
 if not getattr(storage_cfg, 'users_dir', None):
-    storage_cfg.users_dir = str(data_dir / 'users')
+    storage_cfg.users_dir = str(DATA_DIR / 'users')
+
 raw_dir = getattr(storage_cfg, 'users_dir', None)
 if isinstance(raw_dir, str):
     if '%APPDATA%' in raw_dir:
-        appdata_path = os.getenv('APPDATA')
-        if not appdata_path:
-            raise RuntimeError('Переменная окружения APPDATA не установлена')
-        resolved_dir = raw_dir.replace('%APPDATA%', appdata_path)
-        storage_cfg.users_dir = resolved_dir
-        logger.info(f'Resolved users_dir to {resolved_dir}')
-    elif '%LOCALAPPDATA%' in raw_dir:
-        localappdata_path = os.getenv('LOCALAPPDATA')
-        if not localappdata_path:
-            raise RuntimeError('Переменная окружения LOCALAPPDATA не установлена')
-        resolved_dir = raw_dir.replace('%LOCALAPPDATA%', localappdata_path)
-        storage_cfg.users_dir = resolved_dir
-        logger.info(f'Resolved users_dir to {resolved_dir}')
-
-    if not getattr(storage_cfg, 'users_dir', None):
-        storage_cfg.users_dir = str(data_dir / 'users')
-        logger.info(f'Default users_dir set to {storage_cfg.users_dir}')
+        raw_dir = raw_dir.replace('%APPDATA%', str(APPDATA_DIR))
+    if '%LOCALAPPDATA%' in raw_dir:
+        raw_dir = raw_dir.replace('%LOCALAPPDATA%', str(LOCALAPPDATA_DIR))
+    storage_cfg.users_dir = raw_dir
+    logger.info(f'Директория пользователей (users_dir) установлена: {raw_dir}')
 
 plugins_cfg = getattr(global_settings, 'plugins', SimpleNamespace())
 schedulers_cfg = getattr(global_settings, 'schedulers', getattr(global_settings, 'scheduler', SimpleNamespace()))
@@ -177,7 +196,6 @@ def is_provider_enabled(provider_name: str) -> bool:
             enabled = getattr(prov_obj, 'enabled', None) if not isinstance(prov_obj, dict) else prov_obj.get('enabled')
             if enabled is not None:
                 return bool(enabled)
-    # По умолчанию встроенные облачные клиенты включены, если не отключены явно
     if prov in ('gemini', 'gemini_cli', 'agy'):
         return True
     return False
@@ -216,4 +234,3 @@ def is_debug_mode() -> bool:
 
 from src.utils.ports import load_ports_config, PORTS_FILE
 ports_cfg = load_ports_config(PORTS_FILE)
-

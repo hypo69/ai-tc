@@ -17,7 +17,7 @@
 # Package: apps.windows.sdk.modules.taskbar
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 18:05:00
+# Updated: 2026-11-01 14:22:00
 # =============================================================================
 
 from __future__ import annotations
@@ -44,6 +44,8 @@ from apps.windows.sdk.modules.taskbar.core.models import (
     TaskbarSettings,
     TaskbarSettingsUpdate,
     TaskbarSummaryReport,
+    UcpdStatusResponse,
+    UcpdToggleRequest,
     WindowBatchActionRequest,
     WindowItem,
     WindowMoveRequest,
@@ -165,6 +167,24 @@ async def get_taskbar_settings() -> TaskbarSettings:
 async def update_taskbar_settings(payload: TaskbarSettingsUpdate) -> Dict[str, Any]:
     """Обновление настроек панели задач с записью истории в telemetry.db."""
     return await asyncio.to_thread(_controller.update_settings, payload)
+
+
+@router.get("/ucpd", response_model=UcpdStatusResponse)
+async def get_ucpd_driver_status() -> Dict[str, Any]:
+    """Получение текущего статуса драйвера защиты User Choice Protection Driver (UCPD)."""
+    return await asyncio.to_thread(_controller.get_ucpd_status)
+
+
+@router.post("/ucpd")
+async def set_ucpd_driver_state(payload: UcpdToggleRequest) -> Dict[str, Any]:
+    """Включение или отключение системного драйвера защиты UCPD (требует прав администратора)."""
+    res = await asyncio.to_thread(_controller.set_ucpd_state, payload.enabled)
+    if res.get("status") != "SUCCESS":
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=res.get("message", "Не удалось изменить состояние драйвера UCPD"),
+        )
+    return res
 
 
 # --- Окна ---

@@ -11,7 +11,7 @@
  * Package: apps/windows/api/webgui/tab_theme_editor/panel_presets
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 20:05:00
+ * Updated: 2026-11-01 16:22:00
  * =============================================================================
  */
 
@@ -215,6 +215,40 @@ export const PRESETS = {
       warning: '#b43418',
       danger: '#9e2b17',
       info: '#184674',
+      panelHeaderText: '#1d4ed8',
+      panelHeaderBg: '#eee8dd',
+    }
+  },
+  'nightview-70': {
+    name: 'Night View 70% (Теплая бумага 70%)',
+    fontSize: 11,
+    borderRadius: 6,
+    density: 'compact',
+    kpiHeight: 50,
+    fontFamily: 'system',
+    shadowStyle: 'soft',
+    glassmorphism: false,
+    crtScanlines: false,
+    panelHeaderFontSize: 20,
+    tabHeaderFontSize: 15,
+    colors: {
+      bgBase: '#ede6d9',
+      bgSurface: '#f6f1e8',
+      bgElevated: '#e2dac9',
+      bgNav: '#f6f1e8',
+      tableRowBg: '#f6f1e8',
+      textPrimary: '#18181b',
+      textMuted: '#3f3f46',
+      accent: '#1d4ed8',
+      accentHover: '#1e40af',
+      border: '#cfc5b4',
+      borderStrong: '#9ca3af',
+      success: '#185223',
+      warning: '#b43418',
+      danger: '#9e2b17',
+      info: '#184674',
+      panelHeaderText: '#1d4ed8',
+      panelHeaderBg: '#eee8dd',
     }
   },
   'brick': {

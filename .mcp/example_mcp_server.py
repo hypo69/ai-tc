@@ -20,7 +20,7 @@
 #     info_json = get_project_info()
 #
 # File: example_mcp_server.py
-# Project: AI Windows Admin (AI-TC)
+# Project: AI Windows Admin (ai-tc)
 # Package: .mcp
 # Author: hypo69
 # Copyright: © 2026 hypo69
@@ -89,7 +89,7 @@ def get_project_info() -> str:
         config = load_config()
         info = {
             "project_root": str(root),
-            "app_name": config.get("app_name", "AI-TC"),
+            "app_name": config.get("app_name", "ai-tc"),
             "platform": sys.platform,
             "python_version": sys.version,
             "config_exists": (root / "config.json").exists(),

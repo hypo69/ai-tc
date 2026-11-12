@@ -16,7 +16,7 @@
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 16:20:00
+# Updated: 2026-11-03 16:25:00
 # =============================================================================
 
 """Mixin class for centralized error handling in GoogleGenerativeAI."""
@@ -172,6 +172,7 @@ class GoogleGenerativeAIErrorMixin:
         """
         self._record_error(ex)
         ex_str: str = str(ex)
+        low: str = ex_str.lower()
         err_json: str = format_error_as_json(
             ex=ex,
             model=active_model,
@@ -192,23 +193,65 @@ class GoogleGenerativeAIErrorMixin:
             record_model_error(provider='gemini', model_name=active_model, error=ex_str, status_code=404, attempt=attempt, max_attempts=max_attempts, action_taken='switch_model')
             add_unsupported_model(active_model, reason=ex_str)
             return self._switch_model()
-        if '503' in ex_str or 'UNAVAILABLE' in ex_str or 'high demand' in ex_str.lower():
-            mark_model_exhausted('gemini', active_model)
+        # 1. Перегрузка модели на стороне серверов Google (503 / Overloaded / High demand)
+        # ВАЖНО: Ключ API в данном случае полностью рабочий и НЕ должен маркироваться как exhausted!
+        is_overloaded = (
+            '503' in ex_str
+            or 'unavailable' in low
+            or 'overload' in low
+            or 'overloaded' in low
+            or 'high demand' in low
+            or 'service unavailable' in low
+            or 'model is overloaded' in low
+            or 'temporarily unavailable' in low
+        )
+        if is_overloaded:
             self._unavailable_attempts += 1
-            if self._unavailable_attempts <= 3:
-                wait: int = 2 ** min(self._unavailable_attempts, 5)
-                logger.warning(f'GoogleGenerativeAI: 503 UNAVAILABLE ({active_model}). High demand / service load (attempt {attempt + 1}/{max_attempts}). Waiting {wait}s...', exc_info=False)
-                record_model_error(provider='gemini', model_name=active_model, error=ex_str, status_code=503, attempt=attempt, max_attempts=max_attempts, action_taken='retry', retry_delay_seconds=float(wait))
-                await asyncio.sleep(wait)
+            record_model_error(
+                provider='gemini',
+                model_name=active_model,
+                error=ex_str,
+                status_code=503,
+                attempt=attempt,
+                max_attempts=max_attempts,
+                action_taken='retry' if self._unavailable_attempts <= 2 else 'switch_model',
+            )
+            if self._unavailable_attempts <= 2:
+                wait_sec = 2 ** min(self._unavailable_attempts, 4)
+                logger.warning(
+                    f'GoogleGenerativeAI: Модель {active_model} перегружена (Overloaded/503). '
+                    f'Ключ активен. Ожидание {wait_sec}с (попытка {attempt + 1}/{max_attempts})...',
+                    exc_info=False
+                )
+                await asyncio.sleep(wait_sec)
                 return True
-            else:
-                logger.warning(f'GoogleGenerativeAI: Model {active_model} is experiencing persistent high demand after {self._unavailable_attempts} attempts. Retries exhausted.', exc_info=False)
-                record_model_error(provider='gemini', model_name=active_model, error=ex_str, status_code=503, attempt=attempt, max_attempts=max_attempts, action_taken='failed')
+
+            logger.warning(
+                f'GoogleGenerativeAI: Модель {active_model} устойчиво перегружена. '
+                f'Переключаемся на резервную модель из пула...',
+                exc_info=False
+            )
+            mark_model_exhausted('gemini', active_model)
+            if hasattr(self, '_switch_model') and self._switch_model():
                 self._unavailable_attempts = 0
-                return False
-        if '429' in ex_str or 'RESOURCE_EXHAUSTED' in ex_str:
-            # Простая логика ротации ключей при ошибке 429
-            logger.warning(f'GoogleGenerativeAI: Ошибка 429 (RESOURCE_EXHAUSTED). Маркируем ключ как exhausted и переключаемся...')
+                return True
+
+            self._unavailable_attempts = 0
+            return False
+
+        # 4. Ошибка 429 / RESOURCE_EXHAUSTED
+        if '429' in ex_str or 'resource_exhausted' in low:
+            is_rpm_limit = any(k in low for k in ['per_minute', 'per minute', 'rate limit', 'rpm', 'tpm', 'too many requests'])
+            if is_rpm_limit:
+                logger.warning('GoogleGenerativeAI: Превышен минутный лимит запросов (RPM/Rate Limit). Мягкая ротация ключа без блокировки 24ч...')
+                record_model_error(provider='gemini', model_name=active_model, error=ex_str, status_code=429, attempt=attempt, max_attempts=max_attempts, action_taken='rotate_key_soft')
+                if hasattr(self, '_rotate_api_key_soft') and self._rotate_api_key_soft():
+                    return True
+                wait_sec = 4.0 + (attempt * 2)
+                await asyncio.sleep(wait_sec)
+                return True
+
+            logger.warning('GoogleGenerativeAI: Ошибка 429 (Суточная квота ключа исчерпана). Маркируем ключ как exhausted и переключаемся...')
             record_model_error(provider='gemini', model_name=active_model, error=ex_str, status_code=429, attempt=attempt, max_attempts=max_attempts, action_taken='rotate_key')
             self._mark_key_exhausted(self.api_key)
             if self._switch_api_key():

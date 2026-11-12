@@ -16,7 +16,7 @@
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:15:00
+# Updated: 2026-11-11 23:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -26,7 +26,11 @@ import os
 from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
-from apps.windows.db.paths import resolve_system_knowledge_db_path, get_dynamic_path_config
+from apps.windows.db.paths import (
+    resolve_system_knowledge_db_path,
+    get_dynamic_path_config,
+    migrate_system_knowledge_db,
+)
 from apps.windows.wikillm.storage import WikiStorage
 
 
@@ -44,6 +48,7 @@ def test_app_internals_html_menu_structure():
     assert 'data-panel-id="telemetry"' in html_content
     assert 'data-panel-id="models"' in html_content
     assert 'data-panel-id="logs"' in html_content
+    assert 'data-panel-id="activity"' in html_content
     assert 'data-panel-id="etw"' in html_content
     assert 'data-panel-id="settings"' in html_content
     assert 'data-panel-id="wikillm-system"' in html_content
@@ -77,6 +82,8 @@ def test_locales_contain_internals_keys():
             data = json.load(f)
         assert "internals" in data, f"Раздел 'internals' отсутствует в {lang}.json"
         internals = data["internals"]
+        assert "subtabActivityLabel" in internals
+        assert "subtabActivityTitle" in internals
         assert "subtabSystemKnowledgeLabel" in internals
         assert "subtabSystemKnowledgeTitle" in internals
         assert "subtabInstrumentsLabel" in internals
@@ -140,21 +147,23 @@ def test_sqlite_db_check_adapter():
 
 
 def test_resolve_system_knowledge_db_path_dynamic():
-    """Проверяет динамическое раскрытие пути %ProgramData%/{app_name}/windows/knowledge.db."""
+    """Проверяет динамическое раскрытие пути %ProgramData%/{app_name}/apps/windows/knowledge.db."""
     dyn_cfg = get_dynamic_path_config()
     assert "programdata" in dyn_cfg
     assert dyn_cfg["app_name"] == "ai-tc"
 
-    # Проверка нормального пути
-    p = resolve_system_knowledge_db_path("%ProgramData%/{app_name}/windows/knowledge.db")
+    # Проверка нормального пути в apps/windows
+    p = resolve_system_knowledge_db_path("%ProgramData%/{app_name}/apps/windows/knowledge.db")
     assert "windows" in str(p)
+    assert "apps" in str(p)
     assert ("knowledge.db" in str(p) or "knowelege.db" in str(p))
 
-    # Проверка пути с опечаткой knowelege.db (как указал пользователь в запросе)
-    p_typo = resolve_system_knowledge_db_path("%Programdata%\\ai-tc\\windows\\knowelege.db")
-    assert "windows" in str(p_typo)
+    # Проверка миграции и чтения из конфигурации
+    res_mig = migrate_system_knowledge_db()
+    assert "ok" in res_mig
+    assert res_mig["ok"] is True
 
-    # Проверка работы WikiStorage с динамическим путем
+    # Проверка работы WikiStorage с путем из конфигурации
     storage = WikiStorage()
     assert storage.db_path.exists()
     assert storage.ping() is True

@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 20:05:00
+ * Updated: 2026-11-12 01:25:00
  * =============================================================================
  */
 
@@ -348,54 +348,48 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   МОДАЛЬНЫЕ ОКНА
-   Централизованный стандарт: ВСЕ модальные окна WebGUI имеют габариты 90% экрана
-   Ширина: var(--modal-width, 90vw); Высота: var(--modal-height, 90vh);
+   МОДАЛЬНЫЕ ОКНА (Стандарт геометрии 90vw × 90vh согласно WEBGUI.md § 5.4)
    ═══════════════════════════════════════════════════════════════════════════ */
 .modal .modal-dialog {
-  --bs-modal-width: var(--modal-width, 90vw) !important;
-  width: var(--modal-width, 90vw) !important;
-  max-width: var(--modal-width, 90vw) !important;
-  height: var(--modal-height, 90vh) !important;
-  max-height: var(--modal-height, 90vh) !important;
-  min-height: var(--modal-height, 90vh) !important;
-  margin: calc((100vh - var(--modal-height, 90vh)) / 2) auto !important;
-  display: flex !important;
-  flex-direction: column !important;
+  --bs-modal-width: var(--modal-size-w, var(--modal-width, 90vw));
+  width: var(--modal-size-w, var(--modal-width, 90vw));
+  max-width: var(--modal-size-w, var(--modal-width, 90vw));
+  height: var(--modal-size-h, var(--modal-height, 90vh));
+  max-height: var(--modal-size-h, var(--modal-height, 90vh));
+  min-height: var(--modal-size-h, var(--modal-height, 90vh));
+  margin: 5vh auto;
+  display: flex;
+  align-items: center;
 }
 
-.modal .modal-dialog .modal-content {
-  width: 100% !important;
-  height: 100% !important;
-  max-height: 100% !important;
-  min-height: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
+.modal .modal-content {
+  width: 100%;
+  height: 100%;
+  max-height: var(--modal-size-h, var(--modal-height, 90vh));
+  min-height: var(--modal-size-h, var(--modal-height, 90vh));
   background-color: var(--modal-bg);
   border: 1px solid var(--modal-border);
   color: var(--modal-text);
   border-radius: var(--radius-md, 8px);
   box-shadow: var(--shadow-lg);
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-header {
   border-bottom: 1px solid var(--border-color);
   padding: 0.6rem 0.9rem;
   background-color: var(--surface-2);
-  border-radius: var(--radius-md, 8px) var(--radius-md, 8px) 0 0;
-  flex-shrink: 0;
+  border-radius: 8px 8px 0 0;
 }
 
 .modal-title {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
 .modal-body {
-  flex: 1 1 auto;
-  overflow-y: auto;
-  padding: 0.85rem 1rem;
+  padding: 0.75rem 0.9rem;
   font-size: 0.85rem;
 }
 
@@ -403,18 +397,13 @@
   border-top: 1px solid var(--border-color);
   padding: 0.5rem 0.9rem;
   background-color: var(--surface-2);
-  border-radius: 0 0 var(--radius-md, 8px) var(--radius-md, 8px);
-  flex-shrink: 0;
+  border-radius: 0 0 8px 8px;
 }
 
 /* Модальное окно помощи */
-.modal-help .modal-dialog {
-  --bs-modal-width: var(--modal-width, 90vw) !important;
-  width: var(--modal-width, 90vw) !important;
-  max-width: var(--modal-width, 90vw) !important;
-}
+.modal-help .modal-dialog { max-width: 600px; }
 .modal-help .modal-content {
-  border-radius: var(--radius-md, 8px);
+  border-radius: 8px;
   background: var(--modal-bg);
   color: var(--modal-text);
   border: 1px solid var(--modal-border);
@@ -431,9 +420,8 @@
 
 /* ── Модальное окно настроек системы и окружения (#aboutRegionalSettingsModal) ── */
 #aboutRegionalSettingsModal .modal-dialog {
-  --bs-modal-width: var(--modal-width, 90vw) !important;
-  width: var(--modal-width, 90vw) !important;
-  max-width: var(--modal-width, 90vw) !important;
+  max-width: min(1200px, 94vw);
+  width: 94vw;
 }
 
 #aboutRegionalSettingsModal .modal-content {
@@ -441,6 +429,7 @@
   color: var(--text-color);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md, 8px);
+  min-height: 640px;
 }
 
 #aboutRegionalSettingsModal .modal-header {
@@ -457,6 +446,7 @@
 
 #aboutRegionalSettingsModal .modal-body {
   flex: 1 1 auto;
+  min-height: 520px;
   display: flex;
   flex-direction: column;
 }
@@ -533,122 +523,20 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    ТАБЛИЦЫ
    ═══════════════════════════════════════════════════════════════════════════ */
-.table,
-.table-dark {
-  --bs-table-color: var(--table-color, var(--text-color));
-  --bs-table-bg: var(--table-row-bg, var(--table-bg, var(--surface-1)));
-  --bs-table-border-color: var(--table-border-color, var(--border-color));
-  --bs-table-hover-bg: var(--table-hover-bg, var(--nav-hover-bg));
-  --bs-table-hover-color: var(--table-color, var(--text-color));
+.table {
+  --bs-table-color: var(--text-color);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--border-color);
+  --bs-table-hover-bg: var(--nav-hover-bg);
+  --bs-table-hover-color: var(--text-color);
   font-size: 0.82rem;
-  background-color: var(--table-row-bg, var(--table-bg, var(--surface-1))) !important;
-  color: var(--table-color, var(--text-color));
 }
 
 .table th,
-.table-dark th {
+.table td {
   padding: 0.4rem 0.6rem;
   vertical-align: middle;
-  background-color: var(--table-header-bg, var(--surface-2)) !important;
-  color: var(--table-header-color, var(--text-muted, var(--text-color)));
-  border-color: var(--table-border-color, var(--border-color));
-  text-align: start !important;
-}
-
-.table td,
-.table-dark td,
-.table tr,
-.table-dark tr,
-.table > tbody > tr > td,
-.table > tbody > tr > th,
-.table-dark > tbody > tr > td,
-.table-dark > tbody > tr > th {
-  padding: 0.4rem 0.6rem;
-  vertical-align: middle;
-  background-color: var(--table-row-bg, var(--table-bg, var(--surface-1))) !important;
-  color: var(--table-color, var(--text-color)) !important;
-  border-color: var(--table-border-color, var(--border-color));
-  text-align: start !important;
-}
-
-/* Выравнивание по левому краю в языках LTR и по правому краю в языках RTL для всех таблиц */
-table th,
-table td:not([colspan]),
-table td[colspan="1"],
-.table th,
-.table td:not([colspan]),
-.table td[colspan="1"],
-.table-dark th,
-.table-dark td:not([colspan]),
-.table-dark td[colspan="1"],
-.slc-table th,
-.slc-table td:not([colspan]),
-.slc-table td[colspan="1"],
-.ui-table th,
-.ui-table td:not([colspan]),
-.ui-table td[colspan="1"],
-.sys-table th,
-.sys-table td:not([colspan]),
-.sys-table td[colspan="1"],
-.ui-spec-table th,
-.ui-spec-table td:not([colspan]),
-.ui-spec-table td[colspan="1"] {
-  text-align: start !important;
-}
-
-[dir="rtl"] table th,
-[dir="rtl"] table td:not([colspan]),
-[dir="rtl"] table td[colspan="1"],
-[dir="rtl"] .table th,
-[dir="rtl"] .table td:not([colspan]),
-[dir="rtl"] .table td[colspan="1"],
-[dir="rtl"] .table-dark th,
-[dir="rtl"] .table-dark td:not([colspan]),
-[dir="rtl"] .table-dark td[colspan="1"],
-[dir="rtl"] .slc-table th,
-[dir="rtl"] .slc-table td:not([colspan]),
-[dir="rtl"] .slc-table td[colspan="1"],
-[dir="rtl"] .ui-table th,
-[dir="rtl"] .ui-table td:not([colspan]),
-[dir="rtl"] .ui-table td[colspan="1"],
-[dir="rtl"] .sys-table th,
-[dir="rtl"] .sys-table td:not([colspan]),
-[dir="rtl"] .sys-table td[colspan="1"],
-[dir="rtl"] .ui-spec-table th,
-[dir="rtl"] .ui-spec-table td:not([colspan]),
-[dir="rtl"] .ui-spec-table td[colspan="1"] {
-  text-align: right !important;
-}
-
-[dir="ltr"] table th,
-[dir="ltr"] table td:not([colspan]),
-[dir="ltr"] table td[colspan="1"],
-[dir="ltr"] .table th,
-[dir="ltr"] .table td:not([colspan]),
-[dir="ltr"] .table td[colspan="1"],
-[dir="ltr"] .table-dark th,
-[dir="ltr"] .table-dark td:not([colspan]),
-[dir="ltr"] .table-dark td[colspan="1"],
-[dir="ltr"] .slc-table th,
-[dir="ltr"] .slc-table td:not([colspan]),
-[dir="ltr"] .slc-table td[colspan="1"],
-[dir="ltr"] .ui-table th,
-[dir="ltr"] .ui-table td:not([colspan]),
-[dir="ltr"] .ui-table td[colspan="1"],
-[dir="ltr"] .sys-table th,
-[dir="ltr"] .sys-table td:not([colspan]),
-[dir="ltr"] .sys-table td[colspan="1"],
-[dir="ltr"] .ui-spec-table th,
-[dir="ltr"] .ui-spec-table td:not([colspan]),
-[dir="ltr"] .ui-spec-table td[colspan="1"] {
-  text-align: left !important;
-}
-
-/* Центрирование полноширинных строк загрузки и пустых состояний */
-table td.text-center[colspan]:not([colspan="1"]),
-.table td.text-center[colspan]:not([colspan="1"]),
-.slc-table td.text-center[colspan]:not([colspan="1"]) {
-  text-align: center !important;
+  color: var(--text-color);
 }
 
 .table-hover tbody tr:hover,
@@ -831,7 +719,7 @@ table td.text-center[colspan]:not([colspan="1"]),
    БЕЙДЖИ
    ═══════════════════════════════════════════════════════════════════════════ */
 .badge {
-  font-size: var(--badge-font-size, calc(0.75rem + 1pt));
+  font-size: var(--badge-font-size, 0.72rem);
   font-weight: 500;
   padding: 0.22em 0.5em;
   letter-spacing: 0.02em;
@@ -859,66 +747,19 @@ table td.text-center[colspan]:not([colspan="1"]),
 .badge-success,
 .badge-dark,
 .film-inline-badge {
-  color: var(--text-silver, #e2e8f0) !important;
+  color: #ffffff !important;
 }
 
 .badge.bg-warning,
-.badge.badge-warning,
-.badge.bg-warning-subtle,
-.badge.text-bg-warning {
-  color: var(--badge-warning-text, var(--status-warning-text, #f59e0b)) !important;
-  background-color: var(--badge-warning-bg, var(--status-warning-bg, rgba(245, 158, 11, 0.15))) !important;
-  border: 1px solid var(--badge-warning-border, var(--status-warning-border, rgba(245, 158, 11, 0.3))) !important;
-  font-weight: 600;
-}
-
-.badge.bg-info-subtle {
-  color: var(--badge-info-text, var(--status-info-text, #38bdf8)) !important;
-  background-color: var(--badge-info-bg, var(--status-info-bg, rgba(56, 189, 248, 0.15))) !important;
-  border: 1px solid var(--badge-info-border, var(--status-info-border, rgba(56, 189, 248, 0.3))) !important;
+.badge.badge-warning {
+  color: #1a1a1a !important;
   font-weight: 600;
 }
 
 .badge.bg-info,
-.badge.badge-info,
-.badge.text-bg-info {
-  color: var(--badge-info-solid-text, var(--text-silver, #e2e8f0)) !important;
-  background-color: var(--badge-info-solid-bg, var(--bs-info, #0284c7)) !important;
-  border: 1px solid var(--badge-info-solid-border, rgba(226, 232, 240, 0.25)) !important;
+.badge.badge-info {
+  color: #042743 !important;
   font-weight: 600;
-}
-
-/* Стандартные статусные токены текста и кнопок (без хардкода) */
-.text-warning {
-  color: var(--ui-warning, var(--bs-warning, #f59e0b)) !important;
-}
-
-.text-info {
-  color: var(--ui-info, var(--bs-info, #38bdf8)) !important;
-}
-
-.text-success {
-  color: var(--ui-success, var(--bs-success, #10b981)) !important;
-}
-
-.text-danger {
-  color: var(--ui-danger, var(--bs-danger, #ef4444)) !important;
-}
-
-.text-primary {
-  color: var(--ui-accent, var(--bs-primary, #38bdf8)) !important;
-}
-
-.btn-warning {
-  background-color: var(--badge-warning-bg, var(--status-warning-bg)) !important;
-  color: var(--badge-warning-text, var(--status-warning-text)) !important;
-  border-color: var(--badge-warning-border, var(--status-warning-border)) !important;
-}
-
-.btn-outline-warning {
-  color: var(--ui-warning, var(--bs-warning)) !important;
-  border-color: var(--badge-warning-border, var(--status-warning-border)) !important;
-  background-color: transparent !important;
 }
 
 /* Бейджи модели/поиска в навбаре */
@@ -1487,15 +1328,6 @@ h3.panel-header,
   margin: 0;
 }
 
-.ui-panel-header h6,
-.ui-panel-header.ui-panel-header-sm,
-[data-panel-id="panel-about-hardware-spec"] .ui-panel-header,
-[data-panel-id="panel-about-user-security"] .ui-panel-header {
-  font-size: var(--panel-header-font-size-sm, 1rem);
-  font-weight: 600;
-  line-height: 1.35;
-}
-
 /* ── 4.13. Заголовки страниц и вкладок (.tab-header) ───────────────────────── */
 .tab-header,
 .ui-tab-header {
@@ -1599,7 +1431,7 @@ h3.panel-header,
 
 /* ── 5. Унифицированные статусные бейджи ──────────────────────────────────── */
 .ui-badge {
-  font-size: var(--badge-font-size, calc(0.75rem + 1pt));
+  font-size: var(--badge-font-size, 0.72rem);
   font-weight: 600;
   padding: 0.2rem 0.55rem;
   border-radius: var(--radius-xs, 4px);
@@ -1685,15 +1517,6 @@ h3.panel-header,
   vertical-align: middle;
   line-height: 1.45;
   color: var(--text-color, #f8fafc);
-  background-color: var(--table-row-bg, var(--surface-1)) !important;
-}
-
-.ui-spec-table tr,
-.about-sys-spec-table tr,
-.sysctl-spec-table tr,
-.def-spec-table tr,
-.winadmin-spec-table tr {
-  background-color: var(--table-row-bg, var(--surface-1)) !important;
 }
 
 .ui-spec-table tr:hover td,
@@ -1761,30 +1584,6 @@ h3.panel-header,
   vertical-align: middle;
   word-break: break-word;
 }
-
-.ui-spec-table .ui-spec-val .d-flex,
-.about-sys-spec-table .about-sys-spec-val .d-flex {
-  gap: 0.75rem !important;
-}
-
-.ui-spec-table .ui-spec-val span + span,
-.about-sys-spec-table .about-sys-spec-val span + span {
-  margin-left: 0.45rem;
-}
-
-.ui-spec-table .ui-spec-val .ui-badge,
-.about-sys-spec-table .about-sys-spec-val .ui-badge {
-  margin-left: 0.2rem;
-  margin-right: 0.35rem;
-}
-
-.ui-spec-table .ui-spec-val .spec-pipe,
-.about-sys-spec-table .about-sys-spec-val .spec-pipe {
-  margin: 0 0.45rem;
-  opacity: 0.45;
-  display: inline-block;
-}
-
 
 /* ── 7. Контекстные каскадные темы (Тематические переопределения) ──────────── */
 .theme-defender {
@@ -1881,7 +1680,6 @@ h3.panel-header,
 }
 
 .about-sys-panel,
-.diag-panel,
 .def-panel,
 .sysctl-panel,
 .winadmin-panel,
@@ -2004,11 +1802,10 @@ h3.panel-header,
   line-height: 1;
 }
 
-/* ── 10. Кнопка-иконка сворачивания/разворачивания таблиц и деталей (Красная дрель) ─── */
+/* ── 10. Кнопка-иконка сворачивания/разворачивания и Drill-Down (Красная дрель) ─── */
 .panel-toggle-drill,
-.sys-drill-btn,
 .btn-drilldown-proc,
-.ue-btn-window-drill {
+.sys-drill-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2019,86 +1816,37 @@ h3.panel-header,
   cursor: pointer;
   line-height: 1;
   vertical-align: middle;
-  transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, opacity 0.15s ease;
   border-radius: 4px;
 }
 
 .panel-toggle-drill:hover,
-.sys-drill-btn:hover,
 .btn-drilldown-proc:hover,
-.ue-btn-window-drill:hover {
-  opacity: 0.9;
+.sys-drill-btn:hover {
+  opacity: 0.85;
   transform: scale(1.15);
 }
 
 .panel-toggle-drill:active,
-.sys-drill-btn:active,
 .btn-drilldown-proc:active,
-.ue-btn-window-drill:active {
+.sys-drill-btn:active {
   transform: scale(0.92);
 }
 
 .panel-toggle-drill img,
-.sys-drill-btn img,
 .btn-drilldown-proc img,
-.ue-btn-window-drill img {
-  width: 20px;
-  height: 20px;
+.sys-drill-btn img {
+  width: 18px;
+  height: 18px;
+  max-width: 18px;
+  max-height: 18px;
   object-fit: contain;
   display: block;
   pointer-events: none;
-  border-radius: 4px;
 }
 
 .panel-toggle-drill.collapsed img {
   opacity: 0.7;
-}
-
-/* В тёмных темах иконка красной дрели должна быть на светлом фоне для максимального контраста */
-:root[data-bs-theme="dark"] .panel-toggle-drill img,
-:root[data-bs-theme="dark"] .sys-drill-btn img,
-:root[data-bs-theme="dark"] .btn-drilldown-proc img,
-:root[data-bs-theme="dark"] .ue-btn-window-drill img,
-:root[data-bs-theme="dark"] img[src*="red_drill"],
-[data-theme="dark"] .panel-toggle-drill img,
-[data-theme="dark"] .sys-drill-btn img,
-[data-theme="dark"] .btn-drilldown-proc img,
-[data-theme="dark"] .ue-btn-window-drill img,
-[data-theme="dark"] img[src*="red_drill"],
-[data-theme="theme-dark-slate"] .panel-toggle-drill img,
-[data-theme="theme-dark-slate"] .sys-drill-btn img,
-[data-theme="theme-dark-slate"] .btn-drilldown-proc img,
-[data-theme="theme-dark-slate"] .ue-btn-window-drill img,
-[data-theme="theme-dark-slate"] img[src*="red_drill"],
-[data-theme="terminal"] .panel-toggle-drill img,
-[data-theme="terminal"] .sys-drill-btn img,
-[data-theme="terminal"] .btn-drilldown-proc img,
-[data-theme="terminal"] .ue-btn-window-drill img,
-[data-theme="terminal"] img[src*="red_drill"],
-[data-theme="theme-cyberpunk"] .panel-toggle-drill img,
-[data-theme="theme-cyberpunk"] .sys-drill-btn img,
-[data-theme="theme-cyberpunk"] .btn-drilldown-proc img,
-[data-theme="theme-cyberpunk"] .ue-btn-window-drill img,
-[data-theme="theme-cyberpunk"] img[src*="red_drill"],
-[data-theme="solarized-dark"] .panel-toggle-drill img,
-[data-theme="solarized-dark"] .sys-drill-btn img,
-[data-theme="solarized-dark"] .btn-drilldown-proc img,
-[data-theme="solarized-dark"] .ue-btn-window-drill img,
-[data-theme="solarized-dark"] img[src*="red_drill"],
-[data-theme="nordic-frost"] .panel-toggle-drill img,
-[data-theme="nordic-frost"] .sys-drill-btn img,
-[data-theme="nordic-frost"] .btn-drilldown-proc img,
-[data-theme="nordic-frost"] .ue-btn-window-drill img,
-[data-theme="nordic-frost"] img[src*="red_drill"],
-[data-theme="theme-high-contrast"] .panel-toggle-drill img,
-[data-theme="theme-high-contrast"] .sys-drill-btn img,
-[data-theme="theme-high-contrast"] .btn-drilldown-proc img,
-[data-theme="theme-high-contrast"] .ue-btn-window-drill img,
-[data-theme="theme-high-contrast"] img[src*="red_drill"] {
-  background-color: #f8fafc !important;
-  padding: 2px !important;
-  border-radius: 4px !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -2267,4 +2015,201 @@ h3.panel-header,
   color: var(--ui-bg-base, #0b0f19);
 }
 
+.cursor-pointer {
+  cursor: pointer !important;
+}
 
+.max-h-180 {
+  max-height: 180px !important;
+}
+
+.max-h-220 {
+  max-height: 220px !important;
+}
+
+.max-w-1600 {
+  max-width: 1600px !important;
+}
+
+.progress-h-4 {
+  height: 4px !important;
+}
+
+.icon-xs {
+  font-size: 0.5rem !important;
+}
+
+.sticky-preview-card {
+  top: 1rem !important;
+  z-index: 10 !important;
+}
+.object-fit-cover {
+  object-fit: cover !important;
+}
+
+.avatar-48 {
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+}
+
+.fs-xs {
+  font-size: 0.75rem !important;
+}
+
+.text-pre-wrap {
+  white-space: pre-wrap !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   КУРСОР НАЖИМАЮЩЕГО ПАЛЬЦА (CURSOR: POINTER) ДЛЯ ТАБЛИЦ И КОМПОНЕНТОВ
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. Таблицы: строки, ячейки и заголовки сортировки */
+table tbody tr,
+.table tbody tr,
+.ui-table tbody tr,
+.sys-proc-table tbody tr,
+.slc-table tbody tr,
+.ui-spec-table tbody tr,
+.about-sys-spec-table tbody tr,
+.sysctl-spec-table tbody tr,
+.def-spec-table tbody tr,
+.winadmin-spec-table tbody tr,
+.winadmin-table tbody tr,
+.net-table tbody tr,
+.pwr-table tbody tr,
+.reg-table tbody tr,
+.sw-audit-table tbody tr,
+.hw-table tbody tr,
+.bm-table tbody tr,
+.apl-table tbody tr,
+.sa-table tbody tr,
+.gdesktop-table tbody tr,
+.wb-table tbody tr,
+.spec-table-unified tbody tr,
+.interactive-table-row,
+.interactive-row,
+.table-hover tbody tr {
+  cursor: pointer;
+}
+
+/* Информационные строки-заглушки и индикаторы загрузки без перехода */
+table tbody tr.non-clickable,
+table tbody tr:has(td[colspan]:only-child),
+.table tbody tr:has(td[colspan]:only-child),
+table tbody tr:has(.spinner-border) {
+  cursor: default;
+}
+
+/* Кликабельные ячейки, действия и элементы внутри таблиц */
+table td[onclick],
+table th[onclick],
+table td[data-action],
+table th[data-action],
+table td[data-bs-toggle],
+table th[data-bs-toggle],
+table td[role="button"],
+table th[role="button"],
+table th.sortable,
+table th[data-sort],
+table th.sorting,
+table th.sorting_asc,
+table th.sorting_desc,
+table td button,
+table td .btn,
+table td a,
+table td .badge,
+table td .ui-badge,
+table td i[class*="bi-"],
+table td .action-btn,
+table td .drill-btn,
+.sys-table-resizer,
+.table-resizer,
+.btn-table-expand-100 {
+  cursor: pointer !important;
+}
+
+/* 2. Общие интерактивные элементы управления и кнопки */
+button,
+.btn,
+.ui-btn,
+[role="button"],
+a,
+a[href],
+.nav-link,
+.dropdown-item,
+.page-link,
+.accordion-button,
+.btn-close,
+.tab-header-icon,
+.ui-subnav-btn,
+.subnav-btn,
+.filter-btn,
+[data-filter],
+.film-chip,
+.film-interactive-chip,
+.chip,
+summary,
+.tree-node-title,
+.sys-tree-title,
+.ui-tree-title,
+.about-sys-tree-title {
+  cursor: pointer;
+}
+
+/* 3. Формы, чекбоксы, радио-кнопки, переключатели и метки */
+input[type="checkbox"],
+input[type="radio"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="file"],
+input[type="range"],
+select,
+.form-select,
+.form-check-input,
+.form-check-label,
+label[for],
+.form-switch .form-check-input,
+.form-switch label {
+  cursor: pointer !important;
+}
+
+/* 4. Кликабельные карточки, бейджи, виджеты и элементы с обработчиками событий */
+[onclick],
+[data-bs-toggle],
+[data-bs-target],
+[data-action],
+[data-clickable],
+.clickable,
+.cursor-pointer,
+.pointer,
+.badge[onclick],
+.ui-badge[onclick],
+.badge[data-bs-toggle],
+.ui-badge[data-bs-toggle],
+.badge.clickable,
+.ui-badge.clickable,
+.badge[role="button"],
+.ui-badge[role="button"],
+.card[onclick],
+.ui-kpi-card[onclick],
+.gauge-card[onclick],
+.gauge-card[role="button"],
+[data-ai-tooltip],
+[data-term] {
+  cursor: pointer;
+}
+
+/* Заблокированные элементы */
+button:disabled,
+.btn:disabled,
+.btn.disabled,
+input:disabled,
+select:disabled,
+[aria-disabled="true"],
+.disabled {
+  cursor: not-allowed !important;
+}

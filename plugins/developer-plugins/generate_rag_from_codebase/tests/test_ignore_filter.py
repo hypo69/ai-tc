@@ -48,4 +48,3 @@ def test_secret_detection_and_redaction():
     redacted = IgnoreFilter.redact_secrets(text_with_openai_key)
     assert "sk-abcdef" not in redacted
     assert "[REDACTED_SECRET]" in redacted
-

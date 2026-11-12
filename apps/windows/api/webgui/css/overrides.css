@@ -8,400 +8,83 @@
  *
  * Usage Examples:
  *   HTML Link Tag:
- *     <link rel="stylesheet" href="/windows/api/webgui/css/overrides.css?v=20261004_v17">
+ *     <link rel="stylesheet" href="/apps/common/webgui/css/overrides.css?v=20261004_v17">
  *
  * File: overrides.css
- * Project: ai-windows-admin
- * Package: windows/api/webgui/css
+ * Project: ai-assistant
+ * Package: apps/common/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 23:15:00
+ * Updated: 2026-11-03 14:09:00
  * =============================================================================
  */
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   THEME OVERRIDES & COMPATIBILITY — AI Windows Admin WebGUI
+   THEME OVERRIDES & COMPATIBILITY — AI-Assistant WebGUI
    Адаптивные переопределения Bootstrap и компонентов для светлых и тёмных тем
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 0. Глобальная адаптация токенов Bootstrap под активную тему ───────────── */
+:root,
+[data-bs-theme],
+[data-theme] {
+  --bs-secondary-color: var(--text-muted) !important;
+}
+
+/* Принудительное наследование токена темы для всех приглушенных элементов */
+.text-muted,
+.text-body-secondary,
+label.text-muted,
+span.text-muted,
+small.text-muted,
+p.text-muted,
+div.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Лейблы и пояснения в навигационных панелях */
+.main-nav-container .text-muted,
+.main-nav-container label.text-muted {
+  color: var(--text-muted) !important;
+}
 
 /* ── Light & Brick Themes — Переопределения Bootstrap и утилит ─────────────── */
 [data-theme="light"],
 [data-theme="nightview"],
+[data-theme="nightview-70"],
 [data-theme="theme-light-enterprise"],
 [data-theme="brick"],
 :root[data-bs-theme="light"],
 html[data-bs-theme="light"] {
-  --bs-info: var(--ui-info, #0284c7);
-  --bs-info-rgb: 2, 132, 199;
-  --bs-warning: var(--ui-warning, #e65100);
-  --bs-warning-rgb: 230, 81, 0;
-  --bs-primary: var(--nav-active, #1d4ed8);
-  --bs-primary-rgb: 29, 78, 216;
   --bs-body-bg: var(--bg-color);
   --bs-body-bg-rgb: 226, 232, 240;
+  --bs-body-color: var(--text-color);
   --bs-card-bg: var(--surface-1);
+  --bs-card-color: var(--text-color);
   --bs-modal-bg: var(--modal-bg, var(--surface-1));
   --bs-offcanvas-bg: var(--surface-1);
   --bs-tertiary-bg: var(--surface-2);
   --bs-tertiary-bg-rgb: 219, 226, 234;
   --bs-secondary-bg: var(--surface-2);
   --bs-secondary-bg-rgb: 219, 226, 234;
+  --bs-secondary-color: var(--text-muted);
   --bs-list-group-bg: var(--surface-1);
   --bs-dropdown-bg: var(--surface-1);
+  --bs-dropdown-color: var(--text-color);
 }
 
 [data-theme="light"] body,
 [data-theme="nightview"] body,
+[data-theme="nightview-70"] body,
 [data-theme="theme-light-enterprise"] body,
 [data-theme="brick"] body,
 html[data-bs-theme="light"] body {
   background-color: var(--bg-color) !important;
 }
 
-/* ── Универсальная защита контрастности светлых тем от вымывания цветов (NightView, Light, Brick) ── */
-[data-bs-theme="light"] .text-white:not(.btn):not(.badge-primary):not(.badge-danger):not(.badge-success):not(.bg-primary):not(.bg-danger):not(.bg-success),
-[data-bs-theme="light"] .text-light:not(.btn):not(.badge-primary):not(.badge-danger):not(.badge-success):not(.bg-primary):not(.bg-danger):not(.bg-success),
-[data-theme="nightview"] .text-white:not(.btn):not(.badge-primary):not(.badge-danger):not(.badge-success):not(.bg-primary):not(.bg-danger):not(.bg-success),
-[data-theme="nightview"] .text-light:not(.btn):not(.badge-primary):not(.badge-danger):not(.badge-success):not(.bg-primary):not(.bg-danger):not(.bg-success),
-[data-theme="light"] .text-white:not(.btn):not(.badge-primary):not(.badge-danger):not(.badge-success):not(.bg-primary):not(.bg-danger):not(.bg-success),
-[data-theme="light"] .text-light:not(.btn):not(.badge-primary):not(.badge-danger):not(.badge-success):not(.bg-primary):not(.bg-danger):not(.bg-success),
-[data-theme="brick"] .text-white:not(.btn):not(.badge-primary):not(.badge-danger):not(.badge-success):not(.bg-primary):not(.bg-danger):not(.bg-success),
-[data-theme="brick"] .text-light:not(.btn):not(.badge-primary):not(.badge-danger):not(.badge-success):not(.bg-primary):not(.bg-danger):not(.bg-success),
-[data-theme="theme-light-enterprise"] .text-white:not(.btn):not(.badge-primary):not(.badge-danger):not(.badge-success):not(.bg-primary):not(.bg-danger):not(.bg-success),
-[data-theme="theme-light-enterprise"] .text-light:not(.btn):not(.badge-primary):not(.badge-danger):not(.badge-success):not(.bg-primary):not(.bg-danger):not(.bg-success) {
-  color: var(--text-color, #18181b) !important;
-}
-
-[data-bs-theme="light"] .badge.bg-dark,
-[data-theme="nightview"] .badge.bg-dark,
-[data-theme="light"] .badge.bg-dark,
-[data-theme="brick"] .badge.bg-dark,
-[data-theme="theme-light-enterprise"] .badge.bg-dark {
-  background-color: var(--surface-2, #eee8dd) !important;
-  color: var(--text-color, #18181b) !important;
-  border-color: var(--border-color, #ded7cb) !important;
-}
-
-[data-bs-theme="light"] .badge.bg-secondary,
-[data-theme="nightview"] .badge.bg-secondary,
-[data-theme="light"] .badge.bg-secondary,
-[data-theme="brick"] .badge.bg-secondary,
-[data-theme="theme-light-enterprise"] .badge.bg-secondary,
-[data-bs-theme="light"] .badge.bg-secondary-subtle,
-[data-theme="nightview"] .badge.bg-secondary-subtle,
-[data-theme="light"] .badge.bg-secondary-subtle,
-[data-theme="brick"] .badge.bg-secondary-subtle,
-[data-theme="theme-light-enterprise"] .badge.bg-secondary-subtle {
-  background-color: var(--surface-2, #eee8dd) !important;
-  color: var(--text-color, #18181b) !important;
-  border-color: var(--border-color, #ded7cb) !important;
-}
-
-/* ── Читаемость предупреждений и желтых элементов в светлых темах (NightView, Light, Brick) ── */
-[data-theme="nightview"] .text-warning,
-[data-theme="light"] .text-warning,
-[data-theme="brick"] .text-warning,
-[data-bs-theme="light"] .text-warning {
-  color: var(--ui-warning, #e65100) !important;
-}
-
-[data-theme="nightview"] .badge.bg-warning,
-[data-theme="nightview"] .badge.bg-warning-subtle,
-[data-theme="nightview"] .badge.badge-warning,
-[data-theme="light"] .badge.bg-warning,
-[data-theme="light"] .badge.bg-warning-subtle,
-[data-theme="light"] .badge.badge-warning,
-[data-theme="brick"] .badge.bg-warning,
-[data-theme="brick"] .badge.bg-warning-subtle,
-[data-theme="brick"] .badge.badge-warning {
-  background-color: var(--badge-warning-bg, #fef3c7) !important;
-  color: var(--badge-warning-text, #78350f) !important;
-  border: 1px solid var(--badge-warning-border, #fcd34d) !important;
-}
-
-[data-theme="nightview"] .btn-warning,
-[data-theme="light"] .btn-warning,
-[data-theme="brick"] .btn-warning {
-  background-color: var(--badge-warning-bg, #fef3c7) !important;
-  color: var(--badge-warning-text, #78350f) !important;
-  border-color: var(--badge-warning-border, #fcd34d) !important;
-}
-
-[data-theme="nightview"] .btn-outline-warning,
-[data-theme="light"] .btn-outline-warning,
-[data-theme="brick"] .btn-outline-warning {
-  color: var(--ui-warning, #e65100) !important;
-  border-color: var(--badge-warning-border, #fcd34d) !important;
-}
-
-/* Панели и таблицы строго используют мягкий фон поверхности (без белого цвета) */
-[data-theme="nightview"] .ui-panel,
-[data-theme="nightview"] .about-sys-panel,
-[data-theme="nightview"] .diag-panel,
-[data-theme="nightview"] .ui-spec-table,
-[data-theme="nightview"] .about-sys-spec-table,
-[data-theme="nightview"] .table,
-[data-theme="nightview"] .table tr,
-[data-theme="nightview"] .table td,
-[data-theme="nightview"] .table-dark tr,
-[data-theme="nightview"] .table-dark td {
-  background-color: var(--table-row-bg, #f6f1e8) !important;
-  border-color: var(--border-color) !important;
-}
-
-[data-theme="nightview"] .ui-legacy-spec-table {
-  background-color: var(--surface-1) !important;
-  border-color: var(--border-color) !important;
-}
-
-[data-theme="nightview"] .ui-panel-header,
-[data-theme="nightview"] .about-sys-panel-header,
-[data-theme="nightview"] .diag-panel-header {
-  background-color: var(--surface-2) !important;
-  border-color: var(--border-color) !important;
-}
-
-/* ── Искоренение неонового Bootstrap cyan (#0dcaf0) в светлых темах (NightView, Light, Brick) ── */
-[data-theme="nightview"] .text-info,
-[data-theme="light"] .text-info,
-[data-theme="brick"] .text-info,
-[data-bs-theme="light"] .text-info {
-  color: var(--ui-info, #0284c7) !important;
-}
-
-[data-theme="nightview"] .text-primary,
-[data-theme="light"] .text-primary,
-[data-theme="brick"] .text-primary,
-[data-bs-theme="light"] .text-primary {
-  color: var(--ui-accent, #1d4ed8) !important;
-}
-
-[data-theme="nightview"] .badge.bg-info-subtle,
-[data-theme="light"] .badge.bg-info-subtle,
-[data-theme="brick"] .badge.bg-info-subtle {
-  background-color: var(--badge-info-bg, rgba(2, 132, 199, 0.12)) !important;
-  color: var(--ui-info, #0284c7) !important;
-  border-color: var(--badge-info-border, rgba(2, 132, 199, 0.28)) !important;
-}
-
-/* ── Единый строгий стиль метрик в инспекторе системы (устранение «светофора») ── */
-.sys-metric-model-title {
-  color: var(--sys-metric-title-color, #2b0d14) !important;
-  font-size: var(--sys-metric-title-size, 1.05rem) !important;
-  text-shadow: var(--sys-metric-title-shadow, 0 1px 2px rgba(43, 13, 20, 0.18));
-}
-
-.sys-kpi-pill .sys-kpi-value,
-.sys-kpi-value {
-  color: var(--text-color, #18181b) !important;
-}
-
-.sys-kpi-label i {
-  color: var(--text-muted, #71717a) !important;
-  opacity: 0.85;
-}
-
-/* ── Dark Slate Theme — Переопределения Bootstrap и компонентов ─────────────── */
-[data-theme="theme-dark-slate"],
-:root[data-bs-theme="dark"][data-theme="theme-dark-slate"],
-html[data-bs-theme="dark"][data-theme="theme-dark-slate"] {
-  --bs-body-bg: var(--bg-color, #0f172a);
-  --bs-body-bg-rgb: 15, 23, 42;
-  --bs-body-color: var(--text-color, #f8fafc);
-  --bs-body-color-rgb: 248, 250, 252;
-  --bs-emphasis-color: var(--text-color, #f8fafc);
-  --bs-emphasis-color-rgb: 248, 250, 252;
-  --bs-secondary-color: var(--ui-text-secondary, #cbd5e1);
-  --bs-secondary-color-rgb: 203, 213, 225;
-  --bs-tertiary-color: var(--text-muted, #94a3b8);
-  --bs-tertiary-color-rgb: 148, 163, 184;
-  --bs-heading-color: var(--text-color, #f8fafc);
-  --bs-link-color: var(--nav-active, #38bdf8);
-  --bs-link-hover-color: var(--ui-accent-hover, #0ea5e9);
-  --bs-card-bg: var(--surface-1, #1e293b);
-  --bs-card-color: var(--text-color, #f8fafc);
-  --bs-modal-bg: var(--modal-bg, #1e293b);
-  --bs-modal-color: var(--text-color, #f8fafc);
-  --bs-offcanvas-bg: var(--surface-1, #1e293b);
-  --bs-tertiary-bg: var(--surface-2, #334155);
-  --bs-tertiary-bg-rgb: 51, 65, 85;
-  --bs-secondary-bg: var(--surface-2, #334155);
-  --bs-secondary-bg-rgb: 51, 65, 85;
-  --bs-secondary-bg-subtle: var(--surface-2, #334155);
-  --bs-secondary-border-subtle: var(--border-strong, #475569);
-  --bs-border-color-translucent: rgba(255, 255, 255, 0.15);
-  --bs-list-group-bg: var(--surface-1, #1e293b);
-  --bs-list-group-color: var(--text-color, #f8fafc);
-  --bs-list-group-action-color: var(--text-color, #f8fafc);
-  --bs-list-group-action-hover-color: var(--nav-active, #38bdf8);
-  --bs-list-group-action-hover-bg: var(--surface-2, #334155);
-  --bs-dropdown-bg: var(--surface-1, #1e293b);
-  --bs-dropdown-color: var(--text-color, #f8fafc);
-  --bs-dropdown-border-color: var(--border-color, #334155);
-  --bs-border-color: var(--border-color, #334155);
-  --bs-info: var(--ui-info, #38bdf8);
-  --bs-info-rgb: 56, 189, 248;
-  --bs-primary: var(--nav-active, #38bdf8);
-  --bs-primary-rgb: 56, 189, 248;
-}
-
-[data-theme="theme-dark-slate"] body,
-html[data-theme="theme-dark-slate"] body {
-  background-color: var(--bg-color, #0f172a) !important;
-  color: var(--text-color, #f8fafc) !important;
-}
-
-/* Высококонтрастная типографика форм и меток в Dark Slate */
-[data-theme="theme-dark-slate"] label,
-[data-theme="theme-dark-slate"] .form-label,
-[data-theme="theme-dark-slate"] .form-check-label {
-  color: var(--ui-text-secondary, #cbd5e1) !important;
-  font-weight: 500;
-}
-
-/* Инпуты, текстовые области, выпадающие списки в Dark Slate */
-[data-theme="theme-dark-slate"] .form-control,
-[data-theme="theme-dark-slate"] .form-select,
-[data-theme="theme-dark-slate"] input:not([type="checkbox"]):not([type="radio"]):not(.btn),
-[data-theme="theme-dark-slate"] textarea {
-  background-color: var(--surface-1, #1e293b) !important;
-  color: var(--text-color, #f8fafc) !important;
-  border-color: var(--border-color, #334155) !important;
-}
-
-[data-theme="theme-dark-slate"] .form-control:focus,
-[data-theme="theme-dark-slate"] .form-select:focus,
-[data-theme="theme-dark-slate"] input:focus,
-[data-theme="theme-dark-slate"] textarea:focus {
-  background-color: var(--surface-1, #1e293b) !important;
-  color: #ffffff !important;
-  border-color: var(--nav-active, #38bdf8) !important;
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25) !important;
-}
-
-[data-theme="theme-dark-slate"] .form-control::placeholder,
-[data-theme="theme-dark-slate"] input::placeholder,
-[data-theme="theme-dark-slate"] textarea::placeholder {
-  color: var(--text-muted, #94a3b8) !important;
-  opacity: 1 !important;
-}
-
-[data-theme="theme-dark-slate"] .form-control:disabled,
-[data-theme="theme-dark-slate"] .form-control[readonly],
-[data-theme="theme-dark-slate"] input:disabled,
-[data-theme="theme-dark-slate"] input[readonly],
-[data-theme="theme-dark-slate"] textarea:disabled,
-[data-theme="theme-dark-slate"] textarea[readonly] {
-  background-color: var(--surface-2, #334155) !important;
-  color: var(--text-color, #f8fafc) !important;
-  opacity: 0.95 !important;
-}
-
-/* Списки list-group и элементы выбора в Dark Slate */
-[data-theme="theme-dark-slate"] .list-group-item {
-  background-color: var(--surface-1, #1e293b) !important;
-  color: var(--text-color, #f8fafc) !important;
-  border-color: var(--border-color, #334155) !important;
-}
-
-[data-theme="theme-dark-slate"] .list-group-item-action {
-  color: var(--text-color, #f8fafc) !important;
-}
-
-[data-theme="theme-dark-slate"] .list-group-item-action:hover,
-[data-theme="theme-dark-slate"] .list-group-item-action:focus {
-  background-color: var(--surface-2, #334155) !important;
-  color: #ffffff !important;
-}
-
-[data-theme="theme-dark-slate"] .list-group-item-action.active,
-[data-theme="theme-dark-slate"] .list-group-item.active {
-  background-color: var(--nav-active, #38bdf8) !important;
-  border-color: var(--nav-active, #38bdf8) !important;
-  color: #0f172a !important;
-}
-
-[data-theme="theme-dark-slate"] .list-group-item-action.active * {
-  color: #0f172a !important;
-}
-
-/* Текстовые классы и вторичные подписи в Dark Slate */
-[data-theme="theme-dark-slate"] .text-muted,
-[data-theme="theme-dark-slate"] small.text-muted {
-  color: var(--text-muted, #94a3b8) !important;
-}
-
-[data-theme="theme-dark-slate"] .text-secondary {
-  color: var(--ui-text-secondary, #cbd5e1) !important;
-}
-
-[data-theme="theme-dark-slate"] .badge.bg-secondary-subtle,
-[data-theme="theme-dark-slate"] .bg-secondary-subtle {
-  background-color: var(--surface-2, #334155) !important;
-  color: var(--ui-text-secondary, #cbd5e1) !important;
-  border: 1px solid var(--border-strong, #475569) !important;
-}
-
-[data-theme="theme-dark-slate"] strong,
-[data-theme="theme-dark-slate"] b,
-[data-theme="theme-dark-slate"] h1,
-[data-theme="theme-dark-slate"] h2,
-[data-theme="theme-dark-slate"] h3,
-[data-theme="theme-dark-slate"] h4,
-[data-theme="theme-dark-slate"] h5,
-[data-theme="theme-dark-slate"] h6 {
-  color: var(--text-color, #f8fafc);
-}
-
-/* Навигационные кнопки в Dark Slate */
-[data-theme="theme-dark-slate"] .main-nav-container .btn-primary,
-[data-theme="theme-dark-slate"] .main-nav-container .btn-outline-primary.active,
-[data-theme="theme-dark-slate"] .btn-outline-primary.active,
-[data-theme="theme-dark-slate"] .btn-primary {
-  background-color: var(--nav-active, #38bdf8) !important;
-  border-color: var(--nav-active, #38bdf8) !important;
-  color: #0f172a !important;
-}
-
-[data-theme="theme-dark-slate"] .main-nav-container .btn-outline-primary,
-[data-theme="theme-dark-slate"] .btn-outline-primary {
-  color: var(--nav-active, #38bdf8) !important;
-  border-color: var(--border-color, #334155) !important;
-  background-color: transparent !important;
-}
-[data-theme="theme-dark-slate"] .main-nav-container .btn-outline-primary:hover,
-[data-theme="theme-dark-slate"] .btn-outline-primary:hover {
-  background-color: var(--surface-2, #334155) !important;
-  color: var(--nav-active, #38bdf8) !important;
-  border-color: var(--nav-active, #38bdf8) !important;
-}
-
-/* Навигационные кнопки в NightView */
-[data-theme="nightview"] .main-nav-container .btn-primary,
-[data-theme="nightview"] .main-nav-container .btn-outline-primary.active,
-[data-theme="nightview"] .btn-outline-primary.active,
-[data-theme="nightview"] .btn-primary {
-  background-color: var(--nav-active, #1d4ed8) !important;
-  border-color: var(--nav-active, #1d4ed8) !important;
-  color: var(--text-silver, #e2e8f0) !important;
-}
-
-[data-theme="nightview"] .main-nav-container .btn-outline-primary,
-[data-theme="nightview"] .btn-outline-primary {
-  color: var(--nav-active, #1d4ed8) !important;
-  border-color: var(--border-color, #ded7cb) !important;
-  background-color: transparent !important;
-}
-[data-theme="nightview"] .main-nav-container .btn-outline-primary:hover,
-[data-theme="nightview"] .btn-outline-primary:hover {
-  background-color: var(--surface-2, #eee8dd) !important;
-  color: var(--nav-active, #1d4ed8) !important;
-  border-color: var(--nav-active, #1d4ed8) !important;
-}
-
-
 [data-theme="light"],
 [data-theme="nightview"],
+[data-theme="nightview-70"],
 [data-theme="theme-light-enterprise"],
 [data-theme="brick"] {
   /* Инпуты, к которым JS или Bootstrap добавил bg-dark (терминал PowerShell консоли исключен) */
@@ -460,27 +143,40 @@ html[data-theme="theme-dark-slate"] body {
   }
 
   .form-control:not(.bg-dark):not(.uai-cmd-input),
-  .form-select:not(.bg-dark):not(.uai-opt-shell):not(.uai-opt-timeout) {
+  .form-select:not(.bg-dark):not(.uai-opt-shell):not(.uai-opt-timeout),
+  .lang-selector,
+  .theme-selector {
     background-color: var(--surface-1) !important;
     color: var(--text-color) !important;
     border-color: var(--border-color) !important;
+    color-scheme: light;
+  }
+
+  .form-select option,
+  .form-select optgroup,
+  select option,
+  select optgroup,
+  .lang-selector option,
+  .theme-selector option {
+    background-color: var(--surface-1) !important;
+    color: var(--text-color) !important;
   }
 
   /* Высококонтрастные читаемые цвета текста в светлой теме NightView / Brick */
   .text-info {
-    color: var(--ui-info, var(--bs-info)) !important;
+    color: #0369a1 !important; /* глубокий читаемый океанский синий */
   }
   .text-warning {
-    color: var(--ui-warning, var(--bs-warning)) !important;
+    color: #b43418 !important; /* выразительный теплый красновато-янтарный (с акцентом красного) */
   }
   .text-success {
-    color: var(--ui-success, var(--bs-success)) !important;
+    color: #166534 !important; /* сочный читаемый изумрудно-зеленый */
   }
   .text-danger {
-    color: var(--ui-danger, var(--bs-danger)) !important;
+    color: #b91c1c !important; /* глубокий читаемый рубиновый/алый */
   }
   .text-primary {
-    color: var(--ui-accent, var(--bs-primary)) !important;
+    color: #1d4ed8 !important; /* четкий читаемый сапфировый */
   }
 
   /* Кнопки с контуром (Outline Buttons) высокой контрастности */
@@ -509,14 +205,14 @@ html[data-theme="theme-dark-slate"] body {
   .btn-outline-secondary.active,
   .btn-check:checked + .btn-outline-secondary,
   .btn-check:active + .btn-outline-secondary {
-    background-color: var(--border-strong) !important;
-    color: var(--text-silver, #e2e8f0) !important;
-    border-color: var(--border-strong) !important;
+    background-color: var(--ui-border-strong, #64748b) !important;
+    color: var(--text-silver, #ffffff) !important;
+    border-color: var(--ui-border-strong, #64748b) !important;
   }
 
   .btn-outline-info {
-    color: var(--badge-info-text) !important;
-    border-color: var(--ui-info, var(--bs-info)) !important;
+    color: #0369a1 !important;
+    border-color: #0284c7 !important;
     background-color: transparent !important;
   }
   .btn-outline-info:hover,
@@ -524,14 +220,14 @@ html[data-theme="theme-dark-slate"] body {
   .btn-outline-info.active,
   .btn-check:checked + .btn-outline-info,
   .btn-check:active + .btn-outline-info {
-    background-color: var(--ui-info, var(--bs-info)) !important;
-    color: var(--text-silver, #e2e8f0) !important;
-    border-color: var(--ui-info, var(--bs-info)) !important;
+    background-color: var(--ui-accent, #0284c7) !important;
+    color: var(--text-silver, #ffffff) !important;
+    border-color: var(--ui-accent, #0284c7) !important;
   }
 
   .btn-outline-warning {
-    color: var(--ui-warning, var(--bs-warning)) !important;
-    border-color: var(--badge-warning-border) !important;
+    color: #92400e !important;
+    border-color: #d97706 !important;
     background-color: transparent !important;
   }
   .btn-outline-warning:hover,
@@ -539,14 +235,14 @@ html[data-theme="theme-dark-slate"] body {
   .btn-outline-warning.active,
   .btn-check:checked + .btn-outline-warning,
   .btn-check:active + .btn-outline-warning {
-    background-color: var(--ui-warning, var(--bs-warning)) !important;
-    color: var(--text-silver, #e2e8f0) !important;
-    border-color: var(--badge-warning-border) !important;
+    background-color: var(--ui-warning, #d97706) !important;
+    color: var(--text-silver, #ffffff) !important;
+    border-color: var(--ui-warning, #d97706) !important;
   }
 
   .btn-outline-primary {
     color: #1d4ed8 !important;
-    border-color: var(--ui-accent, var(--bs-primary)) !important;
+    border-color: #2563eb !important;
     background-color: transparent !important;
   }
   .btn-outline-primary:hover,
@@ -554,14 +250,14 @@ html[data-theme="theme-dark-slate"] body {
   .btn-outline-primary.active,
   .btn-check:checked + .btn-outline-primary,
   .btn-check:active + .btn-outline-primary {
-    background-color: var(--ui-accent, var(--bs-primary)) !important;
-    color: var(--text-silver, #e2e8f0) !important;
-    border-color: var(--ui-accent, var(--bs-primary)) !important;
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #2563eb !important;
   }
 
   .btn-outline-danger {
-    color: var(--ui-danger, var(--bs-danger)) !important;
-    border-color: var(--ui-danger, var(--bs-danger)) !important;
+    color: #991b1b !important;
+    border-color: #dc2626 !important;
     background-color: transparent !important;
   }
   .btn-outline-danger:hover,
@@ -569,9 +265,9 @@ html[data-theme="theme-dark-slate"] body {
   .btn-outline-danger.active,
   .btn-check:checked + .btn-outline-danger,
   .btn-check:active + .btn-outline-danger {
-    background-color: var(--ui-danger, var(--bs-danger)) !important;
-    color: var(--text-silver, #e2e8f0) !important;
-    border-color: var(--ui-danger, var(--bs-danger)) !important;
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+    border-color: #dc2626 !important;
   }
 
   /* text-white / text-light в карточках и панелях */
@@ -656,28 +352,28 @@ html[data-theme="theme-dark-slate"] body {
     color: var(--text-color) !important;
   }
   .badge.bg-info-subtle {
-    background-color: var(--badge-info-bg) !important;
-    color: var(--badge-info-text) !important;
-    border-color: var(--badge-info-border) !important;
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+    border-color: #7dd3fc !important;
   }
   .badge.bg-warning-subtle {
-    background-color: var(--badge-warning-bg) !important;
-    color: var(--badge-warning-text) !important;
-    border-color: var(--badge-warning-border) !important;
+    background-color: #fff1f0 !important;
+    color: #b43418 !important;
+    border-color: #fca5a5 !important;
   }
   .badge.bg-success-subtle {
-    background-color: var(--badge-success-bg) !important;
-    color: var(--badge-success-text) !important;
-    border-color: var(--badge-success-border) !important;
+    background-color: #dcfce7 !important;
+    color: #166534 !important;
+    border-color: #86efac !important;
   }
   .badge.bg-danger-subtle {
-    background-color: var(--badge-danger-bg) !important;
-    color: var(--badge-danger-text) !important;
-    border-color: var(--badge-danger-border) !important;
+    background-color: #fee2e2 !important;
+    color: #b91c1c !important;
+    border-color: #f87171 !important;
   }
 
   /* pre/code без явного светлого фона */
-  pre:not(.prompt-dump-details pre):not(.uai-cmd-output):not(.uai-data-preview):not(.uai-matrix-preview) {
+  pre:not(.prompt-dump-details pre) {
     background-color: var(--surface-2) !important;
     color: var(--text-color) !important;
     border: 1px solid var(--border-color);
@@ -699,7 +395,6 @@ html[data-theme="theme-dark-slate"] body {
   /* ── Системный инспектор, трейдинг, сеть и дерево компонентов ── */
   .sys-card,
   .sys-panel,
-  .sys-card-top-banner,
   .sys-panel-header,
   .sys-tree-node,
   .sys-tree-body,
@@ -851,9 +546,8 @@ html[data-theme="theme-dark-slate"] body {
   .table-dark tr,
   .table-dark th,
   .table-dark td {
-    --bs-table-bg: var(--table-row-bg, var(--surface-1)) !important;
+    --bs-table-bg: var(--surface-1) !important;
     --bs-table-striped-bg: var(--surface-2) !important;
-    --table-bg: var(--table-row-bg, var(--surface-1)) !important;
     --bs-table-hover-bg: rgba(56, 189, 248, 0.08) !important;
     --bs-table-color: var(--text-color) !important;
     --bs-table-border-color: var(--border-color) !important;
@@ -877,25 +571,44 @@ html[data-theme="theme-dark-slate"] body {
   }
 }
 
-/* ── Все темы: увеличение шрифта всех бейджей на 1pt ─────────── */
-.badge,
-.badge.font-monospace,
-.ui-badge,
-.status-badge-unified,
-.about-sys-badge-ok,
-.about-sys-badge-warn,
-.diag-badge-critical,
-.diag-badge-warning,
-.diag-badge-normal,
-.badge-pill,
-[class*="badge-"] {
-  font-size: var(--badge-font-size, calc(0.75rem + 1pt)) !important;
+/* ── Светлые темы (Light / NightView) — увеличение шрифта бейджей на 1pt ─────────── */
+[data-theme="light"] .badge,
+[data-theme="light"] .ui-badge,
+[data-theme="light"] .status-badge-unified,
+[data-theme="light"] .about-sys-badge-ok,
+[data-theme="light"] .about-sys-badge-warn,
+[data-theme="light"] .diag-badge-critical,
+[data-theme="light"] .diag-badge-warning,
+[data-theme="light"] .diag-badge-normal,
+[data-theme="nightview"] .badge,
+[data-theme="nightview"] .ui-badge,
+[data-theme="nightview"] .status-badge-unified,
+[data-theme="nightview"] .about-sys-badge-ok,
+[data-theme="nightview"] .about-sys-badge-warn,
+[data-theme="nightview"] .diag-badge-critical,
+[data-theme="nightview"] .diag-badge-warning,
+[data-theme="nightview"] .diag-badge-normal,
+[data-theme="nightview-70"] .badge,
+[data-theme="nightview-70"] .ui-badge,
+[data-theme="nightview-70"] .status-badge-unified,
+[data-theme="nightview-70"] .about-sys-badge-ok,
+[data-theme="nightview-70"] .about-sys-badge-warn,
+[data-theme="nightview-70"] .diag-badge-critical,
+[data-theme="nightview-70"] .diag-badge-warning,
+[data-theme="nightview-70"] .diag-badge-normal {
+  font-size: calc(0.72rem + 1pt);
 }
 
 /* ── Dark & Terminal Themes — Высококонтрастные переопределения ─────────────── */
 [data-theme="dark"],
 [data-theme="theme-dark-slate"],
-[data-theme="terminal"] {
+[data-theme="terminal"],
+[data-theme="theme-cyberpunk"],
+[data-theme="theme-high-contrast"],
+[data-theme="nordic-frost"],
+[data-theme="solarized-dark"],
+body.theme-dark-slate {
+  --bs-secondary-color: var(--text-muted) !important;
   .card-header.bg-light,
   .card-footer.bg-light,
   .modal-header.bg-light,
@@ -943,8 +656,7 @@ html[data-theme="theme-dark-slate"] body {
     color: var(--nav-active);
   }
 
-  pre:not(.uai-cmd-output):not(.uai-data-preview):not(.uai-matrix-preview),
-  code, kbd, samp {
+  pre, code, kbd, samp {
     color: #39ff14 !important;
     background-color: #060a06 !important;
     border: 1px solid #1a4223;
@@ -969,105 +681,4 @@ html[data-theme="theme-dark-slate"] body {
     color: #39ff14 !important;
     border-bottom: 2px solid #00ff66 !important;
   }
-}
-
-/* ── Карточки вопросов и ответов ИИ (Universal AI Modal) ── */
-.uai-qa-card {
-  background-color: var(--surface-2) !important;
-  border-color: var(--border-color) !important;
-  color: var(--text-color) !important;
-}
-.uai-qa-card h6,
-.uai-qa-card .chat-content {
-  color: var(--text-color) !important;
-}
-
-/* ── Единый серебряный цвет шрифта на всех элементах, где предполагается белый ── */
-.text-white,
-.text-light {
-  color: var(--text-silver, #e2e8f0) !important;
-}
-
-/* Темно-синий сплошной бейдж bg-info (особенно в теме NightView) */
-.badge.bg-info:not(.bg-info-subtle),
-.badge.font-monospace.bg-info,
-[data-theme="nightview"] .badge.bg-info,
-[data-theme="nightview"] .badge.font-monospace.bg-info,
-[data-theme="nightview"] .badge.bg-info.fw-semibold,
-[data-theme="nightview"] .badge.bg-info.text-dark {
-  background-color: var(--badge-info-solid-bg, #0284c7) !important;
-  color: var(--badge-info-solid-text, var(--text-silver, #e2e8f0)) !important;
-  border: 1px solid rgba(226, 232, 240, 0.25) !important;
-}
-
-/* ── Поля динамических показаний состояния (+1pt к стандартному на уровне темы) ── */
-.table td.text-warning,
-.table td.text-success,
-.table td.text-danger,
-.table td.text-info,
-.table td.font-monospace.text-warning,
-.table td.font-monospace.text-success,
-.table td.font-monospace.text-danger,
-.table td.font-monospace.text-info,
-.table td > span.text-warning,
-.table td > span.text-success,
-.table td > span.text-danger,
-.table td > span.text-info,
-.ui-spec-val span.text-warning,
-.ui-spec-val span.text-success,
-.ui-spec-val span.text-danger,
-.ui-spec-val span.text-info,
-.ui-spec-val strong.text-warning,
-.ui-spec-val strong.text-success,
-.ui-spec-val strong.text-danger,
-.ui-spec-val strong.text-info,
-.about-sys-spec-val span.text-warning,
-.about-sys-spec-val span.text-success,
-.about-sys-spec-val span.text-danger,
-.about-sys-spec-val span.text-info,
-span[id^="about-sec-"].text-success,
-span[id^="about-sec-"].text-danger,
-span[id^="about-sec-"].text-warning {
-  font-size: var(--status-val-font-size, calc(1em + 1pt));
-}
-
-
-/* ── Принудительный консольный стиль для вывода команд терминала во всех темах ── */
-.uai-cmd-output,
-pre.uai-cmd-output,
-.font-monospace.uai-cmd-output,
-.uai-ready-tool-card .uai-cmd-output,
-.uai-code-runner-box .uai-cmd-output,
-pre[id^="uai-term-"][id$="-output"],
-[data-bs-theme] pre.uai-cmd-output,
-[data-theme] pre.uai-cmd-output,
-body pre.uai-cmd-output {
-  background-color: #000000 !important;
-  background: #000000 !important;
-  color: #ffffff !important;
-  font-family: var(--font-mono, "Cascadia Code", "Consolas", "Courier New", monospace) !important;
-  font-weight: bold !important;
-  border: 1px solid #30363d !important;
-  border-radius: 4px !important;
-}
-
-/* ── Блок предпросмотра данных телеметрии: 70% ширины, высота по содержимому без скроллеров ── */
-.uai-data-preview,
-.uai-matrix-preview,
-pre.uai-data-preview,
-pre.uai-matrix-preview,
-pre.uai-data-preview.uai-matrix-preview,
-[data-bs-theme] pre.uai-data-preview,
-[data-theme] pre.uai-data-preview,
-body pre.uai-data-preview {
-  width: 70% !important;
-  max-width: 70% !important;
-  height: auto !important;
-  max-height: none !important;
-  overflow: visible !important;
-  overflow-y: visible !important;
-  overflow-x: hidden !important;
-  white-space: pre-wrap !important;
-  word-break: break-all !important;
-  overflow-wrap: anywhere !important;
 }

@@ -16,7 +16,7 @@
 # Package: apps.windows.analytics
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 14:20:00
+# Updated: 2026-11-10 14:28:00
 # =============================================================================
 
 from __future__ import annotations
@@ -78,10 +78,16 @@ app = FastAPI(
     version="1.1.0",
 )
 
-# CORS
+# CORS (безопасный список локальных источников вместо wildcard с credentials)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://127.0.0.1",
+        "https://127.0.0.1",
+        "http://localhost",
+        "https://localhost",
+    ],
+    allow_origin_regex=r"https?://(127\.0\.0\.1|localhost)(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

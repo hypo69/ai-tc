@@ -32,4 +32,3 @@ def plugin(ai_model: Any = None, config: Optional[dict] = None) -> GoogleOAuthPl
         GoogleOAuthPlugin: Configured plugin instance.
     """
     return GoogleOAuthPlugin(ai_model=ai_model, config=config)
-

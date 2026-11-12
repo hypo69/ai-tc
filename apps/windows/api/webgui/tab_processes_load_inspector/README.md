@@ -74,6 +74,7 @@
 
 - **URL в сценарии `tc.ps1`**: `http://127.0.0.1:8001/tc#tab-processes-load-inspector`
 - **Прямой переход к панели Диспетчера Процессов**: `http://127.0.0.1:8001/tc#tab-processes-load-inspector#manager`
+- **Прямой переход к панели Сетевой активности процессов**: `http://127.0.0.1:8001/tc#tab-processes-load-inspector#network-activity-by-process` (поддерживается алиас `#net`)
 - **Обратная совместимость**: Вкладка `tab-process-manager` консолидирована в данный инспектор как панель `#subpane-proc-manager`. Любые обращения к `#tab-process-manager` автоматически перенаправляются на `#tab-processes-load-inspector#manager`.
 
 ---

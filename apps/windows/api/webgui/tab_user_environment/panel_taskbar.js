@@ -11,12 +11,13 @@
  * Package: apps.windows.api.webgui.tab_user_environment
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 15:53:00
+ * Updated: 2026-11-01 14:24:00
  * =============================================================================
  */
 
 let _isLoadingSettings = false;
 let _saveDebounceTimer = null;
+let _isLoadingUcpd = false;
 
 /**
  * Вызов всплывающего уведомления Toast.
@@ -330,6 +331,105 @@ export async function applyUxProgress() {
 }
 
 /**
+ * Загрузка текущего статуса драйвера защиты UCPD.
+ */
+export async function loadUcpdStatus() {
+  const switchEl = document.getElementById('ue-tb-switch-ucpd');
+  const badgeEl = document.getElementById('ue-tb-badge-ucpd');
+  const alertEl = document.getElementById('ue-tb-alert-ucpd-reboot');
+  const hintEl = document.getElementById('ue-tb-hint-ucpd');
+  if (!switchEl || !badgeEl) return;
+
+  _isLoadingUcpd = true;
+  try {
+    const res = await fetch('/api/v1/taskbar/ucpd');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    if (!data.supported) {
+      switchEl.disabled = true;
+      switchEl.checked = false;
+      badgeEl.className = 'badge bg-secondary-subtle text-secondary border border-secondary-subtle';
+      badgeEl.textContent = 'Не поддерживается';
+      if (hintEl) hintEl.textContent = 'Драйвер UCPD не обнаружен в данной версии Windows.';
+      if (alertEl) {
+        alertEl.classList.add('d-none');
+        alertEl.classList.remove('d-flex');
+      }
+      return;
+    }
+
+    switchEl.disabled = false;
+    switchEl.checked = Boolean(data.enabled);
+
+    if (data.enabled) {
+      badgeEl.className = 'badge bg-primary-subtle text-primary border border-primary-subtle';
+      badgeEl.textContent = 'Защита включена';
+    } else {
+      badgeEl.className = 'badge bg-warning-subtle text-warning border border-warning-subtle';
+      badgeEl.textContent = 'Отключен (Разблокирован)';
+    }
+
+    if (alertEl) {
+      if (data.reboot_pending) {
+        alertEl.classList.remove('d-none');
+        alertEl.classList.add('d-flex');
+      } else {
+        alertEl.classList.add('d-none');
+        alertEl.classList.remove('d-flex');
+      }
+    }
+
+    if (hintEl && data.message) {
+      hintEl.textContent = data.message;
+    }
+  } catch (err) {
+    console.warn('[UETaskbar] Ошибка получения статуса UCPD:', err);
+    badgeEl.className = 'badge bg-danger-subtle text-danger border border-danger-subtle';
+    badgeEl.textContent = 'Ошибка статуса';
+  } finally {
+    _isLoadingUcpd = false;
+  }
+}
+
+/**
+ * Переключение состояния драйвера защиты UCPD.
+ * @param {boolean} enabled Флаг включения/отключения.
+ */
+export async function toggleUcpd(enabled) {
+  if (_isLoadingUcpd) return;
+  const switchEl = document.getElementById('ue-tb-switch-ucpd');
+  const badgeEl = document.getElementById('ue-tb-badge-ucpd');
+  if (switchEl) switchEl.disabled = true;
+  if (badgeEl) {
+    badgeEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1" style="width: 0.75rem; height: 0.75rem;"></span>Применение...';
+  }
+
+  try {
+    const res = await fetch('/api/v1/taskbar/ucpd', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled })
+    });
+    const result = await res.json();
+    if (!res.ok || result.status !== 'SUCCESS') {
+      throw new Error(result.detail || result.message || `HTTP ${res.status}`);
+    }
+
+    showToast(
+      enabled
+        ? 'Драйвер UCPD включен.'
+        : 'Драйвер UCPD отключен! Для применения в ядре требуется перезагрузка Windows.',
+      enabled ? 'success' : 'warning'
+    );
+  } catch (err) {
+    showToast(`Ошибка переключения UCPD: ${err.message}`, 'danger');
+  } finally {
+    await loadUcpdStatus();
+  }
+}
+
+/**
  * Привязка событий панели задач.
  * @param {Function} [onUpdated] Коллбек обновления.
  */
@@ -359,6 +459,11 @@ export function bindTaskbarEvents(onUpdated) {
 
   document.getElementById('ue-tb-btn-restart-explorer')?.addEventListener('click', () => restartExplorer(onUpdated));
   document.getElementById('ue-tb-btn-refresh-pinned')?.addEventListener('click', loadPinnedApps);
+
+  // Переключатель системного драйвера защиты UCPD
+  document.getElementById('ue-tb-switch-ucpd')?.addEventListener('change', (e) => {
+    toggleUcpd(e.target.checked);
+  });
 
   // Форма закрепления приложения
   document.getElementById('ue-tb-form-pin')?.addEventListener('submit', async (e) => {

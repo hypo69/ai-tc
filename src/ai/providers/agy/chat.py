@@ -18,7 +18,7 @@
 # Package: src.ai.providers.agy
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 11:27:00
+# Updated: 2026-11-10 16:53:00
 # =============================================================================
 
 """Antigravity SDK chat connection and request routing adapter.
@@ -334,7 +334,7 @@ class AgyChatBase:
             err_to_raise = self._handle_agy_error(e)
             raise err_to_raise from e
 
-    async def chat(self, q: str, history: Optional[List[Dict]]=[], system_instruction: Optional[str]='', save_history: bool=True, temperature: Optional[float]=0.0, max_tokens: Optional[int]=0, **kwargs) -> str:
+    async def chat(self, q: str, history: Optional[List[Dict]]=None, system_instruction: Optional[str]='', save_history: bool=True, temperature: Optional[float]=0.0, max_tokens: Optional[int]=0, **kwargs) -> str:
         """Send chat request with conversation history.
         
         Args:
@@ -387,4 +387,3 @@ class AgyChatBase:
                 logger.critical(f'[DEBUG MODE] Ошибка Antigravity SDK chat_stream ({self.model_id}): {e}')
             err_to_raise = self._handle_agy_error(e)
             raise err_to_raise from e
-

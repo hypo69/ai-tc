@@ -98,4 +98,3 @@ async def test_plugin_custom_project_root_and_user_isolation(tmp_path: Path):
     assert len(events) >= 2
     assert events[-1]["status"] == "complete"
     assert len(events[-1]["data"]["symbols"]) >= 1
-

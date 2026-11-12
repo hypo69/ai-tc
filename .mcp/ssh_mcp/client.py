@@ -11,7 +11,7 @@
 # Package: ssh_mcp
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:01:30
+# Updated: 2026-11-10 14:20:00
 # =============================================================================
 
 from typing import Any, Dict, Optional
@@ -98,6 +98,11 @@ class SSHMCPClient:
             "Authorization": f"Bearer {api_token}",
             "Origin": origin,
         }
-        async with httpx.AsyncClient() as http_client:
-            resp = await http_client.get(f"{base_url.rstrip('/')}/api/ssh-mcp/health", headers=headers)
+        client_timeout = httpx.Timeout(connect=5.0, read=15.0, write=10.0, pool=5.0)
+        async with httpx.AsyncClient(timeout=client_timeout) as http_client:
+            resp = await http_client.get(
+                f"{base_url.rstrip('/')}/api/ssh-mcp/health",
+                headers=headers,
+                timeout=client_timeout,
+            )
             return resp.json()

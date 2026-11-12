@@ -209,6 +209,27 @@ modal.show({
 </td>
 ```
 
+### 5. Двухуровневая маршрутизация URL (#tab-<tabId>#panel-<panelId>#block-<blockId>)
+
+Все составные вкладки и панели с внутренними блоками **ОБЯЗАНЫ** реализовывать двухуровневый стандарт deep-linking:
+1. **Канонический формат URL:**
+   - Одноуровневая панель: `#tab-<tabId>#panel-<panelId>` (например `#tab-storage-management#panel-wear`)
+   - Панель с внутренним блоком: `#tab-<tabId>#panel-<panelId>#block-<blockId>` (например `#tab-software-monitor#panel-packages#block-ninite`, `#tab-system-control#panel-forensics#block-userassist`)
+   - Панель с рабочим пространством: `#tab-workspace#panel-files#workspace=<id>`
+
+2. **Разметка кнопок и панелей:**
+   - Кнопки панелей 1-го уровня содержат `data-panel-id="<panelId>"`
+   - Кнопки блоков 2-го уровня содержат `data-panel-id="<panelId>"` и `data-block-id="block-<blockId>"`
+   - Тултипы кнопок меню формулируются **СРАЗУ статически**, без запросов к LLM/модели (`title`/`data-bs-title`). Подробнее: [`.ai/instructions/standards/SUBTABS_AND_BLOCKS_MENU.md`](../../../.ai/instructions/standards/SUBTABS_AND_BLOCKS_MENU.md).
+
+3. **Контракт JS контроллера:**
+   - `normalizeSubTabId(rawId)` — очищает `#`, `panel-`, `subpane-`, возвращает канонический ID панели.
+   - `normalizeBlockId(rawId, panelId)` — возвращает канонический ID блока `block-<id>`.
+   - `getBlockFromHash(panelId)` — извлекает активный блок из `location.hash`.
+   - `updateUrlWithPanel(panelId, blockId = null)` — синхронизирует URL через `history.replaceState`.
+   - `switch<Name>SubTab(subtabName, blockId = null, updateUrl = true)` — активирует панель и блок.
+   - Обязательная подписка на события `hashchange` и `tab:activated` для мгновенного отклика при навигации браузера «Вперед/Назад».
+
 ### 6. Интерактивный Редактор тем (`theme_editor_tab`)
 В экосистему встроен модуль кастомизации оформления:
 - Вкладка: `theme-editor` (`apps/windows/api/webgui/theme_editor_tab/`)
@@ -224,6 +245,7 @@ modal.show({
 - [ ] Опрос бэкенда зарегистрирован через `window.registerTabPoller`.
 - [ ] Кнопка навигации содержит `data-tab="tab-<name>"`.
 - [ ] **Никакого хардкода в стилях:** Проверено отсутствие HEX/RGB/RGBA и инлайновых стилей оформления (`style="color:...", style="background:..."`). Всё оформление (фоны, текст, рамки, бейджи `ui-badge-*`) подключено строго через механизм тем.
+- [ ] **URL-маршрутизация:** Поддержан канонический формат `#tab-<tabId>#panel-<panelId>#block-<blockId>` без сброса параметров.
 - [ ] Табличные строки поддерживают вызов `AIModalDialog.show()`.
 - [ ] Drill-down сущностей оформлен иконкой дрели (`/html/assets/red_drill.png`) строго СЛЕВА от строки таблицы.
 - [ ] Вкладка зарегистрирована в `core/tab-registry.js`, `apps/modules/tabs-config.js` и `config/tc_menu_config.json`.

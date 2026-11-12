@@ -17,7 +17,7 @@ Usage Examples:
  * Package: windows/api/webgui/tab_peripherals
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 10:55:00
+ * Updated: 2026-11-01 12:50:00
  * =============================================================================
 -->
 <style>
@@ -30,14 +30,6 @@ Usage Examples:
     border: 1px solid var(--border-color);
     border-radius: 8px;
     overflow: hidden;
-  }
-  .diag-panel-header {
-    background: var(--surface-2);
-    padding: 8px 14px;
-    border-bottom: 1px solid var(--border-color);
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--nav-active);
   }
   .about-sys-spec-table {
     width: 100%;
@@ -68,7 +60,7 @@ Usage Examples:
       <span class="tab-header-icon fs-4 text-warning">🔌</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Периферийные устройства и USB</h3>
+          <h3 class="tab-header-title mb-0">Периферийные устройства и USB</h3>
           
         </div>
         <small class="tab-header-subtitle text-secondary">Инспекция подключенных USB-устройств, Bluetooth-адаптеров, сетевых контроллеров и аудио-интерфейсов</small>
@@ -98,10 +90,10 @@ Usage Examples:
 <!-- Wi-Fi Telemetry Panel -->
 <div class="col-12 col-lg-5">
 <div class="diag-panel h-100" data-panel-id="panel-peripherals-1" id="panel-peripherals-1">
-<div class="diag-panel-header d-flex justify-content-between align-items-center">
+<div class="panel-header d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-wifi text-info"></i>
-<span class="text-body">Беспроводная сеть Wi-Fi (RF &amp; Security)</span>
+<span class="panel-title">Беспроводная сеть Wi-Fi (RF &amp; Security)</span>
 </div>
 <span class="badge bg-success-subtle text-success border border-success" id="diag-wifi-status-badge">Wi-Fi Active</span>
 </div>
@@ -140,10 +132,10 @@ Usage Examples:
 <!-- Audio Endpoints Panel -->
 <div class="col-12 col-lg-7">
 <div class="diag-panel h-100" data-panel-id="panel-peripherals-2" id="panel-peripherals-2">
-<div class="diag-panel-header d-flex justify-content-between align-items-center">
+<div class="panel-header d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-volume-up-fill text-warning"></i>
-<span class="text-body">Аудиоустройства и конечные точки (Audio Endpoints)</span>
+<span class="panel-title">Аудиоустройства и конечные точки (Audio Endpoints)</span>
 </div>
 <span class="badge bg-secondary" id="diag-audio-count">0 устройств</span>
 </div>
@@ -155,10 +147,10 @@ Usage Examples:
 </div>
 <!-- Bluetooth Devices Table -->
 <div class="diag-panel mb-3" data-panel-id="panel-peripherals-bluetooth" id="panel-peripherals-bluetooth">
-<div class="diag-panel-header d-flex justify-content-between align-items-center">
+<div class="panel-header d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-bluetooth text-primary"></i>
-<span class="text-body">Беспроводные Bluetooth-устройства и радиомодули</span>
+<span class="panel-title">Беспроводные Bluetooth-устройства и радиомодули</span>
 </div>
 <span class="badge bg-secondary" id="diag-bt-count">0 устройств</span>
 </div>
@@ -182,10 +174,10 @@ Usage Examples:
 </div>
 <!-- Printers and Print Queues Table -->
 <div class="diag-panel mb-3" data-panel-id="panel-peripherals-printers" id="panel-peripherals-printers">
-<div class="diag-panel-header d-flex justify-content-between align-items-center">
+<div class="panel-header d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-printer text-success"></i>
-<span class="text-body">Подключенные принтеры и службы печати (Network, USB, Virtual)</span>
+<span class="panel-title">Подключенные принтеры и службы печати (Network, USB, Virtual)</span>
 </div>
 <span class="badge bg-secondary" id="diag-printers-count">0 принтеров</span>
 </div>
@@ -209,10 +201,10 @@ Usage Examples:
 </div>
 <!-- PnP USB Devices Table -->
 <div class="diag-panel" data-panel-id="panel-peripherals-3" id="panel-peripherals-3">
-<div class="diag-panel-header d-flex justify-content-between align-items-center">
+<div class="panel-header d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-usb-symbol text-info"></i>
-<span class="text-body">Подключенные PnP USB-устройства и концентраторы</span>
+<span class="panel-title">Подключенные PnP USB-устройства и концентраторы</span>
 </div>
 <span class="badge bg-secondary" id="diag-usb-count">0 устройств</span>
 </div>

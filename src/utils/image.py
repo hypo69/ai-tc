@@ -3,78 +3,80 @@
 # Process Name: AI-Windows-Admin UTILS - Image Module
 # =============================================================================
 # Description:
-#   Custom exception for image-related errors.
+#   Утилиты загрузки, сохранения, конвертации и наложения водяных знаков на изображения.
 #
 # Usage Examples:
 #   CLI:
 #     python -m src.utils.image
 #   Python API:
-#     from src.utils.image import ImageError
-#
-#     service = ImageError()
+#     from src.utils.image import ImageError, save_image
 #
 # File: image.py
 # Project: ai-windows-admin
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 14:40:00
 # =============================================================================
 
-"""Custom exception for image-related errors."""
+"""Утилиты загрузки, сохранения, конвертации и наложения водяных знаков на изображения."""
 
-import aiohttp
-import aiofiles
-import asyncio
-import random
-from pathlib import Path
-from typing import Optional, Union, Tuple
 from io import BytesIO
+from pathlib import Path
+import random
+from typing import Optional, Tuple, Union
+
+import aiofiles
+import aiohttp
 from PIL import Image, ImageDraw, ImageFont
+
 from logger import logger
 
+_IMAGE_DOWNLOAD_TIMEOUT = aiohttp.ClientTimeout(total=30.0, connect=10.0, sock_read=20.0)
+
+
 class ImageError(Exception):
-    """Custom exception for image-related errors."""
+    """Специализированное исключение для ошибок обработки изображений."""
     pass
 
+
 async def save_image_from_url(image_url: str, filename: Union[str, Path]) -> Optional[str]:
-    """
-    Asynchronous download of image from URL and save to local file.
+    """Асинхронно скачивает изображение по URL с явным таймаутом и сохраняет в локальный файл.
 
     Args:
-        image_url (str): The URL to download the image from.
-        filename (Union[str, Path]): The name of the file to save the image to.
+        image_url (str): URL изображения для скачивания.
+        filename (Union[str, Path]): Путь к файлу для сохранения.
 
     Returns:
-        Optional[str]: The path to the saved file, or None if the operation failed.
+        Optional[str]: Путь к сохраненному файлу.
 
-    Exceptions:
-        ImageError: If the image download or save operation fails.
+    Raises:
+        ImageError: Если не удалось скачать или сохранить изображение.
     """
     try:
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(timeout=_IMAGE_DOWNLOAD_TIMEOUT) as session:
             async with session.get(image_url) as response:
                 response.raise_for_status()
                 image_data = await response.read()
     except Exception as ex:
-        logger.error(f'Error downloading image from {image_url}', exc_info=True)
+        logger.error(f'Ошибка скачивания изображения с {image_url}', exc_info=True)
         raise ImageError(f'Failed to download image from {image_url}') from ex
     return await save_image(image_data, filename)
 
-async def save_image(image_data: bytes, file_name: Union[str, Path], format: str='PNG') -> Optional[str]:
-    """
-    Asynchronous saving of image data to file in specified format.
+
+async def save_image(image_data: bytes, file_name: Union[str, Path], format: str = 'PNG') -> Optional[str]:
+    """Асинхронно сохраняет бинарные данные изображения в указанном формате.
 
     Args:
-        image_data (bytes): The binary image data.
-        file_name (Union[str, Path]): The name of the file to save the image to.
-        format (str): The format to save the image in, default is PNG.
+        image_data (bytes): Бинарные данные изображения.
+        file_name (Union[str, Path]): Путь к целевому файлу.
+        format (str): Формат сохранения изображения (по умолчанию PNG).
 
     Returns:
-        Optional[str]: The path to the saved file, or None if the operation failed.
+        Optional[str]: Строковый путь к сохраненному файлу.
 
-    Exceptions:
-        ImageError: If the file cannot be created, saved, or if the saved file is empty.
+    Raises:
+        ImageError: Если файл не удалось создать, сохранить или его размер равен 0 байт.
     """
     file_path = Path(file_name)
     try:
@@ -82,215 +84,238 @@ async def save_image(image_data: bytes, file_name: Union[str, Path], format: str
         async with aiofiles.open(file_path, 'wb') as file:
             await file.write(image_data)
         if not file_path.exists():
-            logger.error(f'File {file_path} was not created.')
+            logger.error(f'Файл {file_path} не был создан.')
             raise ImageError(f'File {file_path} was not created.')
-        img = Image.open(file_path)
-        img.save(file_path, format=format)
+        with Image.open(file_path) as img:
+            img.save(file_path, format=format)
         if file_path.stat().st_size == 0:
-            logger.error(f'File {file_path} saved, but its size is 0 bytes.')
+            logger.error(f'Файл {file_path} сохранен, но имеет нулевой размер.')
             raise ImageError(f'File {file_path} saved, but its size is 0 bytes.')
         return str(file_path)
     except Exception as ex:
-        logger.critical(f'Failed to save file {file_path}', exc_info=True)
+        logger.critical(f'Не удалось сохранить изображение {file_path}', exc_info=True)
         raise ImageError(f'Failed to save file {file_path}') from ex
 
-def get_image_bytes(image_path: Path, raw: bool=True) -> Optional[Union[BytesIO, bytes]]:
-    """
-    Reads an image using Pillow and returns its bytes in JPEG format.
+
+def get_image_bytes(image_path: Path, raw: bool = True) -> Optional[Union[BytesIO, bytes]]:
+    """Читает изображение через Pillow и возвращает его байты в формате JPEG.
 
     Args:
-        image_path (Path): The path to the image file.
-        raw (bool): If True, returns a BytesIO object; otherwise, returns bytes. Defaults to True.
+        image_path (Path): Путь к файлу изображения.
+        raw (bool): Если True, возвращает объект BytesIO; иначе возвращает bytes.
 
     Returns:
-        Optional[Union[BytesIO, bytes]]: The bytes of the image in JPEG format, or None if an error occurs.
+        Optional[Union[BytesIO, bytes]]: Байты изображения в формате JPEG или None при ошибке.
     """
     try:
-        img = Image.open(image_path)
-        img_byte_arr = BytesIO()
-        img.save(img_byte_arr, format='JPEG')
-        return img_byte_arr if raw else img_byte_arr.getvalue()
-    except Exception as ex:
-        logger.error('Error reading image with Pillow:', exc_info=True)
+        with Image.open(image_path) as img:
+            img_byte_arr = BytesIO()
+            img.save(img_byte_arr, format='JPEG')
+            return img_byte_arr if raw else img_byte_arr.getvalue()
+    except Exception:
+        logger.error('Ошибка чтения изображения через Pillow:', exc_info=True)
         return None
 
+
 def get_raw_image_data(file_name: Union[str, Path]) -> Optional[bytes]:
-    """
-    Retrieves the raw binary data of a file if it exists.
+    """Читает сырые бинарные данные файла изображения, если он существует.
 
     Args:
-        file_name (Union[str, Path]): The name or path of the file to read.
+        file_name (Union[str, Path]): Путь к файлу изображения.
 
     Returns:
-        Optional[bytes]: The binary data of the file, or None if the file does not exist or an error occurs.
+        Optional[bytes]: Бинарные данные файла или None при отсутствии файла/ошибке.
     """
     file_path = Path(file_name)
     if not file_path.exists():
-        logger.error(f'File {file_path} does not exist.')
+        logger.error(f'Файл {file_path} не существует.')
         return None
     try:
         return file_path.read_bytes()
-    except Exception as ex:
-        logger.error(f'Error reading file {file_path}', exc_info=True)
+    except Exception:
+        logger.error(f'Ошибка чтения файла {file_path}', exc_info=True)
         return None
 
+
 def random_image(root_path: Union[str, Path]) -> Optional[str]:
-    """
-    Recursively searches for a random image in the specified directory.
+    """Рекурсивно ищет случайное изображение в указанной директории.
 
     Args:
-        root_path (Union[str, Path]): The directory to search for images.
+        root_path (Union[str, Path]): Директория поиска изображений.
 
     Returns:
-        Optional[str]: The path to a random image, or None if no images are found.
+        Optional[str]: Путь к случайному изображению или None, если изображения не найдены.
     """
     root_path = Path(root_path)
-    image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp']
-    image_files = [file_path for file_path in root_path.rglob('*') if file_path.is_file() and file_path.suffix.lower() in image_extensions]
+    image_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp'}
+    image_files = [
+        file_path
+        for file_path in root_path.rglob('*')
+        if file_path.is_file() and file_path.suffix.lower() in image_extensions
+    ]
     if not image_files:
-        logger.warning(f'No images found in {root_path}.')
+        logger.warning(f'Изображения не найдены в {root_path}.')
         return None
     return str(random.choice(image_files))
 
-def add_text_watermark(image_path: Union[str, Path], watermark_text: str, output_path: Optional[Union[str, Path]]=None) -> Optional[str]:
-    """
-    Adds a text watermark to an image.
+
+def add_text_watermark(
+    image_path: Union[str, Path],
+    watermark_text: str,
+    output_path: Optional[Union[str, Path]] = None,
+) -> Optional[str]:
+    """Накладывает текстовый водяной знак по центру изображения.
 
     Args:
-        image_path (Union[str, Path]): Path to the image file.
-        watermark_text (str): Text to use as the watermark.
-        output_path (Optional[Union[str, Path]]): Path to save the watermarked image.
-            Defaults to overwriting the original image.
+        image_path (Union[str, Path]): Путь к исходному изображению.
+        watermark_text (str): Текст водяного знака.
+        output_path (Optional[Union[str, Path]]): Путь для сохранения результата.
 
     Returns:
-        Optional[str]: Path to the watermarked image, or None on failure.
+        Optional[str]: Путь к сохраненному изображению или None при ошибке.
     """
     image_path = Path(image_path)
     output_path = image_path if output_path is None else Path(output_path)
     try:
-        image = Image.open(image_path).convert('RGBA')
+        with Image.open(image_path) as raw_img:
+            image = raw_img.convert('RGBA')
         watermark_layer = Image.new('RGBA', image.size, (255, 255, 255, 0))
         draw = ImageDraw.Draw(watermark_layer)
-        font_size = min(image.size) // 10
+        font_size = max(10, min(image.size) // 10)
         try:
             font = ImageFont.truetype('arial.ttf', size=font_size)
         except IOError:
-            font = ImageFont.load_default(size=font_size)
-            logger.warning('Font arial.ttf not found; using default font.')
-        text_width, text_height = draw.textsize(watermark_text, font=font)
+            font = ImageFont.load_default()
+            logger.warning('Шрифт arial.ttf не найден; используется шрифт по умолчанию.')
+        if hasattr(draw, 'textsize'):
+            text_width, text_height = draw.textsize(watermark_text, font=font)
+        else:
+            bbox = draw.textbbox((0, 0), watermark_text, font=font)
+            text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
         x = (image.width - text_width) // 2
         y = (image.height - text_height) // 2
         draw.text((x, y), watermark_text, font=font, fill=(255, 255, 255, 128))
         watermarked_image = Image.alpha_composite(image, watermark_layer)
         watermarked_image.save(output_path)
         return str(output_path)
-    except Exception as ex:
-        logger.error(f'Failed to add watermark to {image_path}', exc_info=True)
+    except Exception:
+        logger.error(f'Не удалось добавить текстовый водяной знак на {image_path}', exc_info=True)
         return None
 
-def add_image_watermark(input_image_path: Path, watermark_image_path: Path, output_image_path: Optional[Path]=None) -> Optional[Path]:
-    """
-    Adds a watermark to an image and saves the result to the specified output path.
+
+def add_image_watermark(
+    input_image_path: Path,
+    watermark_image_path: Path,
+    output_image_path: Optional[Path] = None,
+) -> Optional[Path]:
+    """Накладывает графический водяной знак на изображение и сохраняет результат.
 
     Args:
-        input_image_path (Path): Path to the input image.
-        watermark_image_path (Path): Path to the watermark image.
-        output_image_path (Optional[Path]): Path to save the watermarked image.
-            If not provided, the image will be saved in an "output" directory.
+        input_image_path (Path): Путь к исходному изображению.
+        watermark_image_path (Path): Путь к изображению водяного знака.
+        output_image_path (Optional[Path]): Путь сохранения результата.
 
     Returns:
-        Optional[Path]: Path to the saved watermarked image, or None if the operation failed.
+        Optional[Path]: Путь к сохраненному файлу или None при ошибке.
     """
     try:
-        base_image = Image.open(input_image_path)
-        watermark = Image.open(watermark_image_path).convert('RGBA')
-        position = base_image.size
-        newsize = (int(position[0] * 8 / 100), int(position[0] * 8 / 100))
-        watermark = watermark.resize(newsize)
-        new_position = (position[0] - newsize[0] - 20, position[1] - newsize[1] - 20)
-        transparent = Image.new(mode='RGBA', size=position, color=(0, 0, 0, 0))
-        transparent.paste(base_image, (0, 0))
-        transparent.paste(watermark, new_position, watermark)
-        image_mode = base_image.mode
-        if image_mode == 'RGB':
-            transparent = transparent.convert(image_mode)
-        else:
-            transparent = transparent.convert('P')
-        if output_image_path is None:
-            output_image_path = input_image_path.parent / 'output' / input_image_path.name
-        output_image_path.parent.mkdir(parents=True, exist_ok=True)
-        transparent.save(output_image_path, optimize=True, quality=100)
-        logger.info(f'Saving {output_image_path}...')
-        return output_image_path
+        with Image.open(input_image_path) as base_image, Image.open(watermark_image_path) as raw_wm:
+            watermark = raw_wm.convert('RGBA')
+            position = base_image.size
+            newsize = (max(1, int(position[0] * 8 / 100)), max(1, int(position[0] * 8 / 100)))
+            watermark = watermark.resize(newsize)
+            new_position = (position[0] - newsize[0] - 20, position[1] - newsize[1] - 20)
+            transparent = Image.new(mode='RGBA', size=position, color=(0, 0, 0, 0))
+            transparent.paste(base_image, (0, 0))
+            transparent.paste(watermark, new_position, watermark)
+            image_mode = base_image.mode
+            if image_mode == 'RGB':
+                transparent = transparent.convert(image_mode)
+            else:
+                transparent = transparent.convert('P')
+            if output_image_path is None:
+                output_image_path = input_image_path.parent / 'output' / input_image_path.name
+            output_image_path.parent.mkdir(parents=True, exist_ok=True)
+            transparent.save(output_image_path, optimize=True, quality=100)
+            logger.info(f'Сохранение {output_image_path}...')
+            return output_image_path
     except Exception as ex:
-        logger.error(f'Failed to add watermark to {input_image_path}: {ex}', exc_info=True)
+        logger.error(f'Не удалось добавить водяной знак на {input_image_path}: {ex}', exc_info=True)
         return None
 
-def resize_image(image_path: Union[str, Path], size: Tuple[int, int], output_path: Optional[Union[str, Path]]=None) -> Optional[str]:
-    """
-    Resizes an image to the specified dimensions.
+
+def resize_image(
+    image_path: Union[str, Path],
+    size: Tuple[int, int],
+    output_path: Optional[Union[str, Path]] = None,
+) -> Optional[str]:
+    """Изменяет размер изображения до заданных габаритов (ширина, высота).
 
     Args:
-        image_path (Union[str, Path]): Path to the image file.
-        size (Tuple[int, int]): A tuple containing the desired width and height of the image.
-        output_path (Optional[Union[str, Path]]): Path to save the resized image.
-            Defaults to overwriting the original image.
+        image_path (Union[str, Path]): Путь к файлу изображения.
+        size (Tuple[int, int]): Новые размеры (width, height).
+        output_path (Optional[Union[str, Path]]): Путь для сохранения.
 
     Returns:
-        Optional[str]: Path to the resized image, or None on failure.
+        Optional[str]: Путь к сохраненному изображению или None при ошибке.
     """
     image_path = Path(image_path)
     output_path = image_path if output_path is None else Path(output_path)
     try:
-        img = Image.open(image_path)
-        resized_img = img.resize(size)
-        resized_img.save(output_path)
+        with Image.open(image_path) as img:
+            resized_img = img.resize(size)
+            resized_img.save(output_path)
         return str(output_path)
-    except Exception as ex:
-        logger.error(f'Failed to resize image {image_path}', exc_info=True)
+    except Exception:
+        logger.error(f'Не удалось изменить размер изображения {image_path}', exc_info=True)
         return None
 
-def convert_image(image_path: Union[str, Path], format: str, output_path: Optional[Union[str, Path]]=None) -> Optional[str]:
-    """
-    Converts an image to the specified format.
+
+def convert_image(
+    image_path: Union[str, Path],
+    format: str,
+    output_path: Optional[Union[str, Path]] = None,
+) -> Optional[str]:
+    """Конвертирует изображение в указанный графический формат.
 
     Args:
-        image_path (Union[str, Path]): Path to the image file.
-        format (str): Format to convert image to (e.g., "JPEG", "PNG").
-        output_path (Optional[Union[str, Path]]): Path to save the converted image.
-            Defaults to overwriting the original image.
+        image_path (Union[str, Path]): Путь к файлу изображения.
+        format (str): Целевой формат (например, 'JPEG', 'PNG').
+        output_path (Optional[Union[str, Path]]): Путь сохранения результата.
 
     Returns:
-        Optional[str]: Path to the converted image or None on failure.
+        Optional[str]: Путь к конвертированному файлу или None при ошибке.
     """
     image_path = Path(image_path)
     output_path = image_path if output_path is None else Path(output_path)
     try:
-        img = Image.open(image_path)
-        img.save(output_path, format=format)
+        with Image.open(image_path) as img:
+            img.save(output_path, format=format)
         return str(output_path)
-    except Exception as ex:
-        logger.error(f'Failed to convert image {image_path}', exc_info=True)
+    except Exception:
+        logger.error(f'Не удалось конвертировать изображение {image_path}', exc_info=True)
         return None
+
 
 def process_images_with_watermark(folder_path: Path, watermark_path: Path) -> None:
-    """
-    Processes all images in the specified folder by adding a watermark and saving them in an "output" directory.
+    """Пакетно накладывает водяной знак на все изображения в указанной папке.
 
     Args:
-        folder_path (Path): Path to the folder containing images.
-        watermark_path (Path): Path to the watermark image.
+        folder_path (Path): Папка с исходными изображениями.
+        watermark_path (Path): Путь к файлу водяного знака.
     """
     if not folder_path.is_dir():
-        logger.error(f'Folder {folder_path} does not exist.')
+        logger.error(f'Директория {folder_path} не существует.')
         return
     output_dir = folder_path / 'output'
     output_dir.mkdir(parents=True, exist_ok=True)
     for file_path in folder_path.iterdir():
-        if file_path.is_file() and file_path.suffix.lower() in ['.png', '.jpg', '.jpeg']:
+        if file_path.is_file() and file_path.suffix.lower() in {'.png', '.jpg', '.jpeg'}:
             output_image_path = output_dir / file_path.name
             add_image_watermark(file_path, watermark_path, output_image_path)
+
+
 if __name__ == '__main__':
-    folder = Path(input('Enter Folder Path: '))
-    watermark = Path(input('Enter Watermark Path: '))
+    folder = Path(input('Введите путь к папке с изображениями: '))
+    watermark = Path(input('Введите путь к водяному знаку: '))
     process_images_with_watermark(folder, watermark)

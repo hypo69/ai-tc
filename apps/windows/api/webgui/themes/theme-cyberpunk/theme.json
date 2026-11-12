@@ -6,9 +6,5 @@
   "icon": "bi-lightning-fill",
   "iconColor": "text-warning",
   "description": "Высокотехнологичный неоновый стиль с киберпанк-акцентами",
-  "baseType": "dark",
-  "tokens": {
-    "--modal-width": "90vw",
-    "--modal-height": "90vh"
-  }
+  "baseType": "dark"
 }

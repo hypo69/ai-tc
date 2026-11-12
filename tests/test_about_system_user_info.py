@@ -11,7 +11,7 @@
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 12:20:00
+# Updated: 2026-11-01 15:33:00
 # =============================================================================
 
 from pathlib import Path
@@ -178,6 +178,100 @@ def test_about_system_html_contains_full_user_and_network_panel():
     assert 'id="reg-usr-sid-badge"' in content
     assert 'id="reg-usr-profile-badge"' in content
     assert 'id="reg-usr-groups-badge"' in content
+
+
+def test_about_system_html_contains_password_policy_and_reset_pane():
+    """Проверка наличия элементов политики паролей и смены пароля в модальном окне (pane-usr)."""
+    html_path = Path("apps/windows/api/webgui/tab_about_system/index.html")
+    assert html_path.exists()
+    content = html_path.read_text(encoding="utf-8")
+
+    # 1. Информационные бейджи состояния пароля
+    assert 'id="reg-usr-pwd-lastset"' in content
+    assert 'id="reg-usr-pwd-expires"' in content
+    assert 'id="reg-usr-pwd-badcount"' in content
+
+    # 2. Переключатели политики пароля пользователя
+    assert 'id="reg-usr-pwd-never-expires"' in content
+    assert 'id="reg-usr-pwd-cannot-change"' in content
+    assert 'id="reg-usr-pwd-required"' in content
+
+    # 3. Поля смены пароля
+    assert 'id="reg-usr-new-pwd"' in content
+    assert 'id="reg-usr-confirm-pwd"' in content
+    assert 'id="btn-toggle-new-pwd"' in content
+    assert 'id="btn-toggle-confirm-pwd"' in content
+    assert 'id="btn-reg-change-pwd"' in content
+
+    # 4. Глобальная политика паролей SAM
+    assert 'id="reg-pol-min-len"' in content
+    assert 'id="reg-pol-max-age"' in content
+    assert 'id="reg-pol-lockout"' in content
+    assert 'id="btn-reg-save-policy"' in content
+
+
+def test_regional_options_endpoint_password_policy_attributes():
+    """Проверка возврата параметров политики паролей в эндпоинте /api/v1/system/regional-options."""
+    app = FastAPI()
+    router = APIRouter()
+    storage = TelemetryStorage()
+    register_system_action_endpoints(router, storage)
+    app.include_router(router)
+
+    client = TestClient(app)
+    response = client.get("/api/v1/system/regional-options")
+    assert response.status_code == 200
+    data = response.json()
+    assert data.get("status") == "ok"
+    assert "password_required" in data
+    assert "password_never_expires" in data
+    assert "cannot_change_password" in data
+    assert "min_password_length" in data
+    assert "max_password_age_days" in data
+    assert "lockout_threshold" in data
+
+
+def test_change_user_password_endpoint_validation():
+    """Проверка валидации эндпоинта смены пароля пользователя."""
+    app = FastAPI()
+    router = APIRouter()
+    storage = TelemetryStorage()
+    register_system_action_endpoints(router, storage)
+    app.include_router(router)
+
+    client = TestClient(app)
+    # 1. Пустой пароль
+    resp = client.post("/api/v1/system/change-user-password", json={"username": "testuser", "new_password": ""})
+    # Pydantic validation error or endpoint error
+    assert resp.status_code in (200, 422)
+    if resp.status_code == 200:
+        assert resp.json().get("status") == "error"
+
+    # 2. Недопустимое имя пользователя
+    resp2 = client.post("/api/v1/system/change-user-password", json={"username": "bad;user|inject", "new_password": "ValidPassword123!"})
+    assert resp2.status_code == 200
+    assert resp2.json().get("status") == "error"
+    assert "Недопустимое имя" in resp2.json().get("message", "")
+
+
+def test_set_password_policy_endpoint(monkeypatch):
+    """Проверка эндпоинта настройки глобальной политики паролей."""
+    app = FastAPI()
+    router = APIRouter()
+    storage = TelemetryStorage()
+    register_system_action_endpoints(router, storage)
+    app.include_router(router)
+
+    from apps.windows.api.routers.about_system import endpoints_system
+    monkeypatch.setattr(endpoints_system, "set_password_policy_helper", lambda min_len, max_age, lockout: {"status": "ok", "message": "Политика обновлена"})
+
+    client = TestClient(app)
+    resp = client.post("/api/v1/system/set-password-policy", json={"min_password_length": 8, "max_password_age_days": 60, "lockout_threshold": 5})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data.get("status") == "ok"
+    assert "Политика обновлена" in data.get("message", "")
+
 
 
 

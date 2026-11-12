@@ -1,7 +1,7 @@
 /**
- * Вспомогательные утилиты интерфейса просмотрщика реестра Windows.
- * Файл: apps/windows/api/webgui/tab_registry_viewer/common/ui_utils.js
- * Updated: 2026-10-17 01:55:00
+ * Вспомогательные утилиты интерфейса редактора реестра Windows.
+ * Файл: apps/windows/api/webgui/tab_registry_editor/common/ui_utils.js
+ * Updated: 2026-11-01 14:38:00
  */
 
 /**

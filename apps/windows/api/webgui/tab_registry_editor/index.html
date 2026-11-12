@@ -7,20 +7,20 @@ Description:
 
 Usage Examples:
     Web Route:
-      /windows/api/webgui/tab_registry_viewer/index.html
+      /windows/api/webgui/tab_registry_editor/index.html?v=20261101_v1
 
     Tab Frame Integration:
-      <iframe src="/windows/api/webgui/tab_registry_viewer/index.html" class="w-100 h-100 border-0"></iframe>
+      <iframe src="/windows/api/webgui/tab_registry_editor/index.html?v=20261101_v1" class="w-100 h-100 border-0"></iframe>
 
 File: index.html
 Project: ai-windows-admin
-Package: windows/api/webgui/tab_registry_viewer
+Package: windows/api/webgui/tab_registry_editor
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 10:55:00
+Updated: 2026-11-01 14:42:00
 =============================================================================
 -->
-<!-- Windows Registry Viewer Tab -->
+<!-- Windows Registry Editor Tab -->
 <style>
   .reg-container {
     padding: 1rem;
@@ -128,7 +128,7 @@ Updated: 2026-10-20 10:55:00
       <span class="tab-header-icon fs-4 text-warning">🗝️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Инспектор системного реестра Windows</h3>
+          <h3 class="tab-header-title mb-0">Редактор системного реестра Windows</h3>
           <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3 py-2" id="reg-status-badge">
         ● Реестр: Подключено
       </span>
@@ -137,7 +137,18 @@ Updated: 2026-10-20 10:55:00
       </div>
     </div>
     <div class="d-flex align-items-center gap-2 flex-wrap">
-        <button class="btn btn-sm btn-outline-info rounded-pill px-3" id="btn-reg-refresh">
+      <!-- UCPD Driver Switch & Badge -->
+      <div class="d-flex align-items-center gap-2 border rounded-pill px-3 py-1" style="background: var(--surface-2); border-color: var(--border-color) !important;">
+        <div class="form-check form-switch mb-0">
+          <input class="form-check-input" type="checkbox" role="switch" id="reg-switch-ucpd" checked title="Включить / отключить системный драйвер защиты UCPD (ucpd.sys)" data-bs-toggle="tooltip" data-bs-placement="bottom">
+          <label class="form-check-label small fw-semibold" for="reg-switch-ucpd" title="User Choice Protection Driver (ucpd.sys). Блокирует программную запись в защищенные ключи реестра (TaskbarDa, ассоциации браузера). Отключение восстанавливает прямое управление реестром (требуется перезагрузка Windows)." data-bs-toggle="tooltip" data-bs-placement="bottom">
+            Защита UCPD (ucpd.sys)
+          </label>
+        </div>
+        <span class="badge" id="reg-badge-ucpd" title="Текущий статус службы драйвера ucpd.sys" data-bs-toggle="tooltip" data-bs-placement="bottom">Проверка...</span>
+      </div>
+
+      <button class="btn btn-sm btn-outline-info rounded-pill px-3" id="btn-reg-refresh">
 <i class="bi bi-arrow-clockwise me-1"></i> Обновить
       </button>
         <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="btn-reg-copy-path">
@@ -147,6 +158,12 @@ Updated: 2026-10-20 10:55:00
 <i class="bi bi-shield-check me-1"></i> Бэкапы и откат
       </button>
       </div>
+  </div>
+
+  <!-- UCPD Reboot Alert -->
+  <div id="reg-alert-ucpd-reboot" class="alert alert-warning py-1 px-3 small mb-2 d-none align-items-center gap-2">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span>Состояние службы защиты UCPD изменено. Для полного применения в ядре требуется перезагрузка Windows.</span>
   </div>
 <!-- Bookmarks Quick Bar -->
 <div class="mb-3 d-flex align-items-center gap-1 flex-wrap p-2 rounded border border-secondary" id="reg-bookmarks-container" style="background: var(--surface-1);">

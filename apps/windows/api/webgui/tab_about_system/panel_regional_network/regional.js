@@ -1,7 +1,7 @@
 /**
  * Модуль региональных настроек, локализации, часовых поясов и учетных записей.
  * Файл: apps/windows/api/webgui/tab_about_system/panel_regional_network/regional.js
- * Updated: 2026-10-28 14:44:00
+ * Updated: 2026-11-01 15:30:00
  */
 
 import { apiFetch, escapeHtml, setText } from '../common/ui_utils.js?v=20261028_v4';
@@ -219,6 +219,27 @@ export async function loadRegionalOptions(targetPaneId = null) {
     if (usrGroupsBadge) usrGroupsBadge.textContent = Array.isArray(data.current_user_groups) ? data.current_user_groups.join(', ') : '--';
     if (usrLogonBadge) usrLogonBadge.textContent = data.current_user_last_logon || '--';
     if (usrTypeBadge) usrTypeBadge.textContent = data.current_user_account_type || 'Локальный пользователь Windows';
+
+    // Параметры политики и статуса пароля пользователя
+    const pwdLastSetEl = document.getElementById('reg-usr-pwd-lastset');
+    const pwdExpiresEl = document.getElementById('reg-usr-pwd-expires');
+    const pwdBadCountEl = document.getElementById('reg-usr-pwd-badcount');
+    const pwdNeverExpInput = document.getElementById('reg-usr-pwd-never-expires');
+    const pwdCannotChgInput = document.getElementById('reg-usr-pwd-cannot-change');
+    const pwdReqInput = document.getElementById('reg-usr-pwd-required');
+    const polMinLenInput = document.getElementById('reg-pol-min-len');
+    const polMaxAgeInput = document.getElementById('reg-pol-max-age');
+    const polLockoutInput = document.getElementById('reg-pol-lockout');
+
+    if (pwdLastSetEl) pwdLastSetEl.textContent = data.password_last_set || 'Не задан / Нет данных';
+    if (pwdExpiresEl) pwdExpiresEl.textContent = data.password_expires || 'Не ограничен';
+    if (pwdBadCountEl) pwdBadCountEl.textContent = data.bad_password_count ?? 0;
+    if (pwdNeverExpInput) pwdNeverExpInput.checked = !!data.password_never_expires;
+    if (pwdCannotChgInput) pwdCannotChgInput.checked = !!data.cannot_change_password;
+    if (pwdReqInput) pwdReqInput.checked = data.password_required !== false;
+    if (polMinLenInput) polMinLenInput.value = data.min_password_length ?? 0;
+    if (polMaxAgeInput) polMaxAgeInput.value = data.max_password_age_days ?? 42;
+    if (polLockoutInput) polLockoutInput.value = data.lockout_threshold ?? 0;
 
   } catch (err) {
     console.error('[AboutSystemTab] loadRegionalOptions error:', err);
@@ -528,6 +549,9 @@ export function bindRegionalEvents(callbacks = {}) {
       const usrName = document.getElementById('reg-usr-name-input')?.value.trim();
       const fullName = document.getElementById('reg-usr-fullname-input')?.value.trim();
       const desc = document.getElementById('reg-usr-desc-input')?.value.trim();
+      const pwdNeverExpires = document.getElementById('reg-usr-pwd-never-expires')?.checked;
+      const cannotChangePwd = document.getElementById('reg-usr-pwd-cannot-change')?.checked;
+      const pwdRequired = document.getElementById('reg-usr-pwd-required')?.checked;
 
       if (!usrName) {
         showRegModalAlert('Имя учетной записи не указано', 'warning');
@@ -540,13 +564,21 @@ export function bindRegionalEvents(callbacks = {}) {
       try {
         const res = await apiFetch('/api/v1/system/update-user-profile', {
           method: 'POST',
-          body: JSON.stringify({ username: usrName, full_name: fullName, description: desc })
+          body: JSON.stringify({
+            username: usrName,
+            full_name: fullName,
+            description: desc,
+            password_never_expires: pwdNeverExpires,
+            cannot_change_password: cannotChangePwd,
+            password_required: pwdRequired,
+          }),
         });
 
         if (res.status === 'ok') {
-          showRegModalAlert(`✅ Профиль пользователя «<strong>${escapeHtml(usrName)}</strong>» успешно обновлен`, 'success');
+          showRegModalAlert(`✅ Профиль и политики пользователя «<strong>${escapeHtml(usrName)}</strong>» успешно обновлены`, 'success');
           if (window.showToast) window.showToast(`✅ Профиль пользователя «${usrName}» обновлен`, 'success');
           if (callbacks.refreshAll) callbacks.refreshAll();
+          loadRegionalOptions();
         } else {
           showRegModalAlert(`Ошибка: ${escapeHtml(res.message || 'Не удалось обновить профиль')}`, 'danger');
         }
@@ -554,10 +586,111 @@ export function bindRegionalEvents(callbacks = {}) {
         showRegModalAlert(`Ошибка при обновлении профиля: ${escapeHtml(err.message || String(err))}`, 'danger');
       } finally {
         btnSaveUsr.disabled = false;
-        btnSaveUsr.innerHTML = '<i class="bi bi-check-lg me-1"></i> Сохранить профиль';
+        btnSaveUsr.innerHTML = '<i class="bi bi-check-lg me-1"></i> Сохранить профиль и политики';
       }
     };
   }
+
+  // Смена и установка пароля пользователя
+  const btnChangePwd = document.getElementById('btn-reg-change-pwd');
+  if (btnChangePwd) {
+    btnChangePwd.onclick = async () => {
+      const usrName = document.getElementById('reg-usr-name-input')?.value.trim();
+      const newPwd = document.getElementById('reg-usr-new-pwd')?.value || '';
+      const confirmPwd = document.getElementById('reg-usr-confirm-pwd')?.value || '';
+
+      if (!newPwd) {
+        showRegModalAlert('Поле нового пароля не может быть пустым', 'warning');
+        return;
+      }
+      if (newPwd !== confirmPwd) {
+        showRegModalAlert('Введенные пароли не совпадают', 'danger');
+        return;
+      }
+      if (cachedRegionalData && cachedRegionalData.min_password_length > 0 && newPwd.length < cachedRegionalData.min_password_length) {
+        showRegModalAlert(`Пароль должен содержать не менее ${cachedRegionalData.min_password_length} символов (политика хоста)`, 'warning');
+        return;
+      }
+
+      btnChangePwd.disabled = true;
+      btnChangePwd.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Смена пароля...';
+
+      try {
+        const res = await apiFetch('/api/v1/system/change-user-password', {
+          method: 'POST',
+          body: JSON.stringify({ username: usrName, new_password: newPwd }),
+        });
+
+        if (res.status === 'ok') {
+          showRegModalAlert(`✅ Пароль пользователя «<strong>${escapeHtml(usrName)}</strong>» успешно обновлен`, 'success');
+          if (window.showToast) window.showToast(`✅ Пароль пользователя «${usrName}» обновлен`, 'success');
+          const p1 = document.getElementById('reg-usr-new-pwd');
+          const p2 = document.getElementById('reg-usr-confirm-pwd');
+          if (p1) p1.value = '';
+          if (p2) p2.value = '';
+          loadRegionalOptions();
+        } else {
+          showRegModalAlert(`Ошибка: ${escapeHtml(res.message || 'Не удалось изменить пароль')}`, 'danger');
+        }
+      } catch (err) {
+        showRegModalAlert(`Ошибка при смене пароля: ${escapeHtml(err.message || String(err))}`, 'danger');
+      } finally {
+        btnChangePwd.disabled = false;
+        btnChangePwd.innerHTML = '<i class="bi bi-key-fill me-1"></i> Обновить пароль';
+      }
+    };
+  }
+
+  // Глобальная политика безопасности паролей SAM
+  const btnSavePolicy = document.getElementById('btn-reg-save-policy');
+  if (btnSavePolicy) {
+    btnSavePolicy.onclick = async () => {
+      const minLen = parseInt(document.getElementById('reg-pol-min-len')?.value, 10);
+      const maxAge = parseInt(document.getElementById('reg-pol-max-age')?.value, 10);
+      const lockout = parseInt(document.getElementById('reg-pol-lockout')?.value, 10);
+
+      btnSavePolicy.disabled = true;
+      btnSavePolicy.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Применение...';
+
+      try {
+        const res = await apiFetch('/api/v1/system/set-password-policy', {
+          method: 'POST',
+          body: JSON.stringify({
+            min_password_length: isNaN(minLen) ? null : minLen,
+            max_password_age_days: isNaN(maxAge) ? null : maxAge,
+            lockout_threshold: isNaN(lockout) ? null : lockout,
+          }),
+        });
+
+        if (res.status === 'ok') {
+          showRegModalAlert('✅ Глобальная политика безопасности паролей успешно обновлена', 'success');
+          if (window.showToast) window.showToast('✅ Политика паролей хоста обновлена', 'success');
+          loadRegionalOptions();
+        } else {
+          showRegModalAlert(`Ошибка: ${escapeHtml(res.message || 'Не удалось обновить политику')}`, 'danger');
+        }
+      } catch (err) {
+        showRegModalAlert(`Ошибка при сохранении политики: ${escapeHtml(err.message || String(err))}`, 'danger');
+      } finally {
+        btnSavePolicy.disabled = false;
+        btnSavePolicy.innerHTML = '<i class="bi bi-shield-lock me-1"></i> Применить политику хоста';
+      }
+    };
+  }
+
+  // Переключение видимости полей ввода пароля
+  const setupPwdToggle = (btnId, inputId) => {
+    const btn = document.getElementById(btnId);
+    const inp = document.getElementById(inputId);
+    if (!btn || !inp) return;
+    btn.onclick = () => {
+      const isPwd = inp.type === 'password';
+      inp.type = isPwd ? 'text' : 'password';
+      btn.innerHTML = isPwd ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+    };
+  };
+  setupPwdToggle('btn-toggle-new-pwd', 'reg-usr-new-pwd');
+  setupPwdToggle('btn-toggle-confirm-pwd', 'reg-usr-confirm-pwd');
 
   const btnNetPub = document.getElementById('btn-net-profile-public');
   const btnNetPriv = document.getElementById('btn-net-profile-private');

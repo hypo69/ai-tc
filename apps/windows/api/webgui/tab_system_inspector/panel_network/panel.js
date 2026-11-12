@@ -13,7 +13,7 @@ import { fetchLatestSpeedtest, runInternetSpeedtest } from '../../tab_network/pa
  * Package: windows/api/webgui/tab_system_inspector/panel_network
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-30 11:05:00
+ * Updated: 2026-11-01 16:10:00
  * =============================================================================
  */
 
@@ -163,18 +163,51 @@ export async function fetchNetHistoryByInterval(interval) {
  */
 export function updateNetworkTelemetry(netData) {
   if (!netData) return;
-  const rxBps = Number(netData.download_bytes_sec || 0);
-  const txBps = Number(netData.upload_bytes_sec || 0);
-  const utilPct = Number(netData.utilization_percent || 0);
+  let rxBps = 0;
+  let txBps = 0;
+  let utilPct = 0;
+  let linkSpeed = 1000;
+
+  if (Array.isArray(netData)) {
+    const totalItem = netData.find(i => i && i.name === 'total') || netData[0];
+    if (totalItem) {
+      rxBps = Number(totalItem.bytes_recv_per_sec != null ? totalItem.bytes_recv_per_sec : (totalItem.download_bytes_sec || 0));
+      txBps = Number(totalItem.bytes_sent_per_sec != null ? totalItem.bytes_sent_per_sec : (totalItem.upload_bytes_sec || 0));
+      linkSpeed = totalItem.speed_mbps || 1000;
+    } else {
+      netData.forEach(i => {
+        if (!i) return;
+        rxBps += Number(i.bytes_recv_per_sec != null ? i.bytes_recv_per_sec : (i.download_bytes_sec || 0));
+        txBps += Number(i.bytes_sent_per_sec != null ? i.bytes_sent_per_sec : (i.upload_bytes_sec || 0));
+      });
+    }
+  } else {
+    rxBps = Number(netData.download_bytes_sec != null ? netData.download_bytes_sec : (netData.bytes_recv_per_sec || 0));
+    txBps = Number(netData.upload_bytes_sec != null ? netData.upload_bytes_sec : (netData.bytes_sent_per_sec || 0));
+    linkSpeed = netData.link_speed_mbps || netData.speed_mbps || 1000;
+    utilPct = Number(netData.utilization_percent || 0);
+  }
+
+  const totalBps = rxBps + txBps;
+  if (!utilPct && linkSpeed > 0) {
+    utilPct = Math.min(100, Math.max(0, ((totalBps * 8) / (linkSpeed * 1_000_000)) * 100));
+  }
+
+  const rxFormatted = formatBytesPerSec(rxBps);
+  const txFormatted = formatBytesPerSec(txBps);
+  const totalFormatted = formatBytesPerSec(totalBps);
 
   const set = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
-  set('sys-net-kpi-rx', formatBytesPerSec(rxBps));
-  set('sys-net-kpi-tx', formatBytesPerSec(txBps));
+  set('sys-net-kpi-rx', rxFormatted);
+  set('sys-net-kpi-tx', txFormatted);
   set('sys-net-kpi-util', `${utilPct.toFixed(1)}%`);
-  set('sys-net-speed-val', formatBytesPerSec(rxBps + txBps));
+  set('sys-net-speed-val', totalFormatted);
+  set('sys-net-sub-details', `⬇ ${rxFormatted} · ⬆ ${txFormatted}`);
 
   const netGauge = document.getElementById('sys-metric-net-gauge');
   if (netGauge) netGauge.innerHTML = createGaugeSvg(utilPct, 130, 74);
+  const netSlider = document.getElementById('sys-metric-net-slider');
+  if (netSlider) netSlider.innerHTML = createPercentSliderHtml(utilPct, true, `Канал ${utilPct.toFixed(1)}%`);
 }
 
 /**

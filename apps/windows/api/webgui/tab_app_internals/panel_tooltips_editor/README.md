@@ -33,12 +33,12 @@ Updated: 2026-10-31 18:06:00
 ---
 
 ## Архитектура и интеграция
-- **FastAPI роутер:** [`apps/windows/api/routers/router_tooltips.py`](file:///C:/Users/onela/AppData/Local/AI-TC/apps/windows/api/routers/router_tooltips.py)
+- **FastAPI роутер:** [`apps/windows/api/routers/router_tooltips.py`](file:///C:/Users/onela/AppData/Local/ai-tc/apps/windows/api/routers/router_tooltips.py)
   - `GET /api/v1/tooltips?lang=ru` — список всех зарегистрированных тултипов
   - `GET /api/v1/tooltips/{key}?lang=ru` — получение информации о подсказке
   - `POST /api/v1/tooltips` — сохранение/обновление подсказки
   - `DELETE /api/v1/tooltips/{key}` — удаление подсказки
-- **Клиентский модуль:** [`panel.js`](file:///C:/Users/onela/AppData/Local/AI-TC/apps/windows/api/webgui/tab_app_internals/panel_tooltips_editor/panel.js)
+- **Клиентский модуль:** [`panel.js`](file:///C:/Users/onela/AppData/Local/ai-tc/apps/windows/api/webgui/tab_app_internals/panel_tooltips_editor/panel.js)
   - `initTooltipsEditorPanel()` — инициализация разметки, слушателей событий и загрузка данных
   - `loadTooltipsList()` — получение актуального списка
   - `updateLivePreview()` — обновление интерактивной карточки предпросмотра

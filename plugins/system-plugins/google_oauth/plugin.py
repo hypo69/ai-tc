@@ -11,9 +11,11 @@
 # Package: plugins.google_oauth
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:40:30
 # =============================================================================
 
 from __future__ import annotations
+"""Системный плагин управления Google OAuth 2.0, сервисными аккаунтами и квотами."""
 
 from typing import Any, AsyncGenerator, Dict, List, Optional
 from fastapi import APIRouter
@@ -131,4 +133,3 @@ class GoogleOAuthPlugin(BasePlugin):
             "text": f"Google OAuth System Plugin is active. {count} account(s) registered in pool.",
             "accounts_count": count,
         }
-

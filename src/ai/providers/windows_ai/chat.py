@@ -18,11 +18,12 @@
 # Package: src.ai.providers.windows_ai
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 16:53:00
 # =============================================================================
 
 """Provider adapter for Windows AI APIs and local system models."""
 
+import asyncio
 from typing import Any, AsyncIterator, Dict, List, Optional, Set
 from logger import logger
 from src.config import is_debug_mode
@@ -87,7 +88,8 @@ class WindowsAIChatBase(BaseChatProvider):
 
     async def ask(self, q: str, attempts: int=15, temperature: Optional[float]=0.0, max_tokens: Optional[int]=0, **kwargs: Any) -> Optional[str]:
         """Send a prompt to Windows AI model or return status error message."""
-        if not self.is_available():
+        is_avail = await asyncio.to_thread(self.is_available)
+        if not is_avail:
             msg = '[WindowsAIProvider] Windows AI Components are not installed on this system. Please ensure Copilot+ AI packages or Windows App SDK are enabled in Windows Settings.'
             logger.warning(msg)
             if is_debug_mode():

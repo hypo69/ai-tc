@@ -16,14 +16,15 @@
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 16:30:00
+# Updated: 2026-11-10 16:46:00
 # =============================================================================
 
 """Модуль реализации компонента `GoogleGenerativeAI` системы AI-Windows-Admin."""
 
 import asyncio
 import json
-from typing import Any, AsyncGenerator
+import random
+from typing import Any, AsyncGenerator, Optional
 from google.genai import types
 from logger import logger
 from src.ai.gemini.gemini_api_key_state import update_last_run
@@ -56,23 +57,11 @@ class GoogleGenerativeAI(
         sleep_on_exhausted (bool): Флаг ожидания сброса суточных квот при исчерпании.
     """
 
-    async def ask(self, q: str, attempts: int=15, generation_config: dict={}) -> str:
-        """Send single text request to model.
-
-        Args:
-            q (str): Query text.
-            attempts (int): Maximum number of attempts. Default: 15.
-            generation_config (dict): Additional generation parameters.
-
-        Returns:
-            str: Model response or error message.
-
-        Examples:
-            >>> ai = GoogleGenerativeAI()
-            >>> ans = await ai.ask("What is the capital of France?")
-        """
+    async def ask(self, q: str, attempts: int=15, generation_config: Optional[dict]=None) -> str:
+        """Отправляет одиночный текстовый запрос к модели Gemini."""
         if not q:
             return ''
+        generation_config = generation_config or {}
         self._key_errors = {}
         self._unavailable_attempts = 0
         if self._all_keys_exhausted:
@@ -107,7 +96,7 @@ class GoogleGenerativeAI(
                 # from src.config import is_debug_mode
                 # if is_debug_mode():
                 #     raise RuntimeError(f'[DEBUG MODE] Получен пустой ответ от модели Gemini ({self.model_name}): {json.dumps(err_empty, ensure_ascii=False)}')
-                await asyncio.sleep(2 ** min(attempt, 4))
+                await asyncio.sleep((2 ** min(attempt, 4)) + random.uniform(0.05, 0.35))
             except Exception as ex:
                 should_retry: bool = await self._handle_api_error(ex, self.model_name, attempt, attempts)
                 if not should_retry:
@@ -118,7 +107,9 @@ class GoogleGenerativeAI(
         # from src.config import is_debug_mode
         # if is_debug_mode():
         #     raise RuntimeError(f'[DEBUG MODE] Превышено количество попыток ({attempts}) для Gemini ({self.model_name}): {self._last_exception}')
-        return self._get_exhausted_error_msg()
+        if self._all_keys_exhausted:
+            return self._get_exhausted_error_msg()
+        return self._get_retry_exhausted_error_msg(self.model_name)
 
     async def chat(self, q: str, history: list[dict]=(), flag: str='save_chat', system_instruction: str='', attempts: int=15, model_name: str='', **kwargs) -> str:
         """Process message in chat dialog context.
@@ -178,7 +169,7 @@ class GoogleGenerativeAI(
                     # from src.config import is_debug_mode
                     # if is_debug_mode():
                     #     raise RuntimeError(f'[DEBUG MODE] Получен пустой ответ в chat от модели Gemini ({active_model}): {json.dumps(err_empty, ensure_ascii=False)}')
-                    await asyncio.sleep(2 ** min(attempt, 4))
+                    await asyncio.sleep((2 ** min(attempt, 4)) + random.uniform(0.05, 0.35))
                     continue
                 if history:
                     self.chat_history = list(history)
@@ -222,7 +213,7 @@ class GoogleGenerativeAI(
                 # from src.config import is_debug_mode
                 # if is_debug_mode():
                 #     raise RuntimeError(f'[DEBUG MODE] Получен пустой ответ в chat от модели Gemini ({active_model}): {json.dumps(err_empty, ensure_ascii=False)}')
-                await asyncio.sleep(2 ** min(attempt, 4))
+                await asyncio.sleep((2 ** min(attempt, 4)) + random.uniform(0.05, 0.35))
             except Exception as ex:
                 should_retry: bool = await self._handle_api_error(ex, active_model, attempt, attempts)
                 if not should_retry:
@@ -234,7 +225,9 @@ class GoogleGenerativeAI(
         # from src.config import is_debug_mode
         # if is_debug_mode():
         #     raise RuntimeError(f'[DEBUG MODE] Превышено количество попыток ({attempts}) для Gemini chat ({active_model}): {self._last_exception}')
-        return self._get_exhausted_error_msg()
+        if self._all_keys_exhausted:
+            return self._get_exhausted_error_msg()
+        return self._get_retry_exhausted_error_msg(active_model)
 
     async def chat_stream(self, q: str, history: list[dict]=(), flag: str='save_chat', system_instruction: str='', attempts: int=15, model_name: str='', generation_config: dict={}, **kwargs) -> AsyncGenerator[str, None]:
         """Stream-generate model response as async generator.
@@ -311,7 +304,7 @@ class GoogleGenerativeAI(
                             update_last_run(self._key_names_active[0] if self._key_names_active else '')
                             self._unavailable_attempts = 0
                             return
-                    await asyncio.sleep(2 ** min(attempt, 4))
+                    await asyncio.sleep((2 ** min(attempt, 4)) + random.uniform(0.05, 0.35))
                     continue
                 if history:
                     self.chat_history = list(history)
@@ -367,7 +360,7 @@ class GoogleGenerativeAI(
                         update_last_run(self._key_names_active[0] if self._key_names_active else '')
                         self._unavailable_attempts = 0
                         return
-                await asyncio.sleep(2 ** min(attempt, 4))
+                await asyncio.sleep((2 ** min(attempt, 4)) + random.uniform(0.05, 0.35))
             except Exception as ex:
                 should_retry: bool = await self._handle_api_error(ex, active_model, attempt, attempts)
                 if not should_retry:

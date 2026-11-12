@@ -325,6 +325,8 @@
     "subtabModelsTitle": "Керування провайдерами та моделями ШІ (Windows AI, Ollama, Gemini, Foundry Local)",
     "subtabLogsLabel": "Центр журналів",
     "subtabLogsTitle": "Перегляд внутрішніх журналів програми ai-tc",
+    "subtabActivityLabel": "Журнал активності",
+    "subtabActivityTitle": "Журнал внутрішньої активності та операцій додатку/системи",
     "subtabEtwLabel": "Трасування ETW",
     "subtabEtwTitle": "Низькорівневе трасування системних подій ETW ядра Windows",
     "subtabSettingsLabel": "Параметри",

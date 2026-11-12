@@ -14,7 +14,7 @@
 # Package: apps.windows.sdk.modules.taskbar.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 11:57:00
+# Updated: 2026-11-01 14:21:00
 # =============================================================================
 
 from __future__ import annotations
@@ -174,4 +174,21 @@ class TaskbarSummaryReport(BaseModel):
     visible_windows_count: int = Field(0, description="Число видимых окон с заголовками")
     foreground_window: Optional[WindowItem] = Field(None, description="Текущее активное окно")
     pinned_apps_count: int = Field(0, description="Количество закрепленных на панели приложений")
+
+
+class UcpdStatusResponse(BaseModel):
+    """Статус драйвера защиты User Choice Protection Driver (UCPD)."""
+    supported: bool = Field(True, description="Поддерживается ли UCPD на данной системе")
+    enabled: bool = Field(True, description="Включен ли драйвер защиты")
+    is_running: bool = Field(True, description="Работает ли драйвер в текущей сессии")
+    start_type: Optional[int] = Field(None, description="Тип запуска службы: 1 - system, 4 - disabled")
+    task_disabled: bool = Field(False, description="Отключена ли задача UCPD velocity")
+    reboot_pending: bool = Field(False, description="Ожидается ли перезагрузка для смены состояния")
+    message: str = Field("", description="Информационное пояснение статуса")
+
+
+class UcpdToggleRequest(BaseModel):
+    """Запрос на включение или отключение драйвера UCPD."""
+    enabled: bool = Field(..., description="Флаг включения (True) или отключения (False) драйвера UCPD")
+
 

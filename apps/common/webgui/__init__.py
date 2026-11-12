@@ -11,7 +11,7 @@
 # Package: apps.common.webgui
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 14:20:00
+# Updated: 2026-11-03 14:41:44
 # =============================================================================
 
 from __future__ import annotations

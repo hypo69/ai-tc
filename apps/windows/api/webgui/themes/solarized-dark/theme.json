@@ -11,8 +11,6 @@
     "--bg-color": "#002b36",
     "--surface-1": "#073642",
     "--surface-2": "#094352",
-    "--ui-accent": "#268bd2",
-    "--modal-width": "90vw",
-    "--modal-height": "90vh"
+    "--ui-accent": "#268bd2"
   }
 }

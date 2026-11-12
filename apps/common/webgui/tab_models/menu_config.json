@@ -1,0 +1,99 @@
+{
+  "$schema": "webgui-menu-v1",
+  "tab_id": "tab-models",
+  "draggable": true,
+  "subtabs": {
+    "nav_id": "models-subtabs-nav",
+    "storage_key": "tab-models_subtabs_order",
+    "items": [
+      {
+        "id": "gemini",
+        "button_id": "pill-gemini-tab",
+        "pane_id": "pill-gemini",
+        "panel_id": "panel-gemini",
+        "icon": "bi-card-checklist",
+        "label_i18n": "ui.mdl.txt_6772f21b",
+        "title_i18n": "models.subtabs.geminiTitle",
+        "default_title": "Раздел: ✨ Google Gemini",
+        "order": 0
+      },
+      {
+        "id": "agy",
+        "button_id": "pill-agy-tab",
+        "pane_id": "pill-agy",
+        "panel_id": "panel-agy",
+        "icon": "bi-card-checklist",
+        "label_i18n": "ui.mdl.txt_8dee2b37",
+        "title_i18n": "models.subtabs.agyTitle",
+        "default_title": "🚀 Google Antigravity (AGY)",
+        "order": 1
+      },
+      {
+        "id": "google-accounts",
+        "button_id": "pill-google-accounts-tab",
+        "pane_id": "pill-google-accounts",
+        "panel_id": "panel-google-accounts",
+        "icon": "bi-card-checklist",
+        "label_i18n": "ui.mdl.txt_27b162d0",
+        "title_i18n": "models.subtabs.google-accountsTitle",
+        "default_title": "🌐 Google Workspace (Аккаунты)",
+        "order": 2
+      },
+      {
+        "id": "foundry",
+        "button_id": "pill-foundry-tab",
+        "pane_id": "pill-foundry",
+        "panel_id": "panel-foundry",
+        "icon": "bi-card-checklist",
+        "label_i18n": "ui.mdl.txt_aa090a70",
+        "title_i18n": "models.subtabs.foundryTitle",
+        "default_title": "Раздел: ⚙️ Microsoft Foundry",
+        "order": 3
+      },
+      {
+        "id": "ollama",
+        "button_id": "pill-ollama-tab",
+        "pane_id": "pill-ollama",
+        "panel_id": "panel-ollama",
+        "icon": "bi-card-checklist",
+        "label_i18n": "ui.mdl.txt_1ad13077",
+        "title_i18n": "models.subtabs.ollamaTitle",
+        "default_title": "Раздел: 🦙 Ollama (Local)",
+        "order": 4
+      },
+      {
+        "id": "onnx",
+        "button_id": "pill-onnx-tab",
+        "pane_id": "pill-onnx",
+        "panel_id": "panel-onnx",
+        "icon": "bi-card-checklist",
+        "label_i18n": "ui.mdl.txt_a6aa677c",
+        "title_i18n": "models.subtabs.onnxTitle",
+        "default_title": "Раздел: 🧠 Microsoft ONNX / Olive",
+        "order": 5
+      },
+      {
+        "id": "gacc-mode-file",
+        "button_id": "gacc-mode-file-tab",
+        "pane_id": "gacc-mode-file",
+        "panel_id": "panel-gacc-mode-file",
+        "icon": "bi-card-checklist",
+        "label_i18n": "ui.mdl.txt_7424ef43",
+        "title_i18n": "models.subtabs.gacc-mode-fileTitle",
+        "default_title": "Раздел: 📁 Загрузить файл",
+        "order": 6
+      },
+      {
+        "id": "gacc-mode-json",
+        "button_id": "gacc-mode-json-tab",
+        "pane_id": "gacc-mode-json",
+        "panel_id": "panel-gacc-mode-json",
+        "icon": "bi-card-checklist",
+        "label_i18n": "ui.mdl.txt_d68dba98",
+        "title_i18n": "models.subtabs.gacc-mode-jsonTitle",
+        "default_title": "Раздел: 📝 Вставить JSON",
+        "order": 7
+      }
+    ]
+  }
+}

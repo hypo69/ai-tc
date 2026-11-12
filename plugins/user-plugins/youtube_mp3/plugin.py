@@ -10,7 +10,7 @@
 # Package: plugins.user-plugins.youtube_mp3
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 18:46:00
+# Updated: 2026-11-10 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -253,4 +253,3 @@ class YouTubeMP3Plugin(BasePlugin):
 def plugin(ai_model: Any = None, config: Optional[Dict[str, Any]] = None) -> YouTubeMP3Plugin:
     """Фабричная функция создания экземпляра плагина."""
     return YouTubeMP3Plugin(ai_model=ai_model, config=config)
-

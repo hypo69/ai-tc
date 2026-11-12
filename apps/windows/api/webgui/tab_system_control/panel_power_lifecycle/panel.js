@@ -4,7 +4,7 @@
  * Отвечает за мониторинг непрерывного аптайма, историю загрузок (Boot), штатные выключения,
  * перезагрузки, внезапные аварийные сбои питания (Kernel-Power 41 / 6008) и BSOD инциденты.
  * 
- * Updated: 2026-10-20 19:15:00
+ * Updated: 2026-11-01 17:49:00
  */
 
 import { escapeHtml, initTableResizers } from '../common/ui_utils.js';
@@ -176,10 +176,10 @@ export function filterAndRenderPowerSessions() {
     let initiatorHtml = '<span class="text-muted">--</span>';
     if (s.initiator || s.process) {
       const initName = s.initiator ? `<span class="fw-semibold text-primary">${escapeHtml(s.initiator)}</span>` : '';
-      const procName = s.process ? `<span class="badge pwr-proc-badge font-monospace ms-1">${escapeHtml(s.process)}</span>` : '';
+      const procName = s.process ? `<span class="badge pwr-proc-badge font-monospace ms-1 text-truncate" style="max-width: 260px;" title="${escapeHtml(s.process)}">${escapeHtml(s.process)}</span>` : '';
       initiatorHtml = `<div class="d-flex align-items-center flex-wrap">${initName} ${procName}</div>`;
       if (s.initiator_chain && s.initiator_chain.length > 1) {
-        initiatorHtml += `<div class="small text-muted font-monospace mt-0.5" style="font-size: 0.72rem;">🔗 ${escapeHtml(s.initiator_chain.join(' → '))}</div>`;
+        initiatorHtml += `<div class="small text-muted font-monospace mt-0.5 text-truncate" style="font-size: 0.72rem; max-width: 260px;" title="${escapeHtml(s.initiator_chain.join(' → '))}">🔗 ${escapeHtml(s.initiator_chain.join(' → '))}</div>`;
       }
     }
 
@@ -194,14 +194,14 @@ export function filterAndRenderPowerSessions() {
 
     return `
       <tr class="pwr-session-row" data-session-id="${escapeHtml(s.session_id)}" style="cursor: pointer;" title="Нажмите для AI-анализа сессии питания">
-        <td class="font-monospace text-primary small fw-bold">${escapeHtml(s.session_id)}</td>
-        <td class="font-monospace small">${escapeHtml(s.boot_time)}</td>
-        <td class="font-monospace small text-muted">${s.shutdown_time ? escapeHtml(s.shutdown_time) : '<span class="text-success fw-bold">Сейчас</span>'}</td>
-        <td class="font-monospace fw-semibold">${escapeHtml(s.uptime_human || '--')}</td>
-        <td>${statusBadge}</td>
-        <td>${initiatorHtml}</td>
-        <td>${reasonHtml}</td>
-        <td>
+        <td class="font-monospace text-primary small fw-bold text-nowrap">${escapeHtml(s.session_id)}</td>
+        <td class="font-monospace small text-nowrap">${escapeHtml(s.boot_time)}</td>
+        <td class="font-monospace small text-muted text-nowrap">${s.shutdown_time ? escapeHtml(s.shutdown_time) : '<span class="text-success fw-bold">Сейчас</span>'}</td>
+        <td class="font-monospace fw-semibold text-nowrap">${escapeHtml(s.uptime_human || '--')}</td>
+        <td class="text-nowrap">${statusBadge}</td>
+        <td style="min-width: 220px; max-width: 280px;">${initiatorHtml}</td>
+        <td style="min-width: 320px;">${reasonHtml}</td>
+        <td class="text-center">
           <button class="btn btn-xs btn-outline-info p-1 px-2 pwr-detail-btn" data-session-id="${escapeHtml(s.session_id)}" title="Посмотреть подробную хронологию">
             <i class="bi bi-eye"></i>
           </button>

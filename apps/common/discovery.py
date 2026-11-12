@@ -16,16 +16,16 @@
 # Package: apps.common
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-01 13:28:28
+# Updated: 2026-11-10 14:28:15
 # =============================================================================
 
 from __future__ import annotations
-"""Модуль обнаружения бинарных файлов и справочник по загрузке portable-версий.
-
-Updated: 2026-10-01 06:40:00"""
+"""Модуль обнаружения бинарных файлов и справочник по загрузке portable-версий."""
 
 import os
+import re
 import shutil
+import threading
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -51,6 +51,8 @@ class PortableAppGuide:
 class UtilityDiscovery:
     """Интеллектуальный сканер для поиска исполняемых файлов утилит в /bin и системе."""
     _GLOBAL_CACHE: Dict[str, Optional[str]] = {}
+    _CACHE_LOCK = threading.Lock()
+    _MAX_CACHE_SIZE: int = 256
     UTILITY_EXECUTABLES: Dict[str, List[str]] = {'aida64': ['aida64.exe', 'aida64_cl.exe'], 'hwinfo': ['HWiNFO64.exe', 'HWiNFO32.exe', 'HWiNFO.exe'], 'cpuz': ['cpuz_x64.exe', 'cpuz.exe', 'cpuz64.exe'], 'gpuz': ['GPU-Z.exe', 'GPUZ.exe'], 'crystaldiskinfo': ['DiskInfo64.exe', 'DiskInfo32.exe', 'DiskInfo.exe'], 'speccy': ['Speccy64.exe', 'Speccy.exe'], 'coretemp': ['Core Temp.exe', 'CoreTemp.exe'], 'afterburner': ['MSIAfterburner.exe', 'RTSS.exe'], 'nvcleanstall': ['NVCleanstall.exe', 'NVCleanerInstall.exe', 'NVCleanstall_x64.exe'], 'ddu': ['Display Driver Uninstaller.exe', 'DisplayDriverUninstaller.exe', 'DDU.exe']}
     KNOWN_INSTALL_DIRS: Dict[str, List[str]] = {'aida64': ['FinalWire/AIDA64 Extreme', 'FinalWire/AIDA64 Engineer', 'FinalWire/AIDA64 Business', 'AIDA64 Extreme', 'AIDA64'], 'hwinfo': ['HWiNFO64', 'HWiNFO32', 'HWiNFO'], 'cpuz': ['CPUID/CPU-Z', 'CPUID/cpu-z', 'CPU-Z', 'cpuz'], 'gpuz': ['GPU-Z', 'TechPowerUp GPU-Z', 'gpuz'], 'crystaldiskinfo': ['CrystalDiskInfo'], 'speccy': ['Speccy', 'CCleaner/Speccy'], 'coretemp': ['Core Temp'], 'afterburner': ['MSI Afterburner'], 'nvcleanstall': ['NVCleanstall'], 'ddu': ['Display Driver Uninstaller', 'DDU']}
     PORTABLE_GUIDES: Dict[str, Dict[str, str]] = {'aida64': {'name': 'AIDA64 Extreme / Engineer', 'official_url': 'https://www.aida64.com/downloads', 'download_url': 'https://www.aida64.com/downloads/latesta64xe', 'target_bin_path': 'bin/aida64/aida64.exe', 'instruction_ru': "1. Скачайте ZIP-пакет (Portable) AIDA64.\n2. Распакуйте содержимое архива в папку 'bin/aida64/' в корне проекта AI-Breadboard.\n3. Убедитесь, что файл 'bin/aida64/aida64.exe' существует.\n4. Для чтения датчиков на лету включите в настройках AIDA64 опцию: File -> Preferences -> Hardware Monitoring -> External Applications -> Enable shared memory."}, 'hwinfo': {'name': 'HWiNFO64 Portable', 'official_url': 'https://www.hwinfo.com/download/', 'download_url': 'https://www.hwinfo.com/files/hwi_portable.zip', 'target_bin_path': 'bin/hwinfo/HWiNFO64.exe', 'instruction_ru': "1. Перейдите на официальный сайт и скачайте 'HWiNFO Portable (ZIP)'.\n2. Распакуйте архив в папку 'bin/hwinfo/'.\n3. Запустите HWiNFO64.exe один раз и включите опцию 'Shared Memory Support' в настройках (Settings)."}, 'cpuz': {'name': 'CPU-Z (CPUID)', 'official_url': 'https://www.cpuid.com/softwares/cpu-z.htm', 'download_url': 'https://www.cpuid.com/downloads/cpu-z/cpu-z_custom-en.zip', 'target_bin_path': 'bin/cpuz/cpuz.exe', 'instruction_ru': "1. Скачайте 'ZIP • English' (Portable) с официального сайта CPUID.\n2. Распакуйте файл 'cpuz_x64.exe' (или 'cpuz.exe') в папку 'bin/cpuz/'."}, 'gpuz': {'name': 'TechPowerUp GPU-Z', 'official_url': 'https://www.techpowerup.com/gpuz/', 'download_url': 'https://www.techpowerup.com/download/techpowerup-gpu-z/', 'target_bin_path': 'bin/gpuz/GPU-Z.exe', 'instruction_ru': "1. Скачайте исполняемый файл GPU-Z.\n2. Поместите 'GPU-Z.exe' в папку 'bin/gpuz/' (утилита изначально является портативной)."}, 'nvcleanstall': {'name': 'TechPowerUp NVCleanstall', 'official_url': 'https://www.techpowerup.com/download/techpowerup-nvcleanstall/', 'download_url': 'https://www.techpowerup.com/download/techpowerup-nvcleanstall/', 'target_bin_path': 'bin/nvcleanstall/NVCleanstall.exe', 'instruction_ru': "1. Скачайте портативную утилиту NVCleanstall.\n2. Поместите исполняемый файл 'NVCleanstall.exe' в папку 'bin/nvcleanstall/'."}, 'ddu': {'name': 'Display Driver Uninstaller (DDU)', 'official_url': 'https://www.wagnardsoft.com/display-driver-uninstaller-ddu-', 'download_url': 'https://www.wagnardsoft.com/display-driver-uninstaller-ddu-', 'target_bin_path': 'bin/ddu/Display Driver Uninstaller.exe', 'instruction_ru': "1. Скачайте архив Display Driver Uninstaller (DDU) с официального сайта Wagnardsoft.\n2. Распакуйте утилиту в папку 'bin/ddu/'."}, 'crystaldiskinfo': {'name': 'CrystalDiskInfo Portable', 'official_url': 'https://crystalmark.info/en/software/crystaldiskinfo/', 'download_url': 'https://crystalmark.info/en/download/', 'target_bin_path': 'bin/crystaldiskinfo/DiskInfo64.exe', 'instruction_ru': "1. Скачайте 'ZIP (Portable)' версию CrystalDiskInfo.\n2. Распакуйте архив в папку 'bin/crystaldiskinfo/'."}}
@@ -58,7 +60,8 @@ class UtilityDiscovery:
     @classmethod
     def clear_cache(cls) -> None:
         """Сброс глобального кэша найденных путей к утилитам."""
-        cls._GLOBAL_CACHE.clear()
+        with cls._CACHE_LOCK:
+            cls._GLOBAL_CACHE.clear()
 
     def __init__(self, project_root: Optional[Path]=None) -> None:
         """Инициализация путей поиска."""
@@ -66,7 +69,7 @@ class UtilityDiscovery:
             self.project_root = Path(__file__).resolve().parent.parent.parent
             self._is_default_root = True
         else:
-            self.project_root = project_root
+            self.project_root = Path(project_root).resolve()
             self._is_default_root = False
         self._search_roots: List[Path] = self._build_search_roots()
         self._cached_paths: Dict[str, Optional[str]] = {}
@@ -74,74 +77,90 @@ class UtilityDiscovery:
     def _build_search_roots(self) -> List[Path]:
         """Сформировать список приоритетных каталогов поиска."""
         roots: List[Path] = []
-        bin_dir = self.project_root / 'bin'
+        bin_dir = (self.project_root / 'bin').resolve()
         if bin_dir.exists():
             roots.append(bin_dir)
         env_custom = os.environ.get('PORTABLE_TOOLS_DIR')
         if env_custom and os.path.exists(env_custom):
-            roots.append(Path(env_custom))
+            roots.append(Path(env_custom).resolve())
         for drive in ['C:', 'D:', 'E:']:
             for folder in ['Tools', 'PortableApps', 'bin', 'Utilities', 'Diagnostics']:
                 p = Path(f'{drive}/{folder}')
                 if p.exists():
-                    roots.append(p)
+                    roots.append(p.resolve())
         return roots
 
+    def _save_to_cache(self, key: str, value: Optional[str]) -> None:
+        """Потокобезопасно сохраняет результат в локальный и глобальный кэш с защитой от переполнения."""
+        self._cached_paths[key] = value
+        if self._is_default_root:
+            with self._CACHE_LOCK:
+                if len(self._GLOBAL_CACHE) >= self._MAX_CACHE_SIZE:
+                    self._GLOBAL_CACHE.clear()
+                self._GLOBAL_CACHE[key] = value
+
     def find_utility(self, utility_name: str) -> Optional[str]:
-        """Найти исполняемый файл утилиты по имени."""
-        key = utility_name.lower().strip()
+        """Найти исполняемый файл утилиты по имени с защитой от Path Traversal."""
+        raw_key = (utility_name or '').lower().strip()
+        key = re.sub(r'[^a-z0-9_\-]', '', raw_key)
+        if not key:
+            return None
         if key in self._cached_paths:
             return self._cached_paths[key]
-        if self._is_default_root and key in self._GLOBAL_CACHE:
-            return self._GLOBAL_CACHE[key]
+        if self._is_default_root:
+            with self._CACHE_LOCK:
+                if key in self._GLOBAL_CACHE:
+                    return self._GLOBAL_CACHE[key]
         target_bins = self.UTILITY_EXECUTABLES.get(key, [f'{key}.exe'])
         for bin_name in target_bins:
             found = shutil.which(bin_name)
             if found:
                 resolved = str(Path(found).resolve())
-                self._cached_paths[key] = resolved
-                if self._is_default_root:
-                    self._GLOBAL_CACHE[key] = resolved
+                self._save_to_cache(key, resolved)
                 return resolved
         for search_root in self._search_roots:
             if not search_root.exists():
                 continue
+            root_resolved = search_root.resolve()
             for bin_name in target_bins:
-                direct_path = search_root / bin_name
-                if direct_path.is_file():
-                    resolved = str(direct_path.resolve())
-                    self._cached_paths[key] = resolved
-                    if self._is_default_root:
-                        self._GLOBAL_CACHE[key] = resolved
-                    return resolved
-                subfolder_path = search_root / key / bin_name
-                if subfolder_path.is_file():
-                    resolved = str(subfolder_path.resolve())
-                    self._cached_paths[key] = resolved
-                    if self._is_default_root:
-                        self._GLOBAL_CACHE[key] = resolved
-                    return resolved
+                direct_path = (root_resolved / bin_name).resolve()
+                try:
+                    direct_path.relative_to(root_resolved)
+                    if direct_path.is_file():
+                        resolved = str(direct_path)
+                        self._save_to_cache(key, resolved)
+                        return resolved
+                except ValueError:
+                    continue
+                subfolder_path = (root_resolved / key / bin_name).resolve()
+                try:
+                    subfolder_path.relative_to(root_resolved)
+                    if subfolder_path.is_file():
+                        resolved = str(subfolder_path)
+                        self._save_to_cache(key, resolved)
+                        return resolved
+                except ValueError:
+                    continue
         system_roots: List[Path] = []
         for pf_var in ['ProgramFiles', 'ProgramFiles(x86)', 'LOCALAPPDATA']:
             val = os.environ.get(pf_var)
             if val and os.path.exists(val):
-                system_roots.append(Path(val))
+                system_roots.append(Path(val).resolve())
         known_subs = self.KNOWN_INSTALL_DIRS.get(key, [key])
         for s_root in system_roots:
             for sub in known_subs:
                 for bin_name in target_bins:
-                    target_file = s_root / sub / bin_name
-                    if target_file.is_file():
-                        resolved = str(target_file.resolve())
-                        self._cached_paths[key] = resolved
-                        if self._is_default_root:
-                            self._GLOBAL_CACHE[key] = resolved
-                        return resolved
-        self._cached_paths[key] = None
-        if self._is_default_root:
-            self._GLOBAL_CACHE[key] = None
-        '# TODO: вернуть корректное значение'
-        logger.error('Функция find_utility вернула пустой результат')
+                    target_file = (s_root / sub / bin_name).resolve()
+                    try:
+                        target_file.relative_to(s_root)
+                        if target_file.is_file():
+                            resolved = str(target_file)
+                            self._save_to_cache(key, resolved)
+                            return resolved
+                    except ValueError:
+                        continue
+        self._save_to_cache(key, None)
+        logger.debug(f'Утилита {key} не обнаружена в стандартных директориях')
         return None
 
     def get_portable_guide(self, utility_name: str) -> PortableAppGuide:

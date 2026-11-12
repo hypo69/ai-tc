@@ -3,19 +3,19 @@ name: resizable-table
 description: "Инженерное руководство и стандарт создания интерактивных веб-таблиц с ползунком растягивания высоты (resizer), пропорциональным расчетом высоты под количество строк и поддержкой режима 100%."
 ---
 
-<!-- Updated: 2026-11-01 11:45:00 -->
+<!-- Updated: 2026-11-01 16:25:00 -->
 
 # Навык: Создание адаптивных таблиц с ползунком изменения высоты и пропорциональным авто-расчетом
 
 ## 📌 1. Назначение и концепция
 
-В интерфейсах **AI Windows Admin / Test Computer** (например, `http://localhost:8001/tc#tab-system-control#activity`) стандарт отображения табличных данных решает две ключевые UX-задачи:
+В интерфейсах **AI Windows Admin / Test Computer** (например, `http://localhost:8001/tc#tab-system-control#activity`, `http://127.0.0.1:8001/tc#tab-windows-admin#groups`) стандарт отображения табличных данных решает две ключевые UX-задачи:
 1. **Компактность и пропорциональность**: пустая таблица или таблица с 1–3 строками не должна оставлять гигантское пустое поле, а автоматически сжимается до высоты содержимого. При добавлении строк высота контейнера плавно растет пропорционально их количеству до заданного безопасного лимита (`maxAutoHeight`).
 2. **Гибкий пользовательский контроль**: оператор может потянуть нижний ползунок (drag-and-drop ресайзер) на нужную высоту, раскрыть таблицу на 100% без внутреннего вертикального скроллера либо сбросить размер к автоматическому двойным кликом.
 
 В кодовой базе проекта этот функционал представлен двумя уровнями:
 - **Локальный модульный уровень** (пример в `tab_system_control`): контейнеры `#scc-activity-table-container` и `#scc-activity-table-resizer`, обслуживаемые через `setupResizer()` в `apps/windows/api/webgui/tab_system_control/common/ui_utils.js`.
-- **Глобальный уровень дизайн-системы**: универсальный движок `TableResizerInstance` в `apps/windows/api/webgui/js/table-resizer.js` (`window.setupTableResizer`, `window.autoAdjustTableHeight`).
+- **Глобальный уровень дизайн-системы и центральный шаблонизатор таблиц**: универсальный движок `TableTemplate` / `TableResizerInstance` в общем каталоге `apps/common/webgui/js/table-template.js` и `apps/common/webgui/js/table-resizer.js` (`window.TableTemplate`, `window.setupTableResizer`, `window.autoAdjustTableHeight`), а также декларативный компонент `apps/common/webgui/components/table_template.html`.
 
 ---
 

@@ -11,7 +11,7 @@
 # Package: apps.windows.db
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:25:00
+# Updated: 2026-11-10 14:27:00
 # =============================================================================
 
 from __future__ import annotations
@@ -123,6 +123,8 @@ class DatabaseAdapter:
             database = cfg.get("database", "")
             charset = cfg.get("charset", "utf8mb4")
             timeout = int(cfg.get("connect_timeout", 5))
+            read_timeout = int(cfg.get("read_timeout", timeout * 2))
+            write_timeout = int(cfg.get("write_timeout", timeout * 2))
 
             try:
                 self._mariadb_conn = pymysql.connect(
@@ -133,6 +135,8 @@ class DatabaseAdapter:
                     database=database,
                     charset=charset,
                     connect_timeout=timeout,
+                    read_timeout=read_timeout,
+                    write_timeout=write_timeout,
                     cursorclass=pymysql.cursors.DictCursor,
                     autocommit=True,
                 )
@@ -151,6 +155,8 @@ class DatabaseAdapter:
                             database=database,
                             charset=charset,
                             connect_timeout=timeout,
+                            read_timeout=read_timeout,
+                            write_timeout=write_timeout,
                             cursorclass=pymysql.cursors.DictCursor,
                             autocommit=True,
                         )
@@ -180,9 +186,11 @@ class DatabaseAdapter:
                 db_path_obj.parent.mkdir(parents=True, exist_ok=True)
                 db_path = str(db_path_obj)
 
-            conn = sqlite3.connect(db_path, check_same_thread=False)
+            conn = sqlite3.connect(db_path, timeout=15.0, check_same_thread=False)
             conn.row_factory = sqlite3.Row
             conn.execute("PRAGMA journal_mode = WAL;")
+            conn.execute("PRAGMA synchronous = NORMAL;")
+            conn.execute("PRAGMA busy_timeout = 5000;")
             conn.execute("PRAGMA foreign_keys = ON;")
             self._sqlite_conn = conn
             self._ensure_sqlite_tables(conn)
@@ -791,24 +799,28 @@ class DatabaseAdapter:
                 password=password,
                 database=database,
                 connect_timeout=timeout,
+                read_timeout=timeout * 2,
+                write_timeout=timeout * 2,
                 charset="utf8mb4",
             )
             tables_info = {}
             target_tables = ["wikillm_knowledge", "wikillm_procedural_tools", "wiki_llm_profiles"]
-            with db_conn.cursor() as cur:
-                cur.execute("SHOW TABLES;")
-                existing_tables = [t[0].lower() for t in cur.fetchall()]
-                for tbl in target_tables:
-                    if tbl.lower() in existing_tables:
-                        try:
-                            cur.execute(f"SELECT COUNT(*) FROM `{tbl}`;")
-                            row_cnt = cur.fetchone()[0]
-                            tables_info[tbl] = {"exists": True, "count": row_cnt}
-                        except Exception:
-                            tables_info[tbl] = {"exists": True, "count": 0}
-                    else:
-                        tables_info[tbl] = {"exists": False, "count": 0}
-            db_conn.close()
+            try:
+                with db_conn.cursor() as cur:
+                    cur.execute("SHOW TABLES;")
+                    existing_tables = [t[0].lower() for t in cur.fetchall()]
+                    for tbl in target_tables:
+                        if tbl.lower() in existing_tables:
+                            try:
+                                cur.execute(f"SELECT COUNT(*) FROM `{tbl}`;")
+                                row_cnt = cur.fetchone()[0]
+                                tables_info[tbl] = {"exists": True, "count": row_cnt}
+                            except Exception:
+                                tables_info[tbl] = {"exists": True, "count": 0}
+                        else:
+                            tables_info[tbl] = {"exists": False, "count": 0}
+            finally:
+                db_conn.close()
 
             all_ready = all(t.get("exists", False) for t in tables_info.values())
             total_records = sum(t.get("count", 0) for t in tables_info.values())
@@ -1069,9 +1081,10 @@ class DatabaseAdapter:
         ip_fallback = target_cfg.get("ip_fallback")
         timeout = int(target_cfg.get("connect_timeout", 5))
 
-        src_path = Path(sqlite_path) if sqlite_path else Path("data/windows_wikillm/knowledge.db")
+        from apps.windows.db.paths import resolve_system_knowledge_db_path
+        src_path = resolve_system_knowledge_db_path(sqlite_path)
         if not src_path.is_file():
-            for alt in [Path("data/wikillm.db"), Path("wiki_llm.db")]:
+            for alt in [Path("data/windows_wikillm/knowledge.db"), Path("data/wikillm.db"), Path("wiki_llm.db")]:
                 if alt.is_file():
                     src_path = alt
                     break

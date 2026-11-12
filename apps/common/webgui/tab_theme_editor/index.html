@@ -39,28 +39,28 @@ Updated: 2026-10-20 11:15:00
 
     <!-- Панель быстрых действий -->
     <div class="d-flex align-items-center gap-2 flex-wrap">
-      <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" id="theme-btn-reset" title="Сбросить все кастомные изменения к выбранной теме">
+      <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" id="theme-btn-reset" title="Сбросить все кастомные изменения к выбранной теме" data-i18n-title="titles.auto.">
         <i class="bi bi-arrow-counterclockwise"></i>
         <span>Сбросить</span>
       </button>
 
-      <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" id="theme-btn-export" title="Экспортировать текущую тему в JSON-файл">
+      <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" id="theme-btn-export" title="Экспортировать текущую тему в JSON-файл" data-i18n-title="titles.auto.json">
         <i class="bi bi-download"></i>
         <span>Экспорт JSON</span>
       </button>
 
-      <label class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2 mb-0" for="theme-file-import" style="cursor: pointer;" title="Импортировать тему из JSON-файла">
+      <label class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2 mb-0" for="theme-file-import" style="cursor: pointer;" title="Импортировать тему из JSON-файла" data-i18n-title="titles.auto.json">
         <i class="bi bi-upload"></i>
         <span>Импорт JSON</span>
         <input type="file" id="theme-file-import" accept=".json" class="d-none">
       </label>
 
-      <button type="button" class="btn btn-sm btn-outline-info d-flex align-items-center gap-2" id="theme-btn-copy-css" title="Скопировать готовый CSS-код переменных в буфер обмена">
+      <button type="button" class="btn btn-sm btn-outline-info d-flex align-items-center gap-2" id="theme-btn-copy-css" title="Скопировать готовый CSS-код переменных в буфер обмена" data-i18n-title="titles.auto.css">
         <i class="bi bi-code-slash"></i>
         <span>Копировать CSS</span>
       </button>
 
-      <button type="button" class="btn btn-sm btn-primary d-flex align-items-center gap-2 shadow-sm" id="theme-btn-save" title="Сохранить настройки темы в LocalStorage">
+      <button type="button" class="btn btn-sm btn-primary d-flex align-items-center gap-2 shadow-sm" id="theme-btn-save" title="Сохранить настройки темы в LocalStorage" data-i18n-title="titles.auto.localstorage">
         <i class="bi bi-check-circle-fill"></i>
         <span>Сохранить тему</span>
       </button>
@@ -106,19 +106,19 @@ Updated: 2026-10-20 11:15:00
 
           <!-- Панель управления дочерними темами -->
           <div class="d-flex align-items-center gap-2 mt-2 pt-2 border-top border-subtle flex-wrap">
-            <button type="button" class="btn btn-sm btn-success d-flex align-items-center gap-1.5 shadow-sm" id="theme-btn-create-child" title="Создать новую дочернюю тему на основе выбранной">
+            <button type="button" class="btn btn-sm btn-success d-flex align-items-center gap-1.5 shadow-sm" id="theme-btn-create-child" title="Создать новую дочернюю тему на основе выбранной" data-i18n-title="titles.auto.">
               <i class="bi bi-diagram-3-fill"></i>
               <span>Создать дочернюю тему</span>
             </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5" id="theme-btn-rename-child" style="display: none;" title="Переименовать дочернюю тему">
+            <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5" id="theme-btn-rename-child" style="display: none;" title="Переименовать дочернюю тему" data-i18n-title="titles.auto.">
               <i class="bi bi-pencil"></i>
               <span>Переименовать</span>
             </button>
-            <button type="button" class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1.5" id="theme-btn-reset-to-parent" style="display: none;" title="Сбросить оформление дочерней темы к исходным значениям родителя">
+            <button type="button" class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1.5" id="theme-btn-reset-to-parent" style="display: none;" title="Сбросить оформление дочерней темы к исходным значениям родителя" data-i18n-title="titles.auto.">
               <i class="bi bi-arrow-counterclockwise"></i>
               <span>Сбросить к родителю</span>
             </button>
-            <button type="button" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1.5" id="theme-btn-delete-child" style="display: none;" title="Удалить дочернюю тему">
+            <button type="button" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1.5" id="theme-btn-delete-child" style="display: none;" title="Удалить дочернюю тему" data-i18n-title="titles.auto.">
               <i class="bi bi-trash"></i>
               <span>Удалить тему</span>
             </button>
@@ -212,7 +212,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-12 col-sm-6">
                   <label class="form-label small fw-medium mb-1" for="color-bg-base">Фон страницы (--bg-color / --ui-bg-base):</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-bg-base" value="#0b0f19" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-bg-base" value="#0b0f19" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-bg-base" value="#0b0f19">
                   </div>
                 </div>
@@ -221,7 +221,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-12 col-sm-6">
                   <label class="form-label small fw-medium mb-1" for="color-bg-surface">Поверхность карточек (--surface-1 / --card-bg):</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-bg-surface" value="#111827" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-bg-surface" value="#111827" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-bg-surface" value="#111827">
                   </div>
                 </div>
@@ -230,7 +230,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-12 col-sm-6">
                   <label class="form-label small fw-medium mb-1" for="color-bg-elevated">Шапки карточек и тулбары (--surface-2):</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-bg-elevated" value="#1f2937" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-bg-elevated" value="#1f2937" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-bg-elevated" value="#1f2937">
                   </div>
                 </div>
@@ -239,7 +239,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-12 col-sm-6">
                   <label class="form-label small fw-medium mb-1" for="color-bg-nav">Фон шапки и навигации (--nav-bg):</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-bg-nav" value="#111827" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-bg-nav" value="#111827" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-bg-nav" value="#111827">
                   </div>
                 </div>
@@ -265,7 +265,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-12 col-sm-6">
                   <label class="form-label small fw-medium mb-1" for="color-text-primary">Основной текст (--text-color / --ui-text-primary):</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-text-primary" value="#f9fafb" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-text-primary" value="#f9fafb" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-text-primary" value="#f9fafb">
                   </div>
                 </div>
@@ -274,7 +274,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-12 col-sm-6">
                   <label class="form-label small fw-medium mb-1" for="color-text-muted">Приглушенный текст (--text-muted / --ui-text-muted):</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-text-muted" value="#9ca3af" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-text-muted" value="#9ca3af" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-text-muted" value="#9ca3af">
                   </div>
                 </div>
@@ -283,7 +283,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-12 col-sm-6">
                   <label class="form-label small fw-medium mb-1" for="color-accent">Главный акцент (--ui-accent / --nav-active):</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-accent" value="#38bdf8" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-accent" value="#38bdf8" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-accent" value="#38bdf8">
                   </div>
                 </div>
@@ -292,7 +292,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-12 col-sm-6">
                   <label class="form-label small fw-medium mb-1" for="color-accent-hover">Акцент при наведении (--ui-accent-hover):</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-accent-hover" value="#0ea5e9" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-accent-hover" value="#0ea5e9" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-accent-hover" value="#0ea5e9">
                   </div>
                 </div>
@@ -318,7 +318,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-12 col-sm-6">
                   <label class="form-label small fw-medium mb-1" for="color-border">Основная граница (--border-color):</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-border" value="#374151" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-border" value="#374151" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-border" value="#374151">
                   </div>
                 </div>
@@ -327,7 +327,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-12 col-sm-6">
                   <label class="form-label small fw-medium mb-1" for="color-border-strong">Активная граница (--border-strong):</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-border-strong" value="#596b82" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-border-strong" value="#596b82" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-border-strong" value="#596b82">
                   </div>
                 </div>
@@ -364,7 +364,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-6 col-md-3">
                   <label class="form-label small fw-medium mb-1" for="color-status-success">Успех / Норма:</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-status-success" value="#10b981" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-status-success" value="#10b981" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-status-success" value="#10b981">
                   </div>
                 </div>
@@ -373,7 +373,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-6 col-md-3">
                   <label class="form-label small fw-medium mb-1" for="color-status-warning">Предупреждение:</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-status-warning" value="#f59e0b" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-status-warning" value="#f59e0b" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-status-warning" value="#f59e0b">
                   </div>
                 </div>
@@ -382,7 +382,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-6 col-md-3">
                   <label class="form-label small fw-medium mb-1" for="color-status-danger">Ошибка / Сбой:</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-status-danger" value="#ef4444" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-status-danger" value="#ef4444" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-status-danger" value="#ef4444">
                   </div>
                 </div>
@@ -391,7 +391,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-6 col-md-3">
                   <label class="form-label small fw-medium mb-1" for="color-status-info">Информация:</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-status-info" value="#38bdf8" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-status-info" value="#38bdf8" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-status-info" value="#38bdf8">
                   </div>
                 </div>
@@ -480,7 +480,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-12 col-sm-6">
                   <label class="form-label small fw-medium mb-1" for="color-panel-header-text">Цвет текста заголовка (--panel-header-color):</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-panel-header-text" value="#f9fafb" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-panel-header-text" value="#f9fafb" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-panel-header-text" value="#f9fafb">
                   </div>
                 </div>
@@ -488,7 +488,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-12 col-sm-6">
                   <label class="form-label small fw-medium mb-1" for="color-panel-header-bg">Фон заголовка панели (--panel-header-bg):</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-panel-header-bg" value="#1f2937" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-panel-header-bg" value="#1f2937" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-panel-header-bg" value="#1f2937">
                   </div>
                 </div>
@@ -528,7 +528,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-12 col-sm-6">
                   <label class="form-label small fw-medium mb-1" for="color-tab-header-text">Цвет названия вкладки (--tab-header-title-color):</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-tab-header-text" value="#f9fafb" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-tab-header-text" value="#f9fafb" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-tab-header-text" value="#f9fafb">
                   </div>
                 </div>
@@ -536,7 +536,7 @@ Updated: 2026-10-20 11:15:00
                 <div class="col-12 col-sm-6">
                   <label class="form-label small fw-medium mb-1" for="color-tab-header-sub">Цвет подзаголовка (--tab-header-subtitle-color):</label>
                   <div class="input-group input-group-sm">
-                    <input type="color" class="form-control form-control-color" id="picker-tab-header-sub" value="#9ca3af" title="Выбрать цвет">
+                    <input type="color" class="form-control form-control-color" id="picker-tab-header-sub" value="#9ca3af" title="Выбрать цвет" data-i18n-title="titles.auto.">
                     <input type="text" class="form-control font-monospace" id="color-tab-header-sub" value="#9ca3af">
                   </div>
                 </div>
@@ -741,7 +741,7 @@ Updated: 2026-10-20 11:15:00
 
         <div class="card-footer bg-body-tertiary py-2 px-3 d-flex align-items-center justify-content-between small text-muted">
           <span>Стенд обновляется в режиме реального времени</span>
-          <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" id="preview-btn-toggle-fullscreen" title="Полноэкранный режим предварительного просмотра">
+          <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" id="preview-btn-toggle-fullscreen" title="Полноэкранный режим предварительного просмотра" data-i18n-title="titles.auto.">
             <i class="bi bi-arrows-fullscreen me-1"></i>Развернуть превью
           </button>
         </div>

@@ -1,0 +1,12 @@
+{
+  "id": "code_helper",
+  "name": "Code Helper (Codebase RAG)",
+  "version": "1.0.0",
+  "description": "Автономная система AST-индексации, семантического поиска по коду и диагностики ошибок с базой знаний Hostinger",
+  "entrypoint": "apps.code_helper",
+  "api_prefix": "/api/code-helper",
+  "enabled": true,
+  "icon": "bi-code-square",
+  "author": "hypo69",
+  "tags": ["rag", "ast", "codebase", "diagnostics", "hostinger"]
+}

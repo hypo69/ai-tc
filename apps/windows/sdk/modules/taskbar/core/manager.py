@@ -19,7 +19,7 @@
 # Package: apps.windows.sdk.modules.taskbar.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-01 14:22:00
 # =============================================================================
 
 from __future__ import annotations
@@ -142,6 +142,29 @@ class TaskbarController:
                 previous_state=prev_settings,
                 new_state=new_settings,
                 details=res.get("applied_changes"),
+                status="SUCCESS",
+            )
+            res["history_id"] = rec_id
+
+        return res
+
+    def get_ucpd_status(self) -> Dict[str, Any]:
+        """Возвращает статус системного драйвера защиты Windows 11 UCPD."""
+        return self.settings_mgr.get_ucpd_status()
+
+    def set_ucpd_state(self, enable: bool, record_telemetry: bool = True) -> Dict[str, Any]:
+        """Включает или отключает системный драйвер UCPD с аудитом в telemetry.db."""
+        prev_status = self.get_ucpd_status() if record_telemetry else None
+        res = self.settings_mgr.set_ucpd_state(enable)
+
+        if record_telemetry and res.get("status") == "SUCCESS":
+            rec_id = self.history_mgr.record_action(
+                command_id="SYSTEM.UCPD_SET_STATE",
+                category="system",
+                action_type="set_ucpd_state",
+                previous_state=prev_status,
+                new_state={"enabled": enable},
+                details=res,
                 status="SUCCESS",
             )
             res["history_id"] = rec_id

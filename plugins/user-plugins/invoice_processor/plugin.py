@@ -10,11 +10,13 @@
 # Package: plugins.invoice_processor
 # Author: hypo69
 # Copyright: (c) 2026 hypo69
+# Updated: 2026-11-10 17:28:00
 # =============================================================================
 
 from __future__ import annotations
 
 import csv
+from decimal import Decimal
 import json
 import os
 from pathlib import Path
@@ -27,6 +29,7 @@ from plugins.invoice_processor.extractor import (
     extract_structured_invoice_data,
     invoice_dict_to_row,
 )
+from src.utils.convertors.money import minor_units_to_decimal, money_to_minor_units, to_decimal_money
 
 
 class InvoiceProcessorPlugin(BasePlugin):
@@ -272,11 +275,19 @@ class InvoiceProcessorPlugin(BasePlugin):
                 except Exception as ex2:
                     logger.error(f"GSheets fallback sync failed: {ex2}")
 
+        total_minor_sum: int = sum(
+            int(r.get("total_amount_minor", 0) or money_to_minor_units(str(r.get("total_amount") or "0")))
+            for r in records
+        )
+        total_decimal_sum: Decimal = minor_units_to_decimal(total_minor_sum)
+
         return {
             "success": True,
             "processed_count": len(records),
             "files": [r.get("file_name") for r in records],
             "records": records,
+            "total_amount_minor": total_minor_sum,
+            "total_amount_decimal": str(total_decimal_sum),
             "gsheet_synced": gsheet_synced,
             "spreadsheet_id": target_sheet_id,
             "local_backup": str(backup_csv_path) if backup_csv_path else None,

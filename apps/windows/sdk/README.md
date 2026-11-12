@@ -41,8 +41,7 @@ apps/windows/sdk/
 │   │   universal_langchain_agent.py, closed_loop_remediation.py
 │   ├── system32_catalog.py, system32_models.py, build_command_registry.py
 │   ├── audits/           # 14 унифицированных коллекторов аудита
-│   ├── tools/            # ToolRegistry, BaseTool, DynamicToolFactory (см. tools/README.md)
-│   └── tool_chains/      # Планирование и запуск цепочек инструментов
+│   └── tools/            # ToolRegistry, BaseTool, DynamicToolFactory (см. tools/README.md)
 │
 ├── display/              # Конфигурация дисплеев (display_config.py)
 ├── settings/             # Каталог и resolver настроек Windows, верификация применения
@@ -66,7 +65,7 @@ apps/windows/sdk/
 Фасад `windows_sdk.modules` лениво отдаёт: `hardware`, `network`, `network_discovery`, `storage`, `defender`, `firewall`, `services`, `task_scheduler`, `registry`, `process_manager`, `taskbar`, `window_control_plane`, `software_scanner`, `regional`. Остальные модули импортируются напрямую из `apps.windows.sdk.modules.<имя>`.
 
 > [!IMPORTANT]
-> Модули SDK **не пишут** в `telemetry.db` самостоятельно: сбор и запись идут через слой телеметрии (исключение — узкие хранилища вроде `personalization/store.py`, `core/tool_chains/storage.py`).
+> Модули SDK **не пишут** в `telemetry.db` самостоятельно: сбор и запись идут через слой телеметрии (исключение — узкие хранилища вроде `personalization/store.py`).
 
 ---
 
@@ -174,6 +173,6 @@ print(f"NVIDIA Version: {clean_ver}")
 
 ---
 
-**Updated:** 2026-10-31 16:10:00  
+**Updated:** 2026-11-01 13:00:00  
 **Package:** `apps.windows.sdk`  
 **Author:** hypo69

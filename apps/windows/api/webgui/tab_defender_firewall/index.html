@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_defender_firewall
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-28 14:53:00
+Updated: 2026-11-01 12:50:00
 =============================================================================
 -->
 
@@ -42,7 +42,7 @@ Updated: 2026-10-28 14:53:00
       <span class="tab-header-icon fs-4 text-warning">🛡️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Центр безопасности Defender & Firewall</h3>
+          <h3 class="tab-header-title mb-0">Центр безопасности Defender & Firewall</h3>
           
         </div>
         <small class="tab-header-subtitle text-secondary">Состояние антивируса Defender, сетевой экран Windows Firewall, правила изоляции и SafeOps рекомендации</small>
@@ -178,8 +178,8 @@ Updated: 2026-10-28 14:53:00
       <div class="row g-2">
         <div class="col-md-7">
           <div class="def-panel h-100">
-            <div class="def-panel-header">
-              <span>Эшелоны Защиты Microsoft Defender</span>
+            <div class="panel-header">
+              <span class="panel-title">Эшелоны Защиты Microsoft Defender</span>
             </div>
             <div class="table-responsive p-0">
               <table class="table table-hover mb-0 align-middle small">
@@ -199,8 +199,8 @@ Updated: 2026-10-28 14:53:00
         </div>
         <div class="col-md-5">
           <div class="def-panel h-100">
-            <div class="def-panel-header">
-              <span>Системные Службы и Процессы</span>
+            <div class="panel-header">
+              <span class="panel-title">Системные Службы и Процессы</span>
             </div>
             <div class="table-responsive p-0">
               <table class="table table-hover mb-0 align-middle small">
@@ -225,8 +225,8 @@ Updated: 2026-10-28 14:53:00
     <!-- 2. ASR Rules Pane -->
     <div class="tab-pane fade" id="def-pane-asr" role="tabpanel">
       <div class="def-panel">
-        <div class="def-panel-header">
-          <span>Правила Attack Surface Reduction (ASR)</span>
+        <div class="panel-header">
+          <span class="panel-title">Правила Attack Surface Reduction (ASR)</span>
           <span class="badge bg-secondary" id="def-asr-count-badge">Всего: 0</span>
         </div>
         <div class="table-responsive p-0">
@@ -253,8 +253,8 @@ Updated: 2026-10-28 14:53:00
       <div class="row g-2">
         <div class="col-md-6">
           <div class="def-panel h-100">
-            <div class="def-panel-header">
-              <span>Защищенные Каталоги (Protected Folders)</span>
+            <div class="panel-header">
+              <span class="panel-title">Защищенные Каталоги (Protected Folders)</span>
             </div>
             <div class="p-2" id="def-cfa-folders-list">
               <div class="text-muted small">Загрузка...</div>
@@ -263,8 +263,8 @@ Updated: 2026-10-28 14:53:00
         </div>
         <div class="col-md-6">
           <div class="def-panel h-100">
-            <div class="def-panel-header d-flex justify-content-between align-items-center">
-              <span>Доверенные Приложения (Allowed Apps)</span>
+            <div class="panel-header d-flex justify-content-between align-items-center">
+              <span class="panel-title">Доверенные Приложения (Allowed Apps)</span>
               <button class="btn btn-primary btn-sm py-0 px-2 rounded-pill" id="btn-open-cfa-add-modal" data-bs-toggle="modal" data-bs-target="#cfaAddAppModal">
                 <i class="bi bi-plus-lg me-1"></i>Добавить
               </button>
@@ -280,8 +280,8 @@ Updated: 2026-10-28 14:53:00
     <!-- 4. Exclusions Security Audit Pane -->
     <div class="tab-pane fade" id="def-pane-exclusions" role="tabpanel">
       <div class="def-panel">
-        <div class="def-panel-header">
-          <span>Аудит Исключений из Проверки</span>
+        <div class="panel-header">
+          <span class="panel-title">Аудит Исключений из Проверки</span>
           <span class="badge bg-warning text-dark" id="def-exc-summary-badge">0 исключений</span>
         </div>
         <div class="p-2 mb-1 bg-body-secondary text-body small border-bottom" id="def-exc-recommendation-box">
@@ -308,8 +308,8 @@ Updated: 2026-10-28 14:53:00
     <!-- 5. Threats History Pane -->
     <div class="tab-pane fade" id="def-pane-threats" role="tabpanel">
       <div class="def-panel">
-        <div class="def-panel-header">
-          <span>Журнал Обнаружения Угроз и Карантин</span>
+        <div class="panel-header">
+          <span class="panel-title">Журнал Обнаружения Угроз и Карантин</span>
           <span class="badge bg-danger" id="def-threats-count-badge">0 записей</span>
         </div>
         <div class="table-responsive p-0">
@@ -335,8 +335,8 @@ Updated: 2026-10-28 14:53:00
     <!-- 6. Process Trees / Fileless Activity Pane -->
     <div class="tab-pane fade" id="def-pane-procs" role="tabpanel">
       <div class="def-panel">
-        <div class="def-panel-header">
-          <span>Инспекция Цепочек Процессов и Индикаторы Fileless-атак</span>
+        <div class="panel-header">
+          <span class="panel-title">Инспекция Цепочек Процессов и Индикаторы Fileless-атак</span>
           <span class="badge bg-secondary" id="def-procs-count-badge">0 аномалий</span>
         </div>
         <div class="table-responsive p-0">
@@ -361,8 +361,8 @@ Updated: 2026-10-28 14:53:00
     <!-- 7. Operational Events Pane -->
     <div class="tab-pane fade" id="def-pane-events" role="tabpanel">
       <div class="def-panel">
-        <div class="def-panel-header">
-          <span>Журнал Microsoft-Windows-Windows Defender/Operational</span>
+        <div class="panel-header">
+          <span class="panel-title">Журнал Microsoft-Windows-Windows Defender/Operational</span>
           <span class="badge bg-secondary" id="def-events-count-badge">0 событий</span>
         </div>
         <div class="table-responsive p-0" style="max-height: calc(100vh - 240px); min-height: 200px; overflow-y: auto;">

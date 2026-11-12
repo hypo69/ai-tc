@@ -12,7 +12,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_scenarios
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-22 03:45:00
+Updated: 2026-11-01 12:50:00
 =============================================================================
 -->
 <div class="container-fluid p-0 scenarios-tab-wrapper">
@@ -22,7 +22,7 @@ Updated: 2026-10-22 03:45:00
       <span class="tab-header-icon fs-4 text-warning">💬</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Сценарии тестирования и автоматизации</h3>
+          <h3 class="tab-header-title mb-0">Сценарии тестирования и автоматизации</h3>
           <span class="badge bg-primary-subtle text-primary border border-primary-subtle small fs-6">Test Computer (/tc)</span>
         </div>
         <small class="tab-header-subtitle text-secondary">Интерактивная диагностика системы, решение цепочек задач и запуск комплексных сценариев</small>
@@ -54,11 +54,11 @@ Updated: 2026-10-22 03:45:00
     <div class="col-12">
       <div class="card scenario-chat-card border-secondary-subtle shadow-sm d-flex flex-column" data-panel-id="panel-scenarios" id="panel-scenarios" style="min-height: 80vh; height: calc(100vh - 170px);">
         <!-- Chat Header -->
-        <div class="card-header border-secondary-subtle py-2 px-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div class="panel-header border-secondary-subtle py-2 px-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
           <div class="d-flex align-items-center gap-2">
             <span class="fs-5">💬</span>
             <div>
-              <h6 class="mb-0 fw-bold">AI Ассистент сценариев &amp; Расследование задач</h6>
+              <span class="panel-title">AI Ассистент сценариев &amp; Расследование задач</span>
               <div class="text-muted small" style="font-size: 0.75rem;">Автономный ReAct-агент: выбор инструментов WikiLLM Toolbox и синтез PowerShell на хосте</div>
             </div>
           </div>
@@ -170,11 +170,11 @@ Updated: 2026-10-22 03:45:00
 
       <!-- Execution Console & Results (shown on run) -->
       <div class="card bg-dark bg-opacity-75 border-secondary-subtle shadow-sm" data-panel-id="panel-scenarios-1" id="scenario-result-panel" style="display: none;">
-        <div class="card-header bg-transparent border-secondary-subtle d-flex align-items-center justify-content-between py-2 px-3">
+        <div class="panel-header border-secondary-subtle d-flex align-items-center justify-content-between py-2 px-3">
           <div class="d-flex align-items-center gap-2">
             <span class="fs-5" id="result-status-icon">⏳</span>
             <div>
-              <strong class="text-white" id="result-scenario-title">Выполнение сценария...</strong>
+              <span class="panel-title" id="result-scenario-title">Выполнение сценария...</span>
               <div class="text-muted small" id="result-scenario-meta">Инициализация шагов...</div>
             </div>
           </div>

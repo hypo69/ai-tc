@@ -11,6 +11,7 @@
 # Package: plugins.application_log_analyzer
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:40:10
 # =============================================================================
 
 """Плагин анализатора логов приложения для панели администрирования.
@@ -35,6 +36,9 @@ from typing import Any, AsyncGenerator, Dict, List, Optional
 from header import __root__
 from logger import logger
 from plugins.base import BasePlugin
+
+# Максимальное число байт для чтения хвоста одного лог-файла в память (2 МБ)
+MAX_LOG_TAIL_READ_BYTES: int = 2 * 1024 * 1024
 
 # Импорт ядра парсинга и кластеризации из навыка анализатора логов
 SKILL_SCRIPTS_PATH = __root__ / ".agents" / "skills" / "developer-skills" / "log-analyzer" / "scripts"
@@ -209,13 +213,17 @@ class ApplicationLogAnalyzerPlugin(BasePlugin):
         Returns:
             tuple[List[LogEntry], List[str]]: Распарсенные записи и сырые текстовые блоки.
         """
-        log_dir = get_default_log_dir()
+        log_dir = get_default_log_dir().resolve()
         files: List[Path] = []
 
         if custom_file:
-            cf_path = Path(custom_file)
-            if cf_path.exists() and cf_path.is_file():
-                files.append(cf_path)
+            cf_path = Path(custom_file).resolve()
+            try:
+                cf_path.relative_to(log_dir)
+                if cf_path.exists() and cf_path.is_file():
+                    files.append(cf_path)
+            except ValueError:
+                logger.warning(f"Отклонена попытка чтения файла вне директории логов: {custom_file}")
         elif log_dir.exists():
             files.extend(sorted(log_dir.glob("*.log")))
             json_log = log_dir / "log.json"
@@ -227,7 +235,11 @@ class ApplicationLogAnalyzerPlugin(BasePlugin):
 
         for fpath in files:
             try:
-                content = fpath.read_text(encoding="utf-8", errors="ignore")
+                f_size = fpath.stat().st_size
+                with open(fpath, "rb") as bf:
+                    if f_size > MAX_LOG_TAIL_READ_BYTES:
+                        bf.seek(f_size - MAX_LOG_TAIL_READ_BYTES)
+                    content = bf.read(MAX_LOG_TAIL_READ_BYTES).decode("utf-8", errors="ignore")
                 if tail_lines > 0:
                     lines = content.splitlines()[-tail_lines:]
                     content = "\n".join(lines)
@@ -308,9 +320,18 @@ class ApplicationLogAnalyzerPlugin(BasePlugin):
             if self.config.get("auto_save_report", True):
                 rep_dir = get_default_reports_dir()
                 rep_dir.mkdir(parents=True, exist_ok=True)
-                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d_%H%M%S")
                 save_file = rep_dir / f"admin_ai_diagnosis_{timestamp}.md"
-                save_file.write_text(report_md, encoding="utf-8")
+                tmp_file = save_file.with_name(f".{save_file.name}.tmp")
+                try:
+                    tmp_file.write_text(report_md, encoding="utf-8")
+                    os.replace(tmp_file, save_file)
+                finally:
+                    if tmp_file.exists():
+                        try:
+                            tmp_file.unlink()
+                        except OSError:
+                            pass
                 saved_path = str(save_file)
 
             return {
@@ -397,4 +418,3 @@ class ApplicationLogAnalyzerPlugin(BasePlugin):
 
 # Псевдоним для совместимости
 LogAnalyzerPlugin = ApplicationLogAnalyzerPlugin
-

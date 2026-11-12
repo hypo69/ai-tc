@@ -3,7 +3,7 @@
 # Process Name: Точка запуска SSH MCP Server из каталога .mcp/ (ssh_mcp_server.py)
 # =============================================================================
 # Description:
-#   Обеспечение совместимости с реестром локальных MCP-серверов AI-TC (`.mcp/`)
+#   Обеспечение совместимости с реестром локальных MCP-серверов ai-tc (`.mcp/`)
 #   для бесшовного подключения в Claude Desktop, Cursor, Antigravity и VS Code.
 #
 #   Зачем нужен этот модуль:
@@ -17,7 +17,7 @@
 #     exit_code = main(["--transport", "stdio"])
 #
 # File: ssh_mcp_server.py
-# Project: AI Windows Admin (AI-TC)
+# Project: AI Windows Admin (ai-tc)
 # Package: .mcp
 # Author: hypo69
 # Copyright: © 2026 hypo69

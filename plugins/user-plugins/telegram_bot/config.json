@@ -1,7 +1,10 @@
 {
   "token": "",
-  "bot_name": "ai_breadboard_bot",
-  "admin_ids": [],
+  "bot_name": "ai_breadboard-bot",
+  "admin_ids": [
+    8964623902,
+    697897105
+  ],
   "notifications_enabled": true,
   "webhook_url": "",
   "allowed_updates": [

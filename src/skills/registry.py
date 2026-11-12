@@ -3,35 +3,40 @@
 # Process Name: AI-Windows-Admin SKILLS - Registry Module
 # =============================================================================
 # Description:
-#   Loads, normalizes, and registers skills for various AI agents.
+#   Загружает, нормализует и регистрирует навыки (skills) для ИИ-агентов.
 #
 # Usage Examples:
 #   Python API:
-#     from src.skills.registry import SkillDefinition
+#     from src.skills.registry import SkillRegistry
 #
-#     service = SkillDefinition()
-#     result = service.get_description()
-#     print(result)
+#     registry = SkillRegistry()
+#     skills = registry.discover()
 #
 # File: registry.py
 # Project: ai-windows-admin
 # Package: src.skills
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 14:35:00
 # =============================================================================
 
 from __future__ import annotations
-"""Loads, normalizes, and registers skills for various AI agents."""
 
-import json
-import re
+"""Загружает, нормализует и регистрирует навыки (skills) для различных ИИ-агентов."""
+
 from dataclasses import dataclass, field
+import json
+import os
 from pathlib import Path
+import re
 from typing import Any, Iterable
+
 from header import __root__
 from src.utils.jjson import j_loads_ns
-_FRONTMATTER_PATTERN = re.compile('\\A---\\s*\\n(?P<body>.*?)\\n---\\s*(?:\\n|\\Z)', re.DOTALL)
+
+_FRONTMATTER_PATTERN = re.compile(r'\A---\s*\n(?P<body>.*?)\n---\s*(?:\n|\Z)', re.DOTALL)
+_MAX_SKILL_FILE_BYTES = 2 * 1024 * 1024  # Лимит 2 МБ на файл навыка для защиты памяти
+
 try:
     _config_path = Path(__file__).parent / 'config.json'
     _config = j_loads_ns(_config_path)
@@ -39,26 +44,28 @@ try:
 except Exception:
     _DEFAULT_SKILL_DIRS = ('.skills', '.agents/skills', '.gemini/skills', 'skills')
 
+
 def _get_home_dir() -> Path | None:
-    """Safely retrieves user home directory across platforms."""
+    """Безопасно определяет домашнюю директорию пользователя на разных ОС."""
     try:
         return Path.home()
     except Exception:
-        import os
         user_profile = os.environ.get('USERPROFILE') or os.environ.get('HOME')
         if user_profile:
             return Path(user_profile)
         return None
 
+
 def _get_default_global_dirs() -> tuple[Path, ...]:
-    """Returns accessible global user skill directories."""
+    """Возвращает доступные глобальные пользовательские директории навыков."""
     home = _get_home_dir()
     if not home:
         return ()
     return (home / '.agents' / 'skills', home / '.gemini' / 'skills')
 
+
 def _parse_scalar(value: str) -> Any:
-    """Parses simple YAML values without requiring PyYAML dependency."""
+    """Разбирает простые скалярные значения YAML без зависимости от PyYAML."""
     normalized = value.strip()
     if not normalized:
         return ''
@@ -69,12 +76,15 @@ def _parse_scalar(value: str) -> Any:
             return normalized
     if normalized.lower() in ('true', 'false'):
         return normalized.lower() == 'true'
-    if normalized.startswith('"') and normalized.endswith('"') or (normalized.startswith("'") and normalized.endswith("'")):
+    if (normalized.startswith('"') and normalized.endswith('"')) or (
+        normalized.startswith("'") and normalized.endswith("'")
+    ):
         return normalized[1:-1]
     return normalized
 
+
 def _parse_frontmatter(text: str) -> tuple[dict[str, Any], str]:
-    """Returns frontmatter metadata and Markdown without its header."""
+    """Извлекает метаданные YAML frontmatter и тело Markdown без заголовка."""
     match = _FRONTMATTER_PATTERN.match(text)
     if not match:
         return ({}, text.strip())
@@ -116,20 +126,24 @@ def _parse_frontmatter(text: str) -> tuple[dict[str, Any], str]:
         i += 1
     return (metadata, text[match.end():].strip())
 
+
 def _load_json_manifest(skill_root: Path) -> dict[str, Any]:
-    """Loads optional machine contract for the skill."""
+    """Загружает опциональный машинный манифест skill.json для навыка."""
     manifest_path = skill_root / 'skill.json'
     if not manifest_path.is_file():
         return {}
     try:
+        if manifest_path.stat().st_size > _MAX_SKILL_FILE_BYTES:
+            return {}
         parsed = json.loads(manifest_path.read_text(encoding='utf-8'))
     except (OSError, json.JSONDecodeError):
         return {}
     return parsed if isinstance(parsed, dict) else {}
 
+
 @dataclass(frozen=True)
 class SkillDefinition:
-    """Normalized skill description suitable for any provider."""
+    """Нормализованное описание навыка, совместимое с любым провайдером."""
     name: str
     description: str
     root: Path
@@ -139,8 +153,8 @@ class SkillDefinition:
     manifest: dict[str, Any] = field(default_factory=dict)
     descriptions_i18n: dict[str, str] = field(default_factory=dict)
 
-    def get_description(self, lang: str='en') -> str:
-        """Returns skill description in requested language with fallback to EN/base."""
+    def get_description(self, lang: str = 'en') -> str:
+        """Возвращает описание навыка на запрошенном языке с откатом к EN или базовому."""
         if not lang:
             return self.description
         lang_key = lang.strip().lower().split('-')[0].split('_')[0]
@@ -150,22 +164,38 @@ class SkillDefinition:
             return self.descriptions_i18n['en']
         return self.description
 
-    def to_dict(self, include_instructions: bool=True, lang: str | None=None) -> dict[str, Any]:
-        """Converts skill to portable JSON contract."""
+    def to_dict(self, include_instructions: bool = True, lang: str | None = None) -> dict[str, Any]:
+        """Преобразует описание навыка в переносимый JSON-контракт."""
         resolved_desc = self.get_description(lang) if lang else self.description
-        result: dict[str, Any] = {'name': self.name, 'description': resolved_desc, 'descriptions_i18n': dict(self.descriptions_i18n), 'root': self.root.as_posix(), 'source': self.source.as_posix(), 'metadata': dict(self.metadata), 'manifest': dict(self.manifest)}
+        result: dict[str, Any] = {
+            'name': self.name,
+            'description': resolved_desc,
+            'descriptions_i18n': dict(self.descriptions_i18n),
+            'root': self.root.as_posix(),
+            'source': self.source.as_posix(),
+            'metadata': dict(self.metadata),
+            'manifest': dict(self.manifest),
+        }
         if include_instructions:
             result['instructions'] = self.instructions
         return result
 
-    def prompt(self, lang: str | None=None) -> str:
-        """Returns instructions for adding to the model's system prompt."""
+    def prompt(self, lang: str | None = None) -> str:
+        """Возвращает текст инструкций для включения в системный промпт модели."""
         return self.instructions.strip()
 
-class SkillRegistry:
-    """Searches for skills in compatible directories and provides unified access API."""
 
-    def __init__(self, project_root: Path=__root__, skill_dirs: Iterable[str]=_DEFAULT_SKILL_DIRS, include_global: bool | None=None, global_dirs: Iterable[Path] | None=None) -> None:
+class SkillRegistry:
+    """Выполняет поиск навыков в совместимых директориях и предоставляет единый API доступа."""
+
+    def __init__(
+        self,
+        project_root: Path = __root__,
+        skill_dirs: Iterable[str] = _DEFAULT_SKILL_DIRS,
+        include_global: bool | None = None,
+        global_dirs: Iterable[Path] | None = None,
+    ) -> None:
+        """Инициализирует реестр навыков."""
         self.project_root = Path(project_root).resolve()
         self.skill_dirs = tuple(skill_dirs)
         if include_global is None:
@@ -175,8 +205,8 @@ class SkillRegistry:
         resolved_global = global_dirs if global_dirs is not None else _get_default_global_dirs()
         self.global_dirs = tuple((Path(d).resolve() for d in resolved_global))
 
-    def discover(self, lang: str | None=None) -> list[SkillDefinition]:
-        """Finds all directories with SKILL.md and removes duplicates by name."""
+    def discover(self, lang: str | None = None) -> list[SkillDefinition]:
+        """Находит все директории с SKILL.md и устраняет дубликаты по имени."""
         found: dict[str, SkillDefinition] = {}
         for relative_dir in self.skill_dirs:
             skills_root = self.project_root / relative_dir
@@ -197,15 +227,15 @@ class SkillRegistry:
         return sorted(found.values(), key=lambda item: item.name)
 
     def get(self, name: str) -> SkillDefinition:
-        """Returns skill by name or raises KeyError if not found."""
+        """Возвращает навык по имени или выбрасывает KeyError, если он не найден."""
         normalized = name.strip().lower()
         for skill in self.discover():
             if skill.name.lower() == normalized:
                 return skill
         raise KeyError(f'Skill not found: {name}')
 
-    def search(self, query: str, lang: str | None=None) -> list[SkillDefinition]:
-        """Searches for skills by name and description across all languages."""
+    def search(self, query: str, lang: str | None = None) -> list[SkillDefinition]:
+        """Выполняет поиск навыков по имени и описанию на всех языках."""
         terms = [term.lower() for term in query.split() if term.strip()]
         if not terms:
             return self.discover(lang=lang)
@@ -216,13 +246,20 @@ class SkillRegistry:
                 results.append(skill)
         return results
 
-    def export_json(self, name: str, include_instructions: bool=True, lang: str | None=None) -> str:
-        """Exports skill to JSON for external agent or model."""
+    def export_json(self, name: str, include_instructions: bool = True, lang: str | None = None) -> str:
+        """Экспортирует навык в строку JSON для внешнего агента или модели."""
         return json.dumps(self.get(name).to_dict(include_instructions, lang=lang), ensure_ascii=False, indent=2)
 
     @staticmethod
     def _load(skill_file: Path) -> SkillDefinition:
-        raw = skill_file.read_text(encoding='utf-8')
+        """Безопасно читает и парсит файл SKILL.md вместе с манифестом skill.json."""
+        try:
+            if skill_file.stat().st_size > _MAX_SKILL_FILE_BYTES:
+                raw = ''
+            else:
+                raw = skill_file.read_text(encoding='utf-8', errors='replace')
+        except OSError:
+            raw = ''
         metadata, instructions = _parse_frontmatter(raw)
         manifest = _load_json_manifest(skill_file.parent)
         name = str(manifest.get('name', metadata.get('name', skill_file.parent.name))).strip()
@@ -256,4 +293,13 @@ class SkillRegistry:
             i18n_descriptions['en'] = base_desc
         merged_metadata = dict(metadata)
         merged_metadata.update({key: value for key, value in manifest.items() if key not in ('name', 'description')})
-        return SkillDefinition(name=name, description=base_desc, root=skill_file.parent, source=skill_file, metadata=merged_metadata, instructions=instructions, manifest=manifest, descriptions_i18n=i18n_descriptions)
+        return SkillDefinition(
+            name=name,
+            description=base_desc,
+            root=skill_file.parent,
+            source=skill_file,
+            metadata=merged_metadata,
+            instructions=instructions,
+            manifest=manifest,
+            descriptions_i18n=i18n_descriptions,
+        )

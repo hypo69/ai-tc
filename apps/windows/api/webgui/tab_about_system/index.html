@@ -17,7 +17,7 @@ Usage Examples:
  * Package: windows/api/webgui/about_system_tab
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 14:43:00
+ * Updated: 2026-11-03 14:05:00
  * =============================================================================
 -->
 <!-- About System Application Tab -->
@@ -28,7 +28,7 @@ Usage Examples:
       <span class="tab-header-icon fs-4 text-warning">ℹ️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Информация о системе Windows</h3>
+          <h3 class="tab-header-title mb-0">Информация о системе Windows</h3>
           
         </div>
         <small class="tab-header-subtitle text-secondary">Спецификации ОС, материнской платы, процессора, BIOS, сборки Windows и аппаратная телеметрия</small>
@@ -434,52 +434,165 @@ Usage Examples:
 </div>
 <!-- Pane 3: User Account -->
 <div class="regional-tab-pane d-none" id="pane-usr">
-<div class="p-2.5 mb-2 rounded border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
-<div class="mb-2">
-<label class="form-label small fw-bold mb-1">Имя учетной записи (Логин):</label>
-<input class="form-control form-control-sm font-monospace" id="reg-usr-name-input" readonly="" style="opacity: 0.85;" type="text"/>
-</div>
-<div class="mb-2">
-<label class="form-label small fw-bold mb-1">Полное имя (Full Name):</label>
-<input class="form-control form-control-sm" id="reg-usr-fullname-input" placeholder="Например: Главный администратор хоста" type="text"/>
-</div>
-<div class="mb-2">
-<label class="form-label small fw-bold mb-1">Описание учетной записи (Description):</label>
-<input class="form-control form-control-sm" id="reg-usr-desc-input" placeholder="Например: Основная рабочая учетная запись" type="text"/>
-</div>
-<div class="mb-2">
-<label class="form-label small fw-bold mb-1">Домен / Хост учетной записи:</label>
-<input class="form-control form-control-sm font-monospace" id="reg-usr-domain-input" readonly="" style="opacity: 0.85;" type="text"/>
-</div>
-<div class="p-2 mb-2 rounded border small font-monospace" style="background: var(--surface-1); border-color: var(--border-color) !important; font-size: 0.74rem;">
-  <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
-    <span class="text-muted">Тип аккаунта:</span>
-    <span class="text-light" id="reg-usr-type-badge">Локальный пользователь Windows</span>
+  <!-- Блок 1: Профиль и атрибуты учетной записи -->
+  <div class="p-2.5 mb-2 rounded border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
+    <div class="row g-2 mb-2">
+      <div class="col-sm-6">
+        <label class="form-label small fw-bold mb-1">Имя учетной записи (Логин):</label>
+        <input class="form-control form-control-sm font-monospace" id="reg-usr-name-input" readonly="" style="opacity: 0.85;" type="text"/>
+      </div>
+      <div class="col-sm-6">
+        <label class="form-label small fw-bold mb-1">Домен / Хост учетной записи:</label>
+        <input class="form-control form-control-sm font-monospace" id="reg-usr-domain-input" readonly="" style="opacity: 0.85;" type="text"/>
+      </div>
+    </div>
+    <div class="mb-2">
+      <label class="form-label small fw-bold mb-1">Полное имя (Full Name):</label>
+      <input class="form-control form-control-sm" id="reg-usr-fullname-input" placeholder="Например: Главный администратор хоста" type="text"/>
+    </div>
+    <div class="mb-2">
+      <label class="form-label small fw-bold mb-1">Описание учетной записи (Description):</label>
+      <input class="form-control form-control-sm" id="reg-usr-desc-input" placeholder="Например: Основная рабочая учетная запись" type="text"/>
+    </div>
+    <div class="p-2 mb-2 rounded border small font-monospace" style="background: var(--surface-1); border-color: var(--border-color) !important; font-size: 0.74rem;">
+      <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
+        <span class="text-muted">Тип аккаунта:</span>
+        <span class="text-light" id="reg-usr-type-badge">Локальный пользователь Windows</span>
+      </div>
+      <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
+        <span class="text-muted">Каталог профиля:</span>
+        <span class="text-light" id="reg-usr-profile-badge">--</span>
+      </div>
+      <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
+        <span class="text-muted">Идентификатор SID:</span>
+        <span class="text-info" id="reg-usr-sid-badge">--</span>
+      </div>
+      <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
+        <span class="text-muted">Группы безопасности:</span>
+        <span class="text-light" id="reg-usr-groups-badge">--</span>
+      </div>
+      <div class="d-flex justify-content-between py-0.5">
+        <span class="text-muted">Последний вход:</span>
+        <span class="text-light" id="reg-usr-logon-badge">--</span>
+      </div>
+    </div>
+
+    <!-- Блок 2: Политика и параметры безопасности пароля учетной записи -->
+    <div class="mt-3 pt-2 border-top" style="border-color: var(--border-color) !important;">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <i class="bi bi-shield-lock text-info"></i>
+        <span class="small fw-bold">Политика пароля учетной записи</span>
+      </div>
+      <div class="p-2 mb-2 rounded border small font-monospace" style="background: var(--surface-1); border-color: var(--border-color) !important; font-size: 0.74rem;">
+        <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
+          <span class="text-muted">Дата установки пароля:</span>
+          <span class="text-light" id="reg-usr-pwd-lastset">--</span>
+        </div>
+        <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
+          <span class="text-muted">Срок действия пароля:</span>
+          <span class="text-warning" id="reg-usr-pwd-expires">--</span>
+        </div>
+        <div class="d-flex justify-content-between py-0.5">
+          <span class="text-muted">Неудачных попыток входа:</span>
+          <span class="text-light" id="reg-usr-pwd-badcount">0</span>
+        </div>
+      </div>
+      <div class="row g-2 mb-2">
+        <div class="col-12">
+          <div class="form-check form-switch mb-1">
+            <input class="form-check-input" type="checkbox" id="reg-usr-pwd-never-expires">
+            <label class="form-check-label small" for="reg-usr-pwd-never-expires">Бессрочный пароль (срок действия не ограничен)</label>
+          </div>
+          <div class="form-check form-switch mb-1">
+            <input class="form-check-input" type="checkbox" id="reg-usr-pwd-cannot-change">
+            <label class="form-check-label small" for="reg-usr-pwd-cannot-change">Запретить пользователю смену пароля</label>
+          </div>
+          <div class="form-check form-switch mb-1">
+            <input class="form-check-input" type="checkbox" id="reg-usr-pwd-required" checked>
+            <label class="form-check-label small" for="reg-usr-pwd-required">Требовать пароль для учетной записи</label>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-end align-items-center pt-2">
+        <button class="btn btn-sm btn-info text-dark fw-bold px-3 rounded-pill" id="btn-reg-save-usr">
+          <i class="bi bi-check-lg me-1"></i> Сохранить профиль и политики
+        </button>
+      </div>
+    </div>
   </div>
-  <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
-    <span class="text-muted">Каталог профиля:</span>
-    <span class="text-light" id="reg-usr-profile-badge">--</span>
+
+  <!-- Блок 3: Установка и смена пароля пользователя -->
+  <div class="p-2.5 mb-2 rounded border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <i class="bi bi-key text-warning"></i>
+      <span class="small fw-bold">Смена и установка пароля</span>
+    </div>
+    <div class="row g-2 mb-2">
+      <div class="col-sm-6">
+        <label class="form-label small fw-bold mb-1">Новый пароль:</label>
+        <div class="input-group input-group-sm">
+          <input class="form-control form-control-sm" id="reg-usr-new-pwd" placeholder="Введите новый пароль" type="password"/>
+          <button class="btn btn-outline-secondary" id="btn-toggle-new-pwd" title="Показать/скрыть пароль" type="button">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <label class="form-label small fw-bold mb-1">Подтверждение пароля:</label>
+        <div class="input-group input-group-sm">
+          <input class="form-control form-control-sm" id="reg-usr-confirm-pwd" placeholder="Повторите новый пароль" type="password"/>
+          <button class="btn btn-outline-secondary" id="btn-toggle-confirm-pwd" title="Показать/скрыть пароль" type="button">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top" style="border-color: var(--border-color) !important;">
+      <span class="small text-muted" style="font-size: 0.72rem;">
+        <i class="bi bi-info-circle me-1"></i>Требования сложности зависят от локальной политики хоста
+      </span>
+      <button class="btn btn-sm btn-warning text-dark fw-bold px-3 rounded-pill" id="btn-reg-change-pwd">
+        <i class="bi bi-key-fill me-1"></i> Обновить пароль
+      </button>
+    </div>
   </div>
-  <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
-    <span class="text-muted">Идентификатор SID:</span>
-    <span class="text-info" id="reg-usr-sid-badge">--</span>
+
+  <!-- Блок 4: Глобальная политика безопасности паролей SAM -->
+  <div class="p-2.5 mb-2 rounded border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <i class="bi bi-shield-check text-success"></i>
+      <span class="small fw-bold">Глобальная политика паролей хоста (SAM Policy)</span>
+    </div>
+    <div class="row g-2 mb-2">
+      <div class="col-sm-4">
+        <label class="form-label small mb-1" style="font-size: 0.74rem;">Мин. длина пароля:</label>
+        <div class="input-group input-group-sm">
+          <input class="form-control form-control-sm font-monospace" id="reg-pol-min-len" max="128" min="0" placeholder="0" type="number"/>
+          <span class="input-group-text small" style="font-size: 0.7rem;">симв.</span>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <label class="form-label small mb-1" style="font-size: 0.74rem;">Макс. срок действия:</label>
+        <div class="input-group input-group-sm">
+          <input class="form-control form-control-sm font-monospace" id="reg-pol-max-age" max="999" min="0" placeholder="42" type="number"/>
+          <span class="input-group-text small" style="font-size: 0.7rem;">дней</span>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <label class="form-label small mb-1" style="font-size: 0.74rem;">Порог блокировки:</label>
+        <div class="input-group input-group-sm">
+          <input class="form-control form-control-sm font-monospace" id="reg-pol-lockout" max="999" min="0" placeholder="0" type="number"/>
+          <span class="input-group-text small" style="font-size: 0.7rem;">попыток</span>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top" style="border-color: var(--border-color) !important;">
+      <span class="small text-muted" style="font-size: 0.72rem;">Применяется ко всем локальным пользователям</span>
+      <button class="btn btn-sm btn-outline-info fw-bold px-3 rounded-pill" id="btn-reg-save-policy">
+        <i class="bi bi-shield-lock me-1"></i> Применить политику хоста
+      </button>
+    </div>
   </div>
-  <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
-    <span class="text-muted">Группы безопасности:</span>
-    <span class="text-light" id="reg-usr-groups-badge">--</span>
-  </div>
-  <div class="d-flex justify-content-between py-0.5">
-    <span class="text-muted">Последний вход:</span>
-    <span class="text-light" id="reg-usr-logon-badge">--</span>
-  </div>
-</div>
-<div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top" style="border-color: var(--border-color) !important;">
-<span class="small text-muted">Локальный пользователь Windows</span>
-<button class="btn btn-sm btn-info text-dark fw-bold px-3 rounded-pill" id="btn-reg-save-usr">
-<i class="bi bi-check-lg me-1"></i> Сохранить профиль
-                </button>
-</div>
-</div>
 </div>
 <!-- Pane 4: Network & Computer Name -->
 <div class="regional-tab-pane d-none" id="pane-net">
@@ -631,10 +744,10 @@ Usage Examples:
 <!-- Left: Hardware & Platform Specification -->
 <div class="col-12 col-lg-6">
 <div class="ui-panel h-100" data-panel-id="panel-about-hardware-spec" id="panel-about-hardware-spec">
-<div class="ui-panel-header">
+<div class="panel-header">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-motherboard text-info"></i>
-<h6 class="mb-0 fw-semibold">Конфигурация оборудования и ОС</h6>
+<span class="panel-title">Конфигурация оборудования и ОС</span>
 </div>
 </div>
 <table class="ui-spec-table">
@@ -722,10 +835,10 @@ Usage Examples:
 <!-- User Environment, Network, Regional & Security -->
 <div class="col-12 col-lg-6">
 <div class="ui-panel h-100" data-panel-id="panel-about-user-security" id="panel-about-user-security">
-<div class="ui-panel-header">
+<div class="panel-header">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-person-badge text-success"></i>
-<h6 class="mb-0 fw-semibold">Окружение пользователя, сеть и безопасность</h6>
+<span class="panel-title">Окружение пользователя, сеть и безопасность</span>
 </div>
 <div class="d-flex align-items-center gap-2">
 <button class="btn btn-sm btn-outline-info rounded-pill px-2.5 py-0.5" data-bs-target="#aboutRegionalSettingsModal" data-bs-toggle="modal" id="btn-open-regional-settings" style="font-size: 0.75rem;" title="Настроить сеть, часовой пояс, язык, локаль и пользователя">
@@ -872,10 +985,10 @@ Usage Examples:
 <div class="row g-2 mb-3">
 <div class="col-12">
 <div class="about-sys-panel h-100" data-panel-id="panel-about-storage-volumes" id="panel-about-storage-volumes">
-<div class="about-sys-panel-header">
+<div class="panel-header">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-hdd-stack-fill text-primary"></i>
-<span>Storage Volumes &amp; Partitions</span>
+<span class="panel-title">Storage Volumes &amp; Partitions</span>
 </div>
 <div class="d-flex align-items-center gap-2">
 <span class="badge bg-secondary-subtle border border-secondary text-body" id="about-disks-count">-- Drives</span>
@@ -909,10 +1022,10 @@ Usage Examples:
 <!-- Disks Health & Wear Panel -->
 <div class="col-12">
 <div class="diag-panel h-100" data-panel-id="panel-about-disks-wear" id="panel-about-disks-wear">
-<div class="diag-panel-header d-flex justify-content-between align-items-center">
+<div class="panel-header d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-hdd-fill text-primary"></i>
-<span>Здоровье накопителей SSD/NVMe и износ (Wear &amp; SMART)</span>
+<span class="panel-title">Здоровье накопителей SSD/NVMe и износ (Wear &amp; SMART)</span>
 </div>
 <div class="d-flex align-items-center gap-2">
 <span class="badge bg-secondary-subtle border border-secondary text-body" id="diag-wear-disks-count">0 дисков</span>
@@ -952,10 +1065,10 @@ Usage Examples:
 <div class="row g-2 mb-3">
 <div class="col-12">
 <div class="diag-panel h-100" data-panel-id="panel-about-battery" id="panel-about-battery">
-<div class="diag-panel-header d-flex justify-content-between align-items-center">
+<div class="panel-header d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-battery-charging text-warning"></i>
-<span>Деградация и состояние батареи (Battery Degradation)</span>
+<span class="panel-title">Деградация и состояние батареи (Battery Degradation)</span>
 </div>
 <div class="d-flex align-items-center gap-2">
 <span class="ui-badge ui-badge-info font-monospace" id="diag-battery-source-badge">AC Mains</span>
@@ -977,12 +1090,12 @@ Usage Examples:
 </div>
 <!-- Full Hardware Specification Tree Panel (Hardware Tree) -->
 <div class="about-sys-panel" data-panel-id="panel-about-hardware-tree" id="panel-about-hardware-tree">
-<div class="about-sys-panel-header">
+<div class="panel-header">
 <div class="d-flex align-items-center gap-2">
 <button class="panel-toggle-drill collapsed me-1" id="btn-about-sys-tree-toggle" title="Развернуть все / Свернуть все категории" type="button">
 <img alt="Развернуть все/Свернуть все" src="/html/assets/red_drill.png?v=20261008_v1"/>
 </button>
-<span class="fw-semibold">Полная спецификация оборудования</span>
+<span class="panel-title">Полная спецификация оборудования</span>
 <span class="badge bg-secondary-subtle border border-secondary text-body" id="about-sys-node-count">Hardware Tree</span>
 </div>
 <div class="d-flex align-items-center gap-2">

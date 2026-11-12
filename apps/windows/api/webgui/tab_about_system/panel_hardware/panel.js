@@ -6,12 +6,12 @@
  * - Сортировку по технической важности компонентов
  * - Таблицу дисковых разделов и таблицу запущенных процессов
  * 
- * Updated: 2026-10-30 11:15:00
+ * Updated: 2026-11-11 21:24:00
  */
 
 import { escapeHtml, apiFetch, formatStatusHtml } from '../common/ui_utils.js?v=20261018_v4';
 import { getHardwareEnrichmentHtml, openHardwareComponentHistory, requestComponentProductionDate } from './enrichment.js?v=20261020_v6';
-import { renderMonitorsSpec } from '../panel_identity/panel.js?v=20261030_v1';
+import { renderMonitorsSpec } from '../panel_identity/panel.js?v=20261103_v1';
 
 let hardwareData = [];
 
@@ -49,8 +49,8 @@ export function getNodeIcon(category) {
   if (cat.includes('memory') || cat.includes('ram')) return 'bi bi-sd-card';
   if (cat.includes('system') || cat.includes('os')) return 'bi bi-laptop';
   if (cat.includes('motherboard') || cat.includes('mainboard')) return 'bi bi-motherboard';
-  if (cat.includes('display') || cat.includes('gpu') || cat.includes('video') || cat.includes('graphics')) return 'bi bi-gpu-card';
-  if (cat.includes('monitor') || cat.includes('screen') || cat.includes('экран')) return 'bi bi-display';
+  if (cat.includes('monitor') || cat.includes('монитор') || cat.includes('дисплей') || cat.includes('экран') || cat.includes('screen')) return 'bi bi-display';
+  if (cat.includes('display') || cat.includes('gpu') || cat.includes('video') || cat.includes('graphics') || cat.includes('видео')) return 'bi bi-gpu-card';
   if (cat.includes('physical') || cat.includes('диск')) return 'bi bi-hdd-fill';
   if (cat.includes('disk') || cat.includes('storage') || cat.includes('drive') || cat.includes('volume')) return 'bi bi-hdd-stack';
   if (cat.includes('network') || cat.includes('adapter') || cat.includes('ethernet') || cat.includes('wi-fi') || cat.includes('сеть')) return 'bi bi-ethernet';
@@ -165,11 +165,22 @@ export function applyHardwareData(nodes) {
   const filter = searchInput ? searchInput.value.trim().toLowerCase() : '';
   renderHardwareTree(hardwareData, filter);
 
-  // Резервное наполнение строки мониторов в спецификации оборудования
+  // Наполнение строки мониторов в спецификации оборудования из аппаратного дерева
+  // Исключаем видеоадаптеры (Display Adapter / GPU), оставляем только физические мониторы
   const monSpecEl = document.getElementById('about-spec-monitors');
-  if (monSpecEl && (monSpecEl.textContent.includes('Опрос') || monSpecEl.textContent.trim() === '')) {
-    const monNodes = rawNodes.filter(n => (n.category || '').toLowerCase().includes('monitor'));
-    if (monNodes.length > 0) {
+  const monNodes = rawNodes.filter(n => {
+    const cat = (n.category || '').toLowerCase();
+    const isGpu = cat.includes('display adapter') || cat.includes('gpu') || cat.includes('видеокарт') || cat.includes('видеоадаптер') || cat.includes('graphics');
+    const isMon = !isGpu && (cat.includes('monitor') || cat.includes('монитор') || cat.includes('дисплей') || cat.includes('экран'));
+    const isPresent = n.is_present !== false && n.properties?.['Состояние'] !== 'REMOVED';
+    const notWindisc = !String(n.properties?.['Устройство'] || '').toLowerCase().includes('windisc');
+    return isMon && isPresent && notWindisc;
+  });
+
+  if (monSpecEl && monNodes.length > 0) {
+    const currentRenderedCount = monSpecEl.querySelectorAll('.d-flex.align-items-center').length;
+    const hasOnlyDummy = monSpecEl.textContent.includes('Опрос') || monSpecEl.textContent.includes('WinDisc') || monSpecEl.textContent.trim() === '';
+    if (hasOnlyDummy || monNodes.length > currentRenderedCount) {
       const parsedMonitors = monNodes.map(mn => {
         const p = mn.properties || {};
         const resParts = (p['Разрешение экрана'] || '').split('x');
@@ -179,13 +190,15 @@ export function applyHardwareData(nodes) {
         return {
           device: p['Устройство'] || '',
           name: p['Название дисплея (EDID)'] || mn.name || 'Дисплей',
-          vendor: p['Производитель'] || '',
+          vendor: p['Производитель'] || mn.vendor || '',
           adapter: p['Подключенный видеоадаптер'] || '',
           width: w,
           height: h,
           frequency_hz: freq,
           is_primary: (p['Основной монитор'] || '').includes('Основной'),
           orientation: p['Ориентация'] || (h > w ? 'вертикальная' : 'горизонтальная'),
+          serial_number: p['Серийный номер (S/N)'] || mn.serial_number || '',
+          production_date: mn.production_date || p['Дата производства'] || '',
         };
       });
       renderMonitorsSpec(parsedMonitors);

@@ -19,7 +19,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_taskbar
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 17:56:00
+Updated: 2026-11-01 12:50:00
 =============================================================================
 -->
 <div class="container-fluid py-2 px-3 taskbar-tab-wrapper">
@@ -29,7 +29,7 @@ Updated: 2026-10-20 17:56:00
       <span class="tab-header-icon fs-4 text-warning">📌</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Панель задач и Окна Windows</h3>
+          <h3 class="tab-header-title mb-0">Панель задач и Окна Windows</h3>
           <span class="badge bg-primary-subtle text-primary border border-primary-subtle small fs-6" id="tb-os-badge">Win32 / COM / Registry</span>
           <span class="badge bg-success-subtle text-success border border-success-subtle small fs-6">telemetry.db Audit &amp; Rollback</span>
         </div>
@@ -117,7 +117,7 @@ Updated: 2026-10-20 17:56:00
 <!-- 1. WINDOWS MANAGEMENT -->
 <div class="tab-pane fade show active" data-panel-id="panel-windows" id="panel-windows" role="tabpanel">
 <div class="card border-secondary-subtle shadow-sm h-100" data-panel-id="panel-taskbar-1" id="panel-taskbar-1">
-<div class="card-header bg-body-tertiary d-flex flex-wrap align-items-center justify-content-between gap-2 p-2.5">
+<div class="panel-header d-flex flex-wrap align-items-center justify-content-between gap-2 p-2.5">
 <!-- Filters -->
 <div class="d-flex align-items-center gap-2 flex-grow-1" style="max-width: 500px;">
 <div class="input-group input-group-sm">
@@ -161,8 +161,8 @@ Updated: 2026-10-20 17:56:00
 <!-- 2. TASKBAR SETTINGS -->
 <div class="tab-pane fade" data-panel-id="panel-settings" id="panel-settings" role="tabpanel">
 <div class="card border-secondary-subtle shadow-sm" data-panel-id="panel-taskbar-2" id="panel-taskbar-2">
-<div class="card-header bg-body-tertiary fw-semibold">
-<i class="bi bi-sliders me-1 text-primary"></i> Системные настройки и внешний вид панели задач (с фиксацией в telemetry.db)
+<div class="panel-header fw-semibold">
+<span class="panel-title"><i class="bi bi-sliders me-1 text-primary"></i> Системные настройки и внешний вид панели задач (с фиксацией в telemetry.db)</span>
         </div>
 <div class="card-body p-3">
 <form id="form-taskbar-settings">
@@ -244,8 +244,8 @@ Updated: 2026-10-20 17:56:00
 <!-- Pinned List -->
 <div class="col-md-7">
 <div class="card border-secondary-subtle shadow-sm h-100" data-panel-id="panel-taskbar-3" id="panel-taskbar-3">
-<div class="card-header bg-body-tertiary fw-semibold d-flex justify-content-between align-items-center">
-<span><i class="bi bi-pin-angle me-1 text-primary"></i> Закрепленные на панели задачи ярлыки</span>
+<div class="panel-header fw-semibold d-flex justify-content-between align-items-center">
+<span class="panel-title"><i class="bi bi-pin-angle me-1 text-primary"></i> Закрепленные на панели задачи ярлыки</span>
 <button class="btn btn-sm btn-outline-secondary py-0 px-2" id="btn-refresh-pinned">
 <i class="bi bi-arrow-clockwise"></i>
 </button>
@@ -258,8 +258,8 @@ Updated: 2026-10-20 17:56:00
 <!-- App Launcher -->
 <div class="col-md-5">
 <div class="card border-secondary-subtle shadow-sm h-100" data-panel-id="panel-taskbar-4" id="panel-taskbar-4">
-<div class="card-header bg-body-tertiary fw-semibold">
-<i class="bi bi-play-circle me-1 text-success"></i> Быстрый запуск приложения
+<div class="panel-header fw-semibold">
+<span class="panel-title"><i class="bi bi-play-circle me-1 text-success"></i> Быстрый запуск приложения</span>
             </div>
 <div class="card-body p-3">
 <form id="form-launch-app">
@@ -287,8 +287,8 @@ Updated: 2026-10-20 17:56:00
 <!-- 4. TASKBAR UX & ITASKBARLIST3 -->
 <div class="tab-pane fade" data-panel-id="panel-ux" id="panel-ux" role="tabpanel">
 <div class="card border-secondary-subtle shadow-sm" data-panel-id="panel-taskbar-5" id="panel-taskbar-5">
-<div class="card-header bg-body-tertiary fw-semibold">
-<i class="bi bi-bar-chart-steps me-1 text-primary"></i> Интерактивный эмулятор ITaskbarList3 (Индикаторы прогресса и оверлеи)
+<div class="panel-header fw-semibold">
+<span class="panel-title"><i class="bi bi-bar-chart-steps me-1 text-primary"></i> Интерактивный эмулятор ITaskbarList3 (Индикаторы прогресса и оверлеи)</span>
         </div>
 <div class="card-body p-3">
 <div class="row g-3">
@@ -322,10 +322,10 @@ Updated: 2026-10-20 17:56:00
 <!-- 5. HISTORY & ROLLBACK (telemetry.db) -->
 <div class="tab-pane fade" data-panel-id="panel-history" id="panel-history" role="tabpanel">
 <div class="card border-secondary-subtle shadow-sm" data-panel-id="panel-taskbar-zhurnal-izmeneniy-v-sqlite-tele" id="panel-taskbar-zhurnal-izmeneniy-v-sqlite-tele">
-<div class="card-header bg-body-tertiary d-flex flex-wrap align-items-center justify-content-between gap-2 p-2.5">
+<div class="panel-header d-flex flex-wrap align-items-center justify-content-between gap-2 p-2.5">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-clock-history me-1 text-primary"></i>
-<span class="fw-semibold">Журнал изменений в SQLite telemetry.db</span>
+<span class="panel-title">Журнал изменений в SQLite telemetry.db</span>
 </div>
 <div class="d-flex align-items-center gap-2">
 <button class="btn btn-outline-info btn-sm" id="btn-refresh-history">
@@ -357,10 +357,10 @@ Updated: 2026-10-20 17:56:00
 <!-- 6. COMMAND REGISTRY (260) -->
 <div class="tab-pane fade" data-panel-id="panel-commands" id="panel-commands" role="tabpanel">
 <div class="card border-secondary-subtle shadow-sm" data-panel-id="panel-taskbar-katalog-komand-control-plane" id="panel-taskbar-katalog-komand-control-plane">
-<div class="card-header bg-body-tertiary d-flex flex-wrap align-items-center justify-content-between gap-2 p-2.5">
+<div class="panel-header d-flex flex-wrap align-items-center justify-content-between gap-2 p-2.5">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-terminal me-1 text-primary"></i>
-<span class="fw-semibold">Каталог команд Control Plane</span>
+<span class="panel-title">Каталог команд Control Plane</span>
 <span class="badge bg-secondary-subtle text-secondary small" id="badge-commands-count">0</span>
 </div>
 <div class="d-flex align-items-center gap-2">

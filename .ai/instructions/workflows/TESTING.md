@@ -224,7 +224,7 @@ pytest apps/<app_name>/tests/ -v
 #   >>> connections = monitor.get_tcp_connections()
 #
 # File: network_monitor.py
-# Project: AI Windows Admin
+# Project: AI-Assistant
 # Module: apps.network_terminal
 # Class: NetworkMonitor
 # Author: hypo69

@@ -18,7 +18,7 @@
 # Package: src.ai.providers.foundry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 16:52:00
 # =============================================================================
 
 """Base class for chat interface with Foundry models.
@@ -33,7 +33,7 @@ Example usage:
     ai.clear_history()"""
 
 import asyncio
-import time
+import random
 from typing import Any, AsyncIterator, Dict, List, Optional
 from logger import logger
 
@@ -185,11 +185,11 @@ class FoundryChatBase:
                 if is_debug_mode():
                     raise RuntimeError(f'[DEBUG MODE] Foundry Model Error ({self.model_id}) on attempt {attempt}: {error_msg}')
                 if attempt < attempts:
-                    wait = 2 ** min(attempt, 5)
+                    wait = 2 ** min(attempt, 5) + random.uniform(0.1, 0.5)
                     from src.ai.orchestration.model_error_hub import record_model_error
                     record_model_error(provider='foundry', model_name=self.model_id, error=error_msg, attempt=attempt, max_attempts=attempts, action_taken='retry', retry_delay_seconds=float(wait))
-                    logger.info(f'Waiting {wait}s before retry...')
-                    time.sleep(wait)
+                    logger.info(f'Waiting {wait:.2f}s before retry...')
+                    await asyncio.sleep(wait)
             except Exception as ex:
                 from src.config import is_debug_mode
                 if is_debug_mode():
@@ -204,10 +204,10 @@ class FoundryChatBase:
                     self._last_error = err_str
                     self._error_count += 1
                     if attempt < attempts:
-                        wait = 2 ** min(attempt, 5)
+                        wait = 2 ** min(attempt, 5) + random.uniform(0.1, 0.5)
                         record_model_error(provider='foundry', model_name=self.model_id, error=err_str, status_code=503, attempt=attempt, max_attempts=attempts, action_taken='retry', retry_delay_seconds=float(wait))
-                        logger.warning(f'[{self.model_id}] Waiting {wait}s before retry...')
-                        time.sleep(wait)
+                        logger.warning(f'[{self.model_id}] Waiting {wait:.2f}s before retry...')
+                        await asyncio.sleep(wait)
                     else:
                         record_model_error(provider='foundry', model_name=self.model_id, error=err_str, status_code=503, attempt=attempt, max_attempts=attempts, action_taken='failed')
                         logger.error(f'[{self.model_id}] All {attempts} attempts failed')
@@ -218,10 +218,10 @@ class FoundryChatBase:
                 self._error_count += 1
                 from src.ai.orchestration.model_error_hub import record_model_error
                 if attempt < attempts:
-                    wait = 2 ** min(attempt, 5)
+                    wait = 2 ** min(attempt, 5) + random.uniform(0.1, 0.5)
                     record_model_error(provider='foundry', model_name=self.model_id, error=err_str, attempt=attempt, max_attempts=attempts, action_taken='retry', retry_delay_seconds=float(wait))
-                    logger.warning(f'Waiting {wait}s before retry...')
-                    time.sleep(wait)
+                    logger.warning(f'Waiting {wait:.2f}s before retry...')
+                    await asyncio.sleep(wait)
                 else:
                     record_model_error(provider='foundry', model_name=self.model_id, error=err_str, attempt=attempt, max_attempts=attempts, action_taken='failed')
                     logger.error(f'[{self.model_id}] All {attempts} attempts failed')
@@ -299,7 +299,7 @@ class FoundryChatBase:
                 if is_debug_mode():
                     raise RuntimeError(f'[DEBUG MODE] Foundry chat error ({self.model_id}) on attempt {attempt}: {error_msg}')
                 if attempt < attempts:
-                    time.sleep(2 ** min(attempt, 5))
+                    await asyncio.sleep(2 ** min(attempt, 5) + random.uniform(0.1, 0.5))
             except Exception as ex:
                 from src.config import is_debug_mode
                 if is_debug_mode():
@@ -313,13 +313,13 @@ class FoundryChatBase:
                     self._last_error = err_str
                     if attempt >= attempts:
                         return ''
-                    time.sleep(2 ** min(attempt, 5))
+                    await asyncio.sleep(2 ** min(attempt, 5) + random.uniform(0.1, 0.5))
                     continue
                 logger.error(f'[{self.model_id}] chat exception: {ex}')
                 self._last_error = str(ex)
                 if attempt >= attempts:
                     return ''
-                time.sleep(2 ** min(attempt, 5))
+                await asyncio.sleep(2 ** min(attempt, 5) + random.uniform(0.1, 0.5))
         return ''
 
     async def chat_stream(self, q: str, history: Optional[List[Dict[str, Any]]]=None, save_history: bool=True, temperature: Optional[float]=0.0, max_tokens: Optional[int]=0, system_instruction: Optional[str]='', attempts: int=15, model_name: Optional[str]='', generation_config: Dict[str, Any]=None, **kwargs: Any) -> AsyncIterator[str]:

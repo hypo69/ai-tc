@@ -16,7 +16,7 @@
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 18:58:00
+# Updated: 2026-11-01 16:01:00
 # =============================================================================
 
 from __future__ import annotations
@@ -510,6 +510,7 @@ class ProcessNetworkActivity(BaseModel):
     """Сетевая активность процесса (интернет-соединения, отправка и прием трафика)."""
     pid: int = Field(default=0, description='Process ID')
     name: str = Field(default='', description='Process executable name')
+    process_name: Optional[str] = Field(default=None, description='Process executable alias name')
     user: str = Field(default='', description='Process owner username')
     local_address: str = Field(default='', description='Local IP:Port')
     remote_address: str = Field(default='', description='Remote IP:Port')
@@ -518,8 +519,13 @@ class ProcessNetworkActivity(BaseModel):
     status: str = Field(default='ESTABLISHED', description='Connection state (ESTABLISHED, LISTEN, etc.)')
     is_internet: bool = Field(default=True, description='Whether remote address is external Internet vs local loopback')
     service_type: str = Field(default='Web/HTTPS', description='Recognized protocol service: HTTPS, HTTP, DNS, Cloud Sync, etc.')
+    service_name: Optional[str] = Field(default=None, description='Service name alias')
     sent_kb: float = Field(default=0.0, description='Всего отправлено/записано процессом (КБ)')
     recv_kb: float = Field(default=0.0, description='Всего получено/скачано/прочитано процессом (КБ)')
+    bytes_sent: Optional[int] = Field(default=None, description='Всего отправлено в байтах')
+    bytes_recv: Optional[int] = Field(default=None, description='Всего принято в байтах')
+    send_rate_kb: Optional[float] = Field(default=None, description='Скорость отправки (КБ/с)')
+    recv_rate_kb: Optional[float] = Field(default=None, description='Скорость приема (КБ/с)')
     delta_sent_kb: float = Field(default=0.0, description='Объем отправленных данных за последний измеряемый период (КБ)')
     delta_recv_kb: float = Field(default=0.0, description='Объем скачанных/полученных данных за последний измеряемый период (КБ)')
     sent_rate_kbs: float = Field(default=0.0, description='Скорость отдачи/отправки данных (КБ/с)')

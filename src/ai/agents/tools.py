@@ -17,15 +17,20 @@
 # Package: src.ai.agents
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 10:05:00
+# Updated: 2026-11-10 16:49:00
 # =============================================================================
 
 from __future__ import annotations
-"""Поиск актуальной информации в интернете через поисковые адаптеры."""
+"""Набор защищённых инструментов (Tools) для автономных ИИ-агентов."""
 
-import os
+import ast
+import asyncio
+from decimal import Decimal, ROUND_HALF_UP
 import json
+import operator
+import os
 from pathlib import Path
+import re
 from typing import Any, Dict
 try:
     from langchain_core.tools import tool
@@ -87,34 +92,97 @@ async def rag_search(query: str, top_k: int=5) -> str:
         logger.error(f'[langchain_tools] Error RAG-поиска: {e}')
         return json.dumps([], ensure_ascii=False)
 
+_SAFE_BIN_OPS = {
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.truediv,
+    ast.FloorDiv: operator.floordiv,
+    ast.Mod: operator.mod,
+    ast.Pow: operator.pow,
+}
+_SAFE_UNARY_OPS = {
+    ast.UAdd: operator.pos,
+    ast.USub: operator.neg,
+}
+_SAFE_FUNCS = {
+    'abs': abs,
+    'min': min,
+    'max': max,
+    'sum': sum,
+    'round': round,
+    'len': len,
+}
+_SAFE_CHANNEL_RE = re.compile(r'[^a-zA-Z0-9_\-\s/]')
+
+
+def _eval_safe_ast(node: ast.AST) -> Any:
+    """Безопасно вычисляет узел AST без вызова встроенного eval()."""
+    if isinstance(node, ast.Expression):
+        return _eval_safe_ast(node.body)
+    if isinstance(node, ast.Constant):
+        if isinstance(node.value, (int, float, str, bool)):
+            return node.value
+        raise ValueError('Недопустимый тип константы')
+    if isinstance(node, ast.BinOp) and type(node.op) in _SAFE_BIN_OPS:
+        left = _eval_safe_ast(node.left)
+        right = _eval_safe_ast(node.right)
+        if isinstance(node.op, ast.Pow) and isinstance(right, (int, float)) and abs(right) > 1000:
+            raise ValueError('Слишком большая степень')
+        return _SAFE_BIN_OPS[type(node.op)](left, right)
+    if isinstance(node, ast.UnaryOp) and type(node.op) in _SAFE_UNARY_OPS:
+        return _SAFE_UNARY_OPS[type(node.op)](_eval_safe_ast(node.operand))
+    if isinstance(node, ast.List):
+        return [_eval_safe_ast(el) for el in node.elts]
+    if isinstance(node, ast.Tuple):
+        return tuple(_eval_safe_ast(el) for el in node.elts)
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in _SAFE_FUNCS:
+        args = [_eval_safe_ast(a) for a in node.args]
+        return _SAFE_FUNCS[node.func.id](*args)
+    raise ValueError(f'Неразрешённая синтаксическая конструкция: {type(node).__name__}')
+
+
 @tool
 def python_eval(code: str) -> str:
-    """Безопасное выполнение простых математических и строковых выражений Python.
+    """Безопасное выполнение простых математических и строковых выражений Python через AST.
 
     Args:
-        code: Выражение или фрагмент кода для вычисления.
+        code: Выражение для вычисления.
     """
     try:
-        allowed_globals = {'__builtins__': {'abs': abs, 'min': min, 'max': max, 'sum': sum, 'round': round, 'len': len}}
-        result = eval(code, allowed_globals, {})
+        if len(code or '') > 2000:
+            return 'Error вычисления: выражение превышает допустимую длину'
+        tree = ast.parse(code.strip(), mode='eval')
+        result = _eval_safe_ast(tree)
         return str(result)
     except Exception as e:
         return f'Error вычисления: {e}'
 
+
 @tool
 def file_read(file_path: str) -> str:
-    """Чтение содержимого текстового файла проекта.
+    """Безопасное чтение текстового файла проекта с защитой от Path Traversal и утечки секретов.
 
     Args:
-        file_path: Относительный или абсолютный путь к файлу.
+        file_path: Относительный или абсолютный путь к файлу внутри проекта.
     """
     try:
+        root_resolved = __root__.resolve()
         p = Path(file_path)
         if not p.is_absolute():
-            p = __root__ / p
-        if not p.exists() or not p.is_file():
+            p = root_resolved / p
+        p_resolved = p.resolve()
+        try:
+            rel = p_resolved.relative_to(root_resolved)
+        except ValueError:
+            return 'Error чтения файла: доступ за пределы рабочей директории запрещён'
+        rel_parts_lower = [part.lower() for part in rel.parts]
+        if any(part in ('.env', 'secrets') or part.startswith('.env.') for part in rel_parts_lower):
+            return 'Error чтения файла: чтение секретных конфигурационных файлов запрещено'
+        if not p_resolved.exists() or not p_resolved.is_file():
             return f'Файл не найден: {file_path}'
-        return p.read_text(encoding='utf-8', errors='replace')[:10000]
+        with open(p_resolved, 'r', encoding='utf-8', errors='replace') as f:
+            return f.read(10000)
     except Exception as e:
         return f'Error чтения файла: {e}'
 
@@ -165,13 +233,27 @@ def flight_price_calculator(base_price: float, currency: str='USD', baggage_fee:
         discount_percent: Скидка или промокод в процентах (напр. 10.0 для 10%).
     """
     try:
-        subtotal_per_person = float(base_price) + float(baggage_fee)
-        taxes_per_person = subtotal_per_person * (float(tax_rate) / 100.0)
+        q = Decimal('0.01')
+        d_base = Decimal(str(base_price))
+        d_baggage = Decimal(str(baggage_fee))
+        d_tax_rate = Decimal(str(tax_rate)) / Decimal('100')
+        d_disc_rate = Decimal(str(discount_percent)) / Decimal('100')
+        subtotal_per_person = d_base + d_baggage
+        taxes_per_person = (subtotal_per_person * d_tax_rate).quantize(q, rounding=ROUND_HALF_UP)
         total_per_person = subtotal_per_person + taxes_per_person
-        discount_amount = total_per_person * (float(discount_percent) / 100.0)
-        final_per_person = total_per_person - discount_amount
-        total_all_passengers = final_per_person * int(passengers)
-        breakdown = {'currency': currency, 'passengers_count': passengers, 'base_price_per_passenger': base_price, 'baggage_fee_per_passenger': baggage_fee, 'tax_amount_per_passenger': round(taxes_per_person, 2), 'discount_per_passenger': round(discount_amount, 2), 'final_per_passenger': round(final_per_person, 2), 'total_overall': round(total_all_passengers, 2)}
+        discount_amount = (total_per_person * d_disc_rate).quantize(q, rounding=ROUND_HALF_UP)
+        final_per_person = (total_per_person - discount_amount).quantize(q, rounding=ROUND_HALF_UP)
+        total_all_passengers = (final_per_person * Decimal(int(passengers))).quantize(q, rounding=ROUND_HALF_UP)
+        breakdown = {
+            'currency': currency,
+            'passengers_count': int(passengers),
+            'base_price_per_passenger': float(d_base.quantize(q, rounding=ROUND_HALF_UP)),
+            'baggage_fee_per_passenger': float(d_baggage.quantize(q, rounding=ROUND_HALF_UP)),
+            'tax_amount_per_passenger': float(taxes_per_person),
+            'discount_per_passenger': float(discount_amount),
+            'final_per_passenger': float(final_per_person),
+            'total_overall': float(total_all_passengers),
+        }
         return json.dumps(breakdown, ensure_ascii=False, indent=2)
     except Exception as e:
         return f'Error расчета цены: {e}'
@@ -418,13 +500,16 @@ async def system_logs_analyzer(days: int=20, level: str='Critical,Error', channe
         elif 'warn' in lvl_lower:
             level_filter = '; Level=3'
         select_expr = "@{N='timestamp';E={$_.TimeCreated.ToString('yyyy-MM-dd HH:mm:ss')}}, @{N='level';E={$_.LevelDisplayName}}, @{N='event_id';E={$_.Id}}, @{N='provider';E={$_.ProviderName}}, @{N='channel';E={$_.LogName}}, @{N='message';E={$_.Message}}"
-        for chan in channels:
-            ps_query = f"Get-WinEvent -FilterHashtable @{{LogName='{chan}'{level_filter}; StartTime=(Get-Date).AddHours(-{hours})}} -MaxEvents {limit} -ErrorAction SilentlyContinue"
+        for raw_chan in channels:
+            chan = _SAFE_CHANNEL_RE.sub('', raw_chan).strip()
+            if not chan:
+                continue
+            ps_query = f"Get-WinEvent -FilterHashtable @{{LogName='{chan}'{level_filter}; StartTime=(Get-Date).AddHours(-{hours})}} -MaxEvents {int(limit)} -ErrorAction SilentlyContinue"
             ps_script = f'{ps_query} | Select-Object {select_expr} | ConvertTo-Json -Compress -Depth 2'
             cmd = ['powershell', '-NoProfile', '-Command', ps_script]
             try:
                 import subprocess
-                res = subprocess.run(cmd, capture_output=True, text=True, timeout=20)
+                res = await asyncio.to_thread(subprocess.run, cmd, capture_output=True, text=True, timeout=20)
                 if res.returncode == 0 and res.stdout.strip():
                     raw = json.loads(res.stdout.strip())
                     items = [raw] if isinstance(raw, dict) else raw
@@ -721,7 +806,6 @@ from src.ai.agents.windows_tools import (
     windows_control_plane_action,
     WINDOWS_NATIVE_TOOLS,
 )
-
 
 
 

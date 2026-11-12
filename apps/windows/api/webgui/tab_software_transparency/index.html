@@ -4,6 +4,8 @@ Process Name: Windows Web Interface - Index View
 =============================================================================
 Description:
   Шаблон клиентского веб-интерфейса аудита прозрачности ПО (Software Transparency).
+  Обеспечивает стандартизированную одинаковую высоту строк таблицы со встроенными
+  скроллируемыми блоками списков и возможностью переключения режимов отображения.
 
 Usage Examples:
     Web Route:
@@ -17,9 +19,101 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_software_transparency
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-28 15:30:00
+Updated: 2026-11-12 01:15:00
 =============================================================================
 -->
+<style>
+  /* Панель таблицы прозрачности ПО */
+  .st-table-card {
+    background: var(--surface-1, #1e293b) !important;
+    border: 1px solid var(--border-color, #334155) !important;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .st-table-responsive {
+    overflow-x: auto;
+  }
+  .st-table {
+    table-layout: fixed;
+    width: 100%;
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .st-table thead th {
+    background: var(--surface-2, #0f172a);
+    color: var(--text-muted, #94a3b8);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid var(--border-color, #334155);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  .st-table tbody tr.st-app-row {
+    transition: background-color 0.12s ease;
+    border-bottom: 1px solid var(--border-color, #334155);
+    cursor: pointer;
+  }
+  .st-table tbody tr.st-app-row:hover {
+    background-color: var(--nav-hover-bg, rgba(255, 255, 255, 0.04)) !important;
+  }
+  .st-table tbody td {
+    vertical-align: top;
+    padding: 0.55rem 0.7rem;
+    border-top: none;
+    border-bottom: 1px solid var(--border-color, #334155);
+  }
+
+  /* Стандартизированный контейнер ячеек для одинаковой высоты всех строк */
+  .st-cell-box {
+    height: 105px;
+    max-height: 105px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb, rgba(255, 255, 255, 0.2)) transparent;
+  }
+  .st-cell-box::-webkit-scrollbar {
+    width: 4px;
+  }
+  .st-cell-box::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .st-cell-box::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb, rgba(255, 255, 255, 0.2));
+    border-radius: 2px;
+  }
+  .st-cell-box::-webkit-scrollbar-thumb:hover {
+    background: var(--nav-active, rgba(56, 189, 248, 0.5));
+  }
+
+  /* Развернутый режим по клику на кнопку переключения */
+  .st-table.st-unfolded .st-cell-box {
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+
+  .st-stat-card {
+    background: var(--surface-1, #1e293b);
+    border: 1px solid var(--border-color, #334155);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.15s ease;
+  }
+  .st-stat-card:hover {
+    border-color: var(--nav-active, #38bdf8);
+  }
+</style>
+
 <!-- AI Software Transparency Scanner Tab UI -->
 <div class="container-fluid p-2" id="st-scanner-container">
   <!-- Заголовок вкладки -->
@@ -28,7 +122,7 @@ Updated: 2026-10-28 15:30:00
       <span class="tab-header-icon fs-4 text-warning">🔍</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Прозрачность ПО (Transparency Scanner)</h3>
+          <h3 class="tab-header-title mb-0">Прозрачность ПО (Transparency Scanner)</h3>
         </div>
         <small class="tab-header-subtitle text-secondary">Аудит цифровых подписей, проверка издателей программ, детекция конфигураций и сетевых соединений</small>
       </div>
@@ -46,25 +140,25 @@ Updated: 2026-10-28 15:30:00
   <!-- Сводные метрики -->
   <div class="row g-2 mb-3">
     <div class="col-6 col-md-3">
-      <div class="p-2 bg-secondary bg-opacity-10 border border-secondary rounded">
+      <div class="st-stat-card">
         <div class="text-muted small text-uppercase">Установлено ПО</div>
         <div class="fs-4 fw-bold text-info" id="st-metric-total-apps">0</div>
       </div>
     </div>
     <div class="col-6 col-md-3">
-      <div class="p-2 bg-secondary bg-opacity-10 border border-secondary rounded">
+      <div class="st-stat-card">
         <div class="text-muted small text-uppercase">Файлов конфигов</div>
         <div class="fs-4 fw-bold text-warning" id="st-metric-total-configs">0</div>
       </div>
     </div>
     <div class="col-6 col-md-3">
-      <div class="p-2 bg-secondary bg-opacity-10 border border-secondary rounded">
+      <div class="st-stat-card">
         <div class="text-muted small text-uppercase">Сетевых узлов / Доменов</div>
         <div class="fs-4 fw-bold text-success" id="st-metric-total-domains">0</div>
       </div>
     </div>
     <div class="col-6 col-md-3">
-      <div class="p-2 bg-secondary bg-opacity-10 border border-secondary rounded">
+      <div class="st-stat-card">
         <div class="text-muted small text-uppercase">Время сканирования</div>
         <div class="fs-4 fw-bold text-light" id="st-metric-scan-duration">0.0 с</div>
       </div>
@@ -73,32 +167,36 @@ Updated: 2026-10-28 15:30:00
 
   <!-- Фильтры и строка поиска -->
   <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-    <div class="d-flex align-items-center gap-2 flex-grow-1" style="max-width: 450px;">
+    <div class="d-flex align-items-center gap-2 flex-grow-1 col-12 col-md-5">
       <div class="input-group input-group-sm">
         <span class="input-group-text bg-dark text-secondary border-secondary"><i class="bi bi-search"></i></span>
-        <input class="form-control bg-dark text-white border-secondary" id="st-search-input" placeholder="Поиск по названию программы или издателю..." type="text"/>
+        <input class="form-control bg-dark text-white border-secondary" id="st-search-input" placeholder="Поиск по программе, издателю, категории, пути или домену..." type="text"/>
       </div>
     </div>
-    <div class="d-flex align-items-center gap-2 small text-muted">
-      <span>Легенда достоверности:</span>
+    <div class="d-flex align-items-center gap-2 small text-muted flex-wrap">
+      <span>Легенда:</span>
       <span class="badge bg-success-subtle text-success border border-success">🟢 Локально</span>
       <span class="badge bg-info-subtle text-info border border-info">🔵 Документация</span>
       <span class="badge bg-warning-subtle text-warning border border-warning">🟡 Предположение AI</span>
       <span class="badge bg-secondary-subtle text-secondary border border-secondary">⚪ Неизвестно</span>
+      <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 ms-2" id="st-btn-toggle-row-height" title="Переключить режим высоты строк: фиксированная одинаковая высота или развернутая">
+        <i class="bi bi-distribute-vertical" id="st-row-height-icon"></i>
+        <span id="st-row-height-label">Одинаковая высота строк</span>
+      </button>
     </div>
   </div>
 
   <!-- Таблица программ -->
-  <div class="card bg-dark text-white border-secondary shadow-sm mb-3" data-panel-id="panel-software-transparency-1" id="panel-software-transparency-1">
-    <div class="table-responsive">
-      <table class="table table-dark table-hover mb-0 align-middle">
-        <thead class="table-dark text-secondary small border-secondary">
+  <div class="card st-table-card shadow-sm mb-3" data-panel-id="panel-software-transparency-1" id="panel-software-transparency-1">
+    <div class="table-responsive st-table-responsive">
+      <table class="table table-dark table-hover mb-0 align-top st-table" id="st-main-table">
+        <thead>
           <tr>
-            <th style="width: 25%;">Программа</th>
-            <th style="width: 20%;">Издатель / Версия</th>
-            <th style="width: 20%;">Каталоги и хранилище</th>
-            <th style="width: 15%;">Конфиги &amp; Секреты</th>
-            <th style="width: 20%;">Сетевые домены</th>
+            <th style="width: 25%;">Программа и назначение</th>
+            <th style="width: 20%;">Издатель / Версия / Метаданные</th>
+            <th style="width: 20%;">Каталоги, хранилище и реестр</th>
+            <th style="width: 17%;">Конфиги &amp; Секреты</th>
+            <th style="width: 18%;">Сетевые домены и службы</th>
           </tr>
         </thead>
         <tbody id="st-table-body">

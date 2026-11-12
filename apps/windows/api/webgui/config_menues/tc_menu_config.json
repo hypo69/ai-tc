@@ -76,15 +76,31 @@
         "tab": "tab-scenarios",
         "order": 9,
         "visible": true
+      },
+      {
+        "id": "ninite_updater",
+        "label": "Установить Ninite",
+        "icon": "bi-cloud-arrow-down",
+        "tab": "tab-ninite-updater",
+        "order": 10,
+        "visible": true
       }
     ],
     "sidebarItems": [
       {
-        "id": "registry_viewer",
-        "label": "Registry Viewer",
-        "icon": "bi-key",
-        "tab": "tab-registry-viewer",
+        "id": "kernel_protection",
+        "label": "Защита ядра и драйверы",
+        "icon": "bi-shield-shaded",
+        "tab": "tab-kernel-protection",
         "order": 1,
+        "visible": true
+      },
+      {
+        "id": "registry_editor",
+        "label": "Редактор реестра",
+        "icon": "bi-key",
+        "tab": "tab-registry-editor",
+        "order": 2,
         "visible": true
       },
       {
@@ -92,7 +108,7 @@
         "label": "5. Сеть и периферия",
         "icon": "bi-plug",
         "tab": "tab-peripherals",
-        "order": 2,
+        "order": 3,
         "visible": true
       },
       {
@@ -101,14 +117,6 @@
         "i18n": "tabs.network",
         "icon": "bi-globe2",
         "tab": "tab-network",
-        "order": 3,
-        "visible": true
-      },
-      {
-        "id": "cloudflared_monitor",
-        "label": "Cloudflare Tunnel (kino)",
-        "icon": "bi-cloud-check",
-        "tab": "tab-cloudflared",
         "order": 4,
         "visible": true
       },
@@ -122,21 +130,12 @@
         "visible": false
       },
       {
-        "id": "user_directories",
-        "label": "Директории пользователей",
-        "i18n": "tabs.userDirectories",
-        "icon": "bi-folder2",
-        "tab": "tab-user-directories",
-        "order": 6,
-        "visible": true
-      },
-      {
         "id": "rag",
         "label": "RAG",
         "i18n": "tabs.rag",
         "icon": "bi-cpu",
         "tab": "tab-rag",
-        "order": 7,
+        "order": 6,
         "visible": false
       },
       {
@@ -144,7 +143,7 @@
         "label": "PixelRAG",
         "icon": "bi-image",
         "tab": "tab-pixelrag",
-        "order": 8,
+        "order": 7,
         "visible": false
       },
       {
@@ -153,7 +152,7 @@
         "i18n": "tabs.fileHistorySearch",
         "icon": "bi-search",
         "tab": "tab-file-history-search",
-        "order": 9,
+        "order": 8,
         "visible": false
       },
       {
@@ -161,7 +160,7 @@
         "label": "Накопители и Ресурс Дисков",
         "icon": "bi-hdd",
         "tab": "tab-storage-management",
-        "order": 10,
+        "order": 9,
         "visible": false
       },
       {
@@ -170,7 +169,7 @@
         "i18n": "tabs.softwareTransparency",
         "icon": "bi-eye",
         "tab": "tab-software-transparency",
-        "order": 11,
+        "order": 10,
         "visible": false
       },
       {
@@ -178,7 +177,7 @@
         "label": "Пакетный менеджер (Winget)",
         "icon": "bi-box-seam",
         "tab": "tab-software-manager",
-        "order": 12,
+        "order": 11,
         "visible": false
       },
       {
@@ -186,7 +185,7 @@
         "label": "Сессии питания",
         "icon": "bi-power",
         "tab": "tab-power-lifecycle",
-        "order": 13,
+        "order": 12,
         "visible": false
       },
       {
@@ -194,7 +193,7 @@
         "label": "Исследования телеметрии",
         "icon": "bi-binoculars",
         "tab": "tab-telemetry-research",
-        "order": 14,
+        "order": 13,
         "visible": false
       },
       {
@@ -202,7 +201,7 @@
         "label": "1. Утечки и микрофризы",
         "icon": "bi-search",
         "tab": "tab-process-leaks",
-        "order": 15,
+        "order": 14,
         "visible": false
       },
       {
@@ -210,7 +209,7 @@
         "label": "Умное восстановление (Advisor)",
         "icon": "bi-shield-check",
         "tab": "tab-smart-restore",
-        "order": 16,
+        "order": 15,
         "visible": true
       },
       {
@@ -218,7 +217,7 @@
         "label": "Загрузка, WinRE и обслуживание SFC/DISM",
         "icon": "bi-rocket-takeoff",
         "tab": "tab-boot-recovery",
-        "order": 17,
+        "order": 16,
         "visible": true
       },
       {
@@ -226,7 +225,7 @@
         "label": "Службы Windows (Services)",
         "icon": "bi-gear",
         "tab": "tab-services-manager",
-        "order": 18,
+        "order": 17,
         "visible": true
       },
       {
@@ -234,7 +233,7 @@
         "label": "Планировщик задач (Tasks)",
         "icon": "bi-calendar3",
         "tab": "tab-task-scheduler",
-        "order": 19,
+        "order": 18,
         "visible": true
       },
       {
@@ -242,7 +241,7 @@
         "label": "Панель задач и Окна (Taskbar)",
         "icon": "bi-pin-angle",
         "tab": "tab-taskbar",
-        "order": 20,
+        "order": 19,
         "visible": true
       },
       {
@@ -250,7 +249,7 @@
         "label": "Диспетчер процессов (Processes)",
         "icon": "bi-cpu",
         "tab": "tab-processes-load-inspector#manager",
-        "order": 21,
+        "order": 20,
         "visible": false
       },
       {
@@ -258,7 +257,7 @@
         "label": "Редактор тем (Theme Editor)",
         "icon": "bi-palette2",
         "tab": "tab-theme-editor",
-        "order": 22,
+        "order": 21,
         "visible": false
       },
       {
@@ -266,7 +265,7 @@
         "label": "2. Поведенческая форензика",
         "icon": "bi-stopwatch",
         "tab": "tab-forensics",
-        "order": 23,
+        "order": 22,
         "visible": false
       },
       {
@@ -274,7 +273,7 @@
         "label": "3. Качество ядра и Троттлинг",
         "icon": "bi-lightning-charge",
         "tab": "tab-throttling",
-        "order": 24,
+        "order": 23,
         "visible": false
       },
       {
@@ -282,7 +281,7 @@
         "label": "Звук и громкость",
         "icon": "bi-volume-up",
         "tab": "tab-sound-settings",
-        "order": 26,
+        "order": 24,
         "visible": false
       },
       {
@@ -291,6 +290,23 @@
         "i18n": "tabs.system32Commands",
         "icon": "bi-tools",
         "tab": "tab-system32-commands",
+        "order": 25,
+        "visible": false
+      },
+      {
+        "id": "cloudflared_monitor",
+        "label": "Cloudflare Tunnel (kino)",
+        "icon": "bi-cloud-check",
+        "tab": "tab-cloudflared",
+        "order": 26,
+        "visible": false
+      },
+      {
+        "id": "user_directories",
+        "label": "Директории пользователей",
+        "i18n": "tabs.userDirectories",
+        "icon": "bi-folder2",
+        "tab": "tab-user-directories",
         "order": 27,
         "visible": false
       },
@@ -312,19 +328,11 @@
         "visible": true
       },
       {
-        "id": "ninite_updater",
-        "label": "Установить Ninite",
-        "icon": "bi-cloud-arrow-down",
-        "tab": "tab-ninite-updater",
-        "order": 30,
-        "visible": true
-      },
-      {
         "id": "app_internals",
         "label": "Внутренняя кухня (App Internals)",
         "icon": "bi-code-square",
         "tab": "tab-app-internals",
-        "order": 31,
+        "order": 30,
         "visible": true
       },
       {
@@ -332,7 +340,7 @@
         "label": "Карта сайта (Sitemap)",
         "icon": "bi-diagram-3-fill",
         "tab": "tab-sitemap",
-        "order": 32,
+        "order": 31,
         "visible": true
       },
       {
@@ -340,7 +348,7 @@
         "label": "Экосистема ИИ (Агенты, Навыки, MCP)",
         "icon": "bi-robot",
         "tab": "tab-ai-ecosystem",
-        "order": 33,
+        "order": 32,
         "visible": true
       }
     ]

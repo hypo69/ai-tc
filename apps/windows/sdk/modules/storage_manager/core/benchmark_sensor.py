@@ -19,7 +19,7 @@
 # Package: apps.windows.sdk.modules.storage_manager.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 16:26:00
 # =============================================================================
 
 from __future__ import annotations
@@ -88,10 +88,16 @@ class StorageBenchmarkSensor:
                 if t.drive_letter.upper() in norm_drives:
                     drives_to_test.append(t.drive_letter)
         else:
-            # Все накопители с достаточным свободным местом (> 200 МБ)
+            # Все накопители с достаточным свободным местом (> 200 МБ), в которые реально можно писать
             for t in available_targets:
-                if t.free_bytes > 200 * 1024 * 1024:
-                    drives_to_test.append(t.drive_letter)
+                if t.free_bytes <= 200 * 1024 * 1024:
+                    continue
+                try:
+                    Path(t.recommended_dir).mkdir(parents=True, exist_ok=True)
+                except OSError as exc:
+                    logger.debug(f'[StorageBenchmarkSensor] Диск {t.drive_letter} пропущен (нет доступа на запись): {exc}')
+                    continue
+                drives_to_test.append(t.drive_letter)
 
         if not drives_to_test:
             drives_to_test = ['C:']

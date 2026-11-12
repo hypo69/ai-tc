@@ -11,17 +11,15 @@
 # Package: plugins.generate_rag_from_codebase
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:37:50
 # =============================================================================
 
-"""Code symbol table index for fast symbol resolution.
-
-Indexes classes, functions, and methods to support direct lookup of code symbols,
-their enclosing modules, signatures, and file locations.
-"""
+"""Индекс таблицы символов кода для мгновенного поиска классов, функций и методов."""
 
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -115,13 +113,23 @@ class CodeSymbolIndex:
         return results[:limit]
 
     def save(self, file_path: Path) -> None:
-        """Persist symbol index to JSON file.
+        """Атомарно сохраняет индекс символов в JSON-файл через временный файл.
 
         Args:
-            file_path (Path): Target file path.
+            file_path (Path): Путь к целевому файлу.
         """
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        file_path.write_text(json.dumps(self.symbols, indent=2, ensure_ascii=False), encoding="utf-8")
+        resolved = file_path.resolve()
+        resolved.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = resolved.with_name(f".{resolved.name}.tmp")
+        try:
+            tmp_path.write_text(json.dumps(self.symbols, indent=2, ensure_ascii=False), encoding="utf-8")
+            os.replace(tmp_path, resolved)
+        finally:
+            if tmp_path.exists():
+                try:
+                    tmp_path.unlink()
+                except OSError:
+                    pass
 
     def load(self, file_path: Path) -> bool:
         """Load symbol index from JSON file.
@@ -146,4 +154,3 @@ class CodeSymbolIndex:
     def count(self) -> int:
         """Return total number of unique symbol keys."""
         return sum(len(v) for v in self.symbols.values())
-

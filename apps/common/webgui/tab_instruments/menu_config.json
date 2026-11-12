@@ -1,0 +1,70 @@
+{
+  "$schema": "webgui-menu-v1",
+  "tab_id": "tab-instruments",
+  "draggable": true,
+  "subtabs": {
+    "nav_id": "instruments-subtabs-nav",
+    "storage_key": "tab-instruments_subtabs_order",
+    "items": [
+      {
+        "id": "catalog",
+        "button_id": "pill-inst-catalog-tab",
+        "pane_id": "pill-inst-catalog",
+        "panel_id": "panel-inst-catalog",
+        "icon": "bi-tools",
+        "label_i18n": "instruments.subtabs.catalogLabel",
+        "title_i18n": "instruments.subtabs.catalogTitle",
+        "default_title": "Каталог инструментов CoT",
+        "order": 0
+      },
+      {
+        "id": "storage",
+        "button_id": "pill-inst-storage-tab",
+        "pane_id": "pill-inst-storage",
+        "panel_id": "panel-inst-storage",
+        "icon": "bi-database-check",
+        "label_i18n": "instruments.subtabs.storageLabel",
+        "title_i18n": "instruments.subtabs.storageTitle",
+        "default_title": "Хранилище и Синхронизация",
+        "order": 1
+      },
+      {
+        "id": "runtime",
+        "button_id": "pill-inst-runtime-tab",
+        "pane_id": "pill-inst-runtime",
+        "panel_id": "panel-inst-runtime",
+        "icon": "bi-gear-wide-connected",
+        "label_i18n": "instruments.subtabs.runtimeLabel",
+        "title_i18n": "instruments.subtabs.runtimeTitle",
+        "default_title": "Параметры рантайма и SafeOps",
+        "order": 2
+      }
+    ]
+  },
+  "blocks": {
+    "nav_id": "instruments-blocks-nav",
+    "storage_key": "tab-instruments_blocks_order",
+    "items": [
+      {
+        "id": "block-catalog-list",
+        "block_id": "block-catalog-list",
+        "pane_id": "subpane-block-catalog-list",
+        "icon": "bi-list-ul",
+        "label_i18n": "instruments.blocks.listLabel",
+        "title_i18n": "instruments.blocks.listTitle",
+        "default_title": "Список инструментов и фильтры",
+        "order": 0
+      },
+      {
+        "id": "block-catalog-test",
+        "block_id": "block-catalog-test",
+        "pane_id": "subpane-block-catalog-test",
+        "icon": "bi-play-circle",
+        "label_i18n": "instruments.blocks.testLabel",
+        "title_i18n": "instruments.blocks.testTitle",
+        "default_title": "Тестирование и вызов",
+        "order": 1
+      }
+    ]
+  }
+}

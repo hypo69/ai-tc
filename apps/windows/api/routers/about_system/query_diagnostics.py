@@ -10,7 +10,7 @@
 # Project: ai-windows-admin
 # Package: apps.windows.api.routers.about_system
 # Author: hypo69
-# Updated: 2026-10-28 04:40:00
+# Updated: 2026-11-03 14:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -911,7 +911,21 @@ def query_hardware_tree_from_db(storage: TelemetryStorage) -> List[Dict[str, Any
     mem_total = snap.get("memory", {}).get("total_gb") or 16.0
     mem_used = snap.get("memory", {}).get("used_gb") or 8.0
     gpus = snap.get("gpus") or [{"name": "Display Adapter"}]
-    monitors = snap.get("monitors") or [{"name": "Generic Monitor"}]
+    raw_monitors = snap.get("monitors") or []
+    valid_monitors = [
+        m for m in raw_monitors
+        if isinstance(m, dict) and "windisc" not in str(m.get("device", "")).lower()
+    ]
+    if not valid_monitors:
+        try:
+            inv_monitors = storage.get_monitor_inventory() or []
+            valid_monitors = [
+                m for m in inv_monitors
+                if isinstance(m, dict) and "windisc" not in str(m.get("device", "")).lower()
+            ]
+        except Exception:
+            valid_monitors = []
+    monitors = valid_monitors or [{"name": "Generic Monitor"}]
     disks = snap.get("disks") or []
     phys_disks = snap.get("physical_disks") or []
     ram_sticks = snap.get("ram_sticks") or []
@@ -947,11 +961,7 @@ def query_hardware_tree_from_db(storage: TelemetryStorage) -> List[Dict[str, Any
     for p in phys_disks:
         disk_props[f"Накопитель {p.get('device_id', '')}"] = f"{p.get('model', '')} ({p.get('size_gb', 0)} GB, {p.get('media_type', 'Disk')}, Здоровье: {p.get('health_status', 'OK')})"
 
-    if not monitors:
-        try:
-            monitors = storage.get_monitor_inventory() or []
-        except Exception:
-            monitors = []
+
 
     mon_props: Dict[str, Any] = {}
     for idx, m in enumerate(monitors, 1):

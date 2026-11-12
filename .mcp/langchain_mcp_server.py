@@ -19,7 +19,7 @@
 #     res = agent_python_eval("2 + 2 * 10")
 #
 # File: langchain_mcp_server.py
-# Project: AI Windows Admin (AI-TC)
+# Project: AI Windows Admin (ai-tc)
 # Package: .mcp
 # Author: hypo69
 # Copyright: © 2026 hypo69
@@ -192,7 +192,7 @@ def agent_file_read(file_path: str) -> str:
         str: Содержимое файла (до 10 000 символов) или сообщение об ошибке.
 
     Examples:
-        >>> "AI-TC" in agent_file_read("config.json")
+        >>> "ai-tc" in agent_file_read("config.json")
         True
     """
     if not file_path or not file_path.strip():

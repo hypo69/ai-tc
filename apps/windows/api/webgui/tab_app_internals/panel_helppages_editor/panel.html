@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_app_internals/panel_helppages_editor
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-31 18:03:00
+Updated: 2026-11-01 12:50:00
 =============================================================================
 -->
 <div class="p-2" id="helppages-editor-container">
@@ -51,8 +51,8 @@ Updated: 2026-10-31 18:03:00
     <!-- Левая колонка: Дерево модулей и атомарных блоков -->
     <div class="col-12 col-lg-4 col-xl-3">
       <div class="card bg-body border-subtle shadow-sm h-100">
-        <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between py-2 px-3">
-          <span class="fw-bold small text-body d-flex align-items-center gap-1.5">
+        <div class="panel-header d-flex align-items-center justify-content-between py-2 px-3">
+          <span class="panel-title">
             <i class="bi bi-folder2-open text-warning"></i>
             <span data-i18n="helppagesEditor.treeTitle">Каталог страниц</span>
           </span>
@@ -73,7 +73,7 @@ Updated: 2026-10-31 18:03:00
     <!-- Правая колонка: Рабочая область редактора -->
     <div class="col-12 col-lg-8 col-xl-9">
       <div class="card bg-body border-subtle shadow-sm h-100" id="hp-editor-card">
-        <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between flex-wrap gap-2 py-2 px-3">
+        <div class="panel-header d-flex align-items-center justify-content-between flex-wrap gap-2 py-2 px-3">
           <div class="d-flex align-items-center gap-2 text-truncate" style="max-width: 60%;">
             <i class="bi bi-file-earmark-code text-primary fs-5"></i>
             <div class="text-truncate">
@@ -88,7 +88,7 @@ Updated: 2026-10-31 18:03:00
             </span>
             <button type="button" class="btn btn-xs btn-outline-info d-flex align-items-center gap-1" id="hp-btn-preview" disabled title="Открыть в модальном окне 80vw × 80vh">
               <i class="bi bi-play-circle"></i>
-              <span data-i18n="helppagesEditor.btnPreview">Тест окна 80vw×80vh</span>
+              <span class="panel-title" data-i18n="helppagesEditor.btnPreview">Тест окна 80vw×80vh</span>
             </button>
             <button type="button" class="btn btn-xs btn-primary d-flex align-items-center gap-1 px-3 shadow-sm" id="hp-btn-save" disabled>
               <i class="bi bi-save"></i>

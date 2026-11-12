@@ -18,7 +18,7 @@
 # Package: src.ai.providers.openai
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 16:53:00
 # =============================================================================
 
 """Универсальный чат-клиент для любого OpenAI-совместимого эндпоинта."""
@@ -26,6 +26,7 @@
 import asyncio
 import json
 import os
+import random
 import time
 from typing import Any, AsyncIterator, Dict, List, Optional
 import aiohttp
@@ -74,7 +75,7 @@ class OpenAICompatChat:
         self.system_prompt = system_prompt
         self.temperature = temperature
         self.max_tokens = max_tokens
-        self.timeout = aiohttp.ClientTimeout(total=120)
+        self.timeout = aiohttp.ClientTimeout(total=120.0, connect=5.0, sock_read=115.0)
         self._history: List[Dict[str, str]] = []
 
     @property
@@ -125,7 +126,7 @@ class OpenAICompatChat:
                             if resp.status in (401, 403, 404):
                                 break
                             if attempt < attempts:
-                                await asyncio.sleep(min(2 ** attempt, 8))
+                                await asyncio.sleep(min(2 ** attempt, 8) + random.uniform(0.1, 0.5))
                             continue
                         data = await resp.json()
                         choices = data.get('choices', [])
@@ -140,11 +141,11 @@ class OpenAICompatChat:
                 if is_debug_mode():
                     raise
                 if attempt < attempts:
-                    await asyncio.sleep(min(2 ** attempt, 8))
+                    await asyncio.sleep(min(2 ** attempt, 8) + random.uniform(0.1, 0.5))
         logger.error(f'[OpenAICompat] Все {attempts} попыток завершились неудачей для {self.model_id}: {last_error}')
         raise RuntimeError(f'OpenAICompat error: {last_error}')
 
-    async def chat(self, q: str, history: Optional[List[Dict[str, Any]]]=[], save_history: bool=True, temperature: Optional[float]=0.0, max_tokens: Optional[int]=0, system_instruction: Optional[str]='', attempts: int=5, **kwargs: Any) -> str:
+    async def chat(self, q: str, history: Optional[List[Dict[str, Any]]]=None, save_history: bool=True, temperature: Optional[float]=0.0, max_tokens: Optional[int]=0, system_instruction: Optional[str]='', attempts: int=5, **kwargs: Any) -> str:
         """Многошаговый чат с поддержкой истории сообщений."""
         sys_prompt = system_instruction or self.system_prompt
         temp = temperature if temperature and temperature > 0 else self.temperature
@@ -188,7 +189,7 @@ class OpenAICompatChat:
                             if resp.status in (401, 403, 404):
                                 break
                             if attempt < attempts:
-                                await asyncio.sleep(min(2 ** attempt, 8))
+                                await asyncio.sleep(min(2 ** attempt, 8) + random.uniform(0.1, 0.5))
                             continue
                         data = await resp.json()
                         choices = data.get('choices', [])
@@ -205,7 +206,7 @@ class OpenAICompatChat:
                 if is_debug_mode():
                     raise
                 if attempt < attempts:
-                    await asyncio.sleep(min(2 ** attempt, 8))
+                    await asyncio.sleep(min(2 ** attempt, 8) + random.uniform(0.1, 0.5))
         logger.error(f'[OpenAICompat] chat failed for {self.model_id}: {last_error}')
         raise RuntimeError(f'OpenAICompat chat error: {last_error}')
 
@@ -214,7 +215,7 @@ class OpenAICompatChat:
         async for chunk in self.stream_chat(prompt, temperature=temperature, max_tokens=max_tokens, system_instruction=system_instruction, **kwargs):
             yield chunk
 
-    async def stream_chat(self, q: str, history: Optional[List[Dict[str, Any]]]=[], temperature: Optional[float]=0.0, max_tokens: Optional[int]=0, system_instruction: Optional[str]='', **kwargs: Any) -> AsyncIterator[str]:
+    async def stream_chat(self, q: str, history: Optional[List[Dict[str, Any]]]=None, temperature: Optional[float]=0.0, max_tokens: Optional[int]=0, system_instruction: Optional[str]='', **kwargs: Any) -> AsyncIterator[str]:
         """Потоковый чат через SSE /chat/completions."""
         sys_prompt = system_instruction or self.system_prompt
         temp = temperature if temperature and temperature > 0 else self.temperature

@@ -18,7 +18,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_telemetry_control
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-28 17:48:00
+Updated: 2026-11-11 20:37:00
 =============================================================================
 -->
 <div class="container-fluid py-3 px-3" id="telemetry-control-tab-container">
@@ -28,18 +28,25 @@ Updated: 2026-10-28 17:48:00
       <span class="tab-header-icon fs-4 text-warning">🎛️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Управление режимами телеметрии</h3>
+          <h3 class="tab-header-title mb-0">Управление режимами телеметрии</h3>
           <span class="badge bg-success-subtle text-success border border-success-subtle fs-7" id="tc-ctrl-status-badge">Hot Reload: Активен</span>
+          <span class="ui-badge ui-badge-neutral" id="tc-ctrl-task-status-badge" title="Статус задания AI-Windows-Admin-Telemetry в планировщике задач Windows (Task Scheduler)">
+            <i class="bi bi-calendar2-check me-1"></i>Task Scheduler: Проверка...
+          </span>
         </div>
         <small class="tab-header-subtitle text-secondary">Активация режима реального времени, индивидуальные таймеры сенсоров и каскадное усреднение</small>
       </div>
     </div>
     <div class="d-flex align-items-center gap-2 flex-wrap">
-      <button class="btn btn-sm btn-outline-info d-flex align-items-center gap-1 shadow-sm" id="tc-ctrl-btn-refresh" title="Перечитать активную конфигурацию" data-bs-toggle="tooltip">
+      <button type="button" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1 shadow-sm" id="tc-ctrl-btn-install-task" title="Установить телеметрию как фоновую службу в Task Scheduler для запуска при старте компьютера" data-bs-toggle="tooltip">
+        <i class="bi bi-calendar2-plus-fill" id="tc-ctrl-install-task-icon"></i>
+        <span class="fw-semibold" id="tc-ctrl-install-task-label">Установить службу (Task Scheduler)</span>
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-info d-flex align-items-center gap-1 shadow-sm" id="tc-ctrl-btn-refresh" title="Перечитать активную конфигурацию" data-bs-toggle="tooltip">
         <i class="bi bi-arrow-clockwise"></i>
         <span>Обновить</span>
       </button>
-      <button class="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm px-3" id="tc-ctrl-btn-save" title="Применить изменения на лету (Hot Reload)" data-bs-toggle="tooltip">
+      <button type="button" class="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm px-3" id="tc-ctrl-btn-save" title="Применить изменения на лету (Hot Reload)" data-bs-toggle="tooltip">
         <i class="bi bi-floppy2-fill"></i>
         <span class="fw-semibold">Применить (Hot Reload)</span>
       </button>

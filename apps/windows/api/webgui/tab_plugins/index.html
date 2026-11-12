@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_plugins
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 10:55:00
+Updated: 2026-11-01 12:50:00
 =============================================================================
 -->
 <!-- Plugins Tab -->
@@ -28,7 +28,7 @@ Updated: 2026-10-20 10:55:00
       <span class="tab-header-icon fs-4 text-warning">🧩</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Менеджер плагинов и расширений</h3>
+          <h3 class="tab-header-title mb-0">Менеджер плагинов и расширений</h3>
           
         </div>
         <small class="tab-header-subtitle text-secondary">Управление жизненным циклом расширений, регистрация навыков, активация sidecar-модулей и хуков</small>
@@ -46,8 +46,8 @@ Updated: 2026-10-20 10:55:00
 <!-- LEFT: Plugin Catalog / List -->
 <div class="col-lg-4 col-md-5">
 <div class="card shadow-sm h-100 border-secondary-subtle" data-panel-id="panel-plugins-ustanovlennye-plaginy-0" id="panel-plugins-ustanovlennye-plaginy-0">
-<div class="card-header bg-body-tertiary d-flex justify-content-between align-items-center py-2">
-<span class="fw-semibold small text-uppercase">Установленные плагины (<span id="plugins-count">0</span>)</span>
+<div class="panel-header d-flex justify-content-between align-items-center py-2">
+<span class="panel-title">Установленные плагины (<span id="plugins-count">0</span>)</span>
 <span class="badge bg-secondary-subtle text-body" id="active-plugins-badge">0 активных</span>
 </div>
 <div class="p-2 border-bottom">
@@ -73,12 +73,12 @@ Updated: 2026-10-20 10:55:00
 </div>
 <div class="d-none d-flex flex-column h-100" id="plugin-content-pane">
 <!-- Plugin Header -->
-<div class="card-header bg-body-tertiary d-flex justify-content-between align-items-center py-3 border-bottom">
+<div class="panel-header d-flex justify-content-between align-items-center py-3 border-bottom">
 <div class="d-flex align-items-center gap-3">
 <span class="fs-2" id="plugin-icon">🧩</span>
 <div>
 <div class="d-flex align-items-center gap-2">
-<h5 class="mb-0 fw-bold" id="plugin-title">Название плагина</h5>
+<span class="panel-title" id="plugin-title">Название плагина</span>
 <span class="badge bg-primary-subtle text-primary border border-primary-subtle" id="plugin-version">v1.0.0</span>
 <span class="badge bg-secondary-subtle text-body border" id="plugin-category">tools</span>
 <span class="badge bg-info-subtle text-info-emphasis border" id="plugin-scope-badge">Системный</span>

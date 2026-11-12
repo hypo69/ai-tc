@@ -11,6 +11,7 @@
 # Package: plugins.telegram_bot
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:20:00
 # =============================================================================
 
 """Text-to-speech voice narration module for Telegram bot plugin.
@@ -94,7 +95,8 @@ async def handle_telegram_voiceover_request(
         if not chunks:
             chunks = [content_to_read]
 
-        async with httpx.AsyncClient() as client:
+        client_timeout = httpx.Timeout(connect=5.0, read=35.0, write=15.0, pool=5.0)
+        async with httpx.AsyncClient(timeout=client_timeout) as client:
             for idx, chunk in enumerate(chunks, start=1):
                 if status_message:
                     try:
@@ -150,4 +152,3 @@ async def handle_telegram_voiceover_request(
             )
         except Exception:
             pass
-

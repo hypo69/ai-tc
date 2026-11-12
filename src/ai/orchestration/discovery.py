@@ -18,7 +18,7 @@
 # Package: src.ai.orchestration
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 16:48:00
 # =============================================================================
 
 """Discovers available backends, models, and hardware capabilities dynamically."""
@@ -71,15 +71,19 @@ class DiscoveryEngine:
         return {'gemini': bool(os.environ.get('GEMINI_API_KEY_1') or os.environ.get('GEMINI_API_KEY')), 'openai': bool(os.environ.get('OPENAI_API_KEY')), 'anthropic': bool(os.environ.get('ANTHROPIC_API_KEY'))}
 
     async def run_full_discovery(self) -> Dict[str, Any]:
-        """Perform comprehensive discovery across all local and cloud backends.
-
-        Returns:
-            Dict[str, Any]: Aggregated discovery result.
-        """
-        hardware = probe_hardware()
-        win_ai = probe_windows_ai_components()
+        """Выполняет комплексное асинхронное обнаружение локальных и облачных бэкендов ИИ."""
+        hw_task = asyncio.to_thread(probe_hardware)
+        win_ai_task = asyncio.to_thread(probe_windows_ai_components)
         foundry_task = self.probe_foundry_local()
         ollama_task = self.probe_ollama()
-        foundry_res, ollama_res = await asyncio.gather(foundry_task, ollama_task)
+        hardware, win_ai, foundry_res, ollama_res = await asyncio.gather(
+            hw_task, win_ai_task, foundry_task, ollama_task
+        )
         cloud_creds = self.probe_cloud_credentials()
-        return {'hardware': hardware.to_dict(), 'windows_ai': win_ai, 'foundry_local': foundry_res, 'ollama': ollama_res, 'cloud_providers': cloud_creds}
+        return {
+            'hardware': hardware.to_dict(),
+            'windows_ai': win_ai,
+            'foundry_local': foundry_res,
+            'ollama': ollama_res,
+            'cloud_providers': cloud_creds,
+        }

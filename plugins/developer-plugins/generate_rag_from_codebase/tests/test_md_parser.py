@@ -55,4 +55,3 @@ def test_md_parser_headings(tmp_path: Path):
     assert ast_chunk["parent_heading"] == "Ingestion Pipeline"
     assert ast_chunk["breadcrumb"] == "RAG Architecture > Ingestion Pipeline > AST Parser"
     assert "Extracts semantic code nodes." in ast_chunk["text"]
-

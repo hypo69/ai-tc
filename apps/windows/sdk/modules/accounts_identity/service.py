@@ -18,7 +18,7 @@
 # Package: apps.windows.sdk.modules.accounts_identity
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-01 15:25:00
 # =============================================================================
 
 """Единый сервис-фасад Accounts & Identity Windows."""
@@ -42,6 +42,8 @@ from apps.windows.sdk.modules.accounts_identity.models import (
     ProfileDetails,
     SessionDetails,
     TokenDetails,
+    UserUacConfig,
+    UserUacUpdateRequest,
 )
 from apps.windows.sdk.modules.accounts_identity.win32_bridge import Win32IdentityBridge
 
@@ -72,6 +74,14 @@ class AccountsIdentityService:
         """Возвращает данные пользователя."""
         return self.engine.users.get_user_info(name_or_sid)
 
+    def get_user_uac(self, name_or_sid: str) -> Optional[UserUacConfig]:
+        """Возвращает параметры UAC и безопасности для пользователя."""
+        return self.engine.users.get_user_uac(name_or_sid)
+
+    def update_user_uac(self, name_or_sid: str, req: UserUacUpdateRequest) -> UserUacConfig:
+        """Обновляет параметры UAC и безопасности для пользователя."""
+        return self.engine.users.update_user_uac(name_or_sid, req)
+
     def create_user(self, name: str, password: Optional[str] = None, full_name: str = "", description: str = "") -> bool:
         """Создает нового пользователя."""
         return self.engine.users.create_user(name=name, password=password, full_name=full_name, description=description)
@@ -99,6 +109,49 @@ class AccountsIdentityService:
     def get_password_policy(self) -> PasswordPolicy:
         """Возвращает политику паролей."""
         return self.engine.auth.get_password_policy()
+
+    def reset_user_password(self, username: str, new_password: str) -> bool:
+        """Сброс или установка нового пароля пользователя Windows."""
+        return self.engine.auth.reset_user_password(username, new_password)
+
+    def set_password_policy(
+        self,
+        min_length: Optional[int] = None,
+        max_age_days: Optional[int] = None,
+        history_length: Optional[int] = None,
+        lockout_threshold: Optional[int] = None,
+    ) -> bool:
+        """Обновляет глобальные параметры политики паролей (NetUserModalsSet)."""
+        return self.engine.auth.set_password_policy(
+            min_length=min_length,
+            max_age_days=max_age_days,
+            history_length=history_length,
+            lockout_threshold=lockout_threshold,
+        )
+
+    def set_user_password_flags(
+        self,
+        username: str,
+        password_never_expires: Optional[bool] = None,
+        cannot_change_password: Optional[bool] = None,
+        password_required: Optional[bool] = None,
+    ) -> bool:
+        """Устанавливает флаги политики пароля пользователя."""
+        success = True
+        if password_never_expires is not None:
+            if not self.engine.users.set_password_never_expires(username, password_never_expires):
+                success = False
+        if cannot_change_password is not None:
+            if not self.engine.users.set_cannot_change_password(username, cannot_change_password):
+                success = False
+        if password_required is not None:
+            val = "$true" if password_required else "$false"
+            ret, _, _ = self.bridge.run_command(
+                ["powershell.exe", "-NoProfile", "-Command", f"Set-LocalUser -Name '{username}' -PasswordRequired {val} -ErrorAction SilentlyContinue"]
+            )
+            if ret != 0:
+                success = False
+        return success
 
     def list_sessions(self) -> List[SessionDetails]:
         """Возвращает сессии входа."""

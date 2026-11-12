@@ -12,6 +12,7 @@
 # Package: plugins.ifttt
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 16:40:00
 # =============================================================================
 
 from __future__ import annotations
@@ -270,4 +271,3 @@ class IFTTTPlugin(BasePlugin):
                 "base_url": self.client.base_url,
             },
         }
-

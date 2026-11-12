@@ -11,7 +11,7 @@
  * Package: windows/api/webgui/tab_app_internals/common
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 19:42:00
+ * Updated: 2026-11-12 02:30:00
  * =============================================================================
  */
 
@@ -39,10 +39,11 @@ export function isAppInternalsTabActive() {
  */
 export function normalizeSubTabId(rawId) {
   if (!rawId) return 'telemetry';
-  const s = String(rawId).toLowerCase().trim().replace(/^#/, '');
+  const s = String(rawId).toLowerCase().trim().replace(/^#/, '').replace(/^panel-/, '');
   if (s.includes('codebase') || s.includes('code-rag') || s.includes('coderag') || s.includes('diag')) return 'codebase-rag';
   if (s.includes('telemetry') || s.includes('metric') || s.includes('cpu')) return 'telemetry';
   if (s.includes('model') || s.includes('provider') || s.includes('foundry') || s.includes('ollama')) return 'models';
+  if (s.includes('activity')) return 'activity';
   if (s.includes('log-setting') || s.includes('logging-setting')) return 'settings';
   if (s.includes('log') || s.includes('journal')) return 'logs';
   if (s.includes('etw') || s.includes('tracing') || s.includes('trace') || s.includes('perf')) return 'etw';
@@ -197,7 +198,7 @@ export function updateUrlWithPanel(panelId, blockId = null) {
     }
   }
 
-  const newHash = `#${TAB_ID}#${canonical}${blockSuffix}`;
+  const newHash = `#${TAB_ID}#panel-${canonical}${blockSuffix}`;
   if (location.hash !== newHash) {
     try {
       history.replaceState(null, null, `${location.pathname}${search}${newHash}`);

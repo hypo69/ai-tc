@@ -24,4 +24,3 @@ __all__ = [
     "YouTubeMP3Downloader",
     "plugin",
 ]
-

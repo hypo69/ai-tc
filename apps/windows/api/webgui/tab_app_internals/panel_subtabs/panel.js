@@ -16,7 +16,7 @@
  * Package: windows/api/webgui/tab_app_internals/panel_subtabs
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 19:44:00
+ * Updated: 2026-11-11 23:20:00
  * =============================================================================
  */
 
@@ -28,7 +28,7 @@ import {
   getActiveBlockId,
   updateUrlWithPanel,
   getActiveSubTabId,
-} from '../common/ui_utils.js?v=20261031_v2';
+} from '../common/ui_utils.js?v=20261111_v1';
 
 /**
  * Загрузка разметки и скрипта конкретной суб-панели с вызовом хуков инициализации.
@@ -172,6 +172,15 @@ export async function triggerSubTabInit(subtabName, blockId = null) {
     if (typeof window.initAppLogsTab === 'function') window.initAppLogsTab();
     if (typeof window.activateAppLogsTab === 'function') window.activateAppLogsTab();
     window.APP_LOG_URL = '/api/v1/internals/logs/app.log';
+  } else if (canonical === 'activity') {
+    if (typeof window.initAppInternalsActivityPanel === 'function') {
+      await window.initAppInternalsActivityPanel();
+    } else {
+      const mod = await import('../panel_activity/panel.js?v=20261111_v1');
+      if (mod && typeof mod.initAppInternalsActivityPanel === 'function') {
+        await mod.initAppInternalsActivityPanel();
+      }
+    }
   } else if (canonical === 'etw') {
     await loadSubPane(
       'internals-etw-embed-container',
@@ -297,6 +306,7 @@ export function switchAppInternalsSubTab(subtabName, blockId = null, updateUrl =
   let btnId = 'subtab-internals-telemetry-btn';
   if (canonical === 'models') btnId = 'subtab-internals-models-btn';
   else if (canonical === 'logs') btnId = 'subtab-internals-logs-btn';
+  else if (canonical === 'activity') btnId = 'subtab-internals-activity-btn';
   else if (canonical === 'etw') btnId = 'subtab-internals-etw-btn';
   else if (canonical === 'settings') btnId = 'subtab-internals-settings-btn';
   else if (canonical === 'wikillm-system') btnId = 'subtab-internals-wikillm-system-btn';

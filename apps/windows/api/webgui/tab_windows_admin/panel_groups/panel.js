@@ -9,7 +9,7 @@
  * Файл: apps/windows/api/webgui/tab_windows_admin/panel_groups/panel.js
  * Пакет: windows/api/webgui/tab_windows_admin
  * Автор: hypo69
- * Updated: 2026-10-20 17:18:00
+ * Updated: 2026-11-01 15:53:00
  * =============================================================================
  */
 
@@ -51,6 +51,9 @@ export function renderGroupsTable(groups) {
 
   if (!groups || groups.length === 0) {
     tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Группы безопасности не найдены</td></tr>';
+    if (window.autoAdjustTableHeight) {
+      window.autoAdjustTableHeight('winadmin-groups-table-container', 0);
+    }
     return;
   }
 
@@ -74,6 +77,10 @@ export function renderGroupsTable(groups) {
       </tr>
     `;
   }).join('');
+
+  if (window.autoAdjustTableHeight) {
+    window.autoAdjustTableHeight('winadmin-groups-table-container', groups.length);
+  }
 }
 
 /**

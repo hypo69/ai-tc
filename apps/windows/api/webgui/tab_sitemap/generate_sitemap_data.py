@@ -10,7 +10,7 @@
 # Package: apps.windows.api.webgui.tab_sitemap
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 14:00:00
+# Updated: 2026-11-10 14:18:00
 # =============================================================================
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ import json
 import sys
 from pathlib import Path
 from typing import Any, Dict, List
+from logger import logger
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -244,6 +245,23 @@ _TABS_METADATA: List[Dict[str, Any]] = [
     },
 
     # ── БЕЗОПАСНОСТЬ И ДИАГНОСТИКА ───────────────────────────────────────────
+    {
+        "id": "kernel_protection",
+        "tabId": "tab-kernel-protection",
+        "title": "Защита ядра и драйверы (Kernel & Protection)",
+        "icon": "bi-shield-shaded",
+        "category": "security",
+        "categoryTitle": "Безопасность и Диагностика",
+        "description": "Windows System Protection & Enforcement: инвентарь системных драйверов, высоты минифильтров fltmc, статус HVCI/UCPD и диагностика блокировок доступа (Operation Blocker Detection).",
+        "features": [
+            "Аудит системных механизмов защиты: HVCI (Memory Integrity), Secure Boot, UCPD, Defender Tamper Protection, WDAC, Smart App Control, ELAM",
+            "Инвентарь драйверов Windows (Security, Minifilters, System, Third-party) с AI-анализом через AIModalDialog",
+            "Реестр зарегистрированных файловых минифильтров (fltmc) и диапазонов высот (Microsoft Filter Altitudes)",
+            "Интеллектуальное расследование причин Access Denied (Operation Blocker Detection) для реестра, файлов и служб",
+            "Регламент SafeOps: безопасное временное отключение UCPD с созданием точек отката и блокировка опасных воздействий на ядро"
+        ],
+        "defaultVisible": True
+    },
     {
         "id": "windows_defender",
         "tabId": "tab-defender-firewall",
@@ -1062,18 +1080,19 @@ _TABS_METADATA: List[Dict[str, Any]] = [
         "defaultVisible": False
     },
     {
-        "id": "registry_viewer",
-        "tabId": "tab-registry-viewer",
-        "title": "Просмотр и Редактор Реестра (Registry)",
+        "id": "registry_editor",
+        "tabId": "tab-registry-editor",
+        "title": "Редактор системного реестра (Registry Editor)",
         "icon": "bi-key",
         "category": "admin",
         "categoryTitle": "Администрирование и Настройки",
-        "description": "Безопасный веб-интерфейс для навигации по системному реестру Windows (HKLM, HKCU, HKCR), поиск ключей и инспекция значений параметров.",
+        "description": "Безопасный веб-интерфейс для навигации по системному реестру Windows (HKLM, HKCU, HKCR), поиск ключей, инспекция параметров и управление защитой UCPD.",
         "features": [
             "Древовидная навигация по основным системным кустам реестра",
             "Быстрый переход по полному пути ветки реестра",
             "Просмотр типов данных параметров (REG_SZ, REG_DWORD, REG_BINARY)",
-            "Поиск подозрительных параметров и экспортер веток в файл .reg"
+            "Поиск подозрительных параметров и экспортер веток в файл .reg",
+            "Управление системным драйвером защиты UCPD (ucpd.sys)"
         ],
         "defaultVisible": True
     },
@@ -1154,6 +1173,7 @@ _TABS_METADATA: List[Dict[str, Any]] = [
         "description": "Служебный дашборд внутренней архитектуры AI Windows Admin: состояние модулей бэкенда, маршрутизация, кэши, сессии и базы данных.",
         "features": [
             "Инспекция зарегистрированных FastAPI роутеров и эндпоинтов",
+            "Журнал внутренней активности и операций приложения/системы",
             "Статистика обращений к кэшу IndexedDB и сетевому кэшу запросов",
             "Мониторинг соединений к базам данных SQLite и телеметрии",
             "Проверка актуальности конфигурационных файлов (tc.json, config.json)"
@@ -1291,11 +1311,18 @@ _TABS_METADATA: List[Dict[str, Any]] = [
 
 def build_sitemap_file() -> None:
     """Генерирует sitemap_data.json в каталоге tab_sitemap."""
-    out_path = Path("apps/windows/api/webgui/tab_sitemap/sitemap_data.json")
+    out_path = Path(__file__).resolve().parent / "sitemap_data.json"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(_TABS_METADATA, f, ensure_ascii=False, indent=2)
-    print(f"Сгенерирован sitemap_data.json: {len(_TABS_METADATA)} вкладок записано.")
+
+    # Синхронизация вложенной копии для совместимости
+    nested_path = Path(__file__).resolve().parent / "apps/windows/api/webgui/tab_sitemap/sitemap_data.json"
+    if nested_path.parent.exists():
+        with open(nested_path, "w", encoding="utf-8") as f:
+            json.dump(_TABS_METADATA, f, ensure_ascii=False, indent=2)
+
+    logger.console(f"Сгенерирован sitemap_data.json: {len(_TABS_METADATA)} вкладок записано.")
 
 
 if __name__ == "__main__":

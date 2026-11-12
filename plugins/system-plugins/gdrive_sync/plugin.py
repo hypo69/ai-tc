@@ -11,9 +11,11 @@
 # Package: plugins.gdrive_sync
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:40:20
 # =============================================================================
 
 from __future__ import annotations
+"""Системный плагин синхронизации и резервного копирования данных в Google Drive."""
 
 from typing import Any, AsyncGenerator, Dict, List, Optional
 from fastapi import APIRouter
@@ -113,4 +115,3 @@ class GDriveSyncPlugin(BasePlugin):
             "status": "complete",
             "text": "Google Drive Sync plugin is active. Scheduled backups are managed automatically.",
         }
-

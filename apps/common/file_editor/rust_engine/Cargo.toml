@@ -1,0 +1,36 @@
+# =============================================================================
+# Process Name: AI-Windows-Admin Common File Editor - Rust Wasm Crate Config
+# =============================================================================
+# Description:
+#   Конфигурация крейта Rust для компиляции ядра универсального редактора
+#   файлов в целевую платформу wasm32-unknown-unknown через wasm-pack.
+#
+# File: Cargo.toml
+# Project: ai-windows-admin
+# Package: apps.common.file_editor.rust_engine
+# Author: hypo69
+# Copyright: © 2026 hypo69
+# Updated: 2026-10-28 17:01:00
+# =============================================================================
+
+[package]
+name = "file-editor-wasm-core"
+version = "1.0.0"
+edition = "2021"
+authors = ["hypo69"]
+description = "Клиентское ядро универсального редактора файлов (VS Code паритет) на Rust + WebAssembly"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde-wasm-bindgen = "0.6"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"

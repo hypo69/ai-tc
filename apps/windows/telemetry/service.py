@@ -16,7 +16,7 @@
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 12:45:00
+# Updated: 2026-11-10 16:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -272,6 +272,9 @@ class TelemetryLoggerService:
         except Exception as hw_init_ex:
             logger.debug(f'Ошибка инициализации оборудования при старте: {hw_init_ex}')
 
+        # При каждом старте телеметрии выполняем экспресс-бенчмарк дисков (DiskSpd)
+        threading.Thread(target=self._init_disk_benchmark, name='DiskBenchmarkInit', daemon=True).start()
+
         # При старте телеметрии сохраняем начальный снимок системы в SQLite, если активен стриминг
         if self.is_streaming_active():
             try:
@@ -361,6 +364,30 @@ class TelemetryLoggerService:
                 self.storage.save_hardware_archive(archive_entry)
         except Exception as ex:
             logger.debug(f"[TelemetryService] Ошибка фоновой инвентаризации железа: {ex}")
+
+    def run_disk_benchmark(self, file_size_mb: int = 16, duration_sec: int = 1) -> Dict[str, Any]:
+        """Выполняет экспресс-бенчмарк всех дисков и сохраняет метрики в БД телеметрии.
+
+        Args:
+            file_size_mb: Размер тестового файла в МБ.
+            duration_sec: Длительность замера каждого профиля в секундах.
+
+        Returns:
+            Dict[str, Any]: Отчет сенсора StorageBenchmarkSensor.
+        """
+        from apps.windows.sdk.modules.storage_manager.core.benchmark_sensor import get_storage_benchmark_sensor
+        report = get_storage_benchmark_sensor().run_quick_benchmark(None, file_size_mb, duration_sec)
+        metrics = report.get('metrics') or []
+        if metrics:
+            self.storage.save_sensor_polls_batch(metrics, deduplicate=False)
+        return report
+
+    def _init_disk_benchmark(self) -> None:
+        """Фоновый экспресс-бенчмарк дисков при старте телеметрии."""
+        try:
+            self.run_disk_benchmark()
+        except Exception as ex:
+            logger.warning(f'[TelemetryService] Ошибка бенчмарка дисков при старте: {ex}')
 
     def is_streaming_active(self) -> bool:
         """Проверяет активность режима стриминга системных метрик (on-demand сессия или через конфигурацию)."""

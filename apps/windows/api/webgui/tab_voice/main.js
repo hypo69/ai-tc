@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/tab_voice
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 09:37:00
+ * Updated: 2026-11-01 12:50:00
  * =============================================================================
  */
 
@@ -323,7 +323,7 @@
       transcriptHtml = `
         <div class="card bg-body-tertiary border-0 shadow-sm">
           <div class="panel-header py-2 d-flex justify-content-between align-items-center">
-            <h3 class="panel-header mb-0"><i class="bi bi-chat-quote-fill me-2 text-warning"></i>Стенограмма по собеседникам (${speakers.length || 2} участников)</h3>
+            <span class="panel-title"><i class="bi bi-chat-quote-fill me-2 text-warning"></i>Стенограмма по собеседникам (${speakers.length || 2} участников)</span>
           </div>
           <div class="card-body p-3 d-flex flex-column gap-2" style="max-height: 400px; overflow-y: auto;">
             ${transcript.map((t, idx) => {

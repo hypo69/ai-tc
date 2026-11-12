@@ -10,7 +10,7 @@
 # Project: ai-windows-admin
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 17:34:00
+# Updated: 2026-11-01 18:03:00
 # =============================================================================
 
 import pytest
@@ -152,5 +152,70 @@ def test_storage_analyzer_nested_matching(tmp_path):
     matched = analyzer._find_matching_folder(str(base_dir), ["радио поток", "chrome"])
     assert matched is not None
     assert matched == str(app_dir)
+
+
+def test_network_tracker_filters_archives_and_extracts_publisher_domain():
+    """Тест фильтрации ложных доменов (.zip/.exe) и извлечения URL из поля издателя."""
+    from apps.windows.sdk.core.software_transparency import ConfigFile, NetworkTracker, SoftwareItem
+
+    tracker = NetworkTracker()
+    app = SoftwareItem(
+        id="wireshark-4-6",
+        name="Wireshark 4.6.8",
+        publisher="The Wireshark developer community, https://www.wireshark.org/",
+    )
+    cfgs = [
+        ConfigFile(
+            path="C:\\test\\__install__.json",
+            display_path="C:\\test\\__install__.json",
+            filename="__install__.json",
+            sample_content='{"archive": "python-3.14.6-amd64.zip", "docs": "https://docs.python.org/3.14/"}',
+        )
+    ]
+    endpoints = tracker.track_app_network(app, cfgs)
+    domains = [ep.domain_or_ip for ep in endpoints]
+    assert "python-3.14.6-amd64.zip" not in domains
+    assert "docs.python.org" in domains
+    assert "www.wireshark.org" in domains
+
+
+def test_infer_install_location_from_display_icon_and_uninstall(tmp_path):
+    """Тест вычисления директории установки из DisplayIcon или UninstallString при пустом InstallLocation."""
+    from apps.windows.sdk.core.software_audit import SoftwareAuditEngine
+
+    app_dir = tmp_path / "SampleVendor" / "SampleApp"
+    app_dir.mkdir(parents=True)
+    exe_file = app_dir / "sample.exe"
+    exe_file.write_text("bin")
+
+    loc1 = SoftwareAuditEngine._infer_install_location(f'"{exe_file}",0', "", "")
+    assert loc1 == str(app_dir)
+
+    loc2 = SoftwareAuditEngine._infer_install_location("", f'"{app_dir / "unins000.exe"}" /SILENT', "")
+    assert loc2 == str(app_dir)
+
+
+def test_transparency_frontend_renders_all_parameters():
+    """Проверка отображения всех параметров SoftwareItem в шаблоне и скрипте tab_software_transparency."""
+    from pathlib import Path
+
+    js_path = Path("apps/windows/api/webgui/tab_software_transparency/main.js")
+    js_content = js_path.read_text(encoding="utf-8")
+
+    for required_field in (
+        "n.domain_or_ip",
+        "app.category",
+        "app.purpose_description",
+        "app.executable_path",
+        "app.architecture",
+        "app.install_date",
+        "app.size_bytes",
+        "app.run_count",
+        "app.registry_key",
+        "app.uninstall_string",
+        "app.windows_services",
+    ):
+        assert required_field in js_content, f"Поле {required_field} должно отображаться в таблице прозрачности ПО"
+
 
 

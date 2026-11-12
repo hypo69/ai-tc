@@ -18,7 +18,7 @@
 # Package: src.ai.providers.gemini_cli
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-03 16:51:00
 # =============================================================================
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any, AsyncGenerator, AsyncIterator, Dict, List, Optional, Set, Union
 from logger import logger
 from src.ai.providers.base import BaseChatProvider
-from .client import GeminiCliProvider, GeminiCliResponse
+from .client import GeminiCliProvider, GeminiCliResponse, _resolve_cli_default_model
 
 class GeminiCliChatBase(BaseChatProvider):
     """Высокоуровневый адаптер взаимодействия с Google Gemini CLI.
@@ -40,13 +40,13 @@ class GeminiCliChatBase(BaseChatProvider):
     истории сообщений и выбора моделей.
 
     Attributes:
-        model_id (str): Идентификатор модели (например, gemini-3.1-flash-lite).
+        model_id (str): Идентификатор модели.
         system_prompt (str): Системные инструкции для агента.
         history (List[Dict[str, str]]): Локальная история диалога.
         executable_path (str): Путь к исполняемому файлу gemini CLI.
         provider (GeminiCliProvider): Низкоуровневый клиент Gemini CLI.
     """
-    _DEFAULT_MODEL: str = 'gemini-3.1-flash-lite'
+    _DEFAULT_MODEL: str = _resolve_cli_default_model()
 
     @classmethod
     def get_available_models(cls, force_refresh: bool=False) -> List[str]:

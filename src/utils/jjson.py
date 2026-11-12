@@ -18,7 +18,7 @@
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 14:38:00
 # =============================================================================
 
 from __future__ import annotations
@@ -27,6 +27,7 @@ import copy
 import json
 import os
 import tempfile
+import threading
 from collections import OrderedDict
 from pathlib import Path
 from types import SimpleNamespace
@@ -37,6 +38,8 @@ from json_repair import repair_json
 from logger import logger
 
 from .convertors.dict import dict2ns
+
+_JJSON_FILE_LOCK = threading.RLock()
 
 
 def _clean_json_string(json_string: str) -> str:
@@ -155,69 +158,78 @@ def j_dumps(
     if mode not in {'w', 'a+', '+a'}:
         mode = 'w'
 
-    # Чтение существующих данных при режимах объединения
-    if path and path.exists() and (mode in {'a+', '+a'}):
-        try:
-            content = path.read_text(encoding='utf-8').strip()
-            if not content:
-                existing_data: Any = [] if isinstance(data, list) else {}
-            else:
-                existing_data = json.loads(content)
-        except json.JSONDecodeError as ex:
-            logger.error(f'Ошибка декодирования существующего JSON в {path}: {ex}', ex=ex, exc_info=exc_info)
-            return None
-        except Exception as ex:
-            logger.error(f'Ошибка чтения файла {path}: {ex}', ex=ex, exc_info=exc_info)
-            return None
-
-        # Проверка совместимости типов
-        if isinstance(data, list) and not isinstance(existing_data, list):
-            logger.error(
-                f'Несовместимые типы для объединения в {path}: ожидался list, получен {type(existing_data).__name__}',
-                exc_info=exc_info,
-            )
-            return None
-        if isinstance(data, dict) and not isinstance(existing_data, dict):
-            logger.error(
-                f'Несовместимые типы для объединения в {path}: ожидался dict, получен {type(existing_data).__name__}',
-                exc_info=exc_info,
-            )
-            return None
-
-        if mode == 'a+':
-            if isinstance(data, list) and isinstance(existing_data, list):
-                data = data + existing_data
-            elif isinstance(data, dict) and isinstance(existing_data, dict):
-                merged = copy.deepcopy(data)
-                merged.update(existing_data)
-                data = merged
-        elif mode == '+a':
-            if isinstance(data, list) and isinstance(existing_data, list):
-                existing_data.extend(data)
-                data = existing_data
-            elif isinstance(data, dict) and isinstance(existing_data, dict):
-                existing_data.update(data)
-                data = existing_data
-
-    # Сохранение в файл с атомарной заменой
+    # Чтение существующих данных при режимах объединения и сохранение в файл с атомарной заменой
     if path:
-        temp_file = None
-        try:
-            path.parent.mkdir(parents=True, exist_ok=True)
-            json_text = json.dumps(data, ensure_ascii=ensure_ascii, indent=4)
-            with tempfile.NamedTemporaryFile('w', dir=str(path.parent), delete=False, encoding='utf-8') as tf:
-                temp_file = Path(tf.name)
-                tf.write(json_text)
-            os.replace(temp_file, path)
-            return data
-        except Exception as ex:
-            if temp_file and temp_file.exists():
+        with _JJSON_FILE_LOCK:
+            if path.exists() and (mode in {'a+', '+a'}):
                 try:
-                    temp_file.unlink()
-                except Exception:
-                    pass
-            logger.error(f'Ошибка записи в файл {path}: {ex}', ex=ex, exc_info=exc_info)
-            return None
+                    content = path.read_text(encoding='utf-8').strip()
+                    if not content:
+                        existing_data: Any = [] if isinstance(data, list) else {}
+                    else:
+                        existing_data = json.loads(content)
+                except json.JSONDecodeError as ex:
+                    logger.error(f'Ошибка декодирования существующего JSON в {path}: {ex}', ex=ex, exc_info=exc_info)
+                    return None
+                except Exception as ex:
+                    logger.error(f'Ошибка чтения файла {path}: {ex}', ex=ex, exc_info=exc_info)
+                    return None
+
+                # Проверка совместимости типов
+                if isinstance(data, list) and not isinstance(existing_data, list):
+                    logger.error(
+                        f'Несовместимые типы для объединения в {path}: ожидался list, получен {type(existing_data).__name__}',
+                        exc_info=exc_info,
+                    )
+                    return None
+                if isinstance(data, dict) and not isinstance(existing_data, dict):
+                    logger.error(
+                        f'Несовместимые типы для объединения в {path}: ожидался dict, получен {type(existing_data).__name__}',
+                        exc_info=exc_info,
+                    )
+                    return None
+
+                if mode == 'a+':
+                    if isinstance(data, list) and isinstance(existing_data, list):
+                        data = data + existing_data
+                    elif isinstance(data, dict) and isinstance(existing_data, dict):
+                        merged = copy.deepcopy(data)
+                        merged.update(existing_data)
+                        data = merged
+                elif mode == '+a':
+                    if isinstance(data, list) and isinstance(existing_data, list):
+                        existing_data.extend(data)
+                        data = existing_data
+                    elif isinstance(data, dict) and isinstance(existing_data, dict):
+                        existing_data.update(data)
+                        data = existing_data
+
+            temp_file = None
+            try:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                json_text = json.dumps(data, ensure_ascii=ensure_ascii, indent=4)
+                with tempfile.NamedTemporaryFile(
+                    'w',
+                    dir=str(path.parent),
+                    prefix=f'.{path.name}.',
+                    suffix='.tmp',
+                    delete=False,
+                    encoding='utf-8',
+                ) as tf:
+                    temp_file = Path(tf.name)
+                    tf.write(json_text)
+                    tf.flush()
+                    os.fsync(tf.fileno())
+                os.replace(temp_file, path)
+                return data
+            except Exception as ex:
+                if temp_file and temp_file.exists():
+                    try:
+                        temp_file.unlink()
+                    except Exception:
+                        pass
+                logger.error(f'Ошибка записи в файл {path}: {ex}', ex=ex, exc_info=exc_info)
+                return None
 
     return data
 

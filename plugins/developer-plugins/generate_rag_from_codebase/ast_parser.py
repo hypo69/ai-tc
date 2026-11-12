@@ -11,13 +11,10 @@
 # Package: plugins.generate_rag_from_codebase
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:37:20
 # =============================================================================
 
-"""AST-based Python source code parser and chunker for codebase RAG.
-
-Decomposes Python modules into rich semantic chunks rather than blind character slices,
-retaining parent class context, sibling methods, signatures, and docstrings.
-"""
+"""AST-парсер исходного кода Python для формирования семантических чанков RAG."""
 
 from __future__ import annotations
 
@@ -25,31 +22,27 @@ import ast
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+# Максимальный размер анализируемого файла исходного кода (5 МБ)
+MAX_AST_FILE_BYTES: int = 5 * 1024 * 1024
+
 
 class PythonAstParser:
-    """Extracts semantic structural chunks from Python files using AST analysis.
+    """Извлекает семантические структурные чанки из файлов Python с помощью анализа AST.
 
     Attributes:
-        base_dir (Path): Base directory for computing relative module paths.
+        base_dir (Path): Базовая директория проекта для вычисления относительных путей модулей.
     """
 
     def __init__(self, base_dir: Path) -> None:
-        """Initialize the AST parser.
+        """Инициализирует AST-парсер.
 
         Args:
-            base_dir (Path): Project root directory.
+            base_dir (Path): Корневая директория проекта.
         """
         self.base_dir = Path(base_dir).resolve()
 
     def _get_module_name(self, file_path: Path) -> str:
-        """Derive Python dotted module path from filesystem path.
-
-        Args:
-            file_path (Path): Path to the Python file.
-
-        Returns:
-            str: Dotted module name (e.g., 'src.ai.langchain_agent').
-        """
+        """Вычисляет точечное имя модуля Python из пути файловой системы."""
         try:
             rel = file_path.resolve().relative_to(self.base_dir)
             parts = list(rel.with_suffix("").parts)
@@ -60,15 +53,17 @@ class PythonAstParser:
             return file_path.stem
 
     def parse_file(self, file_path: Path) -> List[Dict[str, Any]]:
-        """Parse a Python file into structured RAG chunks.
+        """Разбирает файл Python на структурированные семантические чанки для RAG.
 
         Args:
-            file_path (Path): Path to the Python source file.
+            file_path (Path): Путь к исходному файлу Python.
 
         Returns:
-            List[Dict[str, Any]]: List of extracted semantic chunks.
+            List[Dict[str, Any]]: Список извлеченных семантических чанков.
         """
         try:
+            if not file_path.exists() or file_path.stat().st_size > MAX_AST_FILE_BYTES:
+                return []
             code = file_path.read_text(encoding="utf-8", errors="replace")
         except Exception:
             return []
@@ -292,4 +287,3 @@ class PythonAstParser:
             "text": f"FILE: {rel_path}\n\n{code}",
             "code": code
         }
-

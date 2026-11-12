@@ -18,7 +18,7 @@
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 14:43:00
 # =============================================================================
 
 """Миксин для управления историей диалогов в GoogleGenerativeAI."""
@@ -35,12 +35,12 @@ class GoogleGenerativeAIHistoryMixin:
     """
 
     def __init__(self) -> None:
-        """Initialization chat history attributes."""
+        """Инициализирует атрибуты локальной истории чата."""
         self.chat_history: list[dict] = []
         self._chat: Any = False
 
     def clear_history(self) -> None:
-        """Clearing of local dialog history in operational memory."""
+        """Очищает локальную историю диалога в оперативной памяти."""
         self.chat_history = []
 
     def _convert_history_to_contents(self, history: list[dict] = ()) -> list[types.Content]:

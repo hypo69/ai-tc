@@ -11,7 +11,7 @@
 # Package: apps.windows.api.routers.scenarios
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-15 01:20:00
+# Updated: 2026-11-10 16:21:00
 # =============================================================================
 
 from __future__ import annotations
@@ -31,7 +31,6 @@ __root__ = Path(__file__).resolve().parents[3]
 
 
 import json
-from .assistant import _execute_disk_benchmark_telemetry_step
 from .assistant import _get_dynamic_tool_engine
 from .assistant import _handle_scenario_chat
 from .assistant import _run_disk_benchmark_scenario
@@ -145,18 +144,6 @@ def init_router() -> APIRouter:
         else:
             raise HTTPException(status_code=400, detail=f"Неизвестный идентификатор сценария: '{req.scenario_id}'")
 
-        # При каждом запуске любого сценария выполняем экспресс-бенчмарк всех дисков и сохраняем телеметрию
-        disk_step = await _execute_disk_benchmark_telemetry_step()
-        res.steps.append(disk_step)
-        res.total_steps = len(res.steps)
-        if disk_step.status == "ok":
-            res.passed_steps += 1
-        elif disk_step.status == "warn":
-            res.warn_steps += 1
-        elif disk_step.status == "error":
-            res.failed_steps += 1
-            res.status = "error"
-        res.duration_ms = round(res.duration_ms + disk_step.duration_ms, 2)
         return res
 
 

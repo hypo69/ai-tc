@@ -17,7 +17,7 @@
  * Package: windows/api/webgui/tab_user_environment
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 12:02:30
+ * Updated: 2026-11-01 17:30:00
  * =============================================================================
  */
 
@@ -26,6 +26,7 @@ import {
   loadTaskbarSummary,
   loadTaskbarSettings,
   loadPinnedApps,
+  loadUcpdStatus,
   restartExplorer,
   bindTaskbarEvents
 } from './panel_taskbar.js';
@@ -178,7 +179,8 @@ export async function fetchActiveBlockData(blockId) {
       await Promise.allSettled([
         loadTaskbarSummary(),
         loadTaskbarSettings(),
-        loadPinnedApps()
+        loadPinnedApps(),
+        loadUcpdStatus()
       ]);
       break;
     case 'panel-sound':
@@ -230,11 +232,12 @@ export function switchSubTab(panelName, updateUrl = true) {
     pane.classList.add('show', 'active');
   }
 
-  // Загрузка данных для выбранного блока
-  fetchActiveBlockData(canonical);
-
-  if (updateUrl) {
-    updateUrlWithPanel(canonical);
+  // Загрузка данных строго для активной вкладки и активного блока
+  if (isUserEnvironmentTabActive()) {
+    fetchActiveBlockData(canonical);
+    if (updateUrl) {
+      updateUrlWithPanel(canonical);
+    }
   }
 }
 
@@ -323,20 +326,6 @@ function setupActivePolling() {
         await loadTaskbarSummary();
       }
     }, 4000, { immediate: false });
-
-    window.registerTabPoller('tab-user-enviroment', async () => {
-      if (!isUserEnvironmentTabActive()) return;
-      const activeBlock = getActiveSubTabId();
-      if (activeBlock === 'panel-sound') {
-        await loadSoundState();
-      } else if (activeBlock === 'panel-windows') {
-        await loadWindows();
-      } else if (activeBlock === 'panel-focus') {
-        await loadFocusState();
-      } else if (activeBlock === 'panel-taskbar') {
-        await loadTaskbarSummary();
-      }
-    }, 4000, { immediate: false });
   }
 }
 
@@ -350,24 +339,31 @@ export async function init() {
     _isInitialized = true;
   }
 
-  // Считываем блок из URL при загрузке
-  const panelFromHash = getPanelFromHash();
-  if (panelFromHash) {
-    switchSubTab(panelFromHash, false);
-  } else {
-    updateUrlWithPanel('panel-taskbar');
+  // Если вкладка не активна, не перезаписываем URL и не шлем сетевые запросы
+  if (!isUserEnvironmentTabActive()) {
+    return;
   }
 
-  await refreshAll();
+  // Считываем блок из URL при загрузке
+  const panelFromHash = getPanelFromHash() || 'panel-taskbar';
+  switchSubTab(panelFromHash, false);
 }
 
 /**
  * Хук активации вкладки (вызывается tab-core при переключении).
  */
 export function activate() {
-  const panelFromHash = getPanelFromHash();
-  if (panelFromHash && panelFromHash !== getActiveSubTabId()) {
-    switchSubTab(panelFromHash, false);
+  if (!isUserEnvironmentTabActive()) return;
+  const panelFromHash = getPanelFromHash() || getActiveSubTabId() || 'panel-taskbar';
+  switchSubTab(panelFromHash, false);
+}
+
+/**
+ * Хук деактивации вкладки (вызывается tab-core при уходе с вкладки).
+ */
+export function deactivate() {
+  if (typeof window.unregisterTabPoller === 'function') {
+    window.unregisterTabPoller('tab-user-environment_default');
   }
 }
 
@@ -376,6 +372,8 @@ window.initUserEnvironmentTab = init;
 window.initUserEnviromentTab = init;
 window.activateUserEnvironmentTab = activate;
 window.activateUserEnviromentTab = activate;
+window.deactivateUserEnvironmentTab = deactivate;
+window.deactivateUserEnviromentTab = deactivate;
 window.switchUserEnvSubTab = switchSubTab;
 window.switchUserEnvironmentSubTab = switchSubTab;
 window.getUserEnvPanelFromHash = getPanelFromHash;

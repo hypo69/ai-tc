@@ -16,7 +16,7 @@
 # Package: apps.windows.sdk.modules.sysadmin
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 14:15:00
+# Updated: 2026-11-01 15:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -85,6 +85,14 @@ class RemoveExclusionRequest(BaseModel):
 class ToggleExclusionsRequest(BaseModel):
     """Модель запроса включения/отключения фильтрации исключений."""
     enabled: Optional[bool] = Field(None, description='Явный флаг активности фильтрации (если None - инвертировать)')
+
+class ChangePasswordRequest(BaseModel):
+    """Модель смены пароля пользователя."""
+    new_password: str = Field(..., min_length=1, description="Новый пароль учетной записи")
+
+class LaunchSettingRequest(BaseModel):
+    """Модель запуска системного апплета или настроек Windows."""
+    target: str = Field(..., description="URI настройки (ms-settings:...) или имя оснастки (.msc, netplwiz)")
 
 def _get_configured_watch_dirs() -> List[str]:
     """Получить список отслеживаемых директорий из config.json."""
@@ -181,6 +189,88 @@ async def get_account_details(username: str, request: None=None) -> dict:
             return asdict(acc)
     raise HTTPException(status_code=404, detail=f'Учетная запись {username} не найдена')
 
+@sysadmin_router.get('/accounts/{username}/uac')
+async def get_account_uac(username: str) -> dict:
+    """Получить параметры UAC и контроля безопасности для учетной записи."""
+    from apps.windows.sdk.modules.accounts_identity import get_accounts_identity_service
+    srv = get_accounts_identity_service()
+    cfg = srv.get_user_uac(username)
+    if not cfg:
+        raise HTTPException(status_code=404, detail=f'Учетная запись {username} не найдена')
+    return cfg.model_dump()
+
+@sysadmin_router.post('/accounts/{username}/uac')
+async def update_account_uac(username: str, req_body: dict) -> dict:
+    """Обновить параметры UAC и безопасности для учетной записи."""
+    from apps.windows.sdk.modules.accounts_identity import get_accounts_identity_service
+    from apps.windows.sdk.modules.accounts_identity.models import UserUacUpdateRequest
+    srv = get_accounts_identity_service()
+    try:
+        req = UserUacUpdateRequest(**req_body)
+        updated = srv.update_user_uac(username, req)
+        state.refresh()
+        return updated.model_dump()
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f'Ошибка обновления UAC для {username}: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@sysadmin_router.post('/accounts/{username}/password')
+async def change_account_password(username: str, payload: ChangePasswordRequest) -> dict:
+    """Административная смена/сброс пароля локального пользователя."""
+    from apps.windows.sdk.modules.accounts_identity import get_accounts_identity_service
+    srv = get_accounts_identity_service()
+    success = srv.engine.auth.reset_user_password(username, payload.new_password)
+    if not success:
+        import subprocess
+        res = subprocess.run(["net", "user", username, payload.new_password], capture_output=True, text=True)
+        success = (res.returncode == 0)
+    if not success:
+        raise HTTPException(status_code=500, detail=f"Не удалось изменить пароль для пользователя {username}")
+    return {"success": True, "username": username, "message": f"Пароль пользователя {username} успешно изменен"}
+
+
+_ALLOWED_LAUNCH_TARGETS = {
+    "ms-settings:signinoptions",
+    "ms-settings:signinoptions-launchfaceenrollment",
+    "ms-settings:signinoptions-launchfingerprintenrollment",
+    "ms-settings:signinoptions-launchpinreset",
+    "ms-settings:yourinfo",
+    "ms-settings:otherusers",
+    "ms-settings:workplace",
+    "ms-settings:",
+    "netplwiz",
+    "control userpasswords2",
+    "lusrmgr.msc",
+    "secpol.msc",
+    "gpedit.msc",
+}
+
+
+@sysadmin_router.post('/launch-setting')
+async def launch_system_setting(payload: LaunchSettingRequest) -> dict:
+    """Безопасный запуск окна настроек Windows или системной оснастки управления учетными записями."""
+    clean_target = payload.target.strip()
+    if clean_target not in _ALLOWED_LAUNCH_TARGETS and not clean_target.startswith("ms-settings:"):
+        raise HTTPException(status_code=400, detail=f"Недопустимый системный компонент для запуска: {clean_target}")
+
+    try:
+        if clean_target.startswith("ms-settings:"):
+            os.startfile(clean_target)
+        elif clean_target.endswith(".msc"):
+            import subprocess
+            subprocess.Popen([clean_target], shell=True)
+        else:
+            import subprocess
+            subprocess.Popen(["cmd.exe", "/c", "start", clean_target], shell=True)
+        return {"success": True, "target": clean_target, "message": f"Окно '{clean_target}' успешно запущено"}
+    except Exception as e:
+        logger.error(f"Ошибка запуска системного окна '{clean_target}': {e}")
+        return {"success": False, "target": clean_target, "error": str(e)}
+
+
 @sysadmin_router.get('/accounts/{username}/metrics')
 async def get_account_metrics(username: str, request: None=None) -> dict:
     """Получить расширенные динамические метрики учетной записи (ресурсы, процессы, безопасность)."""
@@ -194,20 +284,41 @@ async def get_account_metrics(username: str, request: None=None) -> dict:
         raise HTTPException(status_code=404, detail=f'Учетная запись {username} не найдена')
     user_processes = []
     try:
-        for proc in psutil.process_iter(['pid', 'name', 'username', 'cpu_percent', 'memory_info']):
+        for proc in psutil.process_iter(['pid', 'name', 'username', 'cpu_percent', 'memory_info', 'status', 'num_threads']):
             try:
                 p_user = proc.info.get('username') or ''
                 if '\\' in p_user:
                     p_user = p_user.split('\\')[-1]
                 if p_user.lower() == username.lower():
                     mem_mb = round(proc.info.get('memory_info').rss / (1024 * 1024), 1) if proc.info.get('memory_info') else 0.0
-                    user_processes.append({'pid': proc.info.get('pid'), 'name': proc.info.get('name'), 'cpu_percent': proc.info.get('cpu_percent') or 0.0, 'memory_mb': mem_mb})
+                    user_processes.append({
+                        'pid': proc.info.get('pid'),
+                        'name': proc.info.get('name') or 'unknown',
+                        'cpu_percent': proc.info.get('cpu_percent') or 0.0,
+                        'memory_mb': mem_mb,
+                        'status': proc.info.get('status') or 'running',
+                        'num_threads': proc.info.get('num_threads') or 1
+                    })
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
     except Exception as e:
         logger.debug(f'Ошибка сбора процессов для {username}: {e}')
     user_processes.sort(key=lambda p: p['memory_mb'], reverse=True)
-    return {'username': account.name, 'is_logged_in': account.is_logged_in, 'is_admin': account.is_admin, 'is_hidden': account.is_hidden, 'enabled': account.enabled, 'total_processes': len(user_processes), 'total_memory_rss_mb': account.memory_rss_mb, 'total_cpu_percent': account.cpu_percent, 'profile_path': account.profile_path, 'profile_size_mb': account.profile_size_mb, 'groups': account.groups, 'top_processes': user_processes[:15]}
+    return {
+        'username': account.name,
+        'is_logged_in': account.is_logged_in,
+        'is_admin': account.is_admin,
+        'is_hidden': account.is_hidden,
+        'enabled': account.enabled,
+        'total_processes': len(user_processes),
+        'total_memory_rss_mb': account.memory_rss_mb,
+        'total_cpu_percent': account.cpu_percent,
+        'profile_path': account.profile_path,
+        'profile_size_mb': account.profile_size_mb,
+        'groups': account.groups,
+        'processes': user_processes,
+        'top_processes': user_processes[:15]
+    }
 
 @sysadmin_router.get('/events')
 async def get_events(hours: int=Query(24, ge=1, le=168), request: None=None) -> dict:
@@ -487,7 +598,7 @@ router.include_router(file_audit_router)
 
 def init_router() -> APIRouter:
     """Инициализация FastAPI роутера для Windows System Administrator & File Auditing."""
-    get_directory_watcher(auto_start=True)
+    get_directory_watcher(auto_start=False)
     return router
 
 __all__ = ['init_router', 'router', 'sysadmin_router', 'file_audit_router']

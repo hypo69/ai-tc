@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_hardware_monitor
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 10:55:00
+Updated: 2026-11-01 12:50:00
 =============================================================================
 -->
 
@@ -76,18 +76,6 @@ Updated: 2026-10-20 10:55:00
     display: flex;
     flex-direction: column;
   }
-  .hw-panel-header {
-    background: var(--surface-2) !important;
-    border-bottom: 1px solid var(--border-color) !important;
-    padding: 0.45rem 0.85rem;
-    font-weight: 600;
-    font-size: 0.82rem;
-    color: var(--nav-active);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-  }
   .hw-scrollable {
     height: auto;
     min-height: 100px;
@@ -129,7 +117,7 @@ Updated: 2026-10-20 10:55:00
       <span class="tab-header-icon fs-4 text-warning">⚡</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Мониторинг оборудования и датчиков</h3>
+          <h3 class="tab-header-title mb-0">Мониторинг оборудования и датчиков</h3>
           
         </div>
         <small class="tab-header-subtitle text-secondary">Телеметрия CPU, RAM, GPU, термодатчиков, кулеров, напряжений и диагностика накопителей S.M.A.R.T.</small>
@@ -205,8 +193,8 @@ Updated: 2026-10-20 10:55:00
     <div class="col-12 col-lg-6">
       <!-- Disks & Storage Panel -->
       <div class="hw-panel">
-        <div class="hw-panel-header">
-          <span class="d-flex align-items-center gap-1.5">
+        <div class="panel-header">
+          <span class="panel-title">
             <i class="bi bi-hdd-network text-info"></i>
             <span>Диски и накопители</span>
           </span>
@@ -233,8 +221,8 @@ Updated: 2026-10-20 10:55:00
 
       <!-- GPU Telemetry Panel -->
       <div class="hw-panel">
-        <div class="hw-panel-header">
-          <span class="d-flex align-items-center gap-1.5">
+        <div class="panel-header">
+          <span class="panel-title">
             <i class="bi bi-gpu-card text-warning"></i>
             <span>Графические ускорители (GPU)</span>
           </span>
@@ -249,8 +237,8 @@ Updated: 2026-10-20 10:55:00
     <div class="col-12 col-lg-6">
       <!-- Hardware Sensors Panel -->
       <div class="hw-panel">
-        <div class="hw-panel-header">
-          <span class="d-flex align-items-center gap-1.5">
+        <div class="panel-header">
+          <span class="panel-title">
             <i class="bi bi-thermometer-half text-danger"></i>
             <span>Аппаратные сенсоры (Температура, Вентиляторы, Вольтаж)</span>
           </span>
@@ -277,8 +265,8 @@ Updated: 2026-10-20 10:55:00
 
       <!-- S.M.A.R.T. Health Status -->
       <div class="hw-panel">
-        <div class="hw-panel-header">
-          <span class="d-flex align-items-center gap-1.5">
+        <div class="panel-header">
+          <span class="panel-title">
             <i class="bi bi-shield-shaded text-success"></i>
             <span>S.M.A.R.T. Здоровье накопителей</span>
           </span>

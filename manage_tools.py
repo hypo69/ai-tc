@@ -32,7 +32,7 @@
 # Package: root
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 21:07:00
+# Updated: 2026-11-10 18:24:00
 # =============================================================================
 
 from __future__ import annotations
@@ -128,7 +128,10 @@ Examples:
 
     # Special handling for 'assist' command - forwards to dedicated assist_cli
     if args.command == 'assist':
-        from scripts.dev import assist_cli
+        try:
+            from scripts.cli import assist as assist_cli
+        except ImportError:
+            from scripts.dev import assist_cli
         sys.argv = ['assist'] + getattr(args, 'rest', [])
         return assist_cli.main()
 

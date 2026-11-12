@@ -14,7 +14,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_app_internals
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-31 19:50:00
+Updated: 2026-11-11 23:20:00
 =============================================================================
 -->
 
@@ -25,13 +25,14 @@ Updated: 2026-10-31 19:50:00
 1. `telemetry`: Телеметрия (Telemetry Control & Config)
 2. `models`: Модели и API (Models & Providers)
 3. `logs`: Центр логов (Logs Center)
-4. `etw`: Трассировка ETW (Performance Tracing)
-5. `settings`: Параметры (Log Settings)
-6. `wikillm-system`: **Подсказки по системе (WikiLLM System Knowledge)** — общие рекомендации и подсказки по Windows OS, хранящиеся в локальном файле SQLite на диске (`data/windows_wikillm/knowledge.db`).
-7. `instruments`: **База инструментов ИИ-агента (WikiLLM AI Instruments)** — инструменты и скрипты PowerShell/CMD, используемые в цепочке размышлений над задачами (см. conversation `8bdc91cc-bd8f-4a2b-b7d9-d13455e82580`), хранящиеся на сервере Hostinger.
-8. `tooltips-editor`: **Редактор тултипов (Tooltips Editor)** — интерактивный визуальный редактор всплывающих подсказок (AI Smart Tooltips & i18n hints) с мультиязычностью и предпросмотром.
-9. `helppages-editor`: **Редактор подсказок (Help Pages Editor)** — редактор атомарных блоков и композитных страниц справки системы.
-10. `codebase-rag`: **RAG Кода и Диагностики (Codebase AST & Diagnostic RAG)** — управление AST-индексами кодовой базы и формирование диагностических заключений по логам и ошибкам.
+4. `activity`: Журнал активности (Activity Log — история операций администрирования и системы)
+5. `etw`: Трассировка ETW (Performance Tracing)
+6. `settings`: Параметры (Log Settings)
+7. `wikillm-system`: **Подсказки по системе (WikiLLM System Knowledge)** — общие рекомендации и подсказки по Windows OS, хранящиеся в локальном файле SQLite на диске (`data/windows_wikillm/knowledge.db`).
+8. `instruments`: **База инструментов ИИ-агента (WikiLLM AI Instruments)** — инструменты и скрипты PowerShell/CMD, используемые в цепочке размышлений над задачами (см. conversation `8bdc91cc-bd8f-4a2b-b7d9-d13455e82580`), хранящиеся на сервере Hostinger.
+9. `tooltips-editor`: **Редактор тултипов (Tooltips Editor)** — интерактивный визуальный редактор всплывающих подсказок (AI Smart Tooltips & i18n hints) с мультиязычностью и предпросмотром.
+10. `helppages-editor`: **Редактор подсказок (Help Pages Editor)** — редактор атомарных блоков и композитных страниц справки системы.
+11. `codebase-rag`: **RAG Кода и Диагностики (Codebase AST & Diagnostic RAG)** — управление AST-индексами кодовой базы и формирование диагностических заключений по логам и ошибкам.
 
 ---
 
@@ -74,6 +75,7 @@ http://localhost:8001/tc#tab-app-internals#<panel_id>#block-<block_id>
 - `http://localhost:8001/tc#tab-app-internals#telemetry` — мониторинг телеметрии
 - `http://localhost:8001/tc#tab-app-internals#models` — управление моделями и провайдерами
 - `http://localhost:8001/tc#tab-app-internals#logs` — центр внутренних логов
+- `http://localhost:8001/tc#tab-app-internals#activity` — журнал внутренней активности и операций системы/приложения
 - `http://localhost:8001/tc#tab-app-internals#etw` — трассировка ETW
 - `http://localhost:8001/tc#tab-app-internals#settings` — параметры и ротация логов
 - `http://localhost:8001/tc#tab-app-internals#wikillm-system#block-sys-storage` — локальное хранилище подсказок SQLite

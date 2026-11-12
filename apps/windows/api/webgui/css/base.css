@@ -7,28 +7,37 @@
  *
  * Usage Examples:
  *   HTML Link Tag:
- *     <link rel="stylesheet" href="/windows/api/webgui/css/base.css?v=20261001_v1">
+ *     <link rel="stylesheet" href="/apps/common/webgui/css/base.css?v=20261001_v1">
  *
  * File: base.css
- * Project: ai-windows-admin
- * Package: windows/api/webgui/css
+ * Project: ai-assistant
+ * Package: apps/common/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-18 23:15:00
+ * Updated: 2026-11-03 15:05:00
  * =============================================================================
  */
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   BASE STYLES & SCROLLBARS — AI Windows Admin WebGUI
+   BASE STYLES & SCROLLBARS — AI-Assistant WebGUI
    Базовые стили страницы, скроллбары и контейнеры вкладок
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Базовый шрифт и цвет фона страницы */
+/* Базовый шрифт — увеличен на 2pt для улучшения читаемости */
 html {
   font-size: calc(14px + 2pt);
   height: 100%;
-  background-color: var(--bg-color);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ПРЕДОТВРАЩЕНИЕ ГОРИЗОНТАЛЬНОГО СКРОЛЛА ОКНА
+   ═══════════════════════════════════════════════════════════════════════════ */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
 
 /* ═══════════════════════════════════════════════════════════════════════════
    МАСШТАБИРОВАНИЕ СВЕТЛОЙ ТЕМЫ (+10% / ЭКВИВАЛЕНТ ЗУМА БРАУЗЕРА 110%)
@@ -45,6 +54,16 @@ html.theme-light {
   zoom: 1.1;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   МАСШТАБИРОВАНИЕ ТЕМЫ NIGHTVIEW 70% (70% ЗУМ / УМЕНЬШЕНИЕ РАЗМЕРОВ НА 30%)
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root[data-theme="nightview-70"],
+html[data-theme="nightview-70"],
+html.theme-nightview-70 {
+  zoom: 1.0 !important;
+  font-size: 11px !important;
+}
+
 /* Fallback для изолированных страниц, где класс светлой темы установлен только на body */
 html:not([data-bs-theme="light"]):not([data-theme="light"]):not([data-theme="brick"]):not([data-theme="theme-light-enterprise"]):not(.theme-light) body.theme-light,
 html:not([data-bs-theme="light"]):not([data-theme="light"]):not([data-theme="brick"]):not([data-theme="theme-light-enterprise"]):not(.theme-light) body.theme-light-enterprise {
@@ -56,7 +75,7 @@ body {
   flex-direction: column;
   height: 100%;
   min-height: 100vh;
-  background-color: var(--bg-color) !important;
+  background: var(--bg-color);
   color: var(--text-color);
   font-size: 0.9375rem; /* ≈ 13.125px */
   line-height: 1.5;

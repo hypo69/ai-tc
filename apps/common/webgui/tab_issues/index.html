@@ -1,0 +1,410 @@
+<!--
+=============================================================================
+Process Name: Common WebGUI - GitHub Issues & Projects Management Tab
+=============================================================================
+Description:
+  Глобальная вкладка управления задачами GitHub Issues, вехами Milestones,
+  метками, шаблонами и связью с Git-репозиторием для AI-TC.
+
+Usage Examples:
+  Ленивая загрузка через tab-registry.js / tab-core.js:
+    /html/tab_issues/index.html?v=20261103_v1
+
+File: index.html
+Project: ai-windows-admin
+Package: apps/common/webgui/tab_issues
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-11-03 14:41:44
+=============================================================================
+-->
+
+<link rel="stylesheet" href="/html/tab_issues/style.css?v=20261103_v1">
+
+<div class="issues-tab-root" id="issues-tab-container">
+
+  <!-- 1. Баннер контекста Git-репозитория ("Она должна знать к какому git относится") -->
+  <div class="git-context-card d-flex flex-wrap align-items-center justify-content-between gap-3" id="issues-git-banner">
+    <div class="d-flex align-items-center gap-3">
+      <div class="fs-2 text-primary">
+        <i class="bi bi-github"></i>
+      </div>
+      <div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="fw-bold fs-6" id="git-repo-name">Загрузка репозитория...</span>
+          <span class="badge git-badge-clean px-2 py-1" id="git-status-badge">
+            <i class="bi bi-check2-circle me-1"></i><span id="git-status-text">Проверка...</span>
+          </span>
+          <span class="badge bg-secondary-subtle text-secondary px-2 py-1 font-monospace" id="git-branch-badge">
+            <i class="bi bi-git me-1"></i><span id="git-branch-name">main</span>
+          </span>
+        </div>
+        <div class="small text-muted d-flex align-items-center gap-2 mt-1">
+          <span class="font-monospace text-truncate" style="max-width: 380px;" id="git-remote-url">---</span>
+          <span>•</span>
+          <span id="git-last-commit" class="text-truncate" style="max-width: 300px;">---</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Быстрые действия Git -->
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <span class="badge bg-body-secondary text-body px-2.5 py-1.5" id="gh-cli-indicator">
+        <i class="bi bi-terminal me-1"></i><span id="gh-cli-text">gh CLI: проверка...</span>
+      </span>
+      <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" id="btn-open-github-issues">
+        <i class="bi bi-box-arrow-up-right"></i>
+        <span>Открыть в GitHub</span>
+      </a>
+      <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" id="btn-refresh-issues" title="Обновить">
+        <i class="bi bi-arrow-clockwise"></i>
+        <span>Обновить</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. Навигационные вкладки подсистемы Issues -->
+  <ul class="nav nav-pills mb-3 gap-1" id="issues-nav-pills" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active d-flex align-items-center gap-1.5 py-1.5 px-3" id="pill-issues-list-tab" data-bs-toggle="pill" data-bs-target="#panel-issues-list" type="button" role="tab">
+        <i class="bi bi-card-checklist"></i>
+        <span>Список задач</span>
+        <span class="badge bg-primary-subtle text-primary ms-1" id="badge-total-count">0</span>
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link d-flex align-items-center gap-1.5 py-1.5 px-3" id="pill-new-issue-tab" data-bs-toggle="pill" data-bs-target="#panel-new-issue" type="button" role="tab">
+        <i class="bi bi-plus-circle"></i>
+        <span>Создать задачу</span>
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link d-flex align-items-center gap-1.5 py-1.5 px-3" id="pill-milestones-tab" data-bs-toggle="pill" data-bs-target="#panel-milestones" type="button" role="tab">
+        <i class="bi bi-signpost-split"></i>
+        <span>Вехи (Milestones)</span>
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link d-flex align-items-center gap-1.5 py-1.5 px-3" id="pill-labels-tab" data-bs-toggle="pill" data-bs-target="#panel-labels" type="button" role="tab">
+        <i class="bi bi-tags"></i>
+        <span>Метки и параметры</span>
+      </button>
+    </li>
+  </ul>
+
+  <!-- 3. Содержимое подпанелей -->
+  <div class="tab-content flex-grow-1" id="issues-tab-content">
+
+    <!-- ПАНЕЛЬ 1: СПИСОК ЗАДАЧ -->
+    <div class="tab-pane fade show active" id="panel-issues-list" role="tabpanel">
+
+      <!-- KPI Метрики -->
+      <div class="row g-2 mb-3">
+        <div class="col-6 col-md-3 col-xl-2">
+          <div class="kpi-stat-card">
+            <div class="text-muted small">Всего задач</div>
+            <div class="kpi-stat-value text-primary" id="kpi-total">0</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3 col-xl-2">
+          <div class="kpi-stat-card">
+            <div class="text-muted small">Открыто (Open)</div>
+            <div class="kpi-stat-value text-success" id="kpi-open">0</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3 col-xl-2">
+          <div class="kpi-stat-card">
+            <div class="text-muted small">Закрыто (Closed)</div>
+            <div class="kpi-stat-value text-secondary" id="kpi-closed">0</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3 col-xl-2">
+          <div class="kpi-stat-card">
+            <div class="text-muted small">Ошибки (Bugs)</div>
+            <div class="kpi-stat-value text-danger" id="kpi-bugs">0</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3 col-xl-2">
+          <div class="kpi-stat-card">
+            <div class="text-muted small">Функции (Features)</div>
+            <div class="kpi-stat-value text-info" id="kpi-features">0</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3 col-xl-2">
+          <div class="kpi-stat-card">
+            <div class="text-muted small">Критические</div>
+            <div class="kpi-stat-value text-warning" id="kpi-critical">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Панель фильтров -->
+      <div class="issues-filter-bar mb-3">
+        <div class="row g-2 align-items-center">
+          <!-- Поиск -->
+          <div class="col-12 col-md-4">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input type="text" class="form-control" id="filter-search-text" placeholder="Поиск по номеру, названию...">
+            </div>
+          </div>
+          <!-- Статус -->
+          <div class="col-6 col-md-2">
+            <select class="form-select form-select-sm" id="filter-state-select">
+              <option value="open" selected>Открытые (Open)</option>
+              <option value="closed">Закрытые (Closed)</option>
+              <option value="all">Все задачи</option>
+            </select>
+          </div>
+          <!-- Тип -->
+          <div class="col-6 col-md-2">
+            <select class="form-select form-select-sm" id="filter-type-select">
+              <option value="">Все типы</option>
+              <option value="bug">🐛 Bug (Ошибка)</option>
+              <option value="feature">✨ Feature (Функция)</option>
+              <option value="enhancement">🔧 Enhancement (Улучшение)</option>
+              <option value="documentation">📚 Documentation</option>
+              <option value="refactoring">♻️ Refactoring</option>
+              <option value="research">❓ Research</option>
+            </select>
+          </div>
+          <!-- Компонент -->
+          <div class="col-6 col-md-2">
+            <select class="form-select form-select-sm" id="filter-component-select">
+              <option value="">Все компоненты</option>
+              <option value="component:telemetry">telemetry</option>
+              <option value="component:network">network</option>
+              <option value="component:windows">windows</option>
+              <option value="component:gui">gui</option>
+              <option value="component:ai">ai</option>
+              <option value="component:mcp">mcp</option>
+              <option value="component:core">core</option>
+            </select>
+          </div>
+          <!-- Сброс -->
+          <div class="col-6 col-md-2 d-flex justify-content-end">
+            <button type="button" class="btn btn-sm btn-outline-secondary w-100" id="btn-reset-filters">
+              <i class="bi bi-x-circle me-1"></i>Сбросить
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Таблица задач -->
+      <div class="table-responsive border border-subtle rounded">
+        <table class="table table-hover align-middle mb-0" id="issues-table">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 70px;">#</th>
+              <th style="width: 90px;">Статус</th>
+              <th>Заголовок и метки</th>
+              <th style="width: 140px;">Компонент</th>
+              <th style="width: 130px;">Приоритет</th>
+              <th style="width: 130px;">Исполнитель</th>
+              <th style="width: 140px;" class="text-end">Действия</th>
+            </tr>
+          </thead>
+          <tbody id="issues-table-body">
+            <tr>
+              <td colspan="7" class="text-center py-4 text-muted">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                Загрузка задач...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ПАНЕЛЬ 2: СОЗДАНИЕ ЗАДАЧИ -->
+    <div class="tab-pane fade" id="panel-new-issue" role="tabpanel">
+      <div class="card border-subtle shadow-sm">
+        <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between py-2">
+          <span class="fw-bold"><i class="bi bi-pencil-square me-2"></i>Регистрация новой задачи GitHub Issue</span>
+          <div class="d-flex align-items-center gap-2">
+            <label class="small text-muted mb-0">Шаблон:</label>
+            <select class="form-select form-select-sm" style="width: 220px;" id="new-issue-template-select">
+              <option value="">-- Без шаблона --</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body p-3">
+          <form id="form-create-issue">
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Название задачи (Title):</label>
+              <input type="text" class="form-control" id="new-issue-title" placeholder="Краткое и емкое название задачи" required>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Тип задачи (Type):</label>
+                <select class="form-select" id="new-issue-type">
+                  <option value="feature">✨ Feature (Новая функция)</option>
+                  <option value="bug">🐛 Bug (Ошибка/Дефект)</option>
+                  <option value="enhancement">🔧 Enhancement (Улучшение)</option>
+                  <option value="documentation">📚 Documentation</option>
+                  <option value="refactoring">♻️ Refactoring</option>
+                  <option value="research">❓ Research</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Приоритет (Priority):</label>
+                <select class="form-select" id="new-issue-priority">
+                  <option value="priority:critical">🔥 Critical (Критический)</option>
+                  <option value="priority:high">⚡ High (Высокий)</option>
+                  <option value="priority:medium" selected>⚖️ Medium (Средний)</option>
+                  <option value="priority:low">☕ Low (Низкий)</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Компонент AI-TC:</label>
+                <select class="form-select" id="new-issue-component">
+                  <option value="component:core" selected>Core (Ядро/Общее)</option>
+                  <option value="component:telemetry">Telemetry (Телеметрия)</option>
+                  <option value="component:network">Network (Сеть/Трафик)</option>
+                  <option value="component:windows">Windows (Службы/Диски)</option>
+                  <option value="component:gui">GUI (Интерфейс/WebGUI)</option>
+                  <option value="component:ai">AI (Модели/Агенты/RAG)</option>
+                  <option value="component:mcp">MCP (Серверы/Протокол)</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Исполнитель (Assignee):</label>
+                <input type="text" class="form-control" id="new-issue-assignee" value="@me" placeholder="@me или логин">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-bold d-flex justify-content-between">
+                <span>Описание задачи (Markdown):</span>
+                <span class="text-muted fw-normal">Поддерживает списки требований и чек-листы</span>
+              </label>
+              <textarea class="form-control font-monospace" id="new-issue-body" rows="10" placeholder="Подробное описание проблемы, требования или шаги воспроизведения..."></textarea>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+              <button type="reset" class="btn btn-secondary">Сбросить</button>
+              <button type="submit" class="btn btn-primary d-flex align-items-center gap-1" id="btn-submit-issue">
+                <i class="bi bi-send"></i>
+                <span>Опубликовать Issue</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ПАНЕЛЬ 3: ВЕХИ И РЕЛИЗЫ (MILESTONES) -->
+    <div class="tab-pane fade" id="panel-milestones" role="tabpanel">
+      <div class="card border-subtle shadow-sm mb-3">
+        <div class="card-header bg-body-tertiary fw-bold">
+          <i class="bi bi-signpost-split me-2"></i>Дорожная карта релизов (AI-TC Milestones)
+        </div>
+        <div class="card-body p-3" id="milestones-container">
+          <!-- Заполняется динамически -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ПАНЕЛЬ 4: МЕТКИ И НАСТРОЙКИ -->
+    <div class="tab-pane fade" id="panel-labels" role="tabpanel">
+      <div class="card border-subtle shadow-sm mb-3">
+        <div class="card-header bg-body-tertiary d-flex align-items-center justify-content-between">
+          <span class="fw-bold"><i class="bi bi-tags me-2"></i>Стандартная сетка меток AI-TC (Labels Taxonomy)</span>
+          <button type="button" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" id="btn-sync-labels">
+            <i class="bi bi-arrow-repeat"></i>
+            <span>Синхронизировать с GitHub</span>
+          </button>
+        </div>
+        <div class="card-body p-3">
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th style="width: 200px;">Метка</th>
+                  <th>Категория и назначение</th>
+                  <th style="width: 100px;">Цвет</th>
+                </tr>
+              </thead>
+              <tbody id="labels-table-body">
+                <!-- Заполняется динамически -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Модальное окно просмотра задачи и запуска AI-действий -->
+  <div class="modal fade" id="issue-details-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary" id="modal-issue-badge">#---</span>
+            <h6 class="modal-title mb-0 fw-bold" id="modal-issue-title">---</h6>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-3">
+          <!-- Метаданные задачи -->
+          <div class="d-flex flex-wrap gap-2 align-items-center mb-3 pb-2 border-bottom border-subtle" id="modal-issue-meta">
+            <!-- Заполняется JS -->
+          </div>
+
+          <!-- Блок автономного AI-разработчика -->
+          <div class="card border-primary-subtle bg-primary-subtle bg-opacity-10 mb-3">
+            <div class="card-body p-2.5">
+              <div class="fw-bold small text-primary mb-2 d-flex align-items-center gap-1">
+                <i class="bi bi-robot"></i>
+                <span>Issue-driven AI Developer (Оркестрация задачи)</span>
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-xs btn-primary d-flex align-items-center gap-1" id="modal-btn-create-branch">
+                  <i class="bi bi-git"></i>
+                  <span>Создать ветку Git под задачу</span>
+                </button>
+                <button type="button" class="btn btn-xs btn-outline-primary d-flex align-items-center gap-1" id="modal-btn-build-plan">
+                  <i class="bi bi-list-check"></i>
+                  <span>Сформировать план ТЗ</span>
+                </button>
+                <button type="button" class="btn btn-xs btn-outline-success d-flex align-items-center gap-1" id="modal-btn-toggle-state">
+                  <i class="bi bi-check-circle"></i>
+                  <span id="modal-btn-toggle-state-text">Закрыть задачу</span>
+                </button>
+              </div>
+              <!-- Вывод результатов AI операций -->
+              <div class="mt-2 d-none" id="modal-ai-action-result">
+                <div class="alert alert-secondary py-1.5 px-2 mb-0 small font-monospace" id="modal-ai-action-text"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Описание задачи Markdown -->
+          <div class="mb-3">
+            <div class="small fw-bold text-muted mb-1">Описание задачи:</div>
+            <div class="issue-markdown-body" id="modal-issue-body"></div>
+          </div>
+
+          <!-- Комментирование -->
+          <div class="border-top border-subtle pt-3">
+            <div class="small fw-bold text-muted mb-2">Добавить комментарий:</div>
+            <div class="input-group input-group-sm">
+              <input type="text" class="form-control" id="modal-comment-input" placeholder="Текст комментария...">
+              <button class="btn btn-outline-primary" type="button" id="modal-btn-send-comment">Отправить</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer py-1.5 justify-content-between">
+          <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-link text-decoration-none" id="modal-issue-url">
+            <i class="bi bi-box-arrow-up-right me-1"></i>Открыть в GitHub
+          </a>
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

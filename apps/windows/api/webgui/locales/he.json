@@ -329,6 +329,8 @@
     "subtabModelsTitle": "ניהול ספקי ומודלי בינה מלאכותית (Windows AI, Ollama, Gemini, Foundry Local)",
     "subtabLogsLabel": "מרכז יומנים",
     "subtabLogsTitle": "צפייה ביומנים פנימיים של תוכנת ai-tc",
+    "subtabActivityLabel": "יומן פעילות",
+    "subtabActivityTitle": "יומן פעילות פנימית ופעולות המערכת והאפליקציה",
     "subtabEtwLabel": "מעקב ETW",
     "subtabEtwTitle": "מעקב אירועי ETW בליבת Windows",
     "subtabSettingsLabel": "הגדרות",

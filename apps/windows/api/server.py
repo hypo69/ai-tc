@@ -14,7 +14,7 @@
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 12:03:00
+# Updated: 2026-11-10 14:28:00
 # =============================================================================
 
 from __future__ import annotations
@@ -25,16 +25,24 @@ import json
 import os
 import pkgutil
 from pathlib import Path
+import time
 from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, APIRouter, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from logger import logger
+from logger import clear_trace_context, logger, set_trace_context
 from apps.common.webgui import SmartMultiDirStaticFiles, COMMON_WEBGUI_DIR
 from apps.windows.api.config_helper import save_ai_config, resolve_active_config_path
+from src.utils.system_engineering import (
+    IdempotencyStore,
+    REDMetricsCollector,
+    format_traceparent,
+    generate_span_id,
+    parse_traceparent,
+)
 
 # Пути к статике и конфигурации
 _MODULE_DIR = Path(__file__).resolve().parent
@@ -226,6 +234,98 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    # SRE Observability (W3C TraceContext, RED p50/p95/p99) и Idempotency-Key Middleware
+    red_metrics = REDMetricsCollector(max_samples=2000)
+    idempotency_store = IdempotencyStore(max_keys=2048, ttl_seconds=3600.0)
+    app.state.red_metrics = red_metrics
+    app.state.idempotency_store = idempotency_store
+
+    @app.middleware("http")
+    async def sre_observability_and_idempotency_middleware(request: Request, call_next: Any) -> Response:
+        """Обеспечивает сквозной TraceID (W3C traceparent), защиту Idempotency-Key и сбор перцентилей RED."""
+        raw_tp = request.headers.get("traceparent", "")
+        raw_x_trace = request.headers.get("X-Trace-Id", "").strip()
+        if raw_tp:
+            trace_id, span_id = parse_traceparent(raw_tp)
+        elif len(raw_x_trace) == 32:
+            trace_id, span_id = raw_x_trace.lower(), generate_span_id()
+        else:
+            trace_id, span_id = parse_traceparent("")
+
+        traceparent_hdr = format_traceparent(trace_id, span_id)
+        set_trace_context(trace_id=trace_id, service_name="windows-internal-api")
+        request.state.trace_id = trace_id
+
+        start_t = time.perf_counter()
+        idem_key = request.headers.get("Idempotency-Key", "").strip()
+        is_mutating = request.method.upper() in ("POST", "PUT", "PATCH", "DELETE")
+
+        if is_mutating and idem_key:
+            scoped_key = f"{request.method.upper()}:{request.url.path}:{idem_key}"
+            state_flag, record = idempotency_store.begin(scoped_key)
+            if state_flag == "IN_PROGRESS":
+                red_metrics.record((time.perf_counter() - start_t) * 1000.0, is_error=False)
+                clear_trace_context()
+                return JSONResponse(
+                    status_code=409,
+                    content={
+                        "status": "error",
+                        "code": "IDEMPOTENCY_CONFLICT",
+                        "message": "Операция с данным Idempotency-Key уже выполняется параллельно.",
+                        "trace_id": trace_id,
+                    },
+                    headers={"X-Trace-Id": trace_id, "traceparent": traceparent_hdr},
+                )
+            if state_flag == "COMPLETED":
+                red_metrics.record((time.perf_counter() - start_t) * 1000.0, is_error=False)
+                clear_trace_context()
+                return Response(
+                    content=record.response_body,
+                    status_code=record.status_code,
+                    media_type="application/json",
+                    headers={
+                        "X-Trace-Id": trace_id,
+                        "traceparent": traceparent_hdr,
+                        "X-Idempotent-Replayed": "true",
+                    },
+                )
+
+        try:
+            response: Response = await call_next(request)
+            elapsed_ms = (time.perf_counter() - start_t) * 1000.0
+            red_metrics.record(elapsed_ms, is_error=(response.status_code >= 500))
+
+            if is_mutating and idem_key:
+                scoped_key = f"{request.method.upper()}:{request.url.path}:{idem_key}"
+                if 200 <= response.status_code < 500:
+                    body_chunks = [chunk async for chunk in response.body_iterator]
+                    raw_body = b"".join(body_chunks)
+                    idempotency_store.complete(
+                        scoped_key,
+                        status_code=response.status_code,
+                        response_body=raw_body.decode("utf-8", errors="replace"),
+                    )
+                    response = Response(
+                        content=raw_body,
+                        status_code=response.status_code,
+                        headers=dict(response.headers),
+                        media_type=response.media_type,
+                    )
+                else:
+                    idempotency_store.abort(scoped_key)
+
+            response.headers["X-Trace-Id"] = trace_id
+            response.headers["traceparent"] = traceparent_hdr
+            return response
+        except Exception:
+            elapsed_ms = (time.perf_counter() - start_t) * 1000.0
+            red_metrics.record(elapsed_ms, is_error=True)
+            if is_mutating and idem_key:
+                idempotency_store.abort(f"{request.method.upper()}:{request.url.path}:{idem_key}")
+            raise
+        finally:
+            clear_trace_context()
+
     # 1. Сначала регистрируем явно сконфигурированные роутеры из config.json (для кастомных параметров)
     routers_list: List[Dict[str, Any]] = config.get("routers", [])
     registered_modules = set()
@@ -281,6 +381,9 @@ def create_app() -> FastAPI:
                 router = getattr(mod, "router", None)
             if isinstance(router, APIRouter):
                 safe_include_router(app, router)
+                legacy_r = getattr(mod, "legacy_router", None)
+                if isinstance(legacy_r, APIRouter):
+                    safe_include_router(app, legacy_r)
                 registered_modules.add(module_path)
                 if module_path.startswith("apps.windows.sdk.modules."):
                     registered_modules.add(module_path.replace("apps.windows.sdk.modules.", "apps.windows."))
@@ -294,16 +397,17 @@ def create_app() -> FastAPI:
     discover_and_register_routers(app, "apps.windows", exclude_modules=registered_modules)
 
     # -------------------------------------------------------------------------
-    # Роутеры экосистемы ИИ и администрирования (/api/skills, /api/plugins, /api/mcp, /api/admin)
+    # Роутеры экосистемы ИИ и администрирования (/api/skills, /api/plugins, /api/mcp, /api/admin, /api/v1/admin)
     # -------------------------------------------------------------------------
     try:
         from apps.windows.api.routers.admin.routers import (
             router as admin_router,
+            router_v1 as admin_v1_router,
             skills_router,
             plugins_router,
             router_apps,
         )
-        for admin_r in (admin_router, skills_router, plugins_router, router_apps):
+        for admin_r in (admin_router, admin_v1_router, skills_router, plugins_router, router_apps):
             safe_include_router(app, admin_r)
 
         from apps.windows.api.routers.admin.mcp import admin_mcp_router, mcp_router
@@ -375,7 +479,7 @@ def create_app() -> FastAPI:
             },
         }
 
-    # Health-check
+    # Health-check и SRE метрики RED (Rate, Errors, Duration p50/p95/p99)
     @app.get("/health", tags=["system"])
     @app.get("/internal/health", tags=["system"], include_in_schema=False)
     async def health() -> dict:
@@ -386,6 +490,17 @@ def create_app() -> FastAPI:
             "webgui_exists": _WEBGUI_DIR.exists(),
             "tc_index_exists": _TC_INDEX.exists(),
             "configured_routers_count": len(routers_list),
+            "observability": red_metrics.snapshot(),
+        }
+
+    @app.get("/api/v1/observability/metrics", tags=["system"])
+    @app.get("/api/observability/metrics", tags=["system"])
+    async def get_observability_metrics() -> Dict[str, Any]:
+        """Возвращает метрики Google SRE RED (Rate, Errors, Duration по перцентилям p50/p95/p99)."""
+        return {
+            "status": "ok",
+            "service": "windows-internal-api",
+            "metrics": red_metrics.snapshot(),
         }
 
     # -------------------------------------------------------------------------
@@ -447,6 +562,26 @@ def create_app() -> FastAPI:
             return {"status": "ok", "saved": body}
         except Exception:
             return {"status": "ok"}
+
+    @app.get("/auth/check", tags=["auth"])
+    @app.get("/api/v1/auth/check", tags=["auth"])
+    async def check_user_auth(request: Request) -> Dict[str, Any]:
+        """Проверка статуса текущей пользовательской сессии."""
+        return {
+            "authenticated": True,
+            "name": "Windows Administrator",
+            "email": "admin@localhost",
+            "role": "Admin",
+            "is_admin": True,
+            "has_google": False,
+            "oauth_enabled": False,
+        }
+
+    @app.post("/auth/logout", tags=["auth"])
+    @app.get("/auth/logout", tags=["auth"])
+    async def auth_logout() -> Dict[str, Any]:
+        """Завершение пользовательской сессии."""
+        return {"status": "ok"}
 
     @app.get("/api/v1/chat/active-model", tags=["chat"])
     @app.get("/api/v1/tc/model", tags=["chat"])

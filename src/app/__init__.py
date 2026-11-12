@@ -11,13 +11,13 @@
 # Package: src.app
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 20:43:00
+# Updated: 2026-11-10 14:35:00
 # =============================================================================
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
+import threading
 from typing import Any, Callable, Dict, List, Optional
 
 try:
@@ -34,6 +34,7 @@ class AppContainer:
 
     Управляет синглтонами, фабриками компонентов, конфигурацией и доступом
     к базам данных без использования скрытых глобальных переменных.
+    Обеспечивает потокобезопасное разрешение сервисов через RLock.
     """
 
     def __init__(self, config_path: Optional[Path | str] = None) -> None:
@@ -42,6 +43,7 @@ class AppContainer:
         Args:
             config_path: Путь к основному файлу конфигурации.
         """
+        self._lock = threading.RLock()
         self.config_path = Path(config_path) if config_path else Path("config.json")
         self._config: Dict[str, Any] = load_json_config(self.config_path)
         self._services: Dict[str, Any] = {}
@@ -50,13 +52,15 @@ class AppContainer:
     @property
     def config(self) -> Dict[str, Any]:
         """Возвращает текущую загруженную конфигурацию."""
-        return self._config
+        with self._lock:
+            return self._config
 
     def reload_config(self) -> Dict[str, Any]:
         """Выполняет горячую перезагрузку конфигурации из файла."""
-        self._config = load_json_config(self.config_path)
-        logger.info("[AppContainer] Конфигурация успешно перезагружена.")
-        return self._config
+        with self._lock:
+            self._config = load_json_config(self.config_path)
+            logger.info("[AppContainer] Конфигурация успешно перезагружена.")
+            return self._config
 
     def register_singleton(self, service_name: str, instance: Any) -> None:
         """Регистрирует готовый экземпляр сервиса.
@@ -65,7 +69,10 @@ class AppContainer:
             service_name: Идентификатор сервиса.
             instance: Экземпляр сервиса.
         """
-        self._services[service_name] = instance
+        if not service_name or not isinstance(service_name, str):
+            raise ValueError("Имя сервиса должно быть непустой строкой.")
+        with self._lock:
+            self._services[service_name] = instance
 
     def register_factory(self, service_name: str, factory: Callable[[], Any]) -> None:
         """Регистрирует фабрику для создания сервиса по запросу.
@@ -74,7 +81,12 @@ class AppContainer:
             service_name: Идентификатор сервиса.
             factory: Функция-фабрика.
         """
-        self._factories[service_name] = factory
+        if not service_name or not isinstance(service_name, str):
+            raise ValueError("Имя сервиса должно быть непустой строкой.")
+        if not callable(factory):
+            raise TypeError("Фабрика сервиса должна быть вызываемым объектом.")
+        with self._lock:
+            self._factories[service_name] = factory
 
     def resolve(self, service_name: str) -> Any:
         """Разрешает и возвращает зависимость по имени.
@@ -88,12 +100,13 @@ class AppContainer:
         Raises:
             KeyError: Если сервис не зарегистрирован.
         """
-        if service_name in self._services:
-            return self._services[service_name]
-        if service_name in self._factories:
-            instance = self._factories[service_name]()
-            self._services[service_name] = instance
-            return instance
+        with self._lock:
+            if service_name in self._services:
+                return self._services[service_name]
+            if service_name in self._factories:
+                instance = self._factories[service_name]()
+                self._services[service_name] = instance
+                return instance
         raise KeyError(f"Сервис '{service_name}' не зарегистрирован в контейнере.")
 
 
@@ -106,6 +119,7 @@ class AppRegistry:
         Args:
             apps_root: Корневая директория поиска приложений.
         """
+        self._lock = threading.RLock()
         self.apps_root = Path(apps_root)
         self._registered_apps: Dict[str, Dict[str, Any]] = {}
 
@@ -115,32 +129,34 @@ class AppRegistry:
         Returns:
             Список метаданных зарегистрированных приложений.
         """
-        if not self.apps_root.is_dir():
-            return []
+        with self._lock:
+            if not self.apps_root.is_dir():
+                return []
 
-        for item in self.apps_root.iterdir():
-            if item.is_dir() and not item.name.startswith((".", "_", "~")):
-                manifest_path = item / "manifest.json"
-                app_info = {
-                    "id": item.name,
-                    "name": item.name.replace("_", " ").title(),
-                    "path": str(item),
-                    "enabled": True,
-                }
-                if manifest_path.is_file():
-                    custom_manifest = load_json_config(manifest_path)
-                    app_info.update(custom_manifest)
+            for item in self.apps_root.iterdir():
+                if item.is_dir() and not item.name.startswith((".", "_", "~")):
+                    manifest_path = item / "manifest.json"
+                    app_info = {
+                        "id": item.name,
+                        "name": item.name.replace("_", " ").title(),
+                        "path": str(item),
+                        "enabled": True,
+                    }
+                    if manifest_path.is_file():
+                        custom_manifest = load_json_config(manifest_path)
+                        if isinstance(custom_manifest, dict):
+                            app_info.update(custom_manifest)
 
-                self._registered_apps[item.name] = app_info
+                    self._registered_apps[item.name] = app_info
 
-        return list(self._registered_apps.values())
+            return list(self._registered_apps.values())
 
     def get_registered_apps(self) -> List[Dict[str, Any]]:
         """Возвращает список зарегистрированных приложений для меню администратора."""
-        return list(self._registered_apps.values())
+        with self._lock:
+            return list(self._registered_apps.values())
 
 
 # Глобальные экземпляры по умолчанию
 default_container = AppContainer()
 default_registry = AppRegistry()
-

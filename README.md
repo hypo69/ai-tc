@@ -1,18 +1,18 @@
 <!--
 File: README.md
 Path: README.md
-Description: Главный файл описания проекта AI Windows Admin (AI-TC) для GitHub.
+Description: Главный файл описания проекта AI Windows Admin (ai-tc) для GitHub.
 Author: hypo69
 Created: 2026-10-10
 Updated: 2026-11-01 12:17:00
 -->
 
-# 🖥️ AI Windows Admin (AI-TC)
+# 🖥️ AI Windows Admin (ai-tc)
 
 [![Documentation Status](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://hypo69.github.io/aiwindowsadmin/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10–3.14](https://img.shields.io/badge/python-3.10--3.14-blue.svg)](https://www.python.org/downloads/)
-[![Platform: Windows | Linux | macOS](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/hypo69/AI-TC)
+[![Platform: Windows | Linux | macOS](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/hypo69/ai-tc)
 
 **AI Windows Admin (`ai-tc`)** — модульная интерактивная платформа администрирования ОС Windows, аппаратной телеметрии, диагностики и бесшовной маршрутизации между облачными и локальными языковыми моделями искусственного интеллекта.
 
@@ -125,7 +125,7 @@ Updated: 2026-11-01 12:17:00
 Если на чистой системе еще **не установлен Git**, выполните следующую однострочную команду в **PowerShell (от имени Администратора)**. Команда автоматически проверит наличие Git, при необходимости скачает и установит его (через `winget` или прямой установщик Git for Windows), обновит переменные среды `PATH`, склонирует репозиторий и запустит `install.ps1`:
 
 ```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; if (-not (Get-Command git -ErrorAction SilentlyContinue)) { Write-Host "Установка Git..." -ForegroundColor Cyan; if (Get-Command winget -ErrorAction SilentlyContinue) { winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements --silent } else { $gitUrl = (Invoke-RestMethod "https://api.github.com/repos/git-for-windows/git/releases/latest").assets | Where-Object { $_.name -match "Git-.*-64-bit\.exe$" } | Select-Object -First 1 -ExpandProperty browser_download_url; $gitInstaller = "$env:TEMP\git-installer.exe"; Invoke-WebRequest -Uri $gitUrl -OutFile $gitInstaller; Start-Process -FilePath $gitInstaller -ArgumentList "/VERYSILENT /NORESTART /NOCANCEL /SP-" -Wait; Remove-Item $gitInstaller -Force }; $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") }; $targetDir = "$env:LOCALAPPDATA\AI-TC"; if (-not (Test-Path "$targetDir\.git")) { git clone https://github.com/hypo69/AI-TC.git $targetDir }; Set-Location $targetDir; .\install.ps1
+Set-ExecutionPolicy Bypass -Scope Process -Force; if (-not (Get-Command git -ErrorAction SilentlyContinue)) { Write-Host "Установка Git..." -ForegroundColor Cyan; if (Get-Command winget -ErrorAction SilentlyContinue) { winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements --silent } else { $gitUrl = (Invoke-RestMethod "https://api.github.com/repos/git-for-windows/git/releases/latest").assets | Where-Object { $_.name -match "Git-.*-64-bit\.exe$" } | Select-Object -First 1 -ExpandProperty browser_download_url; $gitInstaller = "$env:TEMP\git-installer.exe"; Invoke-WebRequest -Uri $gitUrl -OutFile $gitInstaller; Start-Process -FilePath $gitInstaller -ArgumentList "/VERYSILENT /NORESTART /NOCANCEL /SP-" -Wait; Remove-Item $gitInstaller -Force }; $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") }; $targetDir = "$env:LOCALAPPDATA\ai-tc"; if (-not (Test-Path "$targetDir\.git")) { git clone https://github.com/hypo69/ai-tc.git $targetDir }; Set-Location $targetDir; .\install.ps1
 ```
 
 ### Опция 2: Быстрый запуск онлайн-инсталлятора
@@ -133,7 +133,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; if (-not (Get-Command git -Err
 Если вы хотите запустить скрипт установки напрямую из репозитория:
 
 ```powershell
-irm https://raw.githubusercontent.com/hypo69/AI-TC/master/install.ps1 | iex
+irm https://raw.githubusercontent.com/hypo69/ai-tc/master/install.ps1 | iex
 ```
 
 ### Опция 3: Стандартная установка через Git
@@ -142,15 +142,15 @@ irm https://raw.githubusercontent.com/hypo69/AI-TC/master/install.ps1 | iex
 
 ```powershell
 # Windows (PowerShell)
-git clone https://github.com/hypo69/AI-TC.git
-cd AI-TC
+git clone https://github.com/hypo69/ai-tc.git
+cd ai-tc
 .\install.ps1
 ```
 
 ```bash
 # Linux / macOS
-git clone https://github.com/hypo69/AI-TC.git
-cd AI-TC
+git clone https://github.com/hypo69/ai-tc.git
+cd ai-tc
 bash install.sh
 ```
 
@@ -246,7 +246,7 @@ py manage_tools.py docs generate        # Генерация документа�
 ## 📂 Структура проекта
 
 ```text
-AI-TC/
+ai-tc/
 ├── .agents/skills/       # Автономные навыки (Skills) для ИИ-агентов и установщика
 ├── .ai/instructions/     # Инженерные стандарты, правила кода и документация архитектуры
 ├── .mcp/                 # Серверы Model Context Protocol (MCP)
@@ -267,7 +267,7 @@ AI-TC/
 ├── INSTALL-INSTRUCTION.md# Полный регламент установки и самодиагностики
 ├── main.py               # Точка входа веб-сервера приложения
 ├── manage_tools.py       # CLI-утилита управления инструментами проекта
-├── tc.ps1                # Главный скрипт запуска AI-TC
+├── tc.ps1                # Главный скрипт запуска ai-tc
 └── tlm.ps1               # Лаунчер фоновой службы телеметрии
 ```
 

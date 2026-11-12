@@ -3,7 +3,7 @@
 # Process Name: AI-Windows-Admin AI - Gemini Api Key State Module
 # =============================================================================
 # Description:
-#   Ensure that the secrets directory exists on the filesystem.
+#   Управление пулом API-ключей Gemini, их статусами, квотами и ротацией.
 #
 # Usage Examples:
 #   Python API:
@@ -17,14 +17,15 @@
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 14:43:00
 # =============================================================================
 
 from __future__ import annotations
-"""Ensure that the secrets directory exists on the filesystem."""
+"""Управление пулом API-ключей Gemini, их статусами, квотами и потокобезопасной ротацией."""
 
 import json
 import os
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -36,38 +37,39 @@ _SECRETS_DIR: Path = __root__ / 'src' / 'secrets'
 _KEYS_FILE: Path = _SECRETS_DIR / 'gemini_keys.json'
 _ENV_FILE: Path = __root__ / '.env'
 _DAY_SECONDS: float = 86400.0
+_KEYS_LOCK = threading.RLock()
 
 def _ensure_secrets_dir() -> None:
-    """Ensure that the secrets directory exists on the filesystem."""
+    """Гарантирует существование директории секретов на диске."""
     try:
         _SECRETS_DIR.mkdir(parents=True, exist_ok=True)
     except Exception as ex:
-        logger.error(f'Failed to create secrets directory: {ex}')
+        logger.error(f'Не удалось создать директорию секретов: {ex}')
 
 def _now_iso() -> str:
-    """Get current UTC timestamp in ISO 8601 string format.
+    """Возвращает текущее время UTC в строгом формате ISO 8601 ('YYYY-MM-DDTHH:MM:SSZ').
 
     Returns:
-        str: ISO formatted UTC datetime string.
+        str: Строка даты и времени UTC в формате ISO 8601.
     """
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
 def _now_ts() -> float:
-    """Get current UTC timestamp as Unix epoch float.
+    """Возвращает текущую метку времени UTC в секундах Unix epoch.
 
     Returns:
-        float: Unix timestamp in seconds.
+        float: Временная метка Unix в секундах.
     """
     return datetime.now(timezone.utc).timestamp()
 
 def _iso_to_ts(iso_str: str) -> float:
-    """Convert ISO formatted string into Unix timestamp.
+    """Преобразует строку ISO 8601 во временную метку Unix.
 
     Args:
-        iso_str (str): Datetime string in ISO 8601 format.
+        iso_str (str): Строка даты и времени в формате ISO 8601.
 
     Returns:
-        float: Unix epoch timestamp or 0.0 on parsing error.
+        float: Временная метка Unix или 0.0 при ошибке разбора.
     """
     if not iso_str:
         return 0.0
@@ -78,47 +80,48 @@ def _iso_to_ts(iso_str: str) -> float:
         return 0.0
 
 def _load_keys_file() -> Dict[str, Dict[str, Any]]:
-    """Загружает словарь ключей из gemini_keys.json через j_loads_ns.
+    """Загружает словарь ключей из gemini_keys.json через j_loads_ns с потокобезопасной блокировкой.
 
-    If file does not exist, attempts initial migration from .env.
+    Если файл не существует, выполняет начальную миграцию из .env.
 
     Returns:
-        Dict[str, Dict[str, Any]]: Mapping of key_name to key item dict.
+        Dict[str, Dict[str, Any]]: Отображение имени ключа на словарь параметров ключа.
     """
-    if _KEYS_FILE.exists():
-        try:
-            ns = j_loads_ns(_KEYS_FILE)
-            if isinstance(ns, SimpleNamespace) and len(vars(ns)) > 0:
-                normalized: Dict[str, Dict[str, Any]] = {}
-                for k, v in vars(ns).items():
-                    if isinstance(v, SimpleNamespace):
-                        val = getattr(v, 'value', '') or getattr(v, 'api_key', '') or ''
-                        normalized[k] = {
-                            'value': str(val),
-                            'last_run': str(getattr(v, 'last_run', '') or ''),
-                            'status': str(getattr(v, 'status', 'active') or 'active'),
-                            'exhausted_at': str(getattr(v, 'exhausted_at', '') or ''),
-                            'is_active': bool(getattr(v, 'is_active', False)),
-                        }
-                    elif isinstance(v, dict):
-                        val = v.get('value') or v.get('api_key') or ''
-                        normalized[k] = {
-                            'value': str(val),
-                            'last_run': str(v.get('last_run') or ''),
-                            'status': str(v.get('status') or 'active'),
-                            'exhausted_at': str(v.get('exhausted_at') or ''),
-                            'is_active': bool(v.get('is_active', False)),
-                        }
-                    elif isinstance(v, str):
-                        normalized[k] = {'value': v, 'last_run': '', 'status': 'active', 'exhausted_at': '', 'is_active': False}
-                return normalized
-        except Exception as ex:
-            logger.warning(f'Error reading {_KEYS_FILE} via j_loads_ns: {ex}')
-    bootstrapped = _bootstrap_from_env()
-    if bootstrapped:
-        _save_keys_file(bootstrapped)
-        return bootstrapped
-    return {}
+    with _KEYS_LOCK:
+        if _KEYS_FILE.exists():
+            try:
+                ns = j_loads_ns(_KEYS_FILE)
+                if isinstance(ns, SimpleNamespace) and len(vars(ns)) > 0:
+                    normalized: Dict[str, Dict[str, Any]] = {}
+                    for k, v in vars(ns).items():
+                        if isinstance(v, SimpleNamespace):
+                            val = getattr(v, 'value', '') or getattr(v, 'api_key', '') or ''
+                            normalized[k] = {
+                                'value': str(val),
+                                'last_run': str(getattr(v, 'last_run', '') or ''),
+                                'status': str(getattr(v, 'status', 'active') or 'active'),
+                                'exhausted_at': str(getattr(v, 'exhausted_at', '') or ''),
+                                'is_active': bool(getattr(v, 'is_active', False)),
+                            }
+                        elif isinstance(v, dict):
+                            val = v.get('value') or v.get('api_key') or ''
+                            normalized[k] = {
+                                'value': str(val),
+                                'last_run': str(v.get('last_run') or ''),
+                                'status': str(v.get('status') or 'active'),
+                                'exhausted_at': str(v.get('exhausted_at') or ''),
+                                'is_active': bool(v.get('is_active', False)),
+                            }
+                        elif isinstance(v, str):
+                            normalized[k] = {'value': v, 'last_run': '', 'status': 'active', 'exhausted_at': '', 'is_active': False}
+                    return normalized
+            except Exception as ex:
+                logger.warning(f'Ошибка чтения {_KEYS_FILE} через j_loads_ns: {ex}')
+        bootstrapped = _bootstrap_from_env()
+        if bootstrapped:
+            _save_keys_file(bootstrapped)
+            return bootstrapped
+        return {}
 
 def _bootstrap_from_env() -> Dict[str, Dict[str, Any]]:
     """Extract initial keys from .env if available.
@@ -157,7 +160,7 @@ def _bootstrap_from_env() -> Dict[str, Dict[str, Any]]:
     return keys
 
 def _save_keys_file(data: Dict[str, Dict[str, Any]] | SimpleNamespace) -> bool:
-    """Сохраняет объект конфигурации в gemini_keys.json через j_dumps.
+    """Атомарно сохраняет объект конфигурации в gemini_keys.json через j_dumps.
 
     Args:
         data (Dict[str, Dict[str, Any]] | SimpleNamespace): Данные конфигурации для сериализации.
@@ -165,13 +168,14 @@ def _save_keys_file(data: Dict[str, Dict[str, Any]] | SimpleNamespace) -> bool:
     Returns:
         bool: True при успехе, False при ошибке.
     """
-    try:
-        _ensure_secrets_dir()
-        res = j_dumps(data, file_path=_KEYS_FILE, ensure_ascii=False)
-        return res is not None
-    except Exception as ex:
-        logger.error(f'Failed to save keys to {_KEYS_FILE} via j_dumps: {ex}')
-        return False
+    with _KEYS_LOCK:
+        try:
+            _ensure_secrets_dir()
+            res = j_dumps(data, file_path=_KEYS_FILE, ensure_ascii=False)
+            return res is not None
+        except Exception as ex:
+            logger.error(f'Не удалось сохранить ключи в {_KEYS_FILE} через j_dumps: {ex}')
+            return False
 
 def _sync_environment(active_val: str) -> None:
     """Dynamically set the active API key in process environment.
@@ -300,7 +304,8 @@ def mark_exhausted(key_name: str) -> None:
         data['is_active'] = (name == new_active_name) if new_active_name else False
 
     _save_keys_file(keys_data)
-    logger.warning(f'API key "{target_name}" marked as exhausted.')
+    safe_label = f'{target_name[:6]}...{target_name[-4:]}' if target_name.startswith('AIza') and len(target_name) > 12 else target_name
+    logger.warning(f'API-ключ "{safe_label}" помечен как исчерпавший квоту.')
     if new_active_val:
         _sync_environment(new_active_val)
     elif not new_active_name:

@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_user_assistant
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 10:55:00
+Updated: 2026-11-01 12:50:00
 =============================================================================
 -->
 
@@ -56,17 +56,6 @@ Updated: 2026-10-20 10:55:00
     overflow: hidden;
     box-shadow: var(--shadow-xs, 0 1px 3px rgba(0, 0, 0, 0.08));
   }
-  .assistant-panel-header {
-    background: var(--surface-2) !important;
-    border-bottom: 1px solid var(--border-color) !important;
-    padding: 0.6rem 0.9rem;
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--text-color);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
   .assistant-list-item {
     padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--border-subtle, rgba(128, 128, 128, 0.2));
@@ -84,7 +73,7 @@ Updated: 2026-10-20 10:55:00
       <span class="tab-header-icon fs-4 text-warning">🗓️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Персональный ассистент пользователя</h3>
+          <h3 class="tab-header-title mb-0">Персональный ассистент пользователя</h3>
           <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3 py-2" id="assistant-status-badge">
         ● Готов к работе
       </span>
@@ -133,8 +122,8 @@ Updated: 2026-10-20 10:55:00
 <!-- Calendar & Agenda Panel -->
 <div class="col-lg-6">
 <div class="assistant-panel h-100">
-<div class="assistant-panel-header">
-<span>📅 Повестка дня и ближайшие события</span>
+<div class="panel-header">
+<span class="panel-title">📅 Повестка дня и ближайшие события</span>
 <span class="badge bg-secondary" id="assistant-events-badge">0 событий</span>
 </div>
 <div class="p-0" id="assistant-events-list" style="max-height: 450px; overflow-y: auto;">
@@ -145,8 +134,8 @@ Updated: 2026-10-20 10:55:00
 <!-- Email Triage Panel -->
 <div class="col-lg-6">
 <div class="assistant-panel h-100">
-<div class="assistant-panel-header">
-<span>✉️ Непрочитанные сообщения</span>
+<div class="panel-header">
+<span class="panel-title">✉️ Непрочитанные сообщения</span>
 <span class="badge bg-secondary" id="assistant-mail-badge">0 писем</span>
 </div>
 <div class="p-0" id="assistant-mail-list" style="max-height: 450px; overflow-y: auto;">

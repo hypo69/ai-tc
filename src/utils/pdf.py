@@ -3,45 +3,43 @@
 # Process Name: AI-Windows-Admin UTILS - Pdf Module
 # =============================================================================
 # Description:
-#   Extract text content from a PDF file using pypdf -> pdfminer -> regex stream fallback.
+#   Извлечение текстового содержимого из PDF-файлов (pypdf -> pdfminer -> regex fallback)
+#   и генерация PDF-отчетов из документации, исходного кода и HTML.
 #
 # Usage Examples:
 #   Python API:
-#     from src.utils.pdf import PDFUtils
+#     from src.utils.pdf import PDFUtils, extract_pdf_text
 #
-#     service = PDFUtils()
-#     result = service.save_pdf_pdfkit()
-#     print(result)
+#     text = extract_pdf_text("report.pdf")
 #
 # File: pdf.py
 # Project: ai-windows-admin
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 14:40:00
 # =============================================================================
 
 from __future__ import annotations
-"""Extract text content from a PDF file using pypdf -> pdfminer -> regex stream fallback."""
+"""Извлечение текста из PDF-файлов и утилиты генерации PDF-документов."""
 
 import sys
 import os
 import json
 from pathlib import Path
-from typing import Union, Optional
+from typing import Any, Union, Optional
 from logger import logger
 from header import __root__
 wkhtmltopdf_exe: Path = Path('C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
 
 def extract_pdf_text(file_path: Union[str, Path]) -> Optional[str]:
-    """
-    Extract text content from a PDF file using pypdf -> pdfminer -> regex stream fallback.
+    """Извлекает текстовое содержимое из PDF-файла (pypdf -> pdfminer -> regex stream fallback).
 
     Args:
-        file_path (Union[str, Path]): Path to the PDF file.
+        file_path (Union[str, Path]): Путь к PDF-файлу.
 
     Returns:
-        Optional[str]: Extracted text or None if failed.
+        Optional[str]: Извлеченный текст или None при ошибке.
     """
     path = Path(file_path)
     if not path.is_file():

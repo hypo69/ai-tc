@@ -11,7 +11,7 @@
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 20:20:00
+# Updated: 2026-11-01 16:01:00
 # =============================================================================
 
 from __future__ import annotations
@@ -517,9 +517,14 @@ class TelemetryAuditReaderMixin:
                     if only_internet and not is_ext:
                         continue
                     srv = s.get("service_type") or (_guess_service(rem) if rem else _guess_service(loc))
+                    sent_kb_val = float(s.get("sent_kb", 0.0) or 0.0)
+                    recv_kb_val = float(s.get("recv_kb", 0.0) or 0.0)
+                    sent_rate = float(s.get("write_speed_kbs") or d.get("write_bytes_sec") or 0.0)
+                    recv_rate = float(s.get("read_speed_kbs") or d.get("read_bytes_sec") or 0.0)
                     formatted.append({
                         "pid": int(d.get("pid") or 0),
                         "name": proc_n,
+                        "process_name": proc_n,
                         "user": user_n,
                         "local_address": loc,
                         "remote_address": rem,
@@ -527,12 +532,17 @@ class TelemetryAuditReaderMixin:
                         "status": s.get("status") or d.get("status") or "ESTABLISHED",
                         "is_internet": is_ext,
                         "service_type": srv,
-                        "sent_kb": float(s.get("sent_kb", 0.0) or 0.0),
-                        "recv_kb": float(s.get("recv_kb", 0.0) or 0.0),
+                        "service_name": srv,
+                        "sent_kb": sent_kb_val,
+                        "recv_kb": recv_kb_val,
+                        "bytes_sent": int(sent_kb_val * 1024),
+                        "bytes_recv": int(recv_kb_val * 1024),
                         "delta_sent_kb": 0.0,
                         "delta_recv_kb": 0.0,
-                        "sent_rate_kbs": float(s.get("write_speed_kbs") or d.get("write_bytes_sec") or 0.0),
-                        "recv_rate_kbs": float(s.get("read_speed_kbs") or d.get("read_bytes_sec") or 0.0),
+                        "send_rate_kb": sent_rate,
+                        "recv_rate_kb": recv_rate,
+                        "sent_rate_kbs": sent_rate,
+                        "recv_rate_kbs": recv_rate,
                         "sent_summary": f"{proc_n} -> {srv}",
                         "recv_summary": f"{srv} -> {proc_n}",
                     })

@@ -12,7 +12,7 @@
  * Package: windows/api/webgui/tab_system_inspector/panel_cpu
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 10:45:00
+ * Updated: 2026-11-01 16:10:00
  * =============================================================================
  */
 
@@ -132,10 +132,21 @@ export function updateCpuTelemetry(cpuData) {
 
   const pct = Number(cpuData.total_percent || 0);
   if (cpuVal) cpuVal.innerText = `${pct.toFixed(1)}%`;
-  if (cpuModel && cpuData.model) cpuModel.innerText = cpuData.model;
+  if (cpuModel && cpuData.name) {
+    cpuModel.innerText = cpuData.name;
+  } else if (cpuModel && cpuData.model && !cpuData.model.includes('Stepping') && (!cpuModel.innerText || cpuModel.innerText === '--')) {
+    cpuModel.innerText = cpuData.model;
+  }
   if (cpuFill) cpuFill.style.width = `${Math.min(100, pct)}%`;
-  if (cpuSub) cpuSub.innerText = `${cpuData.physical_cores || '--'} Физических / ${cpuData.logical_cores || '--'} Потоков`;
-  if (cpuGauge) cpuGauge.innerHTML = createGaugeSvg(pct, 130, 74);
+  if (cpuSub && (cpuData.physical_cores || cpuData.logical_cores)) {
+    cpuSub.innerText = `${cpuData.physical_cores || '--'} ядер • ${cpuData.logical_cores || '--'} потоков`;
+  }
+  if (cpuGauge) cpuGauge.innerHTML = createGaugeSvg(pct, 120, 68);
+
+  const kpiCores = document.getElementById('sys-cpu-kpi-cores');
+  if (kpiCores && (cpuData.physical_cores || cpuData.logical_cores)) {
+    kpiCores.innerText = `${cpuData.physical_cores || '--'}C / ${cpuData.logical_cores || '--'}T`;
+  }
 }
 
 /**

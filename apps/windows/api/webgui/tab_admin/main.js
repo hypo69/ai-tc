@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/tab_admin
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-03 15:56:00
  * =============================================================================
  */
 
@@ -109,7 +109,7 @@ async function rescanStorageDrives() {
 async function actualizeAiModels() {
   try {
     if (typeof showNotification === 'function') showNotification('Актуализация пула моделей ИИ...', 'info');
-    await window.api.fetch('/api/keys/actualize-all', { method: 'POST' }).catch(() => {});
+    await window.api.fetch('/api/v1/keys/actualize-all', { method: 'POST' }).catch(() => {});
     if (typeof showNotification === 'function') showNotification('Модели успешно синхронизированы', 'success');
     await refreshSystemDashboard();
   } catch (e) {

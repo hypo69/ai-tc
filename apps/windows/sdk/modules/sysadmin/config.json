@@ -21,9 +21,7 @@
   },
   "watch_directory": "C:\\Users\\onela\\AppData\\Local\\ai-tc",
   "watch_directories": [
-    "C:\\Users\\onela\\AppData\\Local\\ai-tc",
-    "C:\\Program Files",
-    "C:\\"
+    "C:\\Users\\onela\\AppData\\Local\\ai-tc"
   ],
   "exclusions": {
     "enabled": true,

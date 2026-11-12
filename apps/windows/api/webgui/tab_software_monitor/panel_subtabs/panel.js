@@ -4,16 +4,18 @@
  * =============================================================================
  * Description:
  *   Модуль координации и ленивой подгрузки разделов хаба ПО:
- *   инвентарь, пакеты WinGet, пакеты MSI, Microsoft Store, Ninite, спящие программы,
+ *   инвентарь, менеджер пакетов (WinGet, MSI, Store, Ninite), спящие программы,
  *   автозапуск, ИИ-аудит, ресурсоемкие процессы и сетевые сокеты
- *   с поддержкой URL-маршрутизации панелей (#tab-software-monitor#<panel_id>).
+ *   с поддержкой двухуровневой URL-маршрутизации:
+ *   - Панели Уровня 1: #tab-software-monitor#panel-<panel_id>
+ *   - Блоки Уровня 2: #tab-software-monitor#panel-packages#block-<block_id>
  *
  * File: panel_subtabs/panel.js
  * Project: ai-windows-admin
  * Package: apps/windows/api/webgui/tab_software_monitor/panel_subtabs
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 16:42:00
+ * Updated: 2026-11-12 02:25:00
  * =============================================================================
  */
 
@@ -50,11 +52,19 @@ export function isSoftwareMonitorTabActive() {
 /**
  * Нормализует строковый идентификатор субвкладки/панели к каноническому виду.
  * @param {string} rawId - Исходный идентификатор.
- * @returns {string} Канонический ID панели.
+ * @returns {string} Канонический ID панели ('inventory', 'packages', 'dormant', etc.).
  */
 export function normalizeSubTabId(rawId) {
   if (!rawId) return 'inventory';
-  const s = String(rawId).toLowerCase().trim().replace(/^#/, '').replace(/^subpane-sw-/, '').replace(/^subtab-sw-/, '').replace(/-btn$/, '');
+  const s = String(rawId)
+    .toLowerCase()
+    .trim()
+    .replace(/^#/, '')
+    .replace(/^panel-/, '')
+    .replace(/^subpane-sw-/, '')
+    .replace(/^subtab-sw-/, '')
+    .replace(/-btn$/, '');
+
   if (s.includes('invent') || s.includes('audit')) return 'inventory';
   if (s.includes('pack') || s.includes('winget') || s.includes('msi') || s.includes('store') || s.includes('ninite')) return 'packages';
   if (s.includes('orphan')) return 'orphans';
@@ -64,6 +74,46 @@ export function normalizeSubTabId(rawId) {
   if (s.includes('heavy') || s.includes('resource')) return 'heavy';
   if (s.includes('socket') || s.includes('port')) return 'sockets';
   return s || 'inventory';
+}
+
+/**
+ * Нормализует идентификатор блока внутри панели пакетов.
+ * @param {string} rawBlockId
+ * @param {string} [panelId='packages']
+ * @returns {string} Канонический ID блока ('block-winget', 'block-msi', 'block-store', 'block-ninite').
+ */
+export function normalizeBlockId(rawBlockId, panelId = 'packages') {
+  if (!rawBlockId) {
+    return 'block-winget';
+  }
+  const s = String(rawBlockId)
+    .toLowerCase()
+    .trim()
+    .replace(/^#/, '')
+    .replace(/^block-/, '')
+    .replace(/^sw-subtab-/, '')
+    .replace(/^sw-subpane-/, '')
+    .replace(/-btn$/, '');
+
+  if (s.includes('ninite')) return 'block-ninite';
+  if (s.includes('msi')) return 'block-msi';
+  if (s.includes('store') || s.includes('appx') || s.includes('msix')) return 'block-store';
+  if (s.includes('winget') || s.includes('pack')) return 'block-winget';
+  return `block-${s}`;
+}
+
+/**
+ * Возвращает идентификатор активного блока в панели пакетов.
+ * @param {string} [panelId='packages']
+ * @returns {string}
+ */
+export function getActiveBlockId(panelId = 'packages') {
+  const activeBtn = document.querySelector('#sw-packages-subtabs button.active');
+  if (activeBtn) {
+    const bId = activeBtn.getAttribute('data-block-id') || activeBtn.id;
+    if (bId) return normalizeBlockId(bId, panelId);
+  }
+  return 'block-winget';
 }
 
 /**
@@ -78,21 +128,63 @@ export function getPanelFromHash() {
   if (parts.length >= 2) {
     const mainPart = parts[0];
     if (mainPart === TAB_ID || mainPart === 'software-monitor' || mainPart === 'tab-software-scanner' || mainPart === 'software-scanner') {
-      return normalizeSubTabId(parts[1]);
+      const p1 = parts[1];
+      if (p1.startsWith('block-')) {
+        return 'packages';
+      }
+      return normalizeSubTabId(p1);
     }
   }
   return null;
 }
 
 /**
- * Обновляет URL hash активной суб-панелью (#tab-software-monitor#<panel_id>) без перезагрузки страницы.
- * @param {string} panelId - Идентификатор панели.
+ * Извлекает блок подменю (block-<id>) из URL hash.
+ * @param {string} [panelId='packages'] - Канонический ID панели
+ * @returns {string|null} ID блока или null
  */
-export function updateUrlWithPanel(panelId) {
+export function getBlockFromHash(panelId = 'packages') {
+  const hash = (typeof location !== 'undefined' ? location.hash : '') || '';
+  if (!hash) return null;
+  const cleanHash = hash.replace(/^#/, '');
+  const parts = cleanHash.split('#');
+
+  // 1. Поиск прямого сегмента block-*
+  const blockPart = parts.find((p) => p.startsWith('block-'));
+  if (blockPart) {
+    return normalizeBlockId(blockPart, panelId);
+  }
+
+  // 2. Проверка алиасов в URL хеше (например #tab-software-monitor#packages#ninite или #tab-software-monitor#panel-packages#ninite)
+  for (let i = 1; i < parts.length; i++) {
+    const part = parts[i].toLowerCase().trim().replace(/^panel-/, '');
+    if (part === 'ninite' || part === 'msi' || part === 'store' || part === 'winget') {
+      return normalizeBlockId(part, panelId);
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Обновляет URL hash активной суб-панелью и блоком (#tab-software-monitor#panel-<panel_id>[#block-<block_id>]) без перезагрузки страницы.
+ * @param {string} panelId - Идентификатор панели.
+ * @param {string|null} [blockId=null] - Идентификатор блока подменю.
+ */
+export function updateUrlWithPanel(panelId, blockId = null) {
   if (typeof history === 'undefined' || typeof location === 'undefined') return;
   const canonical = normalizeSubTabId(panelId);
   const search = location.search || '';
-  const newHash = `#${TAB_ID}#${canonical}`;
+
+  let blockSuffix = '';
+  if (canonical === 'packages') {
+    const effectiveBlock = blockId ? normalizeBlockId(blockId, canonical) : getActiveBlockId(canonical);
+    if (effectiveBlock) {
+      blockSuffix = `#${effectiveBlock}`;
+    }
+  }
+
+  const newHash = `#${TAB_ID}#panel-${canonical}${blockSuffix}`;
   if (location.hash !== newHash) {
     try {
       history.replaceState(null, null, `${location.pathname}${search}${newHash}`);
@@ -102,7 +194,7 @@ export function updateUrlWithPanel(panelId) {
 
 /**
  * Инициализирует конкретную субпанель по ее названию.
- * @param {string} subtabName - Название субпанели.
+ * @param {string} subtabName - Название субпанели или блока.
  */
 export async function triggerSubTabInit(subtabName) {
   const now = Date.now();
@@ -111,6 +203,7 @@ export async function triggerSubTabInit(subtabName) {
   }
   _lastTriggerTab = subtabName;
   _lastTriggerTime = now;
+
   if (subtabName === 'inventory' || subtabName === 'audit') {
     await loadSubPane(
       'sw-inventory-embed-container',
@@ -118,13 +211,13 @@ export async function triggerSubTabInit(subtabName) {
       '/html/tab_software_audit/main.js',
       'initSoftwareAuditTab'
     );
-  } else if (subtabName === 'packages' || subtabName === 'winget' || subtabName === 'manager') {
+  } else if (subtabName === 'packages' || subtabName === 'winget' || subtabName === 'manager' || subtabName === 'block-winget') {
     await initWingetPackagesPanel();
-  } else if (subtabName === 'msi') {
+  } else if (subtabName === 'msi' || subtabName === 'block-msi') {
     await initMsiPackagesPanel();
-  } else if (subtabName === 'store' || subtabName === 'msstore' || subtabName === 'microsoft-store') {
+  } else if (subtabName === 'store' || subtabName === 'msstore' || subtabName === 'microsoft-store' || subtabName === 'block-store') {
     await initStorePackagesPanel();
-  } else if (subtabName === 'ninite') {
+  } else if (subtabName === 'ninite' || subtabName === 'block-ninite') {
     await loadSubPane(
       'sw-ninite-embed-container',
       '/html/tab_ninite_updater/index.html',
@@ -168,11 +261,75 @@ export async function triggerSubTabInit(subtabName) {
 }
 
 /**
+ * Переключает активный блок внутри панели менеджера пакетов (WinGet, MSI, Store, Ninite).
+ * @param {string} panelId - Идентификатор панели ('packages')
+ * @param {string} rawBlockId - Идентификатор блока ('block-ninite', 'block-winget', etc.)
+ * @param {boolean} [updateUrl=true] - Обновлять ли URL hash
+ */
+export function switchSoftwareBlock(panelId, rawBlockId, updateUrl = true) {
+  const canonicalBlock = normalizeBlockId(rawBlockId, panelId);
+  let btnId = 'sw-subtab-winget-btn';
+  let targetSubtabInit = 'winget';
+
+  if (canonicalBlock === 'block-ninite') {
+    btnId = 'sw-subtab-ninite-btn';
+    targetSubtabInit = 'ninite';
+  } else if (canonicalBlock === 'block-msi') {
+    btnId = 'sw-subtab-msi-btn';
+    targetSubtabInit = 'msi';
+  } else if (canonicalBlock === 'block-store') {
+    btnId = 'sw-subtab-store-btn';
+    targetSubtabInit = 'store';
+  } else {
+    btnId = 'sw-subtab-winget-btn';
+    targetSubtabInit = 'winget';
+  }
+
+  const btn = document.getElementById(btnId);
+  if (btn) {
+    const nav = document.getElementById('sw-packages-subtabs');
+    if (nav) {
+      nav.querySelectorAll('.nav-link').forEach((b) => b.classList.remove('active'));
+    }
+    btn.classList.add('active');
+
+    const targetPaneSelector = btn.getAttribute('data-bs-target');
+    if (targetPaneSelector) {
+      const targetPane = document.querySelector(targetPaneSelector);
+      if (targetPane && targetPane.parentElement) {
+        targetPane.parentElement.querySelectorAll('.tab-pane').forEach((p) => p.classList.remove('show', 'active'));
+        targetPane.classList.add('show', 'active');
+      }
+    }
+
+    if (window.bootstrap && window.bootstrap.Tab) {
+      try {
+        const tabInst = window.bootstrap.Tab.getOrCreateInstance
+          ? window.bootstrap.Tab.getOrCreateInstance(btn)
+          : (window.bootstrap.Tab.getInstance(btn) || new window.bootstrap.Tab(btn));
+        tabInst?.show?.();
+      } catch (_) {}
+    }
+  }
+
+  triggerSubTabInit(targetSubtabInit);
+
+  if (updateUrl) {
+    updateUrlWithPanel('packages', canonicalBlock);
+  }
+}
+
+/**
  * Программное переключение между субвкладками хаба с обновлением URL.
  * @param {string} subtabName - Имя целевой субпанели.
+ * @param {string|boolean|null} [blockId=null] - Блок подменю или флаг updateUrl.
  * @param {boolean} [updateUrl=true] - Обновлять ли URL hash.
  */
-export function switchSoftwareSubTab(subtabName, updateUrl = true) {
+export function switchSoftwareSubTab(subtabName, blockId = null, updateUrl = true) {
+  if (typeof blockId === 'boolean') {
+    updateUrl = blockId;
+    blockId = null;
+  }
   const canonical = normalizeSubTabId(subtabName);
   let btnId = 'subtab-sw-inventory-btn';
   if (canonical === 'packages') {
@@ -193,87 +350,62 @@ export function switchSoftwareSubTab(subtabName, updateUrl = true) {
 
   const btn = document.getElementById(btnId);
   if (btn) {
+    const nav = document.getElementById('software-subtabs-nav');
+    if (nav) {
+      nav.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+    }
+    btn.classList.add('active');
+
+    const targetPaneId = `subpane-sw-${canonical}`;
+    const targetPane = document.getElementById(targetPaneId);
+    if (targetPane && targetPane.parentElement) {
+      targetPane.parentElement.querySelectorAll('.tab-pane').forEach((p) => p.classList.remove('show', 'active'));
+      targetPane.classList.add('show', 'active');
+    }
+
     if (window.bootstrap && window.bootstrap.Tab) {
-      new window.bootstrap.Tab(btn).show();
-    } else {
-      btn.click();
+      try {
+        const tabInst = window.bootstrap.Tab.getOrCreateInstance
+          ? window.bootstrap.Tab.getOrCreateInstance(btn)
+          : (window.bootstrap.Tab.getInstance(btn) || new window.bootstrap.Tab(btn));
+        tabInst?.show?.();
+      } catch (_) {}
     }
   }
 
-  if (updateUrl) {
-    updateUrlWithPanel(canonical);
+  // Если это панель пакетов (packages) или указан ninite / msi / store / winget
+  if (canonical === 'packages') {
+    let targetBlock = blockId;
+    if (!targetBlock) {
+      const s = String(subtabName).toLowerCase();
+      if (s.includes('ninite')) targetBlock = 'block-ninite';
+      else if (s.includes('msi')) targetBlock = 'block-msi';
+      else if (s.includes('store')) targetBlock = 'block-store';
+      else if (s.includes('winget')) targetBlock = 'block-winget';
+      else targetBlock = getBlockFromHash('packages');
+    }
+    targetBlock = normalizeBlockId(targetBlock, 'packages');
+    switchSoftwareBlock('packages', targetBlock, updateUrl);
+  } else {
+    triggerSubTabInit(canonical);
+    if (updateUrl) {
+      updateUrlWithPanel(canonical, null);
+    }
   }
-
-  // Обработка внутренних вкладок Ninite / WinGet / MSI / Store
-  if (subtabName === 'msi') {
-    setTimeout(() => {
-      const msiBtn = document.getElementById('sw-subtab-msi-btn');
-      if (msiBtn) {
-        if (window.bootstrap && window.bootstrap.Tab) {
-          new window.bootstrap.Tab(msiBtn).show();
-        } else {
-          msiBtn.click();
-        }
-      }
-      initMsiPackagesPanel();
-    }, 50);
-  } else if (subtabName === 'store' || subtabName === 'msstore') {
-    setTimeout(() => {
-      const storeBtn = document.getElementById('sw-subtab-store-btn');
-      if (storeBtn) {
-        if (window.bootstrap && window.bootstrap.Tab) {
-          new window.bootstrap.Tab(storeBtn).show();
-        } else {
-          storeBtn.click();
-        }
-      }
-      initStorePackagesPanel();
-    }, 50);
-  } else if (subtabName === 'ninite') {
-    setTimeout(() => {
-      const niniteBtn = document.getElementById('sw-subtab-ninite-btn');
-      if (niniteBtn) {
-        if (window.bootstrap && window.bootstrap.Tab) {
-          new window.bootstrap.Tab(niniteBtn).show();
-        } else {
-          niniteBtn.click();
-        }
-      }
-      triggerSubTabInit('ninite');
-    }, 50);
-  } else if (subtabName === 'packages' || subtabName === 'winget') {
-    setTimeout(() => {
-      const wingetBtn = document.getElementById('sw-subtab-winget-btn');
-      if (wingetBtn) {
-        if (window.bootstrap && window.bootstrap.Tab) {
-          new window.bootstrap.Tab(wingetBtn).show();
-        } else {
-          wingetBtn.click();
-        }
-      }
-      initWingetPackagesPanel();
-    }, 50);
-  }
-
-  triggerSubTabInit(subtabName);
 }
 
 /**
- * Настройка обработчиков переключения субвкладок.
+ * Настройка обработчиков переключения субвкладок и блоков.
  */
 export function setupSubTabNavigation() {
   const bindTabBtn = (btnId, name) => {
     const btn = document.getElementById(btnId);
     if (!btn) return;
     btn.addEventListener('shown.bs.tab', () => {
-      updateUrlWithPanel(name);
-      triggerSubTabInit(name);
+      switchSoftwareSubTab(name, null, true);
     });
     btn.addEventListener('click', () => {
-      updateUrlWithPanel(name);
-      if (!window.bootstrap || !window.bootstrap.Tab) {
-        triggerSubTabInit(name);
-      }
+      switchSoftwareSubTab(name, null, true);
     });
   };
 
@@ -286,8 +418,31 @@ export function setupSubTabNavigation() {
   bindTabBtn('subtab-sw-heavy-btn', 'heavy');
   bindTabBtn('subtab-sw-sockets-btn', 'sockets');
 
-  bindTabBtn('sw-subtab-winget-btn', 'winget');
-  bindTabBtn('sw-subtab-msi-btn', 'msi');
-  bindTabBtn('sw-subtab-store-btn', 'store');
-  bindTabBtn('sw-subtab-ninite-btn', 'ninite');
+  const bindBlockBtn = (btnId, blockId) => {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.addEventListener('shown.bs.tab', () => {
+      switchSoftwareBlock('packages', blockId, true);
+    });
+    btn.addEventListener('click', () => {
+      switchSoftwareBlock('packages', blockId, true);
+    });
+  };
+
+  bindBlockBtn('sw-subtab-winget-btn', 'block-winget');
+  bindBlockBtn('sw-subtab-msi-btn', 'block-msi');
+  bindBlockBtn('sw-subtab-store-btn', 'block-store');
+  bindBlockBtn('sw-subtab-ninite-btn', 'block-ninite');
+}
+
+// Экспорт методов в глобальную область window
+if (typeof window !== 'undefined') {
+  window.switchSoftwareSubTab = switchSoftwareSubTab;
+  window.switchSoftwareBlock = switchSoftwareBlock;
+  window.getSoftwarePanelFromHash = getPanelFromHash;
+  window.getSoftwareBlockFromHash = getBlockFromHash;
+  window.getActiveSoftwareBlockId = getActiveBlockId;
+  window.updateSoftwareUrlWithPanel = updateUrlWithPanel;
+  window.normalizeSoftwareSubTabId = normalizeSubTabId;
+  window.normalizeSoftwareBlockId = normalizeBlockId;
 }

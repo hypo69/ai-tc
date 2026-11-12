@@ -15,7 +15,7 @@
 # Package: apps.windows.ai_instruments.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 18:58:00
+# Updated: 2026-11-01 17:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -257,6 +257,95 @@ async def test_register_database_instruments_in_registry(service: AIInstrumentsS
     res = await tool.execute()
     assert res.status in ("ok", "warn")
     assert res.tool_name == "inst_powershell_process_tracker"
+
+
+def test_export_and_import_csv(service: AIInstrumentsService, tmp_path) -> None:
+    """Проверка экспорта и импорта каталога инструментов через CSV (src.utils.csv)."""
+    service.save_instrument(
+        AIInstrumentCreate(
+            tool_id="inst_csv_test_1",
+            name="Экспорт Тест 1",
+            tool_type="powershell",
+            command="Get-Service -Name Spooler",
+            description="Проверка службы печати",
+            target_entity="service",
+            risk_level="safe",
+            tags=["#agent_tool", "#csv_test"],
+        )
+    )
+    service.save_instrument(
+        AIInstrumentCreate(
+            tool_id="inst_csv_test_2",
+            name="Экспорт Тест 2",
+            tool_type="cmd",
+            command="ipconfig /all",
+            description="Сетевые интерфейсы",
+            target_entity="network",
+            risk_level="safe",
+            tags=["#network"],
+        )
+    )
+
+    csv_file = tmp_path / "instruments_export.csv"
+    exported_count = service.export_to_csv(csv_file)
+    assert exported_count == 2
+    assert csv_file.exists()
+
+    # Импорт в чистую базу данных
+    target_service = AIInstrumentsService(storage=AIInstrumentsStorage(":memory:"))
+    imported_items = target_service.import_from_csv(csv_file)
+    assert len(imported_items) == 2
+
+    item1 = target_service.get_instrument("inst_csv_test_1")
+    assert item1 is not None
+    assert item1.name == "Экспорт Тест 1"
+    assert item1.command == "Get-Service -Name Spooler"
+    assert "#csv_test" in item1.tags
+
+
+def test_router_csv_export_and_import_endpoints(service: AIInstrumentsService) -> None:
+    """Проверка REST API эндпоинтов /api/v1/ai-instruments/export/csv и /import/csv."""
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from apps.windows.api.routers.router_ai_instruments import init_router
+
+    app = FastAPI()
+    app.include_router(init_router(service=service))
+    client = TestClient(app)
+
+    client.post(
+        "/api/v1/ai-instruments/save",
+        json={
+            "tool_id": "inst_api_csv_1",
+            "name": "CSV API Инструмент",
+            "tool_type": "powershell",
+            "command": "Get-Date",
+            "description": "Проверка CSV API",
+            "target_entity": "system",
+        },
+    )
+
+    export_resp = client.get("/api/v1/ai-instruments/export/csv")
+    assert export_resp.status_code == 200
+    assert "text/csv" in export_resp.headers["content-type"]
+    csv_text = export_resp.text
+    assert "inst_api_csv_1" in csv_text
+    assert "CSV API Инструмент" in csv_text
+
+    # Удаляем инструмент и восстанавливаем через импорт CSV
+    client.delete("/api/v1/ai-instruments/inst_api_csv_1")
+    assert service.get_instrument("inst_api_csv_1") is None
+
+    import_resp = client.post(
+        "/api/v1/ai-instruments/import/csv",
+        json={"csv_content": csv_text},
+    )
+    assert import_resp.status_code == 200
+    data = import_resp.json()
+    assert data["success"] is True
+    assert data["imported_count"] >= 1
+    assert service.get_instrument("inst_api_csv_1") is not None
+
 
 
 

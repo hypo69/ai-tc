@@ -27,11 +27,12 @@ from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parents[1]
 _WEBGUI_DIR = _ROOT / "apps" / "windows" / "api" / "webgui"
+_COMMON_WEBGUI_DIR = _ROOT / "apps" / "common" / "webgui"
 
 
 def test_table_resizer_js_exists():
     """Проверка существования и содержимого универсального скрипта table-resizer.js."""
-    script_path = _WEBGUI_DIR / "js" / "table-resizer.js"
+    script_path = (_COMMON_WEBGUI_DIR / "js" / "table-resizer.js") if (_COMMON_WEBGUI_DIR / "js" / "table-resizer.js").exists() else (_WEBGUI_DIR / "js" / "table-resizer.js")
     assert script_path.exists(), f"Файл {script_path} должен существовать"
     content = script_path.read_text(encoding="utf-8")
     assert "class TableResizerInstance" in content
@@ -44,7 +45,7 @@ def test_table_resizer_js_exists():
 
 def test_components_css_has_resizer_and_expand_styles():
     """Проверка наличия стилей .sys-table-resizer и .btn-table-expand-100 в components.css."""
-    css_path = _WEBGUI_DIR / "css" / "components.css"
+    css_path = (_COMMON_WEBGUI_DIR / "css" / "components.css") if (_COMMON_WEBGUI_DIR / "css" / "components.css").exists() else (_WEBGUI_DIR / "css" / "components.css")
     assert css_path.exists(), f"Файл {css_path} должен существовать"
     content = css_path.read_text(encoding="utf-8")
     assert ".sys-table-resizer" in content

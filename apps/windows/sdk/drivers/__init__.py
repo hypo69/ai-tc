@@ -16,17 +16,40 @@
 # Package: apps.windows.sdk.drivers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-01 14:40:00
 # =============================================================================
 
 from __future__ import annotations
-"""# Description:"""
+"""Подсистема драйверов Windows: GPU-драйверы, системные драйверы ядра, минифильтры и механизмы защиты."""
 
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from logger import logger
+
+from apps.windows.sdk.modules.kernel_protection.core.driver_inventory import (
+    DriverInventoryManager,
+    KNOWN_PROTECTION_DRIVERS,
+)
+from apps.windows.sdk.modules.kernel_protection.core.models import (
+    BlockerCulpritType,
+    BlockerFinding,
+    BlockerInvestigationRequest,
+    BlockerTargetType,
+    BlockerVerdict,
+    ComponentCriticality,
+    DriverCategory,
+    KernelProtectionReport,
+    MinifilterInfo,
+    ProtectionMechanismStatus,
+    SafeOpsActionRequest,
+    SafeOpsActionResult,
+    SystemDriverInfo,
+)
+from apps.windows.sdk.modules.kernel_protection.core.protection_mechanisms import ProtectionMechanismsAuditor
+from apps.windows.sdk.modules.kernel_protection.core.blocker_detector import OperationBlockerDetector
+from apps.windows.sdk.modules.kernel_protection.core.safe_ops import KernelSafeOpsManager
 
 
 class VendorType(str, Enum):
@@ -196,5 +219,23 @@ __all__ = [
     'NvidiaCatalogManager',
     'AmdCatalogManager',
     'DriverDownloader',
+    'DriverInventoryManager',
+    'KNOWN_PROTECTION_DRIVERS',
+    'ProtectionMechanismsAuditor',
+    'OperationBlockerDetector',
+    'KernelSafeOpsManager',
+    'DriverCategory',
+    'ComponentCriticality',
+    'SystemDriverInfo',
+    'MinifilterInfo',
+    'ProtectionMechanismStatus',
+    'BlockerTargetType',
+    'BlockerCulpritType',
+    'BlockerFinding',
+    'BlockerInvestigationRequest',
+    'BlockerVerdict',
+    'SafeOpsActionRequest',
+    'SafeOpsActionResult',
+    'KernelProtectionReport',
 ]
 

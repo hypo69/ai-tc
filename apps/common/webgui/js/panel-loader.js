@@ -22,7 +22,7 @@
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 18:15:00
+ * Updated: 2026-11-01 17:30:00
  * =============================================================================
  */
 
@@ -125,11 +125,14 @@ export function registerPanelRenderer(panelId, renderFn) {
 export function initPanels(container = document) {
   if (!container || typeof container.querySelectorAll !== 'function') return;
 
-  // Если весь переданный контейнер - вкладка "О системе", "Инспектор процессов" или "System Logs", пропускаем целиком
+  // Если весь переданный контейнер обслуживается собственным специализированным API, пропускаем его целиком
   if (container.id === 'tab-about-system' || (container.classList && container.classList.contains('about-sys-wrapper')) ||
       container.id === 'tab-processes-load-inspector' || (container.classList && container.classList.contains('sys-container')) ||
-      container.id === 'tab-system-control' || (container.classList && container.classList.contains('slc-container')) ||
-      container.querySelector?.('#processes-subtabs-nav') || container.querySelector?.('#slc-source-tabs')) {
+      container.id === 'tab-system-control' || (container.classList && (container.classList.contains('slc-container') || container.classList.contains('scc-container'))) ||
+      container.id === 'tab-user-environment' || container.id === 'tab-user-enviroment' || (container.classList && container.classList.contains('user-environment-tab-wrapper')) ||
+      container.id === 'tab-windows-admin' || (container.classList && container.classList.contains('windows-admin-tab-wrapper')) || container.id === 'windows-admin-root' ||
+      container.id === 'tab-taskbar' || container.id === 'tab-taskbar-controller' || (container.classList && container.classList.contains('taskbar-tab-wrapper')) ||
+      container.querySelector?.('#processes-subtabs-nav') || container.querySelector?.('#slc-source-tabs') || container.querySelector?.('#userEnvSubTabs') || container.querySelector?.('#winadmin-subtabs')) {
     return;
   }
 
@@ -137,22 +140,46 @@ export function initPanels(container = document) {
   const processedIds = new Set();
 
   elements.forEach((el) => {
-    // Панели вкладки "О системе", "Инспектор процессов" и "System Control" не опрашивают универсальный SQL API
+    // Панели вкладок со своим специализированным контроллером не опрашивают универсальный SQL API
     if (el.closest('#tab-about-system') || el.closest('.about-sys-wrapper') ||
         el.closest('#tab-processes-load-inspector') || el.closest('#processes-load-inspector-container') ||
-        el.closest('#tab-system-control') || el.closest('.slc-container')) {
+        el.closest('#tab-system-control') || el.closest('.slc-container') || el.closest('.scc-container') ||
+        el.closest('#tab-user-environment') || el.closest('#tab-user-enviroment') || el.closest('.user-environment-tab-wrapper') ||
+        el.closest('#tab-windows-admin') || el.closest('#windows-admin-root') || el.closest('.winadmin-panel') ||
+        el.closest('#tab-taskbar') || el.closest('#tab-taskbar-controller') || el.closest('.taskbar-tab-wrapper')) {
       return;
     }
 
     // Если элемент находится в неактивной вкладке, не запрашиваем его
     const tabPane = el.closest('.tab-pane');
-    if (tabPane && !tabPane.classList.contains('active')) {
-      return;
+    if (tabPane) {
+      if (typeof window.isTabActive === 'function' && !window.isTabActive(tabPane.id)) {
+        return;
+      }
+      if (!tabPane.classList.contains('active')) {
+        return;
+      }
     }
 
     const panelId = el.getAttribute('data-panel-id') || el.id;
-    if (panelId && (panelId.startsWith('panel-about-') || panelId.startsWith('about_system-') || panelId.startsWith('panel-system-'))) {
+    if (panelId && (
+      panelId.startsWith('panel-about-') ||
+      panelId.startsWith('about_system-') ||
+      panelId.startsWith('panel-system-') ||
+      panelId.startsWith('panel-slc-') ||
+      panelId.startsWith('panel-throttling-') ||
+      panelId.startsWith('panel-winadmin-') ||
+      panelId.startsWith('panel-taskbar-') ||
+      panelId.startsWith('panel-ue-')
+    )) {
       return;
+    }
+
+    // Проверка активности суб-панели по URL (#tab-xxx#panel-yyy)
+    if (tabPane && typeof window.isPanelActive === 'function') {
+      if (!window.isPanelActive(tabPane.id, panelId)) {
+        return;
+      }
     }
 
     if (panelId && !processedIds.has(panelId)) {

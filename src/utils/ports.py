@@ -14,7 +14,7 @@
 #        dynamic_ports или занятости назначенного статического порта автоматически находит
 #        и выделяет свободный TCP-порт в операционной системе.
 #     4. Оркестрация микросервисов и AI-сред: координирует сетевые адреса для основного сервера,
-#        автономных доменных приложений (/apps/windows, network_terminal, system_inspector)
+#        автономных доменных приложений (/apps/ai_assistant, network_terminal, system_inspector)
 #        и локальных сред инференса LLM.
 #
 # Usage Examples:
@@ -34,7 +34,7 @@
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 14:40:00
 # =============================================================================
 
 from __future__ import annotations

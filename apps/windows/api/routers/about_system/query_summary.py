@@ -11,7 +11,7 @@
 # Package: apps.windows.api.routers.about_system
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 19:05:00
+# Updated: 2026-11-03 14:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -195,16 +195,35 @@ async def query_system_summary_full(storage: TelemetryStorage, process_limit: in
             "write_count_per_sec": float(snap.get("disk_write_count_sec") or 0.0),
         }
 
-    # 7. Мониторы - строго из инвентаря БД
-    if not snap.get("monitors"):
-        try:
-            snap["monitors"] = storage.get_monitor_inventory() or []
-        except Exception:
-            snap["monitors"] = []
+    # 7. Мониторы - приоритетно из аппаратного инвентаря БД (hardware_components)
+    inv_monitors: List[Dict[str, Any]] = []
+    try:
+        inv_monitors = storage.get_monitor_inventory() or []
+    except Exception as ex:
+        logger.debug(f"[query_summary] Ошибка получения инвентаря мониторов: {ex}")
+
+    valid_inv = [
+        m for m in inv_monitors
+        if isinstance(m, dict) and m.get("device") and "windisc" not in str(m.get("device")).lower()
+    ]
+
+    snap_monitors = [
+        m for m in (snap.get("monitors") or [])
+        if isinstance(m, dict) and m.get("device") and "windisc" not in str(m.get("device")).lower()
+    ]
+
+    # Инвентарь hardware_components содержит наиболее полные спецификации дисплеев
+    if valid_inv:
+        snap["monitors"] = valid_inv
+    elif snap_monitors:
+        snap["monitors"] = snap_monitors
+    elif inv_monitors:
+        snap["monitors"] = inv_monitors
+    else:
+        snap["monitors"] = []
 
     # Обогащаем дисплеи детальными именами EDID и атрибутами из инвентаря оборудования
     try:
-        inv_monitors = storage.get_monitor_inventory() or []
         if inv_monitors:
             inv_map = {m.get("device"): m for m in inv_monitors if m.get("device")}
             for m in snap.get("monitors", []):
@@ -219,6 +238,8 @@ async def query_system_summary_full(storage: TelemetryStorage, process_limit: in
                         m["serial_number"] = inv_item["serial_number"]
                     if inv_item.get("production_date") and not m.get("production_date"):
                         m["production_date"] = inv_item["production_date"]
+                    if inv_item.get("adapter") and not m.get("adapter"):
+                        m["adapter"] = inv_item["adapter"]
     except Exception as ex:
         logger.debug(f"[query_summary] Ошибка обогащения мониторов: {ex}")
 

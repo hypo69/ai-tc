@@ -7,19 +7,19 @@
  *
  * Usage Examples:
  *   HTML Link Tag:
- *     <link rel="stylesheet" href="/windows/api/webgui/css/nav.css?v=20261001_v1">
+ *     <link rel="stylesheet" href="/apps/common/webgui/css/nav.css?v=20261001_v1">
  *
  * File: nav.css
- * Project: ai-windows-admin
- * Package: windows/api/webgui/css
+ * Project: ai-assistant
+ * Package: apps/common/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-21 01:09:00
+ * Updated: 2026-11-01 17:37:00
  * =============================================================================
  */
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   NAVIGATION — AI Windows Admin WebGUI
+   NAVIGATION — AI-Assistant WebGUI
    Главная панель навигации, вкладки, выпадающие меню и элементы управления
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -28,12 +28,22 @@
   background-color: var(--nav-bg);
   border-bottom: 1px solid var(--border-color);
   min-height: 34px;
-  position: sticky;
-  top: 0;
-  z-index: 1020;
-  overflow: visible !important;
-  box-shadow: var(--shadow-xs);
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
+
+/* ── Ссылка брендинга и логотипа приложения ───────────────────────────────── */
+#app-brand-link {
+  transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+#app-brand-link:hover {
+  opacity: 0.85;
+  text-decoration: none;
+}
+
 
 .nav-tabs {
   border-bottom: none;
@@ -44,13 +54,11 @@
 
 .nav-tabs .nav-item {
   flex-shrink: 0;
-  position: sticky;
-  top: 0;
+  position: relative;
 }
 
 .nav-tabs .nav-item.dropdown {
-  position: sticky;
-  top: 0;
+  position: relative;
 }
 
 /* Nav-links — компактные */
@@ -408,3 +416,733 @@
 }
 
 
+
+
+/* ── RTL поддержка для выдвижного меню (Offcanvas Drawer справа) ─────────────── */
+[dir="rtl"] .left-drawer-nav,
+html[dir="rtl"] .left-drawer-nav,
+body[dir="rtl"] .left-drawer-nav {
+  right: 0 !important;
+  left: auto !important;
+  border-right: none !important;
+  border-left: 1px solid var(--border-color) !important;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Гарантированное скрытие и выезд справа для RTL при наличии класса offcanvas-start */
+[dir="rtl"] .left-drawer-nav.offcanvas-start:not(.show),
+html[dir="rtl"] .left-drawer-nav.offcanvas-start:not(.show),
+body[dir="rtl"] .left-drawer-nav.offcanvas-start:not(.show) {
+  right: 0 !important;
+  left: auto !important;
+  transform: translateX(100%) !important;
+}
+
+[dir="rtl"] .left-drawer-nav.offcanvas-start.showing,
+[dir="rtl"] .left-drawer-nav.offcanvas-start.show:not(.hiding),
+html[dir="rtl"] .left-drawer-nav.offcanvas-start.showing,
+html[dir="rtl"] .left-drawer-nav.offcanvas-start.show:not(.hiding),
+body[dir="rtl"] .left-drawer-nav.offcanvas-start.showing,
+body[dir="rtl"] .left-drawer-nav.offcanvas-start.show:not(.hiding) {
+  transform: none !important;
+}
+
+[dir="rtl"] .left-drawer-nav.offcanvas-start.hiding,
+html[dir="rtl"] .left-drawer-nav.offcanvas-start.hiding,
+body[dir="rtl"] .left-drawer-nav.offcanvas-start.hiding {
+  transform: translateX(100%) !important;
+}
+
+/* Выравнивание элементов шапки меню при RTL */
+[dir="rtl"] .left-drawer-nav .offcanvas-header,
+html[dir="rtl"] .left-drawer-nav .offcanvas-header {
+  flex-direction: row-reverse;
+}
+
+/* Корректировка плавающего ярлычка при RTL */
+[dir="rtl"] .left-drawer-tab-trigger,
+html[dir="rtl"] .left-drawer-tab-trigger,
+body[dir="rtl"] .left-drawer-tab-trigger {
+  right: 0 !important;
+  left: auto !important;
+  border-left: 1px solid var(--border-color) !important;
+  border-right: none !important;
+  border-radius: 6px 0 0 6px !important;
+}
+
+[dir="rtl"] .left-drawer-tab-trigger:hover,
+html[dir="rtl"] .left-drawer-tab-trigger:hover,
+body[dir="rtl"] .left-drawer-tab-trigger:hover {
+  padding-right: 3px !important;
+  padding-left: 6px !important;
+}
+
+/* Корректировка смещения пунктов меню при наведении курсора в RTL */
+[dir="rtl"] .left-drawer-nav .list-group-item:hover,
+html[dir="rtl"] .left-drawer-nav .list-group-item:hover,
+body[dir="rtl"] .left-drawer-nav .list-group-item:hover {
+  transform: translateX(-2px);
+}
+
+
+/* ── Вертикальная панель навигации в стиле стандартных IDE (Activity Bar) ── */
+.ide-activity-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 48px;
+  background-color: var(--surface-1);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  z-index: 1045;
+  user-select: none;
+  box-shadow: var(--shadow-sm);
+  transition: width 0.2s ease, background-color 0.2s ease;
+}
+
+.ide-activity-top,
+.ide-activity-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.ide-activity-item {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--nav-text);
+  background: transparent;
+  border: none;
+  font-size: 1.15rem;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+  text-decoration: none;
+  padding: 0;
+}
+
+.ide-activity-item:hover {
+  color: var(--nav-active);
+  background-color: var(--nav-hover-bg);
+}
+
+.ide-activity-item.active {
+  color: var(--nav-active);
+  background-color: var(--surface-2);
+}
+
+.ide-activity-item.active::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 7px;
+  bottom: 7px;
+  width: 3px;
+  background-color: var(--nav-active);
+  border-radius: 0 2px 2px 0;
+}
+
+.ide-activity-divider {
+  width: 24px;
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 3px 0;
+}
+
+.ide-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  border: 1px solid var(--surface-1);
+}
+
+
+
+@media (max-width: 576px) {
+  .ide-activity-bar {
+    width: 40px;
+  }
+  .ide-activity-item {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+  .ide-main-viewport {
+    margin-left: 40px;
+  }
+}
+
+/* Скрытие устаревшего плавающего ярлычка при наличии Activity Bar навигации */
+.left-drawer-tab-trigger {
+  display: none !important;
+}
+
+/* ── Стили навигатора файлов как в VS Code (Primary Side Bar Explorer) ── */
+.ide-file-sidebar {
+  position: fixed;
+  top: 38px;
+  left: 48px;
+  bottom: 0;
+  width: 260px;
+  background-color: var(--surface-1);
+  border-right: 1px solid var(--border-color);
+  z-index: 1030;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), width 0.2s ease;
+  user-select: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.ide-file-sidebar.collapsed {
+  transform: translateX(-260px);
+  width: 0;
+  pointer-events: none;
+}
+
+/* Кнопка быстрого разворачивания свернутой боковой панели */
+.ide-file-sidebar-expand-btn {
+  position: fixed;
+  top: 50%;
+  left: 48px;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 48px;
+  background-color: var(--surface-1);
+  border: 1px solid var(--border-color);
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  z-index: 1029;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s ease-in-out;
+  padding: 0;
+}
+
+.ide-file-sidebar-expand-btn:hover {
+  background-color: var(--surface-2);
+  color: var(--primary-color);
+  width: 20px;
+}
+
+.ide-tree-external-item {
+  position: relative;
+}
+
+.ide-tree-external-item .ide-tree-icon {
+  filter: drop-shadow(0 0 1px var(--primary-color));
+}
+
+/* ── Адаптивный вьюпорт IDE (гарантирует, что контент никогда не вылезает за правый край) ── */
+.ide-main-viewport {
+  margin-left: 308px !important;
+  width: calc(100% - 308px) !important;
+  max-width: calc(100% - 308px) !important;
+  min-height: 100vh;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  padding-left: 12px;
+  padding-right: 12px;
+  transition: margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1), margin-right 0.2s cubic-bezier(0.4, 0, 0.2, 1), width 0.2s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ide-main-viewport.sidebar-collapsed {
+  margin-left: 48px !important;
+  width: calc(100% - 48px) !important;
+  max-width: calc(100% - 48px) !important;
+}
+
+@media (max-width: 992px) {
+  .ide-file-sidebar {
+    width: 230px;
+  }
+  .ide-main-viewport {
+    margin-left: 278px !important;
+    width: calc(100% - 278px) !important;
+    max-width: calc(100% - 278px) !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .ide-activity-bar {
+    width: 40px;
+  }
+  .ide-activity-item {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+  .ide-file-sidebar {
+    left: 40px;
+    width: 200px;
+  }
+  .ide-main-viewport {
+    margin-left: 240px !important;
+    width: calc(100% - 240px) !important;
+    max-width: calc(100% - 240px) !important;
+  }
+  .ide-main-viewport.sidebar-collapsed {
+    margin-left: 40px !important;
+    width: calc(100% - 40px) !important;
+    max-width: calc(100% - 40px) !important;
+  }
+}
+
+.ide-explorer-header {
+  height: 35px;
+  min-height: 35px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  background-color: var(--surface-2);
+}
+
+.ide-explorer-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ide-explorer-btn-icon {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.ide-explorer-btn-icon:hover {
+  color: var(--nav-active);
+  background-color: var(--nav-hover-bg);
+}
+
+.ide-explorer-section-title {
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  background-color: var(--surface-2);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-color);
+}
+
+.ide-tree-view {
+  overflow-y: auto;
+  flex-grow: 1;
+  font-size: 0.82rem;
+  padding: 4px 0;
+}
+
+.ide-tree-item {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  cursor: pointer;
+  color: var(--text-color);
+  padding-right: 8px;
+  border-radius: 4px;
+  margin: 1px 4px;
+  white-space: nowrap;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.ide-tree-item:hover {
+  background-color: var(--nav-hover-bg);
+  color: var(--nav-active);
+}
+
+.ide-tree-item.active {
+  background-color: var(--surface-2);
+  color: var(--nav-active);
+  font-weight: 600;
+}
+
+.ide-tree-chevron {
+  width: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-right: 2px;
+}
+
+.ide-tree-icon {
+  margin-right: 6px;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.ide-tree-label {
+  font-size: 0.82rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ide-git-tag {
+  font-size: 0.65rem;
+  margin-left: 4px;
+}
+
+/* ── Верхнее Command Center окно поиска по рабочей области в стиле VS Code ── */
+.ide-command-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  max-width: 520px;
+  position: relative;
+}
+
+.ide-search-box-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+}
+
+.ide-command-search-group {
+  border-radius: 6px;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border-color);
+  transition: all 0.15s ease;
+  overflow: hidden;
+}
+
+.ide-command-search-group:focus-within {
+  border-color: var(--accent-primary, #0d6efd);
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
+}
+
+.ide-command-search-input {
+  font-size: 0.82rem;
+  background-color: transparent !important;
+  color: var(--text-color);
+  border: none !important;
+  box-shadow: none !important;
+  height: 28px;
+}
+
+.ide-command-search-input::placeholder {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.ide-search-clear-btn {
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
+
+.ide-search-clear-btn:hover {
+  color: var(--danger, #dc3545) !important;
+}
+
+.ide-search-results-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: var(--surface-1);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  z-index: 1060;
+  max-height: 380px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ide-search-results-list {
+  overflow-y: auto;
+  max-height: 340px;
+}
+
+.ide-search-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  color: var(--text-color);
+  text-decoration: none;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle, rgba(128, 128, 128, 0.15));
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+.ide-search-item:hover,
+.ide-search-item.active,
+.ide-search-item:focus {
+  background-color: var(--nav-hover-bg, rgba(13, 110, 253, 0.1));
+  color: var(--nav-active, #0d6efd);
+  outline: none;
+}
+
+.ide-search-item-match {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.ide-command-center-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 14px;
+  border-radius: 6px;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  font-size: 0.82rem;
+  cursor: pointer;
+  width: 100%;
+  max-width: 380px;
+  transition: all 0.15s ease;
+}
+
+.ide-command-center-btn:hover {
+  background-color: var(--nav-hover-bg);
+  border-color: var(--nav-active);
+  color: var(--nav-active);
+}
+
+@media (max-width: 768px) {
+  .ide-file-sidebar {
+    width: 220px;
+  }
+  .ide-main-viewport {
+    margin-left: 268px !important;
+  }
+  .ide-command-center {
+    max-width: 240px;
+  }
+}
+
+
+/* ── Боковая панель расширений и маркетплейса IDE (VS Code Extensions View) ── */
+.ide-extensions-sidebar-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.ide-ext-search-container {
+  padding: 8px 10px;
+  background-color: var(--surface-1);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.ide-ext-search-input {
+  background-color: var(--surface-2) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color) !important;
+  font-size: 0.8rem !important;
+}
+
+.ide-ext-search-input:focus {
+  border-color: var(--nav-active) !important;
+  box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.2) !important;
+}
+
+.ide-ext-list-container {
+  overflow-y: auto;
+  flex-grow: 1;
+  padding: 4px 6px;
+}
+
+.ide-ext-section-header {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 6px 6px 2px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ide-ext-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  background-color: var(--surface-1);
+  border: 1px solid var(--border-color);
+  transition: all 0.12s ease;
+  user-select: none;
+}
+
+.ide-ext-card:hover {
+  background-color: var(--nav-hover-bg);
+  border-color: var(--nav-active);
+}
+
+.ide-ext-card-icon {
+  font-size: 1.4rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background-color: var(--surface-2);
+  flex-shrink: 0;
+}
+
+.ide-ext-card-body {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.ide-ext-card-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-color);
+  line-height: 1.2;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ide-ext-card-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.ide-ext-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.ide-ext-btn-install {
+  font-size: 0.72rem !important;
+  padding: 2px 8px !important;
+  border-radius: 4px !important;
+  font-weight: 500 !important;
+}
+
+/* ── RTL адаптация Activity Bar, Sidebar и Viewport (VS Code / JetBrains Activity Bar) ── */
+[dir="rtl"] .ide-activity-bar,
+html[dir="rtl"] .ide-activity-bar,
+body[dir="rtl"] .ide-activity-bar {
+  right: 0 !important;
+  left: auto !important;
+  border-left: 1px solid var(--border-color) !important;
+  border-right: none !important;
+}
+
+[dir="rtl"] .ide-activity-item.active::before,
+html[dir="rtl"] .ide-activity-item.active::before,
+body[dir="rtl"] .ide-activity-item.active::before {
+  right: -5px !important;
+  left: auto !important;
+  border-radius: 2px 0 0 2px !important;
+}
+
+[dir="rtl"] .ide-file-sidebar,
+html[dir="rtl"] .ide-file-sidebar,
+body[dir="rtl"] .ide-file-sidebar {
+  right: 48px !important;
+  left: auto !important;
+  border-left: 1px solid var(--border-color) !important;
+  border-right: none !important;
+}
+
+[dir="rtl"] .ide-file-sidebar.collapsed,
+html[dir="rtl"] .ide-file-sidebar.collapsed,
+body[dir="rtl"] .ide-file-sidebar.collapsed {
+  transform: translateX(260px) !important;
+  width: 0 !important;
+  pointer-events: none !important;
+}
+
+[dir="rtl"] .ide-file-sidebar-expand-btn,
+html[dir="rtl"] .ide-file-sidebar-expand-btn,
+body[dir="rtl"] .ide-file-sidebar-expand-btn {
+  left: auto !important;
+  right: 48px !important;
+  border-left: 1px solid var(--border-color) !important;
+  border-right: none !important;
+  border-radius: 6px 0 0 6px !important;
+}
+
+[dir="rtl"] .ide-file-sidebar-expand-btn i,
+html[dir="rtl"] .ide-file-sidebar-expand-btn i,
+body[dir="rtl"] .ide-file-sidebar-expand-btn i {
+  transform: rotate(180deg) !important;
+}
+
+[dir="rtl"] .ide-main-viewport,
+html[dir="rtl"] .ide-main-viewport,
+body[dir="rtl"] .ide-main-viewport {
+  margin-right: 308px !important;
+  margin-left: 0 !important;
+  width: calc(100% - 308px) !important;
+  max-width: calc(100% - 308px) !important;
+}
+
+[dir="rtl"] .ide-main-viewport.sidebar-collapsed,
+html[dir="rtl"] .ide-main-viewport.sidebar-collapsed,
+body[dir="rtl"] .ide-main-viewport.sidebar-collapsed {
+  margin-right: 48px !important;
+  margin-left: 0 !important;
+  width: calc(100% - 48px) !important;
+  max-width: calc(100% - 48px) !important;
+}

@@ -17,7 +17,7 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 18:55:00
+# Updated: 2026-11-01 16:10:00
 # =============================================================================
 
 from __future__ import annotations
@@ -212,8 +212,22 @@ def build_storage_load(
         sensors = []
     if physical_disks is None:
         physical_disks = []
-    if partitions_data is None:
-        partitions_data = None
+    if partitions_data is None and psutil is not None and hasattr(psutil, "disk_partitions"):
+        partitions_data = []
+        for p in psutil.disk_partitions(all=False):
+            try:
+                u = psutil.disk_usage(p.mountpoint)
+                partitions_data.append({
+                    "device": p.device,
+                    "mountpoint": p.mountpoint,
+                    "fstype": p.fstype,
+                    "total_gb": round(u.total / (1024**3), 2),
+                    "used_gb": round(u.used / (1024**3), 2),
+                    "free_gb": round(u.free / (1024**3), 2),
+                    "percent": round(u.percent, 1),
+                })
+            except Exception:
+                pass
 
     drives_map: Dict[str, Dict[str, Any]] = {}
 
@@ -538,25 +552,24 @@ def init_router(
             if _CACHED_PHYSICAL_DISKS and (now - _LAST_PHYSICAL_DISKS_TIME) < _PHYSICAL_DISKS_CACHE_TTL:
                 physical_disks = list(_CACHED_PHYSICAL_DISKS)
 
-            # 2. Попытка прочитать актуальные данные дисков из SQLite телеметрии
-            if not physical_disks:
-                try:
-                    from apps.windows.telemetry.sqlite import TelemetryStorage
-                    storage = TelemetryStorage.get_instance(read_only=True)
-                    storage_data = storage.get_latest_storage_data()
-                    if storage_data.get("physical_disks"):
-                        physical_disks = storage_data["physical_disks"]
-                    if storage_data.get("partitions"):
-                        partitions_data = storage_data["partitions"]
+            # 2. Попытка прочитать актуальные данные дисков и разделов из SQLite телеметрии
+            try:
+                from apps.windows.telemetry.sqlite import TelemetryStorage
+                storage = TelemetryStorage.get_instance(read_only=True)
+                storage_data = storage.get_latest_storage_data()
+                if not physical_disks and storage_data.get("physical_disks"):
+                    physical_disks = storage_data["physical_disks"]
+                if storage_data.get("partitions"):
+                    partitions_data = storage_data["partitions"]
 
-                    if not physical_disks:
-                        snap = storage.get_latest_snapshot_full() or {}
-                        if snap.get("physical_disks"):
-                            physical_disks = snap["physical_disks"]
-                        if not partitions_data and snap.get("disks"):
-                            partitions_data = snap["disks"]
-                except Exception as db_err:
-                    logger.debug(f"[router_storage_load] Не удалось прочитать накопители из SQLite: {db_err}")
+                if not physical_disks:
+                    snap = storage.get_latest_snapshot_full() or {}
+                    if snap.get("physical_disks"):
+                        physical_disks = snap["physical_disks"]
+                    if not partitions_data and snap.get("disks"):
+                        partitions_data = snap["disks"]
+            except Exception as db_err:
+                logger.debug(f"[router_storage_load] Не удалось прочитать накопители из SQLite: {db_err}")
 
             # 3. Если снимков еще нет — извлекаем инвентарь дисков из SQLite БД или живого WindowsStorageSensor
             if not physical_disks:

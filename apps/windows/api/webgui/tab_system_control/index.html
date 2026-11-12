@@ -15,7 +15,7 @@ Usage Examples:
  * Package: windows/api/webgui/tab_system_control
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 18:23:00
+ * Updated: 2026-11-11 23:20:00
  * =============================================================================
 -->
 <!-- Windows System Logs & Activity Center Web Tab -->
@@ -118,18 +118,6 @@ Usage Examples:
     display: block !important;
     flex-direction: unset !important;
   }
-  .slc-panel-header {
-    background: var(--surface-2);
-    border-bottom: 1px solid var(--border-color);
-    padding: 0.5rem 0.9rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-color);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-  }
   .slc-tree-list {
     flex: 1 1 auto;
     min-height: 200px;
@@ -143,7 +131,6 @@ Usage Examples:
   #slc-incidents-container,
   #slc-timeline-container,
   #slc-raw-container,
-  #scc-activity-table-container,
   #pwr-sessions-table-container,
   #pwr-events-table-container,
   #def-events-table-container {
@@ -274,13 +261,6 @@ Usage Examples:
   .audit-alert-card.alert {
     border-left: 5px solid #f44336;
     background: rgba(244, 67, 54, 0.08);
-  }
-  .slc-card-header {
-    background: var(--surface-2);
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text-color);
-    padding: 0.5rem 0.85rem;
-    font-weight: 600;
   }
   .badge-crit { background: #dc2626 !important; color: #fff !important; }
   .badge-err { background: #ef4444 !important; color: #fff !important; }
@@ -484,7 +464,7 @@ Usage Examples:
       <span class="tab-header-icon fs-4 text-warning">⚠️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Центр контроля сбоев и журналов</h3>
+          <h3 class="tab-header-title mb-0">Центр контроля сбоев и журналов</h3>
         </div>
         <small class="tab-header-subtitle text-secondary">Сводка системных аварий (BSOD, LiveKernelReports), журнал дампов памяти и диагностика стабильности</small>
       </div>
@@ -508,9 +488,6 @@ Usage Examples:
       </button>
       <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="event-logs" data-panel-id="event-logs" data-term="event-logs" data-ai-tooltip="true" id="btn-source-event-logs" title="Классические системные журналы Windows (System, Application, Security, PowerShell и др.)" type="button" role="tab">
         <i class="bi bi-journal-text text-primary"></i><span data-i18n="systemControl.modeEventLogs">📝 Журналы событий</span>
-      </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="activity" data-panel-id="activity" data-term="activity" data-ai-tooltip="true" id="btn-source-activity" title="Журнал внутренней активности и операций приложения/системы" type="button" role="tab">
-        <i class="bi bi-gear-wide-connected text-info"></i><span data-i18n="systemControl.modeActivity">⚙️ Журнал активности</span>
       </button>
       <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-source="power-lifecycle" data-panel-id="power-lifecycle" data-term="power-lifecycle" data-ai-tooltip="true" id="btn-source-power-lifecycle" title="Анализ сессий электропитания, включений, выключений, гибернаций и BSOD" type="button" role="tab">
         <i class="bi bi-lightning-charge text-warning"></i><span data-i18n="systemControl.modePowerLifecycle">⚡ Жизненный цикл питания</span>
@@ -881,8 +858,8 @@ Usage Examples:
 <!-- Channel & Source Tree Sidebar -->
 <div class="col-lg-3" id="slc-channel-tree-sidebar">
 <div class="slc-panel h-100" data-panel-id="panel-system-control-2" id="panel-system-control-2">
-<div class="slc-panel-header">
-<span><i class="bi bi-folder2-open me-2 text-primary"></i><span data-i18n="systemControl.channelsTitle">Каналы событий</span></span>
+<div class="panel-header">
+<span class="panel-title"><i class="bi bi-folder2-open me-2 text-primary"></i><span data-i18n="systemControl.channelsTitle">Каналы событий</span></span>
 <span class="badge bg-secondary" id="slc-channel-count-badge">0</span>
 </div>
 <div class="p-2 border-bottom" style="border-color: var(--border-color) !important;">
@@ -896,8 +873,8 @@ Usage Examples:
 <!-- Events / Incidents Main Stream -->
 <div class="col-lg-9" id="slc-main-stream-column">
 <div class="slc-panel h-100" data-panel-id="panel-system-control-semanticheskiy-rag-poisk-po-log" id="panel-system-control-semanticheskiy-rag-poisk-po-log">
-<div class="slc-panel-header">
-<span id="slc-main-view-title"><i class="bi bi-list-columns-reverse me-2 text-primary"></i><span data-i18n="systemControl.mainViewTitle">Поток событий Windows</span></span>
+<div class="panel-header">
+<span class="panel-title" id="slc-main-view-title"><i class="bi bi-list-columns-reverse me-2 text-primary"></i><span data-i18n="systemControl.mainViewTitle">Поток событий Windows</span></span>
 <div class="d-flex align-items-center gap-2 flex-wrap">
 <span class="badge bg-dark border border-secondary text-info font-monospace small px-2 py-1" id="slc-cache-date-badge" title="Дата и время сохранения журнала в кеше браузера">
 <i class="bi bi-clock-history me-1"></i><span id="slc-cache-date-text">Кеш: нет данных</span>
@@ -944,9 +921,9 @@ Usage Examples:
 <!-- Dynamic Log RAG Search Container (In-Memory RAM Engine) -->
 <div class="p-3 d-none" id="slc-rag-container" style="max-height: calc(100vh - 310px); overflow-y: auto;">
   <div class="slc-card mb-3 shadow-sm">
-    <div class="slc-card-header p-2.5 d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div class="panel-header p-2.5 d-flex justify-content-between align-items-center flex-wrap gap-2">
       <div class="d-flex align-items-center gap-2">
-        <span class="fw-bold text-primary"><i class="bi bi-brain me-1.5"></i><span data-i18n="systemControl.ragTitle">Семантический RAG-поиск по логам (In-Memory RAM)</span></span>
+        <span class="panel-title"><i class="bi bi-brain me-1.5"></i><span data-i18n="systemControl.ragTitle">Семантический RAG-поиск по логам (In-Memory RAM)</span></span>
         <span class="badge bg-success-subtle text-success border border-success-subtle font-monospace" style="font-size: 0.72rem;"><i class="bi bi-database me-1"></i>IndexedDB + RAM</span>
       </div>
       <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -1037,34 +1014,6 @@ Usage Examples:
 <div class="p-3 d-none" id="slc-raw-container" style="max-height: calc(100vh - 310px); overflow-y: auto;">
 <pre class="p-3 font-monospace small rounded border" data-i18n="systemControl.rawSelectPrompt" id="slc-raw-text" style="background: var(--surface-2); color: var(--text-color); border-color: var(--border-color) !important;">Выберите событие из списка для просмотра данных.</pre>
 </div>
-<!-- Application Activity Log View Container -->
-<div class="p-3 d-none" id="slc-activity-container" style="max-height: calc(100vh - 310px); overflow-y: auto;">
-<div class="d-flex justify-content-between align-items-center mb-2">
-<span class="fw-bold"><i class="bi bi-journal-text me-1 text-primary"></i> <span data-i18n="systemControl.activityTitle">Журнал активности</span></span>
-<button class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="btn-scc-refresh-logs">
-<i class="bi bi-arrow-clockwise me-1"></i> <span data-i18n="systemControl.btnRefresh">Обновить</span>
-</button>
-</div>
-<div class="table-responsive" id="scc-activity-table-container" style="min-height: 200px; max-height: calc(100vh - 310px); overflow-y: auto;">
-<table class="slc-table">
-<thead>
-<tr>
-<th data-i18n="systemControl.colTime" style="width: 180px;">Время</th>
-<th data-i18n="systemControl.colAction" style="width: 160px;">Действие</th>
-<th data-i18n="systemControl.colTarget">Объект</th>
-<th data-i18n="systemControl.colStatus" style="width: 120px;">Статус</th>
-<th data-i18n="systemControl.colDetails" style="width: 30%;">Подробности</th>
-</tr>
-</thead>
-<tbody id="scc-logs-tbody">
-<tr><td class="text-center text-muted p-3" colspan="5" data-i18n="systemControl.loadingActivity">Загрузка журнала активности...</td></tr>
-</tbody>
-</table>
-</div>
-<div class="slc-table-resizer" id="scc-activity-table-resizer" title="Потяните для изменения высоты таблицы (двойной клик — сброс)">
-<div class="slc-table-resizer-grip"></div>
-</div>
-</div>
 <!-- Event Logs (WevtAPI & Log Intelligence) Container Panel -->
 <div class="p-3 d-none" id="slc-event-logs-container">
 <!-- Top Stat Cards -->
@@ -1146,8 +1095,8 @@ Usage Examples:
 </div>
 <!-- RAG Search Results Panel (Hidden by default) -->
 <div class="slc-card shadow-sm mb-3 d-none border-info" id="el-rag-results-card">
-<div class="slc-card-header d-flex justify-content-between align-items-center py-2 px-3">
-<span class="fw-semibold text-info"><i class="bi bi-brain me-2"></i><span data-i18n="systemControl.elRagResultsTitle">Результаты Adaptive Log RAG</span></span>
+<div class="panel-header d-flex justify-content-between align-items-center py-2 px-3">
+<span class="panel-title"><i class="bi bi-brain me-2"></i><span data-i18n="systemControl.elRagResultsTitle">Результаты Adaptive Log RAG</span></span>
 <button class="btn btn-sm btn-outline-secondary py-0 px-2" data-i18n="systemControl.elRagClose" id="el-rag-close-btn">Закрыть</button>
 </div>
 <div class="card-body p-2" id="el-rag-results-body">
@@ -1156,8 +1105,8 @@ Usage Examples:
 </div>
 <!-- Event Logs Table -->
 <div class="slc-card shadow-sm">
-<div class="slc-card-header d-flex align-items-center justify-content-between py-2 px-3">
-<span class="fw-semibold"><i class="bi bi-journal-text text-primary me-2"></i><span data-i18n="systemControl.elViewerTitle">Записи системного журнала (Event Viewer)</span></span>
+<div class="panel-header d-flex align-items-center justify-content-between py-2 px-3">
+<span class="panel-title"><i class="bi bi-journal-text text-primary me-2"></i><span data-i18n="systemControl.elViewerTitle">Записи системного журнала (Event Viewer)</span></span>
 <span class="badge bg-secondary font-monospace" id="el-table-badge">0 событий</span>
 </div>
 <div class="table-responsive" id="el-table-container" style="min-height: 140px; max-height: 520px; overflow-y: auto;">
@@ -1300,14 +1249,14 @@ Usage Examples:
 <table class="slc-table" style="font-size: 0.85rem;">
 <thead class="sticky-top">
 <tr>
-<th style="width: 140px;">Сессия</th>
-<th style="width: 160px;">Время старта (Boot)</th>
-<th style="width: 160px;">Завершение</th>
-<th style="width: 130px;">Аптайм</th>
-<th style="width: 130px;">Статус</th>
-<th>Инициатор и процесс</th>
-<th>Причина / Код</th>
-<th class="text-center" style="width: 80px;">Детали</th>
+<th style="width: 95px;">Сессия</th>
+<th style="width: 145px;">Время старта (Boot)</th>
+<th style="width: 145px;">Завершение</th>
+<th style="width: 105px;">Аптайм</th>
+<th style="width: 120px;">Статус</th>
+<th style="min-width: 220px; width: 24%;">Инициатор и процесс</th>
+<th style="min-width: 320px; width: 32%;">Причина / Код</th>
+<th class="text-center" style="width: 65px;">Детали</th>
 </tr>
 </thead>
 <tbody id="pwr-sessions-tbody">
@@ -1504,8 +1453,8 @@ Usage Examples:
 
   <!-- Таблица событий Defender -->
   <div class="slc-card shadow-sm">
-    <div class="slc-card-header d-flex align-items-center justify-content-between py-2 px-3">
-      <span class="fw-semibold"><i class="bi bi-shield-shaded text-primary me-2"></i><span>Журнал событий Microsoft Defender (Operational Log)</span></span>
+    <div class="panel-header d-flex align-items-center justify-content-between py-2 px-3">
+      <span class="panel-title"><i class="bi bi-shield-shaded text-primary me-2"></i><span>Журнал событий Microsoft Defender (Operational Log)</span></span>
       <span class="badge bg-secondary font-monospace" id="def-table-badge">0 событий</span>
     </div>
     <div class="table-responsive" id="def-events-table-container" style="min-height: 200px; max-height: calc(100vh - 310px); overflow-y: auto;">

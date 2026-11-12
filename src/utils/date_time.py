@@ -3,97 +3,115 @@
 # Process Name: AI-Windows-Admin UTILS - Date Time Module
 # =============================================================================
 # Description:
-#   Check if the current time is within the specified interval.
+#   Утилиты работы с датой, временем, UTC ISO 8601 и проверкой временных интервалов.
 #
 # Usage Examples:
 #   CLI:
 #     python -m src.utils.date_time
 #   Python API:
-#     from src.utils.date_time import TimeoutCheck
+#     from src.utils.date_time import TimeoutCheck, utc_now_iso
 #
 #     service = TimeoutCheck()
 #     result = service.interval()
-#     print(result)
+#     print(result, utc_now_iso())
 #
 # File: date_time.py
 # Project: ai-windows-admin
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-10 14:38:00
 # =============================================================================
 
-"""Check if the current time is within the specified interval."""
+"""Утилиты работы с датой, временем, UTC ISO 8601 и проверкой временных интервалов."""
+
+from datetime import datetime, time, timezone
+import threading
 
 from logger import logger
-from datetime import datetime, time
-import threading
 from src.utils.printer import pprint as print
 
+
+def utc_now_iso() -> str:
+    """Возвращает текущее время в строгом формате UTC ISO 8601 ('YYYY-MM-DDTHH:MM:SSZ').
+
+    Returns:
+        str: Строка времени в формате UTC ISO 8601.
+    """
+    return datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+
 class TimeoutCheck:
+    """Класс для проверки вхождения текущего времени в заданный интервал и ввода с таймаутом."""
 
-    def __init__(self):
-        self.result = None
+    def __init__(self) -> None:
+        """Инициализирует состояние проверки интервала."""
+        self.result: bool | None = None
+        self.user_input: str | None = None
 
-    def interval(self, start: time=time(23, 0), end: time=time(6, 0)) -> bool:
-        """Check if the current time is within the specified interval.
-        
+    def interval(self, start: time = time(23, 0), end: time = time(6, 0)) -> bool:
+        """Проверяет, входит ли текущее время в указанный временной интервал.
+
         Args:
-            start (time): Start of the interval (default is 23:00).
-            end (time): End of the interval (default is 06:00).
+            start (time): Начало интервала (по умолчанию 23:00).
+            end (time): Конец интервала (по умолчанию 06:00).
 
         Returns:
-            bool: True if the current time is within the interval, False otherwise.
+            bool: True, если текущее время находится внутри интервала, иначе False.
         """
         current_time = datetime.now().time()
         if start < end:
             self.result = start <= current_time <= end
         else:
             self.result = current_time >= start or current_time <= end
-
-    def interval_with_timeout(self, timeout: int=5, start: time=time(23, 0), end: time=time(6, 0)) -> bool:
-        """Check if the current time is within the specified interval with a timeout.
-
-        Args:
-            timeout (int): Time in seconds to wait for the interval check.
-            start (time): Start of the interval (default is 23:00).
-            end (time): End of the interval (default is 06:00).
-
-        Returns:
-            bool: True if the current time is within the interval and response within timeout, False if not or timeout occurs.
-        """
-        thread = threading.Thread(target=self.interval, args=(start, end))
-        thread.start()
-        thread.join(timeout)
-        if thread.is_alive():
-            logger.console(f'Timeout occurred after {timeout} seconds, continuing execution.')
-            thread.join()
-            return False
         return self.result
 
-    def get_input(self):
-        """Request input from user."""
-        self.user_input = input('U:> ')
-
-    def input_with_timeout(self, timeout: int=5) -> str | None:
-        """Wait for input with timeout.
+    def interval_with_timeout(self, timeout: int = 5, start: time = time(23, 0), end: time = time(6, 0)) -> bool:
+        """Проверяет вхождение текущего времени в интервал с ограничением по времени ожидания.
 
         Args:
-            timeout (int): Input wait time in seconds.
+            timeout (int): Время ожидания в секундах.
+            start (time): Начало интервала (по умолчанию 23:00).
+            end (time): Конец интервала (по умолчанию 06:00).
 
         Returns:
-            str | None: Entered data or None if timeout occurred.
+            bool: True, если время входит в интервал и проверка завершилась до таймаута, иначе False.
         """
-        thread = threading.Thread(target=self.get_input)
+        thread = threading.Thread(target=self.interval, args=(start, end), daemon=True)
         thread.start()
         thread.join(timeout)
         if thread.is_alive():
-            logger.console(f'Timeout occurred after {timeout} seconds.')
-            return
+            logger.console(f'Превышен таймаут ({timeout} сек), продолжение выполнения.')
+            thread.join(timeout=1.0)
+            return False
+        return bool(self.result)
+
+    def get_input(self) -> None:
+        """Запрашивает пользовательский ввод из стандартного потока ввода."""
+        self.user_input = input('U:> ')
+
+    def input_with_timeout(self, timeout: int = 5) -> str | None:
+        """Ожидает пользовательский ввод в течение заданного таймаута.
+
+        Args:
+            timeout (int): Время ожидания ввода в секундах.
+
+        Returns:
+            str | None: Введенная строка или None при наступлении таймаута.
+        """
+        self.user_input = None
+        thread = threading.Thread(target=self.get_input, daemon=True)
+        thread.start()
+        thread.join(timeout)
+        if thread.is_alive():
+            logger.console(f'Превышен таймаут ожидания ввода ({timeout} сек).')
+            return None
         return self.user_input
+
+
 if __name__ == '__main__':
     timeout_check = TimeoutCheck()
     if timeout_check.interval_with_timeout(timeout=5):
-        logger.console('Current time is within the interval.')
+        logger.console('Текущее время входит в заданный интервал.')
     else:
-        logger.console('Current time is outside the interval or timeout occurred.')
+        logger.console('Текущее время вне интервала или произошел таймаут.')

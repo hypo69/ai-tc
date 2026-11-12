@@ -36,7 +36,7 @@
 #     obj.execute(...)
 #
 # File: <имя_файла>.py
-# Project: ai-windows-admin
+# Project: ai-assistant
 # Package: <полный_путь_к_пакету>
 # Author: hypo69
 # Copyright: © 2026 hypo69
@@ -60,7 +60,7 @@
 ```python
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - Buffer
+# Process Name: ai-assistant Apps Windows Telemetry Sqlite - Buffer
 # =============================================================================
 # Description:
 #   Управление буферизацией и пакетной записью (batching) потока телеметрии в SQLite.
@@ -106,7 +106,7 @@
 #     buf.enqueue({"timestamp": "...", "cpu_percent": 12.5})
 #
 # File: buffer.py
-# Project: ai-windows-admin
+# Project: ai-assistant
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69

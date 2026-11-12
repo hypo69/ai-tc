@@ -25,7 +25,7 @@
 # Package: apps.windows.sdk
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 20:35:00
+# Updated: 2026-11-01 14:40:00
 # =============================================================================
 
 from __future__ import annotations
@@ -62,7 +62,7 @@ class NativeSubsystem:
 
 
 class DriversSubsystem:
-    """Слой 2: Управление и аудит драйверов и аппаратных каталогов."""
+    """Слой 2: Управление и аудит драйверов, защита ядра и аппаратных каталогов."""
 
     def __init__(self) -> None:
         self.detector = drivers.GpuHardwareDetector()
@@ -72,6 +72,11 @@ class DriversSubsystem:
         self.VendorType = drivers.VendorType
         self.DriverBranch = drivers.DriverBranch
         self.DriverRelease = drivers.DriverRelease
+        # Подсистема защиты ядра и системных драйверов
+        self.inventory = drivers.DriverInventoryManager()
+        self.mechanisms = drivers.ProtectionMechanismsAuditor()
+        self.blocker_detector = drivers.OperationBlockerDetector()
+        self.safe_ops = drivers.KernelSafeOpsManager()
 
 
 class FeaturesSubsystem:
@@ -238,8 +243,25 @@ class WindowsSDK:
         return self.core.winapi.get_system_state()
 
 
-# Глобальный синглтон экземпляр SDK для быстрого импорта
-windows_sdk = WindowsSDK()
+# Ленивый синглтон экземпляр SDK для быстрого импорта без накладных расходов при старте
+class _LazyWindowsSDK:
+    """Ленивый синглтон-прокси для WindowsSDK."""
+    _instance: Optional[WindowsSDK] = None
+
+    @classmethod
+    def _get_sdk(cls) -> WindowsSDK:
+        if cls._instance is None:
+            cls._instance = WindowsSDK()
+        return cls._instance
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._get_sdk(), name)
+
+    def __repr__(self) -> str:
+        return repr(self._get_sdk())
+
+
+windows_sdk = _LazyWindowsSDK()
 
 __all__ = [
     "WindowsSDK",

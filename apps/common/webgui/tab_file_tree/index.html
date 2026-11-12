@@ -1,0 +1,268 @@
+<!--
+=============================================================================
+Process Name: Common WebGUI - File & Directory Tree Explorer Tab
+=============================================================================
+Description:
+  Интерактивная вкладка древовидного проводника файлов и поддиректорий
+  рабочей области (apps/common/webgui/tab_file_tree).
+  Обеспечивает:
+  - Иерархическое дерево файлов и папок выбранной директории.
+  - Чекбоксы выбора возле каждого файла и папки с кнопками Выбрать/Снять все.
+  - Навигацию по директориям (вверх, хлебные крошки, прямой переход).
+  - Контекстное подменю при правом клике:
+    1) Кратко о файле (аналитическая сводка и метаданные).
+    2) Редактор (открытие в Wasm-редакторе tab_file_editor).
+    3) Создать новый (создание файла или папки в директории клика).
+
+Usage Examples:
+  Ленивая загрузка через tab-core.js:
+    /html/tab_file_tree/index.html?v=20261030_v1
+
+File: index.html
+Project: ai-assistant
+Package: apps/common/webgui/tab_file_tree
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-10-30 15:10:00
+=============================================================================
+-->
+
+<link rel="stylesheet" href="/html/tab_file_tree/style.css?v=20261030_v1">
+
+<div class="container-fluid p-2 d-flex flex-column gap-2" id="file-tree-tab-root">
+
+  <!-- 1. Верхняя шапка вкладки -->
+  <div class="tab-header d-flex justify-content-between align-items-center flex-wrap gap-2 px-2 py-1" id="ft-top-header-block">
+    <div class="d-flex align-items-center gap-2" id="ft-header-info-wrap">
+      <span class="tab-header-icon fs-4 text-primary" id="ft-header-icon-span"><i class="bi bi-folder-symlink"></i></span>
+      <div id="ft-header-text-block">
+        <div class="d-flex align-items-center gap-2 flex-wrap" id="ft-title-row">
+          <h3 class="tab-header-title panel-header mb-0" id="ft-header-title" data-i18n="fileTree.title">Дерево файлов и директорий</h3>
+          <span class="ui-badge ui-badge-info" id="ft-workspace-badge">Workspace</span>
+          <span class="ui-badge ui-badge-secondary" id="ft-total-items-badge">0 файлов</span>
+          <span class="ui-badge ui-badge-primary" id="ft-selection-badge" data-i18n="fileTree.selectedCount">Выбрано: 0</span>
+        </div>
+        <small class="tab-header-subtitle text-muted" id="ft-header-subtitle" data-i18n="fileTree.subtitle">
+          Иерархическая навигация по директориям, выбор элементов галочками, краткая сводка и открытие в редакторе
+        </small>
+      </div>
+    </div>
+
+    <!-- Быстрые действия в шапке -->
+    <div class="d-flex align-items-center gap-1.5 flex-wrap" id="ft-header-actions-wrap">
+      <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" id="ft-btn-refresh" data-i18n-title="common.refresh" title="Обновить">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+      <button type="button" class="btn btn-sm btn-success d-flex align-items-center gap-1" id="ft-btn-new-item" data-i18n-title="fileTree.newItemTitle" title="Создать новый файл или папку">
+        <i class="bi bi-plus-lg"></i>
+        <span id="ft-lbl-new-item" data-i18n="fileTree.newItem">Создать</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. Панель навигации по директориям и хлебные крошки -->
+  <div class="card bg-body-tertiary border-subtle p-2" id="ft-nav-panel">
+    <div class="d-flex flex-column gap-2" id="ft-nav-inner-stack">
+      <!-- Верхняя строка навигации: кнопка Вверх, цепочка крошек и быстрый переход -->
+      <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap" id="ft-nav-row-main">
+        <div class="d-flex align-items-center gap-2 flex-grow-1" id="ft-breadcrumbs-container-wrap">
+          <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" id="ft-btn-up-dir" data-i18n-title="fileTree.upDirTitle" title="На уровень вверх">
+            <i class="bi bi-arrow-up"></i>
+            <span id="ft-lbl-up" data-i18n="fileTree.upBtn">Вверх</span>
+          </button>
+          <nav aria-label="breadcrumb" class="flex-grow-1" id="ft-breadcrumbs-nav">
+            <ol class="breadcrumb mb-0 py-1 px-2 rounded bg-body border border-subtle small d-flex align-items-center" id="ft-breadcrumbs-list">
+              <!-- Заполняется динамически: Корень / folder / subfolder -->
+            </ol>
+          </nav>
+        </div>
+
+        <!-- Поле прямого ввода пути -->
+        <div class="input-group input-group-sm ft-path-input-group" id="ft-path-input-group">
+          <span class="input-group-text" id="ft-path-input-icon"><i class="bi bi-folder2"></i></span>
+          <input type="text" class="form-control font-monospace" id="ft-path-input" data-i18n-placeholder="fileTree.pathPlaceholder" placeholder="Путь к директории...">
+          <button class="btn btn-outline-primary" id="ft-btn-go-path" type="button" data-i18n="fileTree.goBtn">Перейти</button>
+        </div>
+      </div>
+
+      <!-- Нижняя строка панели: Управление выбором (чекбоксы), раскрытие и поиск -->
+      <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap" id="ft-toolbar-actions-row">
+        <!-- Блок выбора элементов -->
+        <div class="d-flex align-items-center gap-1.5 flex-wrap" id="ft-selection-controls">
+          <button type="button" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" id="ft-btn-select-all" data-i18n-title="fileTree.selectAllTitle" title="Выбрать все или снять выбор">
+            <i class="bi bi-check2-all"></i>
+            <span id="ft-lbl-select-all" data-i18n="fileTree.selectAll">Выбрать все</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" id="ft-btn-invert-selection" data-i18n-title="fileTree.invertSelectionTitle" title="Инвертировать выбор">
+            <i class="bi bi-arrow-repeat"></i>
+            <span id="ft-lbl-invert" data-i18n="fileTree.invertSelection">Инвертировать</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="ft-btn-expand-all" data-i18n-title="fileTree.expandAllTitle" title="Развернуть все папки">
+            <i class="bi bi-arrows-expand"></i>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="ft-btn-collapse-all" data-i18n-title="fileTree.collapseAllTitle" title="Свернуть все папки">
+            <i class="bi bi-arrows-collapse"></i>
+          </button>
+        </div>
+
+        <!-- Фильтр по названию файла -->
+        <div class="d-flex align-items-center gap-2" id="ft-filter-wrap">
+          <div class="input-group input-group-sm ft-filter-input-group" id="ft-filter-input-group">
+            <span class="input-group-text" id="ft-filter-icon"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" id="ft-filter-input" data-i18n-placeholder="fileTree.filterPlaceholder" placeholder="Фильтр по имени...">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Основная сцена: Дерево файлов и директорий -->
+  <div class="ft-tree-viewport shadow-sm rounded border border-subtle bg-body p-2" id="ft-viewport-container">
+    <div class="ft-tree-nodes-list" id="ft-tree-container">
+      <!-- Иерархические узлы дерева отрисовываются через main.js -->
+    </div>
+  </div>
+
+  <!-- 4. Пользовательское контекстное подменю (ПКМ) -->
+  <div class="custom-context-menu d-none" id="ft-context-menu">
+    <div class="custom-context-menu-header" id="ft-cm-header">Объект</div>
+    <div class="custom-context-menu-item" data-action="summary" id="ft-cm-item-summary">
+      <span class="custom-context-menu-icon" id="ft-cm-icon-summary"><i class="bi bi-info-circle text-info"></i></span>
+      <span class="custom-context-menu-label" id="ft-cm-lbl-summary" data-i18n="fileTree.cmSummary">Кратко о файле</span>
+    </div>
+    <div class="custom-context-menu-item" data-action="editor" id="ft-cm-item-editor">
+      <span class="custom-context-menu-icon" id="ft-cm-icon-editor"><i class="bi bi-code-square text-warning"></i></span>
+      <span class="custom-context-menu-label" id="ft-cm-lbl-editor" data-i18n="fileTree.cmEditor">Редактор (Rust + Wasm)</span>
+      <span class="badge bg-warning-subtle text-warning custom-context-menu-badge" id="ft-cm-badge-editor">Wasm</span>
+    </div>
+    <div class="custom-context-menu-item" data-action="create" id="ft-cm-item-create">
+      <span class="custom-context-menu-icon" id="ft-cm-icon-create"><i class="bi bi-plus-circle text-success"></i></span>
+      <span class="custom-context-menu-label" id="ft-cm-lbl-create" data-i18n="fileTree.cmCreate">Создать новый...</span>
+    </div>
+    <div class="custom-context-menu-divider" id="ft-cm-divider-1"></div>
+    <div class="custom-context-menu-item" data-action="copy-path" id="ft-cm-item-copy-path">
+      <span class="custom-context-menu-icon" id="ft-cm-icon-copy"><i class="bi bi-clipboard"></i></span>
+      <span class="custom-context-menu-label" id="ft-cm-lbl-copy-path" data-i18n="fileTree.cmCopyPath">Копировать относительный путь</span>
+    </div>
+  </div>
+
+  <!-- 5. Модальное окно: Кратко о файле (Аналитическая сводка) -->
+  <div aria-hidden="true" aria-labelledby="ftFileSummaryModalLabel" class="modal fade" id="modal-ft-file-summary" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content shadow-lg border-secondary-subtle">
+        <div class="modal-header border-secondary-subtle py-2 px-3 bg-body-tertiary">
+          <div class="d-flex align-items-center gap-2" id="ft-summary-modal-title-wrap">
+            <i class="bi bi-file-earmark-text text-info fs-5" id="ft-summary-modal-icon"></i>
+            <h5 class="modal-title fs-6 mb-0" id="ftFileSummaryModalLabel" data-i18n="fileTree.summaryModalTitle">Краткая информация о файле</h5>
+          </div>
+          <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" id="ft-btn-close-summary-x" type="button"></button>
+        </div>
+        <div class="modal-body p-3" id="ft-summary-modal-body">
+          <div class="d-flex flex-column gap-3" id="ft-summary-stack">
+            <!-- Шапка файла с метаданными -->
+            <div class="p-2 rounded bg-body-tertiary border border-subtle d-flex align-items-center justify-content-between flex-wrap gap-2" id="ft-summary-meta-row">
+              <div>
+                <div class="fw-semibold font-monospace" id="ft-summary-file-name">filename.txt</div>
+                <small class="text-muted font-monospace" id="ft-summary-file-relpath">path/to/file</small>
+              </div>
+              <div class="d-flex align-items-center gap-1.5 flex-wrap" id="ft-summary-badges-container">
+                <span class="badge bg-secondary-subtle text-secondary border" id="ft-summary-size-badge">0 B</span>
+                <span class="badge bg-primary-subtle text-primary border" id="ft-summary-lines-badge">0 строк</span>
+                <span class="badge bg-info-subtle text-info border" id="ft-summary-lang-badge">Code</span>
+              </div>
+            </div>
+
+            <!-- Блок краткой сути (Semantic Summary) -->
+            <div id="ft-summary-essence-card">
+              <label class="form-label small fw-semibold text-secondary mb-1" id="ft-lbl-summary-essence" data-i18n="fileTree.summaryLabel">Краткое содержание сути:</label>
+              <div class="p-2 rounded bg-body border border-subtle small" id="ft-summary-essence-text">
+                <!-- Заполняется динамически -->
+              </div>
+            </div>
+
+            <!-- Предпросмотр начала файла -->
+            <div id="ft-summary-preview-card">
+              <label class="form-label small fw-semibold text-secondary mb-1" id="ft-lbl-summary-preview" data-i18n="fileTree.previewLabel">Фрагмент текста:</label>
+              <pre class="p-2 rounded bg-body-tertiary border border-subtle small font-monospace ft-summary-preview-pre mb-0" id="ft-summary-preview-content"></pre>
+            </div>
+
+            <!-- Семантические теги -->
+            <div id="ft-summary-tags-card">
+              <label class="form-label small fw-semibold text-secondary mb-1" id="ft-lbl-summary-tags" data-i18n="fileTree.tagsLabel">Семантические метки:</label>
+              <div class="d-flex gap-1 flex-wrap" id="ft-summary-tags-container"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-secondary-subtle py-2 px-3" id="ft-summary-modal-footer">
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" id="ft-btn-close-summary" data-i18n="fileTree.closeBtn">Закрыть</button>
+          <button type="button" class="btn btn-sm btn-warning d-flex align-items-center gap-1" id="ft-btn-summary-open-editor" data-i18n="fileTree.openInEditorBtn">
+            <i class="bi bi-code-square"></i>
+            <span id="ft-lbl-summary-open-editor" data-i18n="fileTree.openInEditorBtn">Открыть в редакторе</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Модальное окно: Создание нового файла или папки в директории клика -->
+  <div aria-hidden="true" aria-labelledby="ftCreateItemModalLabel" class="modal fade" id="modal-ft-create-item" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg border-secondary-subtle">
+        <div class="modal-header border-secondary-subtle py-2 px-3 bg-body-tertiary">
+          <div class="d-flex align-items-center gap-2" id="ft-create-modal-title-wrap">
+            <i class="bi bi-folder-plus text-success fs-5" id="ft-create-modal-icon"></i>
+            <h5 class="modal-title fs-6 mb-0" id="ftCreateItemModalLabel" data-i18n="fileTree.createModalTitle">Создание нового объекта</h5>
+          </div>
+          <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" id="ft-btn-close-create-x" type="button"></button>
+        </div>
+        <div class="modal-body p-3" id="ft-create-modal-body">
+          <div class="d-flex flex-column gap-2" id="ft-create-stack">
+            <!-- Индикатор целевой папки, где был клик -->
+            <div class="d-flex align-items-center gap-1.5 p-2 rounded bg-body-tertiary border border-subtle small" id="ft-create-target-banner">
+              <span class="text-secondary fw-semibold" id="ft-lbl-target-dir" data-i18n="fileTree.targetDirLabel">Целевая директория:</span>
+              <span class="badge bg-primary-subtle text-primary font-monospace" id="ft-create-target-dir-badge">/</span>
+            </div>
+
+            <!-- Выбор типа: Файл или Папка -->
+            <div class="d-flex align-items-center gap-3 py-1" id="ft-create-type-row">
+              <div class="form-check" id="ft-check-type-file-wrap">
+                <input class="form-check-input" type="radio" name="ftCreateType" id="ft-create-type-file" checked>
+                <label class="form-check-label small" for="ft-create-type-file" id="ft-lbl-type-file" data-i18n="fileTree.typeFile">Файл</label>
+              </div>
+              <div class="form-check" id="ft-check-type-folder-wrap">
+                <input class="form-check-input" type="radio" name="ftCreateType" id="ft-create-type-folder">
+                <label class="form-check-label small" for="ft-create-type-folder" id="ft-lbl-type-folder" data-i18n="fileTree.typeFolder">Папка</label>
+              </div>
+            </div>
+
+            <!-- Имя создаваемого объекта -->
+            <div id="ft-create-name-group">
+              <label class="form-label small fw-semibold" for="ft-create-name-input" id="ft-lbl-create-name">Имя объекта:</label>
+              <input type="text" class="form-control form-control-sm font-monospace" id="ft-create-name-input" data-i18n-placeholder="fileTree.namePlaceholder" placeholder="Например: script.py или subfolder">
+            </div>
+
+            <!-- Начальное содержимое (только для файла) -->
+            <div id="ft-create-content-group">
+              <label class="form-label small fw-semibold" for="ft-create-content-input" id="ft-lbl-create-content">Начальное содержимое:</label>
+              <textarea class="form-control form-control-sm font-monospace" id="ft-create-content-input" rows="4" data-i18n-placeholder="fileTree.contentPlaceholder" placeholder="Начальное текстовое содержимое файла (необязательно)..."></textarea>
+            </div>
+
+            <!-- Сообщение коммита Git -->
+            <div id="ft-create-commit-group">
+              <label class="form-label small fw-semibold" for="ft-create-commit-input" id="ft-lbl-create-commit">Сообщение коммита:</label>
+              <input type="text" class="form-control form-control-sm" id="ft-create-commit-input" data-i18n-placeholder="fileTree.commitPlaceholder" placeholder="Сообщение коммита Git (необязательно)...">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-secondary-subtle py-2 px-3" id="ft-create-modal-footer">
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" id="ft-btn-cancel-create" data-i18n="fileTree.cancelBtn">Отмена</button>
+          <button type="button" class="btn btn-sm btn-success d-flex align-items-center gap-1" id="ft-btn-submit-create" data-i18n="fileTree.submitCreateBtn">
+            <i class="bi bi-check-lg"></i>
+            <span id="ft-lbl-submit-create" data-i18n="fileTree.submitCreateBtn">Создать в Git</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -17,7 +17,7 @@
 # Package: apps.windows.sdk.modules.taskbar.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-01 14:22:00
 # =============================================================================
 
 from __future__ import annotations
@@ -87,9 +87,18 @@ class TaskbarSettingsManager:
     def _write_registry_dword(self, root_key: int, subkey: str, value_name: str, value: int) -> bool:
         """Безопасная запись значения DWORD в реестр Windows."""
         try:
-            with winreg.CreateKey(root_key, subkey) as key:
+            with winreg.CreateKeyEx(root_key, subkey, 0, winreg.KEY_SET_VALUE) as key:
                 winreg.SetValueEx(key, value_name, 0, winreg.REG_DWORD, value)
             return True
+        except PermissionError as exc:
+            if value_name == "TaskbarDa":
+                logger.warning(
+                    f"[TaskbarSettings] Запись '{value_name}' заблокирована системным драйвером защиты Windows 11 (UCPD.sys): {exc}. "
+                    "В актуальных версиях Windows 11 переключение виджетов через реестр защищено ядром."
+                )
+            else:
+                logger.warning(f"[TaskbarSettings] Отказано в доступе при записи {subkey}\\{value_name}: {exc}")
+            return False
         except OSError as exc:
             logger.error(f"[TaskbarSettings] Ошибка записи в реестр {subkey}\\{value_name}: {exc}")
             return False
@@ -203,6 +212,8 @@ class TaskbarSettingsManager:
             val = 1 if patch.widgets_visible else 0
             if self._write_registry_dword(winreg.HKEY_CURRENT_USER, _EXPLORER_ADVANCED_KEY, "TaskbarDa", val):
                 changed["widgets_visible"] = bool(val)
+            else:
+                changed["widgets_visible_blocked"] = True
 
         if patch.task_view_visible is not None:
             val = 1 if patch.task_view_visible else 0
@@ -267,4 +278,106 @@ class TaskbarSettingsManager:
         except Exception as exc:
             logger.error(f"[TaskbarSettings] Ошибка перезапуска explorer.exe: {exc}")
             return False
+
+    def get_ucpd_status(self) -> Dict[str, Any]:
+        """Возвращает статус системного драйвера защиты Windows 11 UCPD."""
+        start_type = None
+        supported = False
+        try:
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Services\UCPD") as k:
+                val, _ = winreg.QueryValueEx(k, "Start")
+                start_type = int(val)
+                supported = True
+        except Exception:
+            supported = False
+
+        is_running = False
+        try:
+            p = subprocess.run(["sc.exe", "query", "ucpd"], capture_output=True, text=True, timeout=5)
+            if "RUNNING" in p.stdout:
+                is_running = True
+        except Exception:
+            pass
+
+        task_disabled = False
+        try:
+            p = subprocess.run(
+                ["schtasks.exe", "/query", "/tn", r"\Microsoft\Windows\AppxDeploymentClient\UCPD velocity", "/fo", "CSV", "/nh"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if "Disabled" in p.stdout:
+                task_disabled = True
+        except Exception:
+            pass
+
+        is_configured_disabled = (start_type == 4)
+        enabled = not (is_configured_disabled and task_disabled)
+        reboot_pending = (is_configured_disabled and is_running) or (not is_configured_disabled and not is_running and supported)
+
+        msg = "Драйвер активен и блокирует запись в защищенные ключи реестра."
+        if not supported:
+            msg = "Драйвер UCPD не обнаружен на данной версии ОС."
+        elif reboot_pending:
+            msg = "Состояние службы изменено, требуется перезагрузка Windows для полного применения."
+        elif not enabled:
+            msg = "Драйвер UCPD отключен. Прямое управление параметрами через реестр разблокировано."
+
+        return {
+            "supported": supported,
+            "enabled": enabled,
+            "is_running": is_running,
+            "start_type": start_type,
+            "task_disabled": task_disabled,
+            "reboot_pending": reboot_pending,
+            "message": msg,
+        }
+
+    def set_ucpd_state(self, enable: bool) -> Dict[str, Any]:
+        """Включает или отключает системный драйвер UCPD и связанную задачу планировщика."""
+        try:
+            target_start = "system" if enable else "disabled"
+            sc_res = subprocess.run(
+                ["sc.exe", "config", "ucpd", f"start={target_start}"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            if sc_res.returncode != 0:
+                logger.error(f"[TaskbarSettings] Ошибка смены конфигурации службы UCPD: {sc_res.stderr}")
+                return {
+                    "status": "ERROR",
+                    "message": f"Не удалось изменить конфигурацию службы ucpd: {sc_res.stderr or sc_res.stdout}",
+                }
+
+            task_flag = "/Enable" if enable else "/Disable"
+            task_res = subprocess.run(
+                ["schtasks.exe", "/Change", "/TN", r"\Microsoft\Windows\AppxDeploymentClient\UCPD velocity", task_flag],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            if task_res.returncode != 0:
+                logger.warning(f"[TaskbarSettings] Предупреждение при настройке задачи UCPD velocity: {task_res.stderr}")
+
+            current_status = self.get_ucpd_status()
+            return {
+                "status": "SUCCESS",
+                "enabled": enable,
+                "reboot_required": True,
+                "ucpd_status": current_status,
+                "message": (
+                    "Драйвер защиты UCPD включен."
+                    if enable
+                    else "Драйвер защиты UCPD отключен. Для применения изменений в ядре требуется перезагрузка Windows."
+                ),
+            }
+        except Exception as exc:
+            logger.error(f"[TaskbarSettings] Исключение при переключении UCPD: {exc}")
+            return {
+                "status": "ERROR",
+                "message": str(exc),
+            }
+
 

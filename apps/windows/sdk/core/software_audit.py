@@ -16,7 +16,7 @@
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 17:52:00
+# Updated: 2026-11-01 17:56:00
 # =============================================================================
 
 from __future__ import annotations
@@ -287,7 +287,11 @@ class SoftwareAuditEngine:
         publisher = str(_get_val('Publisher') or '').strip()
         raw_install_date = _get_val('InstallDate')
         install_location = str(_get_val('InstallLocation') or '').strip()
-        uninstall_string = str(_get_val('UninstallString') or '').strip()
+        uninstall_string = str(_get_val('UninstallString') or _get_val('QuietUninstallString') or '').strip()
+        display_icon = str(_get_val('DisplayIcon') or '').strip()
+        install_source = str(_get_val('InstallSource') or '').strip()
+        if not install_location:
+            install_location = self._infer_install_location(display_icon, uninstall_string, install_source)
         estimated_size = _get_val('EstimatedSize')
         comments = str(_get_val('Comments') or '').strip()
         system_component = bool(_get_val('SystemComponent') or 0)
@@ -299,6 +303,33 @@ class SoftwareAuditEngine:
         category, purpose_desc = self._categorizer.classify(name=app_id, display_name=display_name, publisher=publisher, comments=comments, install_location=install_location)
         exec_info = self._find_execution_info(display_name=display_name, app_id=app_id, install_location=install_location, uninstall_string=uninstall_string, execution_history=execution_history, prefetch_history=prefetch_history)
         return InstalledAppInfo(name=app_id, display_name=display_name, version=version, publisher=publisher, install_date=formatted_install_date, install_location=install_location, uninstall_string=uninstall_string, size_bytes=size_bytes, architecture=default_arch, registry_key=f'{reg_hive_name}\\{app_id}', is_system_component=system_component, category=category, purpose_description=purpose_desc, execution_info=exec_info)
+
+    @staticmethod
+    def _infer_install_location(display_icon: str, uninstall_string: str, install_source: str) -> str:
+        """Вычислить директорию установки из DisplayIcon, UninstallString или InstallSource, если InstallLocation пуст."""
+        skip_tokens = ('\\windows\\installer', '\\windows\\system32', '\\windows\\syswow64', '\\package cache\\', 'msiexec', 'rundll32')
+        if display_icon:
+            icon_cand = os.path.expandvars(display_icon.split(',')[0].strip(' "\''))
+            if ':' in icon_cand and not any(tok in icon_cand.lower() for tok in skip_tokens):
+                if os.path.isdir(icon_cand):
+                    return icon_cand
+                parent = os.path.dirname(icon_cand)
+                if parent and os.path.isdir(parent):
+                    return parent
+        if uninstall_string:
+            m = re.search(r'["\']?([A-Za-z]:\\[^"\']*?\.exe)["\']?', os.path.expandvars(uninstall_string), re.IGNORECASE)
+            if m:
+                exe_path = m.group(1)
+                if not any(tok in exe_path.lower() for tok in skip_tokens):
+                    parent = os.path.dirname(exe_path)
+                    if parent and os.path.isdir(parent):
+                        return parent
+        if install_source:
+            src_cand = os.path.expandvars(install_source.strip(' "\''))
+            if ':' in src_cand and not any(tok in src_cand.lower() for tok in (*skip_tokens, '\\temp\\', '\\ccmcache\\')):
+                if os.path.isdir(src_cand):
+                    return src_cand
+        return ''
 
     @staticmethod
     def _format_install_date(raw_date: Any) -> Optional[str]:

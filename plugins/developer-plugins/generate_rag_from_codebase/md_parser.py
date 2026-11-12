@@ -11,13 +11,10 @@
 # Package: plugins.generate_rag_from_codebase
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:37:40
 # =============================================================================
 
-"""Hierarchical Markdown section parser for codebase RAG.
-
-Splits documentation into logical sections by headings rather than arbitrary character
-splits, maintaining parent breadcrumbs and document type tagging.
-"""
+"""Иерархический парсер Markdown-документации по секциям для RAG кодовой базы."""
 
 from __future__ import annotations
 
@@ -25,31 +22,27 @@ from pathlib import Path
 import re
 from typing import Any, Dict, List, Tuple
 
+MAX_MD_FILE_BYTES: int = 5 * 1024 * 1024
+_HEADING_PATTERN: re.Pattern[str] = re.compile(r"^(#{1,6})\s+(.+)$")
+
 
 class MarkdownParser:
-    """Parses Markdown files into hierarchical section chunks.
+    """Разбирает файлы Markdown на иерархические секционные чанки.
 
     Attributes:
-        base_dir (Path): Project root directory.
+        base_dir (Path): Корневая директория проекта.
     """
 
     def __init__(self, base_dir: Path) -> None:
-        """Initialize the Markdown parser.
+        """Инициализирует парсер Markdown.
 
         Args:
-            base_dir (Path): Base project directory root.
+            base_dir (Path): Корневая директория проекта.
         """
         self.base_dir = Path(base_dir).resolve()
 
     def infer_doc_type(self, file_path: Path) -> str:
-        """Infer document category from path and filename.
-
-        Args:
-            file_path (Path): Path to document.
-
-        Returns:
-            str: Document type ('project_overview', 'changelog', 'prompt', 'documentation').
-        """
+        """Определяет категорию документа по его пути и имени файла."""
         name_lower = file_path.name.lower()
         rel_posix = file_path.as_posix().lower()
 
@@ -62,15 +55,10 @@ class MarkdownParser:
         return "documentation"
 
     def parse_file(self, file_path: Path) -> List[Dict[str, Any]]:
-        """Parse Markdown file into section chunks.
-
-        Args:
-            file_path (Path): Path to the Markdown file.
-
-        Returns:
-            List[Dict[str, Any]]: List of hierarchical section chunks.
-        """
+        """Разбирает файл Markdown на секционные чанки с учётом хлебных крошек заголовков."""
         try:
+            if not file_path.exists() or file_path.stat().st_size > MAX_MD_FILE_BYTES:
+                return []
             content = file_path.read_text(encoding="utf-8", errors="replace")
         except Exception:
             return []
@@ -81,16 +69,13 @@ class MarkdownParser:
         lines = content.splitlines()
         chunks: List[Dict[str, Any]] = []
 
-        # Stack of (level, heading_text)
         heading_stack: List[Tuple[int, str]] = []
         current_heading = file_path.stem
         current_lines: List[str] = []
         section_idx = 0
 
-        heading_pattern = re.compile(r"^(#{1,6})\s+(.+)$")
-
         for line in lines:
-            match = heading_pattern.match(line)
+            match = _HEADING_PATTERN.match(line)
             if match:
                 # Flush previous section
                 if current_lines:
@@ -169,4 +154,3 @@ class MarkdownParser:
             "text": text,
             "body": text_body
         }
-

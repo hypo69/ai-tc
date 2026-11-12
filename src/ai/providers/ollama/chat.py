@@ -18,13 +18,13 @@
 # Package: src.ai.providers.ollama
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 16:52:00
 # =============================================================================
 
-"""Базовый class для чат-интерфейса с Ollama моделями."""
+"""Базовый класс для чат-интерфейса с Ollama моделями."""
 
 import asyncio
-import time
+import random
 from typing import Optional, List, Dict, Any
 from logger import logger
 
@@ -75,10 +75,10 @@ class OllamaChatBase:
         self._history = []
         logger.debug('Chat history cleared')
 
-    async def ask(self, q: str, attempts: int=15, temperature: Optional[float]=0.0, max_tokens: Optional[int]=0, system_instruction: Optional[str]='', generation_config: dict={}) -> Optional[str]:
+    async def ask(self, q: str, attempts: int=15, temperature: Optional[float]=0.0, max_tokens: Optional[int]=0, system_instruction: Optional[str]='', generation_config: Optional[Dict[str, Any]]=None) -> Optional[str]:
         return await self.chat(q=q, history=[], save_history=False, temperature=temperature, max_tokens=max_tokens, system_instruction=system_instruction, attempts=attempts)
 
-    async def chat(self, q: str, history: Optional[List[Dict]]=[], save_history: bool=True, temperature: Optional[float]=0.0, max_tokens: Optional[int]=0, system_instruction: Optional[str]='', attempts: int=15, **kwargs) -> Optional[str]:
+    async def chat(self, q: str, history: Optional[List[Dict]]=None, save_history: bool=True, temperature: Optional[float]=0.0, max_tokens: Optional[int]=0, system_instruction: Optional[str]='', attempts: int=15, **kwargs) -> Optional[str]:
         client = await self._get_client()
         temp = temperature if temperature and temperature > 0 else self.temperature
         tokens = max_tokens if max_tokens and max_tokens > 0 else self.max_tokens
@@ -115,12 +115,12 @@ class OllamaChatBase:
                     if is_debug_mode():
                         raise RuntimeError(f'[DEBUG MODE] Ollama Model Error ({self.model_id}) on attempt {attempt}: {self._last_error}')
                     from src.ai.orchestration.model_error_hub import record_model_error
-                    wait_time = 2 ** min(attempt, 5)
+                    wait_time = 2 ** min(attempt, 5) + random.uniform(0.1, 0.5)
                     if attempt >= attempts:
                         record_model_error(provider='ollama', model_name=self.model_id, error=self._last_error, attempt=attempt, max_attempts=attempts, action_taken='failed')
                         return ''
                     record_model_error(provider='ollama', model_name=self.model_id, error=self._last_error, attempt=attempt, max_attempts=attempts, action_taken='retry', retry_delay_seconds=float(wait_time))
-                    time.sleep(wait_time)
+                    await asyncio.sleep(wait_time)
             except Exception as ex:
                 self._error_count += 1
                 logger.error(f'[{self.model_id}] chat exception: {ex}')
@@ -135,18 +135,18 @@ class OllamaChatBase:
                     record_model_error(provider='ollama', model_name=self.model_id, error=self._last_error, status_code=404, attempt=attempt, max_attempts=attempts, action_taken='failed')
                     add_unsupported_model('ollama', self.model_id, reason=self._last_error)
                     return ''
-                wait_time = 2 ** min(attempt, 5)
+                wait_time = 2 ** min(attempt, 5) + random.uniform(0.1, 0.5)
                 if attempt >= attempts:
                     record_model_error(provider='ollama', model_name=self.model_id, error=self._last_error, attempt=attempt, max_attempts=attempts, action_taken='failed')
                     return ''
                 record_model_error(provider='ollama', model_name=self.model_id, error=self._last_error, attempt=attempt, max_attempts=attempts, action_taken='retry', retry_delay_seconds=float(wait_time))
-                time.sleep(2 ** min(attempt, 5))
+                await asyncio.sleep(wait_time)
         from src.config import is_debug_mode
         if is_debug_mode():
             raise RuntimeError(f'[DEBUG MODE] Превышено количество попыток для Ollama ({self.model_id})')
         return ''
 
-    async def chat_stream(self, q: str, history: Optional[List[Dict]]=[], save_history: bool=True, temperature: Optional[float]=0.0, max_tokens: Optional[int]=0, system_instruction: Optional[str]='', attempts: int=15, model_name: Optional[str]='', generation_config: dict={}, **kwargs):
+    async def chat_stream(self, q: str, history: Optional[List[Dict]]=None, save_history: bool=True, temperature: Optional[float]=0.0, max_tokens: Optional[int]=0, system_instruction: Optional[str]='', attempts: int=15, model_name: Optional[str]='', generation_config: Optional[Dict[str, Any]]=None, **kwargs):
         response = await self.chat(q=q, history=history, save_history=save_history, temperature=temperature, max_tokens=max_tokens, system_instruction=system_instruction, attempts=attempts, **kwargs)
         if response:
             yield response

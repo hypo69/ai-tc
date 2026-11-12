@@ -3,11 +3,11 @@
 # Process Name: AI-Windows-Admin AI - Approved Responses Store Module
 # =============================================================================
 # Description:
-#   Возвращает текущую директорию хранения одобренных ответов.
+#   Потокобезопасное хранилище одобренных пользователем ответов модели (для дообучения и RAG).
 #
 # Usage Examples:
 #   Python API:
-#     from src.ai.gemini.approved_responses_store import get_store_dir
+#     from src.ai.gemini.approved_responses_store import get_store_dir, save_approved_response
 #
 #     res = get_store_dir()
 #     print(res)
@@ -17,21 +17,56 @@
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 14:43:00
 # =============================================================================
 
 from __future__ import annotations
-"""Возвращает текущую директорию хранения одобренных ответов."""
 
-import json
-import uuid
+"""Потокобезопасное хранилище одобренных пользователем ответов модели."""
+
 from datetime import datetime, timezone
+import json
+import os
 from pathlib import Path
+import tempfile
+import threading
 from typing import Any, Dict, List, Optional
+import uuid
+
 from header import __root__
 from logger import logger
+
 _STORE_DIR = __root__ / 'data' / 'tc' / 'approved_responses'
 _STORE_DIR.mkdir(parents=True, exist_ok=True)
+_STORE_LOCK = threading.RLock()
+
+
+def _atomic_write_text(filepath: Path, text: str) -> None:
+    """Атомарно записывает текст в файл через временный файл .tmp и os.replace()."""
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    temp_file: Optional[Path] = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            'w',
+            dir=str(filepath.parent),
+            prefix=f'.{filepath.name}.',
+            suffix='.tmp',
+            delete=False,
+            encoding='utf-8',
+        ) as tf:
+            temp_file = Path(tf.name)
+            tf.write(text)
+            tf.flush()
+            os.fsync(tf.fileno())
+        os.replace(temp_file, filepath)
+    except Exception:
+        if temp_file and temp_file.exists():
+            try:
+                temp_file.unlink()
+            except OSError:
+                pass
+        raise
+
 
 def get_store_dir() -> Path:
     """Возвращает текущую директорию хранения одобренных ответов.
@@ -41,8 +76,16 @@ def get_store_dir() -> Path:
     """
     return _STORE_DIR
 
-def save_approved_response(user_id: str, query: str, chat_text: str, voice_text: str='', system_context: Optional[Dict[str, Any]]=None, tags: Optional[List[str]]=None) -> bool:
-    """Сохраняет одобренный пользователем ответ модели в JSON-файл.
+
+def save_approved_response(
+    user_id: str,
+    query: str,
+    chat_text: str,
+    voice_text: str = '',
+    system_context: Optional[Dict[str, Any]] = None,
+    tags: Optional[List[str]] = None,
+) -> bool:
+    """Атомарно сохраняет одобренный пользователем ответ модели в JSON-файл.
 
     Args:
         user_id: Идентификатор пользователя (ID или 'anon_...').
@@ -55,19 +98,30 @@ def save_approved_response(user_id: str, query: str, chat_text: str, voice_text:
     Returns:
         bool: True в случае успешного сохранения, иначе False.
     """
-    try:
-        now_utc = datetime.now(timezone.utc)
-        entry: Dict[str, Any] = {'id': str(uuid.uuid4()), 'timestamp': now_utc.isoformat(), 'user_id': str(user_id), 'query': query, 'chat_text': chat_text, 'voice_text': voice_text, 'system_context': system_context or {}, 'tags': tags or ['tc']}
-        filename = f"{now_utc.strftime('%Y%m%d_%H%M%S')}_{entry['id'][:8]}.json"
-        filepath = _STORE_DIR / filename
-        filepath.write_text(json.dumps(entry, ensure_ascii=False, indent=2), encoding='utf-8')
-        logger.info(f'[ApprovedResponsesStore] Approved response saved: {filename}')
-        return True
-    except Exception as ex:
-        logger.error('[ApprovedResponsesStore] Error saving response', ex)
-        return False
+    with _STORE_LOCK:
+        try:
+            now_utc = datetime.now(timezone.utc)
+            entry: Dict[str, Any] = {
+                'id': str(uuid.uuid4()),
+                'timestamp': now_utc.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                'user_id': str(user_id),
+                'query': query,
+                'chat_text': chat_text,
+                'voice_text': voice_text,
+                'system_context': system_context or {},
+                'tags': tags or ['tc'],
+            }
+            filename = f"{now_utc.strftime('%Y%m%d_%H%M%S')}_{entry['id'][:8]}.json"
+            filepath = _STORE_DIR / filename
+            _atomic_write_text(filepath, json.dumps(entry, ensure_ascii=False, indent=2))
+            logger.info(f'[ApprovedResponsesStore] Одобренный ответ сохранен: {filename}')
+            return True
+        except Exception as ex:
+            logger.error('[ApprovedResponsesStore] Ошибка сохранения ответа', ex)
+            return False
 
-def list_responses(user_id: str='', tag: str='') -> List[Dict[str, Any]]:
+
+def list_responses(user_id: str = '', tag: str = '') -> List[Dict[str, Any]]:
     """Возвращает список всех сохраненных одобренных ответов.
 
     Args:
@@ -78,22 +132,31 @@ def list_responses(user_id: str='', tag: str='') -> List[Dict[str, Any]]:
         List[Dict[str, Any]]: Список словарей с данными ответов.
     """
     results: List[Dict[str, Any]] = []
-    if not _STORE_DIR.exists():
-        return results
-    for fp in sorted(_STORE_DIR.glob('*.json')):
-        try:
-            entry = json.loads(fp.read_text(encoding='utf-8'))
-            if user_id and entry.get('user_id') != str(user_id):
-                continue
-            if tag and tag not in entry.get('tags', []):
-                continue
-            results.append(entry)
-        except Exception as ex:
-            logger.error(f'[ApprovedResponsesStore] Error reading file {fp.name}', ex)
+    with _STORE_LOCK:
+        if not _STORE_DIR.exists():
+            return results
+        for fp in sorted(_STORE_DIR.glob('*.json')):
+            try:
+                entry = json.loads(fp.read_text(encoding='utf-8'))
+                if user_id and entry.get('user_id') != str(user_id):
+                    continue
+                if tag and tag not in entry.get('tags', []):
+                    continue
+                results.append(entry)
+            except Exception as ex:
+                logger.error(f'[ApprovedResponsesStore] Ошибка чтения файла {fp.name}', ex)
     return results
 
-def update_response(doc_id: str, query: str, chat_text: str, voice_text: str='', system_context: Optional[Dict[str, Any]]=None, tags: Optional[List[str]]=None) -> bool:
-    """Обновляет сохраненный диалог на диске по его уникальному ID.
+
+def update_response(
+    doc_id: str,
+    query: str,
+    chat_text: str,
+    voice_text: str = '',
+    system_context: Optional[Dict[str, Any]] = None,
+    tags: Optional[List[str]] = None,
+) -> bool:
+    """Атомарно обновляет сохраненный диалог на диске по его уникальному ID.
 
     Args:
         doc_id: Уникальный ID записи.
@@ -106,27 +169,29 @@ def update_response(doc_id: str, query: str, chat_text: str, voice_text: str='',
     Returns:
         bool: True при успехе, иначе False.
     """
-    try:
-        for fp in _STORE_DIR.glob('*.json'):
-            try:
-                entry = json.loads(fp.read_text(encoding='utf-8'))
-                if entry.get('id') == doc_id:
-                    entry['query'] = query
-                    entry['chat_text'] = chat_text
-                    entry['voice_text'] = voice_text
-                    if system_context is not None:
-                        entry['system_context'] = system_context
-                    if tags is not None:
-                        entry['tags'] = tags
-                    fp.write_text(json.dumps(entry, ensure_ascii=False, indent=2), encoding='utf-8')
-                    logger.info(f'[ApprovedResponsesStore] Response updated: {fp.name}')
-                    return True
-            except Exception as ex:
-                logger.error(f'[ApprovedResponsesStore] Error parsing {fp.name}', ex)
-        return False
-    except Exception as ex:
-        logger.error('[ApprovedResponsesStore] Error updating response', ex)
-        return False
+    with _STORE_LOCK:
+        try:
+            for fp in _STORE_DIR.glob('*.json'):
+                try:
+                    entry = json.loads(fp.read_text(encoding='utf-8'))
+                    if entry.get('id') == doc_id:
+                        entry['query'] = query
+                        entry['chat_text'] = chat_text
+                        entry['voice_text'] = voice_text
+                        if system_context is not None:
+                            entry['system_context'] = system_context
+                        if tags is not None:
+                            entry['tags'] = tags
+                        _atomic_write_text(fp, json.dumps(entry, ensure_ascii=False, indent=2))
+                        logger.info(f'[ApprovedResponsesStore] Ответ обновлен: {fp.name}')
+                        return True
+                except Exception as ex:
+                    logger.error(f'[ApprovedResponsesStore] Ошибка разбора файла {fp.name}', ex)
+            return False
+        except Exception as ex:
+            logger.error('[ApprovedResponsesStore] Ошибка обновления ответа', ex)
+            return False
+
 
 def delete_response(doc_id: str) -> bool:
     """Удаляет файл сохраненного диалога по его ID.
@@ -137,22 +202,28 @@ def delete_response(doc_id: str) -> bool:
     Returns:
         bool: True при успехе, иначе False.
     """
-    try:
-        for fp in _STORE_DIR.glob('*.json'):
-            try:
-                entry = json.loads(fp.read_text(encoding='utf-8'))
-                if entry.get('id') == doc_id:
-                    fp.unlink()
-                    logger.info(f'[ApprovedResponsesStore] Response deleted: {fp.name}')
-                    return True
-            except Exception as ex:
-                logger.error(f'[ApprovedResponsesStore] Error during delete {fp.name}', ex)
-        return False
-    except Exception as ex:
-        logger.error('[ApprovedResponsesStore] Error deleting response', ex)
-        return False
+    with _STORE_LOCK:
+        try:
+            for fp in _STORE_DIR.glob('*.json'):
+                try:
+                    entry = json.loads(fp.read_text(encoding='utf-8'))
+                    if entry.get('id') == doc_id:
+                        fp.unlink()
+                        logger.info(f'[ApprovedResponsesStore] Ответ удален: {fp.name}')
+                        return True
+                except Exception as ex:
+                    logger.error(f'[ApprovedResponsesStore] Ошибка при удалении {fp.name}', ex)
+            return False
+        except Exception as ex:
+            logger.error('[ApprovedResponsesStore] Ошибка удаления ответа', ex)
+            return False
 
-def export_tuning_dataset(output_path: Path | str, fmt: str='alpaca', system_instruction: str='Ты — AI-ассистент по диагностике и мониторингу ПК (Test Computer).') -> int:
+
+def export_tuning_dataset(
+    output_path: Path | str,
+    fmt: str = 'alpaca',
+    system_instruction: str = 'Ты — AI-ассистент по диагностике и мониторингу ПК (Test Computer).',
+) -> int:
     """Экспортирует сохраненные ответы в датасет для тюнинга модели (JSONL).
 
     Args:
@@ -187,10 +258,15 @@ def export_tuning_dataset(output_path: Path | str, fmt: str='alpaca', system_ins
             conversations.append({'from': 'gpt', 'value': ans})
             records.append({'conversations': conversations})
         elif fmt == 'gemini':
-            contents = [{'role': 'user', 'parts': [{'text': f'{ctx_str}\n\n{q}'.strip() if ctx_str else q}]}, {'role': 'model', 'parts': [{'text': ans}]}]
-            records.append({'systemInstruction': {'role': 'system', 'parts': [{'text': system_instruction}]}, 'contents': contents})
-    with open(out_file, 'w', encoding='utf-8') as f:
-        for r in records:
-            f.write(json.dumps(r, ensure_ascii=False) + '\n')
-    logger.info(f'[ApprovedResponsesStore] Exported {len(records)} records to {out_file} (format={fmt})')
+            contents = [
+                {'role': 'user', 'parts': [{'text': f'{ctx_str}\n\n{q}'.strip() if ctx_str else q}]},
+                {'role': 'model', 'parts': [{'text': ans}]},
+            ]
+            records.append({
+                'systemInstruction': {'role': 'system', 'parts': [{'text': system_instruction}]},
+                'contents': contents,
+            })
+    lines_text = '\n'.join(json.dumps(r, ensure_ascii=False) for r in records) + ('\n' if records else '')
+    _atomic_write_text(out_file, lines_text)
+    logger.info(f'[ApprovedResponsesStore] Экспортировано записей: {len(records)} в {out_file} (format={fmt})')
     return len(records)

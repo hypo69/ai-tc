@@ -12,7 +12,7 @@
  * Package: windows/api/webgui/tab_app_internals/panel_instruments_db
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 18:12:00
+ * Updated: 2026-11-01 17:44:30
  * =============================================================================
  */
 
@@ -27,7 +27,9 @@ import {
   bindInstrumentsCatalogButtons,
   openInstrumentEditorModal,
   saveInstrumentFromModal,
-} from './catalog.js?v=20261031_v5';
+  exportInstrumentsCatalogCsv,
+  importInstrumentsCatalogCsv,
+} from './catalog.js?v=20261101_v1';
 
 export {
   loadInstrumentsRuntimeConfig,
@@ -37,6 +39,8 @@ export {
   bindInstrumentsCatalogButtons,
   openInstrumentEditorModal,
   saveInstrumentFromModal,
+  exportInstrumentsCatalogCsv,
+  importInstrumentsCatalogCsv,
 };
 
 /**

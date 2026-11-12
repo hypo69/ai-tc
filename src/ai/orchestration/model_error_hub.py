@@ -16,7 +16,7 @@
 # Package: src.ai.orchestration
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 11:27:00
+# Updated: 2026-11-10 16:48:00
 # =============================================================================
 
 from __future__ import annotations
@@ -56,6 +56,9 @@ class ModelErrorEvent(BaseModel):
     action_taken: str = Field('none', description='Действие: retry, rotate_key, switch_model, failed')
     retry_delay_seconds: float = Field(0.0, description='Пауза перед повтором в секундах')
 
+_HTTP_STATUS_CODE_RE = re.compile(r'\b(401|403|404|429|500|502|503|504)\b')
+
+
 def classify_model_error(ex: Any, status_code: Optional[int]=None) -> Tuple[ModelErrorCategory, Optional[int]]:
     """Классифицировать исключение или строку ошибки AI-модели.
 
@@ -69,7 +72,7 @@ def classify_model_error(ex: Any, status_code: Optional[int]=None) -> Tuple[Mode
     ex_str: str = str(ex).strip()
     code: Optional[int] = status_code
     if code is None:
-        match = re.search('\\b(401|403|404|429|500|502|503|504)\\b', ex_str)
+        match = _HTTP_STATUS_CODE_RE.search(ex_str)
         if match:
             code = int(match.group(1))
     low: str = ex_str.lower()

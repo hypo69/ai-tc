@@ -16,7 +16,7 @@
 # Package: apps.windows
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 11:35:00
+# Updated: 2026-11-01 13:00:00
 # =============================================================================
 
 """Роутер диагностики, управления окнами, персонализации, идентификации и безопасности Windows."""
@@ -37,13 +37,11 @@ from apps.windows.sdk.core.root_cause_engine import RootCauseEngine
 from apps.windows.sdk.core.safe_executor import SafeExecutor
 from apps.windows.sdk.modules.personalization.router import router as personalization_router
 from apps.windows.sdk.modules.accounts_identity.router import router as accounts_identity_router
-from apps.windows.sdk.core.tool_chains.router import router as toolchains_router
 from apps.windows.sdk.software_scanner.router import router as software_scanner_router
 
 router = APIRouter(prefix='/api/windows', tags=['windows-diagnostics'])
 router.include_router(personalization_router, prefix='/personalization', tags=['Personalization'])
 router.include_router(accounts_identity_router, tags=['Accounts & Identity'])
-router.include_router(toolchains_router, tags=['Tool Chains'])
 router.include_router(software_scanner_router, tags=['Software Scanner'])
 
 _diagnostician = WindowsAIDiagnostician()

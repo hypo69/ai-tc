@@ -14,7 +14,7 @@ Project: ai-windows-admin
 Package: src/api/webgui/google_desktop_tab
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 10:55:00
+Updated: 2026-11-01 12:50:00
 =============================================================================
 -->
 <!-- Google User Desktop Web Tab Module -->
@@ -53,17 +53,6 @@ Updated: 2026-10-20 10:55:00
     border-radius: 8px;
     overflow: hidden;
   }
-  .gdesktop-panel-header {
-    background: var(--surface-2) !important;
-    border-bottom: 1px solid var(--border-color) !important;
-    padding: 0.5rem 0.85rem;
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--nav-active);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
   .gdesktop-subnav .nav-link {
     color: var(--text-muted);
     border-radius: 6px;
@@ -95,7 +84,7 @@ Updated: 2026-10-20 10:55:00
       <span class="tab-header-icon fs-4 text-warning">☁️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Google Desktop & Cloud Workspace</h3>
+          <h3 class="tab-header-title mb-0">Google Desktop & Cloud Workspace</h3>
           <span class="badge bg-danger text-white border border-light-subtle px-2 py-0.5" style="font-size: 0.7rem;">Workspace Aggregator</span>
         </div>
         <small class="tab-header-subtitle text-secondary">Интеграция с сервисами Google Drive, Gmail, Docs, RAG синхронизация документов и облачных хранилищ</small>
@@ -161,7 +150,7 @@ Updated: 2026-10-20 10:55:00
 </div>
 <!-- Sub-navigation Tabs -->
 <div class="gdesktop-panel mb-3">
-<div class="gdesktop-panel-header">
+<div class="panel-header">
 <ul class="nav nav-pills gdesktop-subnav gap-1" id="gdesktop-subnav-tabs" role="tablist">
 <li class="nav-item" role="presentation">
 <button class="nav-link active" data-bs-target="#gdesktop-pane-mail" data-bs-toggle="pill" id="gdesktop-tab-mail-btn" role="tab" type="button">

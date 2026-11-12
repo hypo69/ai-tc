@@ -17,7 +17,7 @@
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 18:45:00
+ * Updated: 2026-11-12 02:25:00
  * =============================================================================
  */
 
@@ -170,6 +170,32 @@ export function registerTabPoller(tabId, pollFn, intervalMs = 3000, options = {}
   }
 
   return pollerId;
+}
+
+/**
+ * Устанавливает активную панель и опциональный блок в URL hash (#tab_<tab>#panel-<panel>[#block-<block>]).
+ * @param {string} tabId 
+ * @param {string} panelId 
+ * @param {string|null} [blockId=null]
+ */
+export function setPanelHash(tabId, panelId, blockId = null) {
+  if (!tabId || !panelId) return;
+  const normTab = normalizeTabId(tabId);
+  const cleanPanel = String(panelId).replace(/^#/, '');
+  const normPanel = cleanPanel.startsWith('panel-') ? cleanPanel : `panel-${cleanPanel}`;
+  let blockSuffix = '';
+  if (blockId) {
+    const cleanBlock = String(blockId).replace(/^#/, '');
+    const normBlock = cleanBlock.startsWith('block-') ? cleanBlock : `block-${cleanBlock}`;
+    blockSuffix = `#${normBlock}`;
+  }
+  const newHash = `#${normTab}#${normPanel}${blockSuffix}`;
+  if (typeof location !== 'undefined' && location.hash !== newHash) {
+    try {
+      history.replaceState(null, null, newHash);
+      document.dispatchEvent(new CustomEvent('panel:activated', { detail: { tabId: normTab, panelId: normPanel, blockId } }));
+    } catch (_) {}
+  }
 }
 
 /**
@@ -334,7 +360,8 @@ export function switchTab(tabId, targetSubPanelId = null) {
       }
     } else if (effectiveSubPanel && (id === 'tab-software-monitor' || id === 'tab-software-scanner') && typeof window.switchSoftwareSubTab === 'function') {
       try {
-        window.switchSoftwareSubTab(effectiveSubPanel);
+        const blockId = parts.find((p) => p.startsWith('block-')) || null;
+        window.switchSoftwareSubTab(effectiveSubPanel, blockId, false);
       } catch (err) {
         console.debug('switchSoftwareSubTab error:', err);
       }
@@ -535,5 +562,6 @@ if (typeof window !== 'undefined') {
   window.unregisterAllTabPollers = unregisterAllTabPollers;
   window.setTabPollerEnabled = setTabPollerEnabled;
   window.setTabProcessing = setTabProcessing;
+  window.setPanelHash = setPanelHash;
   window.resetTabProcessing = resetTabProcessing;
 }

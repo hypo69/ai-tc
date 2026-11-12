@@ -17,7 +17,7 @@ Usage Examples:
  * Package: windows/api/webgui/tab_storage_wear
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 10:55:00
+ * Updated: 2026-11-01 12:50:00
  * =============================================================================
 -->
 <style>
@@ -30,14 +30,6 @@ Usage Examples:
     border: 1px solid var(--border-color);
     border-radius: 8px;
     overflow: hidden;
-  }
-  .diag-panel-header {
-    background: var(--surface-2);
-    padding: 8px 14px;
-    border-bottom: 1px solid var(--border-color);
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--nav-active);
   }
   .about-sys-progress-track {
     background: var(--surface-2);
@@ -81,7 +73,7 @@ Usage Examples:
       <span class="tab-header-icon fs-4 text-warning">💽</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Износ накопителей и батареи</h3>
+          <h3 class="tab-header-title mb-0">Износ накопителей и батареи</h3>
           
         </div>
         <small class="tab-header-subtitle text-secondary">Мониторинг оставшегося ресурса перезаписи SSD/NVMe накопителей (TBW, Spare Capacity) и деградации аккумулятора</small>
@@ -111,10 +103,10 @@ Usage Examples:
 <!-- Disks Health & Wear Panel -->
 <div class="col-12 col-xl-8 col-lg-8">
 <div class="diag-panel h-100" data-panel-id="panel-storage-wear-1" id="panel-storage-wear-1">
-<div class="diag-panel-header d-flex justify-content-between align-items-center">
+<div class="panel-header d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-hdd-fill text-primary"></i>
-<span class="text-body">Здоровье накопителей SSD/NVMe и износ (Wear &amp; SMART)</span>
+<span class="panel-title">Здоровье накопителей SSD/NVMe и износ (Wear &amp; SMART)</span>
 </div>
 <span class="badge bg-secondary" id="diag-wear-disks-count">0 дисков</span>
 </div>
@@ -143,10 +135,10 @@ Usage Examples:
 <!-- Battery Deep Telemetry -->
 <div class="col-12 col-xl-4 col-lg-4">
 <div class="diag-panel h-100" data-panel-id="panel-storage-wear-2" id="panel-storage-wear-2">
-<div class="diag-panel-header d-flex justify-content-between align-items-center">
+<div class="panel-header d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-battery-charging text-warning"></i>
-<span class="text-body">Деградация и состояние батареи (Battery Degradation)</span>
+<span class="panel-title">Деградация и состояние батареи (Battery Degradation)</span>
 </div>
 <span class="badge bg-body-secondary border border-secondary text-body" id="diag-battery-source-badge">AC Mains</span>
 </div>

@@ -9,7 +9,7 @@
 # Package: plugins.user-plugins.markdown_notes
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-25 22:30:00
+# Updated: 2026-11-10 16:40:00
 # =============================================================================
 
 from __future__ import annotations
@@ -84,4 +84,3 @@ class MarkdownNotesPlugin(BasePlugin):
 
 
 Plugin = MarkdownNotesPlugin
-

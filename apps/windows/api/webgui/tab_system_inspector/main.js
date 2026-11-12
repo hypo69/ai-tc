@@ -12,19 +12,19 @@
  * Package: windows/api/webgui/tab_system_inspector
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 19:05:00
+ * Updated: 2026-11-01 16:10:00
  * =============================================================================
  */
 
-import { fetchAvailableTimeRanges } from './common/ui_utils.js';
-import { initCpuPanel, fetchCpuLoadFromApi, updateCpuTelemetry } from './panel_cpu/panel.js';
-import { initRamPanel, fetchMemoryIoFromApi, updateRamTelemetry } from './panel_ram/panel.js';
-import { initGpuPanel, fetchGpuLoadFromApi, updateGpuTelemetry } from './panel_gpu/panel.js?v=20261031_v1';
-import { initNetworkPanel, fetchNetworkLoadFromApi, updateNetworkTelemetry, handleNetworkHashRouting } from './panel_network/panel.js';
-import { initStoragePanel, fetchStorageLoadFromApi } from './panel_storage/panel.js';
-import { initWatcherPanel, fetchLiveFileEvents } from './panel_watcher/panel.js';
-import { initAiCopilotPanel } from './panel_ai_copilot/panel.js';
-import { initIntervalsPanel, openSysIntervalsModal } from './panel_intervals/panel.js';
+import { fetchAvailableTimeRanges } from './common/ui_utils.js?v=20261101_v1';
+import { initCpuPanel, fetchCpuLoadFromApi, updateCpuTelemetry } from './panel_cpu/panel.js?v=20261101_v1';
+import { initRamPanel, fetchMemoryIoFromApi, updateRamTelemetry } from './panel_ram/panel.js?v=20261101_v1';
+import { initGpuPanel, fetchGpuLoadFromApi, updateGpuTelemetry } from './panel_gpu/panel.js?v=20261101_v1';
+import { initNetworkPanel, fetchNetworkLoadFromApi, updateNetworkTelemetry, handleNetworkHashRouting } from './panel_network/panel.js?v=20261101_v1';
+import { initStoragePanel, fetchStorageLoadFromApi } from './panel_storage/panel.js?v=20261101_v1';
+import { initWatcherPanel, fetchLiveFileEvents } from './panel_watcher/panel.js?v=20261101_v1';
+import { initAiCopilotPanel } from './panel_ai_copilot/panel.js?v=20261101_v1';
+import { initIntervalsPanel, openSysIntervalsModal } from './panel_intervals/panel.js?v=20261101_v1';
 
 let sysWs = null;
 let wsFailCount = 0;

@@ -41,4 +41,3 @@ def plugin(ai_model: Any = None, config: Optional[dict] = None) -> ApplicationLo
         ApplicationLogAnalyzerPlugin: Инициализированный экземпляр плагина.
     """
     return ApplicationLogAnalyzerPlugin(ai_model=ai_model, config=config)
-

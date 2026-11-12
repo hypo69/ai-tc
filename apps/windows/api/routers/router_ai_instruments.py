@@ -18,15 +18,19 @@
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:33:00
+# Updated: 2026-11-10 14:20:00
 # =============================================================================
 
 from __future__ import annotations
 
 """REST API эндпоинты для базы инструментов ИИ-агента (ai_instruments.db)."""
 
+import os
+import tempfile
+from pathlib import Path
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
 from logger import logger
@@ -86,7 +90,6 @@ def init_router(service: Optional[AIInstrumentsService] = None) -> APIRouter:
     # Если сервис не передан явно — загружаем настройки из apps/windows/api/config.json
     if service is None:
         import json
-        from pathlib import Path
 
         cfg_path = Path("apps/windows/api/config.json")
         engine = "sqlite"
@@ -155,6 +158,92 @@ def init_router(service: Optional[AIInstrumentsService] = None) -> APIRouter:
             "count": len(results),
             "items": [it.model_dump() for it in results],
         }
+
+    @router.get("/export/csv")
+    async def export_instruments_csv(
+        tool_type: Optional[str] = Query(None, description="Фильтр по типу: powershell, cmd, utility"),
+        target_entity: Optional[str] = Query(None, description="Фильтр по сущности: process, service"),
+    ) -> Response:
+        """Экспортирует каталог инструментов агента в формат CSV через src.utils.csv.save_csv_file."""
+        fd, tmp_path = tempfile.mkstemp(suffix=".csv", prefix="ai_instruments_export_")
+        os.close(fd)
+        try:
+            srv.export_to_csv(
+                file_path=tmp_path,
+                tool_type=tool_type,
+                target_entity=target_entity,
+            )
+            content = Path(tmp_path).read_bytes()
+            return Response(
+                content=content,
+                media_type="text/csv; charset=utf-8",
+                headers={
+                    "Content-Disposition": 'attachment; filename="ai_instruments_catalog.csv"',
+                },
+            )
+        except Exception as ex:
+            logger.error(f"[RouterAIInstruments] Ошибка экспорта CSV: {ex}", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Ошибка экспорта каталога в CSV: {ex}")
+        finally:
+            try:
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
+            except Exception:
+                pass
+
+    @router.post("/import/csv", response_model=Dict[str, Any])
+    async def import_instruments_csv(request: Request) -> Dict[str, Any]:
+        """Импортирует инструменты агента из CSV-файла через src.utils.csv.read_csv_file."""
+        content_type = (request.headers.get("content-type") or "").lower()
+        fd, tmp_path = tempfile.mkstemp(suffix=".csv", prefix="ai_instruments_import_")
+        os.close(fd)
+        try:
+            if "multipart/form-data" in content_type:
+                form = await request.form()
+                upload = form.get("file")
+                if upload is None or not hasattr(upload, "read"):
+                    raise HTTPException(status_code=400, detail="В форме отсутствует CSV-файл ('file')")
+                raw_bytes = await upload.read()
+                if not raw_bytes:
+                    raise HTTPException(status_code=400, detail="Загруженный CSV-файл пуст")
+                Path(tmp_path).write_bytes(raw_bytes)
+            else:
+                body = await request.json()
+                file_path_str = (body.get("file_path") or "").strip() if isinstance(body, dict) else ""
+                csv_content = (body.get("csv_content") or "") if isinstance(body, dict) else ""
+                if file_path_str:
+                    src_path = Path(file_path_str)
+                    if not src_path.exists():
+                        raise HTTPException(status_code=404, detail=f"CSV-файл не найден: {file_path_str}")
+                    imported = srv.import_from_csv(src_path)
+                    return {
+                        "status": "ok",
+                        "success": True,
+                        "imported_count": len(imported),
+                        "items": [it.model_dump() for it in imported],
+                    }
+                if not csv_content or not csv_content.strip():
+                    raise HTTPException(status_code=400, detail="Содержимое CSV ('csv_content') не может быть пустым")
+                Path(tmp_path).write_text(csv_content, encoding="utf-8")
+
+            imported_items = srv.import_from_csv(tmp_path)
+            return {
+                "status": "ok",
+                "success": True,
+                "imported_count": len(imported_items),
+                "items": [it.model_dump() for it in imported_items],
+            }
+        except HTTPException:
+            raise
+        except Exception as ex:
+            logger.error(f"[RouterAIInstruments] Ошибка импорта CSV: {ex}", exc_info=True)
+            raise HTTPException(status_code=400, detail=f"Ошибка импорта инструментов из CSV: {ex}")
+        finally:
+            try:
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
+            except Exception:
+                pass
 
     @router.get("/{tool_id}", response_model=Dict[str, Any])
     async def get_instrument_by_id(tool_id: str) -> Dict[str, Any]:
@@ -412,7 +501,7 @@ def init_router(service: Optional[AIInstrumentsService] = None) -> APIRouter:
                         _runtime_mem_cache.update(c)
                         break
                 except Exception as ex:
-                    time.sleep(0.05)
+                    await asyncio.sleep(0.05)
                     continue
 
         return {"status": "ok", "runtime": runtime_cfg}
@@ -421,7 +510,6 @@ def init_router(service: Optional[AIInstrumentsService] = None) -> APIRouter:
     async def save_instruments_runtime_configuration(req: InstrumentsRuntimeConfigRequest) -> Dict[str, Any]:
         """Сохраняет параметры выполнения инструментов в цепочке размышлений."""
         import json
-        import time
         from pathlib import Path
         cfg_paths = [Path("apps/windows/api/config.json"), Path("config.json")]
         runtime_data = req.model_dump()
@@ -442,7 +530,7 @@ def init_router(service: Optional[AIInstrumentsService] = None) -> APIRouter:
                         f.write("\n")
                     break
                 except Exception as ex:
-                    time.sleep(0.05)
+                    await asyncio.sleep(0.05)
                     continue
 
         return {

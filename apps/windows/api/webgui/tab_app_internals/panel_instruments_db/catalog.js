@@ -13,7 +13,7 @@
  * Package: windows/api/webgui/tab_app_internals/panel_instruments_db
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 18:12:00
+ * Updated: 2026-11-01 17:44:30
  * =============================================================================
  */
 
@@ -478,6 +478,67 @@ export async function deleteInstrument(toolId) {
 }
 
 /**
+ * Экспорт каталога инструментов в CSV-файл.
+ * @returns {Promise<void>}
+ */
+export async function exportInstrumentsCatalogCsv() {
+  const typeFilter = document.getElementById('inst-catalog-filter-type')?.value || '';
+  const entityFilter = document.getElementById('inst-catalog-filter-entity')?.value || '';
+  const params = new URLSearchParams();
+  if (typeFilter) params.set('tool_type', typeFilter);
+  if (entityFilter) params.set('target_entity', entityFilter);
+  const qs = params.toString();
+  const url = `/api/v1/ai-instruments/export/csv${qs ? `?${qs}` : ''}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      notifyUser(`Ошибка экспорта CSV (${res.status})`, 'warning');
+      return;
+    }
+    const blob = await res.blob();
+    const downloadUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const dateStr = new Date().toISOString().slice(0, 10);
+    link.href = downloadUrl;
+    link.download = `ai_instruments_catalog_${dateStr}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(downloadUrl);
+    notifyUser('Каталог инструментов экспортирован в CSV', 'success');
+  } catch (err) {
+    notifyUser(`Ошибка экспорта CSV: ${err.message}`, 'danger');
+  }
+}
+
+/**
+ * Импорт инструментов из выбранного CSV-файла.
+ * @param {File} file - CSV-файл для загрузки
+ * @returns {Promise<void>}
+ */
+export async function importInstrumentsCatalogCsv(file) {
+  if (!file) return;
+  try {
+    const csvContent = await file.text();
+    const res = await fetch('/api/v1/ai-instruments/import/csv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ csv_content: csvContent }),
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      notifyUser(`Импортировано инструментов из CSV: ${data.imported_count ?? 0}`, 'success');
+      triggerFilteredCatalogLoad();
+    } else {
+      notifyUser(data.detail || 'Не удалось импортировать CSV', 'warning');
+    }
+  } catch (err) {
+    notifyUser(`Ошибка импорта CSV: ${err.message}`, 'danger');
+  }
+}
+
+/**
  * Запуск загрузки каталога с учетом текущих фильтров.
  */
 export function triggerFilteredCatalogLoad() {
@@ -497,6 +558,24 @@ export function bindInstrumentsCatalogButtons() {
   if (createBtn && !createBtn._bound) {
     createBtn._bound = true;
     createBtn.addEventListener('click', () => openInstrumentEditorModal(null));
+  }
+
+  const exportCsvBtn = document.getElementById('inst-catalog-btn-export-csv');
+  if (exportCsvBtn && !exportCsvBtn._bound) {
+    exportCsvBtn._bound = true;
+    exportCsvBtn.addEventListener('click', exportInstrumentsCatalogCsv);
+  }
+
+  const importCsvInp = document.getElementById('inst-catalog-file-import-csv');
+  if (importCsvInp && !importCsvInp._bound) {
+    importCsvInp._bound = true;
+    importCsvInp.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        await importInstrumentsCatalogCsv(file);
+        importCsvInp.value = '';
+      }
+    });
   }
 
   const refreshBtn = document.getElementById('inst-catalog-btn-refresh');

@@ -18,7 +18,7 @@
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 00:05:00
+# Updated: 2026-11-10 14:18:00
 # =============================================================================
 
 from __future__ import annotations
@@ -154,26 +154,26 @@ def main() -> int:
 
     if args.check_only and not target_path.exists():
         if args.json:
-            print(json.dumps({'status': 'error', 'message': f'Файл не найден: {target_path}', 'exists': False}, ensure_ascii=False))
+            logger.console(json.dumps({'status': 'error', 'message': f'Файл не найден: {target_path}', 'exists': False}, ensure_ascii=False))
         else:
-            print(f'❌ База данных телеметрии не найдена: {target_path}')
+            logger.console(f'❌ База данных телеметрии не найдена: {target_path}')
         return 1
 
     res = init_telemetry_database(db_path=args.db_path, force=args.force)
 
     if args.json:
-        print(json.dumps(res, ensure_ascii=False, indent=2))
+        logger.console(json.dumps(res, ensure_ascii=False, indent=2))
     else:
         status_icon = '✅' if res['integrity_ok'] else '⚠️'
-        print(f"\n{status_icon} База данных телеметрии: {res['db_path']}")
-        print(f"   • Существует:     {res['exists']}")
-        print(f"   • Вновь создана:  {res['created']}")
-        print(f"   • Размер файла:   {res['size_mb']} МБ ({res['size_bytes']} байт)")
-        print(f"   • Таблиц в схеме: {res['tables_count']}")
-        print(f"   • Целостность:    {res['integrity_message']}")
+        logger.console(f"\n{status_icon} База данных телеметрии: {res['db_path']}")
+        logger.console(f"   • Существует:     {res['exists']}")
+        logger.console(f"   • Вновь создана:  {res['created']}")
+        logger.console(f"   • Размер файла:   {res['size_mb']} МБ ({res['size_bytes']} байт)")
+        logger.console(f"   • Таблиц в схеме: {res['tables_count']}")
+        logger.console(f"   • Целостность:    {res['integrity_message']}")
         if res['tables']:
-            print(f"   • Таблицы:        {', '.join(res['tables'][:8])}{'...' if len(res['tables']) > 8 else ''}")
-        print('')
+            logger.console(f"   • Таблицы:        {', '.join(res['tables'][:8])}{'...' if len(res['tables']) > 8 else ''}")
+        logger.console('')
 
     return 0 if res['integrity_ok'] else 1
 

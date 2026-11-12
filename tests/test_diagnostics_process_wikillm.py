@@ -13,7 +13,7 @@
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 19:16:00
+# Updated: 2026-11-01 13:10:00
 # =============================================================================
 
 from __future__ import annotations
@@ -236,3 +236,80 @@ async def test_explain_process_when_wikillm_exists_invokes_model_for_resource_an
     assert "[ОБЩИЕ ДАННЫЕ ПРОЦЕССА ИЗ БАЗЫ ЗНАНИЙ WIKILLM]" in recorded_prompt["text"]
     assert "[АКТУАЛЬНАЯ ТЕЛЕМЕТРИЯ ТЕКУЩЕГО ИНСТАНСА ПРОЦЕССА" in recorded_prompt["text"]
     assert "НЕ ОПИСЫВАЙ заново, что это за программа" in recorded_prompt["instruction"]
+
+
+@pytest.mark.asyncio
+async def test_explain_process_when_not_in_wikillm_fetches_full_prompt_and_auto_saves_to_wikillm(
+    api_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Проверка Уровня 2: если процесса нет в WikiLLM, модель получает полный промпт, а общеописательная часть автоматически сохраняется."""
+    import time
+    unique_proc = f"novelhelper_{int(time.time()*1000)}.exe"
+    payload = {
+        "table_type": "process",
+        "title": f"Помощник системы ({unique_proc})",
+        "subtitle": "novelhelper",
+        "metadata": {
+            "pid": 7788,
+            "cpu_percent": 1.2,
+            "memory_working_set_mb": 115.0,
+            "handles_count": 450,
+            "thread_count": 8,
+        },
+        "model": "gemini-3.1-flash-lite",
+        "provider": "gemini",
+        "cache_only": False,
+    }
+
+    mock_response = json.dumps({
+        "general_summary": "Интерактивная утилита подсказок и вспомогательных команд для операционной системы Windows.",
+        "summary": "Анализ текущего потребления и состояния ресурсов: штатная фоновая работа процесса (PID 7788), низкая нагрузка на CPU 1.2%.",
+        "developer": "Modern Software Corp",
+        "category": "Системные утилиты",
+        "performance_impact": "ЦП: 1.2%, Память: 115 МБ, Handles: 450.",
+        "security_verdict": "Легитимный системный помощник, доверенная сессия.",
+        "recommendation": "Процесс не требует вмешательства.",
+        "action_steps": ["Оставить в фоновом режиме"],
+    })
+
+    recorded = {}
+
+    async def mock_ask(self, prompt, **kwargs):
+        recorded["prompt"] = prompt
+        recorded["instruction"] = getattr(self, "system_instruction", "")
+        return mock_response
+
+    monkeypatch.setattr(GoogleGenerativeAI, "ask", mock_ask)
+
+    resp = api_client.post("/api/v1/diagnostics/explain", json=payload)
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert data["has_wikillm_general_data"] is True
+    assert data["general_summary"] == "Интерактивная утилита подсказок и вспомогательных команд для операционной системы Windows."
+    assert "Анализ текущего потребления и состояния ресурсов" in data["summary"]
+    assert data["canonical_key"] == f"process:{unique_proc}"
+
+    # Проверяем, что промпт содержал оба уровня требований
+    assert "УРОВЕНЬ 1. ОБЩЕОПИСАТЕЛЬНАЯ СПРАВОЧНАЯ ИНФОРМАЦИЯ О ПРОГРАММЕ" in recorded["prompt"]
+    assert "УРОВЕНЬ 2. АНАЛИЗ ТЕКУЩЕГО ПОТРЕБЛЕНИЯ И СОСТОЯНИЯ РЕСУРСОВ" in recorded["prompt"]
+
+    # Проверяем, что в базе знаний WikiLLM автоматически появилась верифицированная запись!
+    engine = get_engine()
+    entity = engine.storage.get_entity(f"process:{unique_proc}")
+    assert entity is not None
+    assert entity.summary == "Интерактивная утилита подсказок и вспомогательных команд для операционной системы Windows."
+    assert entity.category == "Системные утилиты"
+
+    # Проверяем, что следующий вызов с cache_only=True мгновенно находит запись в WikiLLM!
+    cache_resp = api_client.post("/api/v1/diagnostics/explain", json={
+        "table_type": "process",
+        "title": f"Помощник системы ({unique_proc}) [PID: 9999]",
+        "cache_only": True
+    })
+    assert cache_resp.status_code == 200
+    cdata = cache_resp.json()
+    assert cdata["source"] == "wikillm"
+    assert cdata["is_verified"] is True
+    assert cdata["summary"] == "Интерактивная утилита подсказок и вспомогательных команд для операционной системы Windows."

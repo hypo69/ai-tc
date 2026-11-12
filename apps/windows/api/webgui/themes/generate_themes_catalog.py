@@ -10,17 +10,24 @@ Usage Examples:
     py apps/windows/api/webgui/themes/generate_themes_catalog.py
 
 File: generate_themes_catalog.py
-Project: ai-windows-admin
-Package: apps.windows.api.webgui.themes
+Project: ai-assistant
+Package: apps.common.webgui.themes
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 13:10:00
+Updated: 2026-11-03 14:08:00
 =============================================================================
 """
 
 import json
+import sys
 from pathlib import Path
 from typing import Any, Dict, List
+
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
+from logger import logger
 
 _THEMES_DIR = Path(__file__).resolve().parent
 _OUTPUT_CATALOG_FILE = _THEMES_DIR / "themes_catalog.json"
@@ -87,5 +94,5 @@ def build_themes_catalog_file(output_path: Path = _OUTPUT_CATALOG_FILE) -> int:
 
 if __name__ == "__main__":
     count = build_themes_catalog_file()
-    print(f"Сгенерирован themes_catalog.json: {count} тем записано.")
+    logger.console(f"Сгенерирован themes_catalog.json: {count} тем записано.")
 

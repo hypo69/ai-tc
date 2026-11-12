@@ -21,7 +21,7 @@
 # Package: apps.windows.ai_instruments
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:15:00
+# Updated: 2026-11-10 17:31:00
 # =============================================================================
 
 from __future__ import annotations
@@ -29,9 +29,12 @@ from __future__ import annotations
 """Хранилище базы инструментов ИИ-агента (ai_instruments.db) для SQLite и Hostinger MariaDB."""
 
 import json
+import os
+import random
 import sqlite3
 import ssl
 import threading
+import time
 import urllib.parse
 import urllib.request
 from contextlib import contextmanager
@@ -99,15 +102,19 @@ class AIInstrumentsStorage:
     def _connect_sqlite(self) -> Generator[sqlite3.Connection, None, None]:
         """Контекстный менеджер соединения с локальной базой SQLite."""
         if self._mem_conn is not None:
-            try:
-                yield self._mem_conn
-                self._mem_conn.commit()
-            except Exception:
-                self._mem_conn.rollback()
-                raise
+            with self._lock:
+                try:
+                    yield self._mem_conn
+                    self._mem_conn.commit()
+                except Exception:
+                    self._mem_conn.rollback()
+                    raise
         else:
-            conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
+            conn = sqlite3.connect(str(self.db_path), timeout=15.0, check_same_thread=False)
             conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA journal_mode = WAL")
+            conn.execute("PRAGMA synchronous = NORMAL")
+            conn.execute("PRAGMA busy_timeout = 15000")
             try:
                 yield conn
                 conn.commit()
@@ -138,13 +145,15 @@ class AIInstrumentsStorage:
                     self._mariadb_conn = None
 
             cfg = self.hostinger_config
-            host = cfg.get("host", "srv1502.hstgr.io")
-            port = int(cfg.get("port", 3306))
-            user = cfg.get("user", "u177424397_davidka")
-            password = cfg.get("password", "")
-            database = cfg.get("database", "u177424397_comp_knowledge")
+            host = cfg.get("host") or os.environ.get("HOSTINGER_DB_HOST", "")
+            port = int(cfg.get("port") or os.environ.get("HOSTINGER_DB_PORT", 3306))
+            user = cfg.get("user") or os.environ.get("HOSTINGER_DB_USER", "")
+            password = cfg.get("password") or os.environ.get("HOSTINGER_DB_PASSWORD", "")
+            database = cfg.get("database") or os.environ.get("HOSTINGER_DB_NAME", "")
             timeout = int(cfg.get("connect_timeout", 10))
-            ip_fallback = cfg.get("ip_fallback", "77.37.35.16")
+            read_timeout = int(cfg.get("read_timeout", 15))
+            write_timeout = int(cfg.get("write_timeout", 15))
+            ip_fallback = cfg.get("ip_fallback") or os.environ.get("HOSTINGER_DB_IP_FALLBACK", "")
 
             try:
                 self._mariadb_conn = pymysql.connect(
@@ -155,6 +164,8 @@ class AIInstrumentsStorage:
                     database=database,
                     charset="utf8mb4",
                     connect_timeout=timeout,
+                    read_timeout=read_timeout,
+                    write_timeout=write_timeout,
                     cursorclass=pymysql.cursors.DictCursor,
                     autocommit=True,
                 )
@@ -170,6 +181,8 @@ class AIInstrumentsStorage:
                             database=database,
                             charset="utf8mb4",
                             connect_timeout=timeout,
+                            read_timeout=read_timeout,
+                            write_timeout=write_timeout,
                             cursorclass=pymysql.cursors.DictCursor,
                             autocommit=True,
                         )
@@ -302,11 +315,23 @@ class AIInstrumentsStorage:
         )
         timeout = int(self.hostinger_config.get("connect_timeout", 10))
         ssl_ctx = ssl.create_default_context()
-        ssl_ctx.check_hostname = False
-        ssl_ctx.verify_mode = ssl.CERT_NONE
-        with urllib.request.urlopen(req, timeout=timeout, context=ssl_ctx) as resp:
-            resp_body = resp.read().decode("utf-8")
-            return json.loads(resp_body)
+        if not bool(self.hostinger_config.get("verify_ssl", True)):
+            ssl_ctx.check_hostname = False
+            ssl_ctx.verify_mode = ssl.CERT_NONE
+
+        max_retries = 3
+        last_err: Optional[Exception] = None
+        for attempt in range(max_retries):
+            try:
+                with urllib.request.urlopen(req, timeout=timeout, context=ssl_ctx) as resp:
+                    resp_body = resp.read().decode("utf-8")
+                    return json.loads(resp_body)
+            except Exception as err:
+                last_err = err
+                if attempt < max_retries - 1:
+                    backoff = (0.5 * (2 ** attempt)) + random.uniform(0.05, 0.25)
+                    time.sleep(backoff)
+        raise RuntimeError(f"Сбой обращения к PHP API Hostinger после {max_retries} попыток: {last_err}") from last_err
 
     def check_remote_connection(self) -> Dict[str, Any]:
         """Проверяет доступность удаленной базы на Hostinger и возвращает статистику таблицы ai_instruments."""

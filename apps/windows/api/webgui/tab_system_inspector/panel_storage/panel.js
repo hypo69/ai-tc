@@ -12,7 +12,7 @@
  * Package: windows/api/webgui/tab_system_inspector/panel_storage
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 10:45:00
+ * Updated: 2026-11-01 16:10:00
  * =============================================================================
  */
 
@@ -193,16 +193,39 @@ export function renderStorageCards(data) {
   const badgeDrives = document.getElementById('sys-storage-drives-badge');
   const badgeParts = document.getElementById('sys-storage-parts-badge');
   const badgeSummary = document.getElementById('sys-storage-summary-badge');
-  if (!box) return;
 
   const drives = Array.isArray(data.drives) ? data.drives : [];
   const partitions = Array.isArray(data.partitions) ? data.partitions : [];
+  const summary = data.summary || {};
+  const set = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
+
+  const totGb = Number(summary.total_gb || 0);
+  const usedGb = Number(summary.used_gb || 0);
+  const freeGb = Number(summary.free_gb || (totGb - usedGb));
+  const usedPct = Number(summary.used_percent || (totGb > 0 ? (usedGb / totGb) * 100 : 0));
+  const maxTemp = summary.max_temperature_c != null ? Number(summary.max_temperature_c) : null;
+
+  // Обновление верхнего баннера накопителей
+  set('sys-storage-kpi-used', `${usedGb.toFixed(1)} GB`);
+  set('sys-storage-kpi-free', `${freeGb.toFixed(1)} GB`);
+  set('sys-storage-kpi-drives', `${drives.length} / ${partitions.length}`);
+  set('sys-storage-kpi-temp', maxTemp != null ? `${maxTemp.toFixed(0)} °C` : '-- °C');
+  set('sys-storage-pct', `${usedPct.toFixed(1)}%`);
+  set('sys-storage-used', `${usedGb.toFixed(1)} / ${totGb.toFixed(1)} GB`);
+  set('sys-storage-temp-label', `Макс. температура: ${maxTemp != null ? maxTemp.toFixed(0) + ' °C' : '-- °C'}`);
+
+  const storageGauge = document.getElementById('sys-metric-storage-gauge');
+  if (storageGauge) storageGauge.innerHTML = createGaugeSvg(usedPct, 120, 68);
+
+  const storageTempSlider = document.getElementById('sys-metric-storage-temp-slider');
+  if (storageTempSlider) storageTempSlider.innerHTML = createTempSliderHtml(maxTemp, 25, 75, false);
+
+  if (!box) return;
 
   if (badgeDrives) badgeDrives.textContent = `${drives.length} дисков`;
   if (badgeParts) badgeParts.textContent = `${partitions.length} разделов`;
   if (badgeSummary) {
-    const summary = data.summary || {};
-    badgeSummary.textContent = `${summary.used_gb || 0} / ${summary.total_gb || 0} GB (${summary.used_percent || 0}%)`;
+    badgeSummary.textContent = `${usedGb.toFixed(1)} / ${totGb.toFixed(1)} GB (${usedPct.toFixed(1)}%)`;
   }
 
   if (drives.length === 0 && partitions.length === 0) {

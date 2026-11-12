@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_services_manager
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 10:55:00
+Updated: 2026-11-12 01:56:00
 =============================================================================
 -->
 <style>
@@ -29,16 +29,15 @@ Updated: 2026-10-20 10:55:00
     border: 1px solid var(--border-color);
     color: var(--text-color);
   }
-  .svc-card-header {
-    background: var(--surface-2);
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text-color);
-  }
   #svc-table tbody tr {
     border-bottom: 1px solid var(--border-color);
   }
-  #svc-table tbody tr:hover {
-    background-color: var(--surface-2, rgba(56, 189, 248, 0.06)) !important;
+  #svc-table tbody tr.interactive-service-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+  }
+  #svc-table tbody tr.interactive-service-row:hover {
+    background-color: var(--surface-2, rgba(56, 189, 248, 0.08)) !important;
   }
   #svc-table td {
     background: transparent;
@@ -53,7 +52,7 @@ Updated: 2026-10-20 10:55:00
       <span class="tab-header-icon fs-4 text-warning">⚙️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Диспетчер служб Windows (Services)</h3>
+          <h3 class="tab-header-title mb-0">Диспетчер служб Windows (Services)</h3>
           
         </div>
         <small class="tab-header-subtitle text-secondary">Управление запуском, остановкой и типами автозагрузки системных служб Windows Service Control Manager</small>
@@ -111,11 +110,12 @@ Updated: 2026-10-20 10:55:00
 </div>
 </div>
 <!-- Services Table -->
-<div class="card svc-card shadow-sm" data-panel-id="panel-services-manager-sluzhby-windows-service-control" id="panel-services-manager-sluzhby-windows-service-control">
-<div class="card-header svc-card-header d-flex align-items-center justify-content-between py-2 px-3 flex-wrap gap-2">
-<span class="fw-semibold"><i class="bi bi-gear-wide-connected text-primary me-2"></i>Службы Windows (Service Control Manager)</span>
+<div class="card svc-card shadow-sm" data-panel-id="panel-windows-services-manager" id="panel-windows-services-manager">
+<div class="panel-header d-flex align-items-center justify-content-between py-2 px-3 flex-wrap gap-2">
+<span class="panel-title"><i class="bi bi-gear-wide-connected text-primary me-2"></i>Службы Windows (Service Control Manager)</span>
 <div class="d-flex align-items-center gap-2">
   <span class="badge bg-secondary-subtle text-secondary border border-secondary" id="svc-table-badge">0 служб</span>
+  <span class="text-muted small d-none d-md-inline ms-1"><i class="bi bi-info-circle me-1"></i>Клик по строке открывает ИИ-досье службы</span>
   <button class="btn btn-xs btn-outline-secondary btn-table-expand-100" id="svc-btn-table-expand" title="Раскрыть таблицу на 100% высоты без скроллера">100%</button>
 </div>
 </div>

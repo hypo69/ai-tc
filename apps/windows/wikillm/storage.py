@@ -16,7 +16,7 @@
 # Package: apps.windows.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:15:00
+# Updated: 2026-11-10 17:29:00
 # =============================================================================
 
 from __future__ import annotations
@@ -47,11 +47,11 @@ from .models import (
 class WikiStorage:
     """SQLite-хранилище сущностей, фактов, наблюдений и полнотекстового индекса."""
 
-    def __init__(self, db_path: str | Path = "%ProgramData%/{app_name}/windows/knowledge.db") -> None:
+    def __init__(self, db_path: Optional[str | Path] = None) -> None:
         """Инициализирует подключение к SQLite базе данных.
 
         Args:
-            db_path: Путь к файлу базы данных или ':memory:'.
+            db_path: Путь к файлу базы данных, ':memory:' или None (путь берется строго из конфигурации).
         """
         if str(db_path) == ":memory:":
             self.db_path = ":memory:"
@@ -86,12 +86,18 @@ class WikiStorage:
                 self._mem_conn.rollback()
                 raise
         else:
-            conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
+            conn = sqlite3.connect(str(self.db_path), timeout=15.0, check_same_thread=False)
             conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA journal_mode = WAL")
+            conn.execute("PRAGMA synchronous = NORMAL")
+            conn.execute("PRAGMA busy_timeout = 15000")
             conn.execute("PRAGMA foreign_keys = ON")
             try:
                 yield conn
                 conn.commit()
+            except Exception:
+                conn.rollback()
+                raise
             finally:
                 conn.close()
 
@@ -270,43 +276,49 @@ class WikiStorage:
                 ),
             )
 
-            # 2. Обновление claims
+            # 2. Обновление claims (пакетная вставка executemany)
             conn.execute("DELETE FROM claims WHERE canonical_key = ?", (entity.canonical_key,))
-            for claim in entity.claims:
-                cid = claim.claim_id or str(uuid.uuid4())
-                conn.execute(
-                    """
-                    INSERT INTO claims (claim_id, canonical_key, statement, confidence, source, verified, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                    """,
+            if entity.claims:
+                claim_rows = [
                     (
-                        cid,
+                        claim.claim_id or str(uuid.uuid4()),
                         entity.canonical_key,
                         claim.statement,
                         claim.confidence,
                         claim.source.value,
                         1 if claim.verified else 0,
                         claim.created_at or now,
-                    ),
+                    )
+                    for claim in entity.claims
+                ]
+                conn.executemany(
+                    """
+                    INSERT INTO claims (claim_id, canonical_key, statement, confidence, source, verified, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    claim_rows,
                 )
 
-            # 3. Обновление evidence
+            # 3. Обновление evidence (пакетная вставка executemany)
             conn.execute("DELETE FROM evidence WHERE canonical_key = ?", (entity.canonical_key,))
-            for ev in entity.evidence:
-                eid = ev.evidence_id or str(uuid.uuid4())
-                conn.execute(
-                    """
-                    INSERT INTO evidence (evidence_id, canonical_key, description, telemetry_metric, sample_value, observed_at)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    """,
+            if entity.evidence:
+                ev_rows = [
                     (
-                        eid,
+                        ev.evidence_id or str(uuid.uuid4()),
                         entity.canonical_key,
                         ev.description,
                         ev.telemetry_metric,
                         ev.sample_value,
                         ev.observed_at or now,
-                    ),
+                    )
+                    for ev in entity.evidence
+                ]
+                conn.executemany(
+                    """
+                    INSERT INTO evidence (evidence_id, canonical_key, description, telemetry_metric, sample_value, observed_at)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    ev_rows,
                 )
 
             # 4. Обновление resolutions

@@ -1,0 +1,158 @@
+/**
+ * =============================================================================
+ * Process Name: Common WebGUI - File & Directory Tree Explorer Stylesheet
+ * =============================================================================
+ * Description:
+ *   Таблица стилей древовидного проводника файлов и поддиректорий
+ *   (apps/common/webgui/tab_file_tree).
+ *   Построена строго на базе CSS-переменных дизайн-системы и Bootstrap 5.
+ *   Полное отсутствие хардкода HEX/RGB цветов.
+ *
+ * File: style.css
+ * Project: ai-assistant
+ * Package: apps.common.webgui.tab_file_tree
+ * Author: hypo69
+ * Copyright: © 2026 hypo69
+ * Updated: 2026-10-30 15:10:00
+ * =============================================================================
+ */
+
+#file-tree-tab-root {
+  min-height: calc(100vh - 120px);
+}
+
+.ft-path-input-group {
+  max-width: 420px;
+}
+
+.ft-filter-input-group {
+  width: 260px;
+}
+
+.ft-tree-viewport {
+  min-height: 480px;
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.ft-tree-nodes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ft-tree-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--bs-border-radius-sm, 4px);
+  border: 1px solid transparent;
+  transition: background-color 0.12s ease-in-out, border-color 0.12s ease-in-out;
+  user-select: none;
+}
+
+.ft-tree-row:hover {
+  background-color: var(--bs-tertiary-bg);
+  border-color: var(--bs-border-color-subtle);
+}
+
+.ft-tree-row.active {
+  background-color: var(--bs-primary-bg-subtle);
+  border-color: var(--bs-primary-border-subtle);
+}
+
+.ft-tree-row.selected {
+  background-color: var(--bs-secondary-bg-subtle);
+}
+
+.ft-tree-item-title {
+  font-size: 0.875rem;
+  font-family: var(--bs-font-monospace);
+}
+
+.ft-toggle-btn {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ft-node-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.ft-summary-preview-pre {
+  max-height: 220px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Контекстное меню */
+.custom-context-menu {
+  position: fixed;
+  z-index: 1060;
+  min-width: 220px;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius, 6px);
+  box-shadow: var(--bs-box-shadow, 0 0.5rem 1rem rgba(0, 0, 0, 0.15));
+  padding: 4px 0;
+}
+
+.custom-context-menu-header {
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--bs-secondary-color);
+  border-bottom: 1px solid var(--bs-border-color-subtle);
+  margin-bottom: 4px;
+}
+
+.custom-context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+.custom-context-menu-item:hover:not(.disabled) {
+  background-color: var(--bs-tertiary-bg);
+}
+
+.custom-context-menu-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.custom-context-menu-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.95rem;
+  width: 18px;
+}
+
+.custom-context-menu-label {
+  flex-grow: 1;
+}
+
+.custom-context-menu-badge {
+  font-size: 0.7rem;
+}
+
+.custom-context-menu-divider {
+  height: 1px;
+  margin: 4px 0;
+  background-color: var(--bs-border-color-subtle);
+}

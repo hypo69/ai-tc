@@ -21,7 +21,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_windows_admin
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-28 16:35:00
+Updated: 2026-11-12 01:25:00
 =============================================================================
 -->
 <style>
@@ -89,16 +89,6 @@ Updated: 2026-10-28 16:35:00
     border-radius: 6px;
     overflow: hidden;
   }
-  .winadmin-panel-header {
-    background: var(--surface-2, #0f172a);
-    padding: 0.4rem 0.75rem;
-    font-weight: 600;
-    font-size: 0.85rem;
-    border-bottom: 1px solid var(--border-color, #334155);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
   .winadmin-table {
     width: 100%;
     font-size: 0.78rem;
@@ -138,6 +128,37 @@ Updated: 2026-10-28 16:35:00
     border: 1px solid var(--bs-danger-border-subtle, rgba(239, 68, 68, 0.4));
     font-weight: bold;
   }
+  /* Стандартизированная кнопка дрели (Drill-down) слева от строки таблицы */
+  .btn-drilldown-proc {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    line-height: 1;
+    border-radius: 4px;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    vertical-align: middle;
+  }
+  .btn-drilldown-proc:hover {
+    opacity: 0.85;
+    transform: scale(1.18);
+  }
+  .btn-drilldown-proc:active {
+    transform: scale(0.92);
+  }
+  .btn-drilldown-proc img {
+    width: 18px;
+    height: 18px;
+    max-width: 18px;
+    max-height: 18px;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+  }
 </style>
 
 <div class="winadmin-container theme-sysadmin" id="windows-admin-root">
@@ -147,7 +168,7 @@ Updated: 2026-10-28 16:35:00
       <span class="tab-header-icon fs-4 text-warning">🛡️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Панель Windows Sysadmin &amp; Identity</h3>
+          <h3 class="tab-header-title mb-0">Панель Windows Sysadmin &amp; Identity</h3>
         </div>
         <small class="tab-header-subtitle text-secondary">Контроль контекста безопасности, камеры, микрофона, привилегий токенов процессов и сетевой изоляции</small>
       </div>
@@ -183,13 +204,17 @@ Updated: 2026-10-28 16:35:00
         <i class="bi bi-shield-check text-success"></i>
         <span>Аудит доступа и SAM</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-pid-btn" data-panel-id="pid" data-term="winadmin-pid" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-pid" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-pid-btn" data-panel-id="pid-инспецтор" data-term="winadmin-pid" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-pid" type="button" role="tab">
         <i class="bi bi-cpu text-primary"></i>
-        <span>Инспектор процесса (PID)</span>
+        <span>PID-инспектор</span>
       </button>
       <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-catalog-btn" data-panel-id="catalog" data-term="winadmin-catalog" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-catalog" type="button" role="tab">
         <i class="bi bi-journal-code text-info"></i>
         <span>Каталог операций (~180)</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-ucpd-btn" data-panel-id="ucpd" data-term="winadmin-ucpd" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-ucpd" type="button" role="tab">
+        <i class="bi bi-shield-lock-fill text-danger"></i>
+        <span>Драйвер UCPD & Ассоциации</span>
       </button>
       <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-acl-btn" data-panel-id="acl" data-term="winadmin-acl" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-acl" type="button" role="tab">
         <i class="bi bi-shield-lock text-warning"></i>
@@ -248,7 +273,7 @@ Updated: 2026-10-28 16:35:00
         <div class="panel-header d-flex justify-content-between align-items-center py-1.5 px-3">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-radar text-info fs-6"></i>
-            <h3 class="panel-header mb-0">Контроль камеры и микрофона (Privacy Radar)</h3>
+            <span class="panel-title">Контроль камеры и микрофона (Privacy Radar)</span>
           </div>
           <span class="ui-badge ui-badge-info font-monospace small" id="privacy-radar-status">Live Focus</span>
         </div>
@@ -277,7 +302,7 @@ Updated: 2026-10-28 16:35:00
         <div class="panel-header d-flex justify-content-between align-items-center py-1.5 px-3">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-archive-fill text-info fs-6"></i>
-            <h3 class="panel-header mb-0">Резервное копирование (Windows Backup)</h3>
+            <span class="panel-title">Резервное копирование (Windows Backup)</span>
           </div>
           <span class="ui-badge ui-badge-success font-monospace small" id="sysadmin-backup-badge">File History: Active</span>
         </div>
@@ -298,9 +323,9 @@ Updated: 2026-10-28 16:35:00
 
 
       <div class="winadmin-panel" data-panel-id="panel-winadmin-users" id="panel-winadmin-users">
-        <div class="winadmin-panel-header flex-wrap gap-2">
+        <div class="panel-header flex-wrap gap-2">
           <div class="d-flex align-items-center gap-2">
-            <span><i class="bi bi-people-fill me-1 text-primary"></i> Учетные записи и сессии Windows</span>
+            <span class="panel-title"><i class="bi bi-people-fill me-1 text-primary"></i> Учетные записи и сессии Windows</span>
             <span class="ui-badge ui-badge-neutral" id="winadmin-users-badge">0 аккаунтов</span>
           </div>
           <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -310,19 +335,22 @@ Updated: 2026-10-28 16:35:00
               <button class="btn btn-outline-secondary py-0 px-2 winadmin-filter-btn" data-filter="hidden" data-term="winadmin-filter-hidden" data-ai-tooltip="true" data-placement="top" type="button">Скрытые</button>
               <button class="btn btn-outline-secondary py-0 px-2 winadmin-filter-btn" data-filter="admins" data-term="winadmin-filter-admins" data-ai-tooltip="true" data-placement="top" type="button">Админы</button>
             </div>
+            <button class="btn btn-xs btn-outline-secondary btn-table-expand-100" id="winadmin-users-btn-table-expand" data-target-container="winadmin-users-table-container" title="Раскрыть таблицу на 100% высоты без скроллера">100%</button>
             <div class="input-group input-group-sm" style="width: 220px;">
               <span class="input-group-text"><i class="bi bi-search"></i></span>
               <input class="form-control" id="filter-users-input" placeholder="Поиск пользователя..." type="text"/>
             </div>
           </div>
         </div>
-        <div class="p-0 table-responsive" style="max-height: 480px; overflow-y: auto;">
-          <table class="winadmin-table">
+        <div class="p-0 table-responsive" id="winadmin-users-table-container" data-resizable-table="true" style="min-height: 140px; max-height: 480px; overflow-y: auto;">
+          <table class="winadmin-table" id="winadmin-users-table">
             <thead class="sticky-top">
               <tr>
+                <th style="width: 36px; text-align: center;" title="Безопасность и параметры учетной записи (Drill-Down)"></th>
                 <th>Учетная запись</th>
                 <th>Полное имя / Описание</th>
                 <th>Группы / SID</th>
+                <th>Контроль UAC</th>
                 <th>Профиль / Диск</th>
                 <th>Ресурсы</th>
                 <th>Статус</th>
@@ -330,9 +358,12 @@ Updated: 2026-10-28 16:35:00
               </tr>
             </thead>
             <tbody id="winadmin-users-tbody">
-              <tr><td class="text-center text-muted p-3" colspan="7">Загрузка пользователей и сессий...</td></tr>
+              <tr><td class="text-center text-muted p-3" colspan="9">Загрузка пользователей и сессий...</td></tr>
             </tbody>
           </table>
+        </div>
+        <div class="sys-table-resizer" id="winadmin-users-table-resizer" data-container-id="winadmin-users-table-container" title="Потяните для изменения высоты таблицы (двойной клик — авто-высота)">
+          <div class="sys-table-resizer-grip"></div>
         </div>
       </div>
     </div>
@@ -340,18 +371,21 @@ Updated: 2026-10-28 16:35:00
     <!-- 2. Подраздел: Группы безопасности -->
     <div class="tab-pane fade" id="subtab-winadmin-groups" role="tabpanel">
       <div class="winadmin-panel" data-panel-id="panel-winadmin-groups" id="panel-winadmin-groups">
-        <div class="winadmin-panel-header">
+        <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-2">
           <div class="d-flex align-items-center gap-2">
-            <span><i class="bi bi-diagram-3 me-1 text-primary"></i> Группы безопасности и граф членства</span>
+            <span class="panel-title"><i class="bi bi-diagram-3 me-1 text-primary"></i> Группы безопасности и граф членства</span>
             <span class="ui-badge ui-badge-neutral" id="winadmin-groups-badge">0 групп</span>
           </div>
-          <div class="input-group input-group-sm" style="width: 220px;">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input class="form-control" id="filter-groups-input" placeholder="Поиск группы..." type="text"/>
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-xs btn-outline-secondary btn-table-expand-100" id="winadmin-groups-btn-table-expand" data-target-container="winadmin-groups-table-container" title="Раскрыть таблицу на 100% высоты без скроллера">100%</button>
+            <div class="input-group input-group-sm" style="width: 220px;">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input class="form-control" id="filter-groups-input" placeholder="Поиск группы..." type="text"/>
+            </div>
           </div>
         </div>
-        <div class="p-0 table-responsive" style="max-height: 480px; overflow-y: auto;">
-          <table class="winadmin-table">
+        <div class="p-0 table-responsive" id="winadmin-groups-table-container" data-resizable-table="true" style="min-height: 140px; max-height: 480px; overflow-y: auto;">
+          <table class="winadmin-table" id="winadmin-groups-table">
             <thead class="sticky-top">
               <tr>
                 <th>Имя группы</th>
@@ -367,15 +401,18 @@ Updated: 2026-10-28 16:35:00
             </tbody>
           </table>
         </div>
+        <div class="sys-table-resizer" id="winadmin-groups-table-resizer" data-container-id="winadmin-groups-table-container" title="Потяните для изменения высоты таблицы (двойной клик — авто-высота)">
+          <div class="sys-table-resizer-grip"></div>
+        </div>
       </div>
     </div>
 
     <!-- 3. Подраздел: Журнал безопасности (Security Log) -->
     <div class="tab-pane fade" id="subtab-winadmin-events" role="tabpanel">
       <div class="winadmin-panel" data-panel-id="panel-winadmin-security-events" id="panel-winadmin-security-events">
-        <div class="winadmin-panel-header flex-wrap gap-2">
+        <div class="panel-header flex-wrap gap-2">
           <div class="d-flex align-items-center gap-2">
-            <span><i class="bi bi-shield-shaded me-1 text-primary"></i> Общий журнал событий безопасности Windows</span>
+            <span class="panel-title"><i class="bi bi-shield-shaded me-1 text-primary"></i> Общий журнал событий безопасности Windows</span>
             <span class="ui-badge ui-badge-neutral" id="winadmin-events-badge">0 записей</span>
           </div>
           <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -390,13 +427,14 @@ Updated: 2026-10-28 16:35:00
               <span class="input-group-text"><i class="bi bi-search"></i></span>
               <input class="form-control" id="filter-events-input" placeholder="Поиск в журнале..." type="text"/>
             </div>
+            <button class="btn btn-xs btn-outline-secondary btn-table-expand-100" id="winadmin-events-btn-table-expand" data-target-container="winadmin-events-table-container" title="Раскрыть таблицу на 100% высоты без скроллера">100%</button>
             <button class="btn btn-sm btn-outline-primary py-0 px-2" id="btn-refresh-events" title="Обновить журнал">
               <i class="bi bi-arrow-clockwise"></i>
             </button>
           </div>
         </div>
-        <div class="p-0 table-responsive" style="max-height: 480px; overflow-y: auto;">
-          <table class="winadmin-table">
+        <div class="p-0 table-responsive" id="winadmin-events-table-container" data-resizable-table="true" style="min-height: 140px; max-height: 480px; overflow-y: auto;">
+          <table class="winadmin-table" id="winadmin-events-table">
             <thead class="sticky-top">
               <tr>
                 <th style="width: 140px;">Время</th>
@@ -413,6 +451,9 @@ Updated: 2026-10-28 16:35:00
             </tbody>
           </table>
         </div>
+        <div class="sys-table-resizer" id="winadmin-events-table-resizer" data-container-id="winadmin-events-table-container" title="Потяните для изменения высоты таблицы (двойной клик — авто-высота)">
+          <div class="sys-table-resizer-grip"></div>
+        </div>
       </div>
     </div>
 
@@ -421,8 +462,8 @@ Updated: 2026-10-28 16:35:00
       <div class="row g-2">
         <div class="col-md-7">
           <div class="winadmin-panel h-100" data-panel-id="panel-winadmin-audit" id="panel-winadmin-audit">
-            <div class="winadmin-panel-header">
-              <span><i class="bi bi-shield-check me-1 text-primary"></i> Быстрый аудит привилегий и доступа</span>
+            <div class="panel-header">
+              <span class="panel-title"><i class="bi bi-shield-check me-1 text-primary"></i> Быстрый аудит привилегий и доступа</span>
             </div>
             <div class="p-3">
               <div class="d-flex flex-wrap gap-2 mb-3">
@@ -451,8 +492,8 @@ Updated: 2026-10-28 16:35:00
         </div>
         <div class="col-md-5">
           <div class="winadmin-panel h-100" data-panel-id="panel-winadmin-sam" id="panel-winadmin-sam">
-            <div class="winadmin-panel-header">
-              <span><i class="bi bi-key-fill me-1 text-primary"></i> Политика паролей SAM</span>
+            <div class="panel-header">
+              <span class="panel-title"><i class="bi bi-key-fill me-1 text-primary"></i> Политика паролей SAM</span>
             </div>
             <div class="p-3 small" id="password-policy-container">
               <div class="text-muted">Загрузка политики паролей SAM...</div>
@@ -465,21 +506,43 @@ Updated: 2026-10-28 16:35:00
     <!-- 5. Подраздел: Инспектор процесса (PID) -->
     <div class="tab-pane fade" id="subtab-winadmin-pid" role="tabpanel">
       <div class="winadmin-panel" data-panel-id="panel-winadmin-pid" id="panel-winadmin-pid">
-        <div class="winadmin-panel-header">
-          <span><i class="bi bi-cpu me-1 text-primary"></i> Исследование контекста безопасности процесса (Token &amp; Account Dossier)</span>
+        <div class="panel-header">
+          <span class="panel-title"><i class="bi bi-cpu me-1 text-primary"></i> Исследование контекста безопасности процесса (Token &amp; Account Dossier)</span>
         </div>
         <div class="p-3">
-          <div class="row g-2 align-items-center mb-3">
-            <div class="col-auto">
-              <label class="col-form-label small fw-semibold text-body" for="input-explain-pid">PID процесса:</label>
+          <div class="row g-2 align-items-center mb-3 flex-wrap">
+            <div class="col-12 col-md-auto">
+              <label class="col-form-label small fw-semibold text-body" for="input-explain-pid">PID:</label>
             </div>
-            <div class="col-auto" style="width: 160px;">
-              <input class="form-control form-control-sm font-monospace" id="input-explain-pid" placeholder="например 1234" type="number"/>
+            <div class="col-6 col-sm-4 col-md-auto" style="min-width: 110px; max-width: 130px;">
+              <input class="form-control form-control-sm font-monospace" id="input-explain-pid" placeholder="1234" type="number"/>
+            </div>
+            <div class="col-12 col-md-auto">
+              <label class="col-form-label small fw-semibold text-body" for="input-explain-name">Название:</label>
+            </div>
+            <div class="col-12 col-sm-6 col-md-auto" style="min-width: 180px; max-width: 230px;">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text"><i class="bi bi-filter"></i></span>
+                <input class="form-control form-control-sm" id="input-explain-name" placeholder="например chrome.exe" type="text" autocomplete="off"/>
+              </div>
+            </div>
+            <div class="col-12 col-md-auto">
+              <label class="col-form-label small fw-semibold text-body" for="select-explain-process">Список процессов:</label>
+            </div>
+            <div class="col-12 col-lg" style="min-width: 250px;">
+              <div class="input-group input-group-sm">
+                <select class="form-select form-select-sm font-monospace" id="select-explain-process">
+                  <option value="">-- Загрузка процессов... --</option>
+                </select>
+                <button class="btn btn-outline-secondary" id="btn-refresh-processes-list" title="Обновить список процессов" type="button">
+                  <i class="bi bi-arrow-clockwise"></i>
+                </button>
+              </div>
             </div>
             <div class="col-auto">
               <button class="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm" id="btn-explain-pid">
                 <i class="bi bi-search"></i>
-                <span>Исследовать PID</span>
+                <span>Исследовать</span>
               </button>
             </div>
           </div>
@@ -492,8 +555,8 @@ Updated: 2026-10-28 16:35:00
     <!-- 6. Подраздел: Каталог операций (~180) -->
     <div class="tab-pane fade" id="subtab-winadmin-catalog" role="tabpanel">
       <div class="winadmin-panel" data-panel-id="panel-winadmin-catalog" id="panel-winadmin-catalog">
-        <div class="winadmin-panel-header flex-wrap gap-2">
-          <span><i class="bi bi-journal-code me-1 text-primary"></i> Реестр операций OS-level каталога Accounts &amp; Identity</span>
+        <div class="panel-header flex-wrap gap-2">
+          <span class="panel-title"><i class="bi bi-journal-code me-1 text-primary"></i> Реестр операций OS-level каталога Accounts &amp; Identity</span>
           <div class="input-group input-group-sm" style="width: 240px;">
             <span class="input-group-text"><i class="bi bi-search"></i></span>
             <input class="form-control form-control-sm" id="filter-catalog-input" placeholder="Поиск в каталоге..." type="text"/>
@@ -562,9 +625,9 @@ Updated: 2026-10-28 16:35:00
       </div>
 
       <div class="winadmin-panel" data-panel-id="panel-winadmin-acl" id="panel-winadmin-acl">
-        <div class="winadmin-panel-header flex-wrap gap-2">
+        <div class="panel-header flex-wrap gap-2">
           <div class="d-flex align-items-center gap-2">
-            <span><i class="bi bi-shield-lock me-1 text-primary"></i> Записи контроля доступа и управление разрешениями (icacls, takeown)</span>
+            <span class="panel-title"><i class="bi bi-shield-lock me-1 text-primary"></i> Записи контроля доступа и управление разрешениями (icacls, takeown)</span>
             <span class="ui-badge ui-badge-neutral" id="winadmin-acl-badge">3 ACE записей</span>
           </div>
           <div class="d-flex align-items-center gap-1.5 flex-wrap">
@@ -651,8 +714,8 @@ Updated: 2026-10-28 16:35:00
           <div class="col-12 col-lg-5 p-2.5 winadmin-side-strip d-flex flex-column gap-2">
             <!-- Панель изменения прав доступа (icacls grant) -->
             <div class="card border-secondary shadow-sm" data-panel-id="panel-winadmin-acl-modify" id="panel-winadmin-acl-modify">
-              <div class="card-header border-secondary py-1.5 px-3 d-flex align-items-center justify-content-between">
-                <span class="small fw-semibold"><i class="bi bi-person-gear text-warning me-1.5"></i>Изменение разрешений (icacls)</span>
+              <div class="panel-header border-secondary py-1.5 px-3 d-flex align-items-center justify-content-between">
+                <span class="panel-title"><i class="bi bi-person-gear text-warning me-1.5"></i>Изменение разрешений (icacls)</span>
               </div>
               <div class="card-body p-2.5">
                 <div class="mb-2">
@@ -683,12 +746,159 @@ Updated: 2026-10-28 16:35:00
 
             <!-- Консольный вывод icacls -->
             <div class="card border-secondary shadow-sm flex-grow-1" data-panel-id="panel-winadmin-acl-console" id="panel-winadmin-acl-console">
-              <div class="card-header border-secondary py-1 px-3 d-flex justify-content-between align-items-center">
-                <span class="small text-muted fw-bold"><i class="bi bi-terminal me-1"></i>Консольный вывод icacls</span>
+              <div class="panel-header border-secondary py-1 px-3 d-flex justify-content-between align-items-center">
+                <span class="panel-title"><i class="bi bi-terminal me-1"></i>Консольный вывод icacls</span>
                 <button class="btn btn-link btn-xs text-secondary text-decoration-none p-0" id="btn-winadmin-acl-clear-log" type="button">Очистить</button>
               </div>
               <div class="card-body p-2">
                 <pre class="winadmin-console-box p-2 rounded small font-monospace mb-0" id="winadmin-acl-console-output">Готов к управлению ACL и правами доступа.</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- 8. Подраздел: Управление драйвером UCPD (User Choice Protection Driver) -->
+    <div class="tab-pane fade" id="subtab-winadmin-ucpd" role="tabpanel">
+      <!-- Баннер требования перезагрузки -->
+      <div class="alert alert-warning d-flex align-items-center gap-2 mb-2 py-2 d-none" id="winadmin-ucpd-reboot-alert" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-5 text-warning"></i>
+        <div class="small">
+          <strong>Требуется перезагрузка компьютера:</strong> <span id="winadmin-ucpd-reboot-reason"></span>
+        </div>
+      </div>
+
+      <!-- Баннер дрейфа после Windows Update -->
+      <div class="alert alert-danger d-flex align-items-center gap-2 mb-2 py-2 d-none" id="winadmin-ucpd-drift-alert" role="alert">
+        <i class="bi bi-shield-slash-fill fs-5 text-danger"></i>
+        <div class="small">
+          <span id="winadmin-ucpd-drift-msg"></span>
+        </div>
+      </div>
+
+      <!-- Сетка метрик UCPD -->
+      <div class="row g-2 mb-2">
+        <div class="col-6 col-md-3">
+          <div class="winadmin-card">
+            <span class="winadmin-label">Драйвер в реестре / Запуск</span>
+            <div class="d-flex align-items-baseline justify-content-between mt-1">
+              <span class="winadmin-value winadmin-value-sm text-truncate" id="winadmin-ucpd-drv-start">-</span>
+            </div>
+            <div class="small text-muted mt-0.5">HKLM\...\Services\UCPD</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="winadmin-card">
+            <span class="winadmin-label">Ядро / Фильтр fltmc</span>
+            <div class="d-flex align-items-baseline justify-content-between mt-1">
+              <span class="winadmin-value winadmin-value-sm text-truncate" id="winadmin-ucpd-drv-state">-</span>
+            </div>
+            <div class="small text-muted mt-0.5">Высота: <span id="winadmin-ucpd-drv-altitude" class="font-monospace text-info">-</span> (<span id="winadmin-ucpd-drv-instances">0 томов</span>)</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="winadmin-card">
+            <span class="winadmin-label">Задача планировщика</span>
+            <div class="d-flex align-items-baseline justify-content-between mt-1">
+              <span class="winadmin-value winadmin-value-sm text-truncate text-warning" id="winadmin-ucpd-task-state">-</span>
+            </div>
+            <div class="small text-muted text-truncate mt-0.5" id="winadmin-ucpd-task-name">UCPD velocity</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="winadmin-card">
+            <span class="winadmin-label">Сборка Windows 11</span>
+            <div class="d-flex align-items-baseline justify-content-between mt-1">
+              <span class="winadmin-value winadmin-value-sm text-truncate text-success" id="winadmin-ucpd-os-ver">Windows 11</span>
+            </div>
+            <div class="small text-muted mt-0.5">Совместимость подтверждена</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Основная рабочая область панели UCPD -->
+      <div class="row g-2">
+        <!-- Левая колонка: Управление и эксперимент TaskbarDa -->
+        <div class="col-lg-6">
+          <div class="card border-secondary shadow-sm mb-2">
+            <div class="panel-header border-secondary py-1.5 px-3 d-flex justify-content-between align-items-center">
+              <span class="panel-title fw-semibold small">
+                <i class="bi bi-sliders me-1 text-primary"></i>Управление драйвером UCPD
+              </span>
+              <span class="ui-badge ui-badge-neutral small" id="winadmin-ucpd-main-badge">Определение...</span>
+            </div>
+            <div class="card-body p-3">
+              <p class="small text-secondary mb-2.5">
+                <strong>UCPD (User Choice Protection Driver)</strong> — низкоуровневый файловый минифильтр ядра Windows 11. Он защищает ключи реестра <code>UserChoice</code> (HTTP, HTTPS, браузер по умолчанию, PDF) от прямого изменения скриптами и утилитами, вызывая ошибку <em>Access Denied</em>.
+              </p>
+
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="winadmin-ucpd-checkbox-manage-task" checked>
+                <label class="form-check-label small text-body fw-semibold" for="winadmin-ucpd-checkbox-manage-task">
+                  Синхронно управлять задачей планировщика UcpdVelocity
+                </label>
+                <div class="text-muted small" style="font-size: 0.76rem;">
+                  Если флаг включен, фоновая задача автозапуска также будет деактивирована, чтобы предотвратить повторное включение UCPD до перезагрузки.
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1.5" id="winadmin-ucpd-btn-toggle" type="button" data-target-state="disabled">
+                  <i class="bi bi-pause-circle-fill"></i>
+                  <span>Временно деактивировать UCPD</span>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" id="winadmin-ucpd-btn-refresh" type="button">
+                  <i class="bi bi-arrow-clockwise"></i>
+                  <span>Обновить</span>
+                </button>
+              </div>
+
+              <!-- Блок информации об исходной конфигурации (SafeOps Backup) -->
+              <div class="winadmin-card p-2.5 bg-opacity-50">
+                <div class="winadmin-label mb-1">Точка восстановления исходной конфигурации (SafeOps)</div>
+                <div id="winadmin-ucpd-backup-info">
+                  <div class="small text-secondary">Исходная конфигурация не сохранялась (штатное состояние ОС)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Карточка: Экспериментальное тестирование связи с TaskbarDa -->
+          <div class="card border-secondary shadow-sm">
+            <div class="panel-header border-secondary py-1.5 px-3 d-flex justify-content-between align-items-center">
+              <span class="panel-title fw-semibold small">
+                <i class="bi bi-flask me-1 text-warning"></i>Эксперимент: Проверка связи с TaskbarDa
+              </span>
+              <button class="btn btn-xs btn-outline-warning" id="winadmin-ucpd-btn-test-taskbarda" type="button">
+                <i class="bi bi-play-fill me-0.5"></i>Проверить на текущей ОС
+              </button>
+            </div>
+            <div class="card-body p-3">
+              <p class="small text-secondary mb-2">
+                Связь UCPD с блокировкой параметра панели задач <code>HKCU\...\Explorer\Advanced\TaskbarDa</code> (виджеты погоды) не является универсальной для всех версий Windows 11. Нажмите кнопку выше для проведения тестовой записи без повреждения системы.
+              </p>
+              <div id="winadmin-ucpd-taskbarda-result">
+                <div class="small text-muted fst-italic">Тест еще не проводился в текущей сессии.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Правая колонка: Инженерный консольный журнал и справка -->
+        <div class="col-lg-6 d-flex flex-column">
+          <div class="card border-secondary shadow-sm flex-grow-1">
+            <div class="panel-header border-secondary py-1 px-3 d-flex justify-content-between align-items-center">
+              <span class="panel-title fw-semibold small"><i class="bi bi-terminal me-1"></i>Журнал аудита и действий UCPD</span>
+              <button class="btn btn-link btn-xs text-secondary text-decoration-none p-0" id="btn-winadmin-ucpd-clear-log" type="button" onclick="document.getElementById('winadmin-ucpd-console-output').textContent = 'Журнал очищен.'">Очистить</button>
+            </div>
+            <div class="card-body p-2 d-flex flex-column">
+              <pre class="winadmin-console-box p-2 rounded small font-monospace flex-grow-1 mb-2" id="winadmin-ucpd-console-output" style="min-height: 220px; max-height: 380px; overflow-y: auto;">Готов к аудиту и управлению UCPD.</pre>
+              <div class="winadmin-card p-2 bg-opacity-25 mt-auto">
+                <div class="small text-muted" style="font-size: 0.76rem;">
+                  <strong>Регламент SafeOps:</strong> При включении восстанавливается точный исходный режим запуска драйвера (<code>Start=1 (system)</code> или <code>Start=2 (auto)</code>). Если деактивация драйвера выполнена, а задача планировщика отклонена политикой, возвращается частичный статус.
+                </div>
               </div>
             </div>
           </div>
@@ -733,6 +943,438 @@ Updated: 2026-10-28 16:35:00
       <div class="modal-footer border-secondary">
         <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal" type="button">Отмена</button>
         <button class="btn btn-sm btn-primary" id="btn-submit-create-user" type="button">Создать</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно UAC объединено в единое окно #userSecurityModal с вкладками -->
+<!-- Модальное окно: Потребление ресурсов пользователя -->
+<div aria-hidden="true" class="modal fade" id="userResourcesModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content shadow-lg border border-secondary">
+      <div class="modal-header border-bottom border-secondary border-opacity-25 py-2.5 px-3">
+        <h5 class="modal-title d-flex align-items-center gap-2 fs-6">
+          <i class="bi bi-cpu text-info fs-5"></i>
+          <span>Потребление ресурсов пользователя:</span>
+          <span class="text-primary font-monospace fw-bold" id="user-resources-modal-username">—</span>
+        </h5>
+        <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+      </div>
+      <div class="modal-body p-3">
+        <!-- Индикатор загрузки -->
+        <div id="user-resources-modal-loading" class="text-center py-4 text-muted">
+          <div class="spinner-border spinner-border-sm text-info me-2" role="status"></div>
+          <span>Сбор телеметрии ресурсов и процессов...</span>
+        </div>
+
+        <!-- Сообщение об ошибке -->
+        <div id="user-resources-modal-error" class="alert alert-danger py-2 px-3 small" style="display: none;"></div>
+
+        <!-- Контент модального окна -->
+        <div id="user-resources-modal-content" style="display: none;">
+          <!-- Верхняя плашка сводных метрик -->
+          <div class="row g-2 mb-3">
+            <div class="col-6 col-sm-3">
+              <div class="p-2 rounded border border-secondary winadmin-card">
+                <div class="winadmin-label text-muted mb-0.5">Всего процессов</div>
+                <div class="winadmin-value text-info" id="user-res-procs-count">0</div>
+              </div>
+            </div>
+            <div class="col-6 col-sm-3">
+              <div class="p-2 rounded border border-secondary winadmin-card">
+                <div class="winadmin-label text-muted mb-0.5">Память RAM (RSS)</div>
+                <div class="winadmin-value text-success" id="user-res-memory-total">0 MB</div>
+              </div>
+            </div>
+            <div class="col-6 col-sm-3">
+              <div class="p-2 rounded border border-secondary winadmin-card">
+                <div class="winadmin-label text-muted mb-0.5">Нагрузка CPU</div>
+                <div class="winadmin-value text-warning" id="user-res-cpu-total">0%</div>
+              </div>
+            </div>
+            <div class="col-6 col-sm-3">
+              <div class="p-2 rounded border border-secondary winadmin-card">
+                <div class="winadmin-label text-muted mb-0.5">Каталог профиля</div>
+                <div class="small text-truncate font-monospace text-body mt-1" id="user-res-profile-path" title="—">—</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Панель фильтрации, поиска и сортировки -->
+          <div class="d-flex align-items-center justify-content-between gap-2 mb-2 flex-wrap">
+            <div class="input-group input-group-sm" style="max-width: 280px;">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input type="text" class="form-control" id="user-res-search-input" placeholder="Поиск по имени или PID...">
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <div class="d-flex align-items-center gap-1 small text-muted">
+                <i class="bi bi-sort-down"></i>
+                <select class="form-select form-select-sm" id="user-res-sort-select" style="width: auto;">
+                  <option value="mem_desc" selected>Память (по убыванию)</option>
+                  <option value="mem_asc">Память (по возрастанию)</option>
+                  <option value="cpu_desc">CPU % (по убыванию)</option>
+                  <option value="cpu_asc">CPU % (по возрастанию)</option>
+                  <option value="name_asc">Имя процесса (A-Z)</option>
+                  <option value="pid_asc">PID (по возрастанию)</option>
+                </select>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" id="btn-refresh-user-resources" title="Обновить метрики">
+                <i class="bi bi-arrow-clockwise"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Таблица списка процессов пользователя -->
+          <div class="table-responsive border border-secondary rounded" style="max-height: 380px; overflow-y: auto;">
+            <table class="winadmin-table mb-0">
+              <thead class="sticky-top">
+                <tr>
+                  <th style="width: 75px;">PID</th>
+                  <th>Процесс</th>
+                  <th style="min-width: 150px;">Память (RAM)</th>
+                  <th style="width: 90px;">CPU %</th>
+                  <th style="width: 130px;">Потоки / Статус</th>
+                  <th style="text-align: right; width: 150px;">Действия</th>
+                </tr>
+              </thead>
+              <tbody id="user-resources-tbody">
+                <tr><td colspan="6" class="text-center text-muted p-3">Загрузка списка процессов...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Нижняя информационная строка -->
+          <div class="d-flex justify-content-between align-items-center mt-2 small text-muted">
+            <div>
+              Показано процессов: <span class="fw-semibold text-body" id="user-res-filtered-count">0</span> из <span class="fw-semibold text-body" id="user-res-total-count">0</span>
+            </div>
+            <div>
+              Память выборки: <span class="fw-semibold text-info font-monospace" id="user-res-filtered-ram">0 MB</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer py-2 px-3 border-top border-secondary border-opacity-25">
+        <button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" type="button">Закрыть</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно: Безопасность, пароли и политики UAC (Drill-Down с вкладками) -->
+<div aria-hidden="true" class="modal fade" id="userSecurityModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content shadow-lg">
+      <div class="modal-header">
+        <h5 class="modal-title d-flex align-items-center gap-2">
+          <img src="/html/assets/red_drill.png?v=20261101_v1" alt="Drill" style="width: 18px; height: 18px;" class="me-1">
+          <span>Безопасность и параметры учетной записи:</span>
+          <span class="text-primary font-monospace fw-bold" id="user-security-modal-username">—</span>
+        </h5>
+        <button aria-label="Закрыть" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+      </div>
+      <div class="modal-body">
+        <div id="user-security-modal-loading" class="text-center py-4 text-muted">
+          <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+          Загрузка параметров безопасности и UAC пользователя...
+        </div>
+        <div id="user-security-modal-error" class="alert alert-danger" style="display: none;"></div>
+
+        <div id="user-security-modal-content" style="display: none;">
+          <!-- Навигационные вкладки единого окна безопасности -->
+          <ul class="nav nav-tabs mb-3" id="sec-modal-tab-nav" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active py-1.5 px-3 small fw-semibold" id="sec-tab-btn-security" data-bs-toggle="tab" data-bs-target="#sec-pane-security" type="button" role="tab" aria-selected="true">
+                <i class="bi bi-key-fill text-warning me-1"></i> Безопасность и пароли
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link py-1.5 px-3 small fw-semibold" id="sec-tab-btn-uac" data-bs-toggle="tab" data-bs-target="#sec-pane-uac" type="button" role="tab" aria-selected="false">
+                <i class="bi bi-shield-lock-fill text-primary me-1"></i> Политики UAC и повышение прав
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="sec-modal-tab-content">
+            <!-- Вкладка 1: Безопасность, пароли и атрибуты SAM -->
+            <div class="tab-pane fade show active" id="sec-pane-security" role="tabpanel" aria-labelledby="sec-tab-btn-security">
+              <!-- Сводные метрики пользователя -->
+              <div class="winadmin-card mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div>
+                  <div class="winadmin-label">SID субъекта</div>
+                  <div class="font-monospace small text-body" id="sec-info-sid">—</div>
+                </div>
+                <div>
+                  <div class="winadmin-label">Роль учетной записи</div>
+                  <span class="ui-badge" id="sec-info-role">—</span>
+                </div>
+                <div>
+                  <div class="winadmin-label">Статус учетной записи</div>
+                  <span class="ui-badge" id="sec-info-status">—</span>
+                </div>
+              </div>
+
+              <!-- Раздел: Смена пароля пользователя -->
+              <div class="card border border-secondary shadow-sm mb-3">
+                <div class="card-header py-1.5 px-3 d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-key text-warning fs-6"></i>
+                    <span class="fw-semibold text-body small">Смена / Административный сброс пароля</span>
+                  </div>
+                  <span class="ui-badge ui-badge-neutral small">Set-LocalUser</span>
+                </div>
+                <div class="card-body p-2.5">
+                  <div class="row g-2 align-items-center">
+                    <div class="col-md-5">
+                      <label class="form-label small text-muted mb-0.5">Новый пароль</label>
+                      <input type="password" class="form-control form-control-sm font-monospace" id="sec-user-new-password" placeholder="Введите новый пароль...">
+                    </div>
+                    <div class="col-md-5">
+                      <label class="form-label small text-muted mb-0.5">Подтверждение пароля</label>
+                      <input type="password" class="form-control form-control-sm font-monospace" id="sec-user-confirm-password" placeholder="Повторите новый пароль...">
+                    </div>
+                    <div class="col-md-2 d-flex flex-column justify-content-end">
+                      <label class="form-label small text-muted mb-0.5 d-none d-md-block">&nbsp;</label>
+                      <button type="button" class="btn btn-sm btn-primary d-flex align-items-center justify-content-center gap-1" id="btn-sec-change-password">
+                        <i class="bi bi-key-fill"></i>
+                        <span>Сменить</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center justify-content-between mt-2 flex-wrap">
+                    <div class="form-check form-check-inline small mb-0">
+                      <input class="form-check-input" type="checkbox" id="sec-toggle-password-visibility">
+                      <label class="form-check-label text-muted" for="sec-toggle-password-visibility">Показать символы пароля</label>
+                    </div>
+                    <div id="sec-password-result-msg" style="display: none;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Раздел: Политики безопасности и флаги SAM -->
+              <div class="card border border-secondary shadow-sm mb-3">
+                <div class="card-header py-1.5 px-3 d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-sliders text-success fs-6"></i>
+                    <span class="fw-semibold text-body small">Политики безопасности и атрибуты SAM</span>
+                  </div>
+                  <span class="ui-badge ui-badge-neutral small">User Flags</span>
+                </div>
+                <div class="card-body p-2.5">
+                  <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold text-body small mb-1">Привилегии / Группа:</label>
+                      <div class="d-flex gap-3">
+                        <div class="form-check">
+                          <input class="form-check-input" type="radio" name="sec-uac-role" id="sec-role-admin" value="admin">
+                          <label class="form-check-label small" for="sec-role-admin">
+                            <i class="bi bi-shield-shaded text-warning me-1"></i> Администратор
+                          </label>
+                        </div>
+                        <div class="form-check">
+                          <input class="form-check-input" type="radio" name="sec-uac-role" id="sec-role-standard" value="standard">
+                          <label class="form-check-label small" for="sec-role-standard">
+                            <i class="bi bi-person text-info me-1"></i> Стандартный
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-check form-switch mt-3">
+                        <input class="form-check-input" type="checkbox" id="sec-policy-enabled">
+                        <label class="form-check-label small fw-semibold" for="sec-policy-enabled">Учетная запись включена (активна)</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row g-2 pt-2 border-top border-secondary border-opacity-25">
+                    <div class="col-sm-6">
+                      <div class="form-check form-switch mb-1.5">
+                        <input class="form-check-input" type="checkbox" id="sec-policy-never-expires">
+                        <label class="form-check-label small" for="sec-policy-never-expires">Срок действия пароля не ограничен</label>
+                      </div>
+                      <div class="form-check form-switch mb-1.5">
+                        <input class="form-check-input" type="checkbox" id="sec-policy-cannot-change">
+                        <label class="form-check-label small" for="sec-policy-cannot-change">Запретить пользователю смену пароля</label>
+                      </div>
+                    </div>
+                    <div class="col-sm-6">
+                      <div class="form-check form-switch mb-1.5">
+                        <input class="form-check-input" type="checkbox" id="sec-policy-must-change">
+                        <label class="form-check-label small" for="sec-policy-must-change">Требовать смену пароля при следующем входе</label>
+                      </div>
+                      <div class="form-check form-switch mb-1.5">
+                        <input class="form-check-input" type="checkbox" id="sec-policy-pwd-required">
+                        <label class="form-check-label small" for="sec-policy-pwd-required">Пароль обязателен для учетной записи</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex justify-content-end mt-2 pt-2 border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-sm btn-success d-flex align-items-center gap-1.5" id="btn-sec-save-policies">
+                      <i class="bi bi-shield-check"></i>
+                      <span>Сохранить политики SAM</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Раздел: Параметры входа, PIN и Windows Hello -->
+              <div class="card border border-secondary shadow-sm mb-2">
+                <div class="card-header py-1.5 px-3 d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-shield-lock text-primary fs-6"></i>
+                    <span class="fw-semibold text-body small">Параметры входа, PIN и Windows Hello (Настройки ОС)</span>
+                  </div>
+                  <span class="ui-badge ui-badge-info small">ms-settings:signinoptions</span>
+                </div>
+                <div class="card-body p-2.5">
+                  <p class="text-muted small mb-2">
+                    Для быстрой настройки биометрии Windows Hello (распознавание лиц, сканер отпечатков пальцев),
+                    защищенного PIN-кода или аппаратного FIDO2-ключа безопасности запустите соответствующий апплет параметров Windows:
+                  </p>
+                  <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1.5 btn-launch-win-setting" data-target="ms-settings:signinoptions" title="Открыть Параметры входа в Windows Settings (PIN, Face, Fingerprint, Пароль)">
+                      <i class="bi bi-key-fill text-warning"></i>
+                      <span>Параметры входа (PIN & Hello)</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1.5 btn-launch-win-setting" data-target="ms-settings:signinoptions-launchfaceenrollment" title="Запустить мастер настройки распознавания лиц Windows Hello Face">
+                      <i class="bi bi-person-bounding-box text-info"></i>
+                      <span>Windows Hello (Лицо)</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1.5 btn-launch-win-setting" data-target="ms-settings:signinoptions-launchfingerprintenrollment" title="Запустить мастер настройки отпечатка пальца Windows Hello Fingerprint">
+                      <i class="bi bi-fingerprint text-success"></i>
+                      <span>Windows Hello (Отпечаток)</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5 btn-launch-win-setting" data-target="ms-settings:signinoptions-launchpinreset" title="Сбросить или настроить PIN-код Windows Hello">
+                      <i class="bi bi-123 text-primary"></i>
+                      <span>Сброс / Настройка PIN</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5 btn-launch-win-setting" data-target="ms-settings:yourinfo" title="Открыть окно данных учетной записи">
+                      <i class="bi bi-person-vcard text-info"></i>
+                      <span>Ваши данные (ms-settings:yourinfo)</span>
+                    </button>
+                  </div>
+
+                  <div class="d-flex align-items-center gap-2 mt-2 pt-2 border-top border-secondary border-opacity-25 flex-wrap">
+                    <span class="small text-muted me-1">Оснастки администрирования:</span>
+                    <button type="button" class="btn btn-xs btn-outline-secondary py-0.5 px-2 btn-launch-win-setting" data-target="netplwiz" title="Оснастка учетных записей netplwiz">
+                      <i class="bi bi-sliders me-1"></i>netplwiz
+                    </button>
+                    <button type="button" class="btn btn-xs btn-outline-secondary py-0.5 px-2 btn-launch-win-setting" data-target="lusrmgr.msc" title="Оснастка MMC Локальные пользователи и группы">
+                      <i class="bi bi-person-gear me-1"></i>lusrmgr.msc
+                    </button>
+                    <button type="button" class="btn btn-xs btn-outline-secondary py-0.5 px-2 btn-launch-win-setting" data-target="secpol.msc" title="Оснастка MMC Локальная политика безопасности">
+                      <i class="bi bi-shield-check me-1"></i>secpol.msc
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Вкладка 2: Политики UAC и повышение прав -->
+            <div class="tab-pane fade" id="sec-pane-uac" role="tabpanel" aria-labelledby="sec-tab-btn-uac">
+              <!-- Информационный блок UAC -->
+              <div class="winadmin-card mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div>
+                  <div class="winadmin-label">SID субъекта</div>
+                  <div class="font-monospace small text-body" id="uac-info-sid">—</div>
+                </div>
+                <div>
+                  <div class="winadmin-label">Глобальный UAC (EnableLUA)</div>
+                  <span class="ui-badge" id="uac-info-lua">—</span>
+                </div>
+                <div>
+                  <div class="winadmin-label">Текущая роль</div>
+                  <span class="ui-badge" id="uac-info-role">—</span>
+                </div>
+              </div>
+
+              <!-- 1. Роль и привилегии UAC -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-body small mb-1">
+                  <i class="bi bi-person-badge me-1 text-primary"></i> Привилегии и тип учетной записи (UAC Role)
+                </label>
+                <div class="winadmin-card d-flex flex-column gap-2 p-2.5">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="uacRoleRadio" id="uac-role-admin" value="admin">
+                    <label class="form-check-label text-body small" for="uac-role-admin">
+                      <strong>Администратор с UAC (Admin Approval Mode)</strong>
+                      <div class="text-muted" style="font-size: 0.76rem;">Входит в группу Administrators. Приложения по умолчанию выполняются в обычном контексте (Filtered Token), повышение требует подтверждения UAC.</div>
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="uacRoleRadio" id="uac-role-standard" value="standard">
+                    <label class="form-check-label text-body small" for="uac-role-standard">
+                      <strong>Стандартный пользователь (Standard User)</strong>
+                      <div class="text-muted" style="font-size: 0.76rem;">Входит в группу Users. Запуск административных программ требует ввода пароля учетной записи администратора или отклоняется.</div>
+                    </label>
+                  </div>
+                  <div class="form-check mt-1 pt-1" id="uac-builtin-admin-wrap" style="display: none; border-top: 1px solid var(--border-color);">
+                    <input class="form-check-input" type="checkbox" id="uac-filter-admin-token">
+                    <label class="form-check-label text-warning small" for="uac-filter-admin-token">
+                      <strong>Включить UAC / Approval Mode для встроенного Администратора (FilterAdministratorToken)</strong>
+                      <div class="text-muted" style="font-size: 0.76rem;">Принудительно разделять токен встроенного администратора и запрашивать диалог UAC.</div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Поведение диалогов UAC при повышении привилегий -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-body small mb-1">
+                  <i class="bi bi-sliders me-1 text-primary"></i> Поведение запросов UAC (Elevation Prompt Behavior)
+                </label>
+                <div class="winadmin-card p-2.5">
+                  <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                      <label class="form-label small text-muted mb-1" for="uac-prompt-admin">Для администраторов:</label>
+                      <select class="form-select form-select-sm" id="uac-prompt-admin">
+                        <option value="5">5 — Запрос согласия для сторонних программ (Windows по умолчанию)</option>
+                        <option value="2">2 — Всегда запрашивать согласие (Always Notify)</option>
+                        <option value="1">1 — Запрашивать учетные данные на безопасном рабочем столе</option>
+                        <option value="0">0 — Повышать автоматически без запроса</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small text-muted mb-1" for="uac-prompt-user">Для стандартных пользователей:</label>
+                      <select class="form-select form-select-sm" id="uac-prompt-user">
+                        <option value="3">3 — Запрашивать пароль администратора (По умолчанию)</option>
+                        <option value="1">1 — Запрашивать пароль на безопасном рабочем столе</option>
+                        <option value="0">0 — Автоматически отклонять запросы повышения</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="d-flex flex-wrap gap-3 mt-2">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="uac-secure-desktop">
+                      <label class="form-check-label small text-body" for="uac-secure-desktop">
+                        Безопасный рабочий стол (Prompt on Secure Desktop)
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="uac-enable-virt">
+                      <label class="form-check-label small text-body" for="uac-enable-virt">
+                        Виртуализация реестра и файлов (EnableVirtualization)
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end mt-2 pt-2 border-top border-secondary border-opacity-25">
+                <button type="button" class="btn btn-sm btn-primary d-flex align-items-center gap-1.5" id="btn-save-user-uac">
+                  <i class="bi bi-shield-lock"></i>
+                  <span>Применить параметры UAC</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer py-2 px-3 border-top border-secondary border-opacity-25">
+        <button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" type="button">Закрыть</button>
       </div>
     </div>
   </div>

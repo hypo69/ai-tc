@@ -18,7 +18,7 @@
 #     pytest tests/test_mcp_servers.py -v
 #
 # File: test_mcp_servers.py
-# Project: AI Windows Admin (AI-TC)
+# Project: AI Windows Admin (ai-tc)
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69

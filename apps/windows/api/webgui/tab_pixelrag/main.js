@@ -14,7 +14,7 @@
  * Package: windows/api/webgui/tab_pixelrag
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 09:37:00
+ * Updated: 2026-11-01 12:50:00
  * =============================================================================
  */
 
@@ -35,7 +35,7 @@ export async function initPixelRagTab() {
         </div>
         <div class="card border-secondary">
           <div class="panel-header">
-            <h3 class="panel-header mb-0"><i class="bi bi-image-fill"></i> Настройки PixelRAG</h3>
+            <span class="panel-title"><i class="bi bi-image-fill"></i> Настройки PixelRAG</span>
           </div>
           <div class="card-body">
             <p class="text-muted">Функционал PixelRAG будет доступен после настройки модели и индекса.</p>

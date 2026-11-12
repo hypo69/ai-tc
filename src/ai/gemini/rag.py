@@ -3,14 +3,15 @@
 # Process Name: AI-Windows-Admin AI - Rag Module
 # =============================================================================
 # Description:
-#   RAG index using Gemini Embedding API and FAISS.
+#   Векторный индекс RAG на базе Gemini Embedding API и FAISS с потокобезопасностью
+#   и атомарным сохранением данных.
 #
 # Usage Examples:
 #   Python API:
 #     from src.ai.gemini.rag import GeminiRAG
 #
 #     service = GeminiRAG()
-#     result = service.add_documents()
+#     result = service.add_documents([])
 #     print(result)
 #
 # File: rag.py
@@ -18,52 +19,61 @@
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 14:43:00
 # =============================================================================
 
-"""RAG index using Gemini Embedding API and FAISS.
+"""Векторный индекс RAG на базе Gemini Embedding API и FAISS.
 
-Provides document vectorization, storage, and semantic search capabilities."""
+Предоставляет возможности векторизации документов, хранения в индексе FAISS
+и семантического поиска ближайших соседей.
+"""
 
 import json
+import os
 from pathlib import Path
-from typing import List, Dict
+import random
+import tempfile
+import threading
+import time
+from typing import Dict, List
+
+from google import genai
+from google.genai import types
 import numpy as np
+
+from logger import logger
+
+_EMBED_MODEL = 'models/gemini-embedding-2'
+_EMBED_DIM = 3072
+
+
 def _get_faiss():
-    """Ленивая загрузка модуля faiss."""
+    """Выполняет ленивую загрузку модуля faiss."""
     try:
         import faiss
         return faiss
     except ImportError:
         return None
 
-from google import genai
-from google.genai import types
-from logger import logger
-_EMBED_MODEL = 'models/gemini-embedding-2'
-_EMBED_DIM = 3072
 
 class GeminiRAG:
-    """RAG index using Gemini Embedding API and FAISS.
+    """Векторный индекс RAG с использованием Gemini Embedding API и FAISS.
 
-    Provides document vectorization, vector storage in FAISS index,
-    and semantic search of nearest neighbors.
-
-    Attributes:
-        db_path (Path): Path to index file (replaced .db with .faiss/.json).
-        client: google.genai client instance.
+    Обеспечивает векторизацию документов, атомарное сохранение индекса FAISS и метаданных,
+    а также семантический поиск ближайших соседей с потокобезопасной синхронизацией.
     """
 
-    def __init__(self, api_key: str='', db_path: Path=Path('.')) -> None:
-        """Initialize RAG index.
-        
+    def __init__(self, api_key: str = '', db_path: Path = Path('.')) -> None:
+        """Инициализирует индекс RAG.
+
         Args:
-            api_key (str): Gemini API key.
-            db_path (Path): Path to database directory.
+            api_key (str): API-ключ Gemini.
+            db_path (Path): Базовый путь к файлам индекса (.faiss и .json).
         """
-        self.db_path = db_path
-        self.index_file = db_path.with_suffix('.faiss')
-        self.meta_file = db_path.with_suffix('.json')
+        self._lock = threading.RLock()
+        self.db_path = Path(db_path)
+        self.index_file = self.db_path.with_suffix('.faiss')
+        self.meta_file = self.db_path.with_suffix('.json')
         self.dimension = _EMBED_DIM
         self.api_key = api_key
         self.client = False
@@ -71,73 +81,105 @@ class GeminiRAG:
             try:
                 self.client = genai.Client(api_key=api_key)
             except Exception as e:
-                logger.error(f'[GeminiRAG] Error инициализации genai.Client: {e}')
+                logger.error(f'[GeminiRAG] Ошибка инициализации genai.Client: {e}')
         self.index_file.parent.mkdir(parents=True, exist_ok=True)
         self.metadatas: List[Dict] = []
         self._load()
 
     def _load(self) -> None:
-        """Loading индекса и метаданных."""
-        if self.meta_file.exists():
-            try:
-                with open(self.meta_file, 'r', encoding='utf-8') as f:
-                    self.metadatas = json.load(f)
-            except Exception as e:
-                logger.error('Error чтения метаданных пользователя', e)
+        """Загружает индекс FAISS и метаданные документов с диска."""
+        with self._lock:
+            if self.meta_file.exists():
+                try:
+                    with open(self.meta_file, 'r', encoding='utf-8') as f:
+                        self.metadatas = json.load(f)
+                except Exception as e:
+                    logger.error('Ошибка чтения метаданных пользователя', e)
+                    self.metadatas = []
+            else:
                 self.metadatas = []
-        else:
-            self.metadatas = []
-        faiss = _get_faiss()
-        if not faiss:
-            self.index = False
-            return
-        if self.index_file.exists() and self.metadatas:
-            try:
-                self.index = faiss.read_index(str(self.index_file))
-            except Exception as e:
-                logger.error('Error чтения FAISS индекса, пересоздаем', e)
-                self._rebuild_index()
-        else:
-            self.index = faiss.IndexFlatL2(self.dimension)
+            faiss = _get_faiss()
+            if not faiss:
+                self.index = False
+                return
+            if self.index_file.exists() and self.metadatas:
+                try:
+                    self.index = faiss.read_index(str(self.index_file))
+                except Exception as e:
+                    logger.error('Ошибка чтения FAISS индекса, пересоздаем', e)
+                    self._rebuild_index()
+            else:
+                self.index = faiss.IndexFlatL2(self.dimension)
 
     def _rebuild_index(self) -> None:
-        """Перестроение индекса из metadatas с валидацией векторов."""
-        faiss = _get_faiss()
-        if not faiss:
-            self.index = False
-            return
-        self.index = faiss.IndexFlatL2(self.dimension)
-        if not self.metadatas:
-            return
-        valid_items = [m for m in self.metadatas if isinstance(m, dict) and 'vector' in m and isinstance(m['vector'], (list, np.ndarray)) and (len(m['vector']) == self.dimension)]
-        if len(valid_items) != len(self.metadatas):
-            logger.warning(f"[GeminiRAG] Отфильтровано {len(self.metadatas) - len(valid_items)} записей без корректного поля 'vector'")
-            self.metadatas = valid_items
-            self._save()
-        if self.metadatas:
-            try:
-                vectors = np.array([m['vector'] for m in self.metadatas], dtype=np.float32)
-                self.index.add(vectors)
-            except Exception as e:
-                logger.error('Error при добавлении векторов в FAISS индекс', e)
+        """Перестраивает индекс FAISS из metadatas с проверкой размерности векторов."""
+        with self._lock:
+            faiss = _get_faiss()
+            if not faiss:
+                self.index = False
+                return
+            self.index = faiss.IndexFlatL2(self.dimension)
+            if not self.metadatas:
+                return
+            valid_items = [
+                m
+                for m in self.metadatas
+                if isinstance(m, dict)
+                and 'vector' in m
+                and isinstance(m['vector'], (list, np.ndarray))
+                and (len(m['vector']) == self.dimension)
+            ]
+            if len(valid_items) != len(self.metadatas):
+                logger.warning(
+                    f"[GeminiRAG] Отфильтровано {len(self.metadatas) - len(valid_items)} записей без корректного поля 'vector'"
+                )
+                self.metadatas = valid_items
+                self._save()
+            if self.metadatas:
+                try:
+                    vectors = np.array([m['vector'] for m in self.metadatas], dtype=np.float32)
+                    self.index.add(vectors)
+                except Exception as e:
+                    logger.error('Ошибка при добавлении векторов в FAISS индекс', e)
 
     def _save(self) -> None:
-        """Сохранение индекса и метаданных."""
-        faiss = _get_faiss()
-        try:
-            if faiss and self.index:
-                faiss.write_index(self.index, str(self.index_file))
-            with open(self.meta_file, 'w', encoding='utf-8') as f:
-                json.dump(self.metadatas, f, ensure_ascii=False, indent=2)
-        except Exception as e:
-            logger.error('Error сохранения FAISS индекса/метаданных', e)
+        """Атомарно сохраняет индекс FAISS и JSON-метаданные на диск."""
+        with self._lock:
+            faiss = _get_faiss()
+            temp_meta: Path | None = None
+            temp_faiss: Path | None = None
+            try:
+                self.meta_file.parent.mkdir(parents=True, exist_ok=True)
+                if faiss and self.index:
+                    temp_faiss = self.index_file.with_suffix('.faiss.tmp')
+                    faiss.write_index(self.index, str(temp_faiss))
+                    os.replace(temp_faiss, self.index_file)
+                with tempfile.NamedTemporaryFile(
+                    'w',
+                    dir=str(self.meta_file.parent),
+                    prefix=f'.{self.meta_file.name}.',
+                    suffix='.tmp',
+                    delete=False,
+                    encoding='utf-8',
+                ) as f:
+                    temp_meta = Path(f.name)
+                    json.dump(self.metadatas, f, ensure_ascii=False, indent=2)
+                    f.flush()
+                    os.fsync(f.fileno())
+                os.replace(temp_meta, self.meta_file)
+            except Exception as e:
+                for tmp in (temp_meta, temp_faiss):
+                    if tmp and tmp.exists():
+                        try:
+                            tmp.unlink()
+                        except OSError:
+                            pass
+                logger.error('Ошибка сохранения FAISS индекса/метаданных', e)
 
-    def _embed(self, texts: List[str], task_type: str='RETRIEVAL_DOCUMENT') -> List[List[float]]:
-        """Получение эмбеддингов для списка текстов через Gemini API с обработкой 429 и ротацией ключей."""
-        import time
-        from google.genai.errors import APIError
+    def _embed(self, texts: List[str], task_type: str = 'RETRIEVAL_DOCUMENT') -> List[List[float]]:
+        """Получает эмбеддинги для списка текстов через Gemini API с Exponential Backoff + Jitter и ротацией ключей."""
         from src.ai.gemini.gemini_api_key_state import load_api_keys, mark_exhausted
-        import random
+
         start_idx = random.randint(0, 100)
         max_retries = 10
         for attempt in range(max_retries):
@@ -149,7 +191,11 @@ class GeminiRAG:
             current_name = key_names[key_idx]
             client = genai.Client(api_key=current_key)
             try:
-                response = client.models.embed_content(model=_EMBED_MODEL, contents=[types.Content(parts=[types.Part.from_text(text=t)]) for t in texts], config=types.EmbedContentConfig(task_type=task_type))
+                response = client.models.embed_content(
+                    model=_EMBED_MODEL,
+                    contents=[types.Content(parts=[types.Part.from_text(text=t)]) for t in texts],
+                    config=types.EmbedContentConfig(task_type=task_type),
+                )
                 return [e.values for e in response.embeddings]
             except Exception as e:
                 from src.config import is_debug_mode
@@ -158,8 +204,8 @@ class GeminiRAG:
                     raise e
                 err_str = str(e)
                 if '429' in err_str or 'RESOURCE_EXHAUSTED' in err_str:
-                    delay = 5.0 + attempt * 2
-                    logger.warning(f'Превышен лимит (429) для ключа {current_name}. Переключаемся и ждем {delay} сек...')
+                    delay = min(60.0, 2.0 * (2 ** min(attempt, 4))) + random.uniform(0.5, 2.0)
+                    logger.warning(f'Превышен лимит (429) для ключа {current_name}. Переключаемся и ждем {delay:.1f} сек...')
                     time.sleep(delay)
                     continue
                 elif '400' in err_str or 'INVALID_ARGUMENT' in err_str or 'API_KEY_INVALID' in err_str:
@@ -169,50 +215,74 @@ class GeminiRAG:
                 raise e
         raise RuntimeError('Превышено количество попыток запроса эмбеддингов из-за ограничений скорости (429)')
 
-    def add_documents(self, docs: List[dict], batch_size: int=50) -> int:
-        """Векторизация и сохранение документов в индекс."""
+    def add_documents(self, docs: List[dict], batch_size: int = 50) -> int:
+        """Векторизует и сохраняет документы в индекс.
+
+        Args:
+            docs (List[dict]): Список документов с ключами 'id', 'text', 'meta'.
+            batch_size (int): Размер пакета векторизации.
+
+        Returns:
+            int: Количество добавленных документов.
+        """
         if not docs:
             return 0
         for i in range(0, len(docs), batch_size):
-            batch = docs[i:i + batch_size]
+            batch = docs[i : i + batch_size]
             texts = [d['text'] for d in batch]
             try:
                 vectors = self._embed(texts, task_type='RETRIEVAL_DOCUMENT')
             except Exception as e:
-                logger.error(f'Error получения эмбеддингов для батча: {e}')
+                logger.error(f'Ошибка получения эмбеддингов для батча: {e}')
                 raise e
-            existing_ids = {doc['id'] for doc in batch}
-            self.metadatas = [m for m in self.metadatas if m['id'] not in existing_ids]
-            for doc, vec in zip(batch, vectors):
-                self.metadatas.append({'id': doc['id'], 'text': doc['text'], 'meta': doc.get('meta', {}), 'vector': vec})
-            self._rebuild_index()
-            self._save()
-            import time
-            time.sleep(1.0)
+            with self._lock:
+                existing_ids = {doc['id'] for doc in batch}
+                self.metadatas = [m for m in self.metadatas if m.get('id') not in existing_ids]
+                for doc, vec in zip(batch, vectors):
+                    self.metadatas.append({
+                        'id': doc['id'],
+                        'text': doc['text'],
+                        'meta': doc.get('meta', {}),
+                        'vector': vec,
+                    })
+                self._rebuild_index()
+                self._save()
+            if i + batch_size < len(docs):
+                time.sleep(1.0)
         return len(docs)
 
     def delete_document(self, doc_id: str) -> None:
-        """Удаление документа из индекса по id."""
-        self.metadatas = [m for m in self.metadatas if m['id'] != doc_id]
-        self._rebuild_index()
-        self._save()
+        """Удаляет документ из индекса по идентификатору."""
+        with self._lock:
+            self.metadatas = [m for m in self.metadatas if m.get('id') != doc_id]
+            self._rebuild_index()
+            self._save()
 
     def clear(self) -> None:
-        """Полная очистка индекса."""
-        faiss = _get_faiss()
-        self.metadatas = []
-        self.index = faiss.IndexFlatL2(self.dimension) if faiss else False
-        self._save()
+        """Полностью очищает индекс и метаданные."""
+        with self._lock:
+            faiss = _get_faiss()
+            self.metadatas = []
+            self.index = faiss.IndexFlatL2(self.dimension) if faiss else False
+            self._save()
 
-    def search(self, query: str, top_k: int=5, threshold: float=0.0) -> List[dict]:
-        """Семантический поиск ближайших документов по cosine similarity."""
-        valid_metadatas = [m for m in self.metadatas if isinstance(m, dict) and 'vector' in m and isinstance(m['vector'], (list, np.ndarray)) and (len(m['vector']) == self.dimension)]
+    def search(self, query: str, top_k: int = 5, threshold: float = 0.0) -> List[dict]:
+        """Выполняет семантический поиск ближайших документов по косинусному сходству."""
+        with self._lock:
+            valid_metadatas = [
+                m
+                for m in self.metadatas
+                if isinstance(m, dict)
+                and 'vector' in m
+                and isinstance(m['vector'], (list, np.ndarray))
+                and (len(m['vector']) == self.dimension)
+            ]
         if not valid_metadatas:
             return []
         try:
             query_vec = np.array(self._embed([query], task_type='RETRIEVAL_QUERY')[0], dtype=np.float32)
         except Exception as e:
-            logger.error('Error векторизации поискового запроса', e)
+            logger.error('Ошибка векторизации поискового запроса', e)
             return []
         query_norm = query_vec / (np.linalg.norm(query_vec) + 1e-10)
         doc_vectors = np.array([m['vector'] for m in valid_metadatas], dtype=np.float32)
@@ -228,22 +298,33 @@ class GeminiRAG:
                 sim = float(similarities[idx])
                 if sim >= threshold:
                     meta = valid_metadatas[idx]
-                    results.append({'id': meta['id'], 'text': meta['text'], 'meta': meta.get('meta', {}), 'score': round(sim, 4)})
+                    results.append({
+                        'id': meta['id'],
+                        'text': meta['text'],
+                        'meta': meta.get('meta', {}),
+                        'score': round(sim, 4),
+                    })
             return results
         temp_index = faiss.IndexFlatL2(self.dimension)
         temp_index.add(doc_vectors_normalized)
         distances, indices = temp_index.search(query_norm.reshape(1, -1), actual_k)
-        results: List[dict] = []
+        results = []
         for i in range(actual_k):
             idx = int(indices[0][i])
-            if idx >= 0 and idx < len(valid_metadatas):
+            if 0 <= idx < len(valid_metadatas):
                 l2_dist = float(distances[0][i])
                 cosine_sim = 1.0 - l2_dist / 2.0
                 if cosine_sim >= threshold:
                     meta = valid_metadatas[idx]
-                    results.append({'id': meta['id'], 'text': meta['text'], 'meta': meta.get('meta', {}), 'score': round(cosine_sim, 4)})
+                    results.append({
+                        'id': meta['id'],
+                        'text': meta['text'],
+                        'meta': meta.get('meta', {}),
+                        'score': round(cosine_sim, 4),
+                    })
         return results
 
     def count(self) -> int:
-        """Количество документов в индексе."""
-        return len(self.metadatas)
+        """Возвращает количество документов в индексе."""
+        with self._lock:
+            return len(self.metadatas)

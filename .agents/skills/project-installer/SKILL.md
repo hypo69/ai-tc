@@ -35,10 +35,10 @@ bash .agents/skills/project-installer/scripts/run_installer_gemini.sh
 ## 📖 Обязательные источники и регламенты
 
 Перед выполнением шагов установки агент **ОБЯЗАН** изучить:
-- [INSTALL-INSTRUCTION.md](file:///c:/Users/onela/AppData/Local/AI-TC/INSTALL-INSTRUCTION.md) — регламент установки в корне проекта.
-- [requirements.txt](file:///c:/Users/onela/AppData/Local/AI-TC/requirements.txt) — реестр зависимостей проекта.
-- [.env.example](file:///c:/Users/onela/AppData/Local/AI-TC/.env.example) — шаблон переменных окружения и секретов.
-- [config.json](file:///c:/Users/onela/AppData/Local/AI-TC/config.json) — системная конфигурация сервисов и портов.
+- [INSTALL-INSTRUCTION.md](file:///c:/Users/onela/AppData/Local/ai-tc/INSTALL-INSTRUCTION.md) — регламент установки в корне проекта.
+- [requirements.txt](file:///c:/Users/onela/AppData/Local/ai-tc/requirements.txt) — реестр зависимостей проекта.
+- [.env.example](file:///c:/Users/onela/AppData/Local/ai-tc/.env.example) — шаблон переменных окружения и секретов.
+- [config.json](file:///c:/Users/onela/AppData/Local/ai-tc/config.json) — системная конфигурация сервисов и портов.
 
 ---
 

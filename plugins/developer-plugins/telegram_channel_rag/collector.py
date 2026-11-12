@@ -11,42 +11,46 @@
 # Package: plugins.telegram_channel_rag
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:39:30
 # =============================================================================
 
-"""Telegram message collection and parsing module.
-
-Provides web scrapers for public Telegram channels and parsers for exported JSON
-chat logs, extracting message IDs, sender names, text content, media captions,
-and formatted Telegram URLs.
-"""
+"""Модуль сбора и разбора сообщений публичных Telegram-каналов и JSON-экспортов."""
 
 from __future__ import annotations
 
 import json
+import random
 import re
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
-import urllib.request
+import urllib.error
 import urllib.parse
+import urllib.request
 from bs4 import BeautifulSoup
 
 from logger import logger
 
+# Максимальный размер JSON-экспорта для загрузки в память (50 МБ)
+MAX_EXPORT_JSON_BYTES: int = 50 * 1024 * 1024
+DEFAULT_HTTP_TIMEOUT_SEC: int = 15
+MAX_HTTP_RETRIES: int = 3
+
 
 class TelegramMessageCollector:
-    """Collects and extracts structured message dictionaries from channels or files.
+    """Собирает и извлекает структурированные сообщения из веб-превью каналов или файлов экспорта.
 
     Attributes:
-        channel_username (str): Target channel or group username (e.g. 'canozrimb').
-        headers (Dict[str, str]): HTTP request headers for web scraping.
+        channel_username (str): Целевое имя пользователя канала (например, 'canozrimb').
+        headers (Dict[str, str]): HTTP-заголовки для парсинга веб-превью.
     """
 
     def __init__(self, channel_username: str = "canozrimb") -> None:
-        """Initialize the message collector.
+        """Инициализирует сборщик сообщений Telegram.
 
         Args:
-            channel_username (str): Username of the channel or group (without @ or URL).
+            channel_username (str): Имя канала или группы (без @ или со ссылкой).
         """
         self.channel_username = self._clean_username(channel_username)
         self.headers = {
@@ -59,49 +63,46 @@ class TelegramMessageCollector:
         }
 
     def _clean_username(self, raw_input: str) -> str:
-        """Clean channel username or link.
-
-        Args:
-            raw_input (str): Raw string containing URL, @name, or channel name.
-
-        Returns:
-            str: Clean alphanumeric username.
-        """
-        s = raw_input.strip()
+        """Очищает имя канала от URL-префиксов и опасных символов."""
+        s = (raw_input or "").strip()
         s = re.sub(r"^https?://t\.me/(s/)?", "", s)
         s = s.lstrip("@").rstrip("/")
-        return s.split("/")[0]
+        clean = re.sub(r"[^a-zA-Z0-9_]", "", s.split("/")[0])
+        return clean
 
     def build_message_url(self, message_id: Union[int, str]) -> str:
-        """Build direct Telegram permalink to message.
-
-        Args:
-            message_id (Union[int, str]): Numerical message identifier.
-
-        Returns:
-            str: Public Telegram message URL.
-        """
+        """Формирует прямую ссылку на сообщение в Telegram."""
         return f"https://t.me/{self.channel_username}/{message_id}"
 
+    def _fetch_html_with_retry(self, url: str) -> str:
+        """Загружает HTML-страницу с таймаутом и Exponential Backoff + Jitter."""
+        last_err: Optional[Exception] = None
+        for attempt in range(MAX_HTTP_RETRIES):
+            try:
+                req = urllib.request.Request(url, headers=self.headers)
+                with urllib.request.urlopen(req, timeout=DEFAULT_HTTP_TIMEOUT_SEC) as response:
+                    return response.read().decode("utf-8", errors="replace")
+            except (urllib.error.URLError, TimeoutError, OSError) as exc:
+                last_err = exc
+                if attempt < MAX_HTTP_RETRIES - 1:
+                    delay = min(10.0, (0.5 * (2 ** attempt)) + random.uniform(0.0, 0.4))
+                    time.sleep(delay)
+        if last_err:
+            raise last_err
+        return ""
+
     def fetch_from_web_preview(self, max_messages: int = 500) -> List[Dict[str, Any]]:
-        """Scrape public messages from Telegram web preview (t.me/s/<channel>).
-
-        Args:
-            max_messages (int): Maximum number of messages to retrieve.
-
-        Returns:
-            List[Dict[str, Any]]: List of structured message dictionaries.
-        """
+        """Собирает публичные сообщения из веб-превью канала Telegram (`t.me/s/<channel>`)."""
         results: List[Dict[str, Any]] = []
         seen_ids = set()
+        if not self.channel_username:
+            return results
         base_url = f"https://t.me/s/{self.channel_username}"
         current_url = base_url
 
         try:
             while current_url and len(results) < max_messages:
-                req = urllib.request.Request(current_url, headers=self.headers)
-                with urllib.request.urlopen(req, timeout=15) as response:
-                    html_content = response.read().decode("utf-8", errors="replace")
+                html_content = self._fetch_html_with_retry(current_url)
 
                 soup = BeautifulSoup(html_content, "html.parser")
                 message_elements = soup.find_all("div", class_=re.compile(r"tgme_widget_message"))
@@ -195,10 +196,13 @@ class TelegramMessageCollector:
         """
         p = Path(export_file_path)
         if not p.exists():
-            logger.error(f"Telegram export file not found at {p}")
+            logger.error(f"Файл экспорта Telegram не найден: {p}")
             return []
 
         try:
+            if p.stat().st_size > MAX_EXPORT_JSON_BYTES:
+                logger.error(f"Файл экспорта {p.name} превышает лимит размера ({MAX_EXPORT_JSON_BYTES} байт)")
+                return []
             data = json.loads(p.read_text(encoding="utf-8"))
             raw_messages = data.get("messages", [])
             results: List[Dict[str, Any]] = []
@@ -255,4 +259,3 @@ class TelegramMessageCollector:
         except Exception as exc:
             logger.error(f"Failed to parse Telegram JSON export: {exc}")
             return []
-

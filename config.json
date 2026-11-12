@@ -193,12 +193,30 @@
   },
   "apps": {
     "enabled": [
-      "cloudflared_monitor"
+      "cloudflared_monitor",
+      "code_helper"
     ]
   },
   "paths": {
     "programdata": "%ProgramData%",
     "app_name": "ai-tc",
     "system_knowledge_db": "data/windows_wikillm/knowledge.db"
+  },
+  "code_helper": {
+    "engine": "mariadb",
+    "sqlite": {
+      "path": "data/code_helper/code_helper.db"
+    },
+    "hostinger": {
+      "connection_type": "direct",
+      "host": "srv1502.hstgr.io",
+      "ip_fallback": "77.37.35.16",
+      "port": 3306,
+      "user": "u177424397_code_help_adm",
+      "password": "@Davidka#1969",
+      "database": "u177424397_code_helper",
+      "charset": "utf8mb4",
+      "connect_timeout": 10
+    }
   }
 }

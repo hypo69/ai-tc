@@ -16,15 +16,12 @@
 # Package: apps.common
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 00:10:00
+# Updated: 2026-11-10 14:28:00
 # =============================================================================
 
 from __future__ import annotations
 """Модуль централизованного логирования приложений и телеметрии в SQLite с On-Demand CSV."""
 
-# -*- coding: utf-8 -*-
-# Updated: 2026-10-28 00:10:00
-"""Модуль централизованного логирования приложений и телеметрии в SQLite с On-Demand CSV."""
 import csv
 import json
 import os
@@ -40,6 +37,11 @@ _ENV_MIRROR = (os.environ.get('AITC_ENABLE_MIRRORING_LOGS_TO_CSV') or os.environ
 _ENABLE_MIRRORING_LOGS_TO_CSV: bool = _ENV_MIRROR
 _ENV_BATCH = (os.environ.get('AITC_ENABLE_MEMORY_BATCHING') or os.environ.get('AI_BREADBOARD_ENABLE_MEMORY_BATCHING') or os.environ.get('AI_BREADBOARD_ENABLE_BATCHING', '0')).lower() in ('1', 'true', 'yes')
 _ENABLE_MEMORY_BATCHING: bool = _ENV_BATCH
+
+
+def _utc_now_iso() -> str:
+    """Возвращает текущее время в строгом формате UTC ISO 8601 (YYYY-MM-DDTHH:MM:SSZ)."""
+    return datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
 def is_mirroring_logs_to_csv_enabled() -> bool:
     """Проверяет, включено ли синхронное дублирование в CSV-файлы.
@@ -240,11 +242,16 @@ def flush_batch_buffer() -> None:
     _BATCHER.flush()
 
 def _write_csv_direct(filename: str, headers: Sequence[str], row_data: Sequence[Any]) -> Path:
-    """Физически записывает строку в CSV файл на диске с защитой мьютексом."""
-    if not filename.lower().endswith('.csv'):
-        filename = f'{filename}.csv'
-    log_dir = get_apps_log_dir()
-    file_path = log_dir / filename
+    """Физически записывает строку в CSV файл на диске с защитой мьютексом и от Path Traversal."""
+    clean_name = Path(filename).name
+    if not clean_name.lower().endswith('.csv'):
+        clean_name = f'{clean_name}.csv'
+    log_dir = get_apps_log_dir().resolve()
+    file_path = (log_dir / clean_name).resolve()
+    try:
+        file_path.relative_to(log_dir)
+    except ValueError:
+        raise ValueError(f'Недопустимое имя файла лога: {filename}')
     formatted_row = [_format_cell(x) for x in row_data]
     with _LOCK:
         try:
@@ -254,6 +261,7 @@ def _write_csv_direct(filename: str, headers: Sequence[str], row_data: Sequence[
                 if not file_exists:
                     writer.writerow(headers)
                 writer.writerow(formatted_row)
+                f.flush()
         except Exception as ex:
             logger.warning(f'Не удалось записать CSV-лог в {file_path}: {ex}')
     return file_path
@@ -293,7 +301,7 @@ def log_event(app: str, event_type: str, status: str='OK', details: Any='', file
     Returns:
         Path: Путь к файлу лога (или целевой путь On-Demand).
     """
-    now_iso = datetime.now(timezone.utc).isoformat()
+    now_iso = _utc_now_iso()
     target_file = filename or f'{app}_events.csv'
     if _ENABLE_MEMORY_BATCHING:
         _BATCHER.add_event({'app': app, 'event_type': event_type, 'status': status, 'details': details, 'timestamp': now_iso})
@@ -326,7 +334,7 @@ def log_param_change(app: str, param_name: str, old_value: Any, new_value: Any, 
     Returns:
         Path: Путь к файлу лога.
     """
-    now_iso = datetime.now(timezone.utc).isoformat()
+    now_iso = _utc_now_iso()
     target_file = filename or f'{app}_param_changes.csv'
     if _ENABLE_MEMORY_BATCHING:
         _BATCHER.add_param_change({'app': app, 'param_name': param_name, 'old_value': old_value, 'new_value': new_value, 'status': status, 'user': user, 'details': details, 'timestamp': now_iso})
@@ -359,7 +367,7 @@ def log_poll(app: str, poll_type: str, metric_name: str, value: Any, unit: str='
     Returns:
         Path: Путь к файлу лога.
     """
-    now_iso = datetime.now(timezone.utc).isoformat()
+    now_iso = _utc_now_iso()
     target_file = filename or f'{app}_poll_events.csv'
     if _ENABLE_MEMORY_BATCHING:
         _BATCHER.add_poll({'app': app, 'poll_type': poll_type, 'metric_name': metric_name, 'value': value, 'unit': unit, 'status': status, 'details': details, 'timestamp': now_iso})

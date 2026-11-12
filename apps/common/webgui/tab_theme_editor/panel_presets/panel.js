@@ -7,11 +7,11 @@
  *   контрастные) и их загрузки в элементы интерфейса редактора.
  *
  * File: panel_presets/panel.js
- * Project: ai-windows-admin
- * Package: apps/windows/api/webgui/tab_theme_editor/panel_presets
+ * Project: ai-assistant
+ * Package: apps/ai_assistant/api/webgui/tab_theme_editor/panel_presets
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 14:00:00
+ * Updated: 2026-11-03 14:14:00
  * =============================================================================
  */
 
@@ -195,6 +195,33 @@ export const PRESETS = {
     borderRadius: 8,
     density: 'normal',
     kpiHeight: 72,
+    fontFamily: 'system',
+    shadowStyle: 'soft',
+    glassmorphism: false,
+    crtScanlines: false,
+    colors: {
+      bgBase: '#ede6d9',
+      bgSurface: '#f6f1e8',
+      bgElevated: '#e2dac9',
+      bgNav: '#f6f1e8',
+      textPrimary: '#18181b',
+      textMuted: '#3f3f46',
+      accent: '#1d4ed8',
+      accentHover: '#1e40af',
+      border: '#cfc5b4',
+      borderStrong: '#9ca3af',
+      success: '#185223',
+      warning: '#b43418',
+      danger: '#9e2b17',
+      info: '#184674',
+    }
+  },
+  'nightview-70': {
+    name: 'NightView 70% (Тёплая бумага 70%)',
+    fontSize: 11,
+    borderRadius: 6,
+    density: 'compact',
+    kpiHeight: 50,
     fontFamily: 'system',
     shadowStyle: 'soft',
     glassmorphism: false,
@@ -471,6 +498,7 @@ export function populatePresetSelect(selectedKey) {
   html += '<optgroup label="☀️ Стандартные светлые темы">\n';
   html += `  <option value="light"${currentVal === 'light' ? ' selected' : ''}>🪟 Windows System Light</option>\n`;
   html += `  <option value="nightview"${currentVal === 'nightview' ? ' selected' : ''}>📖 NightView (Тёплая бумага)</option>\n`;
+  html += `  <option value="nightview-70"${currentVal === 'nightview-70' ? ' selected' : ''}>📖 NightView 70% (Тёплая бумага 70%)</option>\n`;
   html += `  <option value="brick"${currentVal === 'brick' ? ' selected' : ''}>🧱 Кирпичная (Терракота)</option>\n`;
   html += `  <option value="theme-light-enterprise"${currentVal === 'theme-light-enterprise' ? ' selected' : ''}>🏢 Light Enterprise (Светлый корпоративный)</option>\n`;
   html += '</optgroup>\n';

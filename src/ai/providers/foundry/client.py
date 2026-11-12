@@ -16,7 +16,7 @@
 # Package: src.ai.providers.foundry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 16:52:00
 # =============================================================================
 
 """Client for working with Microsoft AI Foundry."""
@@ -25,6 +25,10 @@ import os
 import aiohttp
 from typing import Optional, Dict, Any, List
 from logger import logger
+
+_FOUNDRY_GEN_TIMEOUT = aiohttp.ClientTimeout(total=60.0, connect=5.0, sock_read=55.0)
+_FOUNDRY_LOAD_TIMEOUT = aiohttp.ClientTimeout(total=120.0, connect=5.0, sock_read=115.0)
+_FOUNDRY_MODELS_TIMEOUT = aiohttp.ClientTimeout(total=10.0, connect=3.0, sock_read=7.0)
 
 class FoundryClient:
     """Client for working with Microsoft AI Foundry."""
@@ -44,10 +48,10 @@ class FoundryClient:
     async def _get_session(self) -> aiohttp.ClientSession:
         """Get or create aiohttp session."""
         if not self.session or self.session.closed:
-            self.session = aiohttp.ClientSession()
+            self.session = aiohttp.ClientSession(timeout=_FOUNDRY_GEN_TIMEOUT)
         return self.session
 
-    async def generate_text(self, prompt: str, model: str, temperature: float=0.7, max_tokens: int=2048, messages: Optional[List[Dict[str, str]]]=[]) -> Dict[str, Any]:
+    async def generate_text(self, prompt: str, model: str, temperature: float=0.7, max_tokens: int=2048, messages: Optional[List[Dict[str, str]]]=None) -> Dict[str, Any]:
         """Generate text through Foundry API.
 
         Args:
@@ -70,7 +74,7 @@ class FoundryClient:
         payload = {'model': model, 'messages': messages, 'temperature': temperature, 'max_tokens': max_tokens}
         try:
             logger.info(f'Sending request to Foundry API: {url}')
-            async with session.post(url, json=payload, headers=headers, timeout=60) as response:
+            async with session.post(url, json=payload, headers=headers, timeout=_FOUNDRY_GEN_TIMEOUT) as response:
                 if response.status == 200:
                     data = await response.json()
                     choices = data.get('choices', [])
@@ -103,7 +107,7 @@ class FoundryClient:
         if self.api_key:
             headers['Authorization'] = f'Bearer {self.api_key}'
         try:
-            async with session.get(url, headers=headers, timeout=120) as response:
+            async with session.get(url, headers=headers, timeout=_FOUNDRY_LOAD_TIMEOUT) as response:
                 if response.status in (200, 201):
                     return {'success': True}
                 else:
@@ -124,7 +128,7 @@ class FoundryClient:
         if self.api_key:
             headers['Authorization'] = f'Bearer {self.api_key}'
         try:
-            async with session.get(url, headers=headers, timeout=10) as response:
+            async with session.get(url, headers=headers, timeout=_FOUNDRY_MODELS_TIMEOUT) as response:
                 if response.status == 200:
                     data = await response.json()
                     models = []

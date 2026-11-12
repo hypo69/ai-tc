@@ -17,23 +17,25 @@
 # Package: src.ai.orchestration
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 11:27:00
+# Updated: 2026-11-10 16:48:00
 # =============================================================================
 
 from __future__ import annotations
-"""Ensure that the secrets directory exists on the filesystem."""
+"""Управление состоянием пулов моделей ИИ и автоматической ротацией при исчерпании квот."""
 
+from datetime import datetime, timezone
 import json
 import os
-import random
-from datetime import datetime, timezone
 from pathlib import Path
+import random
+import threading
 from typing import Any, Dict, List, Optional
 from header import __root__
 from logger import logger
 _SECRETS_DIR: Path = __root__ / 'src' / 'secrets'
 _POOLS_FILE: Path = _SECRETS_DIR / 'model_pools.json'
-_DEFAULT_POOLS: Dict[str, List[str]] = {'gemini': ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-3.6-flash', 'gemini-3.7-flash', 'gemini-pro-latest'], 'gemini_cli': ['gemini-3.1-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3.1-pro-preview', 'gemini-3.1-flash-lite-preview'], 'agy': ['agy-flash', 'agy-pro'], 'ollama': ['llama3', 'mistral', 'codellama', 'gemma', 'phi3']}
+_POOLS_LOCK = threading.RLock()
+_DEFAULT_POOLS: Dict[str, List[str]] = {'gemini': ['gemini-3.8-flash', 'gemini-flash-lite-latest', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-pro-latest'], 'gemini_cli': ['gemini-3.1-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3.1-pro-preview', 'gemini-3.1-flash-lite-preview'], 'agy': ['agy-flash', 'agy-pro'], 'ollama': ['llama3', 'mistral', 'codellama', 'gemma', 'phi3']}
 _MAX_RETRY_ATTEMPTS: int = 5
 
 def _ensure_secrets_dir() -> None:
@@ -142,22 +144,18 @@ def _get_foundry_models() -> List[str]:
     return ['llama-3-70b-instruct', 'mistral-large', 'codellama-34b-instruct', 'gemma-2-9b-instruct', 'phi-3-medium-128k']
 
 def _save_pools_file(data: Dict[str, Dict[str, Any]]) -> bool:
-    """Write model pools data to JSON file safely.
-
-    Args:
-        data (Dict[str, Dict[str, Any]]): Pools data to serialize.
-
-    Returns:
-        bool: True on success, False on failure.
-    """
-    try:
-        _ensure_secrets_dir()
-        _POOLS_FILE.parent.mkdir(parents=True, exist_ok=True)
-        _POOLS_FILE.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding='utf-8')
-        return True
-    except Exception as ex:
-        logger.error(f'Failed to save pools to {_POOLS_FILE}: {ex}')
-        return False
+    """Атомарно записывает состояние пулов моделей в JSON-файл."""
+    with _POOLS_LOCK:
+        try:
+            _ensure_secrets_dir()
+            _POOLS_FILE.parent.mkdir(parents=True, exist_ok=True)
+            tmp_path = _POOLS_FILE.with_suffix('.json.tmp')
+            tmp_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding='utf-8')
+            os.replace(tmp_path, _POOLS_FILE)
+            return True
+        except Exception as ex:
+            logger.error(f'Failed to save pools to {_POOLS_FILE}: {ex}')
+            return False
 
 def load_model_pool(provider: str) -> List[Dict[str, Any]]:
     """Load model pool for specified provider.

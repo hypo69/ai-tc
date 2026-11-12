@@ -14,7 +14,7 @@
 # Package: apps.windows.sdk.modules.accounts_identity
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 18:00:00
+# Updated: 2026-11-01 13:48:00
 # =============================================================================
 
 """FastAPI роутер для Accounts & Identity."""
@@ -25,6 +25,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
+from logger import logger
 from apps.windows.sdk.modules.accounts_identity.models import (
     AccountDetails,
     AuditEventItem,
@@ -37,6 +38,8 @@ from apps.windows.sdk.modules.accounts_identity.models import (
     ProfileDetails,
     SessionDetails,
     TokenDetails,
+    UserUacConfig,
+    UserUacUpdateRequest,
 )
 from apps.windows.sdk.modules.accounts_identity.service import get_accounts_identity_service
 
@@ -82,6 +85,28 @@ async def get_user_by_name_or_sid(username_or_sid: str) -> AccountDetails:
     if not user:
         raise HTTPException(status_code=404, detail=f"Пользователь '{username_or_sid}' не найден")
     return user
+
+
+@router.get("/users/{username_or_sid}/uac", response_model=UserUacConfig)
+async def get_user_uac(username_or_sid: str) -> UserUacConfig:
+    """Получает текущие параметры контроля учетных записей (UAC) для пользователя."""
+    cfg = _service.get_user_uac(username_or_sid)
+    if not cfg:
+        raise HTTPException(status_code=404, detail=f"Пользователь '{username_or_sid}' не найден")
+    return cfg
+
+
+@router.post("/users/{username_or_sid}/uac", response_model=UserUacConfig)
+async def update_user_uac(username_or_sid: str, req: UserUacUpdateRequest) -> UserUacConfig:
+    """Обновляет конфигурацию UAC и права учетной записи пользователя."""
+    try:
+        return _service.update_user_uac(username_or_sid, req)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Ошибка обновления параметров UAC для '{username_or_sid}': {e}")
+        raise HTTPException(status_code=500, detail=f"Ошибка обновления параметров UAC: {e}")
+
 
 
 @router.post("/users")

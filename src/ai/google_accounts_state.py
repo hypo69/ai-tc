@@ -17,17 +17,18 @@
 # Package: src.ai
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-10 16:46:00
 # =============================================================================
 
 from __future__ import annotations
-"""Ensure secrets and tokens directories exist."""
+"""Управление пулом аккаунтов Google OAuth / Service Account и состоянием квот."""
 
+from datetime import datetime, timezone
 import json
 import os
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+import threading
+from typing import Any, Dict, List, Optional
 from header import __root__
 from logger import logger
 _SECRETS_DIR: Path = __root__ / 'src' / 'secrets'
@@ -35,7 +36,20 @@ _OAUTH_FILES_DIR: Path = _SECRETS_DIR / 'google_ouath_files'
 _TOKENS_DIR: Path = _SECRETS_DIR / 'google_oauth_tokens'
 _ACCOUNTS_FILE: Path = _SECRETS_DIR / 'google_accounts.json'
 _DAY_SECONDS: float = 86400.0
-DEFAULT_SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.compose', 'https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/documents']
+_STATE_LOCK = threading.RLock()
+DEFAULT_SCOPES = [
+    'https://www.googleapis.com/auth/gmail.readonly',
+    'https://www.googleapis.com/auth/gmail.compose',
+    'https://www.googleapis.com/auth/gmail.modify',
+    'https://www.googleapis.com/auth/calendar',
+    'https://www.googleapis.com/auth/calendar.events',
+    'https://www.googleapis.com/auth/drive',
+    'https://www.googleapis.com/auth/drive.file',
+    'https://www.googleapis.com/auth/contacts',
+    'https://www.googleapis.com/auth/contacts.readonly',
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/documents',
+]
 
 def _ensure_dirs() -> None:
     """Ensure secrets and tokens directories exist."""
@@ -116,21 +130,17 @@ def _bootstrap_from_existing_files() -> Dict[str, Any]:
     return {'default_account': default_name, 'accounts': accounts}
 
 def _save_accounts_data(data: Dict[str, Any]) -> bool:
-    """Save accounts dictionary to JSON file.
-
-    Args:
-        data: Structure to serialize.
-
-    Returns:
-        bool: True on success.
-    """
-    try:
-        _ensure_dirs()
-        _ACCOUNTS_FILE.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding='utf-8')
-        return True
-    except Exception as ex:
-        logger.error(f'Failed to save Google accounts data to {_ACCOUNTS_FILE}: {ex}')
-        return False
+    """Атомарно сохраняет словарь аккаунтов Google в JSON-файл."""
+    with _STATE_LOCK:
+        try:
+            _ensure_dirs()
+            tmp_path = _ACCOUNTS_FILE.with_suffix('.json.tmp')
+            tmp_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding='utf-8')
+            os.replace(tmp_path, _ACCOUNTS_FILE)
+            return True
+        except Exception as ex:
+            logger.error(f'Failed to save Google accounts data to {_ACCOUNTS_FILE}: {ex}')
+            return False
 
 def list_google_accounts(skip_exhausted: bool=False) -> List[Dict[str, Any]]:
     """List all configured Google Workspace accounts in pool.
@@ -199,38 +209,44 @@ def save_google_account(account_name: str, credentials_path_or_dict: Any, accoun
         bool: True on success.
     """
     _ensure_dirs()
-    clean_name = account_name.strip()
-    if not clean_name:
+    clean_name = Path(account_name.strip()).name
+    if not clean_name or clean_name in ('.', '..'):
         return False
-    data = _load_accounts_data()
-    accounts = data.setdefault('accounts', {})
-    creds_filename = f'{clean_name}_secret.json'
-    dest_file = _OAUTH_FILES_DIR / creds_filename
-    if isinstance(credentials_path_or_dict, dict):
-        dest_file.write_text(json.dumps(credentials_path_or_dict, indent=2, ensure_ascii=False), encoding='utf-8')
-    elif isinstance(credentials_path_or_dict, (str, Path)):
-        src_path = Path(credentials_path_or_dict)
-        if not src_path.is_absolute():
-            src_path = __root__ / src_path
-        if src_path.exists() and src_path.resolve() != dest_file.resolve():
-            dest_file.write_bytes(src_path.read_bytes())
-        elif not src_path.exists():
-            logger.error(f'Credentials source file does not exist: {src_path}')
-            return False
-    token_filename = f'{clean_name}_token.json'
-    token_file = _TOKENS_DIR / token_filename
-    try:
-        creds_rel_path = str(dest_file.relative_to(__root__))
-    except ValueError:
-        creds_rel_path = str(dest_file)
-    try:
-        token_rel_path = str(token_file.relative_to(__root__))
-    except ValueError:
-        token_rel_path = str(token_file)
-    accounts[clean_name] = {'name': clean_name, 'email': email or accounts.get(clean_name, {}).get('email', ''), 'type': account_type, 'credentials_file': creds_rel_path, 'token_file': token_rel_path, 'status': 'active', 'last_run': '', 'exhausted_at': ''}
-    if set_as_default or not data.get('default_account'):
-        data['default_account'] = clean_name
-    return _save_accounts_data(data)
+    with _STATE_LOCK:
+        data = _load_accounts_data()
+        accounts = data.setdefault('accounts', {})
+        creds_filename = f'{clean_name}_secret.json'
+        dest_file = (_OAUTH_FILES_DIR / creds_filename).resolve()
+        dest_file.relative_to(_OAUTH_FILES_DIR.resolve())
+        if isinstance(credentials_path_or_dict, dict):
+            tmp_dest = dest_file.with_suffix('.json.tmp')
+            tmp_dest.write_text(json.dumps(credentials_path_or_dict, indent=2, ensure_ascii=False), encoding='utf-8')
+            os.replace(tmp_dest, dest_file)
+        elif isinstance(credentials_path_or_dict, (str, Path)):
+            src_path = Path(credentials_path_or_dict)
+            if not src_path.is_absolute():
+                src_path = __root__ / src_path
+            if src_path.exists() and src_path.resolve() != dest_file:
+                tmp_dest = dest_file.with_suffix('.json.tmp')
+                tmp_dest.write_bytes(src_path.read_bytes())
+                os.replace(tmp_dest, dest_file)
+            elif not src_path.exists():
+                logger.error(f'Credentials source file does not exist: {src_path}')
+                return False
+        token_filename = f'{clean_name}_token.json'
+        token_file = _TOKENS_DIR / token_filename
+        try:
+            creds_rel_path = str(dest_file.relative_to(__root__))
+        except ValueError:
+            creds_rel_path = str(dest_file)
+        try:
+            token_rel_path = str(token_file.relative_to(__root__))
+        except ValueError:
+            token_rel_path = str(token_file)
+        accounts[clean_name] = {'name': clean_name, 'email': email or accounts.get(clean_name, {}).get('email', ''), 'type': account_type, 'credentials_file': creds_rel_path, 'token_file': token_rel_path, 'status': 'active', 'last_run': '', 'exhausted_at': ''}
+        if set_as_default or not data.get('default_account'):
+            data['default_account'] = clean_name
+        return _save_accounts_data(data)
 
 def delete_google_account(account_name: str) -> bool:
     """Remove a Google account from the pool."""
@@ -355,8 +371,9 @@ def load_account_credentials(account_name: Optional[str]=None, scopes: Optional[
         if creds and token_path:
             try:
                 token_path.parent.mkdir(parents=True, exist_ok=True)
-                with open(token_path, 'w', encoding='utf-8') as tf:
-                    tf.write(creds.to_json())
+                tmp_tok = token_path.with_suffix('.json.tmp')
+                tmp_tok.write_text(creds.to_json(), encoding='utf-8')
+                os.replace(tmp_tok, token_path)
                 logger.info(f"Saved OAuth token for account '{name}' to {token_path}")
             except Exception as e:
                 logger.error(f'Failed to save token file for {name}: {e}')

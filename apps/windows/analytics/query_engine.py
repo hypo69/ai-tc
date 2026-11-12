@@ -16,15 +16,17 @@
 # Package: apps.windows.analytics
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 13:13:00
+# Updated: 2026-11-10 14:25:00
 # =============================================================================
 
 from __future__ import annotations
 """Движок SQL-запросов и аналитических расчетов по базе данных telemetry.db."""
 
-import sqlite3
+from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
+import re
+import sqlite3
 from typing import Any, Dict, List, Optional, Union
 
 try:
@@ -103,15 +105,14 @@ class TelemetryQueryEngine:
             cleaned_sql = f"{cleaned_sql} LIMIT {min(limit, 1000)}"
 
         try:
-            conn = sqlite3.connect(str(target_db), timeout=5.0)
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute(cleaned_sql)
+            with closing(sqlite3.connect(str(target_db), timeout=5.0)) as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute(cleaned_sql)
 
-            rows = cursor.fetchall()
-            columns = [col[0] for col in cursor.description] if cursor.description else []
-            data = [dict(r) for r in rows]
-            conn.close()
+                rows = cursor.fetchall()
+                columns = [col[0] for col in cursor.description] if cursor.description else []
+                data = [dict(r) for r in rows]
 
             return {
                 "status": "ok",
@@ -154,12 +155,11 @@ class TelemetryQueryEngine:
             LIMIT ?
         """
         try:
-            conn = sqlite3.connect(str(target_db), timeout=5.0)
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute(sql, (max(10, min(limit, 2000)),))
-            raw_rows = [dict(r) for r in cursor.fetchall()]
-            conn.close()
+            with closing(sqlite3.connect(str(target_db), timeout=5.0)) as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute(sql, (max(10, min(limit, 2000)),))
+                raw_rows = [dict(r) for r in cursor.fetchall()]
 
             if not raw_rows:
                 return {
@@ -259,43 +259,42 @@ class TelemetryQueryEngine:
             return {"status": "error", "message": "telemetry.db не найдена"}
 
         try:
-            conn = sqlite3.connect(str(target_db), timeout=5.0)
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
+            with closing(sqlite3.connect(str(target_db), timeout=5.0)) as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
 
-            # 1. Быстрый запрос последних сенсоров категории Powers/Power
-            sql_sensors = """
-                SELECT hardware_name, sensor_name, unit,
-                       AVG(value) as avg_watts,
-                       MIN(value) as min_watts,
-                       MAX(value) as max_watts,
-                       COUNT(*) as sample_count
-                FROM (
-                    SELECT * FROM sensor_polls
-                    ORDER BY id DESC LIMIT 5000
-                )
-                WHERE (sensor_category IN ('Powers', 'Power') OR unit = 'W')
-                  AND value > 0.0
-                GROUP BY hardware_name, sensor_name
-                ORDER BY avg_watts DESC
-            """
-            cursor.execute(sql_sensors)
-            sensor_power_rows = [dict(r) for r in cursor.fetchall()]
+                # 1. Быстрый запрос последних сенсоров категории Powers/Power
+                sql_sensors = """
+                    SELECT hardware_name, sensor_name, unit,
+                           AVG(value) as avg_watts,
+                           MIN(value) as min_watts,
+                           MAX(value) as max_watts,
+                           COUNT(*) as sample_count
+                    FROM (
+                        SELECT * FROM sensor_polls
+                        ORDER BY id DESC LIMIT 5000
+                    )
+                    WHERE (sensor_category IN ('Powers', 'Power') OR unit = 'W')
+                      AND value > 0.0
+                    GROUP BY hardware_name, sensor_name
+                    ORDER BY avg_watts DESC
+                """
+                cursor.execute(sql_sensors)
+                sensor_power_rows = [dict(r) for r in cursor.fetchall()]
 
-            # 2. Быстрый запрос последних замеров нагрузки ЦП и ГПУ
-            sql_snapshots = """
-                SELECT AVG(cpu_total_percent) as avg_cpu,
-                       MAX(cpu_total_percent) as max_cpu,
-                       AVG(memory_used_gb) as avg_ram_gb,
-                       AVG(gpu_load_percent) as avg_gpu_load
-                FROM (
-                    SELECT * FROM system_snapshots
-                    ORDER BY id DESC LIMIT 1000
-                )
-            """
-            cursor.execute(sql_snapshots)
-            snap_stat = dict(cursor.fetchone() or {})
-            conn.close()
+                # 2. Быстрый запрос последних замеров нагрузки ЦП и ГПУ
+                sql_snapshots = """
+                    SELECT AVG(cpu_total_percent) as avg_cpu,
+                           MAX(cpu_total_percent) as max_cpu,
+                           AVG(memory_used_gb) as avg_ram_gb,
+                           AVG(gpu_load_percent) as avg_gpu_load
+                    FROM (
+                        SELECT * FROM system_snapshots
+                        ORDER BY id DESC LIMIT 1000
+                    )
+                """
+                cursor.execute(sql_snapshots)
+                snap_stat = dict(cursor.fetchone() or {})
 
             # 3. Анализ и распределение мощности
             cpu_cores_w = 0.0
@@ -449,32 +448,27 @@ class TelemetryQueryEngine:
             LIMIT ?
         """
         try:
-            conn = sqlite3.connect(str(target_db), timeout=5.0)
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute(sql, (limit,))
-            rows = [dict(r) for r in cursor.fetchall()]
-            conn.close()
-
-            # Если snapshots пусты, пробуем process_lifecycle_sessions
-            if not rows:
-                fallback_sql = """
-                    SELECT name,
-                           ROUND(AVG(cpu_time_total_sec), 1) as avg_cpu,
-                           ROUND(MAX(cpu_time_total_sec), 1) as max_cpu,
-                           ROUND(AVG(peak_working_set_mb), 1) as avg_ram_mb,
-                           COUNT(*) as samples_count
-                    FROM process_lifecycle_sessions
-                    GROUP BY name
-                    ORDER BY avg_cpu DESC LIMIT ?
-                """
-                conn = sqlite3.connect(str(target_db), timeout=5.0)
+            with closing(sqlite3.connect(str(target_db), timeout=5.0)) as conn:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
-                cursor.execute(fallback_sql, (limit,))
+                cursor.execute(sql, (limit,))
                 rows = [dict(r) for r in cursor.fetchall()]
-                conn.close()
-                sql = fallback_sql
+
+                # Если snapshots пусты, пробуем process_lifecycle_sessions
+                if not rows:
+                    fallback_sql = """
+                        SELECT name,
+                               ROUND(AVG(cpu_time_total_sec), 1) as avg_cpu,
+                               ROUND(MAX(cpu_time_total_sec), 1) as max_cpu,
+                               ROUND(AVG(peak_working_set_mb), 1) as avg_ram_mb,
+                               COUNT(*) as samples_count
+                        FROM process_lifecycle_sessions
+                        GROUP BY name
+                        ORDER BY avg_cpu DESC LIMIT ?
+                    """
+                    cursor.execute(fallback_sql, (limit,))
+                    rows = [dict(r) for r in cursor.fetchall()]
+                    sql = fallback_sql
 
             chart_labels = [r["name"] for r in rows]
             chart_cpu = [r["avg_cpu"] for r in rows]
@@ -517,20 +511,21 @@ class TelemetryQueryEngine:
             return {"status": "error", "message": "telemetry.db не найдена"}
 
         try:
-            conn = sqlite3.connect(str(target_db), timeout=5.0)
-            cursor = conn.cursor()
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
-            tables = [r[0] for r in cursor.fetchall() if r[0] != "sqlite_sequence"]
+            with closing(sqlite3.connect(str(target_db), timeout=5.0)) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                tables = [r[0] for r in cursor.fetchall() if r[0] != "sqlite_sequence"]
 
-            schema: Dict[str, Any] = {}
-            for t in tables:
-                cursor.execute(f"PRAGMA table_info({t})")
-                cols = [col[1] for col in cursor.fetchall()]
-                cursor.execute(f"SELECT count(*) FROM {t}")
-                cnt = cursor.fetchone()[0]
-                schema[t] = {"columns": cols, "rows_count": cnt}
+                schema: Dict[str, Any] = {}
+                for t in tables:
+                    if not re.match(r"^[A-Za-z0-9_]+$", str(t)):
+                        continue
+                    cursor.execute(f"PRAGMA table_info([{t}])")
+                    cols = [col[1] for col in cursor.fetchall()]
+                    cursor.execute(f"SELECT count(*) FROM [{t}]")
+                    cnt = cursor.fetchone()[0]
+                    schema[t] = {"columns": cols, "rows_count": cnt}
 
-            conn.close()
             return {"status": "ok", "tables": schema}
         except Exception as ex:
             return {"status": "error", "message": str(ex)}
@@ -563,12 +558,11 @@ class TelemetryQueryEngine:
             LIMIT ?
         """
         try:
-            conn = sqlite3.connect(str(target_db), timeout=5.0)
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-            cursor.execute(sql, (limit,))
-            rows = [dict(r) for r in cursor.fetchall()]
-            conn.close()
+            with closing(sqlite3.connect(str(target_db), timeout=5.0)) as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute(sql, (limit,))
+                rows = [dict(r) for r in cursor.fetchall()]
             return {"status": "ok", "processes": rows, "count": len(rows), "sql": sql.strip()}
         except Exception as ex:
             logger.error(f"Ошибка выборки клиентских процессов: {ex}")

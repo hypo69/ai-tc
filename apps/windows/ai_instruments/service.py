@@ -19,22 +19,26 @@
 # Package: apps.windows.ai_instruments
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:47:00
+# Updated: 2026-11-01 17:43:30
 # =============================================================================
 
 from __future__ import annotations
 
 """Сервис управления базой инструментов ИИ-агента (ai_instruments.db)."""
 
+import csv
+import json
 import os
 import re
 import subprocess
 import tempfile
 import time
 import uuid
-from typing import Any, Dict, List, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
 from logger import logger
+from src.utils.csv import read_csv_file, save_csv_file
 from .default_catalog import DEFAULT_AGENT_INSTRUMENTS
 from .models import AIInstrument, AIInstrumentCreate, get_current_iso_time
 from .storage import AIInstrumentsStorage
@@ -106,6 +110,166 @@ class AIInstrumentsService:
     def delete_instrument(self, tool_id: str) -> bool:
         """Удаляет инструмент."""
         return self.storage.delete_instrument(tool_id)
+
+    def export_to_csv(
+        self,
+        file_path: Union[str, Path],
+        tool_type: Optional[str] = None,
+        target_entity: Optional[str] = None,
+    ) -> int:
+        """Экспортирует каталог инструментов в CSV-файл через src.utils.csv.save_csv_file.
+
+        Args:
+            file_path (Union[str, Path]): Путь для сохранения CSV-файла.
+            tool_type (Optional[str]): Фильтр по типу инструмента.
+            target_entity (Optional[str]): Фильтр по целевой сущности.
+
+        Returns:
+            int: Количество экспортированных инструментов.
+        """
+        items = self.storage.list_instruments(
+            limit=5000,
+            offset=0,
+            tool_type=tool_type,
+            target_entity=target_entity,
+        )
+        fieldnames = [
+            "tool_id",
+            "name",
+            "tool_type",
+            "command",
+            "description",
+            "target_entity",
+            "parameters_schema",
+            "risk_level",
+            "author_agent",
+            "tags",
+            "execution_count",
+            "last_executed_at",
+            "created_at",
+            "updated_at",
+        ]
+        target = Path(file_path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+
+        if not items:
+            with target.open("w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+            return 0
+
+        rows: List[Dict[str, Any]] = []
+        for it in items:
+            rows.append(
+                {
+                    "tool_id": it.tool_id,
+                    "name": it.name,
+                    "tool_type": it.tool_type,
+                    "command": it.command,
+                    "description": it.description or "",
+                    "target_entity": it.target_entity or "",
+                    "parameters_schema": json.dumps(it.parameters_schema or {}, ensure_ascii=False),
+                    "risk_level": it.risk_level or "safe",
+                    "author_agent": it.author_agent or "reasoning_chain",
+                    "tags": ", ".join(it.tags) if isinstance(it.tags, list) else str(it.tags or "#agent_tool"),
+                    "execution_count": str(it.execution_count or 0),
+                    "last_executed_at": it.last_executed_at or "",
+                    "created_at": it.created_at or "",
+                    "updated_at": it.updated_at or "",
+                }
+            )
+
+        ok = save_csv_file(rows, target, mode="w")
+        if not ok:
+            raise RuntimeError(f"Не удалось сохранить каталог инструментов в CSV: {target}")
+        logger.info(f"[AIInstrumentsService] Экспортировано {len(rows)} инструментов в CSV: {target}")
+        return len(rows)
+
+    def import_from_csv(self, file_path: Union[str, Path]) -> List[AIInstrument]:
+        """Импортирует инструменты в базу данных из CSV-файла через src.utils.csv.read_csv_file.
+
+        Args:
+            file_path (Union[str, Path]): Путь к исходному CSV-файлу.
+
+        Returns:
+            List[AIInstrument]: Список сохраненных или обновленных инструментов.
+        """
+        raw_rows = read_csv_file(file_path)
+        if raw_rows is None:
+            raise ValueError(f"Не удалось прочитать CSV-файл инструментов: {file_path}")
+
+        imported: List[AIInstrument] = []
+        now = get_current_iso_time()
+
+        for row in raw_rows:
+            if not isinstance(row, dict):
+                continue
+            name = (row.get("name") or "").strip()
+            command = (row.get("command") or "").strip()
+            if not name or not command:
+                continue
+
+            tool_id = (row.get("tool_id") or "").strip() or f"inst_{uuid.uuid4().hex[:12]}"
+            tool_type = (row.get("tool_type") or "powershell").strip().lower() or "powershell"
+            description = (row.get("description") or "").strip()
+            target_entity = (row.get("target_entity") or "").strip()
+            risk_level = (row.get("risk_level") or "safe").strip().lower() or "safe"
+            author_agent = (row.get("author_agent") or "csv_import").strip() or "csv_import"
+
+            schema_raw = (row.get("parameters_schema") or "").strip()
+            parameters_schema: Dict[str, Any] = {}
+            if schema_raw:
+                try:
+                    parsed_schema = json.loads(schema_raw)
+                    if isinstance(parsed_schema, dict):
+                        parameters_schema = parsed_schema
+                except Exception:
+                    parameters_schema = {}
+
+            tags_raw = (row.get("tags") or "").strip()
+            tags: List[str] = ["#agent_tool"]
+            if tags_raw:
+                if tags_raw.startswith("["):
+                    try:
+                        parsed_tags = json.loads(tags_raw)
+                        if isinstance(parsed_tags, list) and parsed_tags:
+                            tags = [str(t).strip() for t in parsed_tags if str(t).strip()]
+                    except Exception:
+                        pass
+                else:
+                    parts = [p.strip() for p in tags_raw.split(",") if p.strip()]
+                    if parts:
+                        tags = [p if p.startswith("#") else f"#{p}" for p in parts]
+
+            try:
+                execution_count = int(row.get("execution_count") or 0)
+            except ValueError:
+                execution_count = 0
+
+            last_executed_at = (row.get("last_executed_at") or "").strip() or None
+            created_at = (row.get("created_at") or "").strip() or now
+
+            inst = AIInstrument(
+                tool_id=tool_id,
+                name=name,
+                tool_type=tool_type,
+                command=command,
+                description=description,
+                target_entity=target_entity,
+                parameters_schema=parameters_schema,
+                risk_level=risk_level,
+                author_agent=author_agent,
+                tags=tags,
+                execution_count=execution_count,
+                last_executed_at=last_executed_at,
+                created_at=created_at,
+                updated_at=now,
+            )
+            saved = self.storage.save_instrument(inst)
+            imported.append(saved)
+
+        logger.info(f"[AIInstrumentsService] Импортировано {len(imported)} инструментов из CSV: {file_path}")
+        return imported
 
     def seed_default_instruments(self, force: bool = False) -> List[AIInstrument]:
         """Синхронизирует базу со стандартным каталогом инструментов из apps/windows/sdk и .agents/skills.

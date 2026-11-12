@@ -1,7 +1,7 @@
 /**
  * Модуль управления пулом API-ключей Antigravity (AGY) и OpenAI-совместимых сервисов.
  * Файл: apps/windows/api/webgui/tab_models/panel_agy_keys/panel.js
- * Updated: 2026-10-17 02:20:00
+ * Updated: 2026-11-03 15:54:00
  */
 
 import { escapeHtml, showModelsNotification } from '../common/ui_utils.js';
@@ -15,7 +15,7 @@ import { openKeyTestModal } from '../panel_gemini_keys/panel.js';
 export async function activateAgyKey(name, container) {
   try {
     const fetchFn = (window.api && window.api.fetch) || fetch;
-    await fetchFn(`/api/keys/agy/${encodeURIComponent(name)}/activate`, {
+    await fetchFn(`/api/v1/keys/agy/${encodeURIComponent(name)}/activate`, {
       method: 'POST'
     });
     showModelsNotification(`Ключ AGY "${name}" успешно назначен активным`, 'success');
@@ -35,7 +35,7 @@ export async function activateAgyKey(name, container) {
 export async function toggleAgyKeyStatus(name, newStatus, container) {
   try {
     const fetchFn = (window.api && window.api.fetch) || fetch;
-    await fetchFn(`/api/keys/agy/${encodeURIComponent(name)}`, {
+    await fetchFn(`/api/v1/keys/agy/${encodeURIComponent(name)}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus })
@@ -54,7 +54,7 @@ export async function toggleAgyKeyStatus(name, newStatus, container) {
 export async function resetAgyKeyQuota(name, container) {
   try {
     const fetchFn = (window.api && window.api.fetch) || fetch;
-    await fetchFn(`/api/keys/agy/${encodeURIComponent(name)}/reset-quota`, { method: 'POST' });
+    await fetchFn(`/api/v1/keys/agy/${encodeURIComponent(name)}/reset-quota`, { method: 'POST' });
     showModelsNotification(`Квота для ключа AGY "${name}" успешно сброшена`, 'success');
     if (container) await refreshAgyKeysList(container);
   } catch (err) {
@@ -70,7 +70,7 @@ export async function deleteAgyKey(name, container) {
   if (!confirm(`Вы уверены, что хотите удалить ключ AGY "${name}"?`)) return;
   try {
     const fetchFn = (window.api && window.api.fetch) || fetch;
-    await fetchFn(`/api/keys/agy/${encodeURIComponent(name)}`, { method: 'DELETE' });
+    await fetchFn(`/api/v1/keys/agy/${encodeURIComponent(name)}`, { method: 'DELETE' });
     showModelsNotification(`Ключ AGY "${name}" успешно удален`, 'success');
     if (container) await refreshAgyKeysList(container);
   } catch (err) {
@@ -91,7 +91,7 @@ export async function refreshAgyKeysList(container) {
   try {
     container.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Загрузка ключей...</td></tr>';
     const fetchFn = (window.api && window.api.fetch) || fetch;
-    const response = await fetchFn('/api/keys/agy');
+    const response = await fetchFn('/api/v1/keys/agy');
     const keysData = typeof response.json === 'function' ? await response.json() : response;
     const keys = Array.isArray(keysData) ? keysData : (keysData.keys || []);
 

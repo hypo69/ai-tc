@@ -1,7 +1,7 @@
 /**
  * Модуль параметров (values) реестра, их редактирования и интеграции с ИИ-диагностикой.
- * Файл: apps/windows/api/webgui/tab_registry_viewer/panel_values/panel.js
- * Updated: 2026-10-17 01:55:00
+ * Файл: apps/windows/api/webgui/tab_registry_editor/panel_values/panel.js
+ * Updated: 2026-11-01 14:38:00
  */
 
 import { escapeHtml } from '../common/ui_utils.js';

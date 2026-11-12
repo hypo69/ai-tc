@@ -13,7 +13,7 @@ Project: ai-windows-admin
 Package: tests
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-16 23:45:00
+Updated: 2026-11-01 17:47:15
 =============================================================================
 """
 
@@ -66,16 +66,16 @@ def test_tab_core_and_apps_main_subpanel_routing() -> None:
     # tab-core.js нормализует tabId отсекая субпанель при поиске контейнера
     assert "split('#')[0]" in tab_core_code, "normalizeTabId не отсекает субпанель от tabId"
     # tab-core.js сохраняет субпанель в URL hash
-    assert "targetHash = subPanelId ? `#${id}#${subPanelId}` : `#${id}`" in tab_core_code
+    assert "targetHash = subHash ? `#${id}#${subHash}` : `#${id}`" in tab_core_code
     # tab-core.js передает subPanelId в switchProcessesSubTab
-    assert "window.switchProcessesSubTab(subPanelId, false)" in tab_core_code
+    assert "window.switchProcessesSubTab(effectiveSubPanel, false)" in tab_core_code
 
     apps_main_file = _WEBGUI_DIR / "apps" / "main.js"
     assert apps_main_file.exists()
     apps_main_code = apps_main_file.read_text(encoding="utf-8")
 
     # apps/main.js поддерживает субпанели при switchAppTab
-    assert "subPanel ? `${normId}#${subPanel}` : normId" in apps_main_code
+    assert "fullSubHash ? `${normId}#${fullSubHash}` : normId" in apps_main_code
     assert "window.switchProcessesSubTab(subPanel, false)" in apps_main_code
     # apps/main.js слушает событие hashchange
     assert "window.addEventListener('hashchange'" in apps_main_code
@@ -133,4 +133,18 @@ def test_process_manager_tab_consolidation_into_processes_inspector() -> None:
     assert pm_item is not None, "Элемент process_manager отсутствует в меню"
     assert pm_item.get("visible") is False, "Элемент process_manager должен быть скрыт из меню как отдельная вкладка"
     assert pm_item.get("tab") == "tab-processes-load-inspector#manager", "Целевая вкладка process_manager должна указывать на панель manager"
+
+
+def test_network_activity_process_column_width() -> None:
+    """Проверяет достаточную ширину колонки названия процесса в панели network-activity-by-process."""
+    html_file = _WEBGUI_DIR / "tab_processes_load_inspector" / "index.html"
+    panel_js_file = _WEBGUI_DIR / "tab_processes_load_inspector" / "panel_network_files" / "panel.js"
+
+    html_content = html_file.read_text(encoding="utf-8")
+    js_content = panel_js_file.read_text(encoding="utf-8")
+
+    assert 'min-width: 340px; width: 35%;">Программа / PID</th>' in html_content
+    assert 'style="max-width: 170px;"' not in js_content
+    assert 'min-width: 340px;' in js_content
+
 

@@ -17,7 +17,7 @@ Project: ai-windows-admin
 Package: windows/api/webgui/tab_instructions
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 10:55:00
+Updated: 2026-11-01 12:50:00
 =============================================================================
 -->
 <!-- Instructions Tab -->
@@ -28,7 +28,7 @@ Updated: 2026-10-20 10:55:00
       <span class="tab-header-icon fs-4 text-warning">📝</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title panel-header mb-0">Редактор системных инструкций</h3>
+          <h3 class="tab-header-title mb-0">Редактор системных инструкций</h3>
           
         </div>
         <small class="tab-header-subtitle text-secondary">Управление системными промптами, правилами поведения ИИ-моделей, TDD-стандартами и ролями агентов</small>
@@ -71,9 +71,9 @@ Updated: 2026-10-20 10:55:00
 </div>
 <!-- Editor Area -->
 <div class="card mb-3" data-panel-id="panel-instructions-redaktor-chat" id="panel-instructions-redaktor-chat">
-<div class="card-header">
+<div class="panel-header">
 <div class="d-flex justify-content-between align-items-center">
-<span class="fw-bold">Редактор — <span id="editor-mode-label">💬 Chat</span></span>
+<span class="panel-title">Редактор — <span id="editor-mode-label">💬 Chat</span></span>
 <small class="text-muted">Markdown поддерживается</small>
 </div>
 </div>
@@ -83,8 +83,8 @@ Updated: 2026-10-20 10:55:00
 </div>
 <!-- Versions Panel -->
 <div class="card mb-3" data-panel-id="panel-instructions-istoriya-versiy" id="panel-instructions-istoriya-versiy">
-<div class="card-header d-flex justify-content-between align-items-center">
-<span class="fw-bold"><i class="bi bi-clock-history"></i> История версий</span>
+<div class="panel-header d-flex justify-content-between align-items-center">
+<span class="panel-title"><i class="bi bi-clock-history"></i> История версий</span>
 <button class="btn btn-sm btn-outline-secondary" onclick="refreshVersions()" type="button">
 <i class="bi bi-arrow-clockwise"></i> Обновить
       </button>
@@ -97,8 +97,8 @@ Updated: 2026-10-20 10:55:00
 </div>
 <!-- Token Counter -->
 <div class="card" data-panel-id="panel-instructions-statistika" id="panel-instructions-statistika">
-<div class="card-header">
-<span class="fw-bold"><i class="bi bi-calculator"></i> Статистика</span>
+<div class="panel-header">
+<span class="panel-title"><i class="bi bi-calculator"></i> Статистика</span>
 </div>
 <div class="card-body">
 <div class="row g-3">

@@ -82,8 +82,6 @@
     "--table-border-color": "#cbd5e1",
     "--about-card-bg": "linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%)",
     "--badge-font-size": "calc(0.72rem + 1pt)",
-    "color-scheme": "light",
-    "--modal-width": "90vw",
-    "--modal-height": "90vh"
+    "color-scheme": "light"
   }
 }

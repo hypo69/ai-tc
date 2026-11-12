@@ -10,17 +10,45 @@
 # Package: plugins.invoice_processor
 # Author: hypo69
 # Copyright: (c) 2026 hypo69
+# Updated: 2026-11-10 17:32:00
 # =============================================================================
 
 from __future__ import annotations
 
+from decimal import Decimal
 import json
-import re
 from pathlib import Path
+import re
 from typing import Any, Dict, List, Optional, Union
 
 from logger.logger import logger
-from src.utils.pdf_extractor import extract_document_text
+try:
+    from src.utils.convertors.money import money_to_minor_units, to_decimal_money
+except ImportError:
+    from src.utils.system_engineering import money_to_minor_units, to_decimal_money
+
+
+async def extract_document_text(file_path: Union[str, Path]) -> str:
+    """Извлекает текстовое содержимое из документа счета (текст/PDF) без блокировки при отсутствии OCR."""
+    p = Path(file_path)
+    if not p.exists() or not p.is_file():
+        return ""
+    try:
+        return p.read_text(encoding="utf-8", errors="ignore")
+    except Exception:
+        return ""
+
+
+def _normalize_money_field(raw_val: Any) -> tuple[str, int]:
+    """Нормализует денежное поле счета через Decimal и возвращает строку и копейки/центы."""
+    if raw_val in ("", False) or raw_val is None:
+        return ("0.00", 0)
+    try:
+        dec_val = to_decimal_money(str(raw_val))
+        minor_val = money_to_minor_units(dec_val)
+        return (str(dec_val), minor_val)
+    except (ValueError, TypeError):
+        return ("0.00", 0)
 
 INVOICE_FIELDS = [
     "file_name",
@@ -126,9 +154,13 @@ async def extract_structured_invoice_data(
             if cleaned.startswith("```"):
                 cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
                 cleaned = re.sub(r"\s*```$", "", cleaned)
-            extracted_dict = json.loads(cleaned)
+            # parse_float=Decimal исключает потерю точности IEEE 754 при разборе JSON
+            extracted_dict = json.loads(cleaned, parse_float=Decimal)
     except Exception as ex:
         logger.warning(f"LLM structured extraction failed for {path.name}: {ex}")
+
+    total_str, total_minor = _normalize_money_field(extracted_dict.get("total_amount", ""))
+    tax_str, tax_minor = _normalize_money_field(extracted_dict.get("tax_amount", ""))
 
     result: Dict[str, Any] = {
         "file_name": path.name,
@@ -138,9 +170,11 @@ async def extract_structured_invoice_data(
         "vendor_name": str(extracted_dict.get("vendor_name", "") or ""),
         "vendor_tax_id": str(extracted_dict.get("vendor_tax_id", "") or ""),
         "customer_name": str(extracted_dict.get("customer_name", "") or ""),
-        "total_amount": str(extracted_dict.get("total_amount", "") or ""),
+        "total_amount": total_str if extracted_dict.get("total_amount") not in ("", None) else "",
+        "total_amount_minor": total_minor,
         "currency": str(extracted_dict.get("currency", "") or ""),
-        "tax_amount": str(extracted_dict.get("tax_amount", "") or ""),
+        "tax_amount": tax_str if extracted_dict.get("tax_amount") not in ("", None) else "",
+        "tax_amount_minor": tax_minor,
         "line_items_summary": str(extracted_dict.get("line_items_summary", "") or ""),
         "notes": str(extracted_dict.get("notes", "") or ""),
     }

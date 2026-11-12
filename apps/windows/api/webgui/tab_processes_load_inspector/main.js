@@ -2,7 +2,7 @@
  * Корневой оркестратор комплексного инспектора процессов хоста (Processes Load Inspector).
  * Координирует работу панелей: Диспетчер процессов, Топ потоков, Deep Dive, Сеть/Файлы, Leak Hunter и ИИ-ассистент.
  * Файл: apps/windows/api/webgui/tab_processes_load_inspector/main.js
- * Updated: 2026-10-31 19:16:00
+ * Updated: 2026-11-01 17:45:00
  */
 
 import {
@@ -14,7 +14,7 @@ import {
   updateUrlWithPanel as uiUpdateUrlWithPanel,
   showToast,
   syncWikiLLMProcessKnowledge
-} from './common/ui_utils.js?v=20261031_v2';
+} from './common/ui_utils.js?v=20261101_v1';
 import {
   initProcessManagerPanel,
   fetchProcessManagerSummary,
@@ -38,7 +38,7 @@ import {
   initNetworkFilesPanel,
   fetchNetworkActivity,
   fetchLiveFileEvents
-} from './panel_network_files/panel.js?v=20261020_v2';
+} from './panel_network_files/panel.js?v=20261101_v2';
 import {
   initLeakHunterPanel,
   fetchProcessLeaks,
@@ -103,6 +103,7 @@ export async function fetchActiveSubTabOnly(force = false) {
     case 'top':
       await fetchHostProcesses(force);
       break;
+    case 'network-activity-by-process':
     case 'net':
       await fetchNetworkActivity(force);
       break;
@@ -225,6 +226,7 @@ export function switchProcessesSubTab(subtabId, updateUrl = true) {
       btnId = 'subtab-proc-top-btn';
       paneId = 'subpane-proc-top';
       break;
+    case 'network-activity-by-process':
     case 'net':
       btnId = 'subtab-proc-net-btn';
       paneId = 'subpane-proc-net';

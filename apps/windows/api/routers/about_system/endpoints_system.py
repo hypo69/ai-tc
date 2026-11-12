@@ -11,7 +11,7 @@
 # Package: apps.windows.api.routers.about_system
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-28 14:43:00
+# Updated: 2026-11-01 15:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -29,6 +29,13 @@ from fastapi import APIRouter
 from logger import logger
 from apps.windows.telemetry.sqlite import TelemetryStorage
 from apps.windows.sdk import windows_sdk
+from .helpers import (
+    change_user_password_helper,
+    get_user_password_details,
+    set_password_policy_helper,
+)
+from .models import ChangeUserPasswordRequest
+from .models import ChangeUserPasswordResponse
 from .models import ChangeWorkgroupRequest
 from .models import ChangeWorkgroupResponse
 from .models import LocaleOption
@@ -42,6 +49,8 @@ from .models import RenameComputerRequest
 from .models import RenameComputerResponse
 from .models import SetLocaleRequest
 from .models import SetLocaleResponse
+from .models import SetPasswordPolicyRequest
+from .models import SetPasswordPolicyResponse
 from .models import SetTimezoneRequest
 from .models import SetTimezoneResponse
 from .models import TimezoneOption
@@ -198,6 +207,9 @@ def register_system_action_endpoints(router: APIRouter, storage: TelemetryStorag
             except Exception as e:
                 logger.debug(f"[router_about_system] Ошибка сбора языковых пакетов: {e}")
 
+            # Сведения о пароле и политике безопасности
+            pwd_info = get_user_password_details(username)
+
             return RegionalOptionsResponse(
                 status="ok",
                 current_timezone=current_tz_id,
@@ -224,6 +236,15 @@ def register_system_action_endpoints(router: APIRouter, storage: TelemetryStorag
                 language_packs=lang_packs,
                 os_install_language=os_inst_lang,
                 display_language=disp_lang,
+                password_required=pwd_info.get("password_required", True),
+                password_never_expires=pwd_info.get("password_never_expires", False),
+                cannot_change_password=pwd_info.get("cannot_change_password", False),
+                password_last_set=pwd_info.get("password_last_set"),
+                password_expires=pwd_info.get("password_expires"),
+                bad_password_count=pwd_info.get("bad_password_count", 0),
+                min_password_length=pwd_info.get("min_password_length", 0),
+                max_password_age_days=pwd_info.get("max_password_age_days", 42),
+                lockout_threshold=pwd_info.get("lockout_threshold", 0),
             )
 
         return await asyncio.to_thread(_fetch_options)
@@ -277,8 +298,19 @@ def register_system_action_endpoints(router: APIRouter, storage: TelemetryStorag
         if req.description is not None:
             clean_desc = req.description.replace("'", "''")
             ps_args.append(f"-Description '{clean_desc}'")
+        if req.password_never_expires is not None:
+            ps_args.append(f"-PasswordNeverExpires {'$true' if req.password_never_expires else '$false'}")
+        if req.cannot_change_password is not None:
+            ps_args.append(f"-UserMayChangePassword {'$false' if req.cannot_change_password else '$true'}")
 
-        if not ps_args:
+        if req.password_required is not None:
+            try:
+                req_str = "yes" if req.password_required else "no"
+                subprocess.run(["net", "user", target_user, f"/passwordreq:{req_str}"], capture_output=True, timeout=5)
+            except Exception as e:
+                logger.debug(f"[router_about_system] Ошибка установки passwordreq: {e}")
+
+        if not ps_args and req.password_required is None:
             return UpdateUserProfileResponse(
                 status="ok",
                 username=target_user,
@@ -286,25 +318,26 @@ def register_system_action_endpoints(router: APIRouter, storage: TelemetryStorag
             )
 
         try:
-            cmd = f"Set-LocalUser -Name '{target_user}' " + " ".join(ps_args)
-            proc = await asyncio.create_subprocess_exec(
-                "powershell.exe",
-                "-NoProfile",
-                "-NonInteractive",
-                "-Command",
-                cmd,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-            stdout, stderr = await proc.communicate()
-            if proc.returncode != 0:
-                err_text = stderr.decode("utf-8", errors="replace").strip() or stdout.decode("utf-8", errors="replace").strip()
-                logger.warning(f"[router_about_system] Ошибка Set-LocalUser: {err_text}")
-                return UpdateUserProfileResponse(
-                    status="error",
-                    username=target_user,
-                    message=f"Не удалось обновить профиль пользователя: {err_text}. Требуются права администратора.",
+            if ps_args:
+                cmd = f"Set-LocalUser -Name '{target_user}' " + " ".join(ps_args)
+                proc = await asyncio.create_subprocess_exec(
+                    "powershell.exe",
+                    "-NoProfile",
+                    "-NonInteractive",
+                    "-Command",
+                    cmd,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
                 )
+                stdout, stderr = await proc.communicate()
+                if proc.returncode != 0:
+                    err_text = stderr.decode("utf-8", errors="replace").strip() or stdout.decode("utf-8", errors="replace").strip()
+                    logger.warning(f"[router_about_system] Ошибка Set-LocalUser: {err_text}")
+                    return UpdateUserProfileResponse(
+                        status="error",
+                        username=target_user,
+                        message=f"Не удалось обновить профиль пользователя: {err_text}. Требуются права администратора.",
+                    )
 
             return UpdateUserProfileResponse(
                 status="ok",
@@ -318,6 +351,29 @@ def register_system_action_endpoints(router: APIRouter, storage: TelemetryStorag
                 username=target_user,
                 message=f"Внутренняя ошибка: {exc}",
             )
+
+    # =========================================================================
+    # 14.1. Установка / смена пароля пользователя: POST /api/v1/system/change-user-password
+    # =========================================================================
+    @router.post("/api/v1/system/change-user-password", response_model=ChangeUserPasswordResponse)
+    async def change_user_password_endpoint(req: ChangeUserPasswordRequest) -> ChangeUserPasswordResponse:
+        """Смена или установка нового пароля локального пользователя."""
+        res = await asyncio.to_thread(change_user_password_helper, req.username, req.new_password)
+        return ChangeUserPasswordResponse(**res)
+
+    # =========================================================================
+    # 14.2. Настройка политики паролей: POST /api/v1/system/set-password-policy
+    # =========================================================================
+    @router.post("/api/v1/system/set-password-policy", response_model=SetPasswordPolicyResponse)
+    async def set_password_policy_endpoint(req: SetPasswordPolicyRequest) -> SetPasswordPolicyResponse:
+        """Настройка глобальной политики безопасности паролей хоста."""
+        res = await asyncio.to_thread(
+            set_password_policy_helper,
+            req.min_password_length,
+            req.max_password_age_days,
+            req.lockout_threshold,
+        )
+        return SetPasswordPolicyResponse(**res)
 
     # =========================================================================
     # 15. Проверка сетевого профиля и обнаружения: GET /api/v1/system/network-profile

@@ -1,6 +1,6 @@
 # 🔌 Серверы Model Context Protocol (`.mcp/`)
 
-**Описание:** Пакет локальных и гибридных серверов протокола **Model Context Protocol (MCP)** на базе официального SDK `mcp.server.MCPServer` (v2) и Node.js/TypeScript для интеграции инструментов AI Windows Admin (AI-TC) с внешними ИИ-клиентами (Google Antigravity, Claude Desktop, Cursor, VS Code).
+**Описание:** Пакет локальных и гибридных серверов протокола **Model Context Protocol (MCP)** на базе официального SDK `mcp.server.MCPServer` (v2) и Node.js/TypeScript для интеграции инструментов AI Windows Admin (ai-tc) с внешними ИИ-клиентами (Google Antigravity, Claude Desktop, Cursor, VS Code).
 
 **Статус:** ✅ Production Ready  
 **Версия:** 2.0  

@@ -1,7 +1,7 @@
 /**
  * Модуль сетевой активности программ и мониторинга изменений файлов хоста.
  * Файл: apps/windows/api/webgui/tab_processes_load_inspector/panel_network_files/panel.js
- * Updated: 2026-10-18 22:54:00
+ * Updated: 2026-11-01 17:45:00
  */
 
 import {
@@ -62,7 +62,8 @@ export function initNetworkFilesPanel() {
  * @param {boolean} [force=false] - Принудительный опрос.
  */
 export async function fetchNetworkActivity(force = false) {
-  if (!isProcessesTabActive() || (!force && getActiveSubTabId() !== 'net')) return;
+  const activeSub = getActiveSubTabId();
+  if (!isProcessesTabActive() || (!force && activeSub !== 'network-activity-by-process' && activeSub !== 'net')) return;
   try {
     const res = await fetch('/api/v1/tab-processes-load-inspector/panel-network-activity?limit=100');
     if (res.ok) {
@@ -97,7 +98,7 @@ export function renderNetworkActivityTable(activities) {
 
   if (searchVal) {
     filtered = filtered.filter(a => 
-      (a.process_name || '').toLowerCase().includes(searchVal) ||
+      (a.process_name || a.name || '').toLowerCase().includes(searchVal) ||
       String(a.pid || '').includes(searchVal) ||
       (a.remote_address || '').toLowerCase().includes(searchVal) ||
       (a.local_address || '').toLowerCase().includes(searchVal)
@@ -113,22 +114,29 @@ export function renderNetworkActivityTable(activities) {
   }
 
   tbody.innerHTML = filtered.map(a => {
-    const procName = a.process_name || 'System';
+    const procName = a.process_name || a.name || 'System';
+    const sentBytes = a.bytes_sent != null ? a.bytes_sent : ((a.sent_kb || 0) * 1024);
+    const recvBytes = a.bytes_recv != null ? a.bytes_recv : ((a.recv_kb || 0) * 1024);
+    const sendRate = a.send_rate_kb != null ? a.send_rate_kb : (a.sent_rate_kbs || 0);
+    const recvRate = a.recv_rate_kb != null ? a.recv_rate_kb : (a.recv_rate_kbs || 0);
+    const serviceProto = a.service_type || a.service_name || a.local_port || '-';
     const tooltipAttrs = getProcessTooltipAttributes(procName, a.pid, `${procName} [PID: ${a.pid}]`);
     const aiBadge = renderAIBadge(procName);
 
     return `
       <tr ${tooltipAttrs} style="cursor: pointer;">
-        <td class="font-monospace text-truncate" style="max-width: 170px;">
-          <strong class="text-light">${escapeHtml(procName)}</strong>
-          ${aiBadge}
-          <span class="badge bg-secondary ms-1">PID: ${a.pid}</span>
+        <td class="font-monospace" style="min-width: 340px;">
+          <div class="d-flex align-items-center gap-1.5">
+            <strong class="text-light text-truncate" style="max-width: 360px;" title="${escapeHtml(procName)}">${escapeHtml(procName)}</strong>
+            ${aiBadge}
+            <span class="badge bg-secondary ms-1 flex-shrink-0">PID: ${a.pid}</span>
+          </div>
         </td>
-        <td class="font-monospace text-warning text-truncate" style="max-width: 220px;" title="${escapeHtml(a.remote_address || '0.0.0.0:*')}">${escapeHtml(a.remote_address || '0.0.0.0:*')}</td>
-        <td class="font-monospace text-info">${escapeHtml(a.protocol || 'TCP')} / ${escapeHtml(a.service_name || a.local_port || '-')}</td>
+        <td class="font-monospace text-warning text-truncate" style="min-width: 240px; max-width: 360px;" title="${escapeHtml(a.remote_address || '0.0.0.0:*')}">${escapeHtml(a.remote_address || '0.0.0.0:*')}</td>
+        <td class="font-monospace text-info">${escapeHtml(a.protocol || 'TCP')} / ${escapeHtml(serviceProto)}</td>
         <td class="text-center"><span class="badge bg-success-subtle text-success">${escapeHtml(a.status || 'ESTABLISHED')}</span></td>
-        <td class="font-monospace text-light">${formatBytes(a.bytes_sent || 0)} (${(a.send_rate_kb || 0).toFixed(1)} KB/s)</td>
-        <td class="font-monospace text-light">${formatBytes(a.bytes_recv || 0)} (${(a.recv_rate_kb || 0).toFixed(1)} KB/s)</td>
+        <td class="font-monospace text-light text-nowrap">${formatBytes(sentBytes)} (${sendRate.toFixed(1)} KB/s)</td>
+        <td class="font-monospace text-light text-nowrap">${formatBytes(recvBytes)} (${recvRate.toFixed(1)} KB/s)</td>
       </tr>
     `;
   }).join('');
@@ -177,7 +185,7 @@ export function renderFileEventsTable(events) {
     <tr>
       <td class="font-monospace text-muted" style="font-size: 0.74rem;">${ev.time || (ev.timestamp ? new Date(ev.timestamp).toLocaleTimeString('ru-RU') : '--')}</td>
       <td><span class="badge bg-info-subtle text-info">${escapeHtml(ev.action || 'MODIFY')}</span></td>
-      <td class="font-monospace text-truncate text-light" style="max-width: 170px;">${escapeHtml(ev.process_name || 'System')}</td>
+      <td class="font-monospace text-truncate text-light" style="min-width: 280px; max-width: 360px;" title="${escapeHtml(ev.process_name || 'System')}">${escapeHtml(ev.process_name || 'System')}</td>
       <td class="font-monospace text-truncate text-muted" style="max-width: 480px;" title="${escapeHtml(ev.path || ev.file_path)}">${escapeHtml(ev.path || ev.file_path)}</td>
     </tr>
   `).join('');

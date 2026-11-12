@@ -6,9 +6,5 @@
   "icon": "bi-building",
   "iconColor": "text-primary",
   "description": "Чистый корпоративный светлый стиль (UI Kit v2.0)",
-  "baseType": "light",
-  "tokens": {
-    "--modal-width": "90vw",
-    "--modal-height": "90vh"
-  }
+  "baseType": "light"
 }

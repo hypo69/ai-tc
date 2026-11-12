@@ -10,14 +10,16 @@
 # Package: plugins.whatsapp
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 16:40:00
 # =============================================================================
 """Реализация модульного плагина WhatsApp для платформы AI Breadboard."""
 
 from __future__ import annotations
 
+import asyncio
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
 from plugins.base import BasePlugin
 from .client import WhatsAppClient
@@ -130,31 +132,24 @@ class WhatsAppPlugin(BasePlugin):
         """
         params = params or {}
         if action_name == "send_message":
-            return self.client.send_message(
+            return await asyncio.to_thread(
+                self.client.send_message,
                 to=params.get("to", ""),
                 message=params.get("message", ""),
             )
         elif action_name == "send_email_alert":
-            return self.client.send_email_alert(
+            return await asyncio.to_thread(
+                self.client.send_email_alert,
                 to=params.get("to", ""),
                 email_data=params.get("email_data", {}),
             )
         elif action_name == "test_connection":
-            return self.client.test_connection()
+            return await asyncio.to_thread(self.client.test_connection)
         else:
             return {"success": False, "error": f"Неизвестное действие: {action_name}"}
 
     async def handle(self, message: str, **kwargs: Any) -> AsyncGenerator[Dict[str, Any], None]:
-        """Обработка входящего сообщения и отправка через WhatsApp.
-
-        Args:
-            message (str): Текст сообщения.
-            **kwargs: Дополнительные параметры (включая 'to' - телефон получателя).
-
-        Yields:
-            Dict[str, Any]: Результат отправки.
-        """
+        """Обработка входящего сообщения и отправка через WhatsApp."""
         to = kwargs.get("to") or self.config.get("default_recipient", "")
-        res = self.client.send_message(to=to, message=message)
+        res = await asyncio.to_thread(self.client.send_message, to=to, message=message)
         yield {"status": "complete", "result": res}
-

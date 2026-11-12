@@ -11,18 +11,16 @@
 # Package: plugins.telegram_channel_rag
 # Author: hypo69
 # Copyright: © 2026 hypo69
+# Updated: 2026-11-10 14:39:40
 # =============================================================================
 
-"""Telegram RAG Vector Indexer module.
-
-Handles chunking, term frequency-inverse document frequency (TF-IDF) vectorization,
-matrix persistence, and cosine similarity ranking with message URL resolution.
-"""
+"""Модуль векторного индексатора TF-IDF и семантического поиска по сообщениям Telegram."""
 
 from __future__ import annotations
 
 import json
 import math
+import os
 from pathlib import Path
 import re
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -125,27 +123,35 @@ class TelegramChannelIndexer:
         logger.info(f"Built Telegram RAG index for {num_docs} messages with vocab size {vocab_size}")
 
     def save(self) -> None:
-        """Persist index structures to disk."""
+        """Атомарно сохраняет структуры индекса на диск."""
         try:
             self.index_dir.mkdir(parents=True, exist_ok=True)
-            
-            # Save messages
             msg_file = self.index_dir / "messages.json"
-            msg_file.write_text(json.dumps(self.messages, ensure_ascii=False, indent=2), encoding="utf-8")
-
-            # Save vocab
             vocab_file = self.index_dir / "vocab.json"
-            vocab_file.write_text(json.dumps(self.vocab, ensure_ascii=False), encoding="utf-8")
 
-            # Save IDF and Vectors
+            for target_file, payload in (
+                (msg_file, json.dumps(self.messages, ensure_ascii=False, indent=2)),
+                (vocab_file, json.dumps(self.vocab, ensure_ascii=False)),
+            ):
+                tmp_file = target_file.with_name(f".{target_file.name}.tmp")
+                try:
+                    tmp_file.write_text(payload, encoding="utf-8")
+                    os.replace(tmp_file, target_file)
+                finally:
+                    if tmp_file.exists():
+                        try:
+                            tmp_file.unlink()
+                        except OSError:
+                            pass
+
             if self.idf is not None:
                 np.save(self.index_dir / "idf.npy", self.idf)
             if self.vectors is not None:
                 np.save(self.index_dir / "vectors.npy", self.vectors)
 
-            logger.info(f"Saved Telegram RAG index to {self.index_dir}")
+            logger.info(f"Индекс Telegram RAG сохранён в {self.index_dir}")
         except Exception as exc:
-            logger.error(f"Error saving Telegram RAG index: {exc}")
+            logger.error(f"Ошибка сохранения индекса Telegram RAG: {exc}")
 
     def load(self) -> bool:
         """Load index structures from disk.
@@ -226,4 +232,3 @@ class TelegramChannelIndexer:
                 break
 
         return results
-

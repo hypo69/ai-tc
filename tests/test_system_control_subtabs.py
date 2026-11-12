@@ -14,7 +14,7 @@ Project: ai-windows-admin
 Package: tests
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 19:15:00
+Updated: 2026-11-11 23:25:00
 =============================================================================
 """
 
@@ -43,7 +43,7 @@ def test_system_control_active_panel_polling_logic() -> None:
     assert "function stopPowerUptimeCounter()" in content, "Функция stopPowerUptimeCounter() не найдена"
 
     # 2. Проверяем наличие проверок активности вкладки и источника в функциях загрузки
-    assert "activeSource !== 'activity'" in content
+    assert "activeSource !== 'activity'" not in content
     assert "activeSource !== 'event-logs'" in content
     assert "activeSource !== 'power-lifecycle'" in content
     assert "activeSource !== 'defender-logs'" in content
@@ -158,4 +158,14 @@ def test_tables_ltr_and_rtl_alignment() -> None:
     assert '<th style="width: 130px; text-align: right;">' not in html_content
     assert '<th style="width: 140px; text-align: right;">' not in html_content
     assert '<th style="width: 180px; text-align: right;">' not in html_content
+
+
+def test_power_lifecycle_reason_column_width() -> None:
+    """Проверяет достаточную ширину колонки 'Причина / Код' в панели power-lifecycle."""
+    sc_html = (_WEBGUI_DIR / "tab_system_control" / "index.html").read_text(encoding="utf-8")
+    sc_js = (_WEBGUI_DIR / "tab_system_control" / "panel_power_lifecycle" / "panel.js").read_text(encoding="utf-8")
+
+    assert '<th style="min-width: 320px; width: 32%;">Причина / Код</th>' in sc_html
+    assert '<td style="min-width: 320px;">${reasonHtml}</td>' in sc_js
+
 

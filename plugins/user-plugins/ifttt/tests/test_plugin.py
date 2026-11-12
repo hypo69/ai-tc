@@ -96,4 +96,3 @@ class TestIFTTTPlugin:
         # --- Assert ---
         assert len(events) >= 2, "Stream should emit at least start and complete events"
         assert events[-1]["status"] == "complete", "Final event status should be complete"
-

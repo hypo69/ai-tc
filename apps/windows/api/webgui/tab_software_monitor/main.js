@@ -6,18 +6,19 @@
  *   Главный клиентский оркестратор консолидированного хаба установленного ПО.
  *   Координирует субпанели реестра, пакетных менеджеров (WinGet, Microsoft Store,
  *   Ninite), спящих программ, автозапуска, ИИ-аудита рисков, ресурсов и сокетов
- *   с поддержкой URL-маршрутизации панелей (#tab-software-monitor#<panel_id>).
+ *   с поддержкой двухуровневой URL-маршрутизации панелей и блоков:
+ *   (#tab-software-monitor#panel-<panel_id>#block-<block_id>).
  *
  * Usage Examples:
  *   HTML Integration:
- *     <script type="module" src="/windows/api/webgui/tab_software_monitor/main.js?v=20261028_v1"></script>
+ *     <script type="module" src="/windows/api/webgui/tab_software_monitor/main.js?v=20261112_v1"></script>
  *
  * File: main.js
  * Project: ai-windows-admin
  * Package: apps/windows/api/webgui/tab_software_monitor
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 16:42:00
+ * Updated: 2026-11-12 02:25:00
  * =============================================================================
  */
 
@@ -25,11 +26,14 @@ import {
   TAB_ID,
   isSoftwareMonitorTabActive,
   getPanelFromHash,
+  getBlockFromHash,
   updateUrlWithPanel,
   normalizeSubTabId,
+  normalizeBlockId,
   setupSubTabNavigation,
   triggerSubTabInit,
-  switchSoftwareSubTab
+  switchSoftwareSubTab,
+  switchSoftwareBlock
 } from './panel_subtabs/panel.js';
 import { triggerHeavyAnomalyAnalysis } from './panel_heavy/panel.js';
 import { triggerSocketInspection } from './panel_sockets/panel.js';
@@ -46,9 +50,10 @@ export async function initSoftwareMonitorTab() {
     // Слушатель изменения hash в URL при активной вкладке
     window.addEventListener('hashchange', () => {
       if (!isSoftwareMonitorTabActive()) return;
-      const target = getPanelFromHash();
-      if (target) {
-        switchSoftwareSubTab(target, false);
+      const targetPanel = getPanelFromHash();
+      const targetBlock = getBlockFromHash(targetPanel || 'packages');
+      if (targetPanel) {
+        switchSoftwareSubTab(targetPanel, targetBlock, false);
       }
     });
 
@@ -56,9 +61,10 @@ export async function initSoftwareMonitorTab() {
     document.addEventListener('tab:activated', (e) => {
       const tid = e.detail?.tabId;
       if (tid === TAB_ID || tid === 'software-monitor' || tid === 'tab-software-scanner' || tid === 'software-scanner') {
-        const target = getPanelFromHash();
-        if (target) {
-          switchSoftwareSubTab(target, false);
+        const targetPanel = getPanelFromHash();
+        const targetBlock = getBlockFromHash(targetPanel || 'packages');
+        if (targetPanel) {
+          switchSoftwareSubTab(targetPanel, targetBlock, false);
         } else {
           updateUrlWithPanel('inventory');
         }
@@ -76,10 +82,11 @@ export async function initSoftwareMonitorTab() {
     window.AISmartTooltip.initAll(rootEl);
   }
 
-  // Синхронизация суб-панели с URL hash
+  // Синхронизация суб-панели и блока с URL hash
   const panelFromHash = getPanelFromHash();
+  const blockFromHash = getBlockFromHash(panelFromHash || 'packages');
   if (panelFromHash) {
-    switchSoftwareSubTab(panelFromHash, false);
+    switchSoftwareSubTab(panelFromHash, blockFromHash, false);
   } else {
     await triggerSubTabInit('inventory');
   }
@@ -93,9 +100,12 @@ if (typeof window !== 'undefined') {
   window.initSoftwareMonitorTab = initSoftwareMonitorTab;
   window.initSoftwareScannerTab = initSoftwareMonitorTab;
   window.switchSoftwareSubTab = switchSoftwareSubTab;
+  window.switchSoftwareBlock = switchSoftwareBlock;
   window.getSoftwarePanelFromHash = getPanelFromHash;
+  window.getSoftwareBlockFromHash = getBlockFromHash;
   window.updateSoftwareUrlWithPanel = updateUrlWithPanel;
   window.normalizeSoftwareSubTabId = normalizeSubTabId;
+  window.normalizeSoftwareBlockId = normalizeBlockId;
   window.triggerHeavyAnomalyAnalysis = triggerHeavyAnomalyAnalysis;
   window.triggerSocketInspection = triggerSocketInspection;
 
@@ -110,8 +120,16 @@ if (typeof window !== 'undefined') {
   window.activateSoftwareScannerTab = window.activateSoftwareMonitorTab;
 }
 
-// Реэкспорт навигации субвкладок
-export { switchSoftwareSubTab, getPanelFromHash, updateUrlWithPanel, normalizeSubTabId };
+// Реэкспорт навигации субвкладок и блоков
+export {
+  switchSoftwareSubTab,
+  switchSoftwareBlock,
+  getPanelFromHash,
+  getBlockFromHash,
+  updateUrlWithPanel,
+  normalizeSubTabId,
+  normalizeBlockId
+};
 
 // Автоматический запуск при автономной загрузке
 if (typeof document !== 'undefined') {

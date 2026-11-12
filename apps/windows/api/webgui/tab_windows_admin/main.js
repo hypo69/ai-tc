@@ -11,7 +11,7 @@
  * Файл: apps/windows/api/webgui/tab_windows_admin/main.js
  * Пакет: windows/api/webgui/tab_windows_admin
  * Автор: hypo69
- * Updated: 2026-10-28 19:04:00
+ * Updated: 2026-11-12 02:30:00
  * =============================================================================
  */
 
@@ -26,11 +26,17 @@ import {
   fetchAccounts,
   filterUsersTable,
   openUserAiModal,
+  openUserUacModal,
+  openUserResourcesModal,
+  openUserSecurityModal,
+  handleSaveUserUac,
   handleCreateUserSubmit,
   deleteUserAction,
   setCurrentUserFilter,
   getCurrentUserFilter
 } from './panel_users/panel.js';
+import { initUserResourcesModalEvents } from './panel_users/resources_modal.js';
+import { initUserSecurityModalEvents } from './panel_users/security_modal.js';
 import {
   loadGroups,
   filterGroupsTable,
@@ -51,7 +57,11 @@ import {
   runRdpCheck,
   runOrphanedCheck
 } from './panel_audit_sam/panel.js';
-import { handleExplainPid } from './panel_pid_inspector/panel.js';
+import {
+  handleExplainPid,
+  initPidInspector,
+  loadProcessesList
+} from './panel_pid_inspector/panel.js';
 import { loadCatalog, filterCatalogTable } from './panel_catalog/panel.js';
 import {
   inspectAcl,
@@ -61,6 +71,11 @@ import {
   restoreAclRollback,
   bindAclEvents
 } from './panel_acl/panel.js';
+import {
+  initUcpdPanel,
+  loadUcpdStatus,
+  bindUcpdEvents
+} from './panel_ucpd/panel.js';
 
 export const TAB_ID = 'tab-windows-admin';
 let isWinAdminInitialized = false;
@@ -85,14 +100,20 @@ export function isWindowsAdminTabActive() {
  */
 export function normalizeSubTabId(rawId) {
   if (!rawId) return 'users';
-  const s = String(rawId).toLowerCase().trim().replace(/^#/, '').replace(/^subtab-winadmin-/, '').replace(/-btn$/, '');
+  let s = '';
+  try {
+    s = decodeURIComponent(String(rawId)).toLowerCase().trim().replace(/^#/, '').replace(/^panel-/, '').replace(/^subtab-winadmin-/, '').replace(/-btn$/, '');
+  } catch (_) {
+    s = String(rawId).toLowerCase().trim().replace(/^#/, '').replace(/^panel-/, '').replace(/^subtab-winadmin-/, '').replace(/-btn$/, '');
+  }
   if (s.includes('user') || s.includes('account')) return 'users';
   if (s.includes('group')) return 'groups';
   if (s.includes('event') || s.includes('log')) return 'events';
   if (s.includes('secur') || s.includes('policy') || s.includes('audit')) return 'security';
-  if (s.includes('pid') || s.includes('proc')) return 'pid';
+  if (s.includes('pid') || s.includes('proc') || s.includes('инспецтор') || s.includes('инспектор')) return 'pid-инспецтор';
   if (s.includes('cat') || s.includes('soft')) return 'catalog';
   if (s.includes('acl') || s.includes('perm')) return 'acl';
+  if (s.includes('ucpd')) return 'ucpd';
   return s || 'users';
 }
 
@@ -103,7 +124,10 @@ export function normalizeSubTabId(rawId) {
 export function getPanelFromHash() {
   const hash = (typeof location !== 'undefined' ? location.hash : '') || '';
   if (!hash) return null;
-  const cleanHash = hash.replace(/^#/, '');
+  let cleanHash = hash.replace(/^#/, '');
+  try {
+    cleanHash = decodeURIComponent(cleanHash);
+  } catch (_) {}
   const parts = cleanHash.split('#');
   if (parts.length >= 2) {
     const mainPart = parts[0];
@@ -122,8 +146,14 @@ export function updateUrlWithPanel(panelId) {
   if (typeof history === 'undefined' || typeof location === 'undefined') return;
   const canonical = normalizeSubTabId(panelId);
   const search = location.search || '';
-  const newHash = `#${TAB_ID}#${canonical}`;
-  if (location.hash !== newHash) {
+  const newHash = `#${TAB_ID}#panel-${canonical}`;
+  let currentDecoded = '';
+  try {
+    currentDecoded = decodeURIComponent(location.hash);
+  } catch (_) {
+    currentDecoded = location.hash;
+  }
+  if (currentDecoded !== newHash && location.hash !== newHash) {
     try {
       history.replaceState(null, null, `${location.pathname}${search}${newHash}`);
     } catch (_) {}
@@ -165,13 +195,18 @@ export async function fetchActiveSubTabOnly(subtabId) {
     case 'security':
       await loadPasswordPolicy();
       break;
+    case 'pid-инспецтор':
     case 'pid':
+      await initPidInspector();
       break;
     case 'catalog':
       await loadCatalog();
       break;
     case 'acl':
       await inspectAcl();
+      break;
+    case 'ucpd':
+      await loadUcpdStatus();
       break;
   }
 }
@@ -184,7 +219,10 @@ export async function fetchActiveSubTabOnly(subtabId) {
 export function switchWindowsAdminSubTab(subtabName, updateUrl = true) {
   const norm = normalizeSubTabId(subtabName);
   const btnId = `subtab-winadmin-${norm}-btn`;
-  const btn = document.getElementById(btnId);
+  let btn = document.getElementById(btnId);
+  if (!btn && (norm === 'pid-инспецтор' || norm === 'pid')) {
+    btn = document.getElementById('subtab-winadmin-pid-btn') || document.getElementById('subtab-winadmin-pid-инспецтор-btn');
+  }
   if (btn && window.bootstrap) {
     new window.bootstrap.Tab(btn).show();
   } else if (btn) {
@@ -200,6 +238,9 @@ export function switchWindowsAdminSubTab(subtabName, updateUrl = true) {
     setTimeout(() => {
       window.AISmartTooltip.initAll(document.getElementById('windows-admin-root') || document);
     }, 100);
+  }
+  if (window.initAllTableResizers) {
+    window.initAllTableResizers(document.getElementById('windows-admin-root') || document);
   }
 }
 
@@ -239,6 +280,11 @@ function bindEvents() {
   const submitCreateUserBtn = document.getElementById('btn-submit-create-user');
   if (submitCreateUserBtn) {
     submitCreateUserBtn.onclick = handleCreateUserSubmit;
+  }
+
+  const saveUacBtn = document.getElementById('btn-save-user-uac');
+  if (saveUacBtn) {
+    saveUacBtn.onclick = handleSaveUserUac;
   }
 
   const filterGroup = document.getElementById('winadmin-user-filters');
@@ -304,8 +350,11 @@ function bindEvents() {
   const btnOrphaned = document.getElementById('btn-check-orphaned');
   if (btnOrphaned) btnOrphaned.onclick = runOrphanedCheck;
 
-  const btnExplainPid = document.getElementById('btn-explain-pid');
-  if (btnExplainPid) btnExplainPid.onclick = handleExplainPid;
+  initPidInspector();
+
+  // Инициализация событий модального окна ресурсов пользователя
+  initUserResourcesModalEvents();
+  initUserSecurityModalEvents();
 
   // Навигация по суб-вкладкам меню
   const navContainer = document.getElementById('winadmin-subtabs');
@@ -365,11 +414,15 @@ export async function initWindowsAdminTab() {
   if (!isWinAdminInitialized) {
     bindEvents();
     bindAclEvents();
+    bindUcpdEvents();
     isWinAdminInitialized = true;
   }
 
   if (window.AISmartTooltip && typeof window.AISmartTooltip.initAll === 'function') {
     window.AISmartTooltip.initAll(document.getElementById('windows-admin-root') || document);
+  }
+  if (window.initAllTableResizers) {
+    window.initAllTableResizers(document.getElementById('windows-admin-root') || document);
   }
 
   // Опрашиваем API ТОЛЬКО для активной панели
@@ -399,6 +452,9 @@ window.activateWindowsAdminTab = function() {
 window.triggerWindowsBackup = triggerWindowsBackup;
 window.updateWindowsBackupStatus = updateWindowsBackupStatus;
 window._explainUserDossier = openUserAiModal;
+window.openUserUacModal = openUserUacModal;
+window.openUserResourcesModal = openUserResourcesModal;
+window.openUserSecurityModal = openUserSecurityModal;
 window._deleteUserAction = deleteUserAction;
 window._handleGroupRollover = handleGroupRollover;
 window._viewGroupMembers = viewGroupMembers;
@@ -410,6 +466,8 @@ window.resetAclDefault = resetAclDefault;
 window.switchWindowsAdminSubTab = switchWindowsAdminSubTab;
 window.getWindowsAdminPanelFromHash = getPanelFromHash;
 window.updateWindowsAdminUrlWithPanel = updateUrlWithPanel;
+window.initPidInspector = initPidInspector;
+window.handleExplainPid = handleExplainPid;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initWindowsAdminTab);

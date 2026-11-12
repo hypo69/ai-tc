@@ -21,7 +21,7 @@
 # Package: logger
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 14:32:00
+# Updated: 2026-11-10 17:27:00
 # =============================================================================
 
 from __future__ import annotations
@@ -29,7 +29,10 @@ from __future__ import annotations
 
 import atexit
 from collections import Counter
+from contextlib import contextmanager
+import contextvars
 import copy
+from datetime import datetime, timezone
 import inspect
 import json
 import logging
@@ -38,11 +41,68 @@ import os
 from pathlib import Path
 import sys
 import threading
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Generator, List, Optional, Tuple
 
 import colorama
 import header
 from header import __root__
+
+# Контекстные переменные сквозной трассировки (SRE Observability / W3C TraceContext)
+_TRACE_ID_CTX: contextvars.ContextVar[str] = contextvars.ContextVar("trace_id", default="")
+_USER_ID_CTX: contextvars.ContextVar[str] = contextvars.ContextVar("user_id", default="")
+_SERVICE_NAME_CTX: contextvars.ContextVar[str] = contextvars.ContextVar("service_name", default="ai-windows-admin")
+
+
+def set_trace_context(
+    trace_id: str = "",
+    user_id: str = "",
+    service_name: str = "",
+) -> Dict[str, str]:
+    """Устанавливает атрибуты контекста распределенной трассировки для текущего контекста выполнения."""
+    if trace_id:
+        _TRACE_ID_CTX.set(str(trace_id))
+    if user_id:
+        _USER_ID_CTX.set(str(user_id))
+    if service_name:
+        _SERVICE_NAME_CTX.set(str(service_name))
+    return get_trace_context()
+
+
+def get_trace_context() -> Dict[str, str]:
+    """Возвращает текущие значения trace_id, user_id и service_name."""
+    return {
+        "trace_id": _TRACE_ID_CTX.get(),
+        "user_id": _USER_ID_CTX.get(),
+        "service_name": _SERVICE_NAME_CTX.get(),
+    }
+
+
+def clear_trace_context() -> None:
+    """Сбрасывает контекст трассировки в значения по умолчанию."""
+    _TRACE_ID_CTX.set("")
+    _USER_ID_CTX.set("")
+    _SERVICE_NAME_CTX.set("ai-windows-admin")
+
+
+@contextmanager
+def trace_context(
+    trace_id: str = "",
+    user_id: str = "",
+    service_name: str = "",
+) -> Generator[Dict[str, str], None, None]:
+    """Контекстный менеджер для временной привязки trace_id и user_id к логам."""
+    tok_trace = _TRACE_ID_CTX.set(str(trace_id)) if trace_id else False
+    tok_user = _USER_ID_CTX.set(str(user_id)) if user_id else False
+    tok_srv = _SERVICE_NAME_CTX.set(str(service_name)) if service_name else False
+    try:
+        yield get_trace_context()
+    finally:
+        if tok_trace:
+            _TRACE_ID_CTX.reset(tok_trace)
+        if tok_user:
+            _USER_ID_CTX.reset(tok_user)
+        if tok_srv:
+            _SERVICE_NAME_CTX.reset(tok_srv)
 
 colorama.init(autoreset=False)
 
@@ -192,15 +252,25 @@ class SingletonMeta(type):
 
 
 class JsonFormatter(logging.Formatter):
-    """Кастомный форматтер для сериализации лог-записей в JSON формат."""
+    """Кастомный форматтер для сериализации лог-записей в структурированный SRE JSON формат."""
 
     def format(self, record: logging.LogRecord) -> str:
+        ts_utc = datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat().replace("+00:00", "Z")
+        err_stack = self.formatException(record.exc_info) if record.exc_info else ""
+        trace_id = getattr(record, "trace_id", "") or _TRACE_ID_CTX.get()
+        user_id = getattr(record, "user_id", "") or _USER_ID_CTX.get()
+        service_name = getattr(record, "service_name", "") or _SERVICE_NAME_CTX.get() or "ai-windows-admin"
+
         log_entry: Dict[str, Any] = {
-            'timestamp': self.formatTime(record, self.datefmt),
+            'timestamp': ts_utc,
             'level': record.levelname,
             'levelname': record.levelname,
+            'service_name': service_name,
+            'trace_id': trace_id,
+            'user_id': user_id,
             'message': record.getMessage().replace('"', "'"),
-            'exc_info': self.formatException(record.exc_info) if record.exc_info else None,
+            'error_stack': err_stack,
+            'exc_info': err_stack if err_stack else None,
         }
         return json.dumps(log_entry, ensure_ascii=False)
 
@@ -230,22 +300,32 @@ class CompressingHandler(logging.handlers.RotatingFileHandler):
             if not self.buffer or not self._dirty:
                 return
             try:
-                if not self.stream:
+                if not self.stream or getattr(self.stream, 'closed', False):
                     self.stream = self._open()
                 for msg, count in self.buffer.items():
-                    if count > 1:
-                        self.stream.write(f'[{count}x] {msg}\n')
-                    else:
-                        self.stream.write(f'{msg}\n')
-                self.stream.flush()
+                    line = f'[{count}x] {msg}\n' if count > 1 else f'{msg}\n'
+                    if self.maxBytes > 0 and self.stream:
+                        try:
+                            self.stream.seek(0, 2)
+                            if self.stream.tell() + len(line.encode(self.encoding or 'utf-8', errors='replace')) >= self.maxBytes:
+                                self.doRollover()
+                                if not self.stream or getattr(self.stream, 'closed', False):
+                                    self.stream = self._open()
+                        except Exception:
+                            pass
+                    if self.stream:
+                        self.stream.write(line)
+                if self.stream:
+                    self.stream.flush()
                 self.buffer.clear()
                 self._dirty = False
             except Exception:
                 pass
 
     def close(self) -> None:
-        self.flush()
-        super().close()
+        with self._lock:
+            self.flush()
+            super().close()
 
 
 class PrettyConsoleFormatter(logging.Formatter):
@@ -284,7 +364,7 @@ class PrettyConsoleFormatter(logging.Formatter):
 
 
 def _get_app_name() -> str:
-    """Возвращает название приложения из окружения, конфигурации или по умолчанию 'ai-tc'."""
+    """Возвращает название приложения из окружения, конфигурации или имени корневой директории."""
     if os.environ.get('APP_NAME'):
         return os.environ['APP_NAME']
     try:
@@ -292,10 +372,19 @@ def _get_app_name() -> str:
         if cfg.exists():
             with open(cfg, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                return data.get('app_name') or data.get('app', {}).get('app_name') or 'ai-tc'
+                return (
+                    data.get('app_name')
+                    or data.get('app', {}).get('app_name')
+                    or data.get('app', {}).get('name')
+                    or data.get('global_settings', {}).get('application_name')
+                    or __root__.name
+                )
     except Exception:
         pass
-    return 'ai-tc'
+    return __root__.name
+
+
+_resolve_app_name = _get_app_name
 
 
 class Logger(metaclass=SingletonMeta):
@@ -306,6 +395,26 @@ class Logger(metaclass=SingletonMeta):
     """
 
     CONSOLE: int = CONSOLE_LEVEL
+
+    # Цветовые константы текста и фона для вызовов logger.console(...)
+    black: str = 'black'
+    red: str = 'red'
+    green: str = 'green'
+    yellow: str = 'yellow'
+    blue: str = 'blue'
+    magenta: str = 'magenta'
+    cyan: str = 'cyan'
+    white: str = 'white'
+    gray: str = 'gray'
+    grey: str = 'grey'
+    dark_gray: str = 'dark_gray'
+    light_gray: str = 'light_gray'
+    light_red: str = 'light_red'
+    light_green: str = 'light_green'
+    light_yellow: str = 'light_yellow'
+    light_blue: str = 'light_blue'
+    light_magenta: str = 'light_magenta'
+    light_cyan: str = 'light_cyan'
 
     def __init__(
         self,
@@ -650,6 +759,26 @@ class Logger(metaclass=SingletonMeta):
     def error(self, message: Any, ex: Optional[Exception] = None, exc_info: bool = True, text_color: str = 'red', bg_color: str = '') -> None:
         color = (text_color, bg_color) if bg_color else (text_color, '')
         self.log(logging.ERROR, message, ex, exc_info, color)
+
+    def google_error(self, ex: Any, context: str = '') -> Any:
+        """Диагностирует, парсит и логирует ошибки сервисов и API Google.
+
+        Записывает структурированную запись в файл лога и выводит красиво
+        отформатированные пошаговые рекомендации по устранению в консоль.
+
+        Args:
+            ex (Any): Объект исключения, строка или словарь ошибки Google API.
+            context (str): Контекст вызова (например, 'Calendar Sync', 'Gmail Router').
+
+        Returns:
+            ParsedGoogleError: Объект с результатами парсинга и шагами решения.
+        """
+        try:
+            from src.utils.google_errors import log_google_error
+            return log_google_error(ex, context=context)
+        except Exception as local_ex:
+            self.error(f"[{context}] Ошибка при парсинге ошибки Google API: {local_ex}", ex=ex)
+            return None
 
     def critical(self, message: Any, ex: Optional[Exception] = None, exc_info: bool = True, text_color: str = 'white', bg_color: str = 'red') -> None:
         color = (text_color, bg_color)

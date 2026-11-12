@@ -17,7 +17,7 @@
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 19:10:00
+# Updated: 2026-11-01 12:40:00
 # =============================================================================
 
 """Тесты готовности проекта к установке и навыка project-installer."""
@@ -107,3 +107,20 @@ def test_verification_script_passes() -> None:
     assert result.is_valid is True, f"Проверка установки должна быть успешной, ошибки: {result.errors}"
     assert len(result.missing_directories) == 0, f"Отсутствующие каталоги: {result.missing_directories}"
     assert len(result.missing_files) == 0, f"Отсутствующие файлы: {result.missing_files}"
+
+
+def test_root_install_ps1_and_readme_presence() -> None:
+    """Проверяет наличие корневого скрипта install.ps1 и README.md с инструкцией автоустановки."""
+    install_ps1 = __root__ / 'install.ps1'
+    readme_md = __root__ / 'README.md'
+
+    assert install_ps1.is_file(), "Скрипт install.ps1 должен существовать в корне проекта"
+    assert readme_md.is_file(), "Файл README.md должен существовать в корне проекта"
+
+    install_content = install_ps1.read_text(encoding='utf-8')
+    assert 'Ensure-GitInstalled' in install_content, "install.ps1 должен проверять и устанавливать Git"
+    assert 'verify_installation.py' in install_content, "install.ps1 должен вызывать verify_installation.py"
+
+    readme_content = readme_md.read_text(encoding='utf-8')
+    assert 'install.ps1' in readme_content, "README.md должен содержать упоминание install.ps1"
+

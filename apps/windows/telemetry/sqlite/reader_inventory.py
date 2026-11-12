@@ -12,7 +12,7 @@
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 11:15:00
+# Updated: 2026-11-03 14:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -523,6 +523,8 @@ class TelemetryInventoryReaderMixin:
                     except Exception:
                         props = {}
                 dev = props.get("Устройство") or it.get("component_key") or ""
+                if not dev or "windisc" in str(dev).lower():
+                    continue
                 if dev in seen_devices:
                     continue
                 seen_devices.add(dev)
@@ -553,14 +555,22 @@ class TelemetryInventoryReaderMixin:
         with self._cm.lock, self._cm.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT monitors_json FROM system_snapshots WHERE monitors_json IS NOT NULL ORDER BY id DESC LIMIT 1;"
+                "SELECT monitors_json FROM system_snapshots WHERE monitors_json IS NOT NULL ORDER BY id DESC LIMIT 5;"
             )
-            row = cursor.fetchone()
-            if row and row[0]:
-                try:
-                    return json.loads(row[0])
-                except Exception:
-                    pass
+            rows = cursor.fetchall()
+            for row in rows:
+                if row and row[0]:
+                    try:
+                        loaded = json.loads(row[0])
+                        if isinstance(loaded, list):
+                            valid = [
+                                m for m in loaded
+                                if isinstance(m, dict) and "windisc" not in str(m.get("device", "")).lower()
+                            ]
+                            if valid:
+                                return valid
+                    except Exception:
+                        pass
         return []
 
     def get_hardware_components(

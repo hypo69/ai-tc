@@ -1,7 +1,7 @@
 /**
  * Модуль пула аккаунтов Google Workspace / Cloud Console (OAuth2 & Service Accounts).
  * Файл: apps/windows/api/webgui/tab_models/panel_google_accounts/panel.js
- * Updated: 2026-10-17 02:30:00
+ * Updated: 2026-11-03 15:52:00
  */
 
 import { escapeHtml, showModelsNotification } from '../common/ui_utils.js';
@@ -20,7 +20,7 @@ export async function refreshGoogleAccountsList(container) {
       data = await window.api.googleAccounts.list();
     } else {
       const fetchFn = (window.api && window.api.fetch) || fetch;
-      const res = await fetchFn('/api/v1/auth/google-accounts');
+      const res = await fetchFn('/api/v1/admin/google-accounts');
       data = typeof res.json === 'function' ? await res.json() : res;
     }
 
@@ -166,7 +166,7 @@ export async function handleAddGoogleAccount(container) {
       if (window.api?.googleAccounts?.upload) {
         await window.api.googleAccounts.upload(formData);
       } else {
-        await fetch('/api/v1/auth/google-accounts/upload', {
+        await fetch('/api/v1/admin/google-accounts/upload', {
           method: 'POST',
           body: formData
         });
@@ -189,7 +189,7 @@ export async function handleAddGoogleAccount(container) {
         });
       } else {
         const fetchFn = (window.api && window.api.fetch) || fetch;
-        await fetchFn('/api/v1/auth/google-accounts', {
+        await fetchFn('/api/v1/admin/google-accounts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -229,7 +229,7 @@ export async function setGoogleAccountDefault(name, container) {
       await window.api.googleAccounts.setDefault(name);
     } else {
       const fetchFn = (window.api && window.api.fetch) || fetch;
-      await fetchFn(`/api/v1/auth/google-accounts/${encodeURIComponent(name)}/set-default`, { method: 'POST' });
+      await fetchFn(`/api/v1/admin/google-accounts/${encodeURIComponent(name)}/default`, { method: 'POST' });
     }
     showModelsNotification(`Аккаунт "${name}" назначен по умолчанию`, 'success');
     if (container) await refreshGoogleAccountsList(container);
@@ -248,7 +248,7 @@ export async function resetGoogleAccountStatus(name, container) {
       await window.api.googleAccounts.resetStatus(name);
     } else {
       const fetchFn = (window.api && window.api.fetch) || fetch;
-      await fetchFn(`/api/v1/auth/google-accounts/${encodeURIComponent(name)}/reset-status`, { method: 'POST' });
+      await fetchFn(`/api/v1/admin/google-accounts/${encodeURIComponent(name)}/reset-status`, { method: 'POST' });
     }
     showModelsNotification(`Статус аккаунта "${name}" сброшен в активный`, 'success');
     if (container) await refreshGoogleAccountsList(container);
@@ -276,7 +276,7 @@ export async function testGoogleAccount(name) {
       res = await window.api.googleAccounts.test(name);
     } else {
       const fetchFn = (window.api && window.api.fetch) || fetch;
-      const resp = await fetchFn(`/api/v1/auth/google-accounts/${encodeURIComponent(name)}/test`, { method: 'POST' });
+      const resp = await fetchFn(`/api/v1/admin/google-accounts/${encodeURIComponent(name)}/test`, { method: 'POST' });
       res = typeof resp.json === 'function' ? await resp.json() : resp;
     }
 
@@ -311,7 +311,7 @@ export async function deleteGoogleAccount(name, container) {
       await window.api.googleAccounts.delete(name);
     } else {
       const fetchFn = (window.api && window.api.fetch) || fetch;
-      await fetchFn(`/api/v1/auth/google-accounts/${encodeURIComponent(name)}`, { method: 'DELETE' });
+      await fetchFn(`/api/v1/admin/google-accounts/${encodeURIComponent(name)}`, { method: 'DELETE' });
     }
     showModelsNotification(`Аккаунт "${name}" успешно удален`, 'success');
     if (container) await refreshGoogleAccountsList(container);
