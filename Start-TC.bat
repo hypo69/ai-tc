@@ -1,17 +1,16 @@
 @echo off
-chcp 65001 >nul
 setlocal EnableExtensions
 
 REM =============================================================================
-REM ai-tc USB Launcher (Автономный рантайм на флешке, БД/логи в ОС)
-REM   1. Тихо (silent, без окна PowerShell) запускает службу телеметрии
-REM   2. Запускает WebGUI + FastAPI + Electron через автономный runtime\python
+REM ai-tc USB Launcher (Autonomous runtime on USB, DB/logs in OS %ProgramData%)
+REM   1. Silently starts telemetry via pythonw.exe (no PowerShell window)
+REM   2. Starts WebGUI + FastAPI + Electron via runtime\python
 REM
-REM Использование:
-REM   Start-TC.bat               - запуск с UAC (для полной диагностики Windows)
-REM   Start-TC.bat --no-admin    - запуск без UAC
-REM   Start-TC.bat --browser     - открыть в системном браузере
-REM   Start-TC.bat --no-tlm      - не запускать телеметрию
+REM Usage:
+REM   Start-TC.bat               - run with UAC (for full Windows diagnostics)
+REM   Start-TC.bat --no-admin    - run without UAC
+REM   Start-TC.bat --browser     - open in system browser
+REM   Start-TC.bat --no-tlm      - do not start telemetry
 REM =============================================================================
 
 set "SCRIPT_DIR=%~dp0"
@@ -59,15 +58,14 @@ if "%NEED_ADMIN%"=="1" (
 )
 
 if not exist "%PYTHON_EXE%" (
-    echo [ERROR] Автономный Python не найден: "%PYTHON_EXE%"
+    echo [ERROR] Portable Python not found: "%PYTHON_EXE%"
     pause
     exit /b 1
 )
 
-REM Настраиваем только автономные рантаймы; логи -> %ProgramData%\ai-tc\logs
+if not defined ProgramData set "ProgramData=C:\ProgramData"
 set "AITC_DIR=%APP_DIR%"
 set "AITC_RUNTIME_DIR=%RUNTIME_DIR%"
-if not defined ProgramData set "ProgramData=C:\ProgramData"
 set "AITC_LOGS_DIR=%ProgramData%\ai-tc\logs"
 set "AI_TC_LOGS_DIR=%ProgramData%\ai-tc\logs"
 set "PYTHONUTF8=1"
@@ -76,21 +74,19 @@ set "PYTHONDONTWRITEBYTECODE=1"
 set "PYTHONNOUSERSITE=1"
 set "PATH=%RUNTIME_DIR%\python;%RUNTIME_DIR%\python\Scripts;%NODE_DIR%;%GEMINI_DIR%;%BIN_DIR%;%PATH%"
 
-REM 1. Тихий запуск телеметрии (без окна PowerShell)
 if "%START_TLM%"=="1" (
     if exist "%TLM_VBS%" (
         wscript.exe //B //NoLogo "%TLM_VBS%"
     )
 )
 
-REM 2. Запуск основного приложения ai-tc
 cd /d "%APP_DIR%"
 "%PYTHON_EXE%" "%APP_DIR%\main.py" %FORWARD_ARGS%
 set "EXIT_CODE=%ERRORLEVEL%"
 
 if not "%EXIT_CODE%"=="0" (
     echo.
-    echo [ai-tc] Процесс завершился с кодом %EXIT_CODE%.
+    echo [ai-tc] Process exited with code %EXIT_CODE%.
     pause
 )
 exit /b %EXIT_CODE%
