@@ -219,5 +219,21 @@
             "charset": "utf8mb4",
             "connect_timeout": 10
         }
+    },
+    "updates": {
+        "strategy": "tags",
+        "remote": "origin",
+        "channel": "stable",
+        "release_branch": "release",
+        "dev_branch": "master",
+        "tag_prefix": "v",
+        "auto_install_deps": true,
+        "keep_backups": 5,
+        "backup_items": [
+            "config.json",
+            ".env",
+            "requirements.txt",
+            "pyproject.toml"
+        ]
     }
 }

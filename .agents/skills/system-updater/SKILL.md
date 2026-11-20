@@ -1,70 +1,72 @@
 ---
 name: system-updater
-description: Update checker, backup creator, and safe updater for ai-tc to latest version with automated database migrations.
+description: "Update checker, backup creator, and safe tag-based updater/rollback tool for ai-tc."
 description_i18n:
-  en: Update checker, backup creator, and safe updater for ai-tc to latest version with automated database migrations.
-  ru: Проверка наличия обновлений, создание резервных копий, скачивание и безопасное обновление ai-tc до последней версии с автоматическим наездом миграций БД.
+  en: Update checker, backup creator, and safe tag-based updater/rollback tool for ai-tc.
+  ru: Проверка новых SemVer-тегов, создание резервных копий, безопасное обновление и откат ai-tc по релизным тегам Git.
+updated: 2026-11-20 21:12:00
 ---
 
-# 🔄 System Updater Skill
+# 🔄 System Updater Skill (Tag-Based Strategy)
 
-Навык для проверки версий, создания резервных копий, скачивания и безопасного обновления кодовой базы ai-tc до последней стабильной версии с автоматическим наездом миграций баз данных SQLite.
+Навык для проверки релизных тегов (SemVer 2.0), создания резервных копий, безопасного переключения релизной ветки `release` на целевой Git-тег и мгновенного отката в `ai-tc`.
+
+> [!IMPORTANT]
+> **Стратегия обновлений**: Обновление клиентских установок выполняется **строго по релизным Git-тегам** (`vX.Y.Z`), а не через `git merge` ветки разработки `master`. Подробный регламент: [`.ai/instructions/standards/RELEASE_AND_UPDATES.md`](../../../.ai/instructions/standards/RELEASE_AND_UPDATES.md).
 
 ---
 
 ## 🎯 Назначение и триггеры
 
 Используйте этот навык, когда:
-- Пользователь просит обновить проект или систему до последней версии ("обновись", "проверь обновления", "подтяни свежий код").
-- Необходимо проверить актуальность текущей версии и коммитов по сравнению с удаленным репозиторием (GitHub).
-- Требуется накатить миграции базы данных после изменения структуры таблиц или после `git pull`.
-- Требуется создать снимок состояния проекта (backup) перед критическими изменениями.
+- Пользователь просит проверить обновления или обновиться до последнего стабильного релиза.
+- Требуется переключиться на конкретную версию (`v1.1.0`) или выполнить откат (`rollback`) на предыдущий релиз.
+- Требуется выпустить новый релизный тег (`release create`).
 
 ---
 
-## 🚀 Протокол выполнения (Шаги)
+## 🚀 Протокол выполнения
 
-### Шаг 1 — Проверка версии и обновлений
-Выполните проверку доступности новых тегов или коммитов в удаленном репозитории:
-```bash
-python skills/system-updater/scripts/update.py --check
+### Шаг 1 — Проверка доступных тегов и статуса
+```powershell
+py manage_tools.py update check
+py manage_tools.py update list
 ```
-Или через единый CLI:
-```bash
-python manage_tools.py db status
-```
-
-### Шаг 2 — Создание резервной копии и накат обновления
-Если обновления доступны и пользователь запросил обновление:
-```bash
-python skills/system-updater/scripts/update.py --apply --branch main
+Для проверки пререлизов (`-rc`, `-beta`):
+```powershell
+py manage_tools.py update check --prerelease
 ```
 
-Процесс обновления автоматически выполняет:
-1. Создание резервной копии основных файлов (`config.json`, `.env`, `src/`, `requirements.txt`).
-2. `git fetch origin` и `git merge origin/<branch>`.
-3. Автоматический запуск менеджера миграций БД (`MigrationManager.apply_all_pending()`).
-4. В случае сбоя слияния или миграций — автоматический откат из бэкапа.
+### Шаг 2 — Безопасное обновление до последнего (или указанного) тега
+```powershell
+# Обновление до последнего стабильного тега
+py manage_tools.py update apply
 
-### Шаг 3 — Проверка и применение миграций баз данных
-Для проверки и отдельного наката миграций схем БД SQLite:
-```bash
-# Проверка статуса миграций
-py manage_tools.py db status
+# Обновление до конкретного тега
+py manage_tools.py update apply --tag v1.1.0
+```
+Процесс автоматически выполняет:
+1. Проверку чистоты рабочего дерева (`git status --porcelain`).
+2. Создание резервной копии конфигов (`config.json`, `.env`, `requirements.txt`, `pyproject.toml`) и фиксацию текущего состояния Git.
+3. `git fetch origin --tags --force` и атомарное переключение ветки `release` на `refs/tags/<target_tag>`.
+4. Автоматическую доустановку зависимостей (`pip install -r requirements.txt`), если файл изменился.
+5. Запуск миграций БД (если доступен `MigrationManager`).
+6. Автоматический откат при ошибке на любом шаге.
 
-# Накат всех ожидающих миграций
-py manage_tools.py db migrate
+### Шаг 3 — Откат (Rollback)
+```powershell
+# Откат на состояние из последнего бэкапа
+py manage_tools.py update rollback
 
-# Создание новой миграции
-py manage_tools.py db create <db_name> <migration_name>
+# Откат на конкретный релизный тег
+py manage_tools.py update rollback --tag v1.0.0
 ```
 
----
+### Шаг 4 — Выпуск нового релиза (для разработчиков)
+```powershell
+# Автоинкремент patch/minor/major + обновление pyproject.toml + аннотированный тег + push
+py manage_tools.py release create --bump patch --push
 
-## 🛠️ Скрипты и команды
-
-- `scripts/update.py --check`: Проверка наличия новой версии в Git.
-- `scripts/update.py --apply`: Полный цикл обновления с созданием бэкапа и миграциями.
-- `scripts/update.py --status-db`: Проверка статуса миграций SQLite.
-- `manage_tools.py db migrate`: Применение всех ожидающих миграций БД.
-- `manage_tools.py db status`: Просмотр примененных и ожидающих миграций.
+# Явный выпуск тега v1.0.0
+py manage_tools.py release create --tag v1.0.0 --push
+```

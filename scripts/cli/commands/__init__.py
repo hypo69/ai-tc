@@ -16,7 +16,7 @@
 # Package: scripts.cli.commands
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-12 05:00:00
+# Updated: 2026-11-20 21:10:00
 # =============================================================================
 
 from __future__ import annotations
@@ -38,6 +38,12 @@ from .ui import register_ui_parser, run_ui_command
 from .test_cmd import register_test_parser, run_test_command
 from .investigate import register_investigate_parser, run_investigate_command
 from .paperless import register_paperless_parser, run_paperless_command
+from .release import (
+    register_release_parser,
+    register_update_parser,
+    run_release_command,
+    run_update_command,
+)
 
 from ..utils import run_command
 
@@ -82,6 +88,8 @@ COMMAND_HANDLERS: Dict[str, Callable[[argparse.Namespace], int]] = {
     'headers': run_headers_command,
     'investigate': run_investigate_command,
     'paperless': run_paperless_command,
+    'update': run_update_command,
+    'release': run_release_command,
 }
 
 
@@ -101,6 +109,8 @@ def register_all_parsers(subparsers: argparse._SubParsersAction) -> None:
     register_test_parser(subparsers)
     register_investigate_parser(subparsers)
     register_paperless_parser(subparsers)
+    register_update_parser(subparsers)
+    register_release_parser(subparsers)
 
     # Assist CLI Gateway
     assist_parser = subparsers.add_parser('assist', help='Assistant management (start, stop, status, providers, etc.)')

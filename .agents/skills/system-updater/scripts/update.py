@@ -1,78 +1,102 @@
+# -*- coding: utf-8 -*-
+# =============================================================================
+# Process Name: ai-tc Skill - System Updater CLI
+# =============================================================================
+# Description:
+#   Скрипт навыка system-updater для проверки, применения и отката обновлений
+#   проекта ai-tc по релизным Git-тегам (SemVer 2.0).
+#
+# Usage Examples:
+#   CLI:
+#     py .agents/skills/system-updater/scripts/update.py --check
+#     py .agents/skills/system-updater/scripts/update.py --apply --tag v1.0.0
+#     py .agents/skills/system-updater/scripts/update.py --rollback
+#
+# File: update.py
+# Project: ai-tc
+# Package: skills.system-updater.scripts
+# Author: hypo69
+# Copyright: © 2026 hypo69
+# Updated: 2026-11-20 21:12:00
+# =============================================================================
+
+"""Скрипт навыка system-updater на базе релизных Git-тегов."""
+
 from __future__ import annotations
+
 import argparse
 import asyncio
 import sys
 from pathlib import Path
+
 _project_root = Path(__file__).resolve().parent.parent.parent.parent
 if str(_project_root) not in sys.path:
     sys.path.insert(0, str(_project_root))
+
 from header import __root__
-from src.version_manager import get_version_manager
-from src.db.migrations import get_migration_manager
 from logger import logger
+from src.version_manager import get_version_manager
 
-def check_updates() -> dict:
-    """Check if newer updates exist on remote git repository.
-
-    Returns:
-        dict: Information regarding current vs remote versions and update status.
-    """
-    vm = get_version_manager(__root__)
-    return vm.check_updates()
-
-def perform_update(branch: str='main', auto_backup: bool=True) -> dict:
-    """Execute complete application update process including backup and migrations.
-
-    Args:
-        branch (str): Remote branch name to merge.
-        auto_backup (bool): Create filesystem snapshot before merging.
-
-    Returns:
-        dict: Result summary of the update process.
-    """
-    vm = get_version_manager(__root__)
-    return asyncio.run(vm.update_application(branch=branch, auto_backup=auto_backup))
 
 def main() -> int:
-    """CLI entry point for system-updater skill helper."""
-    parser = argparse.ArgumentParser(description='ai-tc System Updater')
-    parser.add_argument('--check', action='store_true', help='Check for available updates')
-    parser.add_argument('--apply', action='store_true', help='Apply application updates')
-    parser.add_argument('--branch', type=str, default='main', help='Target git branch')
-    parser.add_argument('--no-backup', action='store_true', help='Skip pre-update backup')
-    parser.add_argument('--status-db', action='store_true', help='Check DB migrations status')
+    """Точка входа CLI-скрипта навыка system-updater."""
+    parser = argparse.ArgumentParser(description='ai-tc System Updater (Git Tags Strategy)')
+    parser.add_argument('--check', action='store_true', help='Проверить наличие новых релизных тегов')
+    parser.add_argument('--list-tags', action='store_true', help='Вывести список доступных удалённых тегов')
+    parser.add_argument('--apply', action='store_true', help='Применить обновление до последнего или указанного тега')
+    parser.add_argument('--rollback', action='store_true', help='Откатиться на предыдущий бэкап или указанный тег')
+    parser.add_argument('--tag', type=str, default=None, help='Целевой SemVer-тег (например, v1.1.0)')
+    parser.add_argument('--prerelease', action='store_true', help='Включить пререлизные теги (-rc, -beta)')
+    parser.add_argument('--no-backup', action='store_true', help='Пропустить резервное копирование')
+    parser.add_argument('--allow-dirty', action='store_true', help='Разрешить обновление с незакоммиченными файлами')
     args = parser.parse_args()
-    if args.status_db:
-        db_mgr = get_migration_manager(__root__)
-        status = db_mgr.get_status()
-        logger.console('\n--- DATABASE MIGRATION STATUS ---')
-        for db, info in status.items():
-            logger.console(f"[{db}] Up-to-date: {info['is_up_to_date']} | Applied: {info['applied_count']} | Pending: {info['pending_count']}")
-            if info['pending_migrations']:
-                logger.console(f"  Pending: {', '.join(info['pending_migrations'])}")
-        logger.console('---------------------------------\n')
+
+    vm = get_version_manager(__root__)
+    allow_pre = True if args.prerelease else None
+
+    if args.list_tags:
+        tags = vm.list_remote_tags(allow_prerelease=allow_pre)
+        logger.console('\n--- ДОСТУПНЫЕ РЕЛИЗНЫЕ ТЕГИ ---')
+        for t in tags or ['(нет релизных тегов)']:
+            logger.console(f'  {t}')
+        logger.console('-------------------------------\n')
         return 0
-    if args.check or not args.apply:
-        res = check_updates()
-        logger.console('\n--- SYSTEM VERSION & UPDATE STATUS ---')
-        logger.console(f"Current version: {res.get('current_version')}")
-        logger.console(f"Remote version:  {res.get('remote_version')}")
-        logger.console(f"Update available: {res.get('is_update_available')}")
-        logger.console(f"Status:          {res.get('status')}")
-        logger.console('--------------------------------------\n')
-        if not args.apply:
-            return 0
-    if args.apply:
-        logger.console(f'Starting update (branch: {args.branch})...')
-        res = perform_update(branch=args.branch, auto_backup=not args.no_backup)
+
+    if args.rollback:
+        res = vm.rollback(target_tag=args.tag)
         if res.get('success'):
-            logger.console(f"✅ Update successful: {res.get('version')}")
-            if res.get('backup_path'):
-                logger.console(f"📦 Backup created at: {res.get('backup_path')}")
+            logger.console(f"[OK] {res.get('message')}")
             return 0
-        else:
-            logger.console(f"❌ Update failed: {res.get('message')}")
-            return 1
-    return 0
+        logger.console(f"[ERROR] {res.get('message')}")
+        return 1
+
+    if args.apply:
+        res = asyncio.run(
+            vm.update_application(
+                target_tag=args.tag,
+                auto_backup=not args.no_backup,
+                allow_dirty=args.allow_dirty,
+                allow_prerelease=allow_pre,
+            )
+        )
+        if res.get('success'):
+            logger.console(f"[OK] {res.get('message')}")
+            if res.get('backup_path'):
+                logger.console(f"Резервная копия: {res.get('backup_path')}")
+            return 0
+        logger.console(f"[ERROR] {res.get('message')}")
+        return 1
+
+    res = vm.check_updates(allow_prerelease=allow_pre)
+    logger.console('\n--- СТАТУС ВЕРСИИ И ОБНОВЛЕНИЙ ---')
+    logger.console(f"Канал:               {res.get('channel')}")
+    logger.console(f"Текущая версия:      {res.get('current_version')}")
+    logger.console(f"Удалённый тег:       {res.get('remote_version') or 'нет релизов'}")
+    logger.console(f"Обновление доступно: {res.get('is_update_available')}")
+    logger.console(f"Статус:              {res.get('status')}")
+    logger.console('----------------------------------\n')
+    return 0 if res.get('status') != 'error' else 1
+
+
 if __name__ == '__main__':
     sys.exit(main())

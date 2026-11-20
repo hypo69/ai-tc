@@ -15,7 +15,7 @@ Usage Examples:
 File: index.html
 Project: ai-tc
 Package: windows/api/webgui/tab_network
-Updated: 2026-11-20 17:19:00
+Updated: 2026-11-20 20:46:00
 =============================================================================
 -->
 <!-- Windows Network Terminal Tab (/apps/windows/network) -->
@@ -187,6 +187,10 @@ Updated: 2026-11-20 17:19:00
       <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-discovery-btn" data-panel-id="discovery" data-bs-toggle="pill" data-bs-target="#tab-net-discovery" type="button" role="tab">
         <i class="bi bi-display text-primary"></i>
         <span>Обнаружение компьютеров (LAN)</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-remote-access-btn" data-panel-id="remote-access" data-bs-toggle="pill" data-bs-target="#tab-net-remote-access" type="button" role="tab">
+        <i class="bi bi-shield-lock text-success"></i>
+        <span>Удалённый доступ (SMB / WinRM)</span>
       </button>
       <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-net-adapters-btn" data-panel-id="adapters" data-bs-toggle="pill" data-bs-target="#panel-network-adapters" type="button" role="tab">
         <i class="bi bi-ethernet text-info"></i>
@@ -738,6 +742,160 @@ Updated: 2026-11-20 17:19:00
 </div>
 </div>
 </div>
+</div>
+
+<!-- SECTION 5: Remote Access Settings (SMB 445 / WinRM 5985 / Network Profile / UAC) -->
+<div class="tab-pane fade" id="tab-net-remote-access">
+  <div class="net-panel mb-3">
+    <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="panel-title">
+          <i class="bi bi-shield-lock text-success me-1"></i>
+          Настройка входящего удалённого доступа (<span class="font-monospace" id="ra-hostname-label">localhost</span>)
+        </span>
+        <span class="small text-muted" id="ra-status-hint">Ожидание диагностики...</span>
+      </div>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <button class="btn btn-sm btn-outline-info rounded-pill px-3" id="btn-ra-refresh" type="button">
+          <i class="bi bi-arrow-clockwise me-1"></i>Проверить статус
+        </button>
+        <button class="btn btn-sm btn-success rounded-pill px-3 fw-semibold" id="btn-ra-enable-all" data-ra-action="enable_all" type="button">
+          <i class="bi bi-check2-all me-1"></i>Включить всё (SMB 445 + WinRM 5985)
+        </button>
+        <button class="btn btn-sm btn-outline-danger rounded-pill px-3" id="btn-ra-disable-all" data-ra-action="disable_all" type="button">
+          <i class="bi bi-shield-x me-1"></i>Отключить доступ
+        </button>
+      </div>
+    </div>
+
+    <div class="p-3">
+      <div class="alert alert-warning py-2 px-3 small mb-3 d-none" id="ra-admin-warning" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+        <strong>Требуются права администратора:</strong> сервер AI-TC запущен без прав администратора. Просмотр диагностики доступен, но для изменения правил брандмауэра, служб и реестра перезапустите сервер от имени администратора.
+      </div>
+
+      <!-- Сводные KPI готовности -->
+      <div class="row g-2 mb-3">
+        <div class="col-6 col-lg-3">
+          <div class="net-card">
+            <span class="net-label">SMB (Порт 445)</span>
+            <div class="mt-1" id="ra-kpi-smb-ready"><span class="badge bg-secondary">--</span></div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="net-card">
+            <span class="net-label">WinRM (Порт 5985)</span>
+            <div class="mt-1" id="ra-kpi-winrm-ready"><span class="badge bg-secondary">--</span></div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="net-card">
+            <span class="net-label">Профиль сети</span>
+            <div class="mt-1" id="ra-kpi-profile"><span class="badge bg-secondary">--</span></div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="net-card">
+            <span class="net-label">UAC Remote (Реестр)</span>
+            <div class="mt-1" id="ra-kpi-uac"><span class="badge bg-secondary">--</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 карточки индивидуального управления -->
+      <div class="row g-3">
+        <!-- 1. SMB (TCP 445) -->
+        <div class="col-md-6">
+          <div class="net-panel h-100">
+            <div class="panel-header d-flex justify-content-between align-items-center">
+              <span class="panel-title"><i class="bi bi-folder-symlink text-primary me-1"></i>SMB — Общий доступ (TCP 445)</span>
+              <div class="d-flex gap-1">
+                <button class="btn btn-xs btn-outline-success py-0 px-2" data-ra-action="enable_smb" type="button">Включить</button>
+                <button class="btn btn-xs btn-outline-danger py-0 px-2" data-ra-action="disable_smb" type="button">Отключить</button>
+              </div>
+            </div>
+            <div class="p-3 small">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted">Служба LanmanServer (Сервер):</span>
+                <span id="ra-smb-service-state"><span class="badge bg-secondary">--</span></span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted">Локальный порт TCP 445:</span>
+                <span id="ra-smb-port-state"><span class="badge bg-secondary">--</span></span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted">Брандмауэр (FPS-SMB-In-TCP):</span>
+                <span id="ra-smb-fw-state"><span class="badge bg-secondary">--</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. WinRM (TCP 5985) -->
+        <div class="col-md-6">
+          <div class="net-panel h-100">
+            <div class="panel-header d-flex justify-content-between align-items-center">
+              <span class="panel-title"><i class="bi bi-terminal text-info me-1"></i>WinRM — PowerShell Remoting (TCP 5985)</span>
+              <div class="d-flex gap-1">
+                <button class="btn btn-xs btn-outline-success py-0 px-2" data-ra-action="enable_winrm" type="button">Включить</button>
+                <button class="btn btn-xs btn-outline-danger py-0 px-2" data-ra-action="disable_winrm" type="button">Отключить</button>
+              </div>
+            </div>
+            <div class="p-3 small">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted">Служба WinRM:</span>
+                <span id="ra-winrm-service-state"><span class="badge bg-secondary">--</span></span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted">Локальный порт TCP 5985:</span>
+                <span id="ra-winrm-port-state"><span class="badge bg-secondary">--</span></span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted">Брандмауэр (WINRM-HTTP-In-TCP):</span>
+                <span id="ra-winrm-fw-state"><span class="badge bg-secondary">--</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Сетевой профиль -->
+        <div class="col-md-6">
+          <div class="net-panel h-100">
+            <div class="panel-header d-flex justify-content-between align-items-center">
+              <span class="panel-title"><i class="bi bi-house-lock text-warning me-1"></i>Сетевой профиль адаптеров (Private)</span>
+              <button class="btn btn-xs btn-outline-primary py-0 px-2" data-ra-action="set_private_profile" type="button">Переключить в Private</button>
+            </div>
+            <div class="p-3 small">
+              <div class="mb-2 text-muted">В профиле <strong>Public</strong> Windows блокирует входящие подключения SMB 445 и WinRM 5985 (ошибка «Код: 53»).</div>
+              <div id="ra-profiles-list"><span class="text-muted">Загрузка профилей...</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. UAC Remote Restrictions -->
+        <div class="col-md-6">
+          <div class="net-panel h-100">
+            <div class="panel-header d-flex justify-content-between align-items-center">
+              <span class="panel-title"><i class="bi bi-key text-danger me-1"></i>UAC Remote Restrictions (Рабочая группа)</span>
+              <div class="d-flex gap-1">
+                <button class="btn btn-xs btn-outline-success py-0 px-2" data-ra-action="enable_uac_remote" type="button">Разрешить (=1)</button>
+                <button class="btn btn-xs btn-outline-secondary py-0 px-2" data-ra-action="disable_uac_remote" type="button">Ограничить (=0)</button>
+              </div>
+            </div>
+            <div class="p-3 small">
+              <div class="mb-2 text-muted">Разрешает удалённый вход локальных администраторов по сети без ошибки <code>Код: 5 (Access Denied)</code>.</div>
+              <div id="ra-uac-state"><span class="badge bg-secondary">--</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Лог последней операции -->
+      <div class="mt-3 d-none" id="ra-action-log"></div>
+    </div>
+  </div>
+</div>
+
 </div>
 </div>
 </div>

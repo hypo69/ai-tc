@@ -16,7 +16,7 @@
 # Package: apps.windows.sdk.modules.network
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-20 17:16:00
+# Updated: 2026-11-20 20:42:00
 # =============================================================================
 
 from __future__ import annotations
@@ -40,6 +40,7 @@ try:
 except ImportError:
     AIDetector, TSharkWrapper, TrafficAnalyzer = None, None, None
 from .lan_scanner import WindowsLanScanner
+from .remote_access_settings import RemoteAccessApplyRequest, WindowsRemoteAccessManager
 from .remote_auth import RemoteLoginRequest, WindowsRemoteAuthenticator
 from .sensors import NetworkTerminalSensor
 from .speedtest import NetworkSpeedTester
@@ -50,6 +51,7 @@ _sensor = NetworkTerminalSensor()
 _speedtester = NetworkSpeedTester()
 _lan_scanner = WindowsLanScanner()
 _remote_auth = WindowsRemoteAuthenticator()
+_remote_access = WindowsRemoteAccessManager()
 _state: NetworkTerminalState | None = None
 _latest_speedtest: Dict[str, Any] | None = None
 
@@ -355,6 +357,29 @@ async def login_remote_device(request: Request, payload: RemoteLoginRequest) -> 
             'username': result.username,
             'protocol': result.protocol_used,
             'error_code': result.error_code,
+        },
+    )
+    return result.model_dump()
+
+
+@router.get('/remote-access/status')
+async def get_remote_access_status(request: Request) -> dict:
+    """Возвращает состояние настроек входящего удалённого доступа (SMB 445, WinRM 5985, профиль сети, UAC)."""
+    status = await asyncio.to_thread(_remote_access.get_status)
+    return status.model_dump()
+
+
+@router.post('/remote-access/apply')
+async def apply_remote_access_setting(request: Request, payload: RemoteAccessApplyRequest) -> dict:
+    """Применяет выбранную настройку входящего удалённого доступа Windows."""
+    result = await asyncio.to_thread(_remote_access.apply_action, payload.action)
+    _telemetry_logger.log_event(
+        event_type='remote_access_config',
+        status='SUCCESS' if result.success else 'FAILED',
+        details={
+            'action': result.action,
+            'requires_admin': result.requires_admin,
+            'message': result.message,
         },
     )
     return result.model_dump()

@@ -17,7 +17,7 @@
  * Package: windows/api/webgui/core
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-20 17:10:00
+ * Updated: 2026-11-20 20:50:00
  * =============================================================================
  */
 
@@ -34,7 +34,7 @@ export const TAB_DEFINITIONS = [
   { id: 'about_system', label: 'О системе', i18nKey: 'auto___d32ca0', icon: 'ℹ️', tab: 'about-system', tabId: 'tab-about-system', html: '/html/tab_about_system/index.html?v=20261116_v1', js: '/html/tab_about_system/main.js?v=20261116_v1' },
   { id: 'scenarios', label: 'Сценарии', i18nKey: 'auto___ddaf0e', icon: '💬', tab: 'scenarios', tabId: 'tab-scenarios', html: '/html/tab_scenarios/index.html?v=20261006_v8', js: '/html/tab_scenarios/main.js?v=20261006_v8' },
   { id: 'chat', label: 'Чат', i18nKey: 'auto___8c77e4', icon: '💬', tab: 'chat', tabId: 'tab-chat', html: '/html/tab_chat/index.html?v=20260923_v5', js: '/html/tab_chat/main.js?v=20260923_v5' },
-  { id: 'network_terminal', label: 'Сеть', i18nKey: 'auto___f6df40', icon: '🌐', tab: 'network', tabId: 'tab-network', html: '/html/tab_network/index.html?v=20261120_v2', js: '/html/tab_network/main.js?v=20261120_v2' },
+  { id: 'network_terminal', label: 'Сеть', i18nKey: 'auto___f6df40', icon: '🌐', tab: 'network', tabId: 'tab-network', html: '/html/tab_network/index.html?v=20261120_v3', js: '/html/tab_network/main.js?v=20261120_v3' },
   { id: 'system_inspector', label: 'Инспектор системы', i18nKey: 'auto___4324be', icon: 'bi-graph-up-arrow', tab: 'hardware-load-inspector', tabId: 'tab-hardware-load-inspector', html: '/html/tab_system_inspector/index.html?v=20261120_v1', js: '/html/tab_system_inspector/main.js?v=20261120_v1' },
   { id: 'processes_load_inspector', label: 'Активность процессов', icon: 'bi-activity', tab: 'processes-load-inspector', tabId: 'tab-processes-load-inspector', html: '/html/tab_processes_load_inspector/index.html?v=20261113_v1', js: '/html/tab_processes_load_inspector/main.js?v=20261113_v1' },
   { id: 'windows_sysadmin', label: 'Windows Sysadmin', icon: 'bi-server', tab: 'windows-admin', tabId: 'tab-windows-admin', html: '/html/tab_windows_admin/index.html?v=20261120_v5', js: '/html/tab_windows_admin/main.js?v=20261120_v5' },
@@ -82,7 +82,7 @@ export const TAB_DEFINITIONS = [
   { id: 'services_manager', label: 'Службы Windows', icon: '⚙️', tab: 'services-manager', tabId: 'tab-services-manager', html: '/html/tab_services_manager/index.html?v=20261112_v1', js: '/html/tab_services_manager/main.js?v=20261112_v1' },
   { id: 'task_scheduler', label: 'Планировщик задач', icon: '⏱️', tab: 'task-scheduler', tabId: 'tab-task-scheduler', html: '/html/tab_task_scheduler/index.html?v=20261015_v1', js: '/html/tab_task_scheduler/main.js?v=20261015_v1' },
   { id: 'process_manager', label: 'Диспетчер процессов', icon: '📊', tab: 'process-manager', tabId: 'tab-process-manager', html: '/html/tab_process_manager/index.html?v=20261015_v5', js: '/html/tab_process_manager/main.js?v=20261015_v5' },
-  { id: 'firewall_manager', label: 'Брандмауэр Windows', icon: '🔥', tab: 'firewall-manager', tabId: 'tab-firewall-manager', html: '/html/tab_firewall_manager/index.html?v=20261001_v1', js: '/html/tab_firewall_manager/main.js?v=20261001_v1' },
+  { id: 'firewall_manager', label: 'Брандмауэр Windows', icon: '🔥', tab: 'firewall-manager', tabId: 'tab-firewall-manager', html: '/html/tab_firewall_manager/index.html?v=20261120_v1', js: '/html/tab_firewall_manager/main.js?v=20261120_v1' },
   { id: 'performance_tracing', label: 'Трассировка ETW', icon: '📈', tab: 'performance-tracing', tabId: 'tab-performance-tracing', html: '/html/tab_performance_tracing/index.html?v=20261001_v1', js: '/html/tab_performance_tracing/main.js?v=20261001_v1' },
   { id: 'log_settings', label: 'Параметры журналов', icon: 'bi-sliders', tab: 'log-settings', tabId: 'tab-log-settings', html: '/html/tab_log_settings/index.html?v=20261008_v1', js: '/html/tab_log_settings/main.js?v=20261008_v1' },
   { id: 'software_manager', label: 'Пакетный менеджер', icon: '📦', tab: 'software-manager', tabId: 'tab-software-manager', html: '/html/tab_software_manager/index.html?v=20261004_v2', js: '/html/tab_software_manager/main.js?v=20261004_v2' },
