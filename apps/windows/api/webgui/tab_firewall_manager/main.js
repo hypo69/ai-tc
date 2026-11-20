@@ -17,7 +17,7 @@
  * Package: windows/api/webgui/tab_firewall_manager
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-20 16:45:00
+ * Updated: 2026-11-20 20:49:00
  * =============================================================================
  */
 
@@ -202,15 +202,69 @@ async function executeFirewallAction(ruleName, action) {
   }
 }
 
+async function fetchRemotePortsStatus() {
+  try {
+    const res = await fetch('/api/v1/network/remote-access/status');
+    if (!res.ok) return;
+    const status = await res.json();
+    renderRemotePortsStatus(status);
+  } catch (err) {
+    console.warn('[FirewallManager] Ошибка опроса статуса SMB/WinRM:', err);
+  }
+}
+
+function renderRemotePortsStatus(status) {
+  if (!status) return;
+  const setBadge = (id, ok, okText, failText) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = `badge ${ok ? 'bg-success' : 'bg-danger-subtle text-danger border border-danger'}`;
+    el.textContent = ok ? okText : failText;
+  };
+  setBadge('fw-smb-rule-badge', Boolean(status.smb_firewall_enabled), 'Разрешено', 'Закрыто');
+  setBadge('fw-smb-port-badge', Boolean(status.port_445_listening), 'Слушает :445', 'Не слушает');
+  setBadge('fw-winrm-rule-badge', Boolean(status.winrm_firewall_enabled), 'Разрешено', 'Закрыто');
+  setBadge('fw-winrm-port-badge', Boolean(status.port_5985_listening), 'Слушает :5985', 'Не слушает');
+}
+
+async function applyFirewallRemotePortAction(action) {
+  const panel = document.getElementById('fw-remote-ports-panel');
+  const buttons = panel ? panel.querySelectorAll('[data-fw-remote-action]') : [];
+  buttons.forEach((b) => { b.disabled = true; });
+  try {
+    const res = await fetch('/api/v1/network/remote-access/apply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action }),
+    });
+    const result = await res.json();
+    if (result.status) renderRemotePortsStatus(result.status);
+    if (res.ok && result.success) {
+      if (window.toast) window.toast.success('Брандмауэр', result.message || 'Правила обновлены');
+      await forceRefreshFirewall();
+    } else {
+      if (window.toast) window.toast.warning('Брандмауэр', result.detail || result.message || 'Не удалось применить правило');
+    }
+  } catch (err) {
+    if (window.toast) window.toast.error('Ошибка сети', err.message);
+  } finally {
+    buttons.forEach((b) => { b.disabled = false; });
+  }
+}
+
 export function initFirewallManagerTab() {
   if (isInitialized) {
     fetchFirewallSummary();
+    fetchRemotePortsStatus();
     return;
   }
   isInitialized = true;
 
   const refreshBtn = document.getElementById('fw-refresh-btn');
-  if (refreshBtn) refreshBtn.addEventListener('click', forceRefreshFirewall);
+  if (refreshBtn) refreshBtn.addEventListener('click', () => {
+    forceRefreshFirewall();
+    fetchRemotePortsStatus();
+  });
 
   const resetBtn = document.getElementById('fw-reset-defaults-btn');
   if (resetBtn) resetBtn.addEventListener('click', () => {
@@ -222,6 +276,33 @@ export function initFirewallManagerTab() {
   const searchInput = document.getElementById('fw-search-input');
   if (searchInput) searchInput.addEventListener('input', applyFirewallFilters);
 
+  const filter445Btn = document.getElementById('fw-filter-445-btn');
+  if (filter445Btn && searchInput) {
+    filter445Btn.addEventListener('click', () => {
+      searchInput.value = '445';
+      applyFirewallFilters();
+    });
+  }
+
+  const filter5985Btn = document.getElementById('fw-filter-5985-btn');
+  if (filter5985Btn && searchInput) {
+    filter5985Btn.addEventListener('click', () => {
+      searchInput.value = '5985';
+      applyFirewallFilters();
+    });
+  }
+
+  const remotePanel = document.getElementById('fw-remote-ports-panel');
+  if (remotePanel) {
+    remotePanel.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-fw-remote-action]');
+      if (!btn) return;
+      const action = btn.getAttribute('data-fw-remote-action');
+      if (action) applyFirewallRemotePortAction(action);
+    });
+  }
+
+  fetchRemotePortsStatus();
   registerTabPoller('tab-defender-firewall', fetchFirewallSummary, 20000, { pollerId: 'fw_legacy_poller', immediate: false });
 }
 

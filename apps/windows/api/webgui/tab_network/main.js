@@ -10,7 +10,7 @@
  *
  * File: main.js
  * Package: apps/windows/api/webgui/tab_network
- * Updated: 2026-11-20 17:19:00
+ * Updated: 2026-11-20 20:47:00
  * =============================================================================
  */
 
@@ -25,6 +25,10 @@ import {
   startDiscoveryAutoRefresh,
   stopDiscoveryAutoRefresh
 } from './panel_discovery/panel.js?v=20261120_v2';
+import {
+  initRemoteAccessPanel,
+  fetchRemoteAccessStatus
+} from './panel_remote_access/panel.js?v=20261120_v1';
 import { loadInfraPanel, initInfraPanels } from './panel_infra/panel.js';
 import {
   startLiveCapture,
@@ -61,6 +65,7 @@ export function normalizeSubTabId(rawId) {
   const s = String(rawId).toLowerCase().trim().replace(/^#/, '').replace(/^tab-net-/, '').replace(/^panel-network-/, '').replace(/-btn$/, '');
   if (s.includes('speed')) return 'speedtest';
   if (s.includes('discovery') || s.includes('lan') || s.includes('device') || s.includes('computer')) return 'discovery';
+  if (s.includes('remote') || s.includes('smb') || s.includes('winrm')) return 'remote-access';
   if (s.includes('adapter') || s.includes('interface')) return 'adapters';
   if (s.includes('conn') || s.includes('socket') || s.includes('port')) return 'connections';
   if (s.includes('capture') || s.includes('sniffer') || s.includes('dpi')) return 'capture';
@@ -144,6 +149,9 @@ export function fetchActiveSubTabOnly(subtabId) {
     case 'discovery':
       loadDiscoveryData(false);
       break;
+    case 'remote-access':
+      fetchRemoteAccessStatus();
+      break;
     case 'adapters':
       fetchAdapters();
       loadInfraPanel('adapters');
@@ -183,6 +191,9 @@ export function switchNetworkSubTab(subtabId, updateUrl = true) {
       break;
     case 'discovery':
       btnId = 'subtab-net-discovery-btn';
+      break;
+    case 'remote-access':
+      btnId = 'subtab-net-remote-access-btn';
       break;
     case 'adapters':
       btnId = 'subtab-net-adapters-btn';
@@ -227,6 +238,7 @@ export function switchNetworkSubTab(subtabId, updateUrl = true) {
 export function initNetworkTab() {
   console.log('[NetworkTab] Initializing Windows Network Terminal tab (/apps/windows/network)...');
   initDiscoveryPanel();
+  initRemoteAccessPanel();
 
   if (!isNetInitialized) {
     const refreshAllBtn = document.getElementById('btn-refresh-network-all');

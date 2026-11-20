@@ -17,7 +17,7 @@ Project: ai-tc
 Package: windows/api/webgui/tab_firewall_manager
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-12 05:00:00
+Updated: 2026-11-20 20:48:00
 =============================================================================
 -->
 <!-- Windows Firewall Manager Tab -->
@@ -83,6 +83,59 @@ Updated: 2026-11-12 05:00:00
 <div class="d-flex align-items-center gap-2">
 <input class="form-control form-control-sm bg-dark text-white border-secondary" id="fw-search-input" placeholder="Поиск правила или порта..." style="width: 260px;" type="text"/>
 </div>
+</div>
+<!-- Quick Remote Access Firewall Ports (SMB 445 & WinRM 5985) -->
+<div class="card bg-dark text-white border-secondary shadow-sm mb-3" id="fw-remote-ports-panel">
+  <div class="panel-header border-secondary d-flex align-items-center justify-content-between flex-wrap gap-2 py-2 px-3">
+    <span class="panel-title">
+      <i class="bi bi-shield-lock text-success me-2"></i>Быстрые правила удалённого доступа (SMB 445 &amp; WinRM 5985)
+    </span>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <button class="btn btn-xs btn-outline-info py-1 px-2" id="fw-filter-445-btn" type="button" title="Отфильтровать правила по порту 445">
+        <i class="bi bi-funnel me-1"></i>Порт 445
+      </button>
+      <button class="btn btn-xs btn-outline-info py-1 px-2" id="fw-filter-5985-btn" type="button" title="Отфильтровать правила по порту 5985">
+        <i class="bi bi-funnel me-1"></i>Порт 5985
+      </button>
+      <button class="btn btn-xs btn-success py-1 px-2 fw-semibold" id="fw-enable-both-remote-btn" data-fw-remote-action="enable_all" type="button">
+        <i class="bi bi-check2-all me-1"></i>Открыть всё (SMB 445 + WinRM 5985)
+      </button>
+    </div>
+  </div>
+  <div class="card-body py-2 px-3">
+    <div class="row g-2 align-items-center">
+      <div class="col-md-6">
+        <div class="d-flex align-items-center justify-content-between p-2 rounded border border-secondary flex-wrap gap-2">
+          <div>
+            <div class="fw-semibold small"><i class="bi bi-folder-symlink text-primary me-1"></i>SMB — Входящий TCP 445</div>
+            <div class="small text-muted">
+              Правило: <span id="fw-smb-rule-badge" class="badge bg-secondary">--</span>
+              <span class="ms-2">Порт: <span id="fw-smb-port-badge" class="badge bg-secondary">--</span></span>
+            </div>
+          </div>
+          <div class="d-flex gap-1">
+            <button class="btn btn-xs btn-outline-success py-1 px-2" data-fw-remote-action="enable_smb_firewall" type="button">Открыть 445</button>
+            <button class="btn btn-xs btn-outline-danger py-1 px-2" data-fw-remote-action="disable_smb_firewall" type="button">Закрыть 445</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex align-items-center justify-content-between p-2 rounded border border-secondary flex-wrap gap-2">
+          <div>
+            <div class="fw-semibold small"><i class="bi bi-terminal text-info me-1"></i>WinRM — Входящий TCP 5985</div>
+            <div class="small text-muted">
+              Правило: <span id="fw-winrm-rule-badge" class="badge bg-secondary">--</span>
+              <span class="ms-2">Порт: <span id="fw-winrm-port-badge" class="badge bg-secondary">--</span></span>
+            </div>
+          </div>
+          <div class="d-flex gap-1">
+            <button class="btn btn-xs btn-outline-success py-1 px-2" data-fw-remote-action="enable_winrm_firewall" type="button">Открыть 5985</button>
+            <button class="btn btn-xs btn-outline-danger py-1 px-2" data-fw-remote-action="disable_winrm_firewall" type="button">Закрыть 5985</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <!-- Firewall Rules Table -->
 <div class="card bg-dark text-white border-secondary shadow-sm" id="fw-rules-panel">
