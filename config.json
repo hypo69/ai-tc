@@ -227,6 +227,10 @@
         "release_branch": "release",
         "dev_branch": "master",
         "tag_prefix": "v",
+        "auto_check_on_startup": true,
+        "auto_apply_on_startup": true,
+        "restart_after_update": true,
+        "startup_timeout_sec": 8,
         "auto_install_deps": true,
         "keep_backups": 5,
         "backup_items": [

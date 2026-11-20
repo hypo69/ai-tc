@@ -27,7 +27,7 @@
 # Package: root
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-20 19:50:00
+# Updated: 2026-11-20 22:06:00
 # =============================================================================
 
 from __future__ import annotations
@@ -158,6 +158,13 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
         action='store_true',
         default=False,
         help='Включить hot-reload (для разработки)',
+    )
+    parser.add_argument(
+        '--no-update',
+        dest='no_update',
+        action='store_true',
+        default=False,
+        help='Пропустить автопроверку и установку обновлений при старте',
     )
     parser.add_argument(
         '--log-level',
@@ -340,6 +347,11 @@ def main() -> int:
         int: Код возврата (0 - успешно, ненулевой - ошибка).
     """
     args = parse_args()
+    if not args.dry_run:
+        from src.startup_updater import run_startup_update
+        upd_res = run_startup_update(skip=args.no_update)
+        if upd_res.should_exit:
+            return upd_res.exit_code
     return run_tc(
         host=args.host,
         port=args.port,

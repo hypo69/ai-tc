@@ -204,9 +204,10 @@ function renderSmbSharingStatus(status) {
           const typeBadge = sh.is_special
             ? '<span class="badge bg-secondary">Системная</span>'
             : '<span class="badge status-badge-up">Пользовательская</span>';
+          const accessBtn = `<button class="btn btn-xs btn-outline-info py-0 px-2 me-1" data-vis-access-share="${esc(sh.name)}" type="button">Права</button>`;
           const actionBtn = sh.is_special
-            ? '<span class="text-muted small">Защищена</span>'
-            : `<button class="btn btn-xs btn-outline-danger py-0 px-2" data-vis-remove-share="${esc(sh.name)}" type="button">Удалить</button>`;
+            ? `${accessBtn}<span class="text-muted small">Защищена</span>`
+            : `${accessBtn}<button class="btn btn-xs btn-outline-danger py-0 px-2" data-vis-remove-share="${esc(sh.name)}" type="button">Удалить</button>`;
           return `
             <tr>
               <td class="fw-semibold">${esc(sh.name)}</td>
@@ -367,6 +368,93 @@ async function removeUserShare(shareName) {
 }
 
 /**
+ * Загружает и отображает права доступа к выбранной общей папке (Get-SmbShareAccess).
+ * @param {string} shareName
+ */
+async function fetchShareAccess(shareName) {
+  const box = document.getElementById('vis-share-access-box');
+  const titleEl = document.getElementById('vis-share-access-title');
+  const listEl = document.getElementById('vis-share-access-list');
+  if (!box || !listEl || !shareName) return;
+
+  box.classList.remove('d-none');
+  if (titleEl) titleEl.textContent = `Права доступа к ресурсу «${shareName}»`;
+  listEl.innerHTML = '<span class="text-muted">Загрузка прав...</span>';
+
+  try {
+    const res = await fetch(`/api/v1/network/sharing/shares/${encodeURIComponent(shareName)}/access`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+    const entries = Array.isArray(data.access) ? data.access : [];
+    if (entries.length === 0) {
+      listEl.innerHTML = '<span class="text-muted">Записи прав доступа не найдены.</span>';
+      return;
+    }
+    listEl.innerHTML = entries
+      .map((entry) => {
+        const isDeny = String(entry.access_control_type || '').toLowerCase() === 'deny';
+        const badge = severityBadge(isDeny ? 'error' : 'ok', `${entry.access_control_type}: ${entry.access_right}`);
+        return `<span class="me-2 mb-1 d-inline-block"><strong>${esc(entry.account_name)}</strong> ${badge}</span>`;
+      })
+      .join('');
+  } catch (err) {
+    listEl.innerHTML = `<span class="text-danger">Ошибка загрузки прав: ${esc(err.message)}</span>`;
+  }
+}
+
+/**
+ * Обрабатывает отправку формы создания новой общей папки (New-SmbShare).
+ * @param {Event} event
+ */
+async function handleCreateShareSubmit(event) {
+  event.preventDefault();
+  if (isVisBusy) return;
+
+  const nameInput = document.getElementById('vis-share-name');
+  const pathInput = document.getElementById('vis-share-path');
+  const descInput = document.getElementById('vis-share-desc');
+  const modeSelect = document.getElementById('vis-share-access-mode');
+  const form = document.getElementById('vis-create-share-form');
+
+  const name = (nameInput?.value || '').trim();
+  const path = (pathInput?.value || '').trim();
+  const description = (descInput?.value || '').trim();
+  const mode = modeSelect?.value || 'read';
+  if (!name || !path) return;
+
+  const payload = {
+    name,
+    path,
+    description,
+    read_access: mode === 'read' ? ['Authenticated Users'] : (mode === 'everyone_read' ? ['Everyone'] : []),
+    full_access: mode === 'full' ? ['Authenticated Users'] : [],
+  };
+
+  setVisBusy(true);
+  try {
+    const res = await fetch('/api/v1/network/sharing/shares', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (window.toast) {
+      if (data.success) window.toast.success('Общие папки', data.message);
+      else window.toast.warning('Общие папки', data.message || data.detail);
+    }
+    if (data.success && form) {
+      form.reset();
+      form.classList.add('d-none');
+    }
+    await fetchVisibilityAndSharingData();
+  } catch (err) {
+    if (window.toast) window.toast.error('Ошибка публикации папки', err.message);
+  } finally {
+    setVisBusy(false);
+  }
+}
+
+/**
  * Инициализирует обработчики блока диагностики видимости и File & Printer Sharing.
  */
 export function initVisibilityAndSharingSection() {
@@ -380,10 +468,28 @@ export function initVisibilityAndSharingSection() {
   document.getElementById('btn-vis-sharing-off')?.addEventListener('click', () => toggleFileSharing(false));
   document.getElementById('btn-vis-rollback')?.addEventListener('click', () => rollbackLatestSnapshot());
 
+  const form = document.getElementById('vis-create-share-form');
+  document.getElementById('btn-vis-toggle-share-form')?.addEventListener('click', () => {
+    form?.classList.toggle('d-none');
+  });
+  document.getElementById('btn-vis-cancel-share-form')?.addEventListener('click', () => {
+    form?.classList.add('d-none');
+  });
+  form?.addEventListener('submit', handleCreateShareSubmit);
+
+  document.getElementById('btn-vis-close-access')?.addEventListener('click', () => {
+    document.getElementById('vis-share-access-box')?.classList.add('d-none');
+  });
+
   section.addEventListener('click', (e) => {
     const rmBtn = e.target.closest('[data-vis-remove-share]');
     if (rmBtn) {
       removeUserShare(rmBtn.getAttribute('data-vis-remove-share'));
+      return;
+    }
+    const accBtn = e.target.closest('[data-vis-access-share]');
+    if (accBtn) {
+      fetchShareAccess(accBtn.getAttribute('data-vis-access-share'));
     }
   });
 }

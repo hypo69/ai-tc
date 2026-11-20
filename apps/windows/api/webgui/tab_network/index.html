@@ -940,7 +940,7 @@ Updated: 2026-11-20 22:04:00
 
       <div class="row g-3">
         <!-- Таблица 6 служб Windows -->
-        <div class="col-lg-5">
+        <div class="col-12">
           <div class="net-panel h-100">
             <div class="panel-header">
               <span class="panel-title"><i class="bi bi-gear-wide-connected text-primary me-1"></i>Службы обнаружения и SMB (6)</span>
@@ -964,11 +964,42 @@ Updated: 2026-11-20 22:04:00
         </div>
 
         <!-- Таблица опубликованных папок (Get-SmbShare) и активные сессии -->
-        <div class="col-lg-7">
+        <div class="col-12">
           <div class="net-panel h-100">
-            <div class="panel-header">
+            <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-2">
               <span class="panel-title"><i class="bi bi-folder2-open text-warning me-1"></i>Опубликованные общие папки (Get-SmbShare)</span>
+              <button class="btn btn-xs btn-outline-success py-0 px-2" id="btn-vis-toggle-share-form" type="button">
+                <i class="bi bi-plus-circle me-1"></i>Опубликовать папку
+              </button>
             </div>
+            <!-- Форма создания общей папки -->
+            <form class="p-2 border-bottom border-secondary border-opacity-25 d-none" id="vis-create-share-form">
+              <div class="row g-2 align-items-end small">
+                <div class="col-sm-4">
+                  <label class="form-label mb-1 text-muted" for="vis-share-name">Имя ресурса</label>
+                  <input class="form-control form-control-sm" id="vis-share-name" placeholder="PublicDocs" required type="text" />
+                </div>
+                <div class="col-sm-5">
+                  <label class="form-label mb-1 text-muted" for="vis-share-path">Локальный путь</label>
+                  <input class="form-control form-control-sm" id="vis-share-path" placeholder="D:\SharedFolder" required type="text" />
+                </div>
+                <div class="col-sm-3">
+                  <label class="form-label mb-1 text-muted" for="vis-share-access-mode">Доступ</label>
+                  <select class="form-select form-select-sm" id="vis-share-access-mode">
+                    <option value="read">Чтение (Authenticated Users)</option>
+                    <option value="full">Полный (Authenticated Users)</option>
+                    <option value="everyone_read">Чтение (Everyone)</option>
+                  </select>
+                </div>
+                <div class="col-sm-8">
+                  <input class="form-control form-control-sm" id="vis-share-desc" placeholder="Описание (необязательно)" type="text" />
+                </div>
+                <div class="col-sm-4 text-end">
+                  <button class="btn btn-sm btn-success py-0 px-3" id="btn-vis-create-share-submit" type="submit">Создать</button>
+                  <button class="btn btn-sm btn-outline-secondary py-0 px-2" id="btn-vis-cancel-share-form" type="button">Отмена</button>
+                </div>
+              </div>
+            </form>
             <div class="table-responsive">
               <table class="net-table">
                 <thead>
@@ -977,13 +1008,21 @@ Updated: 2026-11-20 22:04:00
                     <th>Локальный путь</th>
                     <th>Тип</th>
                     <th>Описание</th>
-                    <th class="text-end">Действие</th>
+                    <th class="text-end">Действия</th>
                   </tr>
                 </thead>
                 <tbody id="vis-shares-tbody">
                   <tr><td colspan="5" class="text-center text-muted py-2">Загрузка...</td></tr>
                 </tbody>
               </table>
+            </div>
+            <!-- Просмотр прав доступа выбранной общей папки (Get-SmbShareAccess) -->
+            <div class="p-2 border-top border-secondary border-opacity-25 d-none" id="vis-share-access-box">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small fw-semibold" id="vis-share-access-title">Права доступа</span>
+                <button class="btn btn-xs btn-outline-secondary py-0 px-2" id="btn-vis-close-access" type="button">Скрыть</button>
+              </div>
+              <div class="small" id="vis-share-access-list"></div>
             </div>
             <div class="p-2 border-top border-secondary border-opacity-25">
               <div class="small text-muted mb-1"><i class="bi bi-people me-1"></i>Активные входящие SMB-сессии:</div>

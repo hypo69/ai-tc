@@ -20,7 +20,7 @@
 import {
   initVisibilityAndSharingSection,
   fetchVisibilityAndSharingData,
-} from './visibility_sharing.js?v=20261120_v1';
+} from './visibility_sharing.js?v=20261120_v2';
 
 let isRemoteAccessBusy = false;
 let isRemoteAccessBound = false;

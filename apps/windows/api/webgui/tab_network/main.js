@@ -28,7 +28,7 @@ import {
 import {
   initRemoteAccessPanel,
   fetchRemoteAccessStatus
-} from './panel_remote_access/panel.js?v=20261120_v2';
+} from './panel_remote_access/panel.js?v=20261120_v3';
 import { loadInfraPanel, initInfraPanels } from './panel_infra/panel.js';
 import {
   startLiveCapture,
