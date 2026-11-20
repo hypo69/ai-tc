@@ -426,13 +426,13 @@ class Logger(metaclass=SingletonMeta):
         self._lock = threading.Lock()
         self._module_loggers: Dict[str, logging.Logger] = {}
 
-        env_dir = os.environ.get('AITC_LOGS_DIR') or os.environ.get('AI_TC_LOGS_DIR') or os.environ.get('AI_TC_LOGS_DIR') or os.environ.get('LOG_DIR')
+        env_dir = os.environ.get('AITC_LOGS_DIR') or os.environ.get('AI_TC_LOGS_DIR') or os.environ.get('LOG_DIR')
         if env_dir:
             self.log_files_path = Path(env_dir)
         else:
             app_name = _get_app_name()
-            appdata = os.environ.get('APPDATA') or os.environ.get('LOCALAPPDATA')
-            base_dir = Path(appdata) if appdata and os.path.exists(appdata) else Path.home() / '.config'
+            base_env = os.environ.get('ProgramData') or os.environ.get('ALLUSERSPROFILE') or os.environ.get('APPDATA') or os.environ.get('LOCALAPPDATA')
+            base_dir = Path(base_env) if base_env and os.path.exists(base_env) else Path.home() / '.config'
             self.log_files_path = base_dir / app_name / 'logs'
 
         self.info_log_path: Path = self.log_files_path / (info_log_path or 'info.log')
@@ -860,13 +860,13 @@ def get_uvicorn_log_config(log_filename: str = 'fastapi.log') -> Dict[str, Any]:
     """
     try:
         import uvicorn.config
-        env_dir = os.environ.get('AITC_LOGS_DIR') or os.environ.get('AI_TC_LOGS_DIR') or os.environ.get('AI_TC_LOGS_DIR') or os.environ.get('LOG_DIR')
+        env_dir = os.environ.get('AITC_LOGS_DIR') or os.environ.get('AI_TC_LOGS_DIR') or os.environ.get('LOG_DIR')
         if env_dir:
             logs_dir = Path(env_dir)
         else:
             app_name = _get_app_name()
-            appdata = os.environ.get('APPDATA') or os.environ.get('LOCALAPPDATA')
-            base_dir = Path(appdata) if appdata and os.path.exists(appdata) else Path.home() / '.config'
+            base_env = os.environ.get('ProgramData') or os.environ.get('ALLUSERSPROFILE') or os.environ.get('APPDATA') or os.environ.get('LOCALAPPDATA')
+            base_dir = Path(base_env) if base_env and os.path.exists(base_env) else Path.home() / '.config'
             logs_dir = base_dir / app_name / 'logs'
 
         logs_dir.mkdir(parents=True, exist_ok=True)

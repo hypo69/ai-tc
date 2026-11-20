@@ -62,14 +62,26 @@ class ElectronEngineAdapter:
         exe_name = "electron.exe" if is_windows else "electron"
         cmd_name = "electron.cmd" if is_windows else "electron"
 
-        candidates = [
+        candidates = []
+        runtime_dir_env = os.environ.get("AITC_RUNTIME_DIR", "").strip()
+        if runtime_dir_env:
+            rdir = Path(runtime_dir_env)
+            candidates.extend([
+                rdir / "electron" / exe_name,
+                rdir / "electron" / "dist" / exe_name,
+            ])
+        candidates.extend([
+            _PROJECT_ROOT / "runtime" / "electron" / exe_name,
+            _PROJECT_ROOT / "runtime" / "electron" / "dist" / exe_name,
+        ])
+        candidates.extend([
             # 1. Локальный node_modules текущей директории приложения
             self.app_dir / "node_modules" / "electron" / "dist" / exe_name,
             self.app_dir / "node_modules" / ".bin" / cmd_name,
             # 2. Соседний проект AI-Assistant (переиспользование рантайма)
             _PROJECT_ROOT.parent / "AI-Assistant" / "apps" / "ai_assistant" / "electron" / "node_modules" / "electron" / "dist" / exe_name,
             _PROJECT_ROOT.parent / "AI-Assistant" / "apps" / "ai_assistant" / "electron" / "node_modules" / ".bin" / cmd_name,
-        ]
+        ])
 
         for cand in candidates:
             if cand.exists():

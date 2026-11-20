@@ -68,9 +68,11 @@ os.environ['APP_NAME'] = APP_NAME
 # Базовые системные каталоги окружения
 localappdata_base: str = os.environ.get('LOCALAPPDATA') or str(Path.home() / 'AppData' / 'Local')
 appdata_base: str = os.environ.get('APPDATA') or str(Path.home() / 'AppData' / 'Roaming')
+programdata_base: str = os.environ.get('ProgramData') or os.environ.get('ALLUSERSPROFILE') or appdata_base
 
 LOCALAPPDATA_DIR: Path = Path(localappdata_base)
 APPDATA_DIR: Path = Path(appdata_base)
+PROGRAMDATA_DIR: Path = Path(programdata_base)
 
 # Рабочая директория: %LOCALAPPDATA% / app_name
 WORKING_DIR: Path = LOCALAPPDATA_DIR / APP_NAME
@@ -86,9 +88,10 @@ else:
     DATA_DIR = __root__ / 'data'
 data_dir: Path = DATA_DIR
 
-# Пути к логам и временным файлам tmp: %APPDATA% / app_name / logs и tmp
+# Пути к логам (%ProgramData% / app_name / logs) и временным файлам tmp (%APPDATA% / app_name / tmp)
 appdata_dir: Path = APPDATA_DIR / APP_NAME
-LOGS_DIR: Path = appdata_dir / 'logs'
+_logs_env = os.environ.get('AITC_LOGS_DIR') or os.environ.get('AI_TC_LOGS_DIR') or os.environ.get('LOG_DIR')
+LOGS_DIR: Path = Path(_logs_env) if _logs_env else (PROGRAMDATA_DIR / APP_NAME / 'logs')
 TMP_DIR: Path = appdata_dir / 'tmp'
 TEMP_DIR: Path = TMP_DIR
 logs_dir: Path = LOGS_DIR

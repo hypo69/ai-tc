@@ -48,16 +48,16 @@ router = APIRouter(prefix="/api/v1/app_logs", tags=["Internal Application Logs"]
 def get_logs_dir() -> Path:
     """Определяет базовую директорию внутренних логов программы.
 
-    Строго использует каталог %APPDATA%/ai-tc/logs либо
-    переопределенный через AI_TC_LOGS_DIR / LOG_DIR.
+    Использует каталог %ProgramData%/ai-tc/logs либо
+    переопределенный через AITC_LOGS_DIR / AI_TC_LOGS_DIR / LOG_DIR.
     """
-    env_dir = os.environ.get("AI_TC_LOGS_DIR") or os.environ.get("LOG_DIR")
+    env_dir = os.environ.get("AITC_LOGS_DIR") or os.environ.get("AI_TC_LOGS_DIR") or os.environ.get("LOG_DIR")
     if env_dir:
         return Path(env_dir)
 
-    appdata = os.environ.get("APPDATA") or os.environ.get("LOCALAPPDATA")
-    if appdata and os.path.exists(appdata):
-        return Path(appdata) / "ai-tc" / "logs"
+    base_env = os.environ.get("ProgramData") or os.environ.get("ALLUSERSPROFILE") or os.environ.get("APPDATA") or os.environ.get("LOCALAPPDATA")
+    if base_env and os.path.exists(base_env):
+        return Path(base_env) / "ai-tc" / "logs"
 
     return Path.home() / ".config" / "ai-tc" / "logs"
 
