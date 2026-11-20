@@ -10,7 +10,7 @@
  *
  * File: main.js
  * Package: apps/windows/api/webgui/tab_network
- * Updated: 2026-11-20 20:47:00
+ * Updated: 2026-11-20 22:04:00
  * =============================================================================
  */
 
@@ -28,7 +28,7 @@ import {
 import {
   initRemoteAccessPanel,
   fetchRemoteAccessStatus
-} from './panel_remote_access/panel.js?v=20261120_v1';
+} from './panel_remote_access/panel.js?v=20261120_v2';
 import { loadInfraPanel, initInfraPanels } from './panel_infra/panel.js';
 import {
   startLiveCapture,

@@ -13,12 +13,18 @@
  * Package: apps/windows/api/webgui/tab_network/panel_remote_access
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-20 20:45:00
+ * Updated: 2026-11-20 22:03:00
  * =============================================================================
  */
 
+import {
+  initVisibilityAndSharingSection,
+  fetchVisibilityAndSharingData,
+} from './visibility_sharing.js?v=20261120_v1';
+
 let isRemoteAccessBusy = false;
 let isRemoteAccessBound = false;
+let lastHasPublicProfile = false;
 
 /**
  * Экранирует HTML-символы для безопасного рендеринга.
@@ -89,6 +95,7 @@ function renderRemoteAccessStatus(status) {
   }
 
   const profileBadgeEl = document.getElementById('ra-kpi-profile');
+  lastHasPublicProfile = Boolean(status.has_public_profile);
   if (profileBadgeEl) {
     const profiles = Array.isArray(status.network_profiles) ? status.network_profiles : [];
     if (profiles.length === 0) {
@@ -203,6 +210,7 @@ export async function fetchRemoteAccessStatus() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderRemoteAccessStatus(data);
+    fetchVisibilityAndSharingData();
     if (statusHint) statusHint.textContent = `Обновлено: ${new Date().toLocaleTimeString()}`;
   } catch (err) {
     console.warn('[RemoteAccessPanel] Ошибка получения статуса:', err);
@@ -216,6 +224,15 @@ export async function fetchRemoteAccessStatus() {
  */
 export async function applyRemoteAccessAction(action) {
   if (isRemoteAccessBusy || !action) return;
+  if (
+    lastHasPublicProfile &&
+    (action === 'set_private_profile' || action === 'enable_all')
+  ) {
+    const confirmed = window.confirm(
+      'Обнаружен общедоступный профиль сети (Public). Переключать его в Private безопасно только в доверенной домашней или офисной сети. Продолжить?'
+    );
+    if (!confirmed) return;
+  }
   setActionButtonsDisabled(true);
 
   const statusHint = document.getElementById('ra-status-hint');
@@ -262,6 +279,7 @@ export function initRemoteAccessPanel() {
   if (!container) return;
 
   isRemoteAccessBound = true;
+  initVisibilityAndSharingSection();
 
   const refreshBtn = document.getElementById('btn-ra-refresh');
   if (refreshBtn) {
