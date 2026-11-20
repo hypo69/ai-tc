@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules System_Control_Center -   Main  
+# Process Name: ai-tc Apps Windows Modules System_Control_Center -   Main  
 # =============================================================================
 # Description:
 #   CLI точка входа для приложения System Control Center.
@@ -14,11 +14,11 @@
 #     res = main()
 #
 # File: __main__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.system_control_center
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:44
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/admin/sync-api.js?v=20261001_v1" type="module"></script>
  *
  * File: sync-api.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/admin
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -24,7 +24,7 @@
  */
 
 class SyncApiClient {
-  constructor(baseUrl = '/api/admin/sync') {
+  constructor(baseUrl = '/api/v1/admin/sync') {
     this.baseUrl = baseUrl;
     this.timeout = 10000;
   }

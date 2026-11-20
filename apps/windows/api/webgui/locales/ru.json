@@ -36,14 +36,54 @@
     "googleAccounts": "🌐 Google аккаунты",
     "helpdesk": "🛟 Helpdesk",
     "network": "🌐 Сетевой терминал",
-    "systemInspector": "📡 Телеметрия",
+    "systemInspector": "Потребление ресурсов",
     "aboutSystem": "ℹ️ О Системе",
     "scenarios": "💬🎬 Чат и сценарии",
     "userDirectories": "📁 Пользовательские директории",
     "userDirectoriesLong": "📁 Пользовательские директории и хранилище",
     "fileRecovery": "🗂️ Восстановить удаленные файлы",
     "startupAuditor": "🚀 Автозапуск программ",
-    "system32Commands": "🛠️ Команды System32"
+    "system32Commands": "🛠️ Команды System32",
+    "processesLoadInspector": "Активность процессов",
+    "softwareMonitor": "Установленные программы",
+    "defenderFirewall": "Defender & Firewall",
+    "windowsAdmin": "Windows Sysadmin",
+    "userEnvironment": "Окружение пользователя",
+    "niniteUpdater": "Установить Ninite",
+    "registryEditor": "Редактор реестра",
+    "peripherals": "5. Сеть и периферия",
+    "kernelProtection": "Защита ядра и драйверы",
+    "pixelrag": "PixelRAG",
+    "fileHistorySearch": "Поиск истории файлов AI",
+    "storageManagement": "Накопители и Ресурс Дисков",
+    "softwareTransparency": "Прозрачность ПО",
+    "softwareManager": "Пакетный менеджер (Winget)",
+    "powerLifecycle": "Сессии питания",
+    "telemetryResearch": "Исследования телеметрии",
+    "processLeaks": "1. Утечки и микрофризы",
+    "smartRestore": "Умное восстановление (Advisor)",
+    "bootRecovery": "Загрузка, WinRE и обслуживание SFC/DISM",
+    "servicesManager": "Службы Windows (Services)",
+    "taskScheduler": "Планировщик задач (Tasks)",
+    "taskbar": "Панель задач и Окна (Taskbar)",
+    "processManager": "Диспетчер процессов (Processes)",
+    "themeEditor": "Редактор тем (Theme Editor)",
+    "forensics": "2. Поведенческая форензика",
+    "throttling": "3. Качество ядра и Троттлинг",
+    "soundSettings": "Звук и громкость",
+    "cloudflared": "Cloudflare Tunnel (kino)",
+    "postInstallWizard": "Post-Install Wizard",
+    "sitemap": "Карта сайта (Sitemap)",
+    "aiEcosystem": "Экосистема ИИ (Агенты, Навыки, MCP)",
+    "appInternals": "Внутренняя кухня (App Internals)",
+    "diskSpeed": "Скорость дисков (DiskSpd)",
+    "focusSettings": "Настройки Focus",
+    "storageWear": "Износ накопителей",
+    "userAssistant": "Ассистент пользователя",
+    "windowsBackup": "Резервное копирование",
+    "issues": "🐙 GitHub Issues",
+    "gcloud": "☁️ Google Cloud Monitor",
+    "websiteMonitor": "📊 Website Intelligence"
   },
   "tracing": {
     "refresh": "Обновить список активных сессий ETW и счетчиков",
@@ -126,7 +166,19 @@
     "themeDark": "🌙 Тёмная",
     "themeTerminal": "📟 Терминал",
     "themeSystem": "🌓 Системная",
-    "close": "Закрыть"
+    "close": "Закрыть",
+    "tooltipDelayLabel": "Интервал задержки подсказок",
+    "tooltipDelayHint": "Интервал задержки перед появлением кастомной всплывающей подсказки (по умолчанию 500 мс / 0.5 сек)",
+    "tooltipsEditorBtn": "Редактор подсказок",
+    "tooltipsEditorDesc": "Просмотр, редактирование и аудит подсказок интерфейса и базы знаний",
+    "subtabProfileLabel": "Профиль и вход",
+    "subtabProfileTitle": "Управление учетной записью Google и профилем пользователя",
+    "subtabAppearanceLabel": "Внешний вид и язык",
+    "subtabAppearanceTitle": "Выбор темы оформления, языка интерфейса и редактор тем",
+    "subtabModelLabel": "Модель ИИ",
+    "subtabModelTitle": "Проверка доступности и статуса активной модели искусственного интеллекта",
+    "subtabSystemLabel": "Система и подсказки",
+    "subtabSystemTitle": "Управление кешем браузера, интерактивный тур и настройки всплывающих подсказок"
   },
   "auth": {
     "googleSignIn": "Войти через Google",
@@ -388,11 +440,11 @@
     "defLoading": "Загрузка событий Windows Defender...",
     "defNoEvents": "Событий Windows Defender не найдено."
   },
-  "app_title": "AI-Windows-Admin",
+  "app_title": "ai-tc",
   "wizard": {
     "enabled": true,
     "title": "Мастер интерактивной навигации (Wizard Mode)",
-    "description": "Подробные подсказки и назначение всех панелей и хабов системы AI-Windows-Admin.",
+    "description": "Подробные подсказки и назначение всех панелей и хабов системы ai-tc.",
     "tabs": {
       "tab-about-system": {
         "title": "Паспорт системы",
@@ -703,7 +755,19 @@
     "subtabTooltipsEditorLabel": "Редактор тултипов",
     "subtabTooltipsEditorTitle": "Редактор всплывающих подсказок и базы знаний тултипов системы",
     "subtabHelpPagesEditorLabel": "Редактор подсказок",
-    "subtabHelpPagesEditorTitle": "Редактор атомарных блоков и композитных страниц справки"
+    "subtabHelpPagesEditorTitle": "Редактор атомарных блоков и композитных страниц справки",
+    "subtabDbManagerLabel": "Управление БД",
+    "subtabDbManagerTitle": "Управление базами данных, хостингом, сжатием, бэкапами и прямой SQL-консолью",
+    "blockDbOverviewLabel": "Параметры и структура",
+    "blockDbOverviewTitle": "Просмотр параметров, статуса, размера и схемы таблиц (SQLite и Hostinger MariaDB)",
+    "blockDbConsoleLabel": "SQL Консоль",
+    "blockDbConsoleTitle": "Прямой ввод и выполнение команд SQL (SELECT, INSERT, UPDATE, DELETE) с просмотром результатов",
+    "blockDbCompressLabel": "Сжатие и оптимизация",
+    "blockDbCompressTitle": "Инструменты сжатия хранилища SQLite (VACUUM) и оптимизации таблиц MariaDB на хостинге",
+    "blockDbExportLabel": "Экспорт с хостинга",
+    "blockDbExportTitle": "Экспорт таблиц и данных из баз на Hostinger и SQLite в форматы SQL, JSON и CSV",
+    "blockDbBackupsLabel": "Бэкапы",
+    "blockDbBackupsTitle": "Создание резервных копий с ZIP-сжатием, скачивание и безопасное восстановление"
   },
   "tooltips": {
     "workspace": {
@@ -1655,6 +1719,92 @@
       "summary": "Просмотр внутренних логов программы ai-tc",
       "category": "Логирование",
       "icon": "📜"
+    },
+    "create_workspace": {
+      "title": "Создать новое пространство",
+      "summary": "Создание изолированного рабочего пространства с инициализацией Git и слежением за файлами и директориями на месте без их перемещения.",
+      "category": "Рабочая область",
+      "icon": "➕"
+    },
+    "diff": {
+      "title": "Сравнение версий (Diff)",
+      "summary": "Интеллектуальный визуализатор различий между коммитами, снимками и ветвями с анализом Smart Blame.",
+      "category": "Версионирование",
+      "icon": "⚖️"
+    },
+    "git_engine": {
+      "title": "Движок Git",
+      "summary": "Высокоскоростной локальный движок Git для слежения за файлами на месте без перемещения и создания снимков состояния.",
+      "category": "Версионирование",
+      "icon": "🌿"
+    },
+    "gmail": {
+      "title": "Управление Gmail",
+      "summary": "Интеграция с почтовой инфраструктурой Gmail: поиск сообщений, категоризация, извлечение фактов и отправка отчетов.",
+      "category": "Коммуникации",
+      "icon": "📧"
+    },
+    "graph": {
+      "title": "Темпоральный граф",
+      "summary": "Интерактивный темпоральный граф архитектурных сущностей, зависимостей файлов и связей базы знаний.",
+      "category": "Аналитика",
+      "icon": "🕸️"
+    },
+    "models": {
+      "title": "ИИ Модели и Провайдеры",
+      "summary": "Реестр и диспетчер ИИ-моделей: Google Gemini, Microsoft Foundry Local (Phi-3), Ollama (Llama-3), ONNX/DirectML.",
+      "category": "Среда ИИ",
+      "icon": "🧠"
+    },
+    "obsidian": {
+      "title": "Obsidian Vault",
+      "summary": "Экспорт документов, сущностей и связей рабочей области в формат хранилища заметок Obsidian с поддержкой Markdown и графа.",
+      "category": "Интеграция",
+      "icon": "💎"
+    },
+    "plugins": {
+      "title": "Менеджер плагинов",
+      "summary": "Менеджер плагинов и модулей расширения функциональности ассистента с изолированным жизненным циклом.",
+      "category": "Расширения",
+      "icon": "🧩"
+    },
+    "rag": {
+      "title": "Поиск RAG",
+      "summary": "Глобальный пятиэтапный поиск RAG на базе векторных эмбеддингов FAISS, извлечения фактов и семантического анализа документации.",
+      "category": "База знаний",
+      "icon": "🔍"
+    },
+    "timeline": {
+      "title": "Шкала времени",
+      "summary": "Хронологическая шкала эволюции кодовой базы, фиксация ключевых архитектурных решений и этапов разработки.",
+      "category": "Хронология",
+      "icon": "⏱️"
+    },
+    "verification": {
+      "title": "Контур верификации",
+      "summary": "Автоматический двухшаговый контур проверки целостности, архитектурных инвариантов и контрактов подсистем.",
+      "category": "Верификация",
+      "icon": "✅"
+    },
+    "subtabs": {
+      "catalogLabel": "Каталог",
+      "catalogTitle": "Каталог подсказок интерфейса",
+      "editorLabel": "Редактор",
+      "editorTitle": "Редактор выбранной подсказки",
+      "kbLabel": "База знаний",
+      "kbTitle": "Управление базой знаний подсказок (SQLite)",
+      "auditLabel": "Аудит",
+      "auditTitle": "Аудит покрытия интерфейса подсказками",
+      "panel-editor-lang-ruTitle": "Русский язык",
+      "panel-editor-lang-enTitle": "Английский язык",
+      "panel-editor-lang-heTitle": "Иврит",
+      "panel-editor-lang-ukTitle": "Украинский язык"
+    },
+    "editor": {
+      "btnAutoTranslate": "Автоперевод",
+      "btnAutoTranslateTitle": "Перевести подсказку на все языки с помощью локального словаря",
+      "btnSave": "Сохранить",
+      "btnSaveTitle": "Сохранить изменения подсказки"
     }
   },
   "logSettingsHelp": {
@@ -2006,5 +2156,51 @@
       "w6Title": "Виджеты 6 и 7: Сокеты и Лента файлов",
       "w6Desc": "Сетевые соединения процесса (TCP/UDP, удаленный IP, порт, состояние) и журнал недавних файловых операций ввода-вывода (Read/Write/Delete)."
     }
+  },
+  "aboutSystem": {
+    "title": "Информация о системе Windows",
+    "subtitle": "Спецификации ОС, материнской платы, процессора, BIOS, сборки Windows и аппаратная телеметрия",
+    "kpiPlatformOs": "Платформа & ОС",
+    "kpiSecurity": "Безопасность системы",
+    "kpiRestorePoints": "Точки восстановления",
+    "kpiStorageC": "Системный накопитель (C:)",
+    "hardwareOsTitle": "Конфигурация оборудования и ОС",
+    "userEnvSecurityTitle": "Окружение пользователя, сеть и безопасность",
+    "storageVolumesTitle": "Разделы и тома накопителей (Storage Volumes & Partitions)",
+    "disksWearTitle": "Здоровье накопителей SSD/NVMe и износ (Wear & SMART)",
+    "batteryWearTitle": "Деградация и состояние батареи (Battery Degradation)",
+    "hardwareSpecTitle": "Полная спецификация оборудования",
+    "thVolumeDisk": "Том / Диск (Метка)",
+    "thFs": "ФС",
+    "thTotal": "Всего",
+    "thUsed": "Занято",
+    "thFree": "Свободно",
+    "thUsage": "Заполненность",
+    "thSmart": "SMART",
+    "loadingDisks": "Загрузка разделов дисков...",
+    "noDisksFound": "Дисковые разделы не обнаружены",
+    "drivesSuffix": "накопителей",
+    "btnHistoryRefresh": "Обновить историю из БД",
+    "btnDisksWearRefresh": "Обновить диски",
+    "btnDisksWearRefreshTitle": "Обновить телеметрию дисков",
+    "btnBatteryRefresh": "Обновить батарею",
+    "btnBatteryRefreshTitle": "Обновить глубокую телеметрию аккумулятора и питания",
+    "btnOpenRegionalTitle": "Настроить сеть, часовой пояс, язык, локаль и пользователя",
+    "btnRegionalSettings": "Настроить",
+    "netProfilePrivate": "Частная",
+    "netProfilePublic": "Общая",
+    "netProfilePrivateTitle": "Сделать сеть доверенной (частной)",
+    "netProfilePublicTitle": "Ограничить видимость ПК (общедоступная)",
+    "netDiscoveryOn": "Вкл",
+    "netDiscoveryOff": "Выкл",
+    "netDiscoveryOnTitle": "Включить сетевое обнаружение",
+    "netDiscoveryOffTitle": "Отключить сетевое обнаружение",
+    "toggleTreeCategories": "Развернуть все / Свернуть все категории",
+    "searchComponentsPlaceholder": "Поиск компонентов...",
+    "loadingSpec": "Загрузка спецификации оборудования..."
+  },
+  "fileEditor": {
+    "directionLtrTitle": "Направление текста слева направо (LTR)",
+    "directionRtlTitle": "Направление текста справа налево (RTL)"
   }
 }

@@ -4,8 +4,8 @@ Process Name: Windows Web Interface - App Logs Intelligence Tab
 =============================================================================
 Description:
   Клиентский веб-интерфейс комплексного анализа, аудита, поиска и потокового
-  мониторинга внутренних журналов программы AI-Windows-Admin строго из
-  каталога %APPDATA%\AI-Windows-Admin\logs (log.json, info.log, errors.log, fastapi.log и др.).
+  мониторинга внутренних журналов программы ai-tc строго из
+  каталога %APPDATA%\ai-tc\logs (log.json, info.log, errors.log, fastapi.log и др.).
   Включает глубокую интеграцию с AIModalDialog, динамический Timeline график,
   кластеризацию инцидентов, экспорт (CSV/JSON/Markdown) и живой терминал.
   Полная поддержка темной, светлой (NightView), кирпичной и терминальной тем через CSS-переменные.
@@ -19,11 +19,11 @@ Usage Examples:
     <div id="tab-app-logs" class="tab-pane fade"></div>
 
 File: index.html
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/tab_app_logs
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-01 12:50:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 -->
 <style>
@@ -237,7 +237,7 @@ Updated: 2026-11-01 12:50:00
     <div class="d-flex align-items-center gap-2 flex-wrap">
       <div class="d-flex align-items-center gap-1.5 me-1">
         <span class="fs-5">📑</span>
-        <span class="fw-bold text-body small">Внутренние логи программы (%APPDATA%\AI-Windows-Admin\logs)</span>
+        <span class="fw-bold text-body small">Внутренние логи программы (%APPDATA%\ai-tc\logs)</span>
       </div>
 
       <!-- Quick Metrics Pills -->
@@ -361,7 +361,7 @@ Updated: 2026-11-01 12:50:00
       </ul>
       <!-- Active File Path Indicator -->
       <div class="small text-muted font-monospace text-truncate d-none d-md-block" id="apl-full-path-label" style="max-width: 400px;">
-        %APPDATA%\AI-Windows-Admin\logs
+        %APPDATA%\ai-tc\logs
       </div>
     </div>
 

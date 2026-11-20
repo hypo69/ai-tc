@@ -10,7 +10,7 @@
       "module": "apps.cloudflared_monitor.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Мониторинг и управление Cloudflare Tunnel (/api/cloudflared/*)"
+      "description": "Мониторинг и управление Cloudflare Tunnel (/api/v1/cloudflared/*)"
     },
     {
       "module": "apps.windows.api.routers.router_procedural_tools",
@@ -25,23 +25,29 @@
       "description": "Изолированная база инструментов ИИ-агента (/api/v1/ai-instruments/*)"
     },
     {
+      "module": "apps.windows.api.routers.router_db_manager",
+      "factory": "init_router",
+      "enabled": true,
+      "description": "Управление базами данных, хостингом, сжатием, экспортом и SQL-консолью (/api/v1/db-manager/*)"
+    },
+    {
       "module": "apps.windows.api.routers.router_menu",
       "factory": "init_router",
       "enabled": true,
-      "description": "Конфигурация меню (/api/menu/*)"
+      "description": "Конфигурация меню (/api/v1/menu/*)"
     },
     {
       "module": "apps.windows.router",
       "factory": "init_router",
       "enabled": true,
       "inject_app": true,
-      "description": "Windows diagnostics & hardware (/api/windows/*)"
+      "description": "Windows diagnostics & hardware (/api/v1/windows/*)"
     },
     {
       "module": "src.ai.rag.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Unified RAG, Pixel RAG, and Codebase AST RAG (/api/rag/*)"
+      "description": "Unified RAG, Pixel RAG, and Codebase AST RAG (/api/v1/rag/*)"
     },
     {
       "module": "apps.windows.sdk.modules.window_control_plane.router",
@@ -72,25 +78,25 @@
       "factory": "init_router",
       "enabled": true,
       "inject_models": true,
-      "description": "Чат и речевой ассистент (/api/chat/*)"
+      "description": "Чат и речевой ассистент (/api/v1/chat/*)"
     },
     {
       "module": "apps.windows.sysadmin.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Windows Sysadmin (/api/sysadmin/*)"
+      "description": "Windows Sysadmin (/api/v1/sysadmin/*)"
     },
     {
       "module": "apps.windows.sdk.modules.network.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Сетевой терминал (/api/network/*)"
+      "description": "Сетевой терминал (/api/v1/network/*)"
     },
     {
       "module": "apps.windows.sdk.modules.network.infra.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Диагностика сетевой инфраструктуры: адаптеры, Hyper-V, NAT, WSL, история (/api/network/infra/*)"
+      "description": "Диагностика сетевой инфраструктуры: адаптеры, Hyper-V, NAT, WSL, история (/api/v1/network/infra/*)"
     },
     {
       "module": "apps.windows.startup.router",
@@ -114,25 +120,25 @@
       "module": "apps.windows.system_control_center.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Центр управления системой (/api/system-control/*)"
+      "description": "Центр управления системой (/api/v1/system-control/*)"
     },
     {
       "module": "apps.windows.registry.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Реестр Windows (/api/registry/*)"
+      "description": "Реестр Windows (/api/v1/registry/*)"
     },
     {
       "module": "apps.windows.api.routers.router_scenarios",
       "factory": "init_router",
       "enabled": true,
-      "description": "Сценарии автоматизации (/api/scenarios/*)"
+      "description": "Сценарии автоматизации (/api/v1/scenarios/*)"
     },
     {
       "module": "apps.windows.api.routers.router_diagnostics",
       "factory": "init_router",
       "enabled": true,
-      "description": "Диагностические сервисы (/api/diagnostics/*)"
+      "description": "Диагностические сервисы (/api/v1/diagnostics/*)"
     },
     {
       "module": "apps.windows.api.routers.router_about_system",
@@ -150,7 +156,7 @@
       "module": "apps.windows.analytics.server",
       "factory": "init_router",
       "enabled": true,
-      "description": "Аналитическое исследование телеметрии и дашборды (/apps/telemetry_research/*, /api/*)"
+      "description": "Аналитическое исследование телеметрии и дашборды (/apps/telemetry_research/*, /api/v1/*)"
     },
     {
       "module": "apps.windows.api.routers.router_wikillm_editor",
@@ -198,67 +204,67 @@
       "module": "apps.windows.sdk.modules.storage_manager.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Менеджер хранилища и бенчмарк DiskSpd (/api/v1/storage/*, /api/storage-manager/*)"
+      "description": "Менеджер хранилища и бенчмарк DiskSpd (/api/v1/storage/*, /api/v1/storage-manager/*)"
     },
     {
       "module": "apps.windows.sdk.modules.boot_recovery.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Загрузка и восстановление (/api/boot-recovery/*)"
+      "description": "Загрузка и восстановление (/api/v1/boot-recovery/*)"
     },
     {
       "module": "apps.windows.sdk.modules.servicing_integrity.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Целостность и обслуживание системы (/api/servicing-integrity/*)"
+      "description": "Целостность и обслуживание системы (/api/v1/servicing-integrity/*)"
     },
     {
       "module": "apps.windows.sdk.modules.services_manager.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Управление системными службами (/api/services-manager/*)"
+      "description": "Управление системными службами (/api/v1/services-manager/*)"
     },
     {
       "module": "apps.windows.sdk.modules.task_scheduler.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Планировщик заданий (/api/task-scheduler/*)"
+      "description": "Планировщик заданий (/api/v1/task-scheduler/*)"
     },
     {
       "module": "apps.windows.sdk.modules.process_manager.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Диспетчер процессов (/api/process-manager/*)"
+      "description": "Диспетчер процессов (/api/v1/process-manager/*)"
     },
     {
       "module": "apps.windows.sdk.modules.firewall_manager.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Брандмауэр Windows (/api/firewall-manager/*)"
+      "description": "Брандмауэр Windows (/api/v1/firewall-manager/*)"
     },
     {
       "module": "apps.windows.sdk.modules.security_acl.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Управление правами доступа и ACL (/api/security-acl/*)"
+      "description": "Управление правами доступа и ACL (/api/v1/security-acl/*)"
     },
     {
       "module": "apps.windows.sdk.modules.performance_tracing.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Трассировка и производительность (/api/performance-tracing/*)"
+      "description": "Трассировка и производительность (/api/v1/performance-tracing/*)"
     },
     {
       "module": "apps.windows.sdk.modules.event_logs.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Журналы событий Windows (/api/event-logs/*)"
+      "description": "Журналы событий Windows (/api/v1/event-logs/*)"
     },
     {
       "module": "apps.windows.sdk.modules.software_manager.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Управление установленным ПО (/api/software-manager/*)"
+      "description": "Управление установленным ПО (/api/v1/software-manager/*)"
     },
     {
       "module": "apps.windows.api.routers.router_system_logs",
@@ -288,19 +294,19 @@
       "module": "apps.windows.api.routers.router_focus",
       "factory": "init_router",
       "enabled": true,
-      "description": "Управление сессиями фокусировки внимания и Do Not Disturb (/api/windows/focus/*)"
+      "description": "Управление сессиями фокусировки внимания и Do Not Disturb (/api/v1/windows/focus/*)"
     },
     {
       "module": "apps.windows.api.routers.router_app_logs",
       "factory": "init_router",
       "enabled": true,
-      "description": "Анализ и стриминг внутренних логов программы (%APPDATA%/AI-Windows-Admin/logs) (/api/v1/app_logs/*)"
+      "description": "Анализ и стриминг внутренних логов программы (%APPDATA%/ai-tc/logs) (/api/v1/app_logs/*)"
     },
     {
       "module": "apps.windows.wikillm.router",
       "factory": "init_router",
       "enabled": true,
-      "description": "Progressive Knowledge Base WikiLLM (/api/windows/wikillm/*)"
+      "description": "Progressive Knowledge Base WikiLLM (/api/v1/windows/wikillm/*)"
     },
     {
       "module": "apps.windows.api.router_capabilities",
@@ -333,16 +339,16 @@
       "description": "Управление API ключами и квоты Gemini (/api/v1/keys/*)"
     },
     {
-      "module": "apps.windows.sdk.software_scanner.router",
-      "factory": "init_router",
-      "enabled": true,
-      "description": "Глубокое сканирование и аудит установленного ПО (/api/windows/software-scanner/*)"
-    },
-    {
       "module": "apps.windows.api.routers.router_ninite",
       "factory": "init_router",
       "enabled": true,
-      "description": "Автообновление и инсталлятор Ninite (/api/ninite/*)"
+      "description": "Автообновление и инсталлятор Ninite (/api/v1/ninite/*)"
+    },
+    {
+      "module": "apps.windows.api.routers.router_recovery",
+      "factory": "init_router",
+      "enabled": true,
+      "description": "Утилиты восстановления данных R-Studio (/api/v1/recovery/*)"
     },
     {
       "module": "apps.windows.sdk.core.software_transparency",
@@ -444,11 +450,11 @@
     },
     "hostinger": {
       "connection_type": "direct",
-      "host": "srv1502.hstgr.io",
+      "host": "srv1373.hstgr.io",
       "port": 3306,
-      "user": "u177424397_davidka",
+      "user": "u177424397_ai_tc_admin",
       "password": "@Davidka#1969",
-      "database": "u177424397_comp_knowledge",
+      "database": "u177424397_tool_chains",
       "table_name": "ai_instruments",
       "php_api_url": "https://srv1502.hstgr.io/wikillm_hostinger.php",
       "php_api_key": "test_token_123",

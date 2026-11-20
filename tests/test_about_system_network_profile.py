@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - About System Network Profile
+# Process Name: ai-tc Tests - About System Network Profile
 # =============================================================================
 # Description:
 #   Тестирование получения сетевого профиля строго из базы данных telemetry.db
@@ -8,11 +8,11 @@
 #   отсутствия вызовов тяжелой диагностики при инициализации таба.
 #
 # File: test_about_system_network_profile.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 23:05:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from pathlib import Path

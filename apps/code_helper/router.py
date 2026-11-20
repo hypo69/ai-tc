@@ -8,11 +8,11 @@
 #   диагностики и проверки статуса подключения к Hostinger MariaDB.
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.code_helper
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 17:10:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ from .models import (
 )
 from .rag import CodeHelperRAG
 
-router = APIRouter(prefix="/api/code-helper", tags=["Code Helper RAG"])
+router = APIRouter(prefix="/api/v1/code-helper", tags=["Code Helper RAG"])
 _rag_instance: Optional[CodeHelperRAG] = None
 
 

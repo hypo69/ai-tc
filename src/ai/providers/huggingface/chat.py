@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Chat Module
+# Process Name: ai-tc AI - Chat Module
 # =============================================================================
 # Description:
 #   HuggingFace local model cache and chat client.
@@ -14,11 +14,11 @@
 #     print(result)
 #
 # File: chat.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.providers.huggingface
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """HuggingFace local model cache and chat client.

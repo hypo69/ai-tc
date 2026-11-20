@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Config Paths
+# Process Name: ai-tc Tests - Config Paths
 # =============================================================================
 # Description:
 #   Модульные тесты для проверки конфигурационного параметра app_name ('ai-tc')
@@ -12,11 +12,11 @@
 #     pytest tests/test_config_paths.py -v
 #
 # File: test_config_paths.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-27 23:07:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Модульные тесты конфигурации и путей приложения (`test_config_paths`)."""

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Dev - Bot Runner
+# Process Name: ai-tc Scripts Dev - Bot Runner
 # =============================================================================
 # Description:
 #   Telegram bot runner script.
@@ -12,11 +12,11 @@
 #     import scripts.dev.bot_runner as bot_runner
 #
 # File: bot_runner.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.dev
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-22 13:30:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Services_Manager -   Main  
+# Process Name: ai-tc Apps Windows Modules Services_Manager -   Main  
 # =============================================================================
 # Description:
 #   # Description:
@@ -14,11 +14,11 @@
 #     res = main()
 #
 # File: __main__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.services_manager
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -15,11 +15,11 @@
 #   9. Очистка секретов (SecretRedactor) в журналах аудита.
 #
 # File: test_security_acceptance.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.tests.security
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:08:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import asyncio

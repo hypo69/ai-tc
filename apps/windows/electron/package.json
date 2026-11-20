@@ -1,0 +1,14 @@
+{
+  "name": "ai-tc-electron-shell",
+  "version": "1.0.0",
+  "description": "Десктопная оболочка Electron (Chromium + Node.js) для ai-tc (Test Computer & Windows Diagnostics)",
+  "main": "main.js",
+  "author": "hypo69",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}

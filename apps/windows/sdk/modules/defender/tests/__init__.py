@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Defender Tests -   Init  
+# Process Name: ai-tc Apps Windows Modules Defender Tests -   Init  
 # =============================================================================
 # Description:
-#   Модуль реализации компонентов подсистемы Windows AI-Windows-Admin (__init__).
+#   Модуль реализации компонентов подсистемы Windows ai-tc (__init__).
 #
 # Usage Examples:
 #
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.defender.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
-"""Модуль реализации компонентов подсистемы Windows AI-Windows-Admin (__init__)."""
+"""Модуль реализации компонентов подсистемы Windows ai-tc (__init__)."""
 
 

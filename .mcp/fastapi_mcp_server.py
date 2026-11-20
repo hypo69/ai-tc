@@ -5,7 +5,7 @@
 # Description:
 #   Локальный MCP-сервер (STDIO) на базе MCP Python SDK v2 (`MCPServer`),
 #   обеспечивающий проксирование запросов от внешних ИИ-клиентов к REST API
-#   центрального сервера AI Windows Admin (`config.json`).
+#   центрального сервера ai-tc (`config.json`).
 #
 #   Зачем нужен этот модуль:
 #     1. Отправка запросов в чат-роутер (`/api/chat`) и получение метаданных
@@ -19,11 +19,11 @@
 #     url = get_base_url()
 #
 # File: fastapi_mcp_server.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: .mcp
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:06:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

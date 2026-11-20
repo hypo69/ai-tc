@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Startup Tests - Test Router
+# Process Name: ai-tc Apps Windows Modules Startup Tests - Test Router
 # =============================================================================
 # Description:
 #   Тесты FastAPI роутера Startup Auditor.
@@ -12,11 +12,11 @@
 #     res = get_test_client()
 #
 # File: test_router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.startup.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Тесты FastAPI роутера Startup Auditor."""

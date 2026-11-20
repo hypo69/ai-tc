@@ -7,11 +7,11 @@
  *   сериализации состояния в JSON и генерации валидного CSS-кода.
  *
  * File: panel_tokens/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_theme_editor/panel_tokens
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 11:46:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
@@ -425,7 +425,7 @@ export function mapTokensToUI(tokens) {
 export function generateCssString() {
   const tokens = collectTokensFromUI();
   let css = '/* =============================================================================\n';
-  css += ' * Custom Theme - AI Windows Admin WebGUI\n';
+  css += ' * Custom Theme - ai-tc WebGUI\n';
   css += ` * Generated: ${new Date().toLocaleString('ru-RU')}\n`;
   css += ' * ============================================================================= */\n\n';
   css += ':root, html, body {\n';

@@ -7,11 +7,11 @@
  *   выпадающего списка компонентов и открытия модального окна AIModalDialog.
  *
  * File: panel_table/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_app_logs/panel_table
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:35:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

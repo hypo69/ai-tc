@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Telemetry Config
+# Process Name: ai-tc Apps Windows Telemetry - Telemetry Config
 # =============================================================================
 # Description:
 #   Менеджер конфигурации сбора телеметрии и сенсоров с поддержкой
@@ -16,11 +16,11 @@
 #         print("Конфигурация обновлена!")
 #
 # File: telemetry_config.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 12:55:00
+# Updated: 2026-11-12 05:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ def get_default_telemetry_config_path() -> Path:
     """Возвращает путь по умолчанию к файлу конфигурации телеметрии в %ProgramData%.
 
     Проверяет сначала %ProgramData%/AITelemetry/config/config.json,
-    затем %ProgramData%/AI-Windows-Admin/apps/windows/telemetry/config.json.
+    затем %ProgramData%/ai-tc/telemetry/config.json.
     Если целевой файл отсутствует, выполняется попытка скопировать шаблон из пакета модуля.
 
     Returns:
@@ -135,7 +135,7 @@ class TelemetryConfigManager:
         """Инициализирует менеджер конфигурации.
 
         Args:
-            config_path: Путь к файлу конфигурации (по умолчанию: %APPDATA%/AI-Windows-Admin/apps/windows/telemetry/config.json).
+            config_path: Путь к файлу конфигурации (по умолчанию: %ProgramData%/ai-tc/telemetry/config.json).
         """
         if config_path:
             self._config_path = str(config_path)
@@ -150,6 +150,7 @@ class TelemetryConfigManager:
         self._aggregation_interval = 3600.0
         self._heavy_interval = 60.0
         self._heavy_disk_scan_interval = 43200.0
+        self._internet_speed_interval_sec = 14400.0
         self._heavy_mode_max_duration_days = 5.0
         self._heavy_mode_auto_switch_enabled = True
         self._mode = 'hybrid'
@@ -238,6 +239,12 @@ class TelemetryConfigManager:
 
             raw_disk_interval = heavy_polls.get('disk_scan_interval_sec', self._config.get('heavy_disk_scan_interval_seconds'))
             self._heavy_disk_scan_interval = parse_interval_to_seconds(raw_disk_interval, 43200.0)
+
+            raw_internet_speed = heavy_polls.get(
+                'internet_speed_interval_sec',
+                self._sensors_config.get('internet', {}).get('interval_seconds', self._config.get('internet_speed_interval_sec', 14400.0))
+            )
+            self._internet_speed_interval_sec = parse_interval_to_seconds(raw_internet_speed, 14400.0)
 
             raw_fast_interval = self._config.get('fast_interval_seconds')
             self._fast_interval = parse_interval_to_seconds(raw_fast_interval, 30.0)
@@ -340,6 +347,17 @@ class TelemetryConfigManager:
             self._network_activity_interval_sec = parse_interval_to_seconds(
                 heavy_polls.get('network_activity_interval_sec', self._config.get('network_activity_interval_sec', 60.0)), 60.0
             )
+
+            # Файловый мониторинг (watch_directories, collect_file_events)
+            tel_opts = self._config.get('telemetry_options', {})
+            self._collect_file_events = bool(
+                self._config.get('collect_file_events', tel_opts.get('collect_file_events', True))
+            )
+            raw_dirs = self._config.get('watch_directories', tel_opts.get('watch_directories', []))
+            if isinstance(raw_dirs, list):
+                self._watch_directories = [str(d).strip() for d in raw_dirs if d and isinstance(d, str) and str(d).strip()]
+            else:
+                self._watch_directories = []
         except FileNotFoundError:
             if not self._config:
                 self._config = {}
@@ -348,6 +366,7 @@ class TelemetryConfigManager:
                 self._default_interval = 5.0
                 self._heavy_interval = 60.0
                 self._heavy_disk_scan_interval = 43200.0
+                self._internet_speed_interval_sec = 14400.0
                 self._heavy_mode_max_duration_days = 5.0
                 self._heavy_mode_auto_switch_enabled = True
                 self._mode = 'audit'
@@ -477,6 +496,10 @@ class TelemetryConfigManager:
         """Возвращает интервал периодического аудита установленного ПО (0.0 = только при старте программы)."""
         return getattr(self, '_software_audit_interval_sec', 0.0)
 
+    def get_internet_speed_interval_seconds(self) -> float:
+        """Возвращает интервал периодического замера скорости интернета FAST.com (по умолчанию 14400с = 4 часа, 6 раз в сутки)."""
+        return getattr(self, '_internet_speed_interval_sec', 14400.0)
+
     def get_heavy_polls_intervals(self) -> Dict[str, float]:
         """Возвращает словарь всех индивидуальных интервалов для тяжелых опросов."""
         return {
@@ -492,6 +515,7 @@ class TelemetryConfigManager:
             'network_ports_interval_sec': self.get_network_ports_interval_seconds(),
             'network_activity_interval_sec': self.get_network_activity_interval_seconds(),
             'disk_scan_interval_sec': self.get_heavy_disk_scan_interval(),
+            'internet_speed_interval_sec': self.get_internet_speed_interval_seconds(),
         }
 
     def is_thorough_mode(self) -> bool:
@@ -568,6 +592,23 @@ class TelemetryConfigManager:
     def is_audit_enabled(self) -> bool:
         """Проверяет, активен ли сбор аудита (Audit запускается на старте телеметрии в любом случае)."""
         return getattr(self, '_audit_enabled', True)
+
+    def is_file_events_enabled(self) -> bool:
+        """Возвращает флаг разрешения сбора событий изменений файлов."""
+        return getattr(self, '_collect_file_events', True)
+
+    def get_watch_directories(self) -> List[str]:
+        """Возвращает список отслеживаемых директорий из конфигурации."""
+        return list(getattr(self, '_watch_directories', []))
+
+    def set_watch_directories(self, directories: List[str]) -> None:
+        """Устанавливает список отслеживаемых директорий и сохраняет в конфигурационный файл."""
+        clean_dirs = [str(d).strip() for d in directories if d and str(d).strip()]
+        self._watch_directories = clean_dirs
+        self._config['watch_directories'] = list(clean_dirs)
+        if 'telemetry_options' in self._config and isinstance(self._config['telemetry_options'], dict):
+            self._config['telemetry_options']['watch_directories'] = list(clean_dirs)
+        self.save_config()
 
     def is_audit_mode(self) -> bool:
         """Проверяет, активен ли аудит системы или процесса."""
@@ -1165,8 +1206,12 @@ class TelemetryConfigManager:
                     self._network_ports_interval_sec = parse_interval_to_seconds(hp['network_ports_interval_sec'], 30.0)
                 if 'disk_scan_interval_sec' in hp:
                     self._heavy_disk_scan_interval = parse_interval_to_seconds(hp['disk_scan_interval_sec'], 43200.0)
+                if 'internet_speed_interval_sec' in hp:
+                    self._internet_speed_interval_sec = parse_interval_to_seconds(hp['internet_speed_interval_sec'], 14400.0)
             if 'heavy_disk_scan_interval_seconds' in new_config:
                 self._heavy_disk_scan_interval = parse_interval_to_seconds(new_config['heavy_disk_scan_interval_seconds'], 43200.0)
+            if 'internet_speed_interval_sec' in new_config:
+                self._internet_speed_interval_sec = parse_interval_to_seconds(new_config['internet_speed_interval_sec'], 14400.0)
             if 'software_audit_interval_sec' in new_config:
                 self._software_audit_interval_sec = parse_interval_to_seconds(new_config['software_audit_interval_sec'], 3600.0)
             if 'fast_interval_seconds' in new_config:
@@ -1183,6 +1228,14 @@ class TelemetryConfigManager:
                 self._telemetry_mode = str(new_config['telemetry_mode']).lower()
             if 'audit_enabled' in new_config:
                 self._audit_enabled = bool(new_config['audit_enabled'])
+            if 'watch_directories' in new_config and isinstance(new_config['watch_directories'], list):
+                self._watch_directories = [str(d).strip() for d in new_config['watch_directories'] if d and str(d).strip()]
+                self._config['watch_directories'] = list(self._watch_directories)
+                if 'telemetry_options' in self._config and isinstance(self._config['telemetry_options'], dict):
+                    self._config['telemetry_options']['watch_directories'] = list(self._watch_directories)
+            if 'collect_file_events' in new_config:
+                self._collect_file_events = bool(new_config['collect_file_events'])
+                self._config['collect_file_events'] = self._collect_file_events
             if 'streaming_enabled' in new_config:
                 self._streaming_enabled = bool(new_config['streaming_enabled'])
             if 'live_stream_enabled' in new_config:

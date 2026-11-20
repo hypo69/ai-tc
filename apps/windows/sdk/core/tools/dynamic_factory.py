@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core Tools - Dynamic Factory
+# Process Name: ai-tc Apps Windows Core Tools - Dynamic Factory
 # =============================================================================
 # Description:
 #   Фабрика динамических инструментов и мета-инструмент create_custom_tool.
@@ -12,11 +12,11 @@
 #     service = DynamicSynthesizedTool()
 #
 # File: dynamic_factory.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core.tools
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:33:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

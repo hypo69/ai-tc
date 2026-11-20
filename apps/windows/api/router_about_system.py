@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api - Router About System
+# Process Name: ai-tc Apps Windows Api - Router About System
 # =============================================================================
 # Description:
 #   Реализует эндпоинт, возвращающий агрегированный набор данных о системе.
 #
 # File: router_about_system.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 23:50:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Router, предоставляющий "bundle" о системе.

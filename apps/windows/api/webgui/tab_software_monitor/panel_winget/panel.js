@@ -7,11 +7,11 @@
  *   установленными через Windows Package Manager (winget-cli).
  *
  * File: panel_winget/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_software_monitor/panel_winget
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 11:00:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -19,6 +19,178 @@ import { escapeHtml } from '../common/ui_utils.js';
 
 let wingetPackages = [];
 let isWingetInitialized = false;
+
+/**
+ * Ищет существующий инстанс AIModalDialog в текущем фрейме или родительских окнах.
+ * @returns {Object|null} Инстанс AIModalDialog
+ */
+function findExistingAIModal() {
+  if (typeof window !== 'undefined') {
+    if (window.AIModalDialog && typeof window.AIModalDialog.show === 'function') {
+      return window.AIModalDialog;
+    }
+    if (window.AITableModal && typeof window.AITableModal.show === 'function') {
+      return window.AITableModal;
+    }
+    try {
+      if (window.parent && window.parent !== window) {
+        if (window.parent.AIModalDialog && typeof window.parent.AIModalDialog.show === 'function') {
+          return window.parent.AIModalDialog;
+        }
+        if (window.parent.AITableModal && typeof window.parent.AITableModal.show === 'function') {
+          return window.parent.AITableModal;
+        }
+      }
+    } catch (_) {}
+    try {
+      if (window.top && window.top !== window) {
+        if (window.top.AIModalDialog && typeof window.top.AIModalDialog.show === 'function') {
+          return window.top.AIModalDialog;
+        }
+        if (window.top.AITableModal && typeof window.top.AITableModal.show === 'function') {
+          return window.top.AITableModal;
+        }
+      }
+    } catch (_) {}
+  }
+  return null;
+}
+
+/**
+ * Гарантирует наличие и готовность инстанса AIModalDialog с автоподгрузкой.
+ * @returns {Promise<Object|null>} Объект модального окна ИИ.
+ */
+export async function resolveAIModal() {
+  let modal = findExistingAIModal();
+  if (modal) return modal;
+
+  if (!document.getElementById('link-ai-modal-dialog-style')) {
+    const link = document.createElement('link');
+    link.id = 'link-ai-modal-dialog-style';
+    link.rel = 'stylesheet';
+    link.href = '/html/ai_modal_dialog/style.css?v=20261115_v1';
+    document.head.appendChild(link);
+  }
+
+  try {
+    const mod = await import('/html/ai_modal_dialog/main.js?v=20261115_v1');
+    if (mod && mod.AIModalDialog && typeof mod.AIModalDialog.show === 'function') {
+      return mod.AIModalDialog;
+    }
+  } catch (err) {
+    console.warn('[WinGetPanel] Ошибка импорта AIModalDialog:', err);
+  }
+
+  return findExistingAIModal();
+}
+
+/**
+ * Открывает экспертное досье пакета WinGet в универсальном модальном окне ИИ.
+ * @param {Object} pkg - Объект пакета WinGet.
+ */
+export async function openWingetAiModal(pkg) {
+  if (!pkg) return;
+
+  const modal = await resolveAIModal();
+  if (!modal || typeof modal.show !== 'function') {
+    console.warn('[WinGetPanel] AIModalDialog не найден в глобальной области видимости');
+    if (window.showToast) {
+      window.showToast('Модуль ИИ-помощника загружается, повторите попытку через секунду', 'info');
+    }
+    return;
+  }
+
+  const pkgId = pkg.package_id || pkg.id || 'Unknown.Package';
+  const name = pkg.name || pkgId;
+  const ver = pkg.version || 'Unknown';
+  const avail = pkg.available_version || '-';
+  const hasUpgrade = avail && avail !== '-' && avail !== ver;
+
+  const badges = [
+    { text: 'WinGet CLI', class: 'bg-primary-subtle text-primary border border-primary' },
+    { text: `v${ver}`, class: 'bg-secondary' }
+  ];
+
+  if (hasUpgrade) {
+    badges.push({ text: `Доступно: v${avail}`, class: 'bg-warning text-dark' });
+  } else {
+    badges.push({ text: 'Актуальная версия', class: 'bg-success-subtle text-success border border-success' });
+  }
+
+  const metadata = [
+    { key: 'Имя приложения', value: name },
+    { key: 'WinGet ID', value: pkgId },
+    { key: 'Установленная версия', value: ver },
+    { key: 'Доступная версия', value: avail },
+    { key: 'Издатель', value: pkg.publisher || 'Не указан' },
+    { key: 'Источник', value: 'Windows Package Manager (winget-cli)' }
+  ];
+
+  const actions = [
+    {
+      label: 'Команда winget show',
+      icon: 'bi-terminal',
+      class: 'btn-outline-info',
+      onClick: async () => {
+        const cmd = `winget show --id "${pkgId}" --exact`;
+        try {
+          await navigator.clipboard.writeText(cmd);
+          if (window.showToast) {
+            window.showToast(`Команда скопирована в буфер:\n${cmd}`, 'success');
+          } else if (window.toast) {
+            window.toast.success('Скопировано', cmd);
+          } else {
+            alert(`Команда скопирована в буфер:\n${cmd}`);
+          }
+        } catch (_) {
+          prompt('Скопируйте команду winget show вручную:', cmd);
+        }
+      }
+    }
+  ];
+
+  if (hasUpgrade) {
+    actions.unshift({
+      label: 'Обновить пакет',
+      icon: 'bi-arrow-up-circle',
+      class: 'btn-outline-warning',
+      onClick: async () => {
+        if (window.toast) window.toast.info('WinGet', `Обновление ${pkgId}...`);
+        try {
+          const res = await fetch('/api/v1/software-manager/action', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ package_id: pkgId, action: 'upgrade', dry_run: false, confirmed_by_user: true })
+          });
+          const result = await res.json();
+          if (res.ok) {
+            if (window.toast) window.toast.success('Успех', `${pkgId}: пакет обновлен`);
+            fetchWingetPackages(true);
+          } else {
+            if (window.toast) window.toast.error('Ошибка', result.detail || result.message || 'Сбой обновления');
+          }
+        } catch (err) {
+          if (window.toast) window.toast.error('Ошибка сети', err.message);
+        }
+      }
+    });
+  }
+
+  modal.show({
+    icon: '📦',
+    title: name,
+    subtitle: `${pkgId}${pkg.publisher ? ` • ${pkg.publisher}` : ''}`,
+    panelId: 'panel-software-monitor-winget',
+    tableType: 'software',
+    badges: badges,
+    metadata: metadata,
+    rawTitle: 'Телеметрия пакета WinGet (JSON)',
+    rawContent: JSON.stringify(pkg, null, 2),
+    requestData: pkg,
+    autoRun: true,
+    actions: actions
+  });
+}
 
 /**
  * Инициализирует панель пакетов WinGet.
@@ -142,7 +314,7 @@ export async function fetchWingetPackages(forceRefresh = false) {
   }
 
   try {
-    const url = forceRefresh ? '/api/software-manager/packages?source=winget&refresh=true' : '/api/software-manager/packages?source=winget';
+    const url = forceRefresh ? '/api/v1/software-manager/packages?source=winget&refresh=true' : '/api/v1/software-manager/packages?source=winget';
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -199,7 +371,7 @@ function applyWingetFilter() {
     return;
   }
 
-  tbody.innerHTML = filtered.map(p => {
+  tbody.innerHTML = filtered.map((p, idx) => {
     const name = escapeHtml(p.name || 'WinGet Application');
     const id = escapeHtml(p.package_id || p.id || '-');
     const ver = escapeHtml(p.version || '-');
@@ -207,7 +379,7 @@ function applyWingetFilter() {
     const hasUpgrade = avail && avail !== '-' && avail !== ver;
 
     return `
-      <tr>
+      <tr class="winget-table-row" data-index="${idx}" style="cursor: pointer;" title="Нажмите для ИИ-анализа пакета WinGet">
         <td class="fw-semibold text-light">
           <div><i class="bi bi-box-seam text-primary me-1.5"></i>${name}</div>
           ${p.publisher ? `<div class="text-secondary small font-monospace" style="font-size: 0.75rem;">${escapeHtml(p.publisher)}</div>` : ''}
@@ -219,7 +391,7 @@ function applyWingetFilter() {
             ${avail}
           </span>
         </td>
-        <td class="text-end text-nowrap">
+        <td class="text-end text-nowrap no-modal-trigger" onclick="event.stopPropagation();">
           ${hasUpgrade ? `
             <button class="btn btn-xs btn-outline-warning py-0 px-2 winget-action-btn me-1" data-id="${id}" data-action="upgrade" title="Обновить пакет WinGet">
               <i class="bi bi-arrow-up-circle"></i> Обновить
@@ -233,13 +405,27 @@ function applyWingetFilter() {
     `;
   }).join('');
 
+  tbody.querySelectorAll('.winget-table-row').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('button, a, input, select, .no-modal-trigger')) {
+        return;
+      }
+      const idx = parseInt(row.getAttribute('data-index'), 10);
+      const pkg = filtered[idx];
+      if (pkg) {
+        openWingetAiModal(pkg);
+      }
+    });
+  });
+
   tbody.querySelectorAll('.winget-action-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
       const pkgId = btn.dataset.id;
       const act = btn.dataset.action;
       if (window.toast) window.toast.info('WinGet', `${act}: ${pkgId}`);
       try {
-        const res = await fetch('/api/software-manager/action', {
+        const res = await fetch('/api/v1/software-manager/action', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ package_id: pkgId, action: act, dry_run: false, confirmed_by_user: true })

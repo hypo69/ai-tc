@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Display Config & Rotation
+# Process Name: ai-tc Tests - Display Config & Rotation
 # =============================================================================
 # Description:
 #   Модульные и интеграционные тесты низкоуровневого управления дисплеями,
 #   перечисления мониторов, модели DisplayItem и Win32 FFI ориентации экранов.
 #
 # File: test_display_config.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 13:06:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

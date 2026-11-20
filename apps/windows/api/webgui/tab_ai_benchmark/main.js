@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Process Name: AI-Windows-Admin UI - Main Script
+ * Process Name: ai-tc UI - Main Script
  * =============================================================================
  * Description:
  *   Клиентский веб-скрипт модуля main.
@@ -10,11 +10,11 @@
  *     <script src="/src/api/webgui/ai_benchmark_tab/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: src/api/webgui/ai_benchmark_tab
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -52,7 +52,7 @@ export async function initAiBenchmarkTab() {
           temperature: tempInput ? parseFloat(tempInput.value) || 0.7 : 0.7,
         };
 
-        const res = await fetch('/api/windows/benchmark/ai', {
+        const res = await fetch('/api/v1/windows/benchmark/ai', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -103,7 +103,7 @@ async function loadHistory() {
   if (!tbody) return;
 
   try {
-    const res = await fetch('/api/windows/benchmark/ai/history');
+    const res = await fetch('/api/v1/windows/benchmark/ai/history');
     const items = await res.json();
 
     if (!Array.isArray(items) || items.length === 0) {

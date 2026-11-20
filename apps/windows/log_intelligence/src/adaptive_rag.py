@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Log_Intelligence Src - Adaptive Rag
+# Process Name: ai-tc Apps Windows Log_Intelligence Src - Adaptive Rag
 # =============================================================================
 # Description:
 #   Высокопроизводительный In-Memory (RAM) движок адаптивного RAG-индексирования
@@ -16,11 +16,11 @@
 #     results = rag.search(query="сбои питания и перезагрузка")
 #
 # File: adaptive_rag.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.log_intelligence.src
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 16:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

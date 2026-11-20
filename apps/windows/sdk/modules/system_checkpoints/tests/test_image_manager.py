@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules System_Checkpoints Tests - Test Image Manager
+# Process Name: ai-tc Apps Windows Modules System_Checkpoints Tests - Test Image Manager
 # =============================================================================
 # Description:
 #   Тесты менеджера WIM-образов Windows и работы с DISM.
@@ -12,11 +12,11 @@
 #     res = test_build_capture_command()
 #
 # File: test_image_manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.system_checkpoints.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Тесты менеджера WIM-образов Windows и работы с DISM."""

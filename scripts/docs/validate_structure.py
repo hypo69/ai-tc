@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Docs - Validate Structure
+# Process Name: ai-tc Scripts Docs - Validate Structure
 # =============================================================================
 # Description:
 #   Скрипт для валидации структуры документации.
@@ -14,11 +14,11 @@
 #     service = DocumentationValidator()
 #
 # File: validate_structure.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.docs
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Скрипт для валидации структуры документации.

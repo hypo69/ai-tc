@@ -12,11 +12,11 @@
  *     - База инструментов: Сервер Hostinger, Цепочка размышлений, Каталог
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_app_internals/panel_subtabs
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-11 23:20:00
+ * Updated: 2026-11-19 17:25:00
  * =============================================================================
  */
 
@@ -227,12 +227,18 @@ export async function triggerSubTabInit(subtabName, blockId = null) {
   } else if (canonical === 'codebase-rag') {
     const targetBlock = blockId || getBlockFromHash('codebase-rag') || 'block-code-diagnose';
     switchAppInternalsBlock('codebase-rag', targetBlock, false);
+  } else if (canonical === 'db-manager') {
+    const targetBlock = blockId || getBlockFromHash('db-manager') || 'block-db-overview';
+    switchAppInternalsBlock('db-manager', targetBlock, false);
+    if (typeof window.initDbManagerPanel === 'function') {
+      window.initDbManagerPanel();
+    }
   }
 }
 
 /**
  * Переключение активного блока подменю внутри составной панели.
- * @param {'wikillm-system' | 'instruments'} panelId
+ * @param {'wikillm-system' | 'instruments' | 'codebase-rag' | 'db-manager'} panelId
  * @param {string} rawBlockId
  * @param {boolean} [updateUrl=true]
  */
@@ -241,6 +247,7 @@ export function switchAppInternalsBlock(panelId, rawBlockId, updateUrl = true) {
   let navId = 'wikillm-sys-blocks-nav';
   if (panelId === 'instruments') navId = 'instruments-blocks-nav';
   else if (panelId === 'codebase-rag') navId = 'codebase-blocks-nav';
+  else if (panelId === 'db-manager') navId = 'dbmanager-blocks-nav';
   const nav = document.getElementById(navId);
 
   if (nav) {
@@ -288,6 +295,10 @@ export function switchAppInternalsBlock(panelId, rawBlockId, updateUrl = true) {
   } else if (panelId === 'codebase-rag') {
     if (typeof window.bindCodebaseRagButtons === 'function') window.bindCodebaseRagButtons();
     if (typeof window.loadCodebaseIndexes === 'function') window.loadCodebaseIndexes();
+  } else if (panelId === 'db-manager') {
+    if (typeof window.switchDbManagerBlock === 'function') {
+      window.switchDbManagerBlock(canonicalBlock);
+    }
   }
 
   if (updateUrl) {
@@ -314,6 +325,7 @@ export function switchAppInternalsSubTab(subtabName, blockId = null, updateUrl =
   else if (canonical === 'instruments') btnId = 'subtab-internals-instruments-btn';
   else if (canonical === 'tooltips-editor') btnId = 'subtab-internals-tooltips-editor-btn';
   else if (canonical === 'helppages-editor') btnId = 'subtab-internals-helppages-editor-btn';
+  else if (canonical === 'db-manager') btnId = 'subtab-internals-db-manager-btn';
 
   const btn = document.getElementById(btnId);
   if (btn) {

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Focus Executor
+# Process Name: ai-tc Apps Windows Core - Focus Executor
 # =============================================================================
 # Description:
 #   Точка входа для Windows Task Scheduler: запуск/остановка фокус-сессии профиля.
@@ -9,11 +9,11 @@
 #   python -m apps.windows.sdk.core.focus_executor --action start --profile-id prof-work-default
 #
 # File: focus_executor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

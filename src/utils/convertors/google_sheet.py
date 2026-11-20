@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Google Sheets Reader Module
+# Process Name: ai-tc UTILS - Google Sheets Reader Module
 # =============================================================================
 # Description:
 #   Чтение и конвертация Google Таблиц (Google Sheets) и документов Google Диска
@@ -16,11 +16,11 @@
 #     print(md)
 #
 # File: google_sheet.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils.convertors
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-17 04:05:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

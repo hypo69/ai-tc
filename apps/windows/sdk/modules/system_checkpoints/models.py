@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules System_Checkpoints - Models
+# Process Name: ai-tc Apps Windows Modules System_Checkpoints - Models
 # =============================================================================
 # Description:
 #   Модели данных для системы контрольных точек и образов восстановления Windows.
@@ -12,11 +12,11 @@
 #     service = CheckpointType()
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.system_checkpoints
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 22:16:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

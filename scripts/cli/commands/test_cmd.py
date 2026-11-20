@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts CLI - Test Command
+# Process Name: ai-tc Scripts CLI - Test Command
 # =============================================================================
 # Description:
 #   Команда запуска тестового набора pytest через единый CLI manage_tools.py.
 #
 # File: test_cmd.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.cli.commands
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 20:46:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

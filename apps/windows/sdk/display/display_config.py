@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Display SDK - Display Config Manager
+# Process Name: ai-tc Display SDK - Display Config Manager
 # =============================================================================
 # Description:
 #   Win32 FFI реализация низкоуровневого управления дисплеями Windows:
@@ -16,11 +16,11 @@
 #     res = mgr.rotate_display(displays[0].id, "portrait", timeout_seconds=15)
 #
 # File: display_config.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.display
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 13:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

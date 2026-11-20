@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Telemetry Task Scheduler API & WebGUI
+# Process Name: ai-tc Tests - Telemetry Task Scheduler API & WebGUI
 # =============================================================================
 # Description:
 #   Тесты эндпоинтов регистрации службы телеметрии в Windows Task Scheduler
@@ -8,11 +8,11 @@
 #   «Внутренняя кухня» (tab_app_internals / tab_telemetry_control).
 #
 # File: test_telemetry_task_scheduler_api.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-11 20:38:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -47,15 +47,15 @@ def test_webgui_internals_telemetry_contains_install_task_button(api_client: Tes
 
     ctrl_js = api_client.get("/html/tab_telemetry_control/main.js")
     assert ctrl_js.status_code == 200
-    assert "/api/windows/telemetry/config/task-scheduler/status" in ctrl_js.text
-    assert "/api/windows/telemetry/config/task-scheduler/install" in ctrl_js.text
+    assert "/api/v1/windows/telemetry/config/task-scheduler/status" in ctrl_js.text
+    assert "/api/v1/windows/telemetry/config/task-scheduler/install" in ctrl_js.text
     assert "installTelemetryTask" in ctrl_js.text
 
 
 def test_task_scheduler_status_found_ru_and_en(api_client: TestClient) -> None:
     """Проверяет разбор статуса задачи планировщика из schtasks.exe для RU и EN локалей."""
     sample_stdout = (
-        "Имя задачи:                           \\AI-Windows-Admin-Telemetry\n"
+        "Имя задачи:                           \\ai-tc-telemetry\n"
         "Состояние:                            Готово\n"
         "Состояние запланированной задачи:     Включена\n"
         "Запуск от имени:                      SYSTEM\n"
@@ -65,7 +65,7 @@ def test_task_scheduler_status_found_ru_and_en(api_client: TestClient) -> None:
     fake_proc = SimpleNamespace(returncode=0, stdout=sample_stdout, stderr="")
 
     with patch("apps.windows.api.routers.router_telemetry_config.subprocess.run", return_value=fake_proc):
-        res = api_client.get("/api/windows/telemetry/config/task-scheduler/status")
+        res = api_client.get("/api/v1/windows/telemetry/config/task-scheduler/status")
 
     assert res.status_code == 200
     data = res.json()
@@ -81,7 +81,7 @@ def test_task_scheduler_status_not_scheduled(api_client: TestClient) -> None:
     fake_proc = SimpleNamespace(returncode=1, stdout="", stderr="ERROR: The system cannot find the file specified.")
 
     with patch("apps.windows.api.routers.router_telemetry_config.subprocess.run", return_value=fake_proc):
-        res = api_client.get("/api/windows/telemetry/config/task-scheduler/status")
+        res = api_client.get("/api/v1/windows/telemetry/config/task-scheduler/status")
 
     assert res.status_code == 200
     data = res.json()
@@ -96,7 +96,7 @@ def test_task_scheduler_install_success(api_client: TestClient) -> None:
     query_proc = SimpleNamespace(
         returncode=0,
         stdout=(
-            "TaskName: \\AI-Windows-Admin-Telemetry\n"
+            "TaskName: \\ai-tc-telemetry\n"
             "Status: Ready\n"
             "Scheduled Task State: Enabled\n"
             "Run As User: SYSTEM\n"
@@ -115,7 +115,7 @@ def test_task_scheduler_install_success(api_client: TestClient) -> None:
 
     with patch("apps.windows.api.routers.router_telemetry_config.subprocess.run", side_effect=_fake_run):
         res = api_client.post(
-            "/api/windows/telemetry/config/task-scheduler/install",
+            "/api/v1/windows/telemetry/config/task-scheduler/install",
             json={"mode": "hybrid", "interval": 5.0, "top_processes": 12},
         )
 
@@ -134,7 +134,7 @@ def test_task_scheduler_install_failure_returns_500(api_client: TestClient) -> N
     fail_proc = SimpleNamespace(returncode=1, stdout="", stderr="Access denied")
 
     with patch("apps.windows.api.routers.router_telemetry_config.subprocess.run", return_value=fail_proc):
-        res = api_client.post("/api/windows/telemetry/config/task-scheduler/install", json={"mode": "hybrid"})
+        res = api_client.post("/api/v1/windows/telemetry/config/task-scheduler/install", json={"mode": "hybrid"})
 
     assert res.status_code == 500
     assert "Access denied" in res.json()["detail"]
@@ -151,7 +151,7 @@ def test_task_scheduler_install_missing_after_uac_cancel(api_client: TestClient)
         return missing_proc
 
     with patch("apps.windows.api.routers.router_telemetry_config.subprocess.run", side_effect=_fake_run):
-        res = api_client.post("/api/windows/telemetry/config/task-scheduler/install", json={})
+        res = api_client.post("/api/v1/windows/telemetry/config/task-scheduler/install", json={})
 
     assert res.status_code == 500
     assert "UAC" in res.json()["detail"]
@@ -163,12 +163,12 @@ def test_task_scheduler_install_timeout_returns_504(api_client: TestClient) -> N
         "apps.windows.api.routers.router_telemetry_config.subprocess.run",
         side_effect=subprocess.TimeoutExpired(cmd="powershell.exe", timeout=90),
     ):
-        res = api_client.post("/api/windows/telemetry/config/task-scheduler/install", json={})
+        res = api_client.post("/api/v1/windows/telemetry/config/task-scheduler/install", json={})
 
     assert res.status_code == 504
 
 
 def test_task_scheduler_install_invalid_mode_returns_422(api_client: TestClient) -> None:
     """Проверяет валидацию параметра mode на уровне Pydantic."""
-    res = api_client.post("/api/windows/telemetry/config/task-scheduler/install", json={"mode": "invalid_mode"})
+    res = api_client.post("/api/v1/windows/telemetry/config/task-scheduler/install", json={"mode": "invalid_mode"})
     assert res.status_code == 422

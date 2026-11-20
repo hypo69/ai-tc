@@ -3,7 +3,7 @@
 # Process Name: ai-tc Root - Conftest
 # =============================================================================
 # Description:
-#   Test configuration for ai-windows-admin.
+#   Test configuration for ai-tc.
 #
 # Usage Examples:
 #   Python API:
@@ -12,14 +12,14 @@
 #     res = test_data_dir()
 #
 # File: conftest.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: root
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 18:24:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
-"""Test configuration for ai-windows-admin.
+"""Test configuration for ai-tc.
 Provides fixtures and settings for all tests."""
 
 import asyncio

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry_Research - Client Resource Analyzer
+# Process Name: ai-tc Apps Windows Telemetry_Research - Client Resource Analyzer
 # =============================================================================
 # Description:
 #   Анализ ресурсов программ, запущенных клиентом (память, процессор, диск),
@@ -14,11 +14,11 @@
 #     summary = await analyzer.analyze_client_resources()
 #
 # File: client_resource_analyzer.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.analytics
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 13:13:00
+# Updated: 2026-11-13 15:30:00
 # =============================================================================
 
 from __future__ import annotations
@@ -30,6 +30,8 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
+
+from src.utils.jjson import j_dumps
 
 try:
     from logger import logger
@@ -362,14 +364,9 @@ class ClientResourceAnalyzer:
             try:
                 raw_response = await asyncio.wait_for(self.chat_model.ask(prompt), timeout=6.0)
                 if raw_response:
-                    cleaned_json = raw_response.strip()
-                    if "```json" in cleaned_json:
-                        cleaned_json = cleaned_json.split("```json")[1].split("```")[0].strip()
-                    elif "```" in cleaned_json:
-                        cleaned_json = cleaned_json.split("```")[1].split("```")[0].strip()
-
-                    parsed = json.loads(cleaned_json)
-                    eval_result = UnknownProgramEvaluation(
+                    parsed = j_dumps(raw_response, exc_info=False)
+                    if isinstance(parsed, dict):
+                        eval_result = UnknownProgramEvaluation(
                         program_name=program.name,
                         pid=program.pid,
                         executable_path=program.executable_path,

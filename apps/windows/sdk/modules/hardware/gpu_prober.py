@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Hardware - Gpu Prober
+# Process Name: ai-tc Apps Windows Modules Hardware - Gpu Prober
 # =============================================================================
 # Description:
 #   GPU hardware prober supporting NVIDIA (nvidia-smi), AMD (amd-smi), Intel Arc (xpu-smi) and WMI.
@@ -12,11 +12,11 @@
 #     service = GpuDeviceTelemetry()
 #
 # File: gpu_prober.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.hardware
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 21:01:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

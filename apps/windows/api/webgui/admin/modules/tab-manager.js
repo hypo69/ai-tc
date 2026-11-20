@@ -13,11 +13,11 @@
  *     import { setupTabManagement, onTabSwitched } from '/windows/api/webgui/admin/modules/tab-manager.js';
  *
  * File: tab-manager.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/admin/modules
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-13 16:10:00
  * =============================================================================
  */
 
@@ -35,6 +35,42 @@ function setupDropdownTabs() {
   if (!mainTabs) return;
 
   const dropdowns = mainTabs.querySelectorAll('.dropdown-toggle');
+
+  // Поддержка onover (hover) для выпадающих меню навбара с таймером грации
+  const dropdownWrappers = mainTabs.querySelectorAll('.dropdown');
+  dropdownWrappers.forEach((dropdownEl) => {
+    let hideTimer = null;
+
+    const showDropdown = () => {
+      clearTimeout(hideTimer);
+      const menu = dropdownEl.querySelector('.dropdown-menu');
+      const toggle = dropdownEl.querySelector('.dropdown-toggle');
+      if (!menu) return;
+
+      // Close other dropdowns
+      document.querySelectorAll('#mainTabs .dropdown-menu.show').forEach((otherMenu) => {
+        if (otherMenu !== menu) {
+          otherMenu.classList.remove('show');
+          otherMenu.closest('.dropdown')?.querySelector('.dropdown-toggle')?.classList.remove('show');
+        }
+      });
+
+      menu.classList.add('show');
+      if (toggle) toggle.classList.add('show');
+    };
+
+    const hideDropdown = () => {
+      hideTimer = setTimeout(() => {
+        const menu = dropdownEl.querySelector('.dropdown-menu');
+        const toggle = dropdownEl.querySelector('.dropdown-toggle');
+        if (menu) menu.classList.remove('show');
+        if (toggle) toggle.classList.remove('show');
+      }, 200);
+    };
+
+    dropdownEl.addEventListener('mouseenter', showDropdown);
+    dropdownEl.addEventListener('mouseleave', hideDropdown);
+  });
 
   dropdowns.forEach((dropdown) => {
     dropdown.addEventListener('click', (e) => {
@@ -61,13 +97,21 @@ function setupDropdownTabs() {
 
   // Handle all clickable navigation items inside mainTabs (tabs and dropdown items)
   mainTabs.querySelectorAll('.dropdown-item, .list-group-item, [data-tab], [data-bs-target], [data-plugin]').forEach((item) => {
+    // Поддержка onover для пунктов меню: фокус и подсветка на всю кнопку
+    item.addEventListener('mouseenter', () => {
+      item.focus({ preventScroll: true });
+    });
+
     item.addEventListener('click', (e) => {
-      const pluginName = item.getAttribute('data-plugin');
-      const targetId = item.getAttribute('data-tab') || 
+      const button = e.target.closest('.dropdown-item, .list-group-item, [data-tab], [data-bs-target], [data-plugin]') || item;
+      const pluginName = button.getAttribute('data-plugin') || item.getAttribute('data-plugin');
+      const targetId = button.getAttribute('data-tab') || 
+                      button.getAttribute('data-bs-target')?.replace('#', '') ||
+                      item.getAttribute('data-tab') || 
                       item.getAttribute('data-bs-target')?.replace('#', '');
 
       // Close parent dropdown menu
-      const menu = item.closest('.dropdown-menu');
+      const menu = button.closest('.dropdown-menu') || item.closest('.dropdown-menu');
       if (menu) {
         menu.classList.remove('show');
         menu.closest('.dropdown')?.querySelector('.dropdown-toggle')?.classList.remove('show');

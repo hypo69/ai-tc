@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Accounts & Identity Router
+# Process Name: ai-tc Apps Windows - Accounts & Identity Router
 # =============================================================================
 # Description:
 #   FastAPI роутер для REST API каталога Accounts & Identity и Windows Identity Graph.
@@ -10,17 +10,18 @@
 #     from apps.windows.sdk.modules.accounts_identity.router import router as identity_router
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.accounts_identity
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:48:00
+# Updated: 2026-11-20 15:30:00
 # =============================================================================
 
 """FastAPI роутер для Accounts & Identity."""
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
@@ -34,6 +35,7 @@ from apps.windows.sdk.modules.accounts_identity.models import (
     IdentityGraph,
     OperationCatalogItem,
     PasswordPolicy,
+    PasswordPolicyUpdateRequest,
     Principal,
     ProfileDetails,
     SessionDetails,
@@ -167,8 +169,24 @@ async def remove_member_from_group(group_name: str, username: str) -> Dict[str, 
 
 @router.get("/auth/policies", response_model=PasswordPolicy)
 async def get_password_policy() -> PasswordPolicy:
-    """Возвращает глобальную политику паролей и блокировок."""
-    return _service.get_password_policy()
+    """Возвращает полную локальную политику паролей, блокировок и доступа SAM."""
+    return await asyncio.to_thread(_service.get_password_policy)
+
+
+@router.put("/auth/policies")
+async def update_password_policy(req: PasswordPolicyUpdateRequest) -> Dict[str, Any]:
+    """Обновляет локальную политику паролей, блокировок и системного доступа SAM."""
+    try:
+        success, message, updated = await asyncio.to_thread(_service.update_password_policy, req)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Ошибка обновления политики SAM: {e}")
+        raise HTTPException(status_code=500, detail=f"Ошибка обновления политики SAM: {e}")
+
+    if not success:
+        raise HTTPException(status_code=403, detail=message)
+    return {"status": "ok", "message": message, "policy": updated.model_dump()}
 
 
 @router.get("/sessions", response_model=List[SessionDetails])

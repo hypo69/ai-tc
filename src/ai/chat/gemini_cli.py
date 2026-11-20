@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Gemini Cli Module
+# Process Name: ai-tc AI - Gemini Cli Module
 # =============================================================================
 # Description:
 #   Модуль основной системы (`gemini_cli`).
@@ -10,11 +10,11 @@
 #     import src.ai.chat.gemini_cli as gemini_cli
 #
 # File: gemini_cli.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.chat
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Модуль основной системы (`gemini_cli`)."""

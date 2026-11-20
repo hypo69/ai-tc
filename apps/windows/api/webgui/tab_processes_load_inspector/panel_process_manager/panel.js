@@ -2,7 +2,7 @@
  * Модуль Диспетчера процессов и приложений (Task Manager Process Manager).
  * Группировка Apps, Background, Windows, фильтрация, раскрытие деревьев и SafeOps.
  * Файл: apps/windows/api/webgui/tab_processes_load_inspector/panel_process_manager/panel.js
- * Updated: 2026-10-31 18:55:00
+ * Updated: 2026-11-13 13:35:00
  */
 
 import {
@@ -232,8 +232,8 @@ function renderProcessGroupRow(group, groupKey, category) {
   let row = `
     <tr class="pm-group-header" data-group-key="${groupKey}" ${tooltipAttrs} style="cursor: pointer;">
       <td class="text-center no-modal-trigger" style="width: 36px;" onclick="event.stopPropagation();">
-        <button type="button" class="btn btn-xs btn-outline-info pm-btn-drilldown" data-pid="${mainPid}" title="Drill-Down: 🔬 Process Intelligence Deep Dive (7 виджетов)">
-          <img src="/html/assets/red_drill.png?v=20261015_v2" alt="Drill-down" style="width: 14px; height: 14px; vertical-align: middle;">
+        <button type="button" class="btn btn-xs btn-outline-info pm-btn-drilldown" data-pid="${mainPid}" title="">
+          <img src="/html/assets/red_drill.png?v=20261113_v1" alt="" title="" style="width: 14px; height: 14px; vertical-align: middle;">
         </button>
       </td>
       <td class="text-truncate" style="max-width: 320px;">
@@ -282,8 +282,8 @@ function renderProcessGroupRow(group, groupKey, category) {
       row += `
         <tr class="pm-sub-row" data-sub-idx="${sIdx}" data-parent-key="${groupKey}" ${subTooltipAttrs} style="cursor: pointer;">
           <td class="text-center no-modal-trigger" style="width: 36px;" onclick="event.stopPropagation();">
-            <button type="button" class="btn btn-xs btn-outline-info pm-btn-drilldown" data-pid="${sub.pid}" title="Drill-Down: 🔬 Process Intelligence Deep Dive">
-              <img src="/html/assets/red_drill.png?v=20261015_v2" alt="Drill-down" style="width: 14px; height: 14px; vertical-align: middle;">
+            <button type="button" class="btn btn-xs btn-outline-info pm-btn-drilldown" data-pid="${sub.pid}" title="">
+              <img src="/html/assets/red_drill.png?v=20261113_v1" alt="" title="" style="width: 14px; height: 14px; vertical-align: middle;">
             </button>
           </td>
           <td class="ps-4 text-truncate" style="max-width: 320px;">

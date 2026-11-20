@@ -13,45 +13,124 @@
 #     router = init_router()
 #
 # File: router_ninite.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 19:30:00
+# Updated: 2026-11-20 17:10:00
 # =============================================================================
 
 from __future__ import annotations
 """FastAPI роутер для управления установщиком и автообновлением Ninite."""
 
+import asyncio
 import datetime
 import os
-import shutil
+import stat
 import subprocess
+import tempfile
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Tuple
 
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from pydantic import BaseModel, Field
 
 from logger import logger
 
-router = APIRouter(prefix="/api/ninite", tags=["Ninite Auto-Updater"])
+router = APIRouter(prefix="/api/v1/ninite", tags=["Ninite Auto-Updater"])
 
-# Стандартные пути размещения Ninite
+# Стандартные пути размещения Ninite и отчетов/логов
 NINITE_PROGRAM_FILES = Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "Ninite"
-NINITE_PROGRAM_DATA = Path(os.environ.get("ProgramData", r"C:\ProgramData")) / "AI-Windows-Admin" / "ninite"
+NINITE_PROGRAM_DATA = Path(os.environ.get("ProgramData", r"C:\ProgramData")) / "ai-tc" / "ninite"
+NINITE_EXE_NAME = "ninite.exe"
 TASK_NAME = "NiniteAutoUpdate"
 
 
 def _get_ninite_exe_path() -> Path:
     """Возвращает целевой путь к исполнимому файлу ninite.exe."""
-    primary = NINITE_PROGRAM_FILES / "ninite.exe"
+    primary = NINITE_PROGRAM_FILES / NINITE_EXE_NAME
     if primary.exists():
         return primary
-    fallback = NINITE_PROGRAM_DATA / "ninite.exe"
+    fallback = NINITE_PROGRAM_DATA / NINITE_EXE_NAME
     if fallback.exists():
         return fallback
     return primary
+
+
+def _write_and_replace_ninite(target_dir: Path, content: bytes) -> Tuple[Path, bool]:
+    """
+    Атомарно сохраняет байты установщика в `target_dir / ninite.exe`.
+
+    Если `ninite.exe` уже существует (в том числе с атрибутом Read-Only),
+    снимает защиту от записи и атомарно заменяет его новым файлом через `os.replace`.
+
+    Args:
+        target_dir (Path): Целевая директория размещения `ninite.exe`.
+        content (bytes): Бинарное содержимое загруженного установщика.
+
+    Returns:
+        Tuple[Path, bool]: Кортеж `(путь_к_файлу, был_ли_заменён_существующий)`.
+    """
+    target_dir.mkdir(parents=True, exist_ok=True)
+    dest_path = target_dir / NINITE_EXE_NAME
+    replaced = dest_path.exists()
+
+    tmp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="wb",
+            dir=target_dir,
+            prefix="ninite_",
+            suffix=".tmp",
+            delete=False,
+        ) as tmp_file:
+            tmp_path = Path(tmp_file.name)
+            tmp_file.write(content)
+            tmp_file.flush()
+
+        if replaced:
+            try:
+                os.chmod(dest_path, stat.S_IWRITE)
+            except OSError:
+                pass
+
+        os.replace(tmp_path, dest_path)
+        tmp_path = None
+        return dest_path, replaced
+    finally:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+
+
+def _save_ninite_binary(content: bytes) -> Tuple[Path, bool]:
+    """
+    Сохраняет установщик Ninite с переименованием в `ninite.exe` в Program Files.
+
+    При отсутствии файла в `Program Files` и ошибке прав доступа выполняет
+    fallback-сохранение в `ProgramData`. Если же файл в `Program Files` уже
+    существует, но недоступен для перезаписи, пробрасывает `PermissionError`,
+    чтобы избежать рассинхронизации с устаревшей копией.
+
+    Args:
+        content (bytes): Бинарное содержимое файла установщика.
+
+    Returns:
+        Tuple[Path, bool]: Итоговый путь к `ninite.exe` и флаг замены.
+    """
+    primary_dest = NINITE_PROGRAM_FILES / NINITE_EXE_NAME
+    try:
+        return _write_and_replace_ninite(NINITE_PROGRAM_FILES, content)
+    except OSError as primary_exc:
+        if primary_dest.exists():
+            raise PermissionError(
+                f"Не удалось заменить существующий файл {primary_dest} "
+                f"(требуются права администратора или файл занят): {primary_exc}"
+            ) from primary_exc
+        logger.warning(
+            f"[NiniteRouter] Нет доступа к {NINITE_PROGRAM_FILES} ({primary_exc}), "
+            f"выполняется сохранение в {NINITE_PROGRAM_DATA}"
+        )
+        return _write_and_replace_ninite(NINITE_PROGRAM_DATA, content)
 
 
 def _get_task_status() -> Dict[str, Any]:
@@ -129,20 +208,39 @@ async def get_ninite_status() -> Dict[str, Any]:
 
 @router.post("/upload")
 async def upload_ninite_installer(file: UploadFile = File(...)) -> Dict[str, Any]:
-    """Загрузка инсталлятора Ninite и сохранение в целевую директорию."""
-    target_dir = NINITE_PROGRAM_FILES
-    try:
-        target_dir.mkdir(parents=True, exist_ok=True)
-    except OSError:
-        target_dir = NINITE_PROGRAM_DATA
-        target_dir.mkdir(parents=True, exist_ok=True)
+    """
+    Загрузка инсталлятора Ninite, переименование в `ninite.exe` и сохранение в целевую директорию.
 
-    dest_path = target_dir / "ninite.exe"
+    Если `ninite.exe` уже существует в `Program Files\\Ninite`, существующий файл
+    атомарно заменяется новым установщиком с именем `ninite.exe`.
+    """
+    original_name = Path(file.filename or NINITE_EXE_NAME).name
+    if not original_name.lower().endswith(".exe"):
+        await file.close()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ожидается исполняемый файл установщика Ninite (.exe).",
+        )
+
     try:
-        with open(dest_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-        logger.info(f"[NiniteRouter] Файл ninite.exe сохранен: {dest_path}")
-        return {"success": True, "message": f"Файл ninite.exe успешно сохранен в {dest_path}"}
+        content = await file.read()
+    finally:
+        await file.close()
+
+    if not content:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Загруженный файл установщика пуст.",
+        )
+
+    try:
+        dest_path, replaced = await asyncio.to_thread(_save_ninite_binary, content)
+    except PermissionError as exc:
+        logger.error(f"[NiniteRouter] Нет прав для замены ninite.exe: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(exc),
+        )
     except Exception as exc:
         logger.error(f"[NiniteRouter] Ошибка сохранения инсталлятора: {exc}")
         raise HTTPException(
@@ -150,10 +248,27 @@ async def upload_ninite_installer(file: UploadFile = File(...)) -> Dict[str, Any
             detail=f"Не удалось сохранить файл: {exc}",
         )
 
+    if replaced:
+        message = f"Существующий файл ninite.exe заменён новым ({original_name} → {NINITE_EXE_NAME}) в {dest_path}"
+        logger.info(f"[NiniteRouter] {message}")
+    else:
+        message = f"Файл {original_name} переименован в {NINITE_EXE_NAME} и сохранён в {dest_path}"
+        logger.info(f"[NiniteRouter] {message}")
+
+    return {
+        "success": True,
+        "replaced": replaced,
+        "original_filename": original_name,
+        "saved_filename": NINITE_EXE_NAME,
+        "path": str(dest_path),
+        "size_bytes": len(content),
+        "message": message,
+    }
+
 
 @router.post("/schedule")
 async def configure_ninite_schedule(req: ScheduleRequest) -> Dict[str, Any]:
-    """Регистрация или обновление задачи NiniteAutoUpdate в Windows Task Scheduler."""
+    """Регистрация или обновление задачи NiniteAutoUpdate в Windows Task Scheduler с логированием."""
     exe_path = _get_ninite_exe_path()
     if not exe_path.exists():
         raise HTTPException(
@@ -161,7 +276,10 @@ async def configure_ninite_schedule(req: ScheduleRequest) -> Dict[str, Any]:
             detail="Исполняемый файл ninite.exe не найден. Сначала загрузите файл установщика.",
         )
 
-    action_cmd = f'"{exe_path}" /silent'
+    NINITE_PROGRAM_DATA.mkdir(parents=True, exist_ok=True)
+    log_path = NINITE_PROGRAM_DATA / "ninite_update.log"
+    # Передача пути к файлу лога аргументом к ключу /silent
+    action_cmd = f'"{exe_path}" /silent "{log_path}"'
     cmd = [
         "schtasks.exe",
         "/Create",
@@ -196,7 +314,7 @@ async def configure_ninite_schedule(req: ScheduleRequest) -> Dict[str, Any]:
 
 @router.post("/run-now")
 async def run_ninite_now() -> Dict[str, Any]:
-    """Принудительный запуск обновления программ через Ninite."""
+    """Принудительный запуск обновления программ через Ninite с сохранением лога."""
     task_info = _get_task_status()
     if task_info.get("exists"):
         try:
@@ -214,8 +332,10 @@ async def run_ninite_now() -> Dict[str, Any]:
             detail="Файл ninite.exe не найден для запуска.",
         )
 
+    NINITE_PROGRAM_DATA.mkdir(parents=True, exist_ok=True)
+    log_path = NINITE_PROGRAM_DATA / "ninite_update.log"
     try:
-        subprocess.Popen([str(exe_path), "/silent"], creationflags=getattr(subprocess, "DETACHED_PROCESS", 0))
+        subprocess.Popen([str(exe_path), "/silent", str(log_path)], creationflags=getattr(subprocess, "DETACHED_PROCESS", 0))
         return {"success": True, "message": "Процесс ninite.exe /silent успешно инициирован"}
     except Exception as exc:
         logger.error(f"[NiniteRouter] Ошибка запуска ninite.exe: {exc}")
@@ -231,4 +351,3 @@ def init_router() -> APIRouter:
 
 
 __all__ = ["router", "init_router"]
-

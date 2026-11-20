@@ -8,11 +8,11 @@
 #   PermissionManager, ApprovalManager и ResultNormalizer.
 #
 # File: __init__.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:51:15
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from .approval_manager import ApprovalManager, ApprovalRequiredException

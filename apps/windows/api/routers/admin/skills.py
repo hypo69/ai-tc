@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - skills
+# Process Name: ai-tc Apps Windows Api Routers - skills
 # =============================================================================
 # Description:
 #   Эндпойнты управления навыками агента.
 #   Вынесено из router_admin.py (этап 4 оптимизации).
 #
 # File: skills.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.admin
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-12 06:00:00
+# Updated: 2026-11-13 15:30:00
 # =============================================================================
 
 from __future__ import annotations
@@ -26,6 +26,7 @@ from pydantic import BaseModel, Field
 
 from header import __root__
 from logger import logger
+from src.utils.jjson import j_dumps
 from .routers import router, skills_router
 
 
@@ -158,7 +159,7 @@ async def generate_skill_ai(data: SkillAiGenerateRequest, request: Request) -> D
         api_key_names = [n.strip() for n in os.getenv('GEMINI_API_KEY_NAMES', '').split(',') if n.strip()]
         if api_key_names:
             system_prompt = (
-                "You are an expert AI skill architect for AI Windows Admin and Gemini CLI. "
+                "You are an expert AI skill architect for ai-tc and Gemini CLI. "
                 "Given the user request, generate a structured JSON object for an agent skill.\n"
                 "JSON format required:\n"
                 "{\n"
@@ -178,11 +179,7 @@ async def generate_skill_ai(data: SkillAiGenerateRequest, request: Request) -> D
             )
             raw_response = await chat.chat(f"Create a skill for category '{category}': {user_prompt}")
             if raw_response:
-                clean_json = raw_response.strip()
-                if clean_json.startswith("```"):
-                    clean_json = re.sub(r"^```[a-z]*\n", "", clean_json)
-                    clean_json = re.sub(r"\n```$", "", clean_json).strip()
-                llm_generated = json.loads(clean_json)
+                llm_generated = j_dumps(raw_response, exc_info=False)
     except Exception as ex:
         logger.warning(f"AI skill generation via LLM fallback to deterministic builder: {ex}")
 
@@ -245,7 +242,7 @@ Agent skill providing automated capability for: {user_prompt}.
 - `assets/`: Static fixtures, data, and examples.
 
 ## Usage
-Triggered dynamically by AI agents in AI Windows Admin and Gemini CLI.
+Triggered dynamically by AI agents in ai-tc and Gemini CLI.
 """
 
     helper_script = f"""# -*- coding: utf-8 -*-

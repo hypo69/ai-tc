@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Logger - Compress Logs
+# Process Name: ai-tc Logger - Compress Logs
 # =============================================================================
 # Description:
 #   Утилита для сжатия лог-файлов путём объединения повторяющихся строк.
@@ -14,11 +14,11 @@
 #     res = compress_lines(lines)
 #
 # File: compress_logs.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: logger
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:35:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Утилита для сжатия файлов журналов и консолидации повторяющихся строк в формат `[Nx]`."""

@@ -35,7 +35,7 @@ class MigrationManager:
         self.repo_root: Path = repo_root if repo_root and str(repo_root) != '' else __root__
         self.migrations_dir: Path = self.repo_root / 'migrations'
         self.migrations_dir.mkdir(parents=True, exist_ok=True)
-        self.db_registry: Dict[str, Path] = {'users': self.repo_root / 'src' / 'user_manager' / 'users.db'}
+        self.db_registry: Dict[str, Path] = {}
 
     def register_db(self, name: str, path: Path) -> None:
         """Register a database to be managed by the migration manager.

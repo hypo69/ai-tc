@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin - Main WebGUI & API Entrypoint
+# Process Name: ai-tc - Main WebGUI & API Entrypoint
 # =============================================================================
 # Description:
-#   Главная точка входа в систему AI-Windows-Admin (WebGUI и FastAPI сервер).
+#   Главная точка входа в систему ai-tc (WebGUI и FastAPI сервер).
 #   Управляет конфигурацией, освобождением портов, запуском выделенных служб
 #   и стартом веб-интерфейса через Uvicorn.
 #
@@ -14,33 +14,34 @@
 #     python main.py --no-browser
 #
 # File: main.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:25:00
+# Updated: 2026-11-16 05:37:00
 # =============================================================================
 
 from __future__ import annotations
-"""Главная точка входа для WebGUI и FastAPI сервера AI-Windows-Admin."""
+"""Главная точка входа для WebGUI и FastAPI сервера ai-tc."""
 
 import argparse
 import json
 import logging
 import os
-import shutil
-import subprocess
-import sys
-import webbrowser
-import logging
-import os
-import shutil
-import subprocess
-import sys
-import webbrowser
-import time
-import threading
 from pathlib import Path
+import shutil
+import subprocess
+import sys
+import threading
+import time
 from typing import Any, Dict, Optional, Tuple
+import webbrowser
+
+from src.utils.asyncio_windows_patch import apply_windows_asyncio_patch
+
+try:
+    from apps.windows.core.engine_adapter import ElectronEngineAdapter
+except ImportError:
+    ElectronEngineAdapter = None
 
 
 def launch_gui(
@@ -70,35 +71,42 @@ def launch_gui(
         return
 
     if engine == "electron":
-        # import of AI Assistant removed – not applicable in this project
-        el_adapter = ElectronEngineAdapter()
-        if el_adapter._find_electron_binary():
-            launch_info = el_adapter.launch_shell(
-                url=url,
-                force_fresh=bool(server_thread),
-                profile_path=profile_path,
-                cache_path=cache_path,
-            )
-            if launch_info.get("status") == "launched":
-                proc = launch_info.get("process")
-                time.sleep(0.5)
-                if proc and proc.poll() is not None and proc.returncode != 0:
-                    logger.warning(
-                        f"[ElectronEngineAdapter] Process exited with code {proc.returncode}, falling back to browser"
-                    )
+        if ElectronEngineAdapter is not None:
+            el_adapter = ElectronEngineAdapter()
+            if el_adapter._find_electron_binary():
+                launch_info = el_adapter.launch_shell(
+                    url=url,
+                    force_fresh=bool(server_thread),
+                    profile_path=profile_path,
+                    cache_path=cache_path,
+                )
+                if launch_info.get("status") == "launched":
+                    proc = launch_info.get("process")
+                    time.sleep(0.5)
+                    if proc and proc.poll() is not None and proc.returncode != 0:
+                        logger.warning(
+                            f"[ElectronEngineAdapter] Процесс Electron завершился с кодом {proc.returncode}, переключение на браузер"
+                        )
+                    else:
+                        logger.console(f"[INFO] Запущена оболочка Electron (PID {launch_info.get('pid')})")
+                        if server_thread:
+                            try:
+                                while server_thread.is_alive():
+                                    if proc and proc.poll() is not None:
+                                        if proc.returncode == 0 and el_adapter.get_running_pids():
+                                            server_thread.join(timeout=1.0)
+                                            continue
+                                        break
+                                    server_thread.join(timeout=1.0)
+                            except (KeyboardInterrupt, SystemExit):
+                                pass
+                            finally:
+                                el_adapter.terminate_running_instances()
+                            return
                 else:
-                    logger.console(f"[INFO] Electron launched (PID {launch_info.get('pid')})")
-                    if server_thread:
-                        try:
-                            while server_thread.is_alive():
-                                if proc and proc.poll() is not None:
-                                    break
-                                server_thread.join(timeout=1.0)
-                        except (KeyboardInterrupt, SystemExit):
-                            pass
-                        finally:
-                            el_adapter.terminate_running_instances()
-                        return
+                    logger.warning(f"[ElectronEngineAdapter] Не удалось запустить Electron: {launch_info.get('error')}")
+            else:
+                logger.warning("[ElectronEngineAdapter] Рантайм Electron не найден, переключение на браузер")
 
     if engine == "webview2":
         # Attempt to launch WebView2 (pywebview)
@@ -192,6 +200,92 @@ except ImportError:
         handlers=[logging.StreamHandler(sys.stdout)]
     )
     logger = logging.getLogger("main_server")
+
+
+def is_port_occupied(port: int) -> bool:
+    """Проверяет, слушается ли указанный TCP порт другим процессом.
+
+    Args:
+        port: Номер TCP порта.
+
+    Returns:
+        bool: True, если порт прослушивается.
+    """
+    try:
+        import psutil
+        for conn in psutil.net_connections(kind='inet'):
+            if conn.laddr and conn.laddr.port == port and conn.status == psutil.CONN_LISTEN:
+                return True
+    except Exception:
+        pass
+    return False
+
+
+def manage_cloudflare_tunnel(
+    enable: bool = False,
+    restart: bool = False,
+    public_url: str = "https://kino.davidka.net",
+) -> None:
+    """Управляет жизненным циклом фонового туннеля Cloudflare Tunnel.
+
+    Args:
+        enable: Флаг необходимости запуска туннеля.
+        restart: Флаг принудительного перезапуска.
+        public_url: Публичный адрес доступа.
+    """
+    if not enable:
+        logger.info("  [☁️ Cloudflare] Запуск туннеля отключен")
+        return
+
+    running_pids: list[int] = []
+    try:
+        import psutil
+        for proc in psutil.process_iter(['pid', 'name']):
+            try:
+                if (proc.info.get('name') or '').lower() == 'cloudflared.exe':
+                    running_pids.append(proc.info['pid'])
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+    except Exception as exc:
+        logger.debug(f"[Cloudflare] Ошибка проверки psutil: {exc}")
+
+    cf_launcher = EXE_DIR / "launchers" / "Run-Cloudflared.ps1"
+
+    if restart or not running_pids:
+        if cf_launcher.is_file():
+            logger.info(f"  [☁️ Cloudflare] Запуск туннеля для {public_url}...")
+            try:
+                cmd = ["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(cf_launcher)]
+                subprocess.Popen(cmd, creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == 'nt' else 0)
+            except Exception as exc:
+                logger.warning(f"  [WARN] Ошибка запуска Cloudflare Tunnel: {exc}")
+        else:
+            logger.warning(f"  [WARN] Скрипт {cf_launcher} не найден")
+    else:
+        pids_str = ", ".join(map(str, running_pids))
+        logger.info(f"  [☁️ Cloudflare] Туннель активен (PID: {pids_str}) -> {public_url}")
+
+
+def resolve_tab_url(base_url: str, tab: Optional[str] = None, panel: Optional[str] = None) -> str:
+    """Формирует канонический URL вкладки и подпанели ai-tc.
+
+    Args:
+        base_url: Базовый URL сервера (например, http://127.0.0.1:8000/tc).
+        tab: Идентификатор вкладки (например, tab-about-system).
+        panel: Идентификатор подпанели.
+
+    Returns:
+        str: Полный URL с хеш-маршрутом.
+    """
+    clean_base = base_url.split('#')[0].rstrip('/')
+    t_ = (tab or "tab-about-system").strip().lstrip('#')
+    if t_ == "tab-process-manager":
+        t_ = "tab-processes-load-inspector"
+
+    if panel:
+        clean_panel = panel.strip().lstrip('#')
+        return f"{clean_base}#{t_}#{clean_panel}"
+    return f"{clean_base}#{t_}"
 
 
 def free_port_if_occupied(port: int) -> None:
@@ -398,14 +492,25 @@ def parse_arguments() -> argparse.Namespace:
         argparse.Namespace: Распарсенные аргументы запуска.
     """
     parser = argparse.ArgumentParser(
-        description="AI-Windows-Admin WebGUI & API Server Entrypoint",
+        description="ai-tc WebGUI & API Server Entrypoint",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument('-H', '--host', '--address', dest='host', type=str, default=None, help='Хост веб-сервера (по умолчанию 127.0.0.1)')
     parser.add_argument('-P', '--port', dest='port', type=int, default=None, help='Порт веб-сервера (по умолчанию 8000)')
     parser.add_argument('-C', '--config', type=str, default=None, help='Путь к конфигурационному файлу config.json')
-    parser.add_argument('--no-browser', dest='no_browser', action='store_true', help='Отключить автоматическое открытие браузера')
-    parser.add_argument('--engine', type=str, default='browser', choices=['electron', 'webview2', 'browser', 'headless'], help='Движок GUI')
+    parser.add_argument('--engine', type=str, default='electron', choices=['electron', 'webview2', 'browser', 'headless'], help='Движок GUI (по умолчанию electron)')
+    parser.add_argument('--browser', action='store_true', help='Запуск в системном браузере (shortcut для --engine browser)')
+    parser.add_argument('--electron', action='store_true', help='Запуск в оболочке Electron (по умолчанию)')
+    parser.add_argument('--headless', action='store_true', help='Запуск без GUI (shortcut для --engine headless)')
+    parser.add_argument('--no-browser', dest='no_browser', action='store_true', help='Отключить автоматическое открытие браузера / GUI')
+    parser.add_argument('--tab', type=str, default='tab-about-system', help='Стартовая вкладка веб-интерфейса (по умолчанию tab-about-system)')
+    parser.add_argument('--panel', '--subpanel', '--subtab', dest='panel', type=str, default=None, help='Подпанель стартовой вкладки')
+    parser.add_argument('-c', '--connect', action='store_true', help='Подключиться к запущенному экземпляру сервера и открыть GUI')
+    parser.add_argument('-r', '--restart', action='store_true', help='Перезапустить: принудительно завершить процесс на порту и поднять новый')
+    parser.add_argument('--with-cloudflare', '--cloudflare', dest='cloudflare', action='store_true', help='Запуск туннеля Cloudflare')
+    parser.add_argument('--no-cloudflare', dest='no_cloudflare', action='store_true', help='Принудительно отключить туннель Cloudflare')
+    parser.add_argument('--restart-cloudflare', action='store_true', help='Перезапустить туннель Cloudflare')
+    parser.add_argument('--public-url', type=str, default='https://kino.davidka.net', help='Публичный адрес Cloudflare Ingress')
     parser.add_argument('--ssl', dest='ssl', action='store_true', default=None, help='Принудительно включить HTTPS (SSL)')
     parser.add_argument('--no-ssl', dest='ssl', action='store_false', help='Принудительно отключить HTTPS (SSL)')
     parser.add_argument('--ssl-cert', dest='ssl_cert', type=str, default=None, help='Путь к сертификату SSL (.pem)')
@@ -414,11 +519,12 @@ def parse_arguments() -> argparse.Namespace:
 
 
 def main() -> int:
-    """Точка входа запуска WebGUI сервера AI-Windows-Admin.
+    """Точка входа запуска WebGUI сервера ai-tc.
 
     Returns:
         int: Код возврата процесса.
     """
+    apply_windows_asyncio_patch()
     args = parse_arguments()
     cfg, config_path = load_config(args.config)
 
@@ -465,24 +571,50 @@ def main() -> int:
     os.environ["CONFIG_FILE"] = rel_config_path
     os.environ["AIBREADBOARD_CONFIG"] = rel_config_path
 
+    # Определение эффективного движка графической оболочки
+    if args.headless or args.no_browser:
+        effective_engine = 'headless'
+    elif args.browser:
+        effective_engine = 'browser'
+    elif args.electron:
+        effective_engine = 'electron'
+    else:
+        effective_engine = args.engine or 'electron'
+
+    proto = "https" if use_ssl else "http"
+    browser_host = "localhost" if host == "0.0.0.0" else host
+    base_url = f"{proto}://{browser_host}:{port}/tc"
+    tc_url = resolve_tab_url(base_url, tab=args.tab, panel=args.panel)
+
+    # Режим подключения к работающему серверу без подъема нового процесса
+    if args.connect:
+        if is_port_occupied(port):
+            logger.console(f"[INFO] Подключение к работающему серверу на порту {port} -> {tc_url}")
+            launch_gui(tc_url, effective_engine, Path('.'), Path('.'))
+            return 0
+        logger.warning(f"[WARN] Сервер на порту {port} не обнаружен, запуск нового экземпляра...")
+
+    # Управление фоновым туннелем Cloudflare
+    should_start_cf = (args.cloudflare or args.restart_cloudflare) and not args.no_cloudflare
+    manage_cloudflare_tunnel(
+        enable=should_start_cf,
+        restart=bool(args.restart_cloudflare),
+        public_url=args.public_url,
+    )
+
     setup_ai_environment(cfg)
     free_port_if_occupied(port)
     launch_dedicated_apps(cfg)
 
-    proto = "https" if use_ssl else "http"
-    browser_host = "localhost" if host == "0.0.0.0" else host
-    tc_url = f"{proto}://{browser_host}:{port}/tc"
-
     logger.info("=" * 60)
-    logger.info(" AI-Windows-Admin (WebGUI Server Mode)")
+    logger.info(" ai-tc (WebGUI Server Mode)")
     logger.info(f"  Хост: {host}")
     logger.info(f"  Порт: {port}")
     logger.info(f"  URL:  {tc_url}")
-    logger.info("  Cloudflare Ingress: https://kino.davidka.net")
+    logger.info(f"  GUI Engine: {effective_engine}")
+    logger.info(f"  Cloudflare Ingress: {args.public_url}")
     logger.info("=" * 60)
 
-    # Browser launch handled by launch_gui; no direct opening here.
-    pass
     import uvicorn
     from apps.windows.api.server import get_app
 
@@ -501,9 +633,9 @@ def main() -> int:
 
     server_thread = threading.Thread(target=_run_server, daemon=True)
     server_thread.start()
-    time.sleep(1.0)  # allow server to start
+    time.sleep(1.0)  # Дать серверу подняться
 
-    launch_gui(tc_url, args.engine, Path('.'), Path('.'), server_thread=server_thread)
+    launch_gui(tc_url, effective_engine, Path('.'), Path('.'), server_thread=server_thread)
     return 0
 
 

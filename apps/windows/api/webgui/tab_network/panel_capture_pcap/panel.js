@@ -1,7 +1,7 @@
 /**
  * Модуль панели живого перехвата трафика (DPI) и анализа PCAP файлов.
  * Файл: apps/windows/api/webgui/tab_network/panel_capture_pcap/panel.js
- * Updated: 2026-10-17 01:55:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 let capturedPackets = [];
@@ -114,7 +114,7 @@ export async function startLiveCapture() {
   const filter = filterInput?.value || '';
 
   try {
-    const res = await fetch(`/api/network/start-capture?interface=${encodeURIComponent(iface)}&display_filter=${encodeURIComponent(filter)}`, {
+    const res = await fetch(`/api/v1/network/start-capture?interface=${encodeURIComponent(iface)}&display_filter=${encodeURIComponent(filter)}`, {
       method: 'POST'
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -123,10 +123,10 @@ export async function startLiveCapture() {
     if (stopBtn) stopBtn.disabled = false;
 
     if (netEventSource) netEventSource.close();
-    netEventSource = new EventSource('/api/network/packets/stream');
+    netEventSource = new EventSource('/api/v1/network/packets/stream');
     netEventSource.onmessage = async () => {
       try {
-        const packRes = await fetch('/api/network/packets?limit=50');
+        const packRes = await fetch('/api/v1/network/packets?limit=50');
         if (packRes.ok) {
           const data = await packRes.json();
           if (Array.isArray(data.packets)) {
@@ -157,7 +157,7 @@ export async function stopLiveCapture() {
   }
 
   try {
-    await fetch('/api/network/stop-capture', { method: 'POST' });
+    await fetch('/api/v1/network/stop-capture', { method: 'POST' });
   } catch (e) {
     console.warn('[NetworkTab] Stop capture error:', e);
   }
@@ -190,7 +190,7 @@ export async function analyzePcapFile() {
   if (statusEl) statusEl.innerText = 'Анализ пакетов...';
 
   try {
-    const res = await fetch('/api/network/analyze/pcap', {
+    const res = await fetch('/api/v1/network/analyze/pcap', {
       method: 'POST',
       body: formData
     });

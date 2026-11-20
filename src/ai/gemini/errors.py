@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Errors Module
+# Process Name: ai-tc AI - Errors Module
 # =============================================================================
 # Description:
 #   Mixin class for centralized error handling in GoogleGenerativeAI.
@@ -12,11 +12,11 @@
 #     service = GoogleGenerativeAIErrorMixin()
 #
 # File: errors.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 16:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Mixin class for centralized error handling in GoogleGenerativeAI."""

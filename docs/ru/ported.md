@@ -1,4 +1,4 @@
-# Портирование AI Windows Admin на Linux/macOS — Финальный отчет
+# Портирование ai-tc на Linux/macOS — Финальный отчет
 
 **Дата:** 31 Августа 2026
 **Status:** ✅ **ЗАВЕРШЕНО НА 98%**
@@ -8,7 +8,7 @@
 
 ## 📋 Резюме
 
-Successfully портированы **все PowerShell скрипты** AI Windows Admin на кроссплатформенное решение (Python + Bash/Batch). Проект теперь работает идентично на **Windows, Linux и macOS** с **минимальной переработкой кода**.
+Successfully портированы **все PowerShell скрипты** ai-tc на кроссплатформенное решение (Python + Bash/Batch). Проект теперь работает идентично на **Windows, Linux и macOS** с **минимальной переработкой кода**.
 
 ---
 
@@ -91,16 +91,16 @@ Successfully портированы **все PowerShell скрипты** AI Wind
 ### systemd сервисы (Linux — 350 строк)
 
 ```
-✅ ai-windows-admin-server.service
+✅ ai-tc-server.service
    └─ FastAPI сервер (Type=notify)
 
-✅ ai-windows-admin-mcp-langchain.service
+✅ ai-tc-mcp-langchain.service
    └─ LangChain MCP сервер
 
-✅ ai-windows-admin-mcp-gemini.service
+✅ ai-tc-mcp-gemini.service
    └─ Gemini Search MCP сервер
 
-✅ ai-windows-admin-foundry.service
+✅ ai-tc-foundry.service
    └─ Microsoft Foundry сервис
 
 ✅ systemd/install.sh
@@ -343,13 +343,13 @@ assist providers          # Показать информацию о прова�
 # Включить автозапуск при загрузке
 cd systemd
 bash install.sh
-systemctl --user enable ai-windows-admin-server.service
+systemctl --user enable ai-tc-server.service
 
 # Запустить сервис
-systemctl --user start ai-windows-admin-server.service
+systemctl --user start ai-tc-server.service
 
 # Просмотр логов
-journalctl --user -u ai-windows-admin-server.service -f
+journalctl --user -u ai-tc-server.service -f
 ```
 
 ---
@@ -492,8 +492,8 @@ python -m pytest tests/
 bash install.sh --lang ru
 ./assist start
 ./assist status
-systemctl --user start ai-windows-admin-server.service
-journalctl --user -u ai-windows-admin-server.service
+systemctl --user start ai-tc-server.service
+journalctl --user -u ai-tc-server.service
 
 # Debian 11
 # (команды те же)
@@ -569,8 +569,8 @@ RestartSec=5
 
 ## 📞 Контакты и поддержка
 
-- **GitHub Issues:** https://github.com/hypo69/AI-Windows-Admin/issues
-- **GitHub Discussions:** https://github.com/hypo69/AI-Windows-Admin/discussions
+- **GitHub Issues:** https://github.com/hypo69/ai-tc/issues
+- **GitHub Discussions:** https://github.com/hypo69/ai-tc/discussions
 - **Author Email:** hypo69@yandex.com
 
 ---
@@ -583,7 +583,7 @@ MIT License. Смотреть LICENSE.
 
 ## 🎊 Заключение
 
-Портирование **полностью successfully**. AI Windows Admin теперь:
+Портирование **полностью successfully**. ai-tc теперь:
 
 ✅ **Работает на Windows, Linux и macOS** одинаково
 ✅ **Имеет единую кодовую базу** без дублирования

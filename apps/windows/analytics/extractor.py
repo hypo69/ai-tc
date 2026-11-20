@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry_Research - Extractor
+# Process Name: ai-tc Apps Windows Telemetry_Research - Extractor
 # =============================================================================
 # Description:
 #   Загрузчик и парсер логов телеметрии из файлов и директорий.
@@ -12,11 +12,11 @@
 #     service = TelemetryDataExtractor()
 #
 # File: extractor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.analytics
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 04:40:00
+# Updated: 2026-11-12 05:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -55,14 +55,19 @@ class TelemetryDataExtractor:
         """
         self._storage = storage
         base_proj = Path(__file__).resolve().parents[3]
+        programdata = os.environ.get("ProgramData") or os.environ.get("ALLUSERSPROFILE") or "C:\\ProgramData"
+        app_name = os.environ.get("APP_NAME") or "ai-tc"
+        pdata_dir = Path(programdata) / app_name / "telemetry"
         appdata = os.environ.get("APPDATA", str(Path.home() / "AppData" / "Roaming"))
         self.default_log_dirs = (
             [Path(p) for p in default_log_dirs]
             if default_log_dirs
             else [
+                pdata_dir / "logs",
+                pdata_dir,
                 base_proj / "logs" / "telemetry",
-                Path(appdata) / "ai-tc" / "apps" / "logs",
                 Path(appdata) / "ai-tc" / "telemetry",
+                Path(appdata) / "ai-tc" / "apps" / "logs",
                 base_proj / "data" / "telemetry" / "hardware_archives",
             ]
         )
@@ -179,8 +184,13 @@ class TelemetryDataExtractor:
         """Получить путь к активной базе данных telemetry.db."""
         if self.storage and hasattr(self.storage, "db_path") and self.storage.db_path and Path(self.storage.db_path).exists():
             return Path(self.storage.db_path)
+        programdata = os.environ.get("ProgramData") or os.environ.get("ALLUSERSPROFILE") or "C:\\ProgramData"
+        app_name = os.environ.get("APP_NAME") or "ai-tc"
+        pdata_dir = Path(programdata) / app_name / "telemetry"
         appdata = os.environ.get("APPDATA") or os.environ.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Roaming")
         candidates = [
+            pdata_dir / "telemetry.db",
+            pdata_dir / "logs" / "telemetry.db",
             Path(appdata) / "ai-tc" / "telemetry" / "telemetry.db",
             Path(__file__).resolve().parents[3] / "logs" / "telemetry" / "telemetry.db",
             Path(appdata) / "ai-tc" / "apps" / "logs" / "telemetry.db",
@@ -188,7 +198,7 @@ class TelemetryDataExtractor:
         for p in candidates:
             if p.exists() and p.is_file():
                 return p
-        return None
+        return pdata_dir / "telemetry.db"
 
     def get_current_system_state(
         self, db_path: Optional[Union[str, Path]] = None, limit: int = 100

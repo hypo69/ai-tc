@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin CORE - Version Manager Module
+# Process Name: ai-tc CORE - Version Manager Module
 # =============================================================================
 # Description:
 #   Менеджер версий и обработчик автоматических обновлений приложения.
@@ -12,11 +12,11 @@
 #     vm = get_version_manager()
 #
 # File: version_manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 18:15:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Менеджер версий и обработчик автоматических обновлений приложения.
@@ -106,7 +106,7 @@ class VersionManager:
             repo_path: Путь к репозиторию (по умолчанию __root__).
         """
         self.repo_path: Path = repo_path or __root__
-        app_name = os.environ.get('APP_NAME') or (__root__.name if __root__.exists() else 'ai-windows-admin')
+        app_name = os.environ.get('APP_NAME') or (__root__.name if __root__.exists() else 'ai-tc')
         appdata = os.environ.get('APPDATA')
         base_tmp = (Path(appdata) / app_name / 'tmp') if appdata else (Path(tempfile.gettempdir()) / app_name)
         self.temp_backup_dir: Path = base_tmp / 'backups'

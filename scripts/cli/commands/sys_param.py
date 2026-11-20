@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Cli Commands - Sys Param
+# Process Name: ai-tc Scripts Cli Commands - Sys Param
 # =============================================================================
 # Description:
 #   Команды безопасного управления системными параметрами Windows (sys-param).
@@ -12,11 +12,11 @@
 #     res = register_sys_param_parser()
 #
 # File: sys_param.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.cli.commands
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:44
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def register_sys_param_parser(subparsers: argparse._SubParsersAction) -> None:
     sys_param_set.add_argument('value', help='New parameter value')
     sys_param_subparsers.add_parser('restore-points', help='List Windows restore points')
     sys_param_rp_create = sys_param_subparsers.add_parser('create-rp', help='Create Windows restore point manually')
-    sys_param_rp_create.add_argument('description', nargs='?', default='AI-Windows-Admin Manual Checkpoint', help='Description')
+    sys_param_rp_create.add_argument('description', nargs='?', default='ai-tc Manual Checkpoint', help='Description')
     sys_param_history = sys_param_subparsers.add_parser('history', help='View parameter change history')
     sys_param_history.add_argument('--limit', '-n', type=int, default=20, help='Limit history items')
     sys_param_rollback = sys_param_subparsers.add_parser('rollback', help='Rollback parameter change')
@@ -119,7 +119,7 @@ def run_sys_param_command(args: argparse.Namespace) -> int:
     if sub == 'create-rp':
         desc = getattr(args, 'description', '')
         if not desc:
-            desc = 'AI-Windows-Admin Manual Checkpoint'
+            desc = 'ai-tc Manual Checkpoint'
         logger.console(f"Создание точки восстановления Windows: '{desc}'...")
         res = restore_mgr.create_restore_point(desc)
         if res.get('success'):

@@ -7,11 +7,11 @@ Description:
   контекстной справки для модуля «Параметры и ротация журналов».
 
 File: README.md
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/tab_log_settings/help
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-31 17:45:30
+Updated: 2026-11-12 05:00:00
 =============================================================================
 -->
 

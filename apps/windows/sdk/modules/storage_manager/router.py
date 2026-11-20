@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Storage_Manager - Router
+# Process Name: ai-tc Apps Windows Modules Storage_Manager - Router
 # =============================================================================
 # Description:
 #   FastAPI роутер управления физическими дисками, томами, клонированием и бенчмарком DiskSpd.
@@ -12,11 +12,11 @@
 #     router = init_router()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.storage_manager
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -63,7 +63,7 @@ _benchmark = StorageBenchmarkService()
 # -----------------------------------------------------------------------------
 
 @router.get('/api/v1/storage/disks', response_model=List[DiskInfo])
-@router.get('/api/storage-manager/disks', response_model=List[DiskInfo])
+@router.get('/api/v1/storage-manager/disks', response_model=List[DiskInfo])
 async def list_disks() -> List[DiskInfo]:
     """disk.list: Список всех физических блочных дисков хоста."""
     return await asyncio.to_thread(_manager.get_disks)
@@ -177,30 +177,30 @@ async def cancel_storage_task(task_id: str) -> Dict[str, Any]:
 # Совместимость со Storage Manager / Volumes
 # -----------------------------------------------------------------------------
 
-@router.get('/api/storage-manager/summary', response_model=StorageReport)
-@router.get('/api/storage-manager/report', response_model=StorageReport)
+@router.get('/api/v1/storage-manager/summary', response_model=StorageReport)
+@router.get('/api/v1/storage-manager/report', response_model=StorageReport)
 @router.get('/api/v1/storage/report', response_model=StorageReport)
 async def get_storage_report() -> StorageReport:
     """Сводный отчет о физических дисках, логических томах и ФС."""
     return await asyncio.to_thread(_manager.generate_report)
 
 
-@router.get('/api/storage-manager/volumes', response_model=List[VolumeInfo])
+@router.get('/api/v1/storage-manager/volumes', response_model=List[VolumeInfo])
 @router.get('/api/v1/storage/volumes', response_model=List[VolumeInfo])
 async def list_volumes() -> List[VolumeInfo]:
     """Список логических томов Windows."""
     return await asyncio.to_thread(_manager.get_volumes)
 
 
-@router.get('/api/storage-manager/fs/features', response_model=FsFeaturesInfo)
+@router.get('/api/v1/storage-manager/fs/features', response_model=FsFeaturesInfo)
 @router.get('/api/v1/storage/fs/features', response_model=FsFeaturesInfo)
 async def get_fs_features() -> FsFeaturesInfo:
     """Параметры файловой системы (TRIM, 8.3 имена, сжатие)."""
     return await asyncio.to_thread(_manager.get_fs_features)
 
 
-@router.post('/api/storage-manager/action')
-@router.post('/api/storage-manager/operations')
+@router.post('/api/v1/storage-manager/action')
+@router.post('/api/v1/storage-manager/operations')
 @router.post('/api/v1/storage/operations')
 async def execute_operation(payload: DiskOperationRequest) -> Dict[str, Any]:
     """Выполнение или симуляция стандартной дисковой операции."""
@@ -212,7 +212,7 @@ async def execute_operation(payload: DiskOperationRequest) -> Dict[str, Any]:
 # -----------------------------------------------------------------------------
 
 @router.get('/api/v1/storage/benchmark/engine')
-@router.get('/api/storage-manager/benchmark/engine')
+@router.get('/api/v1/storage-manager/benchmark/engine')
 async def get_benchmark_engine_status() -> Dict[str, Any]:
     """Проверка доступности и статуса исполняемого файла Microsoft DiskSpd."""
     binary_path = _benchmark.find_diskspd_binary()
@@ -225,7 +225,7 @@ async def get_benchmark_engine_status() -> Dict[str, Any]:
 
 
 @router.post('/api/v1/storage/benchmark/engine/download')
-@router.post('/api/storage-manager/benchmark/engine/download')
+@router.post('/api/v1/storage-manager/benchmark/engine/download')
 async def download_benchmark_engine() -> Dict[str, Any]:
     """Принудительная загрузка или обновление официального бинарника DiskSpd."""
     try:
@@ -236,14 +236,14 @@ async def download_benchmark_engine() -> Dict[str, Any]:
 
 
 @router.get('/api/v1/storage/benchmark/targets', response_model=List[BenchmarkTargetInfo])
-@router.get('/api/storage-manager/benchmark/targets', response_model=List[BenchmarkTargetInfo])
+@router.get('/api/v1/storage-manager/benchmark/targets', response_model=List[BenchmarkTargetInfo])
 async def list_benchmark_targets() -> List[BenchmarkTargetInfo]:
     """Список дисков и разделов, доступных для тестирования скорости."""
     return await asyncio.to_thread(_benchmark.get_available_targets)
 
 
 @router.post('/api/v1/storage/benchmark/run', response_model=BenchmarkSuiteResult)
-@router.post('/api/storage-manager/benchmark/run', response_model=BenchmarkSuiteResult)
+@router.post('/api/v1/storage-manager/benchmark/run', response_model=BenchmarkSuiteResult)
 async def run_benchmark_sync(payload: BenchmarkRequest) -> BenchmarkSuiteResult:
     """Синхронный запуск теста производительности диска (CrystalDiskMark стиль)."""
     try:
@@ -253,7 +253,7 @@ async def run_benchmark_sync(payload: BenchmarkRequest) -> BenchmarkSuiteResult:
 
 
 @router.post('/api/v1/storage/benchmark/start', response_model=StorageTaskStatus)
-@router.post('/api/storage-manager/benchmark/start', response_model=StorageTaskStatus)
+@router.post('/api/v1/storage-manager/benchmark/start', response_model=StorageTaskStatus)
 async def start_benchmark_async(payload: BenchmarkRequest) -> StorageTaskStatus:
     """Асинхронный запуск тестирования диска в фоновом режиме с отслеживанием прогресса."""
     try:
@@ -263,7 +263,7 @@ async def start_benchmark_async(payload: BenchmarkRequest) -> StorageTaskStatus:
 
 
 @router.get('/api/v1/storage/benchmark/status/{task_id}', response_model=StorageTaskStatus)
-@router.get('/api/storage-manager/benchmark/status/{task_id}', response_model=StorageTaskStatus)
+@router.get('/api/v1/storage-manager/benchmark/status/{task_id}', response_model=StorageTaskStatus)
 async def get_benchmark_task_status(task_id: str) -> StorageTaskStatus:
     """Получение текущего статуса и прогресса запущенного бенчмарка."""
     task = _benchmark.get_task_status(task_id)
@@ -273,7 +273,7 @@ async def get_benchmark_task_status(task_id: str) -> StorageTaskStatus:
 
 
 @router.post('/api/v1/storage/benchmark/cancel/{task_id}')
-@router.post('/api/storage-manager/benchmark/cancel/{task_id}')
+@router.post('/api/v1/storage-manager/benchmark/cancel/{task_id}')
 async def cancel_benchmark_task(task_id: str) -> Dict[str, Any]:
     """Отмена выполняющегося тестирования производительности."""
     cancelled = _benchmark.cancel_task(task_id)
@@ -281,14 +281,14 @@ async def cancel_benchmark_task(task_id: str) -> Dict[str, Any]:
 
 
 @router.get('/api/v1/storage/benchmark/history', response_model=List[BenchmarkHistoryItem])
-@router.get('/api/storage-manager/benchmark/history', response_model=List[BenchmarkHistoryItem])
+@router.get('/api/v1/storage-manager/benchmark/history', response_model=List[BenchmarkHistoryItem])
 async def get_benchmark_history(limit: int = Query(50, ge=1, le=200)) -> List[BenchmarkHistoryItem]:
     """История ранее проведенных тестов производительности."""
     return await asyncio.to_thread(_benchmark.get_history, limit)
 
 
 @router.delete('/api/v1/storage/benchmark/history/{bench_id}')
-@router.delete('/api/storage-manager/benchmark/history/{bench_id}')
+@router.delete('/api/v1/storage-manager/benchmark/history/{bench_id}')
 async def delete_benchmark_history(bench_id: str) -> Dict[str, Any]:
     """Удаление записи бенчмарка из базы данных."""
     success = await asyncio.to_thread(_benchmark.delete_history_item, bench_id)

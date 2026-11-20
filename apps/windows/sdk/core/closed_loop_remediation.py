@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Closed Loop Auto Remediation
+# Process Name: ai-tc Apps Windows Core - Closed Loop Auto Remediation
 # =============================================================================
 # Description:
 #   Контур автоматического устранения проблем и самоисцеления (Closed-Loop Auto-Remediation)
@@ -14,11 +14,11 @@
 #     report = engine.run_remediation_loop(action, current_state)
 #
 # File: closed_loop_remediation.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -131,7 +131,7 @@ class ClosedLoopAutoRemediationEngine:
         try:
             if action.risk in (RiskLevel.CAUTION, RiskLevel.CRITICAL):
                 res = self.restore_mgr.create_restore_point(
-                    description=f'AI-Windows-Admin AutoRemediation {action.action_id}',
+                    description=f'ai-tc AutoRemediation {action.action_id}',
                     restore_point_type='MODIFY_SETTINGS'
                 )
                 if res.get('success'):

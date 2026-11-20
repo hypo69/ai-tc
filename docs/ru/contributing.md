@@ -1,6 +1,6 @@
-# Правила контрибуции в AI-Windows-Admin
+# Правила контрибуции в ai-tc
 
-Спасибо за интерес к разработке AI-Windows-Admin! Этот документ содержит правила и рекомендации для контрибьюторов.
+Спасибо за интерес к разработке ai-tc! Этот документ содержит правила и рекомендации для контрибьюторов.
 
 ## Содержание
 
@@ -19,8 +19,8 @@
 1. **Форкните репозиторий** - создайте свой fork проекта на GitHub
 2. **Клонируйте fork** - скопируйте код себе локально:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/ai-windows-admin.git
-   cd ai-windows-admin
+   git clone https://github.com/YOUR_USERNAME/ai-tc.git
+   cd ai-tc
    ```
 
 3. **Создайте виртуальное окружение**:
@@ -756,14 +756,14 @@ for user in users:
 - [PEP 8 Style Guide](https://www.python.org/dev/peps/pep-0008/)
 - [PEP 257 Docstring Conventions](https://www.python.org/dev/peps/pep-0257/)
 - [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html)
-- [AI-Windows-Admin Documentation](./index.md)
+- [ai-tc Documentation](./index.md)
 
 ## Связь с командой
 
 - **Issues**: Используйте GitHub Issues для отчётов об ошибках и предложений
 - **Discussions**: Обсуждайте идеи в GitHub Discussions
-- **Email**: Свяжитесь с командой через info@ai-windows-admin.ai
+- **Email**: Свяжитесь с командой через info@ai-tc.ai
 
 ---
 
-**Спасибо за вашу контрибуцию в развитие AI-Windows-Admin!** 🙏
+**Спасибо за вашу контрибуцию в развитие ai-tc!** 🙏

@@ -35,7 +35,7 @@ def perform_update(branch: str='main', auto_backup: bool=True) -> dict:
 
 def main() -> int:
     """CLI entry point for system-updater skill helper."""
-    parser = argparse.ArgumentParser(description='AI Windows Admin System Updater')
+    parser = argparse.ArgumentParser(description='ai-tc System Updater')
     parser.add_argument('--check', action='store_true', help='Check for available updates')
     parser.add_argument('--apply', action='store_true', help='Apply application updates')
     parser.add_argument('--branch', type=str, default='main', help='Target git branch')

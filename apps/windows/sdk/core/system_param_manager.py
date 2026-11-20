@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - System Param Manager
+# Process Name: ai-tc Apps Windows Core - System Param Manager
 # =============================================================================
 # Description:
 #   Менеджер безопасного изменения параметров системы с автоматическим созданием точек восстановления.
@@ -12,11 +12,11 @@
 #     service = ParameterType()
 #
 # File: system_param_manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -188,7 +188,7 @@ class SafeSystemParamManager:
             return {'success': False, 'error': f"Параметр с идентификатором '{param_id}' не найден в каталоге."}
         curr_val = self.get_current_value(param_id)
         will_create_rp = param.is_sensitive or param.risk in (RiskLevel.CAUTION, RiskLevel.CRITICAL)
-        return {'success': True, 'param_id': param.param_id, 'name': param.name, 'current_value': curr_val, 'new_value': new_value, 'is_sensitive': param.is_sensitive, 'risk': param.risk.value, 'will_create_restore_point': will_create_rp, 'restore_point_description': f"AI-Windows-Admin: Изменение '{param.name}' c '{curr_val}' на '{new_value}'" if will_create_rp else None, 'requires_reboot': param.requires_reboot, 'requires_elevation': param.requires_elevation}
+        return {'success': True, 'param_id': param.param_id, 'name': param.name, 'current_value': curr_val, 'new_value': new_value, 'is_sensitive': param.is_sensitive, 'risk': param.risk.value, 'will_create_restore_point': will_create_rp, 'restore_point_description': f"ai-tc: Изменение '{param.name}' c '{curr_val}' на '{new_value}'" if will_create_rp else None, 'requires_reboot': param.requires_reboot, 'requires_elevation': param.requires_elevation}
 
     def apply_change(self, param_id: str, new_value: Any, force: bool=False, custom_description: Optional[str]=None) -> Dict[str, Any]:
         """Безопасное применение изменения системного параметра.
@@ -215,7 +215,7 @@ class SafeSystemParamManager:
         local_snapshot_res = self.restore_manager.save_local_state_snapshot(snapshot_id=change_id, data=snapshot_data, description=f"Snapshot перед изменением '{param.name}' c '{old_value}' на '{new_value}'")
         rp_result: Optional[Dict[str, Any]] = None
         if is_sensitive:
-            rp_desc = custom_description or f"AI-Windows-Admin: Изменение '{param.name}' c '{old_value}' на '{new_value}'"
+            rp_desc = custom_description or f"ai-tc: Изменение '{param.name}' c '{old_value}' на '{new_value}'"
             logger.info(f"Обнаружен чувствительный параметр '{param_id}'. Автоматическое создание точки восстановления...")
             rp_result = self.restore_manager.create_restore_point(description=rp_desc, restore_point_type='MODIFY_SETTINGS')
         apply_success = False
@@ -251,7 +251,7 @@ class SafeSystemParamManager:
             return {'status': 'ERROR', 'message': f"Изменение '{change_id}' уже было отменено."}
         param_id = target_record['param_id']
         old_val = target_record['old_value']
-        res = self.apply_change(param_id=param_id, new_value=old_val, custom_description=f"AI-Windows-Admin Rollback: Возврат '{param_id}' к значению '{old_val}'")
+        res = self.apply_change(param_id=param_id, new_value=old_val, custom_description=f"ai-tc Rollback: Возврат '{param_id}' к значению '{old_val}'")
         if res['status'] == 'SUCCESS':
             self._mark_rolled_back(change_id)
         return {'status': res['status'], 'message': f"Откат изменения '{change_id}' выполнен успешно.", 'param_id': param_id, 'restored_value': old_val}

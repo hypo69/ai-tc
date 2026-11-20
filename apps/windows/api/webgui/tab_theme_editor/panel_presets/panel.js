@@ -7,11 +7,11 @@
  *   контрастные) и их загрузки в элементы интерфейса редактора.
  *
  * File: panel_presets/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_theme_editor/panel_presets
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 16:22:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

@@ -1,6 +1,6 @@
 # Google User Desktop Web Tab (`google_desktop_tab`)
 
-Интерактивный веб-интерфейс для приложения **Google User Desktop** (`apps/google_user_desktop`) в экосистеме **AI Windows Admin**.
+Интерактивный веб-интерфейс для приложения **Google User Desktop** (`apps/google_user_desktop`) в экосистеме **ai-tc**.
 
 ---
 

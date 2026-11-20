@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Backup_Manager Core - Version Provider
+# Process Name: ai-tc Apps Windows Modules Backup_Manager Core - Version Provider
 # =============================================================================
 # Description:
 #   Точечное версионирование файлов: горячий слой (Windows VSS) и холодный слой
@@ -15,11 +15,11 @@
 #     provider.restore_version(rec.version_id)
 #
 # File: version_provider.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.backup_manager.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

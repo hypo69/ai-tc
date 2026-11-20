@@ -8,11 +8,11 @@
  *   быстрого переключения активности и удаления агентов.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_agents/panel_grid
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:37:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -180,7 +180,7 @@ export async function toggleAgentState(agentId, enabled) {
 
   agent.enabled = enabled;
   try {
-    await fetchJson(`/api/agents/${agentId}`, {
+    await fetchJson(`/api/v1/agents/${agentId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(agent)
@@ -210,7 +210,7 @@ export async function deleteAgent(agentId) {
   }
 
   try {
-    await fetchJson(`/api/agents/${agentId}`, { method: 'DELETE' });
+    await fetchJson(`/api/v1/agents/${agentId}`, { method: 'DELETE' });
     showToast(`Агент "${agent.name}" удален`, 'success');
     if (typeof window.loadAllAgentsData === 'function') {
       await window.loadAllAgentsData();

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Accounts & Identity Service
+# Process Name: ai-tc Apps Windows - Accounts & Identity Service
 # =============================================================================
 # Description:
 #   Центральный сервис-фасад для управления аккаунтами, идентификацией,
@@ -14,18 +14,18 @@
 #     whoami_doc = srv.get_current_identity()
 #
 # File: service.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.accounts_identity
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 15:25:00
+# Updated: 2026-11-20 15:30:00
 # =============================================================================
 
 """Единый сервис-фасад Accounts & Identity Windows."""
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from logger import logger
 from apps.windows.sdk.modules.accounts_identity.catalog import get_full_catalog, search_catalog
@@ -38,6 +38,7 @@ from apps.windows.sdk.modules.accounts_identity.models import (
     IdentityGraph,
     OperationCatalogItem,
     PasswordPolicy,
+    PasswordPolicyUpdateRequest,
     Principal,
     ProfileDetails,
     SessionDetails,
@@ -121,13 +122,20 @@ class AccountsIdentityService:
         history_length: Optional[int] = None,
         lockout_threshold: Optional[int] = None,
     ) -> bool:
-        """Обновляет глобальные параметры политики паролей (NetUserModalsSet)."""
+        """Обновляет глобальные параметры политики паролей (NetUserModalsSet / secedit)."""
         return self.engine.auth.set_password_policy(
             min_length=min_length,
             max_age_days=max_age_days,
             history_length=history_length,
             lockout_threshold=lockout_threshold,
         )
+
+    def update_password_policy(
+        self,
+        req: PasswordPolicyUpdateRequest,
+    ) -> Tuple[bool, str, PasswordPolicy]:
+        """Атомарно обновляет полную политику паролей, блокировки и системного доступа SAM."""
+        return self.engine.auth.update_password_policy(req)
 
     def set_user_password_flags(
         self,

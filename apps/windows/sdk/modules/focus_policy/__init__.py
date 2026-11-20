@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Focus_Policy - Init
+# Process Name: ai-tc Apps Windows Modules Focus_Policy - Init
 # =============================================================================
 # Description:
 #   Пакет Focus Policy Engine (профили, расписание, подавление уведомлений).
@@ -9,11 +9,11 @@
 #   from apps.windows.sdk.modules.focus_policy import WindowsFocusController, init_router
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.focus_policy
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Пакет Focus Policy Engine."""

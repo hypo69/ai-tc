@@ -12,11 +12,11 @@
  *     <script src="/html/tab_sound_settings/main.js?v=20261027_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_sound_settings
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-27 12:05:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

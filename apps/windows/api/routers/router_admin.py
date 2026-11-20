@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Router Admin
+# Process Name: ai-tc Apps Windows Api Routers - Router Admin
 # =============================================================================
 # Description:
 #   Агрегатор административных роутеров: эндпойнты администрирования,
@@ -14,11 +14,11 @@
 #     skills_router = init_skills_router()
 #
 # File: router_admin.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 15:45:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -42,12 +42,12 @@ from .admin.routers import plugins_router, router, router_v1, router_apps, skill
 
 
 def init_router() -> APIRouter:
-    """Возвращает основной административный роутер (/api/admin)."""
+    """Возвращает основной административный роутер (/api/v1/admin)."""
     return router
 
 
 def init_agents_router() -> APIRouter:
-    """Возвращает роутер агентов (/api/agents)."""
+    """Возвращает роутер агентов (/api/v1/agents)."""
     from .router_agents import init_router as agents_init
     return agents_init()
 
@@ -58,15 +58,15 @@ def init_apps_router() -> APIRouter:
 
 
 def init_skills_router() -> APIRouter:
-    """Возвращает роутер навыков агента (/api/skills)."""
+    """Возвращает роутер навыков агента (/api/v1/skills)."""
     return skills_router
 
 
 def init_plugins_router() -> APIRouter:
-    """Возвращает роутер пользовательских плагинов (/api/plugins)."""
+    """Возвращает роутер пользовательских плагинов (/api/v1/plugins)."""
     return plugins_router
 
 
 def init_mcp_router() -> APIRouter:
-    """Возвращает роутер серверов MCP (/api/mcp)."""
+    """Возвращает роутер серверов MCP (/api/v1/mcp)."""
     return mcp_router

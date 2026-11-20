@@ -1,6 +1,6 @@
 <#
 =============================================================================
-Process Name: AI-Windows-Admin Automation - Replace Imports
+Process Name: ai-tc Automation - Replace Imports
 =============================================================================
 Description:
   PowerShell-сценарий автоматизации и системного обслуживания (replace_imports).
@@ -10,15 +10,15 @@ Usage Examples:
     .\replace_imports.ps1
 
 File: replace_imports.ps1
-Project: ai-windows-admin
+Project: ai-tc
 Package: apps/windows
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-13 16:29:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 #>
 
-Get-ChildItem -Path 'C:/Users/onela/AppData/Local/AI-Windows-Admin/apps/windows' -Recurse -Filter *.py |
+Get-ChildItem -Path 'C:/Users/onela/AppData/Local/ai-tc/apps/windows' -Recurse -Filter *.py |
     ForEach-Object {
         $path = $_.FullName
         $content = Get-Content $path -Raw

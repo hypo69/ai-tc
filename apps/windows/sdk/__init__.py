@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows SDK - Package Root
+# Process Name: ai-tc Apps Windows SDK - Package Root
 # =============================================================================
 # Description:
-#   Единый Windows SDK для AI-Windows-Admin.
+#   Единый Windows SDK для ai-tc.
 #   Предоставляет централизованный доступ к низкоуровневым C-FFI вызовам,
 #   управлению драйверами, системными компонентами Features, ядру SafeOps,
 #   27 функциональным модулям администрирования и типизированной системе исключений.
@@ -16,11 +16,11 @@
 #     from apps.windows.sdk.native import Kernel32, Advapi32
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 20:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -43,6 +43,7 @@ from apps.windows.sdk import core
 from apps.windows.sdk import drivers
 from apps.windows.sdk import features
 from apps.windows.sdk import modules
+from apps.windows.sdk import winrt
 from apps.windows.sdk.dynamic_runner import DynamicToolRunner
 from apps.windows.sdk.modules.network.discovery import NetworkDiscoveryManager, WindowsNetworkDiscovery
 from apps.windows.sdk.modules.regional import RegionalManager
@@ -88,6 +89,7 @@ __all__ = [
     "FeaturesSubsystem",
     "CoreSubsystem",
     "ModulesSubsystem",
+    "WinRTSubsystem",
     # Подпакеты
     "native",
     "win32_ffi",
@@ -95,6 +97,7 @@ __all__ = [
     "drivers",
     "features",
     "modules",
+    "winrt",
     "software_scanner",
     "exceptions",
     "DynamicToolRunner",

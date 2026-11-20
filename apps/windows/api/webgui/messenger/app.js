@@ -10,16 +10,16 @@
  *     <script src="/windows/api/webgui/messenger/app.js?v=20261001_v1" type="module"></script>
  *
  * File: app.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/messenger
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
 /**
- * AI Windows Admin Messenger & WebRTC Conference Client
+ * ai-tc Messenger & WebRTC Conference Client
  */
 
 const CONFIG = {

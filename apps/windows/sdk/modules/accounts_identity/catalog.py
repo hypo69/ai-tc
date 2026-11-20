@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Accounts & Identity Catalog
+# Process Name: ai-tc Apps Windows - Accounts & Identity Catalog
 # =============================================================================
 # Description:
 #   Полный официальный реестр ~180 операций OS-level каталога
@@ -13,11 +13,11 @@
 #     ops = get_full_catalog()
 #
 # File: catalog.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.accounts_identity
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Каталог системных операций Accounts & Identity Windows."""

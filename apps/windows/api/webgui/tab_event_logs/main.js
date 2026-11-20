@@ -15,11 +15,11 @@
  *     import { initEventLogsTab } from '/windows/api/webgui/tab_event_logs/main.js';
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_event_logs
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-16 14:55:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -155,7 +155,7 @@ export async function fetchEventLogsSummary(forceRefresh = false) {
   }
 
   try {
-    const res = await fetch(`/api/event-logs/events?channel=${encodeURIComponent(channel)}&limit=100&hours=24`);
+    const res = await fetch(`/api/v1/event-logs/events?channel=${encodeURIComponent(channel)}&limit=100&hours=24`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const entries = await res.json();
     
@@ -188,7 +188,7 @@ export async function fetchEventLogsSummary(forceRefresh = false) {
 
 async function fetchIntelligenceProfile(channel, showBanner = true) {
   try {
-    const res = await fetch(`/api/event-logs/intelligence/profile?channel=${encodeURIComponent(channel)}&hours=24&limit=100`);
+    const res = await fetch(`/api/v1/event-logs/intelligence/profile?channel=${encodeURIComponent(channel)}&hours=24&limit=100`);
     if (!res.ok) return;
     const data = await res.json();
 
@@ -239,7 +239,7 @@ export async function runFullAudit() {
   const channel = channelSelect ? channelSelect.value : 'System';
 
   try {
-    const res = await fetch(`/api/event-logs/intelligence/audit?channel=${encodeURIComponent(channel)}&hours=24&limit=200`);
+    const res = await fetch(`/api/v1/event-logs/intelligence/audit?channel=${encodeURIComponent(channel)}&hours=24&limit=200`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderIntelligenceBanner({
@@ -271,7 +271,7 @@ export async function runRAGSearch() {
 
   try {
     const channel = channelSelect ? channelSelect.value : '';
-    const res = await fetch(`/api/event-logs/intelligence/search?query=${encodeURIComponent(query)}&top_k=5&channel=${encodeURIComponent(channel)}`);
+    const res = await fetch(`/api/v1/event-logs/intelligence/search?query=${encodeURIComponent(query)}&top_k=5&channel=${encodeURIComponent(channel)}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const results = await res.json();
 

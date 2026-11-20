@@ -1,5 +1,5 @@
 //! =============================================================================
-//! Process Name: AI-Windows-Admin Common File Editor - Rust Hex & Data Inspector
+//! Process Name: ai-tc Common File Editor - Rust Hex & Data Inspector
 //! =============================================================================
 //! Description:
 //!   Модуль побайтового представления и инспекции типов данных (Data Inspector)
@@ -7,7 +7,7 @@
 //!   Int32, UInt32, Float32, Float64 в порядках байтов Little/Big Endian.
 //!
 //! File: hex_inspector.rs
-//! Project: ai-windows-admin
+//! Project: ai-tc
 //! Package: apps.common.file_editor.rust_engine
 //! Author: hypo69
 //! Copyright: © 2026 hypo69

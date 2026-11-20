@@ -1,8 +1,8 @@
-# Портирование AI Windows Admin на Linux/macOS — Итоговый отчет
+# Портирование ai-tc на Linux/macOS — Итоговый отчет
 
 ## Обзор проекта
 
-**Задача:** Портировать все PowerShell скрипты AI Windows Admin на кроссплатформенное решение (Python/Bash) для поддержки Windows, Linux и macOS с минимальной переработкой кода.
+**Задача:** Портировать все PowerShell скрипты ai-tc на кроссплатформенное решение (Python/Bash) для поддержки Windows, Linux и macOS с минимальной переработкой кода.
 
 **Status:** ✅ **ЗАВЕРШЕНО** (8 из 9 задач выполнено, финальное тестирование и документация — задача #9)
 
@@ -177,8 +177,8 @@ MCP Серверы:
 
 ```bash
 # 1. Клонировать репо на Linux
-git clone https://github.com/hypo69/AI-Windows-Admin.git
-cd AI-Windows-Admin
+git clone https://github.com/hypo69/ai-tc.git
+cd ai-tc
 
 # 2. Установить (пути автоматически адаптируются)
 bash install.sh

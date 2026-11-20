@@ -1,4 +1,4 @@
-# Кроссплатформенный установщик AI Windows Admin
+# Кроссплатформенный установщик ai-tc
 
 Новая система установки на Python, заменяющая старые PowerShell скрипты.
 
@@ -117,8 +117,8 @@ assist start
 
 ```bash
 # 1. Клонировать репо
-git clone https://github.com/hypo69/AI-Windows-Admin.git
-cd AI-Windows-Admin
+git clone https://github.com/hypo69/ai-tc.git
+cd ai-tc
 
 # 2. Запустить установщик (на русском)
 chmod +x install.sh
@@ -213,7 +213,7 @@ scripts/cli/
 .\install.ps1
 
 # Специфичные для Windows пути
-$env:LOCALAPPDATA\AI Windows Admin
+$env:LOCALAPPDATA\ai-tc
 ```
 
 **Новое:**
@@ -235,5 +235,5 @@ python scripts/cli/installer.py  # Везде
 ## Контакты
 
 Если у вас есть вопросы или проблемы при установке:
-- Создайте Issue: https://github.com/hypo69/AI-Windows-Admin/issues
-- Обсудите в Discussions: https://github.com/hypo69/AI-Windows-Admin/discussions
+- Создайте Issue: https://github.com/hypo69/ai-tc/issues
+- Обсудите в Discussions: https://github.com/hypo69/ai-tc/discussions

@@ -9,11 +9,11 @@ import { fetchLatestSpeedtest, runInternetSpeedtest } from '../../tab_network/pa
  *   статусов Wi-Fi / Bluetooth и SVG-графика истории трафика.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_system_inspector/panel_network
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 16:10:00
+ * Updated: 2026-11-13 13:25:00
  * =============================================================================
  */
 
@@ -54,6 +54,32 @@ export function initNetworkPanel() {
   if (btnLin) btnLin.onclick = () => setNetSparkScale('lin');
 
   window.setNetSparkScale = setNetSparkScale;
+  window.inspectNetSpecsWithAi = () => {
+    if (window.AITableModal) {
+      const netModel = document.getElementById('sys-metric-net-model')?.innerText || 'Network';
+      const speedVal = document.getElementById('sys-net-speed-val')?.innerText || '0 B/s';
+      const util = document.getElementById('sys-net-kpi-util')?.innerText || '0%';
+      window.AITableModal.show({
+        icon: '🌐',
+        title: netModel,
+        subtitle: 'Сетевые адаптеры и параметры соединения Windows',
+        panelId: 'network',
+        tableType: 'hardware',
+        badges: [
+          { text: 'Network', class: 'badge bg-info' },
+          { text: util, class: 'badge bg-primary' }
+        ],
+        metadata: [
+          { label: 'Адаптер', value: netModel },
+          { label: 'Текущая скорость', value: speedVal },
+          { label: 'Утилизация', value: util }
+        ],
+        rawTitle: 'JSON Телеметрии Сети',
+        rawContent: JSON.stringify(lastNetSparkData || {}, null, 2),
+        requestData: lastNetSparkData || {}
+      });
+    }
+  };
 
   // Обработчик кнопки запуска Speedtest в карточке сети
   const btnSpeedtest = document.getElementById('sys-btn-run-speedtest');
@@ -205,9 +231,9 @@ export function updateNetworkTelemetry(netData) {
   set('sys-net-sub-details', `⬇ ${rxFormatted} · ⬆ ${txFormatted}`);
 
   const netGauge = document.getElementById('sys-metric-net-gauge');
-  if (netGauge) netGauge.innerHTML = createGaugeSvg(utilPct, 130, 74);
+  if (netGauge) netGauge.innerHTML = createGaugeSvg(utilPct, 120, 68);
   const netSlider = document.getElementById('sys-metric-net-slider');
-  if (netSlider) netSlider.innerHTML = createPercentSliderHtml(utilPct, true, `Канал ${utilPct.toFixed(1)}%`);
+  if (netSlider) netSlider.innerHTML = createPercentSliderHtml(utilPct, false, `Канал ${utilPct.toFixed(1)}%`);
 }
 
 /**
@@ -234,8 +260,9 @@ function updateNetworkUi(data) {
 
   set('sys-net-ts', data.timestamp || 'Live');
   set('sys-net-speed-val', totalFormatted);
-  set('sys-net-sub-details', `⬇ ${rxFormatted} · ⬆ ${txFormatted} (Всего: ${sumTotalFormatted})`);
-  set('sys-net-util-label', `Загрузка канала: ${utilPct.toFixed(1)}% (Линк: ${data.link_speed_mbps || 1000} Mbps)`);
+  set('sys-net-sub-details', `⬇ ${rxFormatted} · ⬆ ${txFormatted}`);
+  set('sys-net-util-label', `${utilPct.toFixed(1)}%`);
+  set('sys-net-spec-speed', `${data.link_speed_mbps || 1000} Mbps`);
   set('sys-net-speed-badge', `${data.link_speed_mbps || 1000} Mbps Full Duplex`);
 
   set('sys-net-kpi-rx', rxFormatted);
@@ -244,10 +271,10 @@ function updateNetworkUi(data) {
   set('sys-net-kpi-util', `${utilPct.toFixed(1)}%`);
 
   const netGauge = document.getElementById('sys-metric-net-gauge');
-  if (netGauge) netGauge.innerHTML = createGaugeSvg(utilPct, 130, 74);
+  if (netGauge) netGauge.innerHTML = createGaugeSvg(utilPct, 120, 68);
 
   const netSlider = document.getElementById('sys-metric-net-slider');
-  if (netSlider) netSlider.innerHTML = createPercentSliderHtml(utilPct, true, `Канал ${utilPct.toFixed(1)}%`);
+  if (netSlider) netSlider.innerHTML = createPercentSliderHtml(utilPct, false, `Канал ${utilPct.toFixed(1)}%`);
 
   // Rx
   set('sys-rx-sub-badge', rxFormatted);

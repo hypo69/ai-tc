@@ -1,4 +1,4 @@
-# Навыки моделей (Skills) в AI Windows Admin
+# Навыки моделей (Skills) в ai-tc
 
 > **Раздел:** Навыки моделей и агентов  
 > **Язык:** Русский  
@@ -28,7 +28,7 @@
 
 ## 💡 Решение: Прогрессивное раскрытие (Progressive Disclosure)
 
-В платформе **AI Windows Admin** система навыков реализует принцип **Progressive Disclosure**:
+В платформе **ai-tc** система навыков реализует принцип **Progressive Disclosure**:
 
 ```mermaid
 graph TD

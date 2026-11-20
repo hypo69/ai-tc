@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Tui
+# Process Name: ai-tc Apps Windows - Tui
 # =============================================================================
 # Description:
 #   Интерактивный TUI интерфейс для Windows AI Diagnostic Center.
@@ -14,11 +14,11 @@
 #     service = SystemInspectorState()
 #
 # File: tui.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:44
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ from logger import logger
 """Интерактивный TUI интерфейс для Windows AI Diagnostic Center."""
 
 import sys
-from typing import Optional
+from typing import Optional, Any
 try:
     from rich.console import Console
     from rich.layout import Layout
@@ -195,7 +195,7 @@ async def run_hardware_monitor_dashboard(interval: float=1.0) -> None:
             main_header = f'🎛️ Windows Hardware Monitor | Статус: [{status_color}]{status_text}[/{status_color}] | Время: {snap.timestamp[11:19]}'
             col1 = Columns([cpu_ram_table, gpu_table], expand=True)
             col2 = Columns([disk_table, io_table], expand=True)
-            main_panel = Panel(Text.from_markup(f'{main_header}\n\n') + Columns([col1, col2, sensor_table], expand=True), title='[bold blue]AI AI_WINDOWS_ADMIN HARDWARE CENTER[/bold blue]', border_style=status_color)
+            main_panel = Panel(Text.from_markup(f'{main_header}\n\n') + Columns([col1, col2, sensor_table], expand=True), title='[bold blue]AI AI_TC HARDWARE CENTER[/bold blue]', border_style=status_color)
             live.update(main_panel)
             await asyncio.sleep(interval)
 
@@ -266,7 +266,7 @@ def render_inspector_ui(state: SystemInspectorState) -> Any:
     ram_bar = f'RAM: {snap.memory.used_gb}/{snap.memory.total_gb} GB ({snap.memory.percent}%)'
     uptime_h = round(snap.uptime_seconds / 3600, 1)
     gpu_str = ', '.join([f'{g.name} ({g.memory_total_gb}GB)' for g in snap.gpus]) or 'Integrated'
-    header_text = Text.assemble(('AI-AI_WINDOWS_ADMIN SYSTEM & HARDWARE INSPECTOR\n', 'bold cyan'), (f'Host: {snap.hostname} | OS: {snap.os_name} | Uptime: {uptime_h}h | ', 'dim'), (f'{cpu_bar} | {ram_bar} | GPU: {gpu_str}', 'bold green'))
+    header_text = Text.assemble(('AI-AI_TC SYSTEM & HARDWARE INSPECTOR\n', 'bold cyan'), (f'Host: {snap.hostname} | OS: {snap.os_name} | Uptime: {uptime_h}h | ', 'dim'), (f'{cpu_bar} | {ram_bar} | GPU: {gpu_str}', 'bold green'))
     layout['header'].update(Panel(header_text, border_style='cyan'))
     proc_table = _render_inspector_process_table(snap, state.sort_by)
     layout['processes'].update(Panel(proc_table, border_style='blue'))

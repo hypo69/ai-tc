@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Startup -   Init  
+# Process Name: ai-tc Apps Windows Modules Startup -   Init  
 # =============================================================================
 # Description:
 #   Приложение Windows Startup & Autorun Auditor.
@@ -9,11 +9,11 @@
 #
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.startup
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Приложение Windows Startup & Autorun Auditor."""

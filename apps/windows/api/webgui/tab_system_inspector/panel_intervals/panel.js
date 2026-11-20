@@ -7,11 +7,11 @@
  *   сенсоров в config.json (AutoLog intervals editor).
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_system_inspector/panel_intervals
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 00:23:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

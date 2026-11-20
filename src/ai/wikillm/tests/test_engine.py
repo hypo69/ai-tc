@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm Tests - Test Engine
+# Process Name: ai-tc Apps Windows Wikillm Tests - Test Engine
 # =============================================================================
 # Description:
 #   Тесты для движка WikiLLMEngine, сквозного цикла самообучения (первый вызов Gemini ->
@@ -10,11 +10,11 @@
 #     import src.ai.wikillm.tests.test_engine as test_engine
 #
 # File: test_engine.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.wikillm.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - About System User Info
+# Process Name: ai-tc Tests - About System User Info
 # =============================================================================
 # Description:
 #   Тестирование сбора расширенной информации о пользователе операционной
 #   системы Windows (имя, фамилия, должность/описание, SID, профиль, группы).
 #
 # File: test_about_system_user_info.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 15:33:00
+# Updated: 2026-11-12 05:55:00
 # =============================================================================
 
 from pathlib import Path
@@ -194,7 +194,9 @@ def test_about_system_html_contains_password_policy_and_reset_pane():
     # 2. Переключатели политики пароля пользователя
     assert 'id="reg-usr-pwd-never-expires"' in content
     assert 'id="reg-usr-pwd-cannot-change"' in content
-    assert 'id="reg-usr-pwd-required"' in content
+    assert 'id="reg-usr-pwd-not-required"' in content
+    assert 'id="reg-usr-pwd-req-status"' in content
+    assert 'id="reg-usr-pwd-req-badge"' in content
 
     # 3. Поля смены пароля
     assert 'id="reg-usr-new-pwd"' in content
@@ -271,6 +273,48 @@ def test_set_password_policy_endpoint(monkeypatch):
     data = resp.json()
     assert data.get("status") == "ok"
     assert "Политика обновлена" in data.get("message", "")
+
+
+def test_update_user_profile_password_not_required(monkeypatch):
+    """Проверка выполнения команды net user <user> /passwordreq:no при отключении требования пароля."""
+    app = FastAPI()
+    router = APIRouter()
+    storage = TelemetryStorage()
+    register_system_action_endpoints(router, storage)
+    app.include_router(router)
+
+    called_cmd = []
+
+    class DummyProc:
+        returncode = 0
+        async def communicate(self):
+            return b"The command completed successfully.", b""
+
+    async def fake_subprocess_exec(*args, **kwargs):
+        called_cmd.extend(args)
+        return DummyProc()
+
+    import asyncio
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", fake_subprocess_exec)
+
+    client = TestClient(app)
+    # 1. Запрос "не требовать пароль" (password_required: False) -> /passwordreq:no
+    resp = client.post("/api/v1/system/update-user-profile", json={"username": "testuser", "password_required": False})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data.get("status") == "ok"
+    assert "net user testuser /passwordreq:no" in data.get("message", "")
+    assert "net" in called_cmd and "user" in called_cmd and "/passwordreq:no" in called_cmd
+
+    # 2. Запрос "требовать пароль" (password_required: True) -> /passwordreq:yes
+    called_cmd.clear()
+    resp2 = client.post("/api/v1/system/update-user-profile", json={"username": "testuser", "password_required": True})
+    assert resp2.status_code == 200
+    data2 = resp2.json()
+    assert data2.get("status") == "ok"
+    assert "net user testuser /passwordreq:yes" in data2.get("message", "")
+    assert "net" in called_cmd and "user" in called_cmd and "/passwordreq:yes" in called_cmd
+
 
 
 

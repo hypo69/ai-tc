@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Services - WikiLLM Service
+# Process Name: ai-tc Apps Windows Services - WikiLLM Service
 # =============================================================================
 # Description:
 #   Сервис автоматического фонового обогащения базы знаний WikiLLM для событий ОС.
@@ -15,11 +15,11 @@
 #     desc = await service.get_or_enrich_description(4624, "Microsoft-Windows-Security-Auditing")
 #
 # File: wikillm_service.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.services
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 15:49:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

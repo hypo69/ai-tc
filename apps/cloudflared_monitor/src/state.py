@@ -8,11 +8,11 @@
 #   и эвристической/ИИ диагностики работоспособности.
 #
 # File: state.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.cloudflared_monitor.src
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 14:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Супервизия процесса cloudflared, разбор логов, опрос эндпоинта и диагностика."""
@@ -381,7 +381,7 @@ class CloudflaredState:
             return self.endpoint
 
         start_time = time.perf_counter()
-        req = urllib.request.Request(self.public_url, headers={"User-Agent": "AI-Windows-Admin-CloudflaredMonitor/1.0"})
+        req = urllib.request.Request(self.public_url, headers={"User-Agent": "ai-tc-CloudflaredMonitor/1.0"})
 
         try:
             with urllib.request.urlopen(req, timeout=timeout) as response:

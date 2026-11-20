@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - TelemetrySnapshotReaderMixin
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - TelemetrySnapshotReaderMixin
 # =============================================================================
 # Description:
 #   Миксин чтения снапшотов системы и процессов, истории, сводок, инцидентов,
 #   сенсоров и иерархии CPU из 12 консолидированных таблиц SQLite.
 #
 # File: reader_snapshots.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 18:43:00
+# Updated: 2026-11-20 15:13:00
 # =============================================================================
 
 from __future__ import annotations
@@ -190,6 +190,27 @@ class TelemetrySnapshotReaderMixin:
                 "partitions": partitions,
                 "physical_disks": physical_disks,
             }
+
+    def get_latest_storage_sensor_snapshot(self) -> Optional[Dict[str, Any]]:
+        """Извлекает последний снимок WindowsStorageSensor из inventory_state (domain='storage_snapshot')."""
+        with self._cm.lock, self._cm.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                '''
+                SELECT attrs_json FROM inventory_state
+                WHERE domain = 'storage_snapshot' AND entity_key = 'latest' AND removed_at IS NULL
+                LIMIT 1;
+                '''
+            )
+            row = cursor.fetchone()
+            if not row or not row[0]:
+                return None
+            try:
+                data = json.loads(row[0])
+                return data if isinstance(data, dict) else None
+            except Exception as ex:
+                logger.debug(f"[get_latest_storage_sensor_snapshot] Ошибка парсинга JSON: {ex}")
+                return None
 
     def get_latest_snapshot_full(self) -> Optional[Dict[str, Any]]:
         """Извлекает и десериализует последний системный снимок с полной LOCF-реконструкцией всех параметров."""

@@ -3,7 +3,7 @@
  * Process Name: Windows App Logs - Main Orchestrator
  * =============================================================================
  * Description:
- *   Главный оркестратор вкладки анализатора внутренних журналов AI-Windows-Admin.
+ *   Главный оркестратор вкладки анализатора внутренних журналов ai-tc.
  *   Координирует работу панелей файлов, таблицы записей, AI-аудита, таймлайна,
  *   терминала реального времени и действий экспорта/очистки.
  *
@@ -12,11 +12,11 @@
  *     <script type="module" src="/html/tab_app_logs/main.js?v=20261017_v1"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_app_logs
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:35:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Process_Manager Core - Correlation Engine
+# Process Name: ai-tc Apps Windows Modules Process_Manager Core - Correlation Engine
 # =============================================================================
 # Description:
 #   Корреляционный движок построения сквозной хроники инцидентов и аномалий
@@ -15,11 +15,11 @@
 #     timeline = builder.build_timeline_from_samples(samples)
 #
 # File: correlation_engine.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.process_manager.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 00:58:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

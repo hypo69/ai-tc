@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Startup Tests - History Manager
+# Process Name: ai-tc Apps Windows Modules Startup Tests - History Manager
 # =============================================================================
 # Description:
 #   Модульные тесты менеджера дифференциальной истории автозапуска
@@ -11,11 +11,11 @@
 #     pytest apps/windows/modules/startup/tests/test_startup_history.py -v
 #
 # File: test_startup_history.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.startup.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 16:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Модульные тесты менеджера истории и расчета диффов автозапуска."""

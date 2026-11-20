@@ -4,7 +4,7 @@
 # =============================================================================
 # Description:
 #   Инициализация пакета локальных и гибридных MCP-серверов платформы
-#   AI Windows Admin (ai-tc).
+#   ai-tc (ai-tc).
 #
 #   Зачем нужен этот модуль:
 #     1. Экспорт вспомогательных функций конфигурации (config_helper) для всех
@@ -18,11 +18,11 @@
 #     root = get_project_root()
 #
 # File: __init__.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: .mcp
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:11:15
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

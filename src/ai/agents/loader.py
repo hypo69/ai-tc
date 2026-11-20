@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Universal Agent Loader & Registry
+# Process Name: ai-tc AI - Universal Agent Loader & Registry
 # =============================================================================
 # Description:
 #   Универсальный загрузчик и реестр агентов из внешнего каталога манифестов .agents.
@@ -15,11 +15,11 @@
 #     agents_list = list_available_agents()
 #
 # File: loader.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.agents
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

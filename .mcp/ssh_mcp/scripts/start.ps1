@@ -7,11 +7,11 @@ Description:
   проекта ai-tc.
 
 File: start.ps1
-Project: AI Windows Admin (ai-tc)
+Project: ai-tc (ai-tc)
 Package: .mcp.ssh_mcp.scripts
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-31 17:10:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 
 .SYNOPSIS

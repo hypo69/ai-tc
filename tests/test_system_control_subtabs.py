@@ -10,11 +10,11 @@ Description:
     вкладок и исключения вкладки из universal panel-loader.
 
 File: test_system_control_subtabs.py
-Project: ai-windows-admin
+Project: ai-tc
 Package: tests
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-11 23:25:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 """
 

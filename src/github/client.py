@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin GitHub - CLI & API Client
+# Process Name: ai-tc GitHub - CLI & API Client
 # =============================================================================
 # Description:
 #   Интерфейс для прямого выполнения операций GitHub через официальный GitHub CLI (gh)
@@ -14,11 +14,11 @@
 #       issues = client.list_issues(limit=10)
 #
 # File: client.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.github
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:48:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

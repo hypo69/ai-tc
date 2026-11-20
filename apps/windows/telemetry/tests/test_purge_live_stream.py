@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Tests - Purge Live Stream
+# Process Name: ai-tc Apps Windows Telemetry Tests - Purge Live Stream
 # =============================================================================
 # Description:
 #   Тестирование очистки таблиц стримингового режима live stream при переходе
@@ -10,11 +10,11 @@
 #   - Таблицы аудита процессов (process_lifecycle_sessions, process_audit_samples) сохраняются.
 #
 # File: test_purge_live_stream.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 01:18:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import os

@@ -1,9 +1,9 @@
 <#
 =============================================================================
-Process Name: AI-Windows-Admin Automation - Run Telemetry
+Process Name: ai-tc Automation - Run Telemetry
 =============================================================================
 Description:
-  Лончер для запуска и управления службой системной телеметрии AI-Windows-Admin
+  Лончер для запуска и управления службой системной телеметрии ai-tc
 
 Usage Examples:
   PowerShell Execution:
@@ -12,14 +12,14 @@ Usage Examples:
     .\Run-Telemetry.ps1 -Background   # Запуск в фоновом режиме (демон)
 
 File: Run-Telemetry.ps1
-Project: ai-windows-admin
+Project: ai-tc
 Package: apps/windows/telemetry/launchers
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-16 16:19:00
+# Updated: 2026-11-12 05:25:00
 =============================================================================
 .SYNOPSIS
-    Лончер для запуска и управления службой системной телеметрии AI-Windows-Admin
+    Лончер для запуска и управления службой системной телеметрии ai-tc
 .DESCRIPTION
     По умолчанию запускает main.py сбора телеметрии Windows в текущей консоли.
     Поддерживает фоновый режим (-Background), однократный опрос (-Once) и интерактивное TUI меню (-TUI).
@@ -107,8 +107,8 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 
 # Определение директории проекта
 $scriptDir = $PSScriptRoot
-if ([string]::IsNullOrEmpty($scriptDir) -and $env:AIWINDOWSADMIN_DIR -and (Test-Path $env:AIWINDOWSADMIN_DIR)) {
-    $scriptDir = Join-Path $env:AIWINDOWSADMIN_DIR "apps\windows\telemetry"
+if ([string]::IsNullOrEmpty($scriptDir) -and ($env:AITC_DIR ? $env:AITC_DIR : $env:AIWINDOWSADMIN_DIR) -and (Test-Path ($env:AITC_DIR ? $env:AITC_DIR : $env:AIWINDOWSADMIN_DIR))) {
+    $scriptDir = Join-Path ($env:AITC_DIR ? $env:AITC_DIR : $env:AIWINDOWSADMIN_DIR) "apps\windows\telemetry"
 }
 if ([string]::IsNullOrEmpty($scriptDir) -and $MyInvocation.MyCommand.Path) {
     $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -137,17 +137,25 @@ if ([string]::IsNullOrEmpty($selfScript)) {
     $selfScript = Join-Path $scriptDir "Run-Telemetry.ps1"
 }
 $showLogScript = Join-Path $scriptDir "Show-StartLog.ps1"
-$appDataDir = $env:APPDATA
-if (-not $appDataDir) {
-    $appDataDir = Join-Path $env:USERPROFILE "AppData\Roaming"
+$programDataDir = if ($env:ProgramData -and (Test-Path $env:ProgramData)) {
+    $env:ProgramData
+} elseif ($env:ALLUSERSPROFILE -and (Test-Path $env:ALLUSERSPROFILE)) {
+    $env:ALLUSERSPROFILE
+} elseif (Test-Path "C:\ProgramData") {
+    "C:\ProgramData"
+} else {
+    if ($env:APPDATA) { $env:APPDATA } else { Join-Path $env:USERPROFILE "AppData\Roaming" }
 }
-$logDir = Join-Path $appDataDir "AI-Windows-Admin\apps\windows\telemetry\logs"
-$dbFile = Join-Path $logDir "telemetry.db"
+$appName = if ($env:APP_NAME) { $env:APP_NAME } else { "ai-tc" }
+$telemetryDir = Join-Path $programDataDir "$appName\telemetry"
+$logDir = Join-Path $telemetryDir "logs"
+$dbFile = Join-Path $telemetryDir "telemetry.db"
 $jsonLogFile = Join-Path $logDir "ai_sensors_polls.json"
 $serviceLogFile = Join-Path $logDir "telemetry_service.log"
 $outLogFile = Join-Path $logDir "telemetry_stdout.log"
 $errLogFile = Join-Path $logDir "telemetry_stderr.log"
 $pidFile = Join-Path $logDir "telemetry.pid"
+$configFile = Join-Path $telemetryDir "config.json"
 $taskInstaller = Join-Path $PSScriptRoot "Install-TelemetryTask.ps1"
 
 
@@ -274,6 +282,9 @@ function Ensure-TelemetryDb {
         [switch]$Force
     )
 
+    if (-not (Test-Path $telemetryDir)) {
+        New-Item -ItemType Directory -Force -Path $telemetryDir | Out-Null
+    }
     if (-not (Test-Path $logDir)) {
         New-Item -ItemType Directory -Force -Path $logDir | Out-Null
     }
@@ -370,7 +381,7 @@ function Invoke-TelemetryTUI {
 
             Write-Host ""
             Write-Host "╔══════════════════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-            Write-Host "║       📊 AI AI_WINDOWS_ADMIN — СЛУЖБА ТЕЛЕМЕТРИИ (TUI CONTROL CENTER)              ║" -ForegroundColor Cyan
+            Write-Host "║       📊 AI AI_TC — СЛУЖБА ТЕЛЕМЕТРИИ (TUI CONTROL CENTER)              ║" -ForegroundColor Cyan
             Write-Host "╚══════════════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
             Write-Host ""
             Write-Host " Статус службы:  $statusStr" -ForegroundColor $statusColor
@@ -566,7 +577,7 @@ if ($Action -eq 'status') {
 
     # Проверка планировщика
     try {
-        $schedTask = Get-ScheduledTask -TaskName 'AI-Windows-Admin-Telemetry' -ErrorAction SilentlyContinue
+        $schedTask = Get-ScheduledTask -TaskName 'ai-tc-telemetry' -ErrorAction SilentlyContinue
         if ($schedTask) {
             Write-Host ""
             Write-Host "📅 Task Scheduler: Задание зарегистрировано [Статус: $($schedTask.State), WakeToRun: $($schedTask.Settings.WakeToRun)]" -ForegroundColor DarkCyan
@@ -696,6 +707,9 @@ if ($Action -in @('start', 'restart', 'once')) {
         exit 1
     }
 
+    if (-not (Test-Path $telemetryDir)) {
+        New-Item -ItemType Directory -Force -Path $telemetryDir | Out-Null
+    }
     if (-not (Test-Path $logDir)) {
         New-Item -ItemType Directory -Force -Path $logDir | Out-Null
     }

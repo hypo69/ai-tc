@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Audio Module - WASAPI Declarations
+# Process Name: ai-tc Audio Module - WASAPI Declarations
 # =============================================================================
 # Description:
 #   Константы, GUID, структуры и vtable сигнатуры Windows Core Audio API (WASAPI):
@@ -11,11 +11,11 @@
 #   from apps.windows.sdk.modules.sound.wasapi import CLSID_MMDEVICE_ENUMERATOR, parse_guid
 #
 # File: wasapi.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.sound
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-27 12:05:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

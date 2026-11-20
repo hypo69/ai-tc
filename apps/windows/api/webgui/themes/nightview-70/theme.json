@@ -52,7 +52,7 @@
     "--badge-info-text": "#184674",
     "--badge-info-border": "rgba(24, 70, 116, 0.25)",
     "--badge-neutral-bg": "#eee9e0",
-    "--badge-neutral-text": "#3f3f46",
+    "--badge-neutral-text": "#18181b",
     "--badge-neutral-border": "#cfc6b8",
     "--status-success-bg": "rgba(24, 82, 35, 0.12)",
     "--status-success-text": "#185223",
@@ -81,7 +81,12 @@
     "--table-color": "#18181b",
     "--table-border-color": "#cfc5b4",
     "--about-card-bg": "linear-gradient(135deg, #f6f1e8 0%, #ede6d9 100%)",
-    "--badge-font-size": "calc(0.72rem + 1pt)",
-    "color-scheme": "light"
+    "--badge-scale": "1.08",
+    "--badge-font-size": "calc((0.72rem + 1pt) * 1.08)",
+    "color-scheme": "light",
+    "--bs-primary": "#1d4ed8",
+    "--bs-info": "#184674",
+    "--bs-info-rgb": "24, 70, 116",
+    "--panel-header-color": "#1d4ed8"
   }
 }

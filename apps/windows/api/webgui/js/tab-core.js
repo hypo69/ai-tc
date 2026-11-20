@@ -13,11 +13,11 @@
  *     import { normalizeTabId, isTabActive, registerTabPoller } from '/windows/api/webgui/js/tab-core.js';
  *
  * File: tab-core.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-12 02:25:00
+ * Updated: 2026-11-20 16:35:00
  * =============================================================================
  */
 
@@ -69,7 +69,6 @@ const CONSOLIDATED_PARENTS = {
   'tab-software-audit': 'tab-software-monitor',
   'tab-software-manager': 'tab-software-monitor',
   'tab-software-transparency': 'tab-software-monitor',
-  'tab-ninite-updater': 'tab-software-monitor',
   'tab-startup-auditor': 'tab-software-monitor',
   'tab-software-scanner': 'tab-software-monitor',
   'tab-software-monitor': 'tab-software-monitor',

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows SDK - Dynamic Tool Runner v2
+# Process Name: ai-tc Apps Windows SDK - Dynamic Tool Runner v2
 # =============================================================================
 # Description:
 #   Исполнительная среда и изолированная песочница DynamicToolRunner v2
@@ -14,11 +14,11 @@
 #     res = DynamicToolRunner.execute_from_wikillm(tool_record, {"text": "hello"})
 #
 # File: dynamic_runner.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 01:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

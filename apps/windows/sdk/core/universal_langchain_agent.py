@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Universal LangChain Agent
+# Process Name: ai-tc Apps Windows Core - Universal LangChain Agent
 # =============================================================================
 # Description:
 #   Универсальный агент на базе LangChain и LangGraph для решения абстрактных
@@ -18,11 +18,11 @@
 #         print(event)
 #
 # File: universal_langchain_agent.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-11 23:38:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -190,7 +190,7 @@ class UniversalLangChainAgent:
             )
         )
         return (
-            "Ты — автономный инженерный AI-ассистент платформы AI Windows Admin для ОС Windows.\n"
+            "Ты — автономный инженерный AI-ассистент платформы ai-tc для ОС Windows.\n"
             "Твоя задача — расследовать и решать ЛЮБЫЕ, в том числе абстрактные и ранее неизвестные задачи администрирования.\n\n"
             f"### 🧰 ДОСТУПНЫЙ ЯЩИК ИНСТРУМЕНТОВ (WIKILLM TOOLBOX):\n{tools_block}\n\n"
             "### ⚙️ ПРАВИЛА ВЫБОРА И СИНТЕЗА ИНСТРУМЕНТОВ:\n"

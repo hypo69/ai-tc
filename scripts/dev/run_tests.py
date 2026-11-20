@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Dev - Run Tests
+# Process Name: ai-tc Scripts Dev - Run Tests
 # =============================================================================
 # Description:
-#   Test runner script for ai-windows-admin project.
+#   Test runner script for ai-tc project.
 #
 # Usage Examples:
 #   CLI:
@@ -14,14 +14,14 @@
 #     res = run_tests()
 #
 # File: run_tests.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.dev
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
-"""Test runner script for ai-windows-admin project.
+"""Test runner script for ai-tc project.
 
 Provides command-line interface for running project tests with coverage
 analysis, verbose output, and filtering by test markers."""
@@ -64,7 +64,7 @@ def show_coverage():
 
 def main():
     """Main function."""
-    parser = argparse.ArgumentParser(description='Run ai-windows-admin project tests')
+    parser = argparse.ArgumentParser(description='Run ai-tc project tests')
     parser.add_argument('--coverage', '-c', action='store_true', help='Run with coverage analysis')
     parser.add_argument('--verbose', '-v', action='store_true', help='Verbose test output')
     parser.add_argument('--markers', '-m', type=str, help='pytest markers (unit, integration, slow)')

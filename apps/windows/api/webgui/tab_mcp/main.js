@@ -8,11 +8,11 @@
  *   пресеты провайдеров, интерактивное тестирование задержки и каталог инструментов.
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_mcp
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:41:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

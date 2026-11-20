@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Route Snapshot Helper
+# Process Name: ai-tc Tests - Route Snapshot Helper
 # =============================================================================
 # Description:
 #   Снимок маршрутов всех APIRouter из модулей apps.windows.api.routers.router_*.
 #   Используется для проверки неизменности REST API при декомпозиции роутеров.
 #
 # File: routes_snapshot.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests.helpers
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-12 05:50:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ def collect_routes(module_prefix: str) -> list[str]:
         module_prefix: Префикс имени модуля внутри пакета роутеров (например, ``router_admin``).
 
     Returns:
-        list[str]: Строки вида ``GET /api/admin/users`` (с учётом кратности).
+        list[str]: Строки вида ``GET /api/v1/admin/users`` (с учётом кратности).
     """
     seen: set[int] = set()
     out: Counter[str] = Counter()

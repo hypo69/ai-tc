@@ -32,7 +32,7 @@ flowchart TD
     end
     
     Decision --> D["Adaptive RAG Storage (adaptive_rag.py)"]
-    D --> E["Локальное хранилище в %APPDATA%\\AI-Windows-Admin\\apps\\system_log_viewer"]
+    D --> E["Локальное хранилище в %APPDATA%\\ai-tc\\apps\\system_log_viewer"]
 ```
 
 ---
@@ -75,7 +75,7 @@ Data Researcher выполняет легковесный математичес
 ## 💾 Фаза 3: Локальное хранилище и поиск (`adaptive_rag.py`)
 
 - **Путь сохранения**:
-  `%APPDATA%\AI-Windows-Admin\apps\system_log_viewer\adaptive_log_rag_chunks.json`
+  `%APPDATA%\ai-tc\apps\system_log_viewer\adaptive_log_rag_chunks.json`
 - **Ring-Buffer / TTL**:
   Ограничение максимального числа чанков (по умолчанию 1000) с автоматическим вытеснением устаревших данных.
 - **Двуязычный гибридный поиск (BM25 + Синонимы)**:

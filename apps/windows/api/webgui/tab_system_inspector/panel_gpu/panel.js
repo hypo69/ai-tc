@@ -8,11 +8,11 @@
  *   температур HotSpot, энергопотребления и SVG-спарклайнов.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_system_inspector/panel_gpu
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 20:43:00
+ * Updated: 2026-11-20 15:17:00
  * =============================================================================
  */
 
@@ -245,10 +245,10 @@ function renderGpuCardHtml(gpu, idx, totalDevices) {
   const headerTitle = totalDevices > 1 ? `Загрузка GPU #${gpu.index != null ? gpu.index : idx}: ${gpuName}` : `Загрузка GPU: ${gpuName}`;
 
   return `
-    <div class="sys-card sys-card-gpu h-100 mb-2" id="sys-card-gpu-${idx}" data-panel-id="panel-gpu-${idx}">
+    <div class="sys-card sys-card-gpu h-100" id="sys-card-gpu-${idx}" data-panel-id="panel-gpu-${idx}">
       <div class="sys-card-header-bar">
         <div class="d-flex align-items-center gap-2">
-          <span class="sys-label text-warning" style="font-size: 1.05rem; font-weight: 800;">
+          <span class="sys-label">
             <i class="bi bi-gpu-card text-warning me-1.5"></i>${headerTitle}
           </span>
           <span class="badge bg-dark border border-secondary text-info font-monospace ms-1" style="font-size: 0.74rem;">
@@ -259,13 +259,13 @@ function renderGpuCardHtml(gpu, idx, totalDevices) {
       </div>
 
       <div class="sys-card-top-banner" id="sys-card-gpu-banner-${idx}" onclick="window.toggleSysCardDrill && window.toggleSysCardDrill('sys-card-gpu-${idx}', ${idx}, event)" title="Нажмите для развертывания/сворачивания деталей GPU">
-        <div class="sys-banner-col-info d-flex flex-column align-items-start justify-content-center">
-          <div class="text-start mb-1.5 d-flex align-items-center">
-            <button type="button" class="sys-drill-btn" id="sys-drill-btn-gpu-${idx}" onclick="event.stopPropagation(); window.toggleSysCardDrill && window.toggleSysCardDrill('sys-card-gpu-${idx}', ${idx}, event)" title="Развернуть/скрыть детали GPU">
-              <img src="/html/assets/red_drill.png?v=20261018_v1" alt="Дрель">
+        <div class="sys-banner-col-info">
+          <div class="text-start mb-1 d-flex align-items-center">
+            <button type="button" class="sys-drill-btn" id="sys-drill-btn-gpu-${idx}" onclick="event.stopPropagation(); window.toggleSysCardDrill && window.toggleSysCardDrill('sys-card-gpu-${idx}', ${idx}, event)" title="">
+              <img src="/html/assets/red_drill.png?v=20261113_v1" alt="" title="">
             </button>
-            <div>
-              <span class="sys-metric-model-title" id="sys-metric-gpu-model-${idx}">${gpuName}</span>
+            <div class="text-truncate">
+              <span class="panel-title sys-metric-model-title text-truncate" id="sys-metric-gpu-model-${idx}">${gpuName}</span>
               <div class="d-flex align-items-center gap-1.5 mt-0.5">
                 <span class="badge bg-dark border border-secondary text-light font-monospace" id="sys-metric-gpu-vendor-badge-${idx}" style="font-size: 0.70rem;">${vendor} · PCIe</span>
                 <span class="badge bg-success-subtle text-success border border-success font-monospace" id="sys-gpu-status-badge-${idx}" style="font-size: 0.70rem;">● Ready</span>
@@ -292,19 +292,19 @@ function renderGpuCardHtml(gpu, idx, totalDevices) {
           </div>
         </div>
 
-        <div class="sys-banner-col-gauge d-flex flex-column justify-content-between gap-1.5">
-          <div class="d-flex align-items-center gap-2.5">
-            <div id="sys-metric-gpu-gauge-${idx}" style="width: 120px; height: 68px; flex-shrink: 0;"></div>
-            <div>
-              <div class="sys-value text-warning" id="sys-metric-gpu-val-${idx}" style="font-size: 2.1rem; line-height: 1; font-weight: 800;">0.0%</div>
-              <div class="text-light mt-1 font-monospace" style="font-size: 0.82rem; font-weight: 700;" id="sys-metric-gpu-core-temp-${idx}">GPU: -- °C</div>
+        <div class="sys-banner-col-gauge">
+          <div class="sys-gauge-box">
+            <div class="sys-gauge-svg-wrap" id="sys-metric-gpu-gauge-${idx}"></div>
+            <div class="sys-gauge-val-wrap">
+              <div class="sys-value text-warning" id="sys-metric-gpu-val-${idx}">0.0%</div>
+              <div class="sys-gauge-subtext text-light" id="sys-metric-gpu-core-temp-${idx}">GPU: -- °C</div>
             </div>
           </div>
-          <div id="sys-metric-gpu-temp-slider-${idx}" style="width: 100%;"></div>
+          <div class="sys-gauge-slider-wrap" id="sys-metric-gpu-temp-slider-${idx}"></div>
         </div>
 
         <div class="sys-banner-col-specs">
-          <div class="sys-gpu-specs-card p-2 rounded-2 d-flex flex-column justify-content-between h-100" 
+          <div class="sys-specs-card sys-gpu-specs-card" 
                id="sys-gpu-specs-card-${idx}"
                onclick="window.inspectGpuSpecsWithAi && window.inspectGpuSpecsWithAi(${idx})"
                title="AI-аудит графического процессора">
@@ -315,11 +315,12 @@ function renderGpuCardHtml(gpu, idx, totalDevices) {
               </span>
               <span class="badge bg-dark border border-secondary text-warning font-monospace" style="font-size: 0.68rem;" id="sys-gpu-spec-directx-${idx}">DirectX 12</span>
             </div>
-            <div class="sys-gpu-specs-grid">
-              <div class="sys-gpu-spec-item"><span class="text-muted">VRAM:</span><span class="font-monospace text-light fw-bold" id="sys-gpu-spec-vram-${idx}">-- GB</span></div>
-              <div class="sys-gpu-spec-item"><span class="text-muted">Занято:</span><span class="font-monospace text-info fw-bold" id="sys-gpu-spec-vram-used-${idx}">--%</span></div>
-              <div class="sys-gpu-spec-item"><span class="text-muted">Частота:</span><span class="font-monospace text-warning fw-bold" id="sys-gpu-spec-core-clock-${idx}">-- MHz</span></div>
-              <div class="sys-gpu-spec-item"><span class="text-muted">Драйвер:</span><span class="font-monospace text-light" id="sys-gpu-spec-driver-${idx}">--</span></div>
+            <div class="sys-specs-grid sys-gpu-specs-grid">
+              <div class="d-flex justify-content-between"><span class="text-muted">VRAM:</span><span class="font-monospace text-light fw-bold" id="sys-gpu-spec-vram-${idx}">-- GB</span></div>
+              <div class="d-flex justify-content-between"><span class="text-muted">Занято:</span><span class="font-monospace text-info fw-bold" id="sys-gpu-spec-vram-used-${idx}">--%</span></div>
+              <div class="d-flex justify-content-between"><span class="text-muted">Частота:</span><span class="font-monospace text-warning fw-bold" id="sys-gpu-spec-core-clock-${idx}">-- MHz</span></div>
+              <div class="d-flex justify-content-between"><span class="text-muted">Драйвер:</span><span class="font-monospace text-light text-truncate" style="max-width: 110px;" id="sys-gpu-spec-driver-${idx}">--</span></div>
+              <div class="d-flex justify-content-between" style="grid-column: span 2;"><span class="text-muted">Интерфейс:</span><span class="font-monospace text-warning fw-bold" id="sys-gpu-spec-bus-${idx}">PCI Express · Active</span></div>
             </div>
           </div>
         </div>
@@ -402,6 +403,7 @@ function updateSingleGpuCard(gpu, idx, totalDevices) {
   const specCoreClock = document.getElementById(`sys-gpu-spec-core-clock-${idx}`);
   const specDriver = document.getElementById(`sys-gpu-spec-driver-${idx}`);
   const specDirectX = document.getElementById(`sys-gpu-spec-directx-${idx}`);
+  const specBus = document.getElementById(`sys-gpu-spec-bus-${idx}`);
 
   if (specVram) specVram.textContent = specs.vram_str || (memory.total_mb ? `${(memory.total_mb/1024).toFixed(1)} GB` : '--');
   if (specVramUsed) specVramUsed.textContent = specs.vram_used_str || (memory.used_percent != null ? `${memory.used_percent.toFixed(0)}%` : '--');
@@ -409,6 +411,9 @@ function updateSingleGpuCard(gpu, idx, totalDevices) {
   if (specDriver) specDriver.textContent = specs.driver_version || gpu.driver_version || '--';
   if (specDirectX && (specs.directx || gpu.directx_version)) {
     specDirectX.textContent = specs.directx || gpu.directx_version;
+  }
+  if (specBus) {
+    specBus.textContent = specs.bus_interface || (gpu.pci_bus ? `PCIe ${gpu.pci_bus}` : 'PCI Express · Active');
   }
 
   const kpiVram = document.getElementById(`sys-gpu-kpi-vram-${idx}`);

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Window Control Plane Backend Resolver
+# Process Name: ai-tc Apps Windows - Window Control Plane Backend Resolver
 # =============================================================================
 # Description:
 #   Исполняющий движок Backend Resolver для чтения и применения параметров Windows.
@@ -18,11 +18,11 @@
 #     res = resolver.read_value(setting)
 #
 # File: resolver.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.window_control_plane
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

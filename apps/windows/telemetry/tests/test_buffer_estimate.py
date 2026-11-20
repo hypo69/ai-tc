@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Tests - Buffer Estimate
+# Process Name: ai-tc Apps Windows Telemetry Tests - Buffer Estimate
 # =============================================================================
 # Description:
 #   Тесты оптимизации TelemetryBuffer: быстрая оценка размера записи без
 #   сериализации и отсутствие обращений к файлу буфера в режиме 'memory'.
 #
 # File: test_buffer_estimate.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 11:50:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import json

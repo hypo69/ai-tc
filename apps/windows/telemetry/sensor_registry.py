@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Sensor Registry
+# Process Name: ai-tc Apps Windows Telemetry - Sensor Registry
 # =============================================================================
 # Description:
 #   Реестр сенсоров и политика дедупликации.
@@ -12,11 +12,11 @@
 #     service = SensorProvider()
 #
 # File: sensor_registry.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 07:22:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

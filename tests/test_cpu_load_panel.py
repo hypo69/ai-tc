@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - CPU Load Panel
+# Process Name: ai-tc Tests - CPU Load Panel
 # =============================================================================
 # Description:
 #   Модульные тесты панели «Загрузка CPU»:
@@ -9,11 +9,11 @@
 #   - Построение иерархии процессора (CPU -> ядра -> потоки -> сенсоры)
 #
 # File: test_cpu_load_panel.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 07:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -8,11 +8,11 @@
  *   политика хранения и триггер немедленной архивации.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_windows_backup/panel_overview
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:39:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

@@ -3,16 +3,16 @@
 # Process Name: Tests - Network Infra API & UI markup
 # =============================================================================
 # Description:
-#   Интеграционные тесты маршрутов /api/network/infra/* в существующем
+#   Интеграционные тесты маршрутов /api/v1/network/infra/* в существующем
 #   FastAPI-приложении ai-tc (подмена источников Windows) и проверка разметки
 #   вкладки tab-network (идентификаторы панелей, размещение меню).
 #
 # File: test_network_infra_api.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 16:20:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 import re
@@ -46,43 +46,43 @@ def client(tmp_path):
 
 
 def test_routes_registered_in_existing_app(client):
-    assert client.get('/api/network/infra/summary').status_code == 200
-    assert client.get('/api/network/infra/snapshots').status_code == 200
-    assert client.get('/api/network/infra/snapshots/compare?base=a&target=b').status_code == 404
+    assert client.get('/api/v1/network/infra/summary').status_code == 200
+    assert client.get('/api/v1/network/infra/snapshots').status_code == 200
+    assert client.get('/api/v1/network/infra/snapshots/compare?base=a&target=b').status_code == 404
     # существующие маршруты сетевого терминала не нарушены (не 404)
-    assert client.get('/api/network/subnets').status_code != 404
+    assert client.get('/api/v1/network/subnets').status_code != 404
 
 
 def test_resources_have_status_envelope(client):
     for name, status in (('adapters', 'ok'), ('ip-config', 'ok'), ('routes', 'ok'), ('switches', 'ok'),
                          ('nat', 'ok'), ('wsl', 'not_installed')):
-        body = client.get(f'/api/network/infra/{name}').json()
+        body = client.get(f'/api/v1/network/infra/{name}').json()
         assert body['status'] == status and 'collected_at' in body and 'errors' in body and isinstance(body['items'], list)
-    assert client.get('/api/network/infra/routes?family=IPv4').json()['items']
-    assert client.get('/api/network/infra/routes?family=IPv6').json()['items'] == []
-    assert client.get('/api/network/infra/routes?family=bad').status_code == 400
+    assert client.get('/api/v1/network/infra/routes?family=IPv4').json()['items']
+    assert client.get('/api/v1/network/infra/routes?family=IPv6').json()['items'] == []
+    assert client.get('/api/v1/network/infra/routes?family=bad').status_code == 400
 
 
 def test_summary_and_diagnostics(client):
-    body = client.get('/api/network/infra/summary').json()
+    body = client.get('/api/v1/network/infra/summary').json()
     assert body['summary']['adapters_total'] == 2 and body['summary']['switches_count'] == 2
-    diag = client.post('/api/network/infra/diagnostics/run').json()
+    diag = client.post('/api/v1/network/infra/diagnostics/run').json()
     assert any(f['rule_code'] == 'NET006' for f in diag['findings'])
-    assert client.get('/api/network/infra/history/findings?severity=bad').status_code == 400
+    assert client.get('/api/v1/network/infra/history/findings?severity=bad').status_code == 400
 
 
 def test_snapshots_history_compare_and_errors(client):
-    a = client.post('/api/network/infra/snapshots').json()
-    b = client.post('/api/network/infra/snapshots').json()
-    assert a['id'] != b['id'] and client.get('/api/network/infra/snapshots').json()['items'][0]['id'] == b['id']
-    detail = client.get(f"/api/network/infra/snapshots/{a['id']}").json()
+    a = client.post('/api/v1/network/infra/snapshots').json()
+    b = client.post('/api/v1/network/infra/snapshots').json()
+    assert a['id'] != b['id'] and client.get('/api/v1/network/infra/snapshots').json()['items'][0]['id'] == b['id']
+    detail = client.get(f"/api/v1/network/infra/snapshots/{a['id']}").json()
     assert detail['data']['adapters'] and detail['sources']['adapters']['status'] == 'ok'
-    diff = client.get(f"/api/network/infra/snapshots/compare?base={a['id']}&target={b['id']}").json()
+    diff = client.get(f"/api/v1/network/infra/snapshots/compare?base={a['id']}&target={b['id']}").json()
     assert diff['changes'] == [] and diff['base_id'] == a['id']
-    assert client.get('/api/network/infra/snapshots/nope').status_code == 404
-    assert client.get(f"/api/network/infra/snapshots/compare?base={a['id']}&target=nope").status_code == 404
-    assert client.get('/api/network/infra/history/findings').json()['items']
-    assert client.post('/api/network/infra/history/prune').json() == {'removed': 0}
+    assert client.get('/api/v1/network/infra/snapshots/nope').status_code == 404
+    assert client.get(f"/api/v1/network/infra/snapshots/compare?base={a['id']}&target=nope").status_code == 404
+    assert client.get('/api/v1/network/infra/history/findings').json()['items']
+    assert client.post('/api/v1/network/infra/history/prune').json() == {'removed': 0}
 
 
 def test_partial_availability_reported_not_500(tmp_path):
@@ -94,7 +94,7 @@ def test_partial_availability_reported_not_500(tmp_path):
     svc.wsl = WslNetworkCollector(runner, tmp_path / 'none')
     infra_router.set_service(svc)
     try:
-        body = TestClient(create_app()).get('/api/network/infra/routes').json()
+        body = TestClient(create_app()).get('/api/v1/network/infra/routes').json()
     finally:
         infra_router.set_service(None)
     assert body['status'] == 'data_unavailable' and body['needs_elevation'] and body['items'] == []

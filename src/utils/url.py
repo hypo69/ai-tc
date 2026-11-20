@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Url Module
+# Process Name: ai-tc UTILS - Url Module
 # =============================================================================
 # Description:
 #   Извлечение параметров запроса из URL, валидация URL и безопасное сокращение ссылок.
@@ -14,11 +14,11 @@
 #     res = extract_url_params("https://example.com?a=1")
 #
 # File: url.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:38:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Извлечение параметров запроса из URL, валидация URL и безопасное сокращение ссылок."""

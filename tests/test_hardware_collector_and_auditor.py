@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Hardware Collector and Auditor
+# Process Name: ai-tc Tests - Hardware Collector and Auditor
 # =============================================================================
 # Description:
 #   Модульные тесты для низкоуровневого коллектора телеметрии оборудования
@@ -11,11 +11,11 @@
 #     pytest tests/test_hardware_collector_and_auditor.py -v
 #
 # File: test_hardware_collector_and_auditor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 08:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

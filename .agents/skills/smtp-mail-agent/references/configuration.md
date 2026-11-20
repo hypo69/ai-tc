@@ -19,7 +19,7 @@
     "username": "your-email@gmail.com",
     "password": "xxxx xxxx xxxx xxxx",
     "from_email": "your-email@gmail.com",
-    "from_name": "AI Windows Admin Assistant",
+    "from_name": "ai-tc Assistant",
     "timeout": 30
   }
 }

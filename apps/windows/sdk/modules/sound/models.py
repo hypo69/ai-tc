@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Audio Module - Sound Models
+# Process Name: ai-tc Audio Module - Sound Models
 # =============================================================================
 # Description:
 #   Модели данных Pydantic для управления звуковой подсистемой Windows:
@@ -12,11 +12,11 @@
 #     from apps.windows.sdk.modules.sound.models import SoundSettingsDTO
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.sound
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-27 12:05:00
+# Updated: 2026-11-12 12:35:00
 # =============================================================================
 
 from __future__ import annotations
@@ -43,6 +43,11 @@ class SoundSessionDTO(BaseModel):
     volume: int = Field(100, ge=0, le=100, description="Уровень громкости сессии в процентах (0-100)")
     is_muted: bool = Field(False, description="Флаг отключения звука сессии (Mute)")
     is_system_sounds: bool = Field(False, description="Признак сессии системных звуков Windows")
+    device_name: str = Field("", description="Отображаемое имя связанного аудиоустройства")
+    device_flow: str = Field("render", description="Направление: render (вывод: наушники/колонки) или capture (ввод: микрофон)")
+    state: str = Field("active", description="Состояние сессии: active, inactive, expired")
+    is_active_now: bool = Field(False, description="Флаг активности звукового потока в реальном времени")
+    peak_level: float = Field(0.0, description="Пиковый уровень звукового сигнала (0.0-1.0)")
 
 
 class SoundSchemeDTO(BaseModel):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Docs - Generate Api
+# Process Name: ai-tc Scripts Docs - Generate Api
 # =============================================================================
 # Description:
 #   Скрипт для автоматической генерации API-документации из Python docstrings.
@@ -14,11 +14,11 @@
 #     service = DocstringParser()
 #
 # File: generate_api.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.docs
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Скрипт для автоматической генерации API-документации из Python docstrings.
@@ -31,7 +31,7 @@
 - src.ai.agents
 - src.utils
 
-Автор: AI-Windows-Admin Team
+Автор: ai-tc Team
 Язык: Русский"""
 
 from logger import logger
@@ -359,7 +359,7 @@ class APIDocumentationGenerator:
         Генерирует документацию для модуля.
         
         Args:
-            module_name: Имя модуля (например, 'ai-windows-admin.skills')
+            module_name: Имя модуля (например, 'ai-tc.skills')
             module_path: Опциональный путь к модулю
             
         Returns:
@@ -429,7 +429,7 @@ class APIDocumentationGenerator:
         """
         index_file = self.api_dir / 'index.md'
         md = MarkdownGenerator.generate_header('API-документация', 1)
-        md += 'Автоматически сгенерированная документация API проекта AI-Windows-Admin.\n\n'
+        md += 'Автоматически сгенерированная документация API проекта ai-tc.\n\n'
         md += 'Документация содержит полное описание:\n'
         md += '- Классов и их методов\n'
         md += '- Функций верхнего уровня\n'

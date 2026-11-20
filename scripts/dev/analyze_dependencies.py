@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Dev - Analyze Dependencies
+# Process Name: ai-tc Scripts Dev - Analyze Dependencies
 # =============================================================================
 # Description:
 #   Script dependency analysis utility.
@@ -14,11 +14,11 @@
 #     service = ScriptAnalyzer()
 #
 # File: analyze_dependencies.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.dev
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Script dependency analysis utility.

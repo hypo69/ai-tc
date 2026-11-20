@@ -11,11 +11,11 @@
 #   >>> await run_cloudflared_dashboard(interval=2.0)
 #
 # File: tui.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.cloudflared_monitor
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 14:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Отрисовка Rich TUI интерфейса для Cloudflared Monitor."""

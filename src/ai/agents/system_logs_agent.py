@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - System Logs Agent Module
+# Process Name: ai-tc AI - System Logs Agent Module
 # =============================================================================
 # Description:
 #   Модуль автономного агента анализа системных логов и диагностики ОС.
@@ -14,11 +14,11 @@
 #     print(result)
 #
 # File: system_logs_agent.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.agents
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:49:00
+# Updated: 2026-11-13 15:30:00
 # =============================================================================
 
 from __future__ import annotations
@@ -29,6 +29,7 @@ import re
 from pathlib import Path
 from typing import Any, AsyncIterator, Dict, List, Optional
 from logger import logger
+from src.utils.jjson import j_dumps
 from src.ai.agents.prompts import SYSTEM_LOGS_AGENT_PROMPT
 from src.ai.agents.tools import system_logs_analyzer
 
@@ -90,10 +91,8 @@ class SystemLogsAgent:
         days = self.parse_time_window_days(user_query)
         logger.info(f'[SystemLogsAgent] Запуск аудита логов ОС за период: {days} дн.')
         tool_res_str = await system_logs_analyzer.func(days=days, level='Critical,Error', limit=150)
-        try:
-            log_data = json.loads(tool_res_str)
-        except Exception:
-            log_data = {'raw': tool_res_str}
+        parsed_log = j_dumps(tool_res_str, exc_info=False)
+        log_data = parsed_log if isinstance(parsed_log, (dict, list)) else {'raw': tool_res_str}
         prompt = f'{SYSTEM_LOGS_AGENT_PROMPT}\n\n── ВХОДНЫЕ ДАННЫЕ ДИАГНОСТИКИ СИСТЕМЫ ──\nЗапрос пользователя: {user_query}\nПараметры сбора: за последние {days} дней ({days * 24} часов).\nСобранные данные и кластеры инцидентов (JSON):\n```json\n{json.dumps(log_data, ensure_ascii=False, indent=2)}\n```\n\nСформируйте исчерпывающий, технически грамотный отчет для администратора на русском языке.'
         model = active_llm or self.ai_model
         if not model:

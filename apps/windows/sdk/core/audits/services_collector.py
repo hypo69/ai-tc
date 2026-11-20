@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core Audits - Services Collector
+# Process Name: ai-tc Apps Windows Core Audits - Services Collector
 # =============================================================================
 # Description:
 #   Коллектор аудита служб Windows с поддержкой нативного SCM API.
@@ -12,11 +12,11 @@
 #     service = ServicesCollector()
 #
 # File: services_collector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core.audits
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 16:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ from __future__ import annotations
 import os
 import time
 import winreg
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 import psutil
 from logger import logger
 from apps.windows.sdk.win32_ffi.scm import ServiceControlManager

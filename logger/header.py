@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Logger - Header
+# Process Name: ai-tc Logger - Header
 # =============================================================================
 # Description:
 #   Module for project root path determination and meta information initialization.
@@ -10,11 +10,11 @@
 #     import logger.header as header
 #
 # File: header.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: logger
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-27 23:02:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Module for project root path determination and meta information initialization.
@@ -23,6 +23,7 @@ Solves two primary tasks:
 1. Determines project root directory by searching for marker files
 2. Loads and initializes project meta information from configuration files"""
 
+from typing import Dict
 import sys
 import json
 import logging
@@ -87,7 +88,7 @@ __project_name__: str = settings.get('app_name') or settings.get('project_name',
 'Название проекта'
 __version__: str = settings.get('version', '1.0.0') if settings else '1.0.0'
 'Версия проекта'
-__doc__: str = doc_str if doc_str else 'AI Windows Admin - Интеллектуальная система анализа'
+__doc__: str = doc_str if doc_str else 'ai-tc - Интеллектуальная система анализа'
 'Документация проекта'
 __author__: str = settings.get('author', 'Development Team') if settings else 'Development Team'
 'Автор проекта'

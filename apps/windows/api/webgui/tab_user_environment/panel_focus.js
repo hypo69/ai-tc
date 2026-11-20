@@ -11,7 +11,7 @@
  * Package: apps.windows.api.webgui.tab_user_environment
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 18:05:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -48,7 +48,7 @@ function setCheck(id, val) {
  */
 export async function loadFocusState() {
   try {
-    const res = await fetch('/api/windows/focus/state');
+    const res = await fetch('/api/v1/windows/focus/state');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderFocusState(data);
@@ -182,11 +182,11 @@ function updateDurationLabel() {
 export async function toggleFocusSession() {
   try {
     if (_isFocusActive) {
-      const res = await fetch('/api/windows/focus/session/stop', { method: 'POST' });
+      const res = await fetch('/api/v1/windows/focus/session/stop', { method: 'POST' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       showToast('Сессия фокусировки остановлена', 'info');
     } else {
-      const res = await fetch('/api/windows/focus/session/start', {
+      const res = await fetch('/api/v1/windows/focus/session/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ duration_minutes: _durationMinutes })
@@ -212,7 +212,7 @@ export async function saveFocusSettings() {
   };
 
   try {
-    const res = await fetch('/api/windows/focus/settings', {
+    const res = await fetch('/api/v1/windows/focus/settings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

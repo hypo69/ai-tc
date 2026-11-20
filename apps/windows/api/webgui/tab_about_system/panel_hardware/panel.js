@@ -6,12 +6,12 @@
  * - Сортировку по технической важности компонентов
  * - Таблицу дисковых разделов и таблицу запущенных процессов
  * 
- * Updated: 2026-11-11 21:24:00
+ * Updated: 2026-11-16 05:24:00
  */
 
 import { escapeHtml, apiFetch, formatStatusHtml } from '../common/ui_utils.js?v=20261018_v4';
 import { getHardwareEnrichmentHtml, openHardwareComponentHistory, requestComponentProductionDate } from './enrichment.js?v=20261020_v6';
-import { renderMonitorsSpec } from '../panel_identity/panel.js?v=20261103_v1';
+import { renderMonitorsSpec } from '../panel_identity/panel.js?v=20261116_v1';
 
 let hardwareData = [];
 
@@ -179,8 +179,8 @@ export function applyHardwareData(nodes) {
 
   if (monSpecEl && monNodes.length > 0) {
     const currentRenderedCount = monSpecEl.querySelectorAll('.d-flex.align-items-center').length;
-    const hasOnlyDummy = monSpecEl.textContent.includes('Опрос') || monSpecEl.textContent.includes('WinDisc') || monSpecEl.textContent.trim() === '';
-    if (hasOnlyDummy || monNodes.length > currentRenderedCount) {
+    const hasOnlyDummy = monSpecEl.textContent.includes('Опрос') || monSpecEl.textContent.includes('WinDisc') || monSpecEl.textContent.includes('Primary Monitor') || monSpecEl.textContent.trim() === '';
+    if (hasOnlyDummy || monNodes.length >= currentRenderedCount) {
       const parsedMonitors = monNodes.map(mn => {
         const p = mn.properties || {};
         const resParts = (p['Разрешение экрана'] || '').split('x');
@@ -458,11 +458,17 @@ export function renderDisksTable(disks) {
   if (!tbody) return;
 
   if (!Array.isArray(disks) || disks.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-3 text-muted">Дисковые разделы не обнаружены</td></tr>';
+    const emptyText = (window.i18n && typeof window.i18n.t === 'function')
+      ? window.i18n.t('aboutSystem.noDisksFound')
+      : 'Дисковые разделы не обнаружены';
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-3 text-muted" data-i18n="aboutSystem.noDisksFound">${escapeHtml(emptyText)}</td></tr>`;
     return;
   }
 
-  if (countBadge) countBadge.textContent = `${disks.length} Drives`;
+  const drivesSuffix = (window.i18n && typeof window.i18n.t === 'function')
+    ? window.i18n.t('aboutSystem.drivesSuffix')
+    : 'Drives';
+  if (countBadge) countBadge.textContent = `${disks.length} ${drivesSuffix}`;
 
   tbody.innerHTML = disks.map(d => {
     const pct = Math.min(100, Math.max(0, Math.round(d.percent || 0)));
@@ -471,26 +477,71 @@ export function renderDisksTable(disks) {
     else if (pct > 70) barClass = 'bg-warning';
 
     const driveLabel = escapeHtml(d.device || d.mountpoint || '-');
-    const volName = d.volume_name ? `<span class="small text-muted ms-1">(${escapeHtml(d.volume_name)})</span>` : '';
+    const rawDev = String(d.device || d.mountpoint || '').toUpperCase();
+    const letterMatch = rawDev.match(/^([A-Z]:)/);
+    const driveLetter = letterMatch ? letterMatch[1] : '';
+
+    const dTypeStr = String(d.drive_type || '').toLowerCase();
+    const volStr = String(d.volume_name || '').toLowerCase();
+    const isGoogleDrive = (d.drive_type === 'Google Drive') ||
+      dTypeStr.includes('google') ||
+      volStr.includes('google') ||
+      (d.is_virtual && ['G:', 'J:'].includes(driveLetter)) ||
+      ['G:', 'J:'].includes(driveLetter);
+
+    // Очищаем метку тома (удаляем дублирующий суффикс Google Drive)
+    const cleanVol = d.volume_name ? String(d.volume_name).replace(/\s*-\s*Google Drive\s*$/i, '').trim() : '';
+    const letterDisplay = driveLetter || driveLabel;
+
+    // Бейдж Google Drive для облачных томов
+    const gdriveBadge = isGoogleDrive
+      ? '<span class="ui-badge ui-badge-info ms-2" title="Google Drive Cloud Drive"><i class="bi bi-google me-1"></i>Google Drive</span>'
+      : '';
+
+    // Форматирование имени диска и буквы тома в стиле Windows: "OS (C:)"
+    const nameDisplay = cleanVol
+      ? `<span class="fw-bold text-body">${escapeHtml(cleanVol)}</span> <span class="text-info fw-semibold font-monospace ms-1">(${escapeHtml(letterDisplay)})</span>`
+      : `<span class="font-monospace fw-bold text-info">${escapeHtml(driveLabel)}</span>`;
+
+    const diskIcon = isGoogleDrive
+      ? '<i class="bi bi-google text-info me-2 fs-6"></i>'
+      : ((cleanVol.toLowerCase().includes('usb') || dTypeStr.includes('removable') || dTypeStr.includes('external'))
+          ? '<i class="bi bi-usb-drive text-warning me-2 fs-6"></i>'
+          : '<i class="bi bi-hdd-fill text-secondary me-2 fs-6"></i>');
+
     const totalGb = d.total_gb != null ? `${Number(d.total_gb).toFixed(1)} GB` : '-';
     const usedGb = d.used_gb != null ? `${Number(d.used_gb).toFixed(1)} GB` : '-';
     const freeGb = d.free_gb != null ? `${Number(d.free_gb).toFixed(1)} GB` : '-';
-    const smartStatus = d.smart_status || 'OK';
-    const sLower = String(smartStatus).toLowerCase();
-    let smartBadgeClass = 'ui-badge-success';
-    let smartIcon = 'bi-check-circle-fill';
-    if (sLower.includes('bad') || sLower.includes('error') || sLower.includes('fail') || sLower.includes('problem')) {
-      smartBadgeClass = 'ui-badge-danger';
-      smartIcon = 'bi-x-circle-fill';
-    } else if (sLower.includes('warn') || sLower.includes('caution')) {
-      smartBadgeClass = 'ui-badge-warning';
-      smartIcon = 'bi-exclamation-triangle-fill';
+
+    let smartCellHtml = '';
+    if (isGoogleDrive) {
+      smartCellHtml = '<span class="ui-badge ui-badge-info" title="Виртуальный облачный диск Google Drive"><i class="bi bi-cloud-check-fill me-1"></i>Cloud (GDrive)</span>';
+    } else {
+      const smartStatus = d.smart_status || 'OK';
+      const sLower = String(smartStatus).toLowerCase();
+      let smartBadgeClass = 'ui-badge-success';
+      let smartIcon = 'bi-check-circle-fill';
+      if (sLower.includes('bad') || sLower.includes('error') || sLower.includes('fail') || sLower.includes('problem')) {
+        smartBadgeClass = 'ui-badge-danger';
+        smartIcon = 'bi-x-circle-fill';
+      } else if (sLower.includes('warn') || sLower.includes('caution')) {
+        smartBadgeClass = 'ui-badge-warning';
+        smartIcon = 'bi-exclamation-triangle-fill';
+      }
+      smartCellHtml = `<span class="ui-badge ${smartBadgeClass}"><i class="bi ${smartIcon} me-1"></i>${escapeHtml(smartStatus)}</span>`;
     }
+
+    const fsDisplay = escapeHtml(d.fstype || (isGoogleDrive ? 'FAT32 / Cloud' : 'NTFS'));
 
     return `
       <tr>
-        <td class="font-monospace fw-bold text-info">${driveLabel}${volName}</td>
-        <td class="font-monospace">${escapeHtml(d.fstype || 'NTFS')}</td>
+        <td>
+          <div class="d-flex align-items-center">
+            ${diskIcon}
+            <div class="d-flex align-items-center flex-wrap">${nameDisplay}${gdriveBadge}</div>
+          </div>
+        </td>
+        <td class="font-monospace">${fsDisplay}</td>
         <td class="font-monospace">${totalGb}</td>
         <td class="font-monospace text-warning">${usedGb}</td>
         <td class="font-monospace text-success">${freeGb}</td>
@@ -502,7 +553,7 @@ export function renderDisksTable(disks) {
             <span class="font-monospace small text-end" style="min-width: 38px;">${pct}%</span>
           </div>
         </td>
-        <td><span class="ui-badge ${smartBadgeClass}"><i class="bi ${smartIcon} me-1"></i>${escapeHtml(smartStatus)}</span></td>
+        <td>${smartCellHtml}</td>
       </tr>
     `;
   }).join('');

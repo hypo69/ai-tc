@@ -25,11 +25,11 @@ Usage Examples:
       <iframe src="/windows/api/webgui/tab_processes_load_inspector/index.html" class="w-100 h-100 border-0"></iframe>
 
 File: index.html
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/tab_processes_load_inspector
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 17:45:00
+# Updated: 2026-11-13 15:48:43
 # =============================================================================
 -->
 <style>
@@ -260,7 +260,7 @@ Package: windows/api/webgui/tab_processes_load_inspector
         <i class="bi bi-globe text-info"></i>
         <span>Сетевая активность программ</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-proc-files-btn" data-panel-id="files" data-term="proc-subtab-files" data-ai-tooltip="true" data-bs-toggle="pill" data-bs-target="#subpane-proc-files" type="button" role="tab">
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-proc-files-btn" data-panel-id="files-io" data-term="proc-subtab-files" data-ai-tooltip="true" data-bs-toggle="pill" data-bs-target="#subpane-proc-files" type="button" role="tab">
         <i class="bi bi-activity text-success"></i>
         <span>Изменения файлов (Real-Time)</span>
       </button>
@@ -347,10 +347,6 @@ Package: windows/api/webgui/tab_processes_load_inspector
         </button>
         <span class="badge bg-secondary" id="pm-table-badge">0 процессов</span>
         <button class="btn btn-xs btn-outline-secondary btn-table-expand-100" id="pm-btn-table-expand" data-target-container="pm-table-container" title="Раскрыть таблицу на 100% высоты без скроллера">100%</button>
-        <button class="btn btn-sm btn-outline-warning py-0 px-2.5 d-flex align-items-center gap-1.5" id="pm-btn-investigate-powershell" data-term="pm-investigate-ps" data-ai-tooltip="true" title="ИИ-расследование: найти кто и зачем постоянно запускает PowerShell / скрипты">
-          <i class="bi bi-search-heart"></i>
-          <span>Кто запускает PowerShell?</span>
-        </button>
         <button class="btn btn-sm btn-outline-info py-0 px-2 d-flex align-items-center gap-1" id="pm-btn-prompt-settings" data-term="pm-prompt-settings" data-ai-tooltip="true" title="Настроить системный промпт ИИ для анализа процессов">
           <i class="bi bi-gear-fill"></i>
           <span class="d-none d-sm-inline">Промпт ИИ</span>
@@ -497,7 +493,7 @@ Package: windows/api/webgui/tab_processes_load_inspector
   </div>
 
   <!-- Subpane 4: Изменения файлов в реальном времени (WinAPI Watcher) -->
-  <div class="tab-pane fade" id="subpane-proc-files" role="tabpanel" data-panel-id="processes_inspector-files">
+  <div class="tab-pane fade" id="subpane-proc-files" role="tabpanel" data-panel-id="processes_inspector-files-io">
     <div class="row g-2 mt-1">
       <div class="col-12">
       <div class="sys-panel" data-panel-id="panel-processes-load-inspector-5" id="panel-processes-load-inspector-5">

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows API - Router AI Instruments
+# Process Name: ai-tc Apps Windows API - Router AI Instruments
 # =============================================================================
 # Description:
 #   REST API эндпоинты для изолированной базы данных инструментов ИИ-агента
@@ -14,11 +14,11 @@
 #     router = init_router()
 #
 # File: router_ai_instruments.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -34,6 +34,11 @@ from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
 from logger import logger
+from apps.windows.ai_instruments.command_wizard import (
+    CommandParameter,
+    CommandTemplateParser,
+    CommandWizardParsedResult,
+)
 from apps.windows.ai_instruments.models import (
     AIInstrument,
     AIInstrumentCreate,
@@ -41,6 +46,22 @@ from apps.windows.ai_instruments.models import (
 )
 from apps.windows.ai_instruments.service import AIInstrumentsService
 from apps.windows.ai_instruments.storage import AIInstrumentsStorage
+
+
+class CommandWizardParseRequest(BaseModel):
+    """Схема запроса на синтаксический анализ шаблона команды для модели."""
+
+    command: str = Field(
+        ...,
+        description="Шаблон команды с плейсхолдерами, например: net user {user_name} /active:{yes|no}",
+    )
+
+
+class CommandWizardBuildRequest(BaseModel):
+    """Схема запроса на сборку команды с подстановкой параметров."""
+
+    template: str = Field(..., description="Нормализованный шаблон команды")
+    parameters: Dict[str, Any] = Field(default_factory=dict, description="Значения параметров")
 
 
 class InstrumentsDbConfigRequest(BaseModel):
@@ -298,6 +319,24 @@ def init_router(service: Optional[AIInstrumentsService] = None) -> APIRouter:
             "status": "ok",
             "extracted_count": len(saved_items),
             "items": [it.model_dump() for it in saved_items],
+        }
+
+    @router.post("/wizard/parse", response_model=Dict[str, Any])
+    async def parse_command_template(payload: CommandWizardParseRequest) -> Dict[str, Any]:
+        """Парсит шаблон команды, извлекает параметры, строит JSON Schema и метаданные."""
+        res = CommandTemplateParser.parse(payload.command)
+        return {
+            "status": "ok",
+            "result": res.model_dump(),
+        }
+
+    @router.post("/wizard/build", response_model=Dict[str, Any])
+    async def build_command_template(payload: CommandWizardBuildRequest) -> Dict[str, Any]:
+        """Подставляет значения параметров в нормализованный шаблон команды."""
+        cmd = CommandTemplateParser.substitute(payload.template, payload.parameters)
+        return {
+            "status": "ok",
+            "command": cmd,
         }
 
     @router.get("/db/config", response_model=Dict[str, Any])

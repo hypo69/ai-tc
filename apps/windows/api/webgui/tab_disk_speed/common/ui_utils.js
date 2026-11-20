@@ -6,11 +6,11 @@
  *   Утилиты копирования результатов бенчмарка в формате Markdown.
  *
  * File: common/ui_utils.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_disk_speed/common
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 02:10:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
@@ -30,7 +30,7 @@ export function copyResultsAsMarkdown() {
   const disk = document.getElementById('bench-drive-select')?.value || 'C:';
 
   const md = [
-    `### AI-Windows-Admin DiskSpd Benchmark (${disk})`,
+    `### ai-tc DiskSpd Benchmark (${disk})`,
     '',
     '| Профиль | Read (MB/s) | Write (MB/s) |',
     '| :--- | :---: | :---: |',

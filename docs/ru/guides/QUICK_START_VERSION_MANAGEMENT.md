@@ -200,7 +200,7 @@ python main.py --check-update
 ```powershell
 $trigger = New-ScheduledTaskTrigger -AtStartup
 $action = New-ScheduledTaskAction -Execute "C:\path\to\update_app.bat"
-Register-ScheduledTask -TaskName "AI-Windows-Admin-Update" -Trigger $trigger -Action $action -RunLevel Highest
+Register-ScheduledTask -TaskName "ai-tc-Update" -Trigger $trigger -Action $action -RunLevel Highest
 ```
 
 ### Linux/macOS Cron

@@ -11,7 +11,7 @@
 
 ### 1. Clone/Download Repository
 ```bash
-cd c:\Users\onela\AppData\Local\AI-Windows-Admin\apps\windows
+cd c:\Users\onela\AppData\Local\ai-tc\apps\windows
 ```
 
 ### 2. Install Python Dependencies

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Telemetry - Software Audit Persistence Tests
+# Process Name: ai-tc Telemetry - Software Audit Persistence Tests
 # =============================================================================
 # Description:
 #   Модульные тесты интеграции аудита программного обеспечения с базой данных
 #   SQLite телеметрии (сохранение отчетов, обновление инвентаря ПО, отсутствие CSV).
 #
 # File: test_software_audit_telemetry.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 20:36:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

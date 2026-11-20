@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - models
+# Process Name: ai-tc Apps Windows Api Routers - models
 # =============================================================================
 # Description:
 #   Pydantic-модели ответов и запросов панели «О системе».
 #   Вынесено из router_about_system.py (этап 4 оптимизации).
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.about_system
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-11-01 15:25:00
+# Updated: 2026-11-12 12:40:00
 # =============================================================================
 
 from __future__ import annotations
@@ -76,6 +76,7 @@ class StoragePanelResponse(BaseModel):
     """Модель ответа панели «Системный накопитель (C:)»."""
     status: str = Field(default="ok", description="Статус ответа")
     drive: str = Field(default="C:", description="Буква системного диска")
+    volume_name: Optional[str] = Field(default=None, description="Метка тома системного диска")
     total_gb: float = Field(default=0.0, description="Общий объем системного диска в GB")
     free_gb: float = Field(default=0.0, description="Свободный объем системного диска в GB")
     used_gb: float = Field(default=0.0, description="Занятый объем системного диска в GB")

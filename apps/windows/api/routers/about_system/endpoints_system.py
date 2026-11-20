@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - endpoints_system
+# Process Name: ai-tc Apps Windows Api Routers - endpoints_system
 # =============================================================================
 # Description:
 #   Эндпойнты изменения параметров системы.
 #   Вынесено из router_about_system.py (этап 4 оптимизации).
 #
 # File: endpoints_system.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.about_system
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-11-01 15:25:00
+# Updated: 2026-11-12 05:55:00
 # =============================================================================
 
 from __future__ import annotations
@@ -79,7 +79,7 @@ def register_system_action_endpoints(router: APIRouter, storage: TelemetryStorag
         restart_sched = False
 
         if res.get("status") == "ok" and req.restart:
-            await asyncio.create_subprocess_exec("shutdown.exe", "/r", "/t", "5", "/c", "AI-Windows-Admin: Перезагрузка для применения нового имени хоста.")
+            await asyncio.create_subprocess_exec("shutdown.exe", "/r", "/t", "5", "/c", "ai-tc: Перезагрузка для применения нового имени хоста.")
             msg += " Перезагрузка системы запланирована через 5 секунд."
             restart_sched = True
 
@@ -105,7 +105,7 @@ def register_system_action_endpoints(router: APIRouter, storage: TelemetryStorag
         restart_sched = False
 
         if res.get("status") == "ok" and req.restart:
-            await asyncio.create_subprocess_exec("shutdown.exe", "/r", "/t", "5", "/c", "AI-Windows-Admin: Перезагрузка для применения новой рабочей группы.")
+            await asyncio.create_subprocess_exec("shutdown.exe", "/r", "/t", "5", "/c", "ai-tc: Перезагрузка для применения новой рабочей группы.")
             msg += " Перезагрузка системы запланирована через 5 секунд."
             restart_sched = True
 
@@ -303,18 +303,49 @@ def register_system_action_endpoints(router: APIRouter, storage: TelemetryStorag
         if req.cannot_change_password is not None:
             ps_args.append(f"-UserMayChangePassword {'$false' if req.cannot_change_password else '$true'}")
 
+        pwd_msg = ""
         if req.password_required is not None:
+            req_str = "yes" if req.password_required else "no"
             try:
-                req_str = "yes" if req.password_required else "no"
-                subprocess.run(["net", "user", target_user, f"/passwordreq:{req_str}"], capture_output=True, timeout=5)
-            except Exception as e:
-                logger.debug(f"[router_about_system] Ошибка установки passwordreq: {e}")
+                proc_net = await asyncio.create_subprocess_exec(
+                    "net", "user", target_user, f"/passwordreq:{req_str}",
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                )
+                stdout_net, stderr_net = await proc_net.communicate()
+                if proc_net.returncode != 0:
+                    err_net = (
+                        stderr_net.decode("cp866", errors="replace").strip()
+                        or stdout_net.decode("cp866", errors="replace").strip()
+                        or stdout_net.decode("utf-8", errors="replace").strip()
+                    )
+                    logger.warning(f"[router_about_system] Ошибка net user /passwordreq: {err_net}")
+                    return UpdateUserProfileResponse(
+                        status="error",
+                        username=target_user,
+                        message=f"Не удалось выполнить команду 'net user {target_user} /passwordreq:{req_str}': {err_net}",
+                    )
+                pwd_msg = f"Команда 'net user {target_user} /passwordreq:{req_str}' успешно выполнена. "
+            except Exception as exc:
+                logger.error(f"[router_about_system] Ошибка запуска net user: {exc}", exc_info=True)
+                return UpdateUserProfileResponse(
+                    status="error",
+                    username=target_user,
+                    message=f"Ошибка выполнения 'net user': {exc}",
+                )
 
         if not ps_args and req.password_required is None:
             return UpdateUserProfileResponse(
                 status="ok",
                 username=target_user,
                 message="Параметры для изменения не указаны.",
+            )
+
+        if not ps_args and req.password_required is not None:
+            return UpdateUserProfileResponse(
+                status="ok",
+                username=target_user,
+                message=pwd_msg.strip(),
             )
 
         try:
@@ -342,7 +373,7 @@ def register_system_action_endpoints(router: APIRouter, storage: TelemetryStorag
             return UpdateUserProfileResponse(
                 status="ok",
                 username=target_user,
-                message=f"Профиль пользователя '{target_user}' успешно обновлен.",
+                message=f"{pwd_msg}Профиль пользователя '{target_user}' успешно обновлен.".strip(),
             )
         except Exception as exc:
             logger.error(f"[router_about_system] Ошибка при обновлении профиля пользователя: {exc}", exc_info=True)

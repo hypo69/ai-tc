@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Process Activity Engine
+# Process Name: ai-tc Apps Windows Core - Process Activity Engine
 # =============================================================================
 # Description:
 #   Движок Process Intelligence & Activity Deep Dive. Обеспечивает точное
@@ -16,11 +16,11 @@
 #     active = engine.get_active_instances()
 #
 # File: process_activity_engine.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 18:57:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -1364,7 +1364,7 @@ class ProcessActivityEngine:
                 )
 
             elif action_name == "dump":
-                dump_dir = Path(request.dump_folder) if request.dump_folder else Path(os.environ.get("TEMP", "C:/Temp")) / "ai_windows_admin_dumps"
+                dump_dir = Path(request.dump_folder) if request.dump_folder else Path(os.environ.get("TEMP", "C:/Temp")) / "ai_tc_dumps"
                 dump_dir.mkdir(parents=True, exist_ok=True)
                 timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
                 dump_filename = dump_dir / f"{inst.name}_{pid}_{timestamp_str}.dmp"

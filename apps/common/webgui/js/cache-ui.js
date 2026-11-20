@@ -13,11 +13,11 @@
  *     import { initCacheUI, openCacheModal } from '/windows/api/webgui/js/cache-ui.js';
  *
  * File: cache-ui.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
@@ -110,7 +110,7 @@ export function initCacheUI() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `ai_windows_admin_cache_${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `ai_tc_cache_${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

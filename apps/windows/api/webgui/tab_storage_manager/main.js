@@ -13,11 +13,11 @@
  *     import { initStorageManagerTab } from '/windows/api/webgui/tab_storage_manager/main.js';
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_storage_manager
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-16 14:55:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -32,7 +32,7 @@ var isInitialized = false;
 
 export async function fetchStorageSummary() {
   try {
-    const res = await fetch('/api/storage-manager/summary');
+    const res = await fetch('/api/v1/storage-manager/summary');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderStorageSummary(data);
@@ -95,7 +95,7 @@ async function executeStorageAction() {
   output.textContent = `[${new Date().toLocaleTimeString()}] Запуск операции: ${op} (DryRun: ${dryRun})...\n`;
 
   try {
-    const res = await fetch('/api/storage-manager/action', {
+    const res = await fetch('/api/v1/storage-manager/action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: op, target: target, dry_run: dryRun })

@@ -10,11 +10,11 @@
 #   py apps/common/webgui/themes/generate_themes_catalog.py
 #
 # File: generate_themes_catalog.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.common.webgui.themes
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:31:55
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

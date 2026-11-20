@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry_Research - Query Engine
+# Process Name: ai-tc Apps Windows Telemetry_Research - Query Engine
 # =============================================================================
 # Description:
 #   Движок SQL-запросов и аналитических расчетов по базе данных telemetry.db.
@@ -12,11 +12,11 @@
 #     service = TelemetryQueryEngine()
 #
 # File: query_engine.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.analytics
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -13,11 +13,11 @@ Usage Examples:
       <iframe src="/windows/api/webgui/apps/index.html" class="w-100 h-100 border-0"></iframe>
 
 File: index.html
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/apps
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 16:15:00
+ * Updated: 2026-11-20 16:35:00
  * =============================================================================
 -->
 
@@ -26,7 +26,7 @@ Package: windows/api/webgui/apps
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Windows Admin — Приложения (/apps)</title>
+  <title>ai-tc — Приложения (/apps)</title>
   <script>
     (function() {
       try {
@@ -84,13 +84,13 @@ Package: windows/api/webgui/apps
   </script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="/html/css/main.css?v=20261028_v15" rel="stylesheet">
+  <link href="/html/css/main.css?v=20261120_v2" rel="stylesheet">
   <link href="/html/css/themes.css?v=20261028_v15" rel="stylesheet">
   <script src="/html/js/indexeddb-cache.js?v=20261015_v1"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/html/js/toast.js?v=20261006_v10"></script>
   <script src="https://cdn.jsdelivr.net/npm/i18next@23.11.5/i18next.min.js"></script>
-  <script src="/html/js/global-i18n.js?v=20261013_v1"></script>
+  <script src="/html/js/global-i18n.js?v=20261120_v1"></script>
   <script src="/html/js/global-tooltips-i18n.js?v=20261031_v2"></script>
 </head>
 <body>
@@ -98,7 +98,7 @@ Package: windows/api/webgui/apps
 <div class="container-fluid mt-1 px-2" id="apps-interface">
 
   <!-- Navigation Bar (/tc, /apps) -->
-  <div class="d-flex align-items-center justify-content-between mb-2 main-nav-container rounded px-2 py-1 flex-wrap gap-2">
+  <div class="d-flex align-items-center justify-content-between mb-2 main-nav-container rounded px-2 py-1 flex-wrap gap-2 sticky-top">
     <!-- Левая часть: кнопка меню и элементы навигации -->
     <div class="d-flex align-items-center gap-2 flex-wrap">
       <!-- Кнопка открытия левого выдвижного меню -->
@@ -163,10 +163,10 @@ Package: windows/api/webgui/apps
             <span>Программы</span>
           </div>
           <div class="list-group list-group-flush rounded border" id="appSwitcherNav">
-            <a href="/tc#tab-about-system" class="list-group-item list-group-item-action active d-flex align-items-center justify-content-between py-2 px-3" onclick="switchToApp('tc', event)" title="Текущее приложение: AI Windows Admin (Test Computer)">
+            <a href="/tc#tab-about-system" class="list-group-item list-group-item-action active d-flex align-items-center justify-content-between py-2 px-3" onclick="switchToApp('tc', event)" title="Текущее приложение: ai-tc (Test Computer)">
               <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-window-desktop text-primary fs-6"></i>
-                <span class="fw-semibold">AI Windows Admin</span>
+                <span class="fw-semibold">ai-tc</span>
               </div>
               <span class="badge bg-primary-subtle text-primary border border-primary-subtle small font-size-80">Активно</span>
             </a>
@@ -223,7 +223,7 @@ Package: windows/api/webgui/apps
               </div>
               <div>
                 <span class="fw-bold fs-6 text-primary user-select-none" style="letter-spacing: 0.3px;">Test Computer</span>
-                <div class="small text-muted" style="font-size: 0.78rem;">AI Windows Admin — Панель управления и диагностики</div>
+                <div class="small text-muted" style="font-size: 0.78rem;">ai-tc — Панель управления и диагностики</div>
               </div>
             </div>
 
@@ -533,14 +533,15 @@ Package: windows/api/webgui/apps
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <link rel="stylesheet" href="/html/ai_modal_dialog/style.css?v=20261028_v1">
-<script src="/html/ai_modal_dialog/main.js?v=20261031_v2"></script>
+<script src="/html/ai_modal_dialog/main.js?v=20261120_v1"></script>
 <script src="/html/js/window-api.js?v=20261008_v3"></script>
 <script src="/html/js/help-modal.js?v=20261031_v1"></script>
 <script src="/html/js/chatService.js?v=20261008_v3"></script>
 <script src="/html/js/appConfigEditor.js?v=20261008_v3"></script>
-<script src="/html/js/table-resizer.js?v=20261028_v1"></script>
+<script src="/html/js/table-sorter.js?v=20261120_v1"></script>
+<script src="/html/js/table-resizer.js?v=20261120_v1"></script>
 <script type="module" src="/html/js/panel-loader.js?v=20261028_v5"></script>
-<script type="module" src="/html/apps/main.js?v=20261101_v2"></script>
+<script type="module" src="/html/apps/main.js?v=20261120_v1"></script>
 <script>
   function switchToApp(appName, event) {
     if (event) {

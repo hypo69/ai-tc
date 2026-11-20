@@ -12,7 +12,7 @@
 # Package: plugins.telegram_bot
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 18:55:00
+# Updated: 2026-11-19 19:18:00
 # =============================================================================
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ from telegram.ext import ContextTypes
 
 from header import __root__
 from logger import logger
-from plugins.telegram_bot import user_auth as user_manager
+from plugins.telegram_bot import user_auth
 
 if TYPE_CHECKING:
     from apps.ai_assistant.core.workspace_manager import WorkspaceManager
@@ -71,9 +71,8 @@ def resolve_workspace(wm: WorkspaceManager, query: str) -> Tuple[str, str]:
     if scenario.is_david_moshe_workspace(clean_query):
         canonical_id = scenario.resolve_david_moshe_workspace_id(wm, preferred_id=clean_query)
         ws = wm.get_workspace(canonical_id)
-        if not ws:
-            ws = wm.create_or_select_workspace(canonical_id, name="דוד משה")
-        return canonical_id, str(ws.get("name") or "דוד משה")
+        if ws:
+            return canonical_id, str(ws.get("name") or "דוד משה")
 
     workspaces = wm.list_workspaces()
     norm_query = _normalize_hebrew_token(clean_query)
@@ -93,13 +92,8 @@ def resolve_workspace(wm: WorkspaceManager, query: str) -> Tuple[str, str]:
             if norm_query in (_normalize_hebrew_token(ws_id), _normalize_hebrew_token(ws_name)):
                 return ws_id, ws_name or ws_id
 
-    # 4. Если область не найдена — создаем новую
-    safe_slug = _SLUG_SEP_RE.sub("_", clean_query).strip("_")
-    if not safe_slug:
-        safe_slug = f"ws_{int(time.time())}"
-    ws = wm.create_or_select_workspace(safe_slug, name=clean_query)
-    logger.console(f"[TelegramBot] Создана новая рабочая область: {safe_slug} ('{clean_query}')")
-    return safe_slug, clean_query
+    # 4. Если область не найдена — не создаём из кода автоматически
+    return "default", clean_query or "Default"
 
 
 def get_effective_user_workspace(wm: WorkspaceManager, tg_id: int) -> Tuple[str, str]:
@@ -112,7 +106,7 @@ def get_effective_user_workspace(wm: WorkspaceManager, tg_id: int) -> Tuple[str,
     Returns:
         Кортеж (workspace_id, workspace_name).
     """
-    saved_ws_id = user_manager.get_user_workspace(tg_id)
+    saved_ws_id = user_auth.get_user_workspace(tg_id)
     if saved_ws_id:
         ws = wm.get_workspace(saved_ws_id)
         if ws:
@@ -133,8 +127,7 @@ def get_effective_user_workspace(wm: WorkspaceManager, tg_id: int) -> Tuple[str,
         f_name = str(first.get("name") or f_id)
         return f_id, f_name
 
-    # Создаём дефолтную область при пустом реестре
-    ws = wm.create_or_select_workspace("default", name="Главная область")
+    # Если список пуст — возвращаем default без создания папок
     return "default", "Главная область"
 
 
@@ -188,16 +181,16 @@ async def handle_workspace_command(
             f"Текущая выбранная область: <b>{cur_name}</b> (<code>{cur_id}</code>)\n\n"
             "Нажмите на кнопку ниже для переключения или отправьте команду с именем области:\n"
             "<code>/workspace &lt;имя_или_id&gt;</code> (или <code>/w &lt;имя&gt;</code>)\n"
-            "Например: <code>/w דוד משה</code>"
+            "Например: <code>/w my_workspace</code>"
         )
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode="HTML")
         return
 
-    # Режим прямого переключения: /workspace דוד משה
+    # Режим прямого переключения: /workspace <query>
     query = " ".join(args).strip()
     ws_id, ws_name = resolve_workspace(wm, query)
 
-    user_manager.set_user_workspace(tg_id, ws_id)
+    user_auth.set_user_workspace(tg_id, ws_id)
     try:
         wm.set_active_workspace(ws_id)
     except Exception as exc:
@@ -241,7 +234,7 @@ async def handle_workspace_callback(
         ws = wm.get_workspace(target_ws_id)
         ws_name = str(ws.get("name") or target_ws_id) if ws else target_ws_id
 
-        user_manager.set_user_workspace(tg_id, target_ws_id)
+        user_auth.set_user_workspace(tg_id, target_ws_id)
         try:
             wm.set_active_workspace(target_ws_id)
         except Exception:
@@ -277,7 +270,7 @@ async def handle_incoming_media(
 
     tg_id = update.effective_user.id
     user_name = update.effective_user.first_name or "Пользователь"
-    user = user_manager.get_user_by_telegram_id(tg_id, admin_ids=admin_ids)
+    user = user_auth.get_user_by_telegram_id(tg_id, admin_ids=admin_ids)
 
     if not user:
         await update.message.reply_text(
@@ -373,7 +366,7 @@ async def handle_incoming_media(
         # 5. Сохраняем локальную резервную копию в папку пользователя
         try:
             sub = "audio" if is_audio_file else "documents"
-            user_dir = user_manager.get_user_directory(user["id"], subfolder=sub, create=True)
+            user_dir = user_auth.get_user_directory(user["id"], subfolder=sub, create=True)
             ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
             backup_path = user_dir / f"{ts}_{clean_name}"
             backup_path.write_bytes(raw_bytes)
@@ -381,11 +374,11 @@ async def handle_incoming_media(
             logger.debug(f"[TelegramBot] Резервная копия файла: {b_exc}")
 
         # 6. Формируем структурированный ответ
-        copied_transcript_name = ""
+        copied_transcript_rel = ""
         paperless_id_val = None
         for tf in upload_result.get("tracked_files", []):
             if tf.get("source") == "david_moshe_scenario_transcript":
-                copied_transcript_name = Path(tf.get("path") or tf.get("name") or "").name
+                copied_transcript_rel = str(tf.get("rel_path") or tf.get("name") or "")
             if tf.get("paperless_id"):
                 paperless_id_val = tf.get("paperless_id")
 
@@ -397,8 +390,9 @@ async def handle_incoming_media(
         ]
         if paperless_id_val is not None:
             lines.append(f"📑 <b>Paperless-ngx:</b> Документ обработан и распознан (ID: <code>#{paperless_id_val}</code>)")
-        if copied_transcript_name:
-            lines.append(f"📄 <b>Стенограмма скопирована в:</b> <code>assets/{copied_transcript_name}</code>")
+        if copied_transcript_rel:
+            lines.append(f"📂 <b>Стенограмма скопирована в:</b> <code>{copied_transcript_rel}</code> (Git-слежение подключено)")
+            lines.append("💬 <b>Сценарий покупки:</b> Окно чата WebGUI готово к работе (ветврач + страховой агент).")
         lines.append("🧠 <b>База знаний:</b> Факты сохранены в SQLite, проиндексированы в RAG FAISS и Obsidian.")
 
         if transcript_text:

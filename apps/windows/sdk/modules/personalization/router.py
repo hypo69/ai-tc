@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Personalization Router
+# Process Name: ai-tc Apps Windows - Personalization Router
 # =============================================================================
 # Description:
 #   FastAPI REST API роутер для управления персонализацией Windows:
@@ -12,11 +12,11 @@
 #     from apps.windows.sdk.modules.personalization.router import router as personalization_router
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.personalization
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

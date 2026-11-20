@@ -13,11 +13,11 @@
  *     import { STORES, BrowserCacheManager, browserCache } from '/windows/api/webgui/js/browser-cache.js';
  *
  * File: browser-cache.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: common/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-24 22:05:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

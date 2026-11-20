@@ -10,7 +10,7 @@
  *
  * File: main.js
  * Package: apps/windows/api/webgui/tab_network
- * Updated: 2026-10-28 19:04:00
+ * Updated: 2026-11-20 17:19:00
  * =============================================================================
  */
 
@@ -20,10 +20,11 @@ import { fetchAdapters, getAllAdapters } from './panel_adapters/panel.js';
 import { fetchConnections, renderConnectionsTable, setActiveConnFilter } from './panel_connections/panel.js';
 import {
   initDiscoveryPanel,
+  loadDiscoveryData,
   fetchDiscoveredDevices,
   startDiscoveryAutoRefresh,
   stopDiscoveryAutoRefresh
-} from './panel_discovery/panel.js';
+} from './panel_discovery/panel.js?v=20261120_v2';
 import { loadInfraPanel, initInfraPanels } from './panel_infra/panel.js';
 import {
   startLiveCapture,

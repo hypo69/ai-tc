@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - Schema Inventory
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - Schema Inventory
 # =============================================================================
 # Description:
 #   DDL-определения инвентаризации и истории изменений оборудования (2 из 12 таблиц):
 #   hardware_components, hardware_component_history.
 #
 # File: schema_inventory.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 12:55:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

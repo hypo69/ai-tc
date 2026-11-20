@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Subsystem 09 User Profiles
+# Process Name: ai-tc Apps Windows - Subsystem 09 User Profiles
 # =============================================================================
 # Description:
 #   Подсистема 09: Профили пользователей Windows (User Profiles, NTUSER.DAT,
@@ -14,11 +14,11 @@
 #     profiles = subsys.list_profiles()
 #
 # File: subsystem_09_profiles.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.accounts_identity.subsystems
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Подсистема анализа и аудита профилей пользователей Windows."""

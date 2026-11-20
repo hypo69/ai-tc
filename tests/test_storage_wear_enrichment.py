@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Storage Wear & POH Enrichment
+# Process Name: ai-tc Tests - Storage Wear & POH Enrichment
 # =============================================================================
 # Description:
 #   Тесты гарантированного обогащения наработки (Power On Hours / Старт) и SMART-показателей
 #   накопителей из базы данных SQLite, а также валидация роутера panel-about-disks-wear.
 #
 # File: test_storage_wear_enrichment.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 19:15:00
+# Updated: 2026-11-20 15:15:00
 # =============================================================================
 
 from __future__ import annotations
@@ -310,6 +310,50 @@ async def test_hardware_tree_physical_disk_power_on_hours_and_launch_date():
 
         assert has_poh is True, "Ни у одного накопителя не обнаружено время наработки"
         assert has_first_launch is True, "Ни у одного накопителя не обнаружен расчетный первый запуск"
+
+
+def test_save_snapshot_atomic_write(tmp_path):
+    """Проверка атомарной записи снимка накопителей без оставления временных файлов."""
+    import json
+    from apps.windows.sdk.modules.storage_manager.core.windows_storage_sensor import save_snapshot
+
+    target = tmp_path / "storage_snapshot.json"
+    payload = {"sources": {"partitions": [{"DiskNumber": 0, "DriveLetter": "C"}]}, "summary": {"physical_disk_count": 1}}
+    save_snapshot(payload, target, quiet=True)
+
+    assert target.is_file()
+    assert json.loads(target.read_text(encoding="utf-8")) == payload
+    leftover_tmp = [p for p in tmp_path.iterdir() if p.suffix == ".tmp"]
+    assert leftover_tmp == []
+
+
+def test_storage_sensor_snapshot_stored_in_telemetry_db(tmp_path):
+    """Проверка сохранения и чтения снимка WindowsStorageSensor в telemetry.db (inventory_state)."""
+    from apps.windows.telemetry.sqlite import TelemetryStorage
+    from apps.windows.api.routers.about_system.query_diagnostics import _resolve_disk_num_to_letters_map
+
+    db_path = tmp_path / "telemetry_test.db"
+    storage = TelemetryStorage(db_path=str(db_path))
+    snapshot = {
+        "schema_version": "1.0",
+        "sources": {
+            "partitions": [
+                {"DiskNumber": 0, "DriveLetter": "R"},
+                {"DiskNumber": 3, "DriveLetter": "C"},
+            ]
+        },
+        "summary": {"physical_disk_count": 2},
+    }
+
+    assert storage.save_storage_sensor_snapshot(snapshot) is True
+    loaded = storage.get_latest_storage_sensor_snapshot()
+    assert loaded == snapshot
+
+    mapping, sources = _resolve_disk_num_to_letters_map(storage=storage)
+    assert mapping == {"0": ["R:"], "3": ["C:"]}
+    assert "partitions" in sources
+
+
 
 
 

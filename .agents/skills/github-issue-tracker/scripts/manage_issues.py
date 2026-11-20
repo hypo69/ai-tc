@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Skill - GitHub Issue Tracker CLI
+# Process Name: ai-tc Skill - GitHub Issue Tracker CLI
 # =============================================================================
 # Description:
 #   Консольная утилита для управления задачами GitHub Issues, просмотра вех
@@ -12,11 +12,11 @@
 #   py manage_issues.py sync-labels
 #
 # File: manage_issues.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: .agents.skills.github-issue-tracker.scripts
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:48:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

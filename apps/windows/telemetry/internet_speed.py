@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Internet Speed
+# Process Name: ai-tc Apps Windows Telemetry - Internet Speed
 # =============================================================================
 # Description:
 #   Сенсор телеметрии скорости интернета и характеристик сети на базе FAST.com.
-#   Выполняет периодический замер (1 раз в час / 3600 сек), сохраняет кольцевую
-#   историю на 144 записи (6 суток) и рассчитывает скользящее среднее (SMA / медиану).
+#   Выполняет периодический замер (6 раз в сутки / каждые 4 часа / 14400 сек),
+#   сохраняет кольцевую историю на 144 записи и рассчитывает скользящее среднее (SMA / медиану).
 #
 # Usage Examples:
 #   Python API:
@@ -17,11 +17,11 @@
 #     print(stats['download_avg_mbps'], stats['count'])
 #
 # File: internet_speed.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 10:55:00
+# Updated: 2026-11-12 05:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -48,7 +48,8 @@ from logger import logger
 from apps.windows.sdk.modules.network.speedtest import NetworkSpeedTester
 
 _speed_cache: Optional[tuple[float, Dict[str, Any]]] = None
-_CACHE_TTL = 3600  # 1 час между замерами скорости для снижения нагрузки на сеть
+_DEFAULT_INTERVAL_SEC = 14400  # 4 часа (6 раз в сутки) для снижения сетевой нагрузки
+_CACHE_TTL = _DEFAULT_INTERVAL_SEC
 _cache_lock = threading.Lock()
 _bg_test_running = False
 _bg_lock = threading.Lock()
@@ -66,11 +67,15 @@ def get_default_history_path() -> Path:
         mgr = get_telemetry_config_manager()
         data_dir = mgr.get_data_path()
     except Exception:
-        appdata = os.environ.get('APPDATA') or os.environ.get('LOCALAPPDATA')
-        if appdata and os.path.exists(appdata):
-            data_dir = Path(appdata) / 'ai-tc' / 'telemetry'
+        programdata = os.environ.get('ProgramData') or os.environ.get('ALLUSERSPROFILE')
+        if programdata and os.path.exists(programdata):
+            data_dir = Path(programdata) / 'ai-tc' / 'telemetry'
         else:
-            data_dir = Path.home() / '.config' / 'ai-tc' / 'telemetry'
+            appdata = os.environ.get('APPDATA') or os.environ.get('LOCALAPPDATA')
+            if appdata and os.path.exists(appdata):
+                data_dir = Path(appdata) / 'ai-tc' / 'telemetry'
+            else:
+                data_dir = Path.home() / '.config' / 'ai-tc' / 'telemetry'
     data_dir.mkdir(parents=True, exist_ok=True)
     return data_dir / 'internet_speed_history.json'
 
@@ -80,17 +85,23 @@ class InternetSpeedSensor:
 
     def __init__(
         self,
-        cache_ttl: int = _CACHE_TTL,
+        cache_ttl: Optional[int] = None,
         max_history: int = 144,
         history_path: Optional[Path] = None,
     ) -> None:
         """Инициализация сенсора скорости интернета.
 
         Args:
-            cache_ttl: Время жизни кеша замера в секундах (по умолчанию 3600 сек = 1 час).
-            max_history: Максимальное количество хранимых записей (по умолчанию 144 = 6 суток).
+            cache_ttl: Время жизни кеша замера в секундах (по умолчанию 14400 сек = 4 часа, 6 раз в сутки).
+            max_history: Максимальное количество хранимых записей (по умолчанию 144 записи).
             history_path: Пользовательский путь к файлу сохранения истории.
         """
+        if cache_ttl is None:
+            try:
+                from apps.windows.telemetry.telemetry_config import get_telemetry_config_manager
+                cache_ttl = int(get_telemetry_config_manager().get_internet_speed_interval_seconds())
+            except Exception:
+                cache_ttl = _DEFAULT_INTERVAL_SEC
         self.cache_ttl = cache_ttl
         self.max_history = max_history
         self.history_path = history_path or get_default_history_path()
@@ -332,10 +343,10 @@ class InternetSpeedSensor:
         thread.start()
 
     def check_and_run_hourly(self, force: bool = False, skip_if_busy: bool = True) -> Dict[str, Any]:
-        """Проверяет интервал (1 час) и запускает замер скорости при необходимости.
+        """Проверяет интервал (4 часа / 6 раз в сутки) и запускает замер скорости при необходимости.
 
         Args:
-            force: Запустить замер принудительно, игнорируя интервал 3600с.
+            force: Запустить замер принудительно, игнорируя интервал cache_ttl (14400с).
             skip_if_busy: Отложить замер, если сеть сейчас активно нагружена (> 5 МБ/с).
 
         Returns:

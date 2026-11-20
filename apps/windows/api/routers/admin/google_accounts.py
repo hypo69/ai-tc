@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - google_accounts
+# Process Name: ai-tc Apps Windows Api Routers - google_accounts
 # =============================================================================
 # Description:
 #   Эндпойнты управления пулом учетных записей Google Workspace (OAuth2 и Service Account).
 #
 # File: google_accounts.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.admin
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 15:46:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ from src.ai.google_accounts_state import (
     save_google_account,
     set_default_account,
 )
-from .routers import router, router_v1
+from .routers import router_v1
 
 
 class GoogleAccountCreatePayload(BaseModel):
@@ -56,8 +56,6 @@ class GoogleAccountCreatePayload(BaseModel):
 
 @router_v1.get('/google-accounts')
 @router_v1.get('/google-accounts/')
-@router.get('/google-accounts')
-@router.get('/google-accounts/')
 async def get_google_accounts() -> Dict[str, Any]:
     """Возвращает список всех учетных записей Google в пуле."""
     try:
@@ -80,7 +78,6 @@ async def get_google_accounts() -> Dict[str, Any]:
 
 
 @router_v1.get('/google-accounts/{name}')
-@router.get('/google-accounts/{name}')
 async def get_single_google_account(name: str) -> Dict[str, Any]:
     """Возвращает информацию о конкретной учетной записи Google."""
     try:
@@ -104,8 +101,6 @@ async def get_single_google_account(name: str) -> Dict[str, Any]:
 
 @router_v1.post('/google-accounts')
 @router_v1.post('/google-accounts/')
-@router.post('/google-accounts')
-@router.post('/google-accounts/')
 async def create_google_account(payload: GoogleAccountCreatePayload) -> Dict[str, Any]:
     """Создает или обновляет учетную запись Google в пуле."""
     try:
@@ -155,7 +150,6 @@ async def create_google_account(payload: GoogleAccountCreatePayload) -> Dict[str
 
 
 @router_v1.post('/google-accounts/upload')
-@router.post('/google-accounts/upload')
 async def upload_google_account_credentials(
     account_name: Optional[str] = Form(None),
     account_type: Optional[str] = Form("oauth2"),
@@ -204,8 +198,6 @@ async def upload_google_account_credentials(
 
 @router_v1.post('/google-accounts/{name}/default')
 @router_v1.post('/google-accounts/{name}/set-default')
-@router.post('/google-accounts/{name}/default')
-@router.post('/google-accounts/{name}/set-default')
 async def set_default_google_account(name: str) -> Dict[str, Any]:
     """Назначение учетной записи Google аккаунтом по умолчанию."""
     try:
@@ -221,7 +213,6 @@ async def set_default_google_account(name: str) -> Dict[str, Any]:
 
 
 @router_v1.post('/google-accounts/{name}/reset-status')
-@router.post('/google-accounts/{name}/reset-status')
 async def reset_google_account_status_endpoint(name: str) -> Dict[str, Any]:
     """Сброс исчерпания квоты и возврат аккаунта Google в активное состояние."""
     try:
@@ -237,7 +228,6 @@ async def reset_google_account_status_endpoint(name: str) -> Dict[str, Any]:
 
 
 @router_v1.post('/google-accounts/{name}/test')
-@router.post('/google-accounts/{name}/test')
 async def test_google_account_endpoint(name: str) -> Dict[str, Any]:
     """Проверка аутентификации и валидности учетных данных Google аккаунта."""
     try:
@@ -303,7 +293,6 @@ async def test_google_account_endpoint(name: str) -> Dict[str, Any]:
 
 
 @router_v1.delete('/google-accounts/{name}')
-@router.delete('/google-accounts/{name}')
 async def delete_google_account_endpoint(name: str) -> Dict[str, Any]:
     """Удаление учетной записи Google из пула."""
     try:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Log_Intelligence Tests - Test Intelligence Pipeline
+# Process Name: ai-tc Apps Windows Log_Intelligence Tests - Test Intelligence Pipeline
 # =============================================================================
 # Description:
 #   Комплексные тесты Log Intelligence: Data Researcher, Decision Gate,
@@ -10,11 +10,11 @@
 #   pytest apps/windows/log_intelligence/tests/ -v
 #
 # File: test_intelligence_pipeline.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.log_intelligence.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 16:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Тесты Log Intelligence и In-Memory RAG семантического поиска по логам Windows."""

@@ -4,19 +4,19 @@
  * Запрашивает единый агрегированный срез данных через /api/v1/about-system/bundle
  * без отправки разрозненных сетевых запросов от каждой панели.
  * Файл: apps/windows/api/webgui/tab_about_system/main.js
- * Updated: 2026-11-11 21:24:00
+ * Updated: 2026-11-16 05:24:00
  */
 
-import { apiFetch, clearTabCache, showGlobalSpinner, setText } from './common/ui_utils.js?v=20261103_v1';
-import { applyKpiData } from './panel_kpi/panel.js?v=20261103_v1';
-import { applyIdentityData, applyControlStatusData, applyDisksWearData, applyStorageBatteryWearData, bindIdentityEvents, fetchSecurityHealth, fetchDisksWear, fetchStorageBatteryWear } from './panel_identity/panel.js?v=20261103_v1';
-import { applyBatteryData, fetchBatteryWear, bindBatteryEvents } from './panel_battery/panel.js?v=20261103_v1';
-import { applyHardwareData, bindHardwareEvents, fetchHardwareTree, renderDisksTable } from './panel_hardware/panel.js?v=20261111_v1';
-import { openHardwareComponentHistory } from './panel_hardware/enrichment.js?v=20261103_v1';
-import { initAIDiagnosticsPanel, runAIDiagnostics } from './panel_ai_diagnostics/panel.js?v=20261103_v1';
-import { bindRegionalEvents, loadRegionalOptions, openRegionalModal } from './panel_regional_network/regional.js?v=20261103_v1';
-import { fetchNetworkProfile, updateNetworkProfileUI, setNetworkInterfaceIndex } from './panel_regional_network/network.js?v=20261103_v1';
-import { initHistoryPanel, fetchAboutSystemHistory } from './panel_history/panel.js?v=20261103_v1';
+import { apiFetch, clearTabCache, showGlobalSpinner, setText } from './common/ui_utils.js?v=20261116_v1';
+import { applyKpiData } from './panel_kpi/panel.js?v=20261116_v1';
+import { applyIdentityData, applyControlStatusData, applyDisksWearData, applyStorageBatteryWearData, bindIdentityEvents, fetchSecurityHealth, fetchDisksWear, fetchStorageBatteryWear } from './panel_identity/panel.js?v=20261116_v1';
+import { applyBatteryData, fetchBatteryWear, bindBatteryEvents } from './panel_battery/panel.js?v=20261116_v1';
+import { applyHardwareData, bindHardwareEvents, fetchHardwareTree, renderDisksTable } from './panel_hardware/panel.js?v=20261116_v1';
+import { openHardwareComponentHistory } from './panel_hardware/enrichment.js?v=20261116_v1';
+import { initAIDiagnosticsPanel, runAIDiagnostics } from './panel_ai_diagnostics/panel.js?v=20261116_v1';
+import { bindRegionalEvents, loadRegionalOptions, openRegionalModal } from './panel_regional_network/regional.js?v=20261116_v1';
+import { fetchNetworkProfile, updateNetworkProfileUI, setNetworkInterfaceIndex } from './panel_regional_network/network.js?v=20261116_v1';
+import { initHistoryPanel, fetchAboutSystemHistory } from './panel_history/panel.js?v=20261116_v1';
 
 let clockInterval = null;
 let isInitialized = false;
@@ -85,6 +85,13 @@ function applyBundleData(bundle) {
     const ifaceAlias = net.primary_interface_alias || (net.primary_interface_index ? `IF #${net.primary_interface_index}` : 'Ethernet');
     setNetworkInterfaceIndex(net.primary_interface_index || null);
     updateNetworkProfileUI(net.current_category, ifaceAlias, net.is_discovery_enabled);
+  }
+
+  // Применяем i18n переводы ко всем обновленным элементам
+  if (typeof window.applyTranslations === 'function') {
+    window.applyTranslations();
+  } else if (window.I18nManager && typeof window.I18nManager.applyTranslations === 'function') {
+    window.I18nManager.applyTranslations();
   }
 }
 

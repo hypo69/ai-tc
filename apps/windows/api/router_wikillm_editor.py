@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api - Router WikiLLM Editor
+# Process Name: ai-tc Apps Windows Api - Router WikiLLM Editor
 # =============================================================================
 # Description:
 #   Реализует эндпоинты для работы с БД WikiLLM: проверка соединения, инициализация,
 #   миграция данных из SQLite и получение списка профилей.
 #
 # File: router_wikillm_editor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 02:58:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Router, предоставляющий API для управления базой WikiLLM.

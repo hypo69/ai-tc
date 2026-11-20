@@ -3,7 +3,8 @@
 Process Name: Windows Web Interface - Services Manager View
 =============================================================================
 Description:
-  Шаблон клиентского веб-интерфейса диспетчера служб Windows.
+  Шаблон клиентского веб-интерфейса диспетчера служб Windows с каталогом
+  svchost-групп, анализом связей, сетевой активности и глубоким ИИ-досье.
 
 Usage Examples:
     Web Route:
@@ -13,11 +14,11 @@ Usage Examples:
       <iframe src="/windows/api/webgui/tab_services_manager/index.html" class="w-100 h-100 border-0"></iframe>
 
 File: index.html
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/tab_services_manager
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-12 01:56:00
+Updated: 2026-11-20 00:16:00
 =============================================================================
 -->
 <style>
@@ -29,6 +30,19 @@ Updated: 2026-11-12 01:56:00
     border: 1px solid var(--border-color);
     color: var(--text-color);
   }
+  .svc-control-input {
+    background: var(--surface-2);
+    color: var(--text-color);
+    border-color: var(--border-color);
+  }
+  #svc-table thead th {
+    background: var(--surface-2);
+    color: var(--text-color);
+  }
+  #svc-table thead {
+    background: var(--surface-2);
+    border-bottom: 2px solid var(--border-color);
+  }
   #svc-table tbody tr {
     border-bottom: 1px solid var(--border-color);
   }
@@ -37,11 +51,14 @@ Updated: 2026-11-12 01:56:00
     transition: background-color 0.15s ease-in-out;
   }
   #svc-table tbody tr.interactive-service-row:hover {
-    background-color: var(--surface-2, rgba(56, 189, 248, 0.08)) !important;
+    background-color: var(--surface-2) !important;
   }
   #svc-table td {
     background: transparent;
     color: var(--text-color);
+  }
+  .svc-name-cell {
+    color: var(--accent-color);
   }
 </style>
 <!-- Services Manager Tab -->
@@ -52,93 +69,98 @@ Updated: 2026-11-12 01:56:00
       <span class="tab-header-icon fs-4 text-warning">⚙️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title mb-0">Диспетчер служб Windows (Services)</h3>
-          
+          <h3 class="tab-header-title mb-0">Диспетчер и каталог служб Windows (Services)</h3>
         </div>
-        <small class="tab-header-subtitle text-secondary">Управление запуском, остановкой и типами автозагрузки системных служб Windows Service Control Manager</small>
+        <small class="tab-header-subtitle text-secondary">Каталог служб SCM, группы svchost, зависимости, хост-процессы, сетевые соединения и глубокое досье</small>
       </div>
     </div>
-    
   </div>
 
-<!-- Top Stat Cards -->
-<div class="row g-2 mb-3">
-<div class="col-6 col-md-3">
-<div class="card svc-card h-100 shadow-sm p-3" data-panel-id="panel-services-manager-1" id="panel-services-manager-1">
-<div class="text-muted small text-uppercase fw-semibold">Всего служб ⚙️</div>
-<div class="fs-4 fw-bold mt-1 text-primary" id="svc-total-count">--</div>
-<div class="small text-muted mt-1" id="svc-total-sub">sc query state= all</div>
-</div>
-</div>
-<div class="col-6 col-md-3">
-<div class="card svc-card h-100 shadow-sm p-3" data-panel-id="panel-services-manager-2" id="panel-services-manager-2">
-<div class="text-muted small text-uppercase fw-semibold">Работают (Running) 🟢</div>
-<div class="fs-4 fw-bold mt-1 text-success" id="svc-running-count">--</div>
-<div class="small text-muted mt-1" id="svc-running-sub">Активные процессы</div>
-</div>
-</div>
-<div class="col-6 col-md-3">
-<div class="card svc-card h-100 shadow-sm p-3" data-panel-id="panel-services-manager-3" id="panel-services-manager-3">
-<div class="text-muted small text-uppercase fw-semibold">Остановлены (Stopped) ⏸️</div>
-<div class="fs-4 fw-bold mt-1 text-secondary" id="svc-stopped-count">--</div>
-<div class="small text-muted mt-1" id="svc-stopped-sub">В режиме ожидания</div>
-</div>
-</div>
-<div class="col-6 col-md-3">
-<div class="card svc-card h-100 shadow-sm p-3" data-panel-id="panel-services-manager-4" id="panel-services-manager-4">
-<div class="text-muted small text-uppercase fw-semibold">С автозапуском (Auto) 🚀</div>
-<div class="fs-4 fw-bold mt-1 text-info" id="svc-auto-count">--</div>
-<div class="small text-muted mt-1" id="svc-auto-sub">Системный старт</div>
-</div>
-</div>
-</div>
-<!-- Action Bar -->
-<div class="d-flex align-items-center justify-content-between mb-3 p-2 rounded flex-wrap gap-2 svc-card">
-<div class="d-flex align-items-center gap-2">
-<button class="btn btn-sm btn-primary d-flex align-items-center gap-1.5" id="svc-refresh-btn">
-<i class="bi bi-arrow-clockwise"></i>
-<span>Обновить список</span>
-</button>
-<div class="btn-group btn-group-sm">
-<button class="btn btn-sm btn-outline-secondary active" id="svc-filter-all">Все</button>
-<button class="btn btn-sm btn-outline-secondary" id="svc-filter-running">Работающие</button>
-<button class="btn btn-sm btn-outline-secondary" id="svc-filter-stopped">Остановленные</button>
-</div>
-</div>
-<div class="d-flex align-items-center gap-2">
-<input class="form-control form-control-sm" id="svc-search-input" placeholder="Поиск службы (имя или отображение)..." style="width: 260px; background: var(--surface-2); color: var(--text-color); border-color: var(--border-color);" type="text"/>
-</div>
-</div>
-<!-- Services Table -->
-<div class="card svc-card shadow-sm" data-panel-id="panel-windows-services-manager" id="panel-windows-services-manager">
-<div class="panel-header d-flex align-items-center justify-content-between py-2 px-3 flex-wrap gap-2">
-<span class="panel-title"><i class="bi bi-gear-wide-connected text-primary me-2"></i>Службы Windows (Service Control Manager)</span>
-<div class="d-flex align-items-center gap-2">
-  <span class="badge bg-secondary-subtle text-secondary border border-secondary" id="svc-table-badge">0 служб</span>
-  <span class="text-muted small d-none d-md-inline ms-1"><i class="bi bi-info-circle me-1"></i>Клик по строке открывает ИИ-досье службы</span>
-  <button class="btn btn-xs btn-outline-secondary btn-table-expand-100" id="svc-btn-table-expand" title="Раскрыть таблицу на 100% высоты без скроллера">100%</button>
-</div>
-</div>
-<div class="card-body p-0 table-responsive" id="svc-table-container" style="min-height: 140px; max-height: 850px; overflow-y: auto;">
-<table class="table table-hover align-middle mb-0 small" id="svc-table">
-<thead class="sticky-top" style="background: var(--surface-2); border-bottom: 2px solid var(--border-color);">
-<tr>
-<th style="background: var(--surface-2); color: var(--text-color);">Имя службы</th>
-<th style="background: var(--surface-2); color: var(--text-color);">Отображаемое имя</th>
-<th style="background: var(--surface-2); color: var(--text-color);">Состояние</th>
-<th style="background: var(--surface-2); color: var(--text-color);">Тип запуска</th>
-<th style="background: var(--surface-2); color: var(--text-color);">PID</th>
-<th class="text-end" style="background: var(--surface-2); color: var(--text-color);">Управление</th>
-</tr>
-</thead>
-<tbody id="svc-tbody">
-<tr><td class="text-center text-muted py-4" colspan="6">Опрос диспетчера служб Windows...</td></tr>
-</tbody>
-</table>
-</div>
-<div class="sys-table-resizer" id="svc-table-resizer" data-container-id="svc-table-container" title="Потяните для изменения высоты таблицы (двойной клик — авто-высота)">
-  <div class="sys-table-resizer-grip"></div>
-</div>
-</div>
-</div>
+  <!-- Top Stat Cards -->
+  <div class="row g-2 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="card svc-card h-100 shadow-sm p-3" data-panel-id="panel-services-manager-1" id="panel-services-manager-1">
+        <div class="text-muted small text-uppercase fw-semibold">Всего служб ⚙️</div>
+        <div class="fs-4 fw-bold mt-1 text-primary" id="svc-total-count">--</div>
+        <div class="small text-muted mt-1" id="svc-total-sub">SCM + Registry каталог</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card svc-card h-100 shadow-sm p-3" data-panel-id="panel-services-manager-2" id="panel-services-manager-2">
+        <div class="text-muted small text-uppercase fw-semibold">Работают (Running) 🟢</div>
+        <div class="fs-4 fw-bold mt-1 text-success" id="svc-running-count">--</div>
+        <div class="small text-muted mt-1" id="svc-running-sub">Активные процессы</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card svc-card h-100 shadow-sm p-3" data-panel-id="panel-services-manager-3" id="panel-services-manager-3">
+        <div class="text-muted small text-uppercase fw-semibold">Группы svchost 🧩</div>
+        <div class="fs-4 fw-bold mt-1 text-info" id="svc-groups-count">--</div>
+        <div class="small text-muted mt-1" id="svc-groups-sub">UnistackSvcGroup, netsvcs и др.</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card svc-card h-100 shadow-sm p-3" data-panel-id="panel-services-manager-4" id="panel-services-manager-4">
+        <div class="text-muted small text-uppercase fw-semibold">С автозапуском / Per-User 🚀</div>
+        <div class="fs-4 fw-bold mt-1 text-warning" id="svc-auto-count">--</div>
+        <div class="small text-muted mt-1" id="svc-per-user-sub">Per-user экземпляры: --</div>
+      </div>
+    </div>
+  </div>
 
+  <!-- Action Bar -->
+  <div class="d-flex align-items-center justify-content-between mb-3 p-2 rounded flex-wrap gap-2 svc-card">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <button class="btn btn-sm btn-primary d-flex align-items-center gap-1.5" id="svc-refresh-btn" title="Принудительно просканировать SCM, реестр, процессы и сеть">
+        <i class="bi bi-arrow-clockwise"></i>
+        <span>Обновить срез</span>
+      </button>
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-sm btn-primary active" id="svc-filter-all">Все</button>
+        <button class="btn btn-sm btn-outline-secondary" id="svc-filter-running">Работающие</button>
+        <button class="btn btn-sm btn-outline-secondary" id="svc-filter-stopped">Остановленные</button>
+        <button class="btn btn-sm btn-outline-secondary" id="svc-filter-network" title="Только службы с активными сетевыми соединениями">С сетью</button>
+        <button class="btn btn-sm btn-outline-secondary" id="svc-filter-per-user" title="Пользовательские экземпляры вида OneSyncSvc_XXXX">Per-User</button>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <select class="form-select form-select-sm svc-control-input" id="svc-group-filter" style="width: 220px;" title="Фильтр по группе svchost">
+        <option value="">Все группы svchost</option>
+      </select>
+      <input class="form-control form-control-sm svc-control-input" id="svc-search-input" placeholder="Поиск: служба, группа, DLL, шаблон..." style="width: 260px;" type="text"/>
+    </div>
+  </div>
+
+  <!-- Services Table -->
+  <div class="card svc-card shadow-sm" data-panel-id="panel-windows-services-manager" id="panel-windows-services-manager">
+    <div class="panel-header d-flex align-items-center justify-content-between py-2 px-3 flex-wrap gap-2">
+      <span class="panel-title"><i class="bi bi-gear-wide-connected text-primary me-2"></i>Службы Windows и граф связей (SCM + Registry + Process + Net)</span>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-secondary-subtle text-secondary border border-secondary" id="svc-table-badge">0 служб</span>
+        <span class="text-muted small d-none d-md-inline ms-1"><i class="bi bi-diagram-3 me-1"></i>Клик по строке открывает полное досье и цепочку связей</span>
+        <button class="btn btn-xs btn-outline-secondary btn-table-expand-100" id="svc-btn-table-expand" title="Раскрыть таблицу на 100% высоты без скроллера">100%</button>
+      </div>
+    </div>
+    <div class="card-body p-0 table-responsive" id="svc-table-container" style="min-height: 140px; max-height: 850px; overflow-y: auto;">
+      <table class="table table-hover align-middle mb-0 small" id="svc-table">
+        <thead class="sticky-top">
+          <tr>
+            <th>Имя службы</th>
+            <th>Отображаемое имя</th>
+            <th>Группа / Хост</th>
+            <th>Состояние</th>
+            <th>Тип запуска</th>
+            <th>PID / Ресурсы / Сеть</th>
+            <th class="text-end">Управление</th>
+          </tr>
+        </thead>
+        <tbody id="svc-tbody">
+          <tr><td class="text-center text-muted py-4" colspan="7">Опрос каталога служб Windows...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="sys-table-resizer" id="svc-table-resizer" data-container-id="svc-table-container" title="Потяните для изменения высоты таблицы (двойной клик — авто-высота)">
+      <div class="sys-table-resizer-grip"></div>
+    </div>
+  </div>
+</div>

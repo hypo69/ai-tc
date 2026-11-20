@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm - Storage
+# Process Name: ai-tc Apps Windows Wikillm - Storage
 # =============================================================================
 # Description:
 #   Хранилище базы знаний WikiLLM на SQLite с поддержкой полнотекстового поиска FTS5,
@@ -12,11 +12,11 @@
 #     service = WikiStorage()
 #
 # File: storage.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 17:29:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - GitHub Issue & Task Agent Module
+# Process Name: ai-tc AI - GitHub Issue & Task Agent Module
 # =============================================================================
 # Description:
 #   Автономный агент для выполнения задач по техническим заданиям GitHub Issues.
@@ -15,11 +15,11 @@
 #   branch = agent.setup_workspace_branch(issue_number=125)
 #
 # File: github_issue_agent.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.agents
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:48:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

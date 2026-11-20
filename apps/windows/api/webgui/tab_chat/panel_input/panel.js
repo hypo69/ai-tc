@@ -7,11 +7,11 @@
  *   индикации выполнения запроса и перехвата внешних промптов.
  *
  * File: panel_input/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_chat/panel_input
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:25:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -115,7 +115,7 @@ export function initInputControls(onSendMessage) {
       ragToggle.checked = savedRagPref === 'true';
       updateRagInputsState(ragToggle.checked);
     }
-    fetch('/auth/settings', { cache: 'no-cache' })
+    fetch('/api/v1/auth/settings', { cache: 'no-cache' })
       .then((res) => (res.ok ? res.json() : null))
       .then((settings) => {
         if (settings && typeof settings.rag_enabled !== 'undefined') {
@@ -132,7 +132,7 @@ export function initInputControls(onSendMessage) {
       localStorage.setItem('chat_rag_enabled', isEnabled);
       updateRagInputsState(isEnabled);
       try {
-        await fetch('/auth/settings', {
+        await fetch('/api/v1/auth/settings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ rag_enabled: isEnabled ? 1 : 0 })
@@ -171,10 +171,10 @@ export function initInputControls(onSendMessage) {
 
   // Проверка отложенных полезных нагрузок из расширения или URL
   try {
-    const pending = sessionStorage.getItem('pending_ai_windows_admin_chat');
+    const pending = sessionStorage.getItem('pending_ai_tc_chat');
     if (pending) {
       const payload = JSON.parse(pending);
-      sessionStorage.removeItem('pending_ai_windows_admin_chat');
+      sessionStorage.removeItem('pending_ai_tc_chat');
       setTimeout(() => handleExternalChatPrompt(payload, onSendMessage), 300);
     } else {
       const urlParams = new URLSearchParams(window.location.search);

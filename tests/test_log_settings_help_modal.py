@@ -11,11 +11,11 @@ Description:
   5. Проверка включения help-modal.js в index.html и apps/index.html.
 
 File: test_log_settings_help_modal.py
-Project: ai-windows-admin
+Project: ai-tc
 Package: tests
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-31 17:49:30
+Updated: 2026-11-12 05:00:00
 =============================================================================
 """
 

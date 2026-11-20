@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Database Adapter Tests
+# Process Name: ai-tc Tests - Database Adapter Tests
 # =============================================================================
 # Description:
 #   Модульные тесты для универсального адаптера базы данных DatabaseAdapter
 #   (проверка SQLite и MariaDB режимов, адаптации параметров и fallback).
 #
 # File: test_db_adapter.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 20:39:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

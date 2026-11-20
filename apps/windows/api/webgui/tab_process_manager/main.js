@@ -3,7 +3,7 @@
  * @description Корневой модуль-оркестратор вкладки Process Manager (Диспетчер процессов и приложений Windows)
  * @author hypo69
  * @version 2.0.0
- * Updated: 2026-10-17 01:11:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { renderProcessTable, killProcess } from './panel_table/panel.js';
@@ -41,7 +41,7 @@ export async function fetchProcessManagerSummary() {
   }
 
   try {
-    const res = await fetch('/api/process-manager/summary');
+    const res = await fetch('/api/v1/process-manager/summary');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     currentReport = await res.json();
     updateStatCards(currentReport);

@@ -7,11 +7,11 @@
  *   вызов синхронизации с сервером, создание, удаление, переименование и отображение списка.
  *
  * File: panel_sessions/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_chat/panel_sessions
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:25:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

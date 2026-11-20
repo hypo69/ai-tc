@@ -13,11 +13,11 @@
  *     import { initServicingIntegrityTab } from '/windows/api/webgui/tab_servicing_integrity/main.js';
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_servicing_integrity
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-16 14:55:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -32,7 +32,7 @@ var isInitialized = false;
 
 export async function fetchServicingSummary() {
   try {
-    const res = await fetch('/api/servicing-integrity/summary');
+    const res = await fetch('/api/v1/servicing-integrity/summary');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderServicingSummary(data);
@@ -64,7 +64,7 @@ async function executeServicingAction(customAction = null) {
   if (output) output.textContent = `[${new Date().toLocaleTimeString()}] Запуск операции обслуживания: ${op} (DryRun: ${dryRun})...\nПожалуйста, подождите...\n`;
 
   try {
-    const res = await fetch('/api/servicing-integrity/action', {
+    const res = await fetch('/api/v1/servicing-integrity/action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: op, dry_run: dryRun })

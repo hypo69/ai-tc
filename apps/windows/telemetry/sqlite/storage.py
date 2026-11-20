@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - Storage
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - Storage
 # =============================================================================
 # Description:
 #   Главный фасад TelemetryStorage базы данных SQLite телеметрии.
@@ -13,11 +13,11 @@
 #     snapshots = storage.get_snapshots(limit=10)
 #
 # File: storage.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 04:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Router Windows Admin
+# Process Name: ai-tc Apps Windows Api Routers - Router Windows Admin
 # =============================================================================
 # Description:
 #   API роутер административных функций, управления пользователями и настройками системы.
@@ -12,11 +12,11 @@
 #     service = UserSessionDTO()
 #
 # File: router_windows_admin.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 16:15:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Get Free Port Module
+# Process Name: ai-tc UTILS - Get Free Port Module
 # =============================================================================
 # Description:
 #   Проверка доступности TCP-портов на хосте и выделение свободного порта.
@@ -12,11 +12,11 @@
 #     res = get_free_port("127.0.0.1")
 #
 # File: get_free_port.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Проверка доступности TCP-портов на хосте и выделение свободного порта."""

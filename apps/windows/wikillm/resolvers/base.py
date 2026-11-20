@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm Resolvers - Base
+# Process Name: ai-tc Apps Windows Wikillm Resolvers - Base
 # =============================================================================
 # Description:
 #   Базовый абстрактный интерфейс для уровней поиска и разрешения артефактов.
@@ -12,11 +12,11 @@
 #     service = BaseResolver()
 #
 # File: base.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.wikillm.resolvers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

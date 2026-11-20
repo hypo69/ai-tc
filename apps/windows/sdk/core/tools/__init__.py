@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core Tools -   Init  
+# Process Name: ai-tc Apps Windows Core Tools -   Init  
 # =============================================================================
 # Description:
 #   Пакет инструментов и реестра подсистемы Windows.
@@ -9,11 +9,11 @@
 #
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core.tools
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 18:56:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Пакет инструментов и реестра подсистемы Windows."""

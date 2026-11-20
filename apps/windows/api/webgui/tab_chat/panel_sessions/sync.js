@@ -6,11 +6,11 @@
  *   Модуль синхронизации локальных сессий чата с серверным API.
  *
  * File: panel_sessions/sync.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_chat/panel_sessions
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:25:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -24,7 +24,7 @@ import { CACHE_TAG } from '../common/ui_utils.js';
 export async function syncSessionToServer(session) {
   if (!session || !session.id) return;
   try {
-    await fetch('/api/chat/sessions', {
+    await fetch('/api/v1/chat/sessions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -49,7 +49,7 @@ export async function syncSessionToServer(session) {
 export async function deleteSessionFromServer(sessionId) {
   if (!sessionId) return;
   try {
-    await fetch(`/api/chat/sessions/${encodeURIComponent(sessionId)}`, {
+    await fetch(`/api/v1/chat/sessions/${encodeURIComponent(sessionId)}`, {
       method: 'DELETE'
     });
   } catch (err) {
@@ -62,7 +62,7 @@ export async function deleteSessionFromServer(sessionId) {
  */
 export async function clearAllSessionsFromServer() {
   try {
-    await fetch('/api/chat/sessions', {
+    await fetch('/api/v1/chat/sessions', {
       method: 'DELETE'
     });
   } catch (err) {
@@ -77,7 +77,7 @@ export async function clearAllSessionsFromServer() {
  */
 export async function fetchAndMergeServerSessions(currentSessions) {
   try {
-    const res = await cachedApiFetch('/api/chat/sessions', {
+    const res = await cachedApiFetch('/api/v1/chat/sessions', {
       tags: [CACHE_TAG, 'chat-sessions']
     });
     if (!res.ok) return currentSessions;
@@ -85,7 +85,7 @@ export async function fetchAndMergeServerSessions(currentSessions) {
     const serverSessions = data.sessions || [];
 
     if (currentSessions.length > 0 && serverSessions.length === 0) {
-      const syncRes = await fetch('/api/chat/sessions/sync', {
+      const syncRes = await fetch('/api/v1/chat/sessions/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessions: currentSessions })
@@ -117,7 +117,7 @@ export async function fetchAndMergeServerSessions(currentSessions) {
       });
 
       if (localOnly.length > 0) {
-        await fetch('/api/chat/sessions/sync', {
+        await fetch('/api/v1/chat/sessions/sync', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessions: localOnly })

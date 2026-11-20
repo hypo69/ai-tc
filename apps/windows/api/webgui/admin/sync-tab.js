@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/admin/sync-tab.js?v=20261001_v1" type="module"></script>
  *
  * File: sync-tab.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/admin
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -275,7 +275,7 @@ class SyncTab {
    */
   async updateStatus() {
     try {
-      const response = await fetch('/api/admin/sync/status');
+      const response = await fetch('/api/v1/admin/sync/status');
       if (!response.ok) throw new Error('Failed to fetch status');
       
       const data = await response.json();
@@ -297,7 +297,7 @@ class SyncTab {
 
       // Обновить Google Drive папку
       try {
-        const driveResponse = await fetch('/api/admin/sync/drive-info');
+        const driveResponse = await fetch('/api/v1/admin/sync/drive-info');
         if (driveResponse.ok) {
           const driveData = await driveResponse.json();
           const link = document.getElementById('drive-url');
@@ -316,7 +316,7 @@ class SyncTab {
    */
   async updateStats() {
     try {
-      const response = await fetch('/api/admin/sync/stats');
+      const response = await fetch('/api/v1/admin/sync/stats');
       if (!response.ok) throw new Error('Failed to fetch stats');
       
       const data = await response.json();
@@ -337,7 +337,7 @@ class SyncTab {
   async startScheduler() {
     try {
       const interval = parseInt(document.getElementById('sync-interval-input').value);
-      const response = await fetch('/api/admin/sync/start', {
+      const response = await fetch('/api/v1/admin/sync/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sync_interval_hours: interval })
@@ -356,7 +356,7 @@ class SyncTab {
    */
   async stopScheduler() {
     try {
-      const response = await fetch('/api/admin/sync/stop', {
+      const response = await fetch('/api/v1/admin/sync/stop', {
         method: 'POST'
       });
       
@@ -373,7 +373,7 @@ class SyncTab {
    */
   async testConnection() {
     try {
-      const response = await fetch('/api/admin/sync/test-connection', {
+      const response = await fetch('/api/v1/admin/sync/test-connection', {
         method: 'POST'
       });
       
@@ -401,7 +401,7 @@ class SyncTab {
     const syncType = document.querySelector('input[name="sync-type"]:checked')?.value || 'all';
     
     try {
-      const response = await fetch('/api/admin/sync/sync-now', {
+      const response = await fetch('/api/v1/admin/sync/sync-now', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sync_type: syncType })
@@ -426,7 +426,7 @@ class SyncTab {
     const interval = parseInt(document.getElementById('sync-interval-input').value);
     
     try {
-      const response = await fetch('/api/admin/sync/config', {
+      const response = await fetch('/api/v1/admin/sync/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sync_interval_hours: interval })

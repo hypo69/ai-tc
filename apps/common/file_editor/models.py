@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Common File Editor - Data Models
+# Process Name: ai-tc Common File Editor - Data Models
 # =============================================================================
 # Description:
 #   Модели данных и схемы валидации для универсального модуля редактора файлов
@@ -9,11 +9,11 @@
 #   текстовых, табличных, бинарных (Hex), медийных и ноутбук-файлов (.ipynb).
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.common.file_editor
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:31:05
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

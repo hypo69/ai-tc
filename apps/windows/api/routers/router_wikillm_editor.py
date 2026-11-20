@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows API - WikiLLM Editor Router
+# Process Name: ai-tc Apps Windows API - WikiLLM Editor Router
 # =============================================================================
 # Description:
 #   FastAPI роутер редактора Базы Знаний WikiLLM и параметров RAG-профилей точности.
 #
 # File: router_wikillm_editor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 12:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

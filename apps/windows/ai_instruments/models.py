@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI Instruments - Data Models
+# Process Name: ai-tc AI Instruments - Data Models
 # =============================================================================
 # Description:
 #   Модели данных для изолированной базы данных инструментов ИИ-агента
@@ -21,11 +21,11 @@
 #     )
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.ai_instruments
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 12:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

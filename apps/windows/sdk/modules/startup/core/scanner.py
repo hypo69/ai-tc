@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Startup Core - Scanner
+# Process Name: ai-tc Apps Windows Modules Startup Core - Scanner
 # =============================================================================
 # Description:
 #   Движок сканирования всех точек автозагрузки в Windows.
@@ -12,11 +12,11 @@
 #     service = StartupScanner()
 #
 # File: scanner.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.startup.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:28:45
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

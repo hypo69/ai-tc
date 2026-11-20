@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/tab_file_recovery/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_file_recovery
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -54,7 +54,7 @@
 
     try {
       if (badge) badge.textContent = 'Обновление...';
-      const res = await fetch(`/api/recovery/status?t=${Date.now()}`);
+      const res = await fetch(`/api/v1/recovery/status?t=${Date.now()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const data = await res.json();
@@ -103,7 +103,7 @@
     btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Запуск R-Studio...`;
 
     try {
-      const res = await fetch('/api/recovery/launch', {
+      const res = await fetch('/api/v1/recovery/launch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });

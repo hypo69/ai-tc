@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - TelemetryAuditWriterMixin
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - TelemetryAuditWriterMixin
 # =============================================================================
 # Description:
 #   Миксин записи аудитов и событий безопасности (брандмауэр, службы, Defender,
@@ -8,11 +8,11 @@
 #   в 12 консолидированных таблиц SQLite.
 #
 # File: writer_audits.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 20:20:00
+# Updated: 2026-11-20 00:13:00
 # =============================================================================
 
 from __future__ import annotations
@@ -121,6 +121,20 @@ class TelemetryAuditWriterMixin:
                 "binpath": d.get("binary_path") or d.get("binpath", ""),
                 "user_account": d.get("account") or d.get("user_account", ""),
                 "is_orphaned": int(bool(d.get("is_orphaned", False))),
+                "host_process_name": d.get("host_process_name", ""),
+                "svchost_group": d.get("svchost_group", ""),
+                "service_dll": d.get("service_dll", ""),
+                "is_per_user": int(bool(d.get("is_per_user", False))),
+                "base_service_name": d.get("base_service_name", ""),
+                "instance_suffix": d.get("instance_suffix", ""),
+                "dependencies": d.get("dependencies") or [],
+                "dependents": d.get("dependents") or [],
+                "shared_pid_services": d.get("shared_pid_services") or [],
+                "same_group_services": d.get("same_group_services") or [],
+                "memory_mb": float(d.get("memory_mb", 0.0) or 0.0),
+                "threads_count": int(d.get("threads_count", 0) or 0),
+                "handles_count": int(d.get("handles_count", 0) or 0),
+                "network_connections_count": int(d.get("network_connections_count", 0) or 0),
             }
         with self._cm.lock, self._cm.get_connection() as conn:
             cursor = conn.cursor()
@@ -261,6 +275,7 @@ class TelemetryAuditWriterMixin:
             "user_idle_seconds": int(f.get("user_idle_seconds", 0) or f.get("idle_seconds", 0) or 0),
             "camera_active_apps": f.get("camera_active_apps") or f.get("camera_apps", []),
             "microphone_active_apps": f.get("microphone_active_apps") or f.get("microphone_apps", []),
+            "audio_sessions": f.get("audio_sessions", []),
             "userassist_top_apps": f.get("userassist_top_apps") or f.get("userassist_apps", []),
         }
         with self._cm.lock, self._cm.get_connection() as conn:

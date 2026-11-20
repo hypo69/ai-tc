@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Process Deep Telemetry & History
+# Process Name: ai-tc Tests - Process Deep Telemetry & History
 # =============================================================================
 # Description:
 #   Юнит-тесты REST эндпоинта глубокой телеметрии жизненного цикла процесса
@@ -8,18 +8,19 @@
 #   ресурсы диска, памяти, процессора, сети и датчиков приватности (микрофон, камера).
 #
 # File: test_process_telemetry_history.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 12:55:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
 
 import os
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 import pytest
+from fastapi import HTTPException
 from apps.windows.telemetry.models import ProcessPrivacySensorInfo
 from apps.windows.api.routers.router_telemetry import (
     _get_process_camera_mic_status,
@@ -135,4 +136,105 @@ def test_evaluate_process_suspicion_office_spawn() -> None:
     assert level == 'CRITICAL'
     assert any('офисное приложение' in t for t in triggers)
     assert any('Base64' in t for t in triggers)
+
+
+@pytest.mark.asyncio
+async def test_get_process_deep_history_lifecycle_session_fallback() -> None:
+    """Проверка извлечения данных из process_lifecycle_sessions при отсутствии активного процесса."""
+    mock_storage = MagicMock()
+    mock_storage.get_process_pid_snapshot.return_value = None
+    mock_storage.get_process_lifecycle_sessions.return_value = [{
+        'id': 999999,
+        'pid': 98765,
+        'ppid': 1000,
+        'name': 'exited_worker.exe',
+        'exe_path': r'C:\Workers\exited_worker.exe',
+        'cmdline': r'C:\Workers\exited_worker.exe --task 1',
+        'username': r'DOMAIN\worker',
+        'session_id': 1,
+        'parent_name': 'parent.exe',
+        'created_at': '2026-11-12T01:00:00.000000+00:00',
+        'lifetime_sec': 42.5,
+        'peak_working_set_mb': 128.5,
+        'peak_private_mb': 256.0,
+        'io_read_bytes': 1048576,
+        'io_write_bytes': 2048,
+        'io_read_ops': 100,
+        'io_write_ops': 5,
+        'cpu_time_user_sec': 1.5,
+        'cpu_time_kernel_sec': 0.8,
+        'cpu_time_total_sec': 2.3,
+    }]
+
+    with patch('apps.windows.api.routers.router_telemetry.TelemetryStorage.get_instance', return_value=mock_storage), \
+         patch('psutil.Process', side_effect=Exception('NoSuchProcess')):
+        res = await get_process_deep_history(98765, name='exited_worker.exe')
+
+    assert res.pid == 98765
+    assert res.process_name == 'exited_worker.exe'
+    assert res.uptime_seconds == 42.5
+    assert res.memory_peak_working_set_mb == 128.5
+    assert res.memory_private_bytes_mb == 256.0
+    assert res.disk_read_bytes_total == 1048576
+    assert res.user_name == r'DOMAIN\worker'
+    assert res.sqlite_snapshots_count == 1
+
+
+@pytest.mark.asyncio
+async def test_get_process_deep_history_sqlite_null_safe() -> None:
+    """Проверка бессбойной обработки снимка SQLite со значениями NULL (None) во всех числовых полях."""
+    mock_storage = MagicMock()
+    # Имитируем строку с NULL значениями
+    mock_storage.get_process_pid_snapshot.return_value = {
+        'pid': 88888,
+        'process_name': 'null_fields.exe',
+        'executable_path': None,
+        'timestamp': '2026-11-12T02:00:00+00:00',
+        'working_set_bytes': None,
+        'private_bytes': None,
+        'page_faults_count': None,
+        'read_bytes_total': None,
+        'write_bytes_total': None,
+        'read_ops_total': None,
+        'write_ops_total': None,
+        'cpu_percent': None,
+        'user_time_ms': None,
+        'kernel_time_ms': None,
+        'thread_count': None,
+        'net_bytes_sent_total': None,
+        'net_bytes_recv_total': None,
+        'handle_count': None,
+        'gdi_objects': None,
+        'user_objects': None,
+        'gpu_vram_bytes': None,
+        'gpu_utilization': None,
+    }
+
+    with patch('apps.windows.api.routers.router_telemetry.TelemetryStorage.get_instance', return_value=mock_storage), \
+         patch('psutil.Process', side_effect=Exception('NoSuchProcess')):
+        res = await get_process_deep_history(88888)
+
+    assert res.pid == 88888
+    assert res.process_name == 'null_fields.exe'
+    assert res.memory_working_set_mb == 0.0
+    assert res.cpu_percent == 0.0
+    assert res.thread_count == 1
+    assert res.handles_count == 0
+
+
+@pytest.mark.asyncio
+async def test_get_process_deep_history_not_found_raises_404() -> None:
+    """Проверка возбуждения 404, если процесс не найден ни в памяти, ни в БД телеметрии."""
+    mock_storage = MagicMock()
+    mock_storage.get_process_pid_snapshot.return_value = None
+    mock_storage.get_process_lifecycle_sessions.return_value = []
+
+    with patch('apps.windows.api.routers.router_telemetry.TelemetryStorage.get_instance', return_value=mock_storage), \
+         patch('psutil.Process', side_effect=Exception('NoSuchProcess')):
+        with pytest.raises(HTTPException) as exc_info:
+            await get_process_deep_history(999999)
+
+    assert exc_info.value.status_code == 404
+    assert 'не найдена' in exc_info.value.detail
+
 

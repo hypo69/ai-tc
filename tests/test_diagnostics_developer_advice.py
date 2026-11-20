@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Diagnostics Developer Advice
+# Process Name: ai-tc Tests - Diagnostics Developer Advice
 # =============================================================================
 # Description:
 #   Тесты генерации, валидации и сохранения советов разработчику (developer_advice)
 #   в универсальном модальном окне ИИ-ассистента и базе знаний WikiLLM.
 #
 # File: test_diagnostics_developer_advice.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-18 23:53:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

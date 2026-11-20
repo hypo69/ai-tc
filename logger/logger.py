@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Logger - Logger
+# Process Name: ai-tc Logger - Logger
 # =============================================================================
 # Description:
-#   Централизованный модульный логгер платформы AI-Windows-Admin.
+#   Централизованный модульный логгер платформы ai-tc.
 #   Поддерживает цветной консольный вывод, JSON-форматирование, компрессию повторяющихся
 #   строк, ротацию файлов и автоматическую маршрутизацию логов по независимым
 #   подсистемам (windows, telemetry, wikillm, ai, rag, skills, apps, fastapi и др.).
@@ -17,11 +17,11 @@
 #     win_log.info("Событие подсистемы Windows")
 #
 # File: logger.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: logger
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 17:27:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -50,7 +50,7 @@ from header import __root__
 # Контекстные переменные сквозной трассировки (SRE Observability / W3C TraceContext)
 _TRACE_ID_CTX: contextvars.ContextVar[str] = contextvars.ContextVar("trace_id", default="")
 _USER_ID_CTX: contextvars.ContextVar[str] = contextvars.ContextVar("user_id", default="")
-_SERVICE_NAME_CTX: contextvars.ContextVar[str] = contextvars.ContextVar("service_name", default="ai-windows-admin")
+_SERVICE_NAME_CTX: contextvars.ContextVar[str] = contextvars.ContextVar("service_name", default="ai-tc")
 
 
 def set_trace_context(
@@ -81,7 +81,7 @@ def clear_trace_context() -> None:
     """Сбрасывает контекст трассировки в значения по умолчанию."""
     _TRACE_ID_CTX.set("")
     _USER_ID_CTX.set("")
-    _SERVICE_NAME_CTX.set("ai-windows-admin")
+    _SERVICE_NAME_CTX.set("ai-tc")
 
 
 @contextmanager
@@ -259,7 +259,7 @@ class JsonFormatter(logging.Formatter):
         err_stack = self.formatException(record.exc_info) if record.exc_info else ""
         trace_id = getattr(record, "trace_id", "") or _TRACE_ID_CTX.get()
         user_id = getattr(record, "user_id", "") or _USER_ID_CTX.get()
-        service_name = getattr(record, "service_name", "") or _SERVICE_NAME_CTX.get() or "ai-windows-admin"
+        service_name = getattr(record, "service_name", "") or _SERVICE_NAME_CTX.get() or "ai-tc"
 
         log_entry: Dict[str, Any] = {
             'timestamp': ts_utc,
@@ -388,7 +388,7 @@ _resolve_app_name = _get_app_name
 
 
 class Logger(metaclass=SingletonMeta):
-    """Универсальный модульный логгер AI-Windows-Admin.
+    """Универсальный модульный логгер ai-tc.
 
     Обеспечивает цветной консольный вывод, JSON-журналирование и автоматическую
     маршрутизацию в отдельные файлы подсистем с ротацией.
@@ -426,7 +426,7 @@ class Logger(metaclass=SingletonMeta):
         self._lock = threading.Lock()
         self._module_loggers: Dict[str, logging.Logger] = {}
 
-        env_dir = os.environ.get('AITC_LOGS_DIR') or os.environ.get('AI_TC_LOGS_DIR') or os.environ.get('AI_WINDOWS_ADMIN_LOGS_DIR') or os.environ.get('LOG_DIR')
+        env_dir = os.environ.get('AITC_LOGS_DIR') or os.environ.get('AI_TC_LOGS_DIR') or os.environ.get('AI_TC_LOGS_DIR') or os.environ.get('LOG_DIR')
         if env_dir:
             self.log_files_path = Path(env_dir)
         else:
@@ -860,7 +860,7 @@ def get_uvicorn_log_config(log_filename: str = 'fastapi.log') -> Dict[str, Any]:
     """
     try:
         import uvicorn.config
-        env_dir = os.environ.get('AITC_LOGS_DIR') or os.environ.get('AI_TC_LOGS_DIR') or os.environ.get('AI_WINDOWS_ADMIN_LOGS_DIR') or os.environ.get('LOG_DIR')
+        env_dir = os.environ.get('AITC_LOGS_DIR') or os.environ.get('AI_TC_LOGS_DIR') or os.environ.get('AI_TC_LOGS_DIR') or os.environ.get('LOG_DIR')
         if env_dir:
             logs_dir = Path(env_dir)
         else:

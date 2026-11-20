@@ -9,11 +9,11 @@
 #   Совпадения только по имени адаптера недостаточно для вывода о назначении.
 #
 # File: classification.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.network.infra
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 16:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

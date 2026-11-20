@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Telemetry Optimization & On-the-fly Logs
+# Process Name: ai-tc Tests - Telemetry Optimization & On-the-fly Logs
 # =============================================================================
 # Description:
 #   Тестирование переосмысленной логики телеметрии:
@@ -9,11 +9,11 @@
 #   3. Контроль размера БД и усечение устаревших данных.
 #
 # File: test_telemetry_refactor_and_logs.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 19:15:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows DB - Database Adapter
+# Process Name: ai-tc Apps Windows DB - Database Adapter
 # =============================================================================
 # Description:
 #   Универсальный адаптер базы данных (MariaDB / SQLite) для централизованного
 #   и локального хранения данных телеметрии и базы знаний WikiLLM.
 #
 # File: db_adapter.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.db
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:27:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -641,7 +641,7 @@ class DatabaseAdapter:
 
         headers = {
             "Content-Type": "application/json; charset=utf-8",
-            "User-Agent": "AI-Windows-Admin-DB-Adapter/1.0",
+            "User-Agent": "ai-tc-DB-Adapter/1.0",
         }
         if api_key:
             headers["X-API-Key"] = str(api_key).strip()

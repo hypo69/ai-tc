@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Router Diagnostics
+# Process Name: ai-tc Apps Windows Api Routers - Router Diagnostics
 # =============================================================================
 # Description:
 #   Универсальный REST API эндпоинт для AI-диагностики, контекстного объяснения,
@@ -15,11 +15,11 @@
 #     )
 #
 # File: router_diagnostics.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:08:00
+# Updated: 2026-11-20 17:10:00
 # =============================================================================
 
 from __future__ import annotations
@@ -43,6 +43,7 @@ from pydantic import BaseModel, Field
 
 from header import __root__
 from logger import logger
+from src.utils.jjson import j_dumps
 from utils.command_validator import run_safe
 
 
@@ -233,17 +234,63 @@ def _is_model_error(text: Optional[str]) -> bool:
     return False
 
 
-def _extract_and_parse_json(text: str) -> tuple[Optional[Any], Optional[Exception]]:
-    """Надежное извлечение и парсинг JSON из ответа языковой модели.
+def _heuristic_extract_diagnostic_fields(text: str) -> Optional[Dict[str, Any]]:
+    """Эвристическое извлечение диагностических полей при синтаксически поврежденном JSON."""
+    result: Dict[str, Any] = {}
+    str_fields = [
+        "summary",
+        "developer",
+        "category",
+        "security_verdict",
+        "performance_impact",
+        "recommendation",
+        "developer_advice",
+    ]
 
-    Поддерживает:
-    - Снятие markdown-блоков ```json ... ``` и ``` ... ```;
-    - Поиск валидных границ внешних скобок {...} и [...];
-    - Устойчивость к неэкранированным переводам строк и управляющим символам (strict=False);
-    - Санитизацию висячих запятых (trailing commas).
+    for field in str_fields:
+        pattern = rf'"{field}"\s*:\s*"((?:\\.|[^"\\])*)"'
+        m = re.search(pattern, text, re.DOTALL)
+        if m:
+            val = m.group(1).strip()
+            val = val.replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t').replace('\\\\', '\\')
+            result[field] = val
+        else:
+            pattern_loose = rf'"{field}"\s*:\s*"(.*?)(?=",\s*"\w+"|\s*"}}|\s*"\s*$)'
+            m_loose = re.search(pattern_loose, text, re.DOTALL)
+            if m_loose:
+                val = m_loose.group(1).strip()
+                val = val.replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t').replace('\\\\', '\\')
+                result[field] = val
+
+    steps_m = re.search(r'"action_steps"\s*:\s*\[(.*?)\]', text, re.DOTALL)
+    if steps_m:
+        steps_raw = steps_m.group(1)
+        items = re.findall(r'"((?:\\.|[^"\\])*)"', steps_raw, re.DOTALL)
+        if items:
+            result["action_steps"] = [item.replace('\\"', '"').replace('\\n', '\n').replace('\\\\', '\\') for item in items]
+
+    if not result.get("summary"):
+        m_unclosed = re.search(r'"summary"\s*:\s*"([\s\S]+)', text)
+        if m_unclosed:
+            val = m_unclosed.group(1).strip()
+            next_key_m = re.search(r'",\s*"\w+"\s*:', val)
+            if next_key_m:
+                val = val[:next_key_m.start()]
+            result["summary"] = val.replace('\\"', '"').replace('\\n', '\n').replace('\\\\', '\\')
+
+    return result if result.get("summary") else None
+
+
+def _extract_and_parse_json(text: str, allow_heuristic: bool = False) -> tuple[Optional[Any], Optional[Exception]]:
+    """Надежное извлечение и парсинг JSON из ответа языковой модели с использованием j_dumps.
+
+    Делегирует разбор универсальной системной утилите `src.utils.jjson.j_dumps`, которая
+    обеспечивает жадное снятие Markdown-оболочек, устойчивость к неэкранированным переводам
+    строк, путям Windows (C:\\...) и автоматическое восстановление через json_repair.
 
     Args:
         text (str): Сырой ответ модели.
+        allow_heuristic (bool): Разрешить эвристический regex-разбор полей карточки при неудаче JSON-парсера.
 
     Returns:
         tuple[Optional[Any], Optional[Exception]]: Кортеж (распарсенный объект, ошибка парсинга при неудаче).
@@ -251,52 +298,22 @@ def _extract_and_parse_json(text: str) -> tuple[Optional[Any], Optional[Exceptio
     if not text:
         return None, ValueError("Пустой ответ модели для парсинга JSON")
 
-    cleaned = text.strip()
+    # Сначала пытаемся распарсить JSON через j_dumps (без агрессивного додумывания)
+    parsed = j_dumps(text, repair=False, exc_info=False)
+    if isinstance(parsed, (dict, list)):
+        return parsed, None
 
-    # 1. Извлечение из Markdown-блока ```json ... ``` или ``` ... ```
-    fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", cleaned, re.IGNORECASE)
-    if fence_match:
-        cleaned = fence_match.group(1).strip()
+    # Попытка эвристического восстановления через j_dumps(..., repair=True) и regex-экстрактор
+    if allow_heuristic:
+        parsed_repaired = j_dumps(text, repair=True, exc_info=False)
+        if isinstance(parsed_repaired, (dict, list)):
+            return parsed_repaired, None
 
-    # 2. Поиск внешних скобок (объект или список)
-    first_brace = cleaned.find("{")
-    first_bracket = cleaned.find("[")
+        heuristic_data = _heuristic_extract_diagnostic_fields(text)
+        if heuristic_data and heuristic_data.get("summary"):
+            return heuristic_data, None
 
-    candidates: List[str] = []
-    if first_brace != -1 and (first_bracket == -1 or first_brace < first_bracket):
-        last_brace = cleaned.rfind("}")
-        if last_brace > first_brace:
-            candidates.append(cleaned[first_brace:last_brace + 1])
-    elif first_bracket != -1:
-        last_bracket = cleaned.rfind("]")
-        if last_bracket > first_bracket:
-            candidates.append(cleaned[first_bracket:last_bracket + 1])
-
-    if not candidates:
-        candidates.append(cleaned)
-
-    last_err: Optional[Exception] = None
-    for cand in candidates:
-        # Попытка 1: стандартный строгий парсер
-        try:
-            return json.loads(cand), None
-        except Exception as e:
-            last_err = e
-
-        # Попытка 2: нестрогий парсер (разрешает неэкранированные \n, \t и управляющие символы в строках)
-        try:
-            return json.loads(cand, strict=False), None
-        except Exception as e:
-            last_err = e
-
-        # Попытка 3: удаление висячих запятых (trailing commas) перед закрывающими скобками
-        cand_no_commas = re.sub(r",\s*([}\]])", r"\1", cand)
-        try:
-            return json.loads(cand_no_commas, strict=False), None
-        except Exception as e:
-            last_err = e
-
-    return None, last_err
+    return None, ValueError(f"Не удалось разобрать JSON-ответ от модели через j_dumps: {text[:200]}")
 
 async def _collect_expanded_process_telemetry(
     req: DiagnosticExplainRequest,
@@ -674,7 +691,7 @@ try {{
             return m
 
         # Поиск активного конфигурационного файла
-        cfg_env = os.getenv("AIWINDOWSADMIN_CONFIG") or os.getenv("CONFIG_FILE")
+        cfg_env = os.getenv("AITC_CONFIG") or os.getenv("AIWINDOWSADMIN_CONFIG") or os.getenv("CONFIG_FILE")
         active_path: Optional[Path] = None
         if cfg_env:
             p = Path(cfg_env)
@@ -1032,9 +1049,24 @@ try {{
                 err_detail = _format_error_detail(cleaned)
                 raise HTTPException(status_code=502, detail=err_detail)
 
-            data, parse_err = _extract_and_parse_json(resp_text)
+            data, parse_err = _extract_and_parse_json(resp_text, allow_heuristic=False)
 
-            # Если штатный парсер не справился — возвращаем модели ее ответ с ошибкой и просим вернуть валидный JSON
+            # Сначала пробуем локальное восстановление JSON (например, сырые переводы строк в powershell_script)
+            # без лишнего сетевого запроса к модели, если восстановлены ключевые поля (не обрезанный ответ)
+            if data is None and resp_text:
+                repaired_local = j_dumps(resp_text, repair=True, exc_info=False)
+                if (
+                    isinstance(repaired_local, dict)
+                    and repaired_local.get("summary")
+                    and repaired_local.get("recommendation")
+                ):
+                    data = repaired_local
+                    parse_err = None
+                    logger.info(
+                        f"JSON-ответ модели '{model_name}' успешно восстановлен локально через j_dumps(repair=True)."
+                    )
+
+            # Если и локальное восстановление не справилось — просим модель исправить синтаксис JSON
             if data is None and resp_text:
                 logger.warning(
                     f"Штатный парсинг JSON ответа модели '{model_name}' завершился ошибкой: {parse_err}. "
@@ -1052,7 +1084,7 @@ try {{
                 )
                 try:
                     repaired_text = await _invoke_ai_model(repair_prompt, repair_instruction, {})
-                    data, repair_err = _extract_and_parse_json(repaired_text)
+                    data, repair_err = _extract_and_parse_json(repaired_text, allow_heuristic=True)
                     if data is not None:
                         logger.info(f"JSON-ответ успешно исправлен и валидирован моделью '{model_name}'.")
                     else:
@@ -1063,22 +1095,48 @@ try {{
                 except Exception as fix_ex:
                     logger.warning(f"Сбой при попытке повторного запроса к модели для исправления JSON: {fix_ex}")
 
+            # Если модель не смогла исправить, пробуем эвристический разбор исходного текста
+            if data is None and resp_text:
+                data, _ = _extract_and_parse_json(resp_text, allow_heuristic=True)
+
             if data is None:
-                logger.warning(
-                    f"Ошибка парсинга JSON ответа модели '{model_name}': {parse_err}. "
-                    f"Длина ответа: {len(resp_text)} символов. Полный ответ:\n{resp_text}"
-                )
-                raise HTTPException(
-                    status_code=502,
-                    detail={
-                        "error": {
-                            "code": 502,
-                            "status": "INVALID_JSON",
-                            "message": f"Не удалось разобрать JSON-ответ от модели: {parse_err}",
-                            "raw_response": resp_text
-                        }
+                # Если ответ модели не пустой и не является системной ошибкой провайдера/API —
+                # формируем устойчивую fallback-карточку на основе текста ответа модели (Markdown)
+                if resp_text and not _is_model_error(resp_text) and len(resp_text.strip()) >= 20:
+                    logger.info(
+                        f"Ответ модели '{model_name}' не удалось разобрать как строгий JSON, "
+                        f"но он содержит содержательный текст ({len(resp_text)} симв.). Формируем карточку из Markdown."
+                    )
+                    clean_md = resp_text.strip()
+                    if clean_md.startswith("```"):
+                        clean_md = re.sub(r"^```(?:json|markdown)?\s*", "", clean_md)
+                        clean_md = re.sub(r"\s*```$", "", clean_md)
+                    data = {
+                        "summary": clean_md,
+                        "developer": req.subtitle or "AI Ассистент",
+                        "category": req.table_type or "Диагностика",
+                        "security_verdict": "Сформировано на основе аналитического ответа модели.",
+                        "performance_impact": "Смотрите развернутый отчет выше.",
+                        "recommendation": "Ознакомьтесь с рекомендациями в сформированном отчете.",
+                        "action_steps": [],
+                        "developer_advice": "",
                     }
-                )
+                else:
+                    logger.warning(
+                        f"Ошибка парсинга JSON ответа модели '{model_name}': {parse_err}. "
+                        f"Длина ответа: {len(resp_text)} символов. Полный ответ:\n{resp_text}"
+                    )
+                    raise HTTPException(
+                        status_code=502,
+                        detail={
+                            "error": {
+                                "code": 502,
+                                "status": "INVALID_JSON",
+                                "message": f"Не удалось разобрать JSON-ответ от модели: {parse_err}",
+                                "raw_response": resp_text
+                            }
+                        }
+                    )
 
             if isinstance(data, dict):
                 # Если сама модель вернула JSON с ошибкой
@@ -1108,6 +1166,17 @@ try {{
                 )
                 if isinstance(dev_advice, (dict, list)):
                     dev_advice = json.dumps(dev_advice, ensure_ascii=False, indent=2)
+                dev_advice_str = str(dev_advice).strip()
+
+                # Если модель вернула отдельный блок powershell_script / cmd_script / script —
+                # включаем его в developer_advice, чтобы он отобразился в модальном окне как интерактивный скрипт
+                ps_script = data.get("powershell_script") or data.get("ps_script") or ""
+                if isinstance(ps_script, str) and ps_script.strip():
+                    ps_clean = ps_script.strip()
+                    if ps_clean not in dev_advice_str:
+                        ps_block = f"```powershell\n{ps_clean}\n```"
+                        dev_advice_str = f"{dev_advice_str}\n\n{ps_block}".strip() if dev_advice_str else ps_block
+                dev_advice = dev_advice_str
 
                 gen_sum = wikillm_entity.summary if wikillm_entity else data.get("general_summary")
                 eff_dev = data.get("developer") or (dev_text if wikillm_entity else (req.subtitle or "Неизвестен"))
@@ -1400,7 +1469,7 @@ try {{
         ).strip()
         sys_instruction = (
             f"{clean_instruction}\n\n"
-            "Ты являешься экспертным системным консультантом Windows и инженером безопасности в среде AI Windows Admin.\n"
+            "Ты являешься экспертным системным консультантом Windows и инженером безопасности в среде ai-tc.\n"
             "Тебе доступны данные системных подсистем: процессы (/api/v1/tc/processes), телеметрия (/api/v1/tc/status), "
             "форензика (/api/v1/system/diagnostics/forensics), инспекция ПО (/api/v1/software-scanner), журналы аудита (/api/v1/system-logs) и реестр (/api/v1/registry).\n"
             "ВАЖНЕЙШИЕ ПРАВИЛА ФОРМАТА В ЧАТЕ:\n"

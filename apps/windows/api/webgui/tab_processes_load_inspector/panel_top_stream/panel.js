@@ -2,7 +2,7 @@
  * Модуль потока топовых процессов хоста в реальном времени (Live Stream).
  * Интерактивный список процессов с вызовом ИИ-ассистента и Drill-Down кнопками Deep Dive.
  * Файл: apps/windows/api/webgui/tab_processes_load_inspector/panel_top_stream/panel.js
- * Updated: 2026-10-31 18:55:00
+ * Updated: 2026-11-13 13:35:00
  */
 
 import {
@@ -104,8 +104,8 @@ export function renderHostProcessesTable(processes) {
     return `
       <tr class="proc-host-row" data-pid="${p.pid}" ${defaultTitleAttr} ${tooltipAttrs} style="cursor: pointer;">
         <td class="text-center no-modal-trigger" style="width: 36px;">
-          <button type="button" class="btn-drilldown-proc" data-pid="${p.pid}" title="Drill-down: 🔬 Process Intelligence Deep Dive (7 виджетов)">
-            <img src="/html/assets/red_drill.png?v=20261015_v2" alt="Drill-down">
+          <button type="button" class="btn-drilldown-proc" data-pid="${p.pid}" title="">
+            <img src="/html/assets/red_drill.png?v=20261113_v1" alt="" title="">
           </button>
         </td>
         <td class="font-monospace fw-bold text-info">${p.pid}</td>

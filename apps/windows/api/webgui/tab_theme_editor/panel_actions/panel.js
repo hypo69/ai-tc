@@ -8,11 +8,11 @@
  *   экспорт/импорт JSON и копирование CSS.
  *
  * File: panel_actions/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_theme_editor/panel_actions
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 13:00:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

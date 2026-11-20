@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Tests - Delta & LOCF
+# Process Name: ai-tc Apps Windows Telemetry Tests - Delta & LOCF
 # =============================================================================
 # Description:
 #   Модульные тесты TDD для проверки дельта-хранения телеметрии (только изменившиеся данные)
@@ -10,11 +10,11 @@
 #   pytest apps/windows/telemetry/tests/test_delta_storage_and_locf.py
 #
 # File: test_delta_storage_and_locf.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 19:41:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin GitHub - Core Service & Issue Manager
+# Process Name: ai-tc GitHub - Core Service & Issue Manager
 # =============================================================================
 # Description:
 #   Централизованный сервис управления GitHub Issues, Milestones, Projects,
@@ -15,11 +15,11 @@
 #       print(issue.number, issue.title)
 #
 # File: service.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.github
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:48:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

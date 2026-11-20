@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - endpoints_system
+# Process Name: ai-tc Apps Windows Api Routers - endpoints_system
 # =============================================================================
 # Description:
 #   Эндпойнты состояния системы TC.
 #   Вынесено из router_tc.py (этап 4 оптимизации).
 #
 # File: endpoints_system.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.tc
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-12 06:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

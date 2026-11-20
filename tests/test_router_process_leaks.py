@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Router Process Leaks Test
+# Process Name: ai-tc Tests - Router Process Leaks Test
 # =============================================================================
 # Description:
 #   Модульные тесты для проверки API диагностики утечек ресурсов процессов
@@ -11,11 +11,11 @@
 #   pytest tests/test_router_process_leaks.py
 #
 # File: test_router_process_leaks.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-17 02:56:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Тесты эндпоинтов диагностики утечек процессов (GET/POST /api/v1/system/diagnostics/leaks)."""

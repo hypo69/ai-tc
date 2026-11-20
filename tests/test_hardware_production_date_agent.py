@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Test Hardware Production Date Agent
+# Process Name: ai-tc Tests - Test Hardware Production Date Agent
 # =============================================================================
 # Description:
 #   Модульные тесты для специализированного агента декодирования даты производства
 #   аппаратных компонентов (HardwareProductionDateAgent).
 #
 # File: test_hardware_production_date_agent.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 16:01:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

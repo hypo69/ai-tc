@@ -7,7 +7,7 @@
     },
     "storage": {
         "catalog_path": "data/system_checkpoints/catalog.json",
-        "default_image_dir": "C:\\Recovery\\AI-Windows-Admin",
+        "default_image_dir": "C:\\Recovery\\ai-tc",
         "max_stored_checkpoints": 10,
         "auto_prune_periodic": true
     },

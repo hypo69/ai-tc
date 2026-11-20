@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - System32 Catalog
+# Process Name: ai-tc Apps Windows Core - System32 Catalog
 # =============================================================================
 # Description:
 #   Автоматический каталог системных инструментов Windows (%SystemRoot%\System32),
@@ -15,11 +15,11 @@
 #     monitoring_tools = catalog.get_monitoring_tools()
 #
 # File: system32_catalog.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

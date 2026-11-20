@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows API - Auth Helper
+# Process Name: ai-tc Apps Windows API - Auth Helper
 # =============================================================================
 # Description:
 #   Автономные утилиты аутентификации и проверки токенов для Windows API.
@@ -10,11 +10,11 @@
 #     from apps.windows.api.auth import TokenData, get_current_user_optional, require_admin_user
 #
 # File: auth.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ class TokenData:
 
     def __init__(
         self,
-        email: str = 'local@aiwindowsadmin.local',
+        email: str = 'local@aitc.local',
         name: Optional[str] = 'Local User',
         picture: Optional[str] = None,
         id: Optional[int] = 1,
@@ -71,7 +71,7 @@ def verify_jwt_token(token: str) -> Optional[TokenData]:
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         return TokenData(
-            email=payload.get('email', 'local@aiwindowsadmin.local'),
+            email=payload.get('email', 'local@aitc.local'),
             name=payload.get('name', 'Local User'),
             picture=payload.get('picture'),
             id=payload.get('id', 1),
@@ -99,7 +99,7 @@ def get_current_user_data(request: Request) -> TokenData:
             return user_data
 
     if is_auth_disabled() or is_local_request(request):
-        return TokenData(email='local@aiwindowsadmin.local', name='Local User', id=1)
+        return TokenData(email='local@aitc.local', name='Local User', id=1)
 
     raise HTTPException(status_code=401, detail='Authentication required')
 
@@ -109,7 +109,7 @@ def get_current_user_optional(request: Optional[Request] = None) -> Optional[Tok
     try:
         return get_current_user_data(request)
     except Exception:
-        return TokenData(email='local@aiwindowsadmin.local', name='Local User', id=1)
+        return TokenData(email='local@aitc.local', name='Local User', id=1)
 
 
 def require_admin_user(request: Request) -> TokenData:

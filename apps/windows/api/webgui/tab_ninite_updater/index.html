@@ -13,11 +13,11 @@ Usage Examples:
       <iframe src="/windows/api/webgui/tab_ninite_updater/index.html" class="w-100 h-100 border-0"></iframe>
 
 File: index.html
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/tab_ninite_updater
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-01 12:50:00
+Updated: 2026-11-20 17:10:00
 =============================================================================
 -->
 
@@ -31,35 +31,34 @@ Updated: 2026-11-01 12:50:00
   .ninite-card {
     background: var(--surface-1) !important;
     border: 1px solid var(--border-color) !important;
-    border-radius: 10px;
+    border-radius: var(--radius-md, 10px);
     padding: 1.25rem;
     color: var(--text-color);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
   }
   .ninite-header {
     background: var(--surface-2);
     border: 1px solid var(--border-color);
-    border-radius: 10px;
+    border-radius: var(--radius-md, 10px);
     padding: 0.85rem 1.25rem;
     color: var(--text-color);
   }
   .ninite-dropzone {
     border: 2px dashed var(--nav-active);
     background: var(--surface-2);
-    border-radius: 10px;
+    border-radius: var(--radius-md, 10px);
     padding: 2rem 1.5rem;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
   }
   .ninite-dropzone:hover, .ninite-dropzone.dragover {
-    background: var(--nav-hover-bg, rgba(56, 189, 248, 0.12));
+    background: var(--nav-hover-bg);
     border-color: var(--nav-active);
   }
   .ninite-stat-box {
     background: var(--surface-2);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: var(--radius-sm, 8px);
     padding: 0.75rem 1rem;
   }
   .ninite-stat-title {
@@ -78,7 +77,7 @@ Updated: 2026-11-01 12:50:00
     background: var(--surface-2);
     color: var(--text-color);
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: var(--radius-sm, 6px);
     padding: 0.65rem 0.85rem;
     max-height: 180px;
     overflow-y: auto;
@@ -87,23 +86,20 @@ Updated: 2026-11-01 12:50:00
   }
 </style>
 
-<div class="ninite-container">
+<div class="ninite-container" data-ninite-root="true">
   <!-- Заголовок вкладки -->
-  <div class="tab-header d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+  <div class="tab-header d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <div class="d-flex align-items-center gap-2">
-      <span class="tab-header-icon fs-4 text-warning">🔄</span>
+      <span class="tab-header-icon fs-4 text-primary"><i class="bi bi-cloud-arrow-down"></i></span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title mb-0">Менеджер обновлений Ninite</h3>
-          
+          <h3 class="tab-header-title mb-0">Установить Ninite</h3>
         </div>
         <small class="tab-header-subtitle text-secondary">Автоматическая пакетная установка и бесшовное обновление стороннего прикладного ПО без рекламы</small>
       </div>
     </div>
-    
-  </div>
-<div class="d-flex align-items-center gap-2">
-      <span class="badge rounded-pill bg-body-secondary border border-secondary text-body px-2.5 py-1.5" id="ninite-status-badge">
+    <div class="d-flex align-items-center gap-2">
+      <span class="ui-badge ui-badge-neutral px-2.5 py-1.5" id="ninite-status-badge">
         Загрузка статуса...
       </span>
       <button class="btn btn-sm btn-outline-info rounded-pill px-3" id="btn-ninite-refresh" type="button">
@@ -115,7 +111,7 @@ Updated: 2026-11-01 12:50:00
   <div class="row g-3 mb-3">
     <!-- Левая колонка: Форма загрузки и настройки расписания -->
     <div class="col-12 col-lg-7">
-      <div class="ninite-card h-100">
+      <div class="ninite-card shadow-sm h-100">
         <h6 class="fw-bold text-info mb-3 d-flex align-items-center gap-2">
           <i class="bi bi-cloud-arrow-up-fill"></i> 1. Выбор инсталлятора и расписание
         </h6>
@@ -125,7 +121,7 @@ Updated: 2026-11-01 12:50:00
           <label for="ninite-file-input" class="ninite-dropzone mb-3 d-block text-decoration-none" id="ninite-dropzone">
             <i class="bi bi-file-earmark-arrow-up fs-1 text-info mb-2 d-block"></i>
             <div class="fw-semibold mb-1 text-body" id="ninite-file-label">Перетащите файл установщика Ninite или нажмите для выбора</div>
-            <div class="text-secondary small">Файл будет сохранён и переименован в <code>C:\Program Files\Ninite\ninite.exe</code></div>
+            <div class="text-secondary small">Файл будет переименован в <code>ninite.exe</code> и сохранён в <code>C:\Program Files\Ninite\ninite.exe</code> (существующий файл будет заменён)</div>
             <input type="file" id="ninite-file-input" class="d-none" accept=".exe">
           </label>
 
@@ -172,13 +168,13 @@ Updated: 2026-11-01 12:50:00
           </button>
         </form>
 
-        <div id="ninite-alert-box" class="mt-3" style="display: none;"></div>
+        <div id="ninite-alert-box" class="mt-3 d-none"></div>
       </div>
     </div>
 
     <!-- Правая колонка: Текущее состояние и управление -->
     <div class="col-12 col-lg-5">
-      <div class="ninite-card h-100 d-flex flex-column justify-content-between">
+      <div class="ninite-card shadow-sm h-100 d-flex flex-column justify-content-between">
         <div>
           <h6 class="fw-bold text-info mb-3 d-flex align-items-center gap-2">
             <i class="bi bi-cpu-fill"></i> 2. Текущее состояние системы
@@ -211,11 +207,6 @@ Updated: 2026-11-01 12:50:00
         </div>
 
         <div>
-          <!-- Кнопка восстановления удаленных файлов (R-Studio) 
-          <button class="btn btn-outline-info w-100 py-2 fw-semibold mb-2 d-flex align-items-center justify-content-center gap-2" id="btn-ninite-recovery-launch" type="button" title="Запуск R-Studio Technician Portable для восстановления данных">
-            <i class="bi bi-folder-symlink-fill"></i> Восстановить удаленные файлы
-          </button>
-          -->
           <!-- Кнопка принудительного обновления -->
           <button class="btn btn-outline-warning w-100 py-2 fw-semibold mb-2 d-flex align-items-center justify-content-center gap-2" id="btn-ninite-run-now">
             <i class="bi bi-play-circle-fill"></i> Запустить обновление прямо сейчас
@@ -230,7 +221,7 @@ Updated: 2026-11-01 12:50:00
   </div>
 
   <!-- Журнал выполнения / лог -->
-  <div class="ninite-card">
+  <div class="ninite-card shadow-sm">
     <div class="d-flex justify-content-between align-items-center mb-2">
       <h6 class="fw-bold text-info mb-0 d-flex align-items-center gap-2">
         <i class="bi bi-terminal-fill"></i> Журнал выполнения обновления (Log)

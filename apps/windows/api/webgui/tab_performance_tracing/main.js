@@ -13,17 +13,17 @@
  *     import { initPerformanceTracingTab } from '/windows/api/webgui/tab_performance_tracing/main.js';
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_performance_tracing
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-16 14:55:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
 /**
  * performance_tracing_tab/main.js — ETW трассировка и счетчики производительности (logman, typeperf)
- * Updated: 2026-10-16 14:55:00
+ * Updated: 2026-11-12 05:34:00
  */
 
 var registerTabPoller = (typeof window !== 'undefined' && window.registerTabPoller) || function() {};
@@ -33,7 +33,7 @@ let sessionsList = [];
 
 async function fetchPerformanceSummary() {
   try {
-    const res = await fetch('/api/performance-tracing/summary');
+    const res = await fetch('/api/v1/performance-tracing/summary');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderPerformance(data);
@@ -88,10 +88,15 @@ async function executeTraceAction(customAction = null) {
   if (output) output.textContent = `[${new Date().toLocaleTimeString()}] Запуск трассировки: ${action}...\n`;
 
   try {
-    const res = await fetch('/api/performance-tracing/action', {
+    const res = await fetch('/api/v1/performance-tracing/action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: action, dry_run: dryRun })
+      body: JSON.stringify({
+        collector_name: action,
+        action: action,
+        dry_run: dryRun,
+        confirmed_by_user: !dryRun
+      })
     });
     const result = await res.json();
     if (output) output.textContent += JSON.stringify(result, null, 2);

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI Agents - Windows System Control Center Tools Module
+# Process Name: ai-tc AI Agents - Windows System Control Center Tools Module
 # =============================================================================
 # Description:
 #   Инструменты единого центра управления Windows (System Control Center),
@@ -16,11 +16,11 @@
 #     res = await windows_system_control_audit(action="status")
 #
 # File: system_control_center.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.agents.windows_tools
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

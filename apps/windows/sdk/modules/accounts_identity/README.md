@@ -1,4 +1,4 @@
-# Accounts & Identity Windows (AI Windows Admin)
+# Accounts & Identity Windows (ai-tc)
 
 ## Описание модуля
 Модуль **Accounts & Identity** представляет собой полноценную OS-level подсистему для операционной системы Windows, реализующую архитектуру **Windows Identity Graph**. В отличие от простых CLI-оболочек над `net user`, данный модуль использует фундаментальный принцип: **SID — первичный идентификатор безопасности, а имя (onela, Administrators) — строковое представление**.

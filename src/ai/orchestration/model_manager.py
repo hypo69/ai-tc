@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Model Manager Module
+# Process Name: ai-tc AI - Model Manager Module
 # =============================================================================
 # Description:
 #   Менеджер обнаружения, фильтрации и кэширования моделей ИИ для всех провайдеров.
@@ -13,11 +13,11 @@
 #     print(res)
 #
 # File: model_manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.orchestration
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 18:11:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Менеджер обнаружения, фильтрации и кэширования моделей ИИ для всех провайдеров."""
@@ -36,7 +36,7 @@ from src.utils.jjson import j_dumps, j_loads
 
 def _get_active_config_path() -> Path:
     """Возвращает путь к активному файлу конфигурации с учетом переменных окружения и сценария TC."""
-    cfg_env = os.getenv('AIWINDOWSADMIN_CONFIG') or os.getenv('CONFIG_FILE')
+    cfg_env = os.getenv('AITC_CONFIG') or os.getenv('AIWINDOWSADMIN_CONFIG') or os.getenv('CONFIG_FILE')
     if cfg_env:
         p = Path(cfg_env)
         if p.is_absolute() and p.exists():

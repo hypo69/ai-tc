@@ -1,6 +1,6 @@
 # System Control Skill
 
-This skill provides an interface to control the `system_control_center` application within the AI Windows Admin ecosystem.
+This skill provides an interface to control the `system_control_center` application within the ai-tc ecosystem.
 
 ## Features
 - Post-installation setup wizard profiles.

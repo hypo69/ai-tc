@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/admin/main-refactored.js?v=20261001_v1" type="module"></script>
  *
  * File: main-refactored.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/admin
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-12 08:20:00
+ * Updated: 2026-11-13 16:10:00
  * =============================================================================
  */
 
@@ -37,7 +37,7 @@
 // ============================================================================
 
 import { setupAuthHandlers, verifyPassword } from './modules/auth-handler.js';
-import { setupTabManagement, onTabSwitched } from './modules/tab-manager.js';
+import { setupTabManagement, onTabSwitched } from './modules/tab-manager.js?v=20261113_v1';
 import { setupUIHandlers, showHelpModal, showNotification, showChatLogicModal } from './modules/ui-handler.js';
 import { 
   initializeInterface, 

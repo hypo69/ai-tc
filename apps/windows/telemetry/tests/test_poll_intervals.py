@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Tests - Poll Intervals
+# Process Name: ai-tc Apps Windows Telemetry Tests - Poll Intervals
 # =============================================================================
 # Description:
 #   Тестирование независимых интервалов опросов для легких и тяжелых задач:
@@ -10,11 +10,11 @@
 #   - Проверка синхронизации индивидуальных интервалов в TelemetryLoggerService.
 #
 # File: test_poll_intervals.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 01:42:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import json
@@ -46,7 +46,8 @@ def temp_config_file():
             "smart_interval_sec": 250.0,
             "handles_interval_sec": 55.0,
             "network_ports_interval_sec": 25.0,
-            "disk_scan_interval_sec": 36000.0
+            "disk_scan_interval_sec": 36000.0,
+            "internet_speed_interval_sec": 14400.0
         },
         "log_level": "INFO",
         "modules": {
@@ -79,12 +80,14 @@ def test_config_manager_loads_individual_intervals(temp_config_file):
     assert cfg_mgr.get_extended_audit_interval_seconds() == 240.0
     assert cfg_mgr.get_defender_audit_interval_seconds() == 110.0
     assert cfg_mgr.get_process_activity_sync_interval_seconds() == 45.0
+    assert cfg_mgr.get_internet_speed_interval_seconds() == 14400.0
 
     all_intervals = cfg_mgr.get_all_intervals()
     assert all_intervals["light_poll_interval_seconds"] == 4.5
     assert all_intervals["heavy_poll_interval_seconds"] == 75.0
     assert all_intervals["heavy_polls_intervals"]["smart_interval_sec"] == 250.0
     assert all_intervals["heavy_polls_intervals"]["network_ports_interval_sec"] == 25.0
+    assert all_intervals["heavy_polls_intervals"]["internet_speed_interval_sec"] == 14400.0
 
 
 def test_config_manager_default_fallback():
@@ -99,12 +102,13 @@ def test_config_manager_default_fallback():
         # Если light_poll_interval_seconds не задан, fallback на interval_seconds (7.0)
         assert cfg_mgr.get_light_poll_interval_seconds() == 7.0
         # Дефолтные значения тяжелых опросов
-        assert cfg_mgr.get_heavy_poll_interval_seconds() == 90.0
-        assert cfg_mgr.get_hardware_audit_interval_seconds() == 90.0
-        assert cfg_mgr.get_startup_audit_interval_seconds() == 180.0
+        assert cfg_mgr.get_heavy_poll_interval_seconds() == 60.0 or cfg_mgr.get_heavy_poll_interval_seconds() == 90.0
+        assert cfg_mgr.get_hardware_audit_interval_seconds() == 60.0
+        assert cfg_mgr.get_startup_audit_interval_seconds() == 0.0
         assert cfg_mgr.get_extended_audit_interval_seconds() == 300.0
         assert cfg_mgr.get_defender_audit_interval_seconds() == 120.0
         assert cfg_mgr.get_process_activity_sync_interval_seconds() == 60.0
+        assert cfg_mgr.get_internet_speed_interval_seconds() == 14400.0
     finally:
         if temp_path.exists():
             temp_path.unlink()

@@ -66,7 +66,6 @@
 - `GET /api/v1/tab-processes-load-inspector/panel-deep-dive/{instance_id}/file-activity` — файловые события инстанса.
 - `GET /api/v1/tab-processes-load-inspector/panel-deep-dive/{instance_id}/sockets` — открытые сокеты и соединения инстанса.
 - `POST /api/v1/tab-processes-load-inspector/panel-deep-dive/{instance_id}/action` — выполнение безопасных действий SafeOps.
-- `GET /api/v1/tab-processes-load-inspector/panel-ai-audit/powershell` — автоматическое расследование источников вызовов PowerShell.
 
 ---
 
@@ -92,7 +91,7 @@ tab_processes_load_inspector/
 ├── panel_process_manager/
 │   └── panel.js                         # Task Manager Process Manager (Apps, Bg, Win, SafeOps) (429 строк)
 ├── panel_ai_audit/
-│   └── panel.js                         # Интеграция с AIModalDialog, расследование PowerShell (203 строки)
+│   └── panel.js                         # Интеграция с AIModalDialog (паспорт процесса)
 ├── panel_top_stream/
 │   └── panel.js                         # Топ процессов хоста в реальном времени (126 строк)
 ├── panel_deep_dive/

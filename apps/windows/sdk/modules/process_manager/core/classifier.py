@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Process_Manager Core - Classifier
+# Process Name: ai-tc Apps Windows Modules Process_Manager Core - Classifier
 # =============================================================================
 # Description:
 #   Движок классификации и группировки процессов Windows на категории:
@@ -16,11 +16,11 @@
 #     report = classifier.classify_processes()
 #
 # File: classifier.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.process_manager.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 16:16:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

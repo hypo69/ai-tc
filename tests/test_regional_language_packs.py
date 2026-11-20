@@ -7,11 +7,11 @@
 #   чтения раскладок клавиатуры из реестра Windows и API-эндпоинтов.
 #
 # File: test_regional_language_packs.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 14:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import pytest

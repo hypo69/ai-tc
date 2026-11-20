@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Smtp Module
+# Process Name: ai-tc UTILS - Smtp Module
 # =============================================================================
 # Description:
 #   Утилиты для отправки и получения электронных писем по протоколам SMTP и IMAP.
@@ -12,11 +12,11 @@
 #     res = send(subject="Test", body="Hello")
 #
 # File: smtp.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:38:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Утилиты для отправки и получения электронных писем по протоколам SMTP и IMAP."""

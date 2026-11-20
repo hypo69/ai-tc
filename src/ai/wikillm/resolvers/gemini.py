@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm Resolvers - Gemini
+# Process Name: ai-tc Apps Windows Wikillm Resolvers - Gemini
 # =============================================================================
 # Description:
 #   Интеллектуальный генератор и структуризатор знаний на базе Google Gemini.
@@ -12,11 +12,11 @@
 #     service = GeminiKnowledgeResolver()
 #
 # File: gemini.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.wikillm.resolvers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-13 15:30:00
 # =============================================================================
 
 from __future__ import annotations
@@ -26,6 +26,7 @@ import json
 import re
 from typing import Any, Dict, List, Optional
 from logger import logger
+from src.utils.jjson import j_dumps
 from ..models import (
     ArtifactInput,
     ArtifactType,
@@ -134,20 +135,11 @@ class GeminiKnowledgeResolver(BaseResolver):
         if not response_text:
             return None
 
-        clean_text = response_text.strip()
-        # Очистка от markdown блоков ```json ... ```
-        if "```" in clean_text:
-            match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", clean_text)
-            if match:
-                clean_text = match.group(1).strip()
+        parsed = j_dumps(response_text, exc_info=False)
+        if isinstance(parsed, dict):
+            return parsed
 
-        try:
-            data = json.loads(clean_text)
-            if isinstance(data, dict):
-                return data
-        except Exception as exc:
-            logger.warning(f"Ошибка парсинга JSON ответа Gemini: {exc}. Текст: {response_text[:200]}")
-
+        logger.warning(f"Ошибка парсинга JSON ответа Gemini. Текст: {response_text[:200]}")
         return None
 
     async def resolve(self, artifact: ArtifactInput) -> Optional[KnowledgeEntity]:

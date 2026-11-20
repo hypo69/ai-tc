@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps -   Init  
+# Process Name: ai-tc Apps -   Init  
 # =============================================================================
 # Description:
 #   Standalone applications and terminal workspaces.
@@ -9,11 +9,11 @@
 #
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 19:41:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Standalone applications and terminal workspaces."""

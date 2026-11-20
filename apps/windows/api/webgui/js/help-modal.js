@@ -33,11 +33,11 @@
  *     window.HelpModal.openUrl('/html/tab_log_settings/help/index.html', { focusBlock: 'block_kpi_cards' });
  *
  * File: help-modal.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 19:16:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

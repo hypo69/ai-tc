@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Client Module
+# Process Name: ai-tc AI - Client Module
 # =============================================================================
 # Description:
 #   Client for working with Microsoft AI Foundry.
@@ -12,11 +12,11 @@
 #     service = FoundryClient()
 #
 # File: client.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.providers.foundry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:52:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Client for working with Microsoft AI Foundry."""

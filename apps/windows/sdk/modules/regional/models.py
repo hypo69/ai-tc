@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Regional - Models
+# Process Name: ai-tc Apps Windows Modules Regional - Models
 # =============================================================================
 # Description:
 #   Типизированные модели данных модуля региональных параметров,
 #   языковых пакетов Windows, часовых поясов и локалей.
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.regional
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 14:42:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

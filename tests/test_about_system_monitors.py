@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - About System Monitors
+# Process Name: ai-tc Tests - About System Monitors
 # =============================================================================
 # Description:
 #   Тестирование корректного отображения всех подключенных мониторов и фильтрации
 #   фиктивных виртуальных дисплеев Session 0 (WinDisc) в панели «О системе».
 #
 # File: test_about_system_monitors.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 14:05:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from pathlib import Path

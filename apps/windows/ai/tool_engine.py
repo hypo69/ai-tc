@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows AI - Tool Engine
+# Process Name: ai-tc Apps Windows AI - Tool Engine
 # =============================================================================
 # Description:
 #   Динамический генератор и исполнитель системных инструментов и фабрика навыков ИИ.
@@ -10,11 +10,11 @@
 #     from apps.windows.ai.tool_engine import DynamicToolPlan, DynamicToolFactory
 #
 # File: tool_engine.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.ai
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - RAG Package Init
+# Process Name: ai-tc AI - RAG Package Init
 # =============================================================================
 # Description:
 #   Инициализатор пакета унифицированного RAG (Text, Pixel, Log, UnifiedHub).
@@ -10,11 +10,11 @@
 #     from src.ai.rag import UnifiedKnowledgeHub, TextRAG, PixelRAG, LogRAG
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.rag
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 18:30:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

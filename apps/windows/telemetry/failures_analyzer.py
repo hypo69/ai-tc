@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Telemetry - Failures Analyzer
+# Process Name: ai-tc Telemetry - Failures Analyzer
 # =============================================================================
 # Description:
 #   Анализатор комплексных сбоев Windows: сбои питания, BSOD (BugCheck),
@@ -15,11 +15,11 @@
 #     summary = analyzer.get_comprehensive_summary(hours=720)
 #
 # File: failures_analyzer.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 09:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

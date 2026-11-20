@@ -1,15 +1,15 @@
 ---
 name: project-installer
-# Updated: 2026-10-31 19:10:00
-description: "Интерактивный установщик проекта и конфигуратор окружения для AI Windows Admin (ai-tc). Пошагово выполняет предварительные проверки, запуск телеметрии, создание venv, установку зависимостей из requirements.txt, настройку .env, генерацию SSL-сертификатов и верификацию целостности."
+# Updated: 2026-11-12 05:00:00
+description: "Интерактивный установщик проекта и конфигуратор окружения для ai-tc (ai-tc). Пошагово выполняет предварительные проверки, запуск телеметрии, создание venv, установку зависимостей из requirements.txt, настройку .env, генерацию SSL-сертификатов и верификацию целостности."
 description_i18n:
-  ru: "Интерактивный установщик проекта и конфигуратор окружения для AI Windows Admin (ai-tc). Пошагово выполняет предварительные проверки, запуск телеметрии, создание venv, установку зависимостей из requirements.txt, настройку .env, генерацию SSL-сертификатов и верификацию целостности."
-  en: "Interactive full-project installer and environment configurator for AI Windows Admin (ai-tc). Step-by-step pre-flight checks, telemetry startup, venv creation, requirements.txt installation, .env setup, SSL certs, and integrity verification."
+  ru: "Интерактивный установщик проекта и конфигуратор окружения для ai-tc (ai-tc). Пошагово выполняет предварительные проверки, запуск телеметрии, создание venv, установку зависимостей из requirements.txt, настройку .env, генерацию SSL-сертификатов и верификацию целостности."
+  en: "Interactive full-project installer and environment configurator for ai-tc (ai-tc). Step-by-step pre-flight checks, telemetry startup, venv creation, requirements.txt installation, .env setup, SSL certs, and integrity verification."
 ---
 
-# 🚀 Навык установки проекта AI Windows Admin (ai-tc)
+# 🚀 Навык установки проекта ai-tc (ai-tc)
 
-Данный навык предназначен для автономных агентов и Gemini CLI для пошаговой установки, конфигурации, диагностики неполадок и полной верификации проекта **AI Windows Admin (ai-tc)** на Windows, Linux и macOS.
+Данный навык предназначен для автономных агентов и Gemini CLI для пошаговой установки, конфигурации, диагностики неполадок и полной верификации проекта **ai-tc (ai-tc)** на Windows, Linux и macOS.
 
 ---
 
@@ -19,7 +19,7 @@ description_i18n:
 
 ```powershell
 # Windows (PowerShell)
-gemini --model "gemini-3.1-flash-lite" --prompt "Активируй навык project-installer. Прочти INSTALL-INSTRUCTION.md и пошагово проведи установку AI Windows Admin с запуском телеметрии, созданием venv, установкой зависимостей и финальной верификацией."
+gemini --model "gemini-3.1-flash-lite" --prompt "Активируй навык project-installer. Прочти INSTALL-INSTRUCTION.md и пошагово проведи установку ai-tc с запуском телеметрии, созданием venv, установкой зависимостей и финальной верификацией."
 
 # Либо через готовый скрипт:
 .\.agents\skills\project-installer\scripts\run_installer_gemini.ps1

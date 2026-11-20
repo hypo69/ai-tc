@@ -1,7 +1,7 @@
 # Core AI Subsystem (`core/ai`)
 
 ## Overview
-The `core/ai` package is the central artificial intelligence engine of **AI-Windows-Admin**, providing capability routing, hardware awareness, and seamless multi-provider abstraction across local and cloud runtimes.
+The `core/ai` package is the central artificial intelligence engine of **ai-tc**, providing capability routing, hardware awareness, and seamless multi-provider abstraction across local and cloud runtimes.
 
 ---
 

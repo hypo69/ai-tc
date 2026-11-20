@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Sensor Collector
+# Process Name: ai-tc Apps Windows Telemetry - Sensor Collector
 # =============================================================================
 # Description:
 #   Сбор данных со всех доступных сенсоров и аппаратных провайдеров.
@@ -12,11 +12,11 @@
 #     service = SensorCollector()
 #
 # File: sensor_collector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 10:55:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

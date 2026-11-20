@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Convertors Money Module
+# Process Name: ai-tc UTILS - Convertors Money Module
 # =============================================================================
 # Description:
 #   Конвертер денежных величин и финансовых значений:
@@ -24,11 +24,11 @@
 #     dec2 = minor2decimal(minor)            # Decimal('1250.50')
 #
 # File: money.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils.convertors
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 18:25:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

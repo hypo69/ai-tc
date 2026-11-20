@@ -8,11 +8,11 @@
  *   и автоизвлечение из советов модели, см. conversation 8bdc91cc-bd8f-4a2b-b7d9-d13455e82580).
  *
  * File: runtime.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_app_internals/panel_instruments_db
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 17:05:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

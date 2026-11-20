@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Tests - Live Stream Report & HW Compare
+# Process Name: ai-tc Apps Windows Telemetry Tests - Live Stream Report & HW Compare
 # =============================================================================
 # Description:
 #   Тестирование новой архитектуры телеметрии:
@@ -12,11 +12,11 @@
 #   5. Сравнительный отчет производительности до и после модернизации железа («Было / Стало»).
 #
 # File: test_live_stream_report_and_hardware_compare.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 02:02:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 import os
@@ -264,22 +264,22 @@ def test_service_live_stream_workflow_and_api(temp_storage):
         client = TestClient(app)
 
         # Start live stream
-        resp_start = client.post("/api/windows/telemetry/live-stream/start", json={"duration_seconds": 60.0})
+        resp_start = client.post("/api/v1/windows/telemetry/live-stream/start", json={"duration_seconds": 60.0})
         assert resp_start.status_code == 200
         assert resp_start.json()["status"] == "started"
 
         # Stop live stream
-        resp_stop = client.post("/api/windows/telemetry/live-stream/stop")
+        resp_stop = client.post("/api/v1/windows/telemetry/live-stream/stop")
         assert resp_stop.status_code == 200
         assert resp_stop.json()["status"] == "stopped"
 
         # Sessions list
-        resp_sessions = client.get("/api/windows/telemetry/live-stream/sessions")
+        resp_sessions = client.get("/api/v1/windows/telemetry/live-stream/sessions")
         assert resp_sessions.status_code == 200
         assert isinstance(resp_sessions.json(), list)
 
         # Hardware changes
-        resp_hw = client.get("/api/windows/telemetry/hardware/changes")
+        resp_hw = client.get("/api/v1/windows/telemetry/hardware/changes")
         assert resp_hw.status_code == 200
         assert isinstance(resp_hw.json(), list)
 

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts - Check System Health
+# Process Name: ai-tc Scripts - Check System Health
 # =============================================================================
 # Description:
-#   Скрипт/модуль системы AI-Windows-Admin (`check_system_health`).
+#   Скрипт/модуль системы ai-tc (`check_system_health`).
 #
 # Usage Examples:
 #   CLI:
@@ -14,14 +14,14 @@
 #     res = check_health()
 #
 # File: check_system_health.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
-"""Скрипт/модуль системы AI-Windows-Admin (`check_system_health`)."""
+"""Скрипт/модуль системы ai-tc (`check_system_health`)."""
 
 from logger import logger
 import requests

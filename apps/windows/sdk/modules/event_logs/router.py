@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Event_Logs - Router
+# Process Name: ai-tc Apps Windows Modules Event_Logs - Router
 # =============================================================================
 # Description:
 #   FastAPI роутер для управления системными журналами Windows и Log Intelligence API.
@@ -12,11 +12,11 @@
 #     router = init_router()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.event_logs
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ from apps.windows.sdk.modules.event_logs.core.models import (
     IntelligenceSearchRequest,
 )
 
-router = APIRouter(prefix='/api/event-logs', tags=['Event Logs Manager'])
+router = APIRouter(prefix='/api/v1/event-logs', tags=['Event Logs Manager'])
 _manager = EventLogsManager()
 
 

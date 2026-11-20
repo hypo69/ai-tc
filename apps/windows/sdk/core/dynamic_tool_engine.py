@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Dynamic Tool Engine
+# Process Name: ai-tc Apps Windows Core - Dynamic Tool Engine
 # =============================================================================
 # Description:
 #   Динамический генератор и исполнитель системных инструментов Windows.
@@ -12,11 +12,11 @@
 #     service = DynamicToolPlan()
 #
 # File: dynamic_tool_engine.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 20:38:10
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -438,9 +438,9 @@ class DynamicWindowsToolEngine:
         elif 'printer' in plan.tool_name:
             knowledge.append({'title': 'Win32_Printer CIM / WMI Model', 'description': 'Спецификация управления очередями и драйверами печати', 'type': 'wmi', 'badge': 'CIM / WMI'})
         if use_rag:
-            knowledge.append({'title': 'База знаний RAG (AI Windows Admin)', 'description': 'Индексированная системная документация и регламенты сценариев', 'type': 'rag', 'badge': 'RAG Store'})
+            knowledge.append({'title': 'База знаний RAG (ai-tc)', 'description': 'Индексированная системная документация и регламенты сценариев', 'type': 'rag', 'badge': 'RAG Store'})
         knowledge.append({'title': f'Навык: {plan.tool_name}', 'description': f'Каталог .agents/skills/ ({plan.description_ru})', 'type': 'skill', 'badge': '.agents/skills'})
-        knowledge.append({'title': 'Инженерный регламент AI Windows Admin & SafeOps', 'description': 'Стандарты безопасности выполнения системных команд и Fail-Fast проверок', 'type': 'standards', 'badge': 'GEMINI.md'})
+        knowledge.append({'title': 'Инженерный регламент ai-tc & SafeOps', 'description': 'Стандарты безопасности выполнения системных команд и Fail-Fast проверок', 'type': 'standards', 'badge': 'GEMINI.md'})
         return (agents, knowledge)
 
     async def process_query(self, query: str, auto_create_skill: bool=False, conversation_id: Optional[str]=None, keep_context: bool=False, use_rag: bool=True) -> Dict[str, Any]:

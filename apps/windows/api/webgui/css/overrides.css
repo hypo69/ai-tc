@@ -15,7 +15,7 @@
  * Package: apps/common/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-03 14:09:00
+ * Updated: 2026-11-16 05:48:00
  * =============================================================================
  */
 
@@ -351,6 +351,13 @@ html[data-bs-theme="light"] body {
     border-color: var(--border-color) !important;
     color: var(--text-color) !important;
   }
+  .badge.bg-secondary-subtle,
+  .badge.bg-secondary.bg-opacity-40,
+  .badge.bg-secondary.bg-opacity-50 {
+    background-color: var(--badge-neutral-bg, var(--surface-2)) !important;
+    color: var(--badge-neutral-text, var(--text-color)) !important;
+    border-color: var(--badge-neutral-border, var(--border-color)) !important;
+  }
   .badge.bg-info-subtle {
     background-color: #e0f2fe !important;
     color: #0369a1 !important;
@@ -596,7 +603,80 @@ html[data-bs-theme="light"] body {
 [data-theme="nightview-70"] .diag-badge-critical,
 [data-theme="nightview-70"] .diag-badge-warning,
 [data-theme="nightview-70"] .diag-badge-normal {
-  font-size: calc(0.72rem + 1pt);
+  font-size: calc((0.72rem + 1pt) * var(--badge-scale, 1.08));
+}
+
+/* ── NightView & NightView 70: Полное исключение цвета cyan (yan) из бейджей и кнопок ── */
+[data-theme="nightview"] .badge.bg-info,
+[data-theme="nightview"] .badge.bg-info-subtle,
+[data-theme="nightview"] .ui-badge-info,
+[data-theme="nightview-70"] .badge.bg-info,
+[data-theme="nightview-70"] .badge.bg-info-subtle,
+[data-theme="nightview-70"] .ui-badge-info {
+  background-color: var(--badge-info-bg, rgba(24, 70, 116, 0.12)) !important;
+  color: var(--badge-info-text, #184674) !important;
+  border-color: var(--badge-info-border, rgba(24, 70, 116, 0.25)) !important;
+}
+
+[data-theme="nightview"] .badge.border-info,
+[data-theme="nightview"] .badge.border-info-subtle,
+[data-theme="nightview"] .badge.text-info,
+[data-theme="nightview"] .badge[class*="info"],
+[data-theme="nightview-70"] .badge.border-info,
+[data-theme="nightview-70"] .badge.border-info-subtle,
+[data-theme="nightview-70"] .badge.text-info,
+[data-theme="nightview-70"] .badge[class*="info"] {
+  border-color: var(--badge-info-border, rgba(24, 70, 116, 0.35)) !important;
+  color: var(--badge-info-text, #184674) !important;
+}
+
+[data-theme="nightview"] .btn-info,
+[data-theme="nightview-70"] .btn-info {
+  background-color: var(--nav-active, #1d4ed8) !important;
+  border-color: var(--nav-active, #1d4ed8) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="nightview"] .btn-outline-info,
+[data-theme="nightview-70"] .btn-outline-info {
+  border-color: var(--nav-active, #1d4ed8) !important;
+  color: var(--nav-active, #1d4ed8) !important;
+}
+
+/* ── Светлые темы (Light / NightView) — Читаемый контрастный цвет для нейтральных и светлосерых бейджей ── */
+[data-theme="light"] .badge.bg-secondary,
+[data-theme="light"] .badge.bg-secondary-subtle,
+[data-theme="light"] .badge.bg-light,
+[data-theme="light"] .badge-secondary,
+[data-theme="light"] .badge-light,
+[data-theme="light"] .ui-badge-neutral,
+[data-theme="light"] .badge.text-light,
+[data-theme="light"] .badge .text-light,
+[data-theme="light"] .badge.text-white,
+[data-theme="light"] .badge .text-white,
+[data-theme="nightview"] .badge.bg-secondary,
+[data-theme="nightview"] .badge.bg-secondary-subtle,
+[data-theme="nightview"] .badge.bg-light,
+[data-theme="nightview"] .badge-secondary,
+[data-theme="nightview"] .badge-light,
+[data-theme="nightview"] .ui-badge-neutral,
+[data-theme="nightview"] .badge.text-light,
+[data-theme="nightview"] .badge .text-light,
+[data-theme="nightview"] .badge.text-white,
+[data-theme="nightview"] .badge .text-white,
+[data-theme="nightview-70"] .badge.bg-secondary,
+[data-theme="nightview-70"] .badge.bg-secondary-subtle,
+[data-theme="nightview-70"] .badge.bg-light,
+[data-theme="nightview-70"] .badge-secondary,
+[data-theme="nightview-70"] .badge-light,
+[data-theme="nightview-70"] .ui-badge-neutral,
+[data-theme="nightview-70"] .badge.text-light,
+[data-theme="nightview-70"] .badge .text-light,
+[data-theme="nightview-70"] .badge.text-white,
+[data-theme="nightview-70"] .badge .text-white {
+  background-color: var(--badge-neutral-bg, #e2dac9) !important;
+  color: var(--badge-neutral-text, #18181b) !important;
+  border-color: var(--badge-neutral-border, #cfc5b4) !important;
 }
 
 /* ── Dark & Terminal Themes — Высококонтрастные переопределения ─────────────── */

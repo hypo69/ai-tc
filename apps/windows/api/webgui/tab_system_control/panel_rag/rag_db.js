@@ -4,13 +4,13 @@
  * Обеспечивает автономный семантический поиск по журналам Windows без расхода
  * токенов LLM и кеширование эмбеддингов/чанков непосредственно в браузере.
  * 
- * Updated: 2026-10-17 00:28:00
+ * Updated: 2026-11-12 05:00:00
  */
 
 import { t } from '../common/ui_utils.js';
 
 export const BrowserRagCache = {
-  prefix: 'ai_windows_admin_rag_',
+  prefix: 'ai_tc_rag_',
 
   get(key) {
     try {
@@ -62,7 +62,7 @@ export const BrowserRagCache = {
 };
 
 export const RagIndexDB = {
-  dbName: 'AiWindowsAdmin_RAG_Cache',
+  dbName: 'AiTc_RAG_Cache',
   dbVersion: 1,
   _db: null,
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules System_Checkpoints Core - Checkpoint Coordinator
+# Process Name: ai-tc Apps Windows Modules System_Checkpoints Core - Checkpoint Coordinator
 # =============================================================================
 # Description:
 #   Главный координатор системы контрольных точек и трех механизмов восстановления Windows.
@@ -12,11 +12,11 @@
 #     service = CheckpointCoordinator()
 #
 # File: checkpoint_coordinator.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.system_checkpoints.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 22:17:00
+# Updated: 2026-11-20 16:48:00
 # =============================================================================
 
 from __future__ import annotations
@@ -245,9 +245,7 @@ class CheckpointCoordinator:
             sr_mgr = self._get_restore_manager()
             if sr_mgr:
                 r_type = "MODIFY_SETTINGS"
-                if req.checkpoint_type == CheckpointType.PRE_UPDATE:
-                    r_type = "WINDOWS_UPDATE"
-                elif req.checkpoint_type == CheckpointType.PRE_EXPERIMENT:
+                if req.checkpoint_type == CheckpointType.PRE_EXPERIMENT:
                     r_type = "APPLICATION_INSTALL"
 
                 restore_point_result = sr_mgr.create_restore_point(

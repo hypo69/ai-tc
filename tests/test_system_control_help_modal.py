@@ -11,11 +11,11 @@ Description:
   5. Проверка полноты ключей локализации systemControlHelp по всем 4 локалям.
 
 File: test_system_control_help_modal.py
-Project: ai-windows-admin
+Project: ai-tc
 Package: tests
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-31 18:23:30
+Updated: 2026-11-12 05:00:00
 =============================================================================
 """
 

@@ -19,11 +19,11 @@
 #     conn_mgr = ConnectionManager(hosts_repo, connections_repo, cred_mgr, verifier)
 #
 # File: connection_manager.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:50:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from datetime import datetime, timezone

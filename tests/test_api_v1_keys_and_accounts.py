@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - API v1 Keys and Google Accounts Suite
+# Process Name: ai-tc Tests - API v1 Keys and Google Accounts Suite
 # =============================================================================
 # Description:
 #   Тесты верификации эндпоинтов /api/v1/keys, /api/v1/keys/agy
@@ -11,11 +11,11 @@
 #     pytest tests/test_api_v1_keys_and_accounts.py
 #
 # File: test_api_v1_keys_and_accounts.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 16:05:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -58,11 +58,11 @@ def test_v1_admin_google_accounts_endpoint(api_client: TestClient) -> None:
 
 def test_legacy_aliases_compatibility(api_client: TestClient) -> None:
     """Проверка доступности legacy-алиасов для обратной совместимости."""
-    resp_keys = api_client.get("/api/keys/")
+    resp_keys = api_client.get("/api/v1/keys/")
     assert resp_keys.status_code == 200
 
-    resp_agy = api_client.get("/api/keys/agy")
+    resp_agy = api_client.get("/api/v1/keys/agy")
     assert resp_agy.status_code == 200
 
-    resp_google = api_client.get("/api/admin/google-accounts")
+    resp_google = api_client.get("/api/v1/admin/google-accounts")
     assert resp_google.status_code == 200

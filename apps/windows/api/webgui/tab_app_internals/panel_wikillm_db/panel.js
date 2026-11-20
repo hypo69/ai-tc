@@ -8,11 +8,11 @@
  *   инициализации таблиц и миграции данных.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_app_internals/panel_wikillm_db
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 12:40:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

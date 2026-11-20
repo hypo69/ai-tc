@@ -1,28 +1,29 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Package Init
+# Process Name: ai-tc UTILS - Package Init
 # =============================================================================
 # Description:
-#   Модуль утилит для AI-Windows-Admin.
+#   Модуль утилит для ai-tc.
 #   Использует ленивый импорт тяжелого подмодуля pdf (weasyprint)
 #   через PEP 562 (__getattr__) для минимизации Private Bytes и дескрипторов.
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 18:13:00
+# Updated: 2026-11-16 05:37:00
 # =============================================================================
 
 from __future__ import annotations
-"""Модуль утилит для AI-Windows-Admin."""
+"""Модуль утилит для ai-tc."""
 
 import importlib
 from typing import Any
 
 from . import (
     archive,
+    asyncio_windows_patch,
     com_worker,
     convertors,
     csv,
@@ -40,6 +41,7 @@ from . import (
     url,
     versioning,
 )
+from .asyncio_windows_patch import apply_windows_asyncio_patch
 from .google_errors import (
     ParsedGoogleError,
     handle_google_errors,
@@ -68,7 +70,9 @@ def __getattr__(name: str) -> Any:
 
 
 __all__ = [
+    'apply_windows_asyncio_patch',
     'archive',
+    'asyncio_windows_patch',
     'com_worker',
     'convertors',
     'csv',

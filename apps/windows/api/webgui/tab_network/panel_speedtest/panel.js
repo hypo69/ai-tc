@@ -1,7 +1,7 @@
 /**
  * Модуль панели тестирования скорости интернета и пинга.
  * Файл: apps/windows/api/webgui/tab_network/panel_speedtest/panel.js
- * Updated: 2026-10-30 11:05:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 let isSpeedtestRunning = false;
@@ -45,7 +45,7 @@ function updateAllButtons(disabled, html) {
  */
 export async function fetchLatestSpeedtest() {
   try {
-    const res = await fetch('/api/network/speedtest/latest');
+    const res = await fetch('/api/v1/network/speedtest/latest');
     if (!res.ok) return;
     const data = await res.json();
     if (data && data.download) {
@@ -68,7 +68,7 @@ export async function runInternetSpeedtest() {
   updateAllText('#speed-summary-text, #sys-speed-summary-text, .speed-summary-text', 'Выполняется подключение к узлам Cloudflare & DNS серверам для замера скорости...');
 
   try {
-    const res = await fetch('/api/network/speedtest/run', { method: 'POST' });
+    const res = await fetch('/api/v1/network/speedtest/run', { method: 'POST' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Docs - Check Links
+# Process Name: ai-tc Scripts Docs - Check Links
 # =============================================================================
 # Description:
 #   Скрипт для проверки внутренних и внешних ссылок в документации.
@@ -14,11 +14,11 @@
 #     service = LinkChecker()
 #
 # File: check_links.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.docs
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Скрипт для проверки внутренних и внешних ссылок в документации.

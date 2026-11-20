@@ -2,7 +2,7 @@
 
 > **Версия:** 1.0.0  
 > **Дата:** 24 сентября 2026  
-> **Авторы:** hypo69, AI-Windows-Admin Team
+> **Авторы:** hypo69, ai-tc Team
 
 ## 📋 Содержание
 
@@ -19,7 +19,7 @@
 
 ## 🎯 Обзор
 
-**API Cache System** — это универсальная система кеширования HTTP-запросов для всего веб-интерфейса AI-Windows-Admin, построенная на современных паттернах кеширования и использующая многоуровневое хранилище данных.
+**API Cache System** — это универсальная система кеширования HTTP-запросов для всего веб-интерфейса ai-tc, построенная на современных паттернах кеширования и использующая многоуровневое хранилище данных.
 
 ### Ключевые возможности
 
@@ -518,10 +518,10 @@ setInterval(async () => {
 
 ## 📧 Контакты
 
-- **Email:** support@ai-windows-admin.dev
-- **GitHub:** [AI-Windows-Admin](https://github.com/hypo69/hypo)
-- **Документация:** [docs.ai-windows-admin.dev](https://docs.ai-windows-admin.dev)
+- **Email:** support@ai-tc.dev
+- **GitHub:** [ai-tc](https://github.com/hypo69/hypo)
+- **Документация:** [docs.ai-tc.dev](https://docs.ai-tc.dev)
 
 ---
 
-**© 2026 AI-Windows-Admin Team. Все права защищены.**
+**© 2026 ai-tc Team. Все права защищены.**

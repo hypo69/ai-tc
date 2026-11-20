@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Process Name: AI-Windows-Admin UI - WikiLLM Controller
+ * Process Name: ai-tc UI - WikiLLM Controller
  * =============================================================================
  * Description:
  *   Клиентский контроллер интерактивного фильтра категорий, тегов и поиска статей WikiLLM.
@@ -8,11 +8,11 @@
  *   и управление состоянием Category Filter Pills и Tag Cloud (Задача №33).
  *
  * File: wikillm_controller.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/static/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-13 12:30:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

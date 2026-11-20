@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Agent Loop
+# Process Name: ai-tc Apps Windows Core - Agent Loop
 # =============================================================================
 # Description:
 #   Автономный агентский цикл с поддержкой нативного Function Calling и саморасширения.
@@ -12,11 +12,11 @@
 #     service = WindowsAgentLoop()
 #
 # File: agent_loop.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-13 14:04:00
 # =============================================================================
 
 from __future__ import annotations
@@ -30,57 +30,22 @@ from logger import logger
 from apps.windows.sdk.core.tools.base import BaseTool, ToolExecutionResult
 from apps.windows.sdk.core.tools.dynamic_factory import DynamicSynthesizedTool, DynamicToolFactory, to_ascii_slug
 from apps.windows.sdk.core.tools.registry import ToolRegistry
+from src.utils.jjson import j_dumps
 
 def extract_json_block(text: str) -> Optional[Dict[str, Any]]:
-    """Извлечение JSON‑объекта из ответа LLM.
-    Поддерживает варианты:
+    """Извлечение JSON‑объекта из ответа LLM с использованием j_dumps.
+
+    Поддерживает:
     • чистый JSON без обёртки;
-    • markdown‑блок ```json ... ```;
-    • markdown‑блок ``` ... ``` без указания языка;
-    • любой JSON‑объект в произвольном тексте.
-    При неудаче логирует ошибку и возвращает None.
+    • markdown‑блок ```json ... ``` (включая вложенные блоки кода);
+    • любой JSON‑объект в произвольном тексте;
+    • авто-восстановление синтаксиса через j_dumps.
     """
     if not text:
         return None
-    text_clean = text.strip()
-    # Прямая попытка парсинга чистого JSON
-    try:
-        data = json.loads(text_clean)
-        if isinstance(data, dict):
-            return data
-    except Exception:
-        pass
-    # Поиск блока markdown ```json ... ```
-    match = re.search(r'```(?:json)?\s*({[\s\S]*?})\s*```', text, re.IGNORECASE)
-    if not match:
-        # Поиск блока markdown без указания языка
-        match = re.search(r'```\s*({[\s\S]*?})\s*```', text)
-    if match:
-        try:
-            data = json.loads(match.group(1))
-            if isinstance(data, dict):
-                return data
-        except Exception:
-            pass
-    # Фолл‑бэк: поиск первого JSON‑объекта в тексте
-    brace_stack = []
-    start_idx = None
-    for idx, ch in enumerate(text):
-        if ch == '{':
-            if not brace_stack:
-                start_idx = idx
-            brace_stack.append(ch)
-        elif ch == '}':
-            if brace_stack:
-                brace_stack.pop()
-                if not brace_stack and start_idx is not None:
-                    candidate = text[start_idx:idx+1]
-                    try:
-                        data = json.loads(candidate)
-                        if isinstance(data, dict):
-                            return data
-                    except Exception:
-                        continue
+    data = j_dumps(text, exc_info=False)
+    if isinstance(data, dict):
+        return data
     logger.error('Функция extract_json_block вернула пустой результат')
     return None
 
@@ -108,7 +73,7 @@ class WindowsAgentLoop:
         for t in tools_list:
             tools_desc.append(f'- **{t.name}** ({t.title}): {t.description}')
         tools_str = '\n'.join(tools_desc)
-        return f'Ты — интеллектуальный системный агент платформы AI Windows Admin для ОС Windows.\nТвоя задача — исследовать систему, собирать достоверные факты и формировать профессиональные отчеты.\n\n### 🛠️ ДОСТУПНЫЕ ИНСТРУМЕНТЫ:\n{tools_str}\n\n### ⚙️ ПРАВИЛА ВЫПОЛНЕНИЯ:\n1. Если для решения задачи подходит встроенный инструмент (например, windows_collector), используй его.\n2. Если требуется специализированный или отсутствующий опрос (например, история мышей, принтеры, USB, мониторы, сетевые папки SMB, специфические ключи реестра), ИСПОЛЬЗУЙ инструмент `create_custom_tool` — сформируй точный, безопасный read-only скрипт PowerShell с конвертацией вывода в JSON (`| ConvertTo-Json`).\n3. При формировании ответа опирайся СТРОГО на собранные данные.\n4. Если предлагаешь пользователю действие/исправление (отключение службы, очистка диска, включение аудита auditpol), добавь блок действия:\n```action\n{{\n  "action_id": "уникальный_id",\n  "action_type": "custom_command",\n  "title": "Название действия",\n  "description": "Что произойдет",\n  "target": "объект",\n  "risk": "caution",\n  "execution_command": "powershell_или_cmd_команда"\n}}\n```\n\nДля вызова инструмента верни JSON:\n```tool_call\n{{"tool_name": "имя_инструмента", "arguments": {{ ... }}}}\n```\nЕсли сбор данных завершен, сформируй красивый финальный ответ в Markdown на русском языке.'
+        return f'Ты — интеллектуальный системный агент платформы ai-tc для ОС Windows.\nТвоя задача — исследовать систему, собирать достоверные факты и формировать профессиональные отчеты.\n\n### 🛠️ ДОСТУПНЫЕ ИНСТРУМЕНТЫ:\n{tools_str}\n\n### ⚙️ ПРАВИЛА ВЫПОЛНЕНИЯ:\n1. Если для решения задачи подходит встроенный инструмент (например, windows_collector), используй его.\n2. Если требуется специализированный или отсутствующий опрос (например, история мышей, принтеры, USB, мониторы, сетевые папки SMB, специфические ключи реестра), ИСПОЛЬЗУЙ инструмент `create_custom_tool` — сформируй точный, безопасный read-only скрипт PowerShell с конвертацией вывода в JSON (`| ConvertTo-Json`).\n3. При формировании ответа опирайся СТРОГО на собранные данные.\n4. Если предлагаешь пользователю действие/исправление (отключение службы, очистка диска, включение аудита auditpol), добавь блок действия:\n```action\n{{\n  "action_id": "уникальный_id",\n  "action_type": "custom_command",\n  "title": "Название действия",\n  "description": "Что произойдет",\n  "target": "объект",\n  "risk": "caution",\n  "execution_command": "powershell_или_cmd_команда"\n}}\n```\n\nДля вызова инструмента верни JSON:\n```tool_call\n{{"tool_name": "имя_инструмента", "arguments": {{ ... }}}}\n```\nЕсли сбор данных завершен, сформируй красивый финальный ответ в Markdown на русском языке.'
 
     async def plan_and_select_tool(self, query: str, session_history: Optional[List[Dict[str, str]]]=None) -> Optional[Tuple[str, Dict[str, Any]]]:
         """Определяет, какой инструмент требуется вызвать для запроса пользователя."""

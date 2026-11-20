@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Audio Transcription Module
+# Process Name: ai-tc UTILS - Audio Transcription Module
 # =============================================================================
 # Description:
 #   Модуль транскрибации аудиофайлов (.wav, .mp3, .ogg, .m4a, .flac) в текст.
@@ -16,11 +16,11 @@
 #     print(text)
 #
 # File: audio.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils.convertors
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-22 13:17:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

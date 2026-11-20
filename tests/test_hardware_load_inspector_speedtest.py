@@ -2,9 +2,9 @@
 """Тесты интеграции панели Speedtest в tab-hardware-load-inspector.
 
 Файл: tests/test_hardware_load_inspector_speedtest.py
-Project: ai-windows-admin
+Project: ai-tc
 Package: tests
-Updated: 2026-10-30 11:05:00
+Updated: 2026-11-12 05:00:00
 """
 
 from pathlib import Path

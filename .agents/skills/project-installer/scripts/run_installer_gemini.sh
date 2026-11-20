@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Process Name: AI-Windows-Admin Automation - Run Installer Gemini (Bash)
-# Updated: 2026-10-31 19:10:00
+# Process Name: ai-tc Automation - Run Installer Gemini (Bash)
+# Updated: 2026-11-12 05:00:00
 # Author: hypo69
 # =============================================================================
 
@@ -21,6 +21,6 @@ echo "Корень проекта: $PROJECT_ROOT"
 echo "Инструкция:     $INSTRUCTION_FILE"
 echo ""
 
-PROMPT="Ты интерактивный установщик AI Windows Admin. Прочти и выполни инструкции из '$INSTRUCTION_FILE'. Пошагово проведи установку, выполни pre-flight проверки, настрой venv, requirements.txt, .env и запусти верификацию verify_installation.py."
+PROMPT="Ты интерактивный установщик ai-tc. Прочти и выполни инструкции из '$INSTRUCTION_FILE'. Пошагово проведи установку, выполни pre-flight проверки, настрой venv, requirements.txt, .env и запусти верификацию verify_installation.py."
 
 gemini --model "gemini-3.1-flash-lite" --prompt "$PROMPT"

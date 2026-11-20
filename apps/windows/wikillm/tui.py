@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm - Tui
+# Process Name: ai-tc Apps Windows Wikillm - Tui
 # =============================================================================
 # Description:
 #   Интерактивный консольный терминал для исследования, поиска и разрешения
@@ -10,11 +10,11 @@
 #     import apps.windows.wikillm.tui as tui
 #
 # File: tui.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:44
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

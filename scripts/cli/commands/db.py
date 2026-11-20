@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Cli Commands - Db
+# Process Name: ai-tc Scripts Cli Commands - Db
 # =============================================================================
 # Description:
 #   Команды управления миграциями базы данных SQLite (db).
@@ -12,11 +12,11 @@
 #     res = register_db_parser()
 #
 # File: db.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.cli.commands
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:44
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

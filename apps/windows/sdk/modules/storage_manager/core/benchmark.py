@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Storage_Manager Core - Benchmark
+# Process Name: ai-tc Apps Windows Modules Storage_Manager Core - Benchmark
 # =============================================================================
 # Description:
 #   Сервис тестирования производительности дисковой подсистемы с использованием Microsoft DiskSpd.
@@ -16,11 +16,11 @@
 #     res = service.run_suite(BenchmarkRequest(target_drive='C:', duration_sec=3))
 #
 # File: benchmark.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.storage_manager.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -255,7 +255,7 @@ class StorageBenchmarkService:
             if drive_letter == system_drive:
                 rec_dir = str(self.root_dir / 'data' / 'benchmark')
             else:
-                rec_dir = f'{drive_letter}\\AI-Windows-Admin-benchmark'
+                rec_dir = f'{drive_letter}\\ai-tc-benchmark'
 
             targets.append(
                 BenchmarkTargetInfo(
@@ -318,7 +318,7 @@ class StorageBenchmarkService:
             if drive == system_drive:
                 test_dir = self.root_dir / 'data' / 'benchmark'
             else:
-                test_dir = Path(f'{drive}\\AI-Windows-Admin-benchmark')
+                test_dir = Path(f'{drive}\\ai-tc-benchmark')
             test_file = test_dir / 'diskspd-test.dat'
 
         test_dir.mkdir(parents=True, exist_ok=True)

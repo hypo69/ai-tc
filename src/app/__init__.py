@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin App - Dependency Injection & App Registry
+# Process Name: ai-tc App - Dependency Injection & App Registry
 # =============================================================================
 # Description:
 #   Контейнер внедрения зависимостей (DI) и реестр микроприложений /apps
 #   для интеграции в единый сервер и меню администратора.
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.app
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

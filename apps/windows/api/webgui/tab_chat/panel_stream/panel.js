@@ -7,11 +7,11 @@
  *   озвучивания ответов через TTS и обработки ошибок инференса.
  *
  * File: panel_stream/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_chat/panel_stream
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:25:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

@@ -9,11 +9,11 @@
  *   и автоматическое обновление вновь добавляемых элементов через MutationObserver.
  *
  * File: global-i18n.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-13 11:20:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

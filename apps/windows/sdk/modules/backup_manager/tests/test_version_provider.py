@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Backup_Manager Tests - Test Version Provider
+# Process Name: ai-tc Apps Windows Modules Backup_Manager Tests - Test Version Provider
 # =============================================================================
 # Description:
 #   Тесты подсистемы точечного версионирования файлов (VSS + SQLite blob store).
@@ -9,11 +9,11 @@
 #   pytest apps/windows/modules/backup_manager/tests/test_version_provider.py -v
 #
 # File: test_version_provider.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.backup_manager.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Shell SDK - Package Init
+# Process Name: ai-tc Shell SDK - Package Init
 # =============================================================================
 # Description:
 #   Пакет управления элементами оболочки Windows (Taskbar, Start Menu, Explorer).
@@ -10,11 +10,11 @@
 #     from apps.windows.sdk.shell import TaskbarConfigManager
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.shell
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 13:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

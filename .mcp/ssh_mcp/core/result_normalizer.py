@@ -20,11 +20,11 @@
 #     resp = norm.success("srv-1", "linux", "system.memory", {"total_mb": 16384})
 #
 # File: result_normalizer.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:48:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from typing import Any, Dict, Optional

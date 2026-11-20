@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Router Power Lifecycle Test
+# Process Name: ai-tc Tests - Router Power Lifecycle Test
 # =============================================================================
 # Description:
 #   Модульные тесты для проверки API роутера жизненного цикла питания
@@ -10,11 +10,11 @@
 #   pytest tests/test_router_power_lifecycle.py
 #
 # File: test_router_power_lifecycle.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 13:44:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Тесты роутера жизненного цикла питания и аптайма системы."""

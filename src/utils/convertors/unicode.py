@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Unicode Module
+# Process Name: ai-tc UTILS - Unicode Module
 # =============================================================================
 # Description:
 #   Decoding of unicode escape sequences in dictionaries, lists, or strings to readable text.
@@ -13,11 +13,11 @@
 #     print(res)
 #
 # File: unicode.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils.convertors
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Decoding of unicode escape sequences in dictionaries, lists, or strings to readable text."""

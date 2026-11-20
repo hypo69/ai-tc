@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Scenarios - LangGraph DAG Orchestrator
+# Process Name: ai-tc Apps Windows Scenarios - LangGraph DAG Orchestrator
 # =============================================================================
 # Description:
 #   Движок оркестрации автономных сценариев на базе StateGraph / DAG (Спецификация 15).
@@ -17,11 +17,11 @@
 #     session = dag_engine.create_and_start_scenario("service_stop", "Остановка службы Spooler")
 #
 # File: dag_orchestrator.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.scenarios
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 01:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ from __future__ import annotations
 import enum
 import time
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from pydantic import BaseModel, Field
 

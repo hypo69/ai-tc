@@ -19,11 +19,11 @@
 #     res = agent_python_eval("2 + 2 * 10")
 #
 # File: langchain_mcp_server.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: .mcp
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:06:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ from logger import logger
 from src.ai.agents.agent import MediaSearchAgent
 from src.ai.agents.tools import file_read, python_eval, rag_search, web_search
 
-mcp = MCPServer("LangChain-AI-Windows-Admin-Agent")
+mcp = MCPServer("LangChain-ai-tc-Agent")
 _CONFIG_PATH: Path = __root__ / "config.json"
 
 
@@ -217,7 +217,7 @@ def main() -> int:
         >>> callable(main)
         True
     """
-    logger.info("[langchain_mcp_server] Запуск LangChain AI Windows Admin MCPServer...")
+    logger.info("[langchain_mcp_server] Запуск LangChain ai-tc MCPServer...")
     mcp.run(transport="stdio")
     return 0
 

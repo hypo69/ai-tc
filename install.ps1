@@ -1,10 +1,10 @@
 <#
 =============================================================================
-Process Name: AI-Windows-Admin (AI-TC) - Master Installer Script
+Process Name: ai-tc (AI-TC) - Master Installer Script
 =============================================================================
 Description:
   Главный скрипт автоматической установки, настройки окружения и верификации
-  платформы AI Windows Admin (AI-TC) для Windows.
+  платформы ai-tc (AI-TC) для Windows.
   Поддерживает как локальный запуск из клонированного репозитория, так и
   однострочный запуск через интернет (irm ... | iex) с автоматическим
   скачиванием Git, клонированием репозитория, созданием venv и проверкой.
@@ -19,14 +19,14 @@ Usage Examples:
     irm https://raw.githubusercontent.com/hypo69/AI-TC/master/install.ps1 | iex
 
 File: install.ps1
-Project: ai-windows-admin
+Project: ai-tc
 Package: root
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-01 12:40:00
+# Updated: 2026-11-12 05:00:00
 =============================================================================
 .SYNOPSIS
-    Установщик платформы AI Windows Admin (AI-TC).
+    Установщик платформы ai-tc (AI-TC).
 .DESCRIPTION
     Выполняет полный цикл развертывания согласно INSTALL-INSTRUCTION.md:
     проверка/установка Git и Python, клонирование репозитория (при удаленном запуске),
@@ -170,7 +170,7 @@ function Resolve-PythonCommand {
 # ---------------------------------------------------------------------------
 # 1. Определение рабочей директории и клонирование репозитория при необходимости
 # ---------------------------------------------------------------------------
-Write-Step "Этап 0: Подготовка репозитория и окружения AI Windows Admin (AI-TC)"
+Write-Step "Этап 0: Подготовка репозитория и окружения ai-tc (AI-TC)"
 
 $CandidateRoot = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 $IsInsideRepo = (Test-Path (Join-Path $CandidateRoot "header.py")) -and (Test-Path (Join-Path $CandidateRoot "config.json"))
@@ -343,9 +343,10 @@ if (Test-Path $SslGenerator) {
 
 # Регистрация переменных среды пользователя для быстрого доступа
 [System.Environment]::SetEnvironmentVariable("AITC_DIR", $ProjectRoot, "User")
+[System.Environment]::SetEnvironmentVariable("AITC_DIR", $ProjectRoot, "User")
 [System.Environment]::SetEnvironmentVariable("AIWINDOWSADMIN_DIR", $ProjectRoot, "User")
 $env:AITC_DIR = $ProjectRoot
-$env:AIWINDOWSADMIN_DIR = $ProjectRoot
+($env:AITC_DIR ? $env:AITC_DIR : $env:AIWINDOWSADMIN_DIR) = $ProjectRoot
 Write-Ok "Переменные среды AITC_DIR и AIWINDOWSADMIN_DIR зарегистрированы ($ProjectRoot)."
 
 # ---------------------------------------------------------------------------
@@ -384,7 +385,7 @@ if ($UseAiAssistant) {
 }
 
 Write-Host "`n=========================================================" -ForegroundColor Green
-Write-Host "🎉 Установка AI Windows Admin (AI-TC) успешно завершена!" -ForegroundColor Green
+Write-Host "🎉 Установка ai-tc (AI-TC) успешно завершена!" -ForegroundColor Green
 Write-Host "=========================================================" -ForegroundColor Green
 Write-Host "Рабочая директория: $ProjectRoot" -ForegroundColor Gray
 Write-Host "Не забудьте указать GEMINI_API_KEY в файле: $EnvFile" -ForegroundColor Yellow

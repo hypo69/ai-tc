@@ -4,7 +4,7 @@ Process Name: Windows Web Interface - Telemetry Config Tab View
 =============================================================================
 Description:
   Клиентский веб-интерфейс редактора файла конфигурации телеметрии
-  (%APPDATA%\AI-Windows-Admin\apps\windows\telemetry\config.json) с поддержкой
+  (%ProgramData%\ai-tc\telemetry\config.json) с поддержкой
   визуального и текстового редактирования и применения на лету.
 
 Usage Examples:
@@ -12,11 +12,11 @@ Usage Examples:
     /windows/api/webgui/tab_telemetry_config/index.html
 
 File: index.html
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/tab_telemetry_config
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-01 12:50:00
+Updated: 2026-11-12 05:25:00
 =============================================================================
 -->
 <div class="container-fluid p-2" id="telemetry-config-tab-container">
@@ -54,7 +54,7 @@ Updated: 2026-11-01 12:50:00
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3 pt-2 border-top border-secondary border-opacity-25 fs-8 text-secondary">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-file-earmark-code text-info"></i>
-<span>Файл: <code class="text-info bg-dark px-2 py-0.5 rounded border border-secondary border-opacity-25" id="tc-cfg-file-path">%APPDATA%\AI-Windows-Admin\apps\windows\telemetry\config.json</code></span>
+<span>Файл: <code class="text-info bg-dark px-2 py-0.5 rounded border border-secondary border-opacity-25" id="tc-cfg-file-path">%ProgramData%\ai-tc\telemetry\config.json</code></span>
 <button class="btn btn-link btn-sm p-0 text-muted hover-info" id="tc-cfg-copy-path-btn" title="Скопировать путь">
 <i class="bi bi-clipboard"></i>
 </button>

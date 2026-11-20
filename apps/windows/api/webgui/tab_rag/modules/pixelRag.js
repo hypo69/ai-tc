@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/tab_rag/modules/pixelRag.js?v=20261001_v1" type="module"></script>
  *
  * File: pixelRag.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_rag/modules
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -27,7 +27,7 @@ import { formatBytes, escapeHtml } from './utils.js';
  */
 export async function loadPixelRagStatus() {
   try {
-    const res = await fetch('/api/rag/pixel/status');
+    const res = await fetch('/api/v1/rag/pixel/status');
     if (!res.ok) return;
 
     const data = await res.json();
@@ -85,7 +85,7 @@ export async function uploadAndIndexPixelImages(files) {
     if (progressBar) progressBar.style.width = '60%';
     if (percentText) percentText.textContent = '60%';
 
-    const res = await fetch('/api/rag/pixel/index', {
+    const res = await fetch('/api/v1/rag/pixel/index', {
       method: 'POST',
       body: formData,
     });
@@ -133,7 +133,7 @@ export async function analyzePixelQuery() {
   const query = input.value.trim();
 
   try {
-    const res = await fetch(`/api/rag/pixel/analyze-query?query=${encodeURIComponent(query)}`, {
+    const res = await fetch(`/api/v1/rag/pixel/analyze-query?query=${encodeURIComponent(query)}`, {
       method: 'POST',
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -182,7 +182,7 @@ export async function executePixelRagSearch() {
   `;
 
   try {
-    const res = await fetch('/api/rag/pixel/search', {
+    const res = await fetch('/api/v1/rag/pixel/search', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

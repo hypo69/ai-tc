@@ -7,11 +7,11 @@
  *   (битые ключи реестра, остаточные папки, недействительные службы и задачи).
  *
  * File: panel_dormant/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_software_scanner/panel_dormant
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 15:15:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -166,7 +166,7 @@ export async function triggerScan() {
   }, 120000);
 
   try {
-    const res = await fetch('/api/windows/software-scanner/scan', {
+    const res = await fetch('/api/v1/windows/software-scanner/scan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode }),
@@ -213,7 +213,7 @@ export async function triggerScan() {
 export async function loadLatestScanResults() {
   const statusBadge = document.getElementById('sw-scanner-status-badge');
   try {
-    const res = await fetch('/api/windows/software-scanner/latest-report');
+    const res = await fetch('/api/v1/windows/software-scanner/latest-report');
     if (res.ok) {
       const report = await res.json();
       if (report && report.inventory && report.inventory.length > 0) {

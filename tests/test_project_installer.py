@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Project Installer & Prerequisites
+# Process Name: ai-tc Tests - Project Installer & Prerequisites
 # =============================================================================
 # Description:
 #   Модульные тесты для проверки готовности проекта к установке:
@@ -13,11 +13,11 @@
 #     pytest tests/test_project_installer.py -v
 #
 # File: test_project_installer.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 12:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Тесты готовности проекта к установке и навыка project-installer."""

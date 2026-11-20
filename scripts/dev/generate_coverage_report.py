@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Dev - Generate Coverage Report
+# Process Name: ai-tc Scripts Dev - Generate Coverage Report
 # =============================================================================
 # Description:
 #   Code coverage report generation utility.
@@ -14,11 +14,11 @@
 #     res = generate_coverage_report()
 #
 # File: generate_coverage_report.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.dev
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Code coverage report generation utility.

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Firewall_Manager Core - Manager
+# Process Name: ai-tc Apps Windows Modules Firewall_Manager Core - Manager
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     service = FirewallManager()
 #
 # File: manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.firewall_manager.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 14:28:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -179,7 +179,7 @@ class FirewallManager:
             FirewallRule(name='Core Networking - DNS (UDP-Out)', direction='Out', action='Allow', enabled=True, protocol='UDP', local_port='53'),
             FirewallRule(name='Core Networking - HTTP (TCP-Out)', direction='Out', action='Allow', enabled=True, protocol='TCP', local_port='80'),
             FirewallRule(name='Core Networking - HTTPS (TCP-Out)', direction='Out', action='Allow', enabled=True, protocol='TCP', local_port='443'),
-            FirewallRule(name='AI-Windows-Admin FastApi Server', direction='In', action='Allow', enabled=True, protocol='TCP', local_port='8000'),
+            FirewallRule(name='ai-tc FastApi Server', direction='In', action='Allow', enabled=True, protocol='TCP', local_port='8000'),
             FirewallRule(name='Remote Desktop - User Mode (TCP-In)', direction='In', action='Allow', enabled=True, protocol='TCP', local_port='3389'),
         ]
 

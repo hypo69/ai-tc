@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Cli - Utils
+# Process Name: ai-tc Scripts Cli - Utils
 # =============================================================================
 # Description:
 #   Cross-platform utility functions for system operations.
@@ -12,11 +12,11 @@
 #     res = find_available_port()
 #
 # File: utils.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.cli
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-25 19:36:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Cross-platform utility functions for system operations."""

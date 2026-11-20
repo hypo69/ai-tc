@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Telemetry - Async Batch Client
+# Process Name: ai-tc Telemetry - Async Batch Client
 # =============================================================================
 # Description:
 #   Асинхронный клиент сбора и отправки телеметрии с дельта-фильтрацией
@@ -8,11 +8,11 @@
 #   и консольным выводом через logger.console().
 #
 # File: async_client.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

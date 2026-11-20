@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules System_Checkpoints -   Init  
+# Process Name: ai-tc Apps Windows Modules System_Checkpoints -   Init  
 # =============================================================================
 # Description:
 #   Пакет управления контрольными точками системы и образами восстановления Windows.
@@ -9,11 +9,11 @@
 #
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.system_checkpoints
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 22:21:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Пакет управления контрольными точками системы и образами восстановления Windows."""

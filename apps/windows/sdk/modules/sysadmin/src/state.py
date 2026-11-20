@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Sysadmin Src - State
+# Process Name: ai-tc Apps Windows Modules Sysadmin Src - State
 # =============================================================================
 # Description:
 #   Управление состоянием и бизнес-логика Windows System Administrator.
@@ -12,11 +12,11 @@
 #     service = UserSession()
 #
 # File: state.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.sysadmin.src
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

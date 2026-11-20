@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Client Module
+# Process Name: ai-tc AI - Client Module
 # =============================================================================
 # Description:
 #   Результат выполнения запроса к Gemini CLI.
@@ -14,11 +14,11 @@
 #     print(result)
 #
 # File: client.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.providers.gemini_cli
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:53:00
+# Updated: 2026-11-13 15:30:00
 # =============================================================================
 
 from __future__ import annotations
@@ -38,6 +38,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, AsyncGenerator, Generator, List, Optional, Union
 from logger import logger
+from src.utils.jjson import j_dumps
 
 _JSON_BLOCK_RE = re.compile(r'```(?:json)?\s*\n(.*?)```', re.DOTALL | re.IGNORECASE)
 
@@ -193,42 +194,18 @@ class GeminiCliProvider:
 
     @staticmethod
     def _extract_json(text: str) -> Any:
-        """Безопасное извлечение и парсинг JSON из текстового вывода модели.
+        """Безопасное извлечение и парсинг JSON из текстового вывода модели через j_dumps.
 
         :param text: Текст, содержащий JSON или markdown-блок ```json ... ```.
         :returns: Распарсенный Python-объект (dict, list, etc.).
         :raises ValueError: Если валидный JSON не обнаружен.
         """
-        cleaned = text.strip()
+        cleaned = text.strip() if text else ""
         if not cleaned:
             raise ValueError('Пустой ответ модели, невозможно распарсить JSON')
-        try:
-            return json.loads(cleaned)
-        except json.JSONDecodeError:
-            pass
-        match = _JSON_BLOCK_RE.search(cleaned)
-        if match:
-            candidate = match.group(1).strip()
-            try:
-                return json.loads(candidate)
-            except json.JSONDecodeError:
-                pass
-        brace_start = cleaned.find('{')
-        brace_end = cleaned.rfind('}')
-        if brace_start != -1 and brace_end != -1 and (brace_end > brace_start):
-            candidate = cleaned[brace_start:brace_end + 1]
-            try:
-                return json.loads(candidate)
-            except json.JSONDecodeError:
-                pass
-        bracket_start = cleaned.find('[')
-        bracket_end = cleaned.rfind(']')
-        if bracket_start != -1 and bracket_end != -1 and (bracket_end > bracket_start):
-            candidate = cleaned[bracket_start:bracket_end + 1]
-            try:
-                return json.loads(candidate)
-            except json.JSONDecodeError:
-                pass
+        parsed = j_dumps(cleaned, exc_info=False)
+        if parsed is not None:
+            return parsed
         raise ValueError(f'Не удалось распарсить JSON из ответа Gemini CLI: {cleaned[:200]}')
 
     def _build_command(self, prompt: str, model: Optional[str]=None, system_instruction: Optional[str]=None, approval_mode: str='yolo', output_format: str='text') -> tuple[str, List[str]]:

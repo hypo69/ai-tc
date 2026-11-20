@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Hardware Production Date Agent
+# Process Name: ai-tc Apps Windows Telemetry - Hardware Production Date Agent
 # =============================================================================
 # Description:
 #   Специализированный агент и алгоритмический декодер для определения даты
@@ -20,11 +20,11 @@
 #     print(res)  # {'production_date': '2021-08', 'source': 'ASUS Serial Decoder', ...}
 #
 # File: production_date_agent.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 15:55:00
+# Updated: 2026-11-13 15:30:00
 # =============================================================================
 
 from __future__ import annotations
@@ -36,6 +36,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from logger import logger
+from src.utils.jjson import j_dumps
 
 # Невалидные/фиктивные значения серийных номеров WMI/SMBIOS
 INVALID_SERIALS = {
@@ -576,15 +577,8 @@ class HardwareProductionDateAgent:
             logger.console(f"[ProductionDateAgent] Ответ AI модели:\n{raw_res}")
 
             if raw_res:
-                text_clean = str(raw_res).strip()
-                json_match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text_clean, re.DOTALL)
-                parsed: Dict[str, Any] = {}
-                if json_match:
-                    parsed = json.loads(json_match.group(1))
-                elif "{" in text_clean and "}" in text_clean:
-                    start = text_clean.find("{")
-                    end = text_clean.rfind("}") + 1
-                    parsed = json.loads(text_clean[start:end])
+                parsed_raw = j_dumps(raw_res, exc_info=False)
+                parsed = parsed_raw if isinstance(parsed_raw, dict) else {}
 
                 if parsed and parsed.get("production_date") and parsed["production_date"] != "N/A":
                     return {

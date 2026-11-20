@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - System Engineering & Property-Based Tests
+# Process Name: ai-tc Tests - System Engineering & Property-Based Tests
 # =============================================================================
 # Description:
 #   Комплексные модульные и Property-Based тесты стандарта SYSTEM_ENGINEERING:
@@ -14,11 +14,11 @@
 #   - Сквозная трассировка W3C TraceContext (traceparent) и перцентили RED (p50, p95, p99)
 #
 # File: test_system_engineering.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:30:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

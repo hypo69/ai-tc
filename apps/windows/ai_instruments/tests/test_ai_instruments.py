@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI Instruments Tests
+# Process Name: ai-tc AI Instruments Tests
 # =============================================================================
 # Description:
 #   Тесты для базы данных инструментов ИИ-агента (ai_instruments.db):
@@ -11,11 +11,11 @@
 #   pytest apps/windows/ai_instruments/tests/test_ai_instruments.py
 #
 # File: test_ai_instruments.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.ai_instruments.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 17:45:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

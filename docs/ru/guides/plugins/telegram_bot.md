@@ -1,7 +1,7 @@
 # Плагин Telegram Bot & Mini App (telegram_bot)
 
 ## Назначение
-Инкапсулирует функционал Telegram для AI Windows Admin: управление ботом, запуск Mini App (Remote Control), озвучка текста (TTS), привязка аккаунтов и уведомления.
+Инкапсулирует функционал Telegram для ai-tc: управление ботом, запуск Mini App (Remote Control), озвучка текста (TTS), привязка аккаунтов и уведомления.
 
 ## Структура
 - `plugins/user-plugins/telegram_bot/`

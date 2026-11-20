@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Ports Module
+# Process Name: ai-tc UTILS - Ports Module
 # =============================================================================
 # Description:
 #   Модуль централизованного управления сетевыми портами и топологией сервисов на основе config.json.
@@ -30,11 +30,11 @@
 #     cfg = load_ports_config()
 #
 # File: ports.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

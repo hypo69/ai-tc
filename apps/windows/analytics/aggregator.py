@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry_Research - Aggregator
+# Process Name: ai-tc Apps Windows Telemetry_Research - Aggregator
 # =============================================================================
 # Description:
 #   Централизованный агрегатор телеметрии, синхронизирующий фоновый сбор данных
@@ -12,11 +12,11 @@
 #     service = TelemetryAggregator()
 #
 # File: aggregator.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.analytics
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 04:40:00
+# Updated: 2026-11-12 05:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -67,7 +67,7 @@ class TelemetryAggregator:
 
         Args:
             config_manager: Менеджер конфигурации (если None, создается новый).
-            log_dir: Директория для логов (по умолчанию: %APPDATA%\\AI-Windows-Admin\\apps\\logs).
+            log_dir: Директория для логов (по умолчанию: %ProgramData%\\ai-tc\\telemetry\\logs).
             storage: Экземпляр постоянного SQLite хранилища TelemetryStorage.
             sensor_collector: Коллектор аппаратных сенсоров.
             file_collector: Коллектор файловых событий.

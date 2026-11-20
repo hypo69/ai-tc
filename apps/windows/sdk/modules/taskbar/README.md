@@ -2,7 +2,7 @@
 
 ## 📋 Обзор модуля
 
-Модуль **`apps.windows.sdk.modules.taskbar`** реализует многоуровневое управление панелью задач Windows 10/11 и окнами рабочего стола для платформы **AI-Windows-Admin**.
+Модуль **`apps.windows.sdk.modules.taskbar`** реализует многоуровневое управление панелью задач Windows 10/11 и окнами рабочего стола для платформы **ai-tc**.
 
 ```
 FastAPI REST API (/api/v1/taskbar/*)

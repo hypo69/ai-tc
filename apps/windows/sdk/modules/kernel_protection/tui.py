@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Kernel Protection - TUI / CLI
+# Process Name: ai-tc Apps Windows Modules Kernel Protection - TUI / CLI
 # =============================================================================
 # Description:
 #   Консольный интерфейс (CLI/TUI) для автономного агента управления защитой ядра,
@@ -11,11 +11,11 @@
 #   py -m apps.windows.sdk.modules.kernel_protection.tui investigate "Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice"
 #
 # File: tui.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.kernel_protection
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 14:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

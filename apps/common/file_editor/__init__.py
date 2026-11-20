@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Common File Editor - Package Init
+# Process Name: ai-tc Common File Editor - Package Init
 # =============================================================================
 # Description:
 #   Пакет универсального редактора файлов на базе Rust + WebAssembly
 #   с поддержкой всех типов файлов Visual Studio Code.
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.common.file_editor
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 17:02:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

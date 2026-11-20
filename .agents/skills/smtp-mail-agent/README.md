@@ -54,7 +54,7 @@ cp .agents/skills/smtp-mail-agent/secrets.json.example .agents/skills/smtp-mail-
     "username": "user@gmail.com",
     "password": "your-app-password",
     "from_email": "user@gmail.com",
-    "from_name": "AI Windows Admin Assistant",
+    "from_name": "ai-tc Assistant",
     "timeout": 30
   }
 }

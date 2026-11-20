@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Data Model
+# Process Name: ai-tc Apps Windows Core - Data Model
 # =============================================================================
 # Description:
 #   Normalized data models for Windows system information
@@ -12,11 +12,11 @@
 #     service = ProcessState()
 #
 # File: data_model.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 14:32:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Normalized data models for Windows system information"""

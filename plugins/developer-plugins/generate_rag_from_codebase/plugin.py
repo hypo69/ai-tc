@@ -12,7 +12,7 @@
 # Package: plugins.generate_rag_from_codebase
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:38:10
+# Updated: 2026-11-15 18:27:00
 # =============================================================================
 
 """Модуль плагина генерации RAG-индекса кодовой базы.
@@ -143,16 +143,7 @@ class GenerateRagCodebasePlugin(BasePlugin):
             Path: Absolute directory path.
         """
         clean_name = self._sanitize_index_name(index_name)
-        if user_id is not None:
-            try:
-                from src.user_manager import user_manager
-                user_root = user_manager.get_user_directory(int(user_id), create=True)
-                target_dir = user_root / "rag" / clean_name
-            except Exception:
-                target_dir = __root__ / "data" / "users" / str(user_id) / "rag" / clean_name
-        else:
-            target_dir = __root__ / "data" / "rag_index" / clean_name
-
+        target_dir = __root__ / "data" / "rag_index" / clean_name
         target_dir.mkdir(parents=True, exist_ok=True)
         return target_dir
 
@@ -296,15 +287,8 @@ class GenerateRagCodebasePlugin(BasePlugin):
         ]
 
     def list_available_indexes(self, user_id: Optional[int | str] = None) -> List[Dict[str, Any]]:
-        """List all saved codebase indexes for the user or system."""
-        if user_id is not None:
-            try:
-                from src.user_manager import user_manager
-                base_dir = user_manager.get_user_directory(int(user_id), create=True) / "rag"
-            except Exception:
-                base_dir = __root__ / "data" / "users" / str(user_id) / "rag"
-        else:
-            base_dir = __root__ / "data" / "rag_index"
+        """List all saved codebase indexes in data/rag_index."""
+        base_dir = __root__ / "data" / "rag_index"
 
         results = []
         if not base_dir.exists():

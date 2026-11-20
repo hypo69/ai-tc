@@ -1,6 +1,6 @@
 ﻿<#
 =============================================================================
-Process Name: AI-Windows-Admin Automation - Install Tlm Task
+Process Name: ai-tc Automation - Install Tlm Task
 =============================================================================
 Description:
   Корневой скрипт установки службы системной телеметрии (tlm.ps1)
@@ -8,11 +8,11 @@ Description:
   при старте компьютера от имени администратора.
 
 File: install-tlm-task.ps1
-Project: ai-windows-admin
+Project: ai-tc
 Package: root
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-15 18:48:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 
 .SYNOPSIS

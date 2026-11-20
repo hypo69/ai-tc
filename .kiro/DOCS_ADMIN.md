@@ -1,6 +1,6 @@
 # Администраторская документация по Read the Docs
 
-Данный документ содержит инструкции для администраторов по управлению документацией проекта AI-Windows-Admin на платформе Read the Docs.
+Данный документ содержит инструкции для администраторов по управлению документацией проекта ai-tc на платформе Read the Docs.
 
 ## Содержание
 
@@ -118,8 +118,8 @@ build_jobs:
 1. На панели управления нажмите **Import a Project**
 2. Выберите **Import Manually**
 3. Заполните форму:
-   - **Project name**: `ai-windows-admin`
-   - **Repository URL**: `https://github.com/hypo69/AI-Windows-Admin.git`
+   - **Project name**: `ai-tc`
+   - **Repository URL**: `https://github.com/hypo69/ai-tc.git`
    - **Repository type**: Git
    - **Documentation type**: MkDocs
 4. Нажмите **Next**
@@ -139,8 +139,8 @@ build_jobs:
 3. Дождитесь завершения сборки
 
 Если сборка пройдена успешно, документация будет доступна по адресу:
-- Основной сайт: https://ai-windows-admin.readthedocs.io
-- Русская версия: https://ai-windows-admin.readthedocs.io/ru/latest
+- Основной сайт: https://ai-tc.readthedocs.io
+- Русская версия: https://ai-tc.readthedocs.io/ru/latest
 
 ---
 
@@ -155,7 +155,7 @@ build_jobs:
 1. На странице проекта перейдите в **Admin** → **Integrations**
 2. Нажмите **Add Integration**
 3. Выберите **GitHub incoming webhook**
-4. Скопируйте URL вебхука (будет выглядеть как `https://readthedocs.org/api/v2/webhook/ai-windows-admin/...`)
+4. Скопируйте URL вебхука (будет выглядеть как `https://readthedocs.org/api/v2/webhook/ai-tc/...`)
 
 #### Шаг 2: Добавление вебхука в GitHub
 
@@ -606,7 +606,7 @@ jobs:
 
 ## Заключение
 
-Данный документ содержит полную информацию для администрирования документации AI-Windows-Admin на Read the Docs. Для получения дополнительной информации обратитесь к официальной документации Read the Docs или посетите репозиторий проекта на GitHub.
+Данный документ содержит полную информацию для администрирования документации ai-tc на Read the Docs. Для получения дополнительной информации обратитесь к официальной документации Read the Docs или посетите репозиторий проекта на GitHub.
 
 **Последнее обновление:** 2024
 **Версия:** 1.0

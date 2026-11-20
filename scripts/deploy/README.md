@@ -12,10 +12,10 @@
 2) Для автоматической регистрации на Read the Docs задайте переменную окружения READTHEDOCS_API_TOKEN или передайте параметр -RtdToken.
 
 3) Запуск (PowerShell):
-   ./create_and_register.ps1 -RepoName AI-Windows-Admin
+   ./create_and_register.ps1 -RepoName ai-tc
 
 Параметры:
--RepoName  - имя репозитория (по умолчанию AI-Windows-Admin)
+-RepoName  - имя репозитория (по умолчанию ai-tc)
 -Branch    - ветка для пуша (по умолчанию main)
 -RemoteUrl - если gh отсутствует, можно дать URL удалённого репозитория
 -RtdToken  - токен Read the Docs (если не задан, будет использован READTHEDOCS_API_TOKEN)

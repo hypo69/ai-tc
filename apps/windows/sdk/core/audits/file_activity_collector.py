@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core Audits - File Activity Collector
+# Process Name: ai-tc Apps Windows Core Audits - File Activity Collector
 # =============================================================================
 # Description:
 #   Коллектор активности файловой системы на основе аудита событий Windows.
@@ -12,11 +12,11 @@
 #     service = FileActivityCollector()
 #
 # File: file_activity_collector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core.audits
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

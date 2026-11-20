@@ -55,7 +55,7 @@ py .mcp/config_helper.py --json
 ```json
 {
   "mcpServers": {
-    "ai-windows-admin-tools": {
+    "ai-tc-tools": {
       "command": "py",
       "args": [
         "${workspaceFolder}/.mcp/gemini_cli_search_mcp_server.py"

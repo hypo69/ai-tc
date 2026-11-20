@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Accounts & Identity Models
+# Process Name: ai-tc Apps Windows - Accounts & Identity Models
 # =============================================================================
 # Description:
 #   Модели данных, перечисления и структуры домена Accounts & Identity
@@ -13,11 +13,11 @@
 #     principal = Principal(sid="S-1-5-21-...", name="onela", domain="WORKGROUP")
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.accounts_identity
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 15:25:00
+# Updated: 2026-11-20 15:28:00
 # =============================================================================
 
 """Модели данных и схемы для подсистемы Accounts & Identity Windows."""
@@ -209,14 +209,55 @@ class AuditEventItem(BaseModel):
 
 
 class PasswordPolicy(BaseModel):
-    """Политика паролей и блокировок учетных записей Windows SAM."""
-    min_password_length: int = 0
-    password_history_length: int = 0
-    max_password_age_days: int = 42
-    min_password_age_days: int = 0
-    lockout_threshold: int = 0
-    lockout_duration_minutes: int = 30
-    lockout_window_minutes: int = 30
+    """Полная политика паролей, блокировок и системного доступа Windows SAM ([System Access])."""
+    # Политика паролей
+    min_password_length: int = Field(default=0, ge=0, le=20, description="Минимальная длина пароля (0–20)")
+    password_history_length: int = Field(default=0, ge=0, le=24, description="Глубина истории паролей (0–24)")
+    max_password_age_days: int = Field(default=42, ge=0, le=999, description="Макс. срок действия пароля в днях (0 = бессрочно)")
+    min_password_age_days: int = Field(default=0, ge=0, le=998, description="Мин. срок действия пароля в днях (0–998)")
+    password_complexity: bool = Field(default=False, description="Требовать сложность пароля (PasswordComplexity)")
+    reversible_encryption: bool = Field(default=False, description="Обратимое шифрование паролей (ClearTextPassword)")
+
+    # Политика блокировки учетных записей
+    lockout_threshold: int = Field(default=0, ge=0, le=999, description="Порог блокировки (0 = отключено)")
+    lockout_duration_minutes: int = Field(default=30, ge=0, le=99999, description="Длительность блокировки в минутах (0 = до разблокировки админом)")
+    lockout_window_minutes: int = Field(default=30, ge=0, le=99999, description="Окно сброса счетчика блокировки в минутах")
+    allow_admin_lockout: bool = Field(default=False, description="Разрешить блокировку встроенного администратора")
+
+    # Системный доступ SAM и встроенные учетные записи
+    force_logoff_when_hour_expire: bool = Field(default=False, description="Принудительный выход по истечении часов входа")
+    require_logon_to_change_password: bool = Field(default=False, description="Требовать вход для смены пароля")
+    lsa_anonymous_name_lookup: bool = Field(default=False, description="Разрешить анонимное преобразование SID/имен (LSA)")
+    enable_admin_account: Optional[bool] = Field(default=None, description="Состояние встроенной учетной записи Администратора")
+    enable_guest_account: Optional[bool] = Field(default=None, description="Состояние встроенной учетной записи Гостя")
+    new_admin_name: str = Field(default="", description="Имя встроенной учетной записи Администратора")
+    new_guest_name: str = Field(default="", description="Имя встроенной учетной записи Гостя")
+
+    # Информационные метаданные (только чтение)
+    computer_role: str = Field(default="", description="Роль компьютера в SAM (WORKSTATION / SERVER / PRIMARY / BACKUP)")
+
+
+class PasswordPolicyUpdateRequest(BaseModel):
+    """Запрос на обновление локальной политики паролей и доступа Windows SAM."""
+    min_password_length: Optional[int] = Field(default=None, ge=0, le=20)
+    password_history_length: Optional[int] = Field(default=None, ge=0, le=24)
+    max_password_age_days: Optional[int] = Field(default=None, ge=0, le=999)
+    min_password_age_days: Optional[int] = Field(default=None, ge=0, le=998)
+    password_complexity: Optional[bool] = None
+    reversible_encryption: Optional[bool] = None
+
+    lockout_threshold: Optional[int] = Field(default=None, ge=0, le=999)
+    lockout_duration_minutes: Optional[int] = Field(default=None, ge=0, le=99999)
+    lockout_window_minutes: Optional[int] = Field(default=None, ge=1, le=99999)
+    allow_admin_lockout: Optional[bool] = None
+
+    force_logoff_when_hour_expire: Optional[bool] = None
+    require_logon_to_change_password: Optional[bool] = None
+    lsa_anonymous_name_lookup: Optional[bool] = None
+    enable_admin_account: Optional[bool] = None
+    enable_guest_account: Optional[bool] = None
+    new_admin_name: Optional[str] = Field(default=None, max_length=20)
+    new_guest_name: Optional[str] = Field(default=None, max_length=20)
 
 
 class AccountDetails(BaseModel):

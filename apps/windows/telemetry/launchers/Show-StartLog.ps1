@@ -1,23 +1,23 @@
 <#
 =============================================================================
-Process Name: AI-Windows-Admin Automation - Show Startlog
+Process Name: ai-tc Automation - Show Startlog
 =============================================================================
 Description:
-  Отображение подробного стартового лога, конфигурации, статуса базы данных и ошибок телеметрии AI-Windows-Admin
+  Отображение подробного стартового лога, конфигурации, статуса базы данных и ошибок телеметрии ai-tc
 
 Usage Examples:
   PowerShell Execution:
     .\Show-StartLog.ps1
 
 File: Show-StartLog.ps1
-Project: ai-windows-admin
+Project: ai-tc
 Package: apps/windows/telemetry/launchers
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-16 16:20:00
+# Updated: 2026-11-12 05:25:00
 =============================================================================
 .SYNOPSIS
-    Отображение подробного стартового лога, конфигурации, статуса базы данных и ошибок телеметрии AI-Windows-Admin
+    Отображение подробного стартового лога, конфигурации, статуса базы данных и ошибок телеметрии ai-tc
 .DESCRIPTION
     Открывает консольное окно / информационную панель системной телеметрии Windows:
       1
@@ -50,8 +50,8 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 
 # Определение директорий проекта
 $scriptDir = $PSScriptRoot
-if ([string]::IsNullOrEmpty($scriptDir) -and $env:AIWINDOWSADMIN_DIR -and (Test-Path $env:AIWINDOWSADMIN_DIR)) {
-    $scriptDir = Join-Path $env:AIWINDOWSADMIN_DIR "apps\windows\telemetry"
+if ([string]::IsNullOrEmpty($scriptDir) -and ($env:AITC_DIR ? $env:AITC_DIR : $env:AIWINDOWSADMIN_DIR) -and (Test-Path ($env:AITC_DIR ? $env:AITC_DIR : $env:AIWINDOWSADMIN_DIR))) {
+    $scriptDir = Join-Path ($env:AITC_DIR ? $env:AITC_DIR : $env:AIWINDOWSADMIN_DIR) "apps\windows\telemetry"
 }
 if ([string]::IsNullOrEmpty($scriptDir) -and $MyInvocation.MyCommand.Path) {
     $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -83,20 +83,27 @@ if ($NewWindow) {
 }
 
 # Пути к логам и базе данных
-$appDataDir = $env:APPDATA
-if (-not $appDataDir) {
-    $appDataDir = Join-Path $env:USERPROFILE "AppData\Roaming"
+$programDataDir = if ($env:ProgramData -and (Test-Path $env:ProgramData)) {
+    $env:ProgramData
+} elseif ($env:ALLUSERSPROFILE -and (Test-Path $env:ALLUSERSPROFILE)) {
+    $env:ALLUSERSPROFILE
+} elseif (Test-Path "C:\ProgramData") {
+    "C:\ProgramData"
+} else {
+    if ($env:APPDATA) { $env:APPDATA } else { Join-Path $env:USERPROFILE "AppData\Roaming" }
 }
-$telemetryLogDir = Join-Path $appDataDir "AI-Windows-Admin\apps\windows\telemetry\logs"
-$dbFile = Join-Path $telemetryLogDir "telemetry.db"
-$dbShmFile = Join-Path $telemetryLogDir "telemetry.db-shm"
-$dbWalFile = Join-Path $telemetryLogDir "telemetry.db-wal"
+$appName = if ($env:APP_NAME) { $env:APP_NAME } else { "ai-tc" }
+$telemetryDataDir = Join-Path $programDataDir "$appName\telemetry"
+$telemetryLogDir = Join-Path $telemetryDataDir "logs"
+$dbFile = Join-Path $telemetryDataDir "telemetry.db"
+$dbShmFile = Join-Path $telemetryDataDir "telemetry.db-shm"
+$dbWalFile = Join-Path $telemetryDataDir "telemetry.db-wal"
 $jsonLogFile = Join-Path $telemetryLogDir "ai_sensors_polls.json"
 $serviceLogFile = Join-Path $telemetryLogDir "telemetry_service.log"
 $outLogFile = Join-Path $telemetryLogDir "telemetry_stdout.log"
 $errLogFile = Join-Path $telemetryLogDir "telemetry_stderr.log"
 $aiErrLogFile = Join-Path $telemetryLogDir "ai_errors.log"
-$configFile = Join-Path $appDataDir "AI-Windows-Admin\apps\windows\telemetry\config.json"
+$configFile = Join-Path $telemetryDataDir "config.json"
 if (-not (Test-Path $configFile)) {
     $configFile = Join-Path $scriptDir "config.json"
     if (-not (Test-Path $configFile)) {
@@ -342,7 +349,7 @@ function Render-Report {
 
     Write-Host ""
     Write-Host "╔════════════════════════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "║              📊 AI-AI_WINDOWS_ADMIN TELEMETRY — СТАРТОВЫЙ ЛОГ И СТАТУС                   ║" -ForegroundColor Cyan
+    Write-Host "║              📊 AI-AI_TC TELEMETRY — СТАРТОВЫЙ ЛОГ И СТАТУС                   ║" -ForegroundColor Cyan
     Write-Host "╚════════════════════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
     Write-Host " Отчет сформирован: $($now.ToString('yyyy-MM-dd HH:mm:ss')) | Хост: $env:COMPUTERNAME | Пользователь: $env:USERNAME" -ForegroundColor DarkGray
     Write-Host "────────────────────────────────────────────────────────────────────────────────────" -ForegroundColor DarkGray
@@ -384,7 +391,7 @@ function Render-Report {
 
     # Проверка планировщика задач Windows
     try {
-        $task = Get-ScheduledTask -TaskName 'AI-Windows-Admin-Telemetry' -ErrorAction SilentlyContinue
+        $task = Get-ScheduledTask -TaskName 'ai-tc-telemetry' -ErrorAction SilentlyContinue
         if ($task) {
             $taskState = switch ($task.State) {
                 'Ready'    { "Готово к запуску (Ready)" }
@@ -394,7 +401,7 @@ function Render-Report {
             }
             $taskColor = if ($task.State -eq 'Running') { "Green" } elseif ($task.State -eq 'Ready') { "Cyan" } else { "Yellow" }
             Write-Host "  📅 Планировщик Windows:    " -NoNewline
-            Write-Host "Задание 'AI-Windows-Admin-Telemetry' зарегистрировано [$taskState, WakeToRun: $($task.Settings.WakeToRun)]" -ForegroundColor $taskColor
+            Write-Host "Задание 'ai-tc-telemetry' зарегистрировано [$taskState, WakeToRun: $($task.Settings.WakeToRun)]" -ForegroundColor $taskColor
         }
     } catch {}
 

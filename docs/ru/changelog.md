@@ -1,13 +1,13 @@
 # История изменений
 
-Все заметные изменения в проекте AI-Windows-Admin документируются в этом файле.
+Все заметные изменения в проекте ai-tc документируются в этом файле.
 
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/) и следует [Semantic Versioning](https://semver.org/lang/ru/).
 
 ## [1.0.0] - 2026-09-06
 
 ### Added
-- Начальный релиз проекта AI-Windows-Admin
+- Начальный релиз проекта ai-tc
 - Базовая функциональность для создания и управления Skills
 - Поддержка Agents с возможностью взаимодействия между Skills
 - Система плагинов для расширения функциональности
@@ -155,12 +155,12 @@
 
 ## Архив всех версий
 
-Все старые версии доступны в [архиве релизов](https://github.com/ai-windows-admin-ai/ai-windows-admin/releases).
+Все старые версии доступны в [архиве релизов](https://github.com/ai-tc-ai/ai-tc/releases).
 
 ---
 
 ## Обратная связь
 
 Если у вас есть вопросы о CHANGELOG или предложения по улучшению:
-- Откройте [GitHub Issue](https://github.com/ai-windows-admin-ai/ai-windows-admin/issues)
-- Обсудите в [GitHub Discussions](https://github.com/ai-windows-admin-ai/ai-windows-admin/discussions)
+- Откройте [GitHub Issue](https://github.com/ai-tc-ai/ai-tc/issues)
+- Обсудите в [GitHub Discussions](https://github.com/ai-tc-ai/ai-tc/discussions)

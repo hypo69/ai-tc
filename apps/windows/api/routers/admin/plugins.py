@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - plugins
+# Process Name: ai-tc Apps Windows Api Routers - plugins
 # =============================================================================
 # Description:
 #   Эндпойнты менеджера плагинов.
 #   Вынесено из router_admin.py (этап 4 оптимизации).
 #
 # File: plugins.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.admin
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 13:25:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -77,7 +77,7 @@ async def get_all_plugins(request: Request, scope: Optional[str] = None, lang: O
     
     user = _get_request_user(request)
     is_admin = bool(user and (user.get('is_admin') or user.get('role') == 'admin'))
-    is_user_endpoint = request.url.path.rstrip('/').endswith('/api/plugins')
+    is_user_endpoint = request.url.path.rstrip('/').endswith('/api/v1/plugins')
 
     if scope == 'user' or (is_user_endpoint and not is_admin):
         manifests = [
@@ -98,7 +98,7 @@ async def get_plugin_details(plugin_name: str, request: Request, lang: Optional[
     
     user = _get_request_user(request)
     is_admin = bool(user and (user.get('is_admin') or user.get('role') == 'admin'))
-    is_user_endpoint = request.url.path.startswith('/api/plugins')
+    is_user_endpoint = request.url.path.startswith('/api/v1/plugins')
     if (is_user_endpoint and not is_admin) and getattr(plugin, 'is_system', True):
         raise HTTPException(status_code=403, detail=f"Системный плагин '{plugin_name}' доступен только администратору")
 

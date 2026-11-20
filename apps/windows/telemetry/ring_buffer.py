@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Ring Buffer
+# Process Name: ai-tc Apps Windows Telemetry - Ring Buffer
 # =============================================================================
 # Description:
 #   Потокобезопасный кольцевой буфер в оперативной памяти для удержания
@@ -12,11 +12,11 @@
 #     service = TelemetryRingBuffer()
 #
 # File: ring_buffer.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -8,11 +8,11 @@
  *   и исследования JSON-схем параметров вызова.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_mcp/panel_test_tools
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:41:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -82,7 +82,7 @@ export async function testServer(serverId) {
   }
 
   try {
-    const res = await apiFetch(`/api/admin/mcp/servers/${encodeURIComponent(serverId)}/test`, {
+    const res = await apiFetch(`/api/v1/admin/mcp/servers/${encodeURIComponent(serverId)}/test`, {
       method: 'POST'
     });
     const data = await res.json();
@@ -134,7 +134,7 @@ export async function openAllToolsModal() {
   container?.classList.add('d-none');
 
   try {
-    const res = await apiFetch('/api/admin/mcp/tools');
+    const res = await apiFetch('/api/v1/admin/mcp/tools');
     const data = await res.json();
     loadingEl?.classList.add('d-none');
 

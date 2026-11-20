@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin TESTS - Model Response Parser Test
+# Process Name: ai-tc TESTS - Model Response Parser Test
 # =============================================================================
 # Description:
 #   Тестирование универсального парсера ответов языковых моделей.
@@ -9,7 +9,7 @@
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 19:50:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import pytest

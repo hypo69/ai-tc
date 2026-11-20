@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Printer Module
+# Process Name: ai-tc UTILS - Printer Module
 # =============================================================================
 # Description:
 #   Pretty printing and text formatting module.
@@ -15,11 +15,11 @@
 #     print(res)
 #
 # File: printer.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Pretty printing and text formatting module.

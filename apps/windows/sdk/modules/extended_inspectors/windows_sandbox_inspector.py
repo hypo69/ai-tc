@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Extended Inspectors - Windows Sandbox Inspector
+# Process Name: ai-tc Apps Windows Modules Extended Inspectors - Windows Sandbox Inspector
 # =============================================================================
 # Description:
 #   Динамический запуск подозрительных исполняемых файлов в изолированной песочнице Windows Sandbox (.wsb).
@@ -13,11 +13,11 @@
 #     status = inspector.launch_in_sandbox("C:/Path/To/binary.exe")
 #
 # File: windows_sandbox_inspector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.extended_inspectors
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

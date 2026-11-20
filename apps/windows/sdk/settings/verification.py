@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Settings SDK - Settings Verification
+# Process Name: ai-tc Settings SDK - Settings Verification
 # =============================================================================
 # Description:
 #   Модуль верификации и аудита применения параметров Windows:
@@ -16,11 +16,11 @@
 #     is_ok = verifier.verify("TASKBAR.SET_ALIGNMENT", "center")
 #
 # File: verification.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.settings
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 13:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -13,11 +13,11 @@
 #     py .agents/skills/user-settings-sync-agent/scripts/verify_modal_integrity.py
 #
 # File: verify_modal_integrity.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: .agents.skills.user-settings-sync-agent.scripts
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 14:55:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

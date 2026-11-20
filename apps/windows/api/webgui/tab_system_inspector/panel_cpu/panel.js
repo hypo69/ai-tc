@@ -8,11 +8,11 @@
  *   мульти-осевого SVG-графика с историей и селектором интервалов.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_system_inspector/panel_cpu
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 16:10:00
+ * Updated: 2026-11-13 13:25:00
  * =============================================================================
  */
 
@@ -55,6 +55,36 @@ export function initCpuPanel() {
 
   // Экспорт функции масштабирования в глобальную область
   window.setCpuSparkScale = setCpuSparkScale;
+  window.inspectCpuSpecsWithAi = () => {
+    if (window.AITableModal) {
+      const model = document.getElementById('sys-metric-cpu-model')?.innerText || 'CPU';
+      const val = document.getElementById('sys-metric-cpu-val')?.innerText || '0%';
+      const temp = document.getElementById('sys-cpu-kpi-temp')?.innerText || '--';
+      const cores = document.getElementById('sys-cpu-kpi-cores')?.innerText || '--';
+      const freq = document.getElementById('sys-cpu-kpi-freq')?.innerText || '--';
+      window.AITableModal.show({
+        icon: '⚡',
+        title: model,
+        subtitle: 'Центральный процессор (CPU) и параметры архитектуры',
+        panelId: 'cpu',
+        tableType: 'hardware',
+        badges: [
+          { text: 'CPU', class: 'badge bg-primary' },
+          { text: val, class: 'badge bg-info' }
+        ],
+        metadata: [
+          { label: 'Модель', value: model },
+          { label: 'Загрузка', value: val },
+          { label: 'Температура', value: temp },
+          { label: 'Ядра/Потоки', value: cores },
+          { label: 'Частота', value: freq }
+        ],
+        rawTitle: 'JSON Телеметрии CPU',
+        rawContent: JSON.stringify(lastCpuData || {}, null, 2),
+        requestData: lastCpuData || {}
+      });
+    }
+  };
 }
 
 /**

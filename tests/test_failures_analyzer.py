@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Failures Analyzer Test
+# Process Name: ai-tc Tests - Failures Analyzer Test
 # =============================================================================
 # Description:
 #   Модульные тесты комплексного анализатора сбоев FailuresAnalyzer
@@ -10,11 +10,11 @@
 #   pytest tests/test_failures_analyzer.py -v
 #
 # File: test_failures_analyzer.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 12:50:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

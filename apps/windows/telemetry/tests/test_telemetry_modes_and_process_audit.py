@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Tests - Modes & Process Audit
+# Process Name: ai-tc Apps Windows Telemetry Tests - Modes & Process Audit
 # =============================================================================
 # Description:
 #   Тесты двух режимов телеметрии (live stream и audit) и глубокого аудита
 #   процесса по PID через Windows SDK (CPU, RAM, Private Bytes, I/O, Network).
 #
 # File: test_telemetry_modes_and_process_audit.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 07:20:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 import os
@@ -192,8 +192,8 @@ def test_telemetry_api_endpoints():
 
     current_pid = os.getpid()
 
-    # 1. GET /api/windows/telemetry/mode
-    resp = client.get("/api/windows/telemetry/mode")
+    # 1. GET /api/v1/windows/telemetry/mode
+    resp = client.get("/api/v1/windows/telemetry/mode")
     assert resp.status_code == 200
     data = resp.json()
     assert "mode" in data
@@ -201,16 +201,16 @@ def test_telemetry_api_endpoints():
     assert "audit_enabled" in data
     assert "streaming_enabled" in data
 
-    # 2. POST /api/windows/telemetry/mode (активация audit)
-    resp = client.post("/api/windows/telemetry/mode", json={"mode": "audit", "pid": current_pid, "interval_sec": 1.0})
+    # 2. POST /api/v1/windows/telemetry/mode (активация audit)
+    resp = client.post("/api/v1/windows/telemetry/mode", json={"mode": "audit", "pid": current_pid, "interval_sec": 1.0})
     assert resp.status_code == 200
     assert resp.json()["mode"] == "audit"
     assert resp.json()["target_pid"] == current_pid
     assert resp.json()["audit_enabled"] is True
     assert resp.json()["streaming_enabled"] is False
 
-    # 3. GET /api/windows/telemetry/audit/{pid}
-    resp = client.get(f"/api/windows/telemetry/audit/{current_pid}")
+    # 3. GET /api/v1/windows/telemetry/audit/{pid}
+    resp = client.get(f"/api/v1/windows/telemetry/audit/{current_pid}")
     assert resp.status_code == 200
     sample_data = resp.json()
     assert sample_data["pid"] == current_pid
@@ -219,21 +219,21 @@ def test_telemetry_api_endpoints():
     assert "io" in sample_data
     assert "network" in sample_data
 
-    # 4. POST /api/windows/telemetry/mode (активация обоих процессов: both)
-    resp = client.post("/api/windows/telemetry/mode", json={"mode": "both"})
+    # 4. POST /api/v1/windows/telemetry/mode (активация обоих процессов: both)
+    resp = client.post("/api/v1/windows/telemetry/mode", json={"mode": "both"})
     assert resp.status_code == 200
     assert resp.json()["mode"] == "both"
     assert resp.json()["audit_enabled"] is True
     assert resp.json()["streaming_enabled"] is True
 
-    # 5. POST /api/windows/telemetry/streaming/stop (остановка стриминга отдельно от аудита)
-    resp = client.post("/api/windows/telemetry/streaming/stop")
+    # 5. POST /api/v1/windows/telemetry/streaming/stop (остановка стриминга отдельно от аудита)
+    resp = client.post("/api/v1/windows/telemetry/streaming/stop")
     assert resp.status_code == 200
     assert resp.json()["streaming_enabled"] is False
     assert resp.json()["audit_enabled"] is True
 
-    # 6. POST /api/windows/telemetry/streaming/start (запуск стриминга отдельно)
-    resp = client.post("/api/windows/telemetry/streaming/start")
+    # 6. POST /api/v1/windows/telemetry/streaming/start (запуск стриминга отдельно)
+    resp = client.post("/api/v1/windows/telemetry/streaming/start")
     assert resp.status_code == 200
     assert resp.json()["streaming_enabled"] is True
     assert resp.json()["audit_enabled"] is True

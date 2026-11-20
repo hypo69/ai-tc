@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - helpers
+# Process Name: ai-tc Apps Windows Api Routers - helpers
 # =============================================================================
 # Description:
 #   Вспомогательные функции TC: конфиг, модель и провайдер, авторизация.
 #   Вынесено из router_tc.py (этап 4 оптимизации).
 #
 # File: helpers.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.tc
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-30 13:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ def _find_tc_config_path() -> Optional[Path]:
     Returns:
         Optional[Path]: Путь к найденному файлу конфигурации или None.
     """
-    cfg_env = os.getenv("AIWINDOWSADMIN_CONFIG") or os.getenv("CONFIG_FILE")
+    cfg_env = os.getenv("AITC_CONFIG") or os.getenv("AIWINDOWSADMIN_CONFIG") or os.getenv("CONFIG_FILE")
     if cfg_env:
         p = Path(cfg_env)
         active_p = p if p.is_absolute() else (__root__ / cfg_env)
@@ -86,7 +86,7 @@ def _get_tc_default_instruction() -> str:
         except Exception as e:
             logger.debug(f"[router_tc] Ошибка чтения apps/windows/prompts/chat/system_instruction.md: {e}")
 
-    return "Ты — автономный сервисный инженер и диагност операционной системы Windows платформы AI Windows Admin Test Computer."
+    return "Ты — автономный сервисный инженер и диагност операционной системы Windows платформы ai-tc Test Computer."
 
 
 def _resolve_tc_model_and_provider() -> Tuple[str, str, str]:

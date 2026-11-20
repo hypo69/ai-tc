@@ -7,11 +7,11 @@
 #   ответов между Windows и Linux (Раздел 4.3 и 8 ТЗ).
 #
 # File: base.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.platforms
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:52:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import json

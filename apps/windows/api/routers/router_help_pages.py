@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Router Help Pages
+# Process Name: ai-tc Apps Windows Api Routers - Router Help Pages
 # =============================================================================
 # Description:
 #   API-роутер для управления страницами и атомарными блоками контекстной справки:
@@ -15,11 +15,11 @@
 #   POST /api/v1/help-pages/file (JSON: {path, content})
 #
 # File: router_help_pages.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 18:03:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -238,7 +238,7 @@ Description:
   Объединяет атомарные блоки справки через директиву data-help-include.
 
 File: index.html
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/{req.module}/help
 Author: hypo69
 Copyright: © 2026 hypo69
@@ -281,7 +281,7 @@ Description:
   Атомарный HTML-фрагмент справки {block_id}.
 
 File: {filename}
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/{req.module}/help/blocks
 Author: hypo69
 Copyright: © 2026 hypo69

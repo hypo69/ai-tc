@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Base Module
+# Process Name: ai-tc AI - Base Module
 # =============================================================================
 # Description:
 #   Abstract base class for all AI model and capability providers.
@@ -14,11 +14,11 @@
 #     print(result)
 #
 # File: base.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.providers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Abstract base class for all AI model and capability providers."""

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Personalization - Store
+# Process Name: ai-tc Apps Windows Modules Personalization - Store
 # =============================================================================
 # Description:
 #   SQLite-хранилище персонализации в telemetry.db: снимки конфигурации
@@ -14,11 +14,11 @@
 #     store.record_change('CURSOR', 'cursor_size', 32, 48)
 #
 # File: store.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.personalization
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

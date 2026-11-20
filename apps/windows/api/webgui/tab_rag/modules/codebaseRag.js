@@ -13,11 +13,11 @@
  *     import { updateCodebaseStatsDisplay } from '/windows/api/webgui/tab_rag/modules/codebaseRag.js';
  *
  * File: codebaseRag.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_rag/modules
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -36,7 +36,7 @@ export async function loadCodebaseIndexes() {
   if (!select) return;
 
   try {
-    const res = await ragCachedFetch('/api/rag/codebase/indexes', {
+    const res = await ragCachedFetch('/api/v1/rag/codebase/indexes', {
       tags: ['rag-codebase']
     });
     if (!res.ok) return;
@@ -104,7 +104,7 @@ export async function buildCodebaseRag() {
   }
 
   try {
-    const res = await fetch('/api/rag/codebase/build', {
+    const res = await fetch('/api/v1/rag/codebase/build', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -162,7 +162,7 @@ export async function executeCodebaseSearch() {
   }
 
   try {
-    const res = await fetch('/api/rag/codebase/search', {
+    const res = await fetch('/api/v1/rag/codebase/search', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -224,7 +224,7 @@ export async function executeSymbolLookup() {
   }
 
   try {
-    const res = await fetch('/api/rag/codebase/symbols', {
+    const res = await fetch('/api/v1/rag/codebase/symbols', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

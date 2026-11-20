@@ -1,7 +1,7 @@
 /**
  * Общие вспомогательные утилиты для вкладки инспектора процессов.
  * Файл: apps/windows/api/webgui/tab_processes_load_inspector/common/ui_utils.js
- * Updated: 2026-11-12 02:30:00
+ * Updated: 2026-11-12 03:28:00
  */
 
 export const TAB_ID = 'tab-processes-load-inspector';
@@ -24,7 +24,7 @@ export function isProcessesTabActive() {
 /**
  * Нормализует строковый идентификатор субвкладки/панели к каноническому виду.
  * @param {string} subtabId - Строковый идентификатор.
- * @returns {string} Канонический ID панели ('manager' | 'top' | 'net' | 'files' | 'leaks').
+ * @returns {string} Канонический ID панели ('manager' | 'top' | 'network-activity-by-process' | 'files-io' | 'leaks').
  */
 export function normalizeSubTabId(subtabId) {
   if (!subtabId) return 'manager';
@@ -32,14 +32,14 @@ export function normalizeSubTabId(subtabId) {
   if (s.includes('leak')) return 'leaks';
   if (s.includes('top') || s.includes('stream') || s.includes('host') || s.includes('live')) return 'top';
   if (s.includes('network-activity-by-process') || s.includes('network') || s.includes('net') || s.includes('socket')) return 'network-activity-by-process';
-  if (s.includes('file') || s.includes('watch')) return 'files';
+  if (s.includes('file') || s.includes('watch') || s.includes('io')) return 'files-io';
   if (s.includes('manager') || s.includes('task') || s.includes('pm') || s.includes('app')) return 'manager';
   return 'manager';
 }
 
 /**
  * Возвращает идентификатор текущей активной суб-панели инспектора процессов.
- * @returns {'manager' | 'top' | 'net' | 'files' | 'leaks'}
+ * @returns {'manager' | 'top' | 'network-activity-by-process' | 'files-io' | 'leaks'}
  */
 export function getActiveSubTabId() {
   const leaksPane = document.getElementById('subpane-proc-leaks');
@@ -52,7 +52,7 @@ export function getActiveSubTabId() {
   if (netPane && netPane.classList.contains('active')) return 'network-activity-by-process';
 
   const filesPane = document.getElementById('subpane-proc-files');
-  if (filesPane && filesPane.classList.contains('active')) return 'files';
+  if (filesPane && filesPane.classList.contains('active')) return 'files-io';
 
   const managerPane = document.getElementById('subpane-proc-manager');
   if (managerPane && managerPane.classList.contains('active')) return 'manager';

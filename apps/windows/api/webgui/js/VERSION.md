@@ -63,7 +63,7 @@
 
 MIT License
 
-Copyright © 2026 AI-Windows-Admin Team
+Copyright © 2026 ai-tc Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -88,14 +88,14 @@ SOFTWARE.
 ## 🤝 Contributors
 
 - **hypo69** — Lead Developer & Architect
-- **AI-Windows-Admin Team** — Core Contributors
+- **ai-tc Team** — Core Contributors
 
 ---
 
 ## 📧 Contact
 
 - **GitHub:** https://github.com/hypo69/hypo
-- **Documentation:** https://docs.ai-windows-admin.dev
+- **Documentation:** https://docs.ai-tc.dev
 - **Issues:** https://github.com/hypo69/hypo/issues
 
 ---

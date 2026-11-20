@@ -13,11 +13,11 @@
  *     import { enhanceTabSwitching, createSearchDebounce, createAutoSaveDebounce } from '/windows/api/webgui/admin/optimization-init.js';
  *
  * File: optimization-init.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/admin
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

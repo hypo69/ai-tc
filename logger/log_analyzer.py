@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Logger - Log Analyzer
+# Process Name: ai-tc Logger - Log Analyzer
 # =============================================================================
 # Description:
 #   Интеллектуальный анализатор логов с интеграцией ИИ (Gemini / UnifiedChatModel).
@@ -12,11 +12,11 @@
 #     res = get_max_size_bytes()
 #
 # File: log_analyzer.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: logger
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 18:15:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Интеллектуальный анализатор логов с интеграцией ИИ.
@@ -53,7 +53,7 @@ def get_default_log_dir() -> Path:
     env_dir = (
         os.environ.get('AITC_LOGS_DIR')
         or os.environ.get('AI_TC_LOGS_DIR')
-        or os.environ.get('AI_WINDOWS_ADMIN_LOGS_DIR')
+        or os.environ.get('AI_TC_LOGS_DIR')
         or os.environ.get('LOG_DIR')
     )
     if env_dir:
@@ -68,7 +68,7 @@ def get_default_reports_dir() -> Path:
     env_dir = (
         os.environ.get('AITC_REPORTS_DIR')
         or os.environ.get('AI_TC_REPORTS_DIR')
-        or os.environ.get('AI_WINDOWS_ADMIN_REPORTS_DIR')
+        or os.environ.get('AI_TC_REPORTS_DIR')
         or os.environ.get('REPORTS_DIR')
     )
     if env_dir:

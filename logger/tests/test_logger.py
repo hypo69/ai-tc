@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Logger - Unit Tests
+# Process Name: ai-tc Logger - Unit Tests
 # =============================================================================
 # Description:
 #   Модульные тесты для проверки функциональности централизованного логгера,
 #   включая проверку вывода только в консоль через logger.console().
 #
 # File: test_logger.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: logger.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 14:32:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Модульные тесты для пакета logger."""

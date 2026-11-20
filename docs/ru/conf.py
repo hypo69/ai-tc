@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Docs Ru - Conf
+# Process Name: ai-tc Docs Ru - Conf
 # =============================================================================
 # Description:
-#   Конфигурация Sphinx для документации AI-Windows-Admin на русском языке.
+#   Конфигурация Sphinx для документации ai-tc на русском языке.
 #
 # Usage Examples:
 #   Python API:
@@ -12,14 +12,14 @@
 #     res = setup()
 #
 # File: conf.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: docs.ru
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
-"""Конфигурация Sphinx для документации AI-Windows-Admin на русском языке.
+"""Конфигурация Sphinx для документации ai-tc на русском языке.
 
 Параметры конфигурации для сборки документации с поддержкой:
 - Русского языка локализации
@@ -32,9 +32,9 @@ import sys
 from datetime import datetime
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(project_root, 'src'))
-project = 'AI-Windows-Admin'
-copyright = f'{datetime.now().year}, AI-Windows-Admin Contributors'
-author = 'AI-Windows-Admin Team'
+project = 'ai-tc'
+copyright = f'{datetime.now().year}, ai-tc Contributors'
+author = 'ai-tc Team'
 version = '1.0'
 release = '1.0.0'
 language = 'ru'
@@ -46,11 +46,11 @@ templates_path = ['_templates']
 html_static_path = ['_static']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '*.egg-info', '.git', 'node_modules']
 html_theme = 'sphinx_rtd_theme'
-html_theme_options = {'logo_only': True, 'display_version': True, 'prev_next_buttons_location': 'bottom', 'style_external_links': False, 'collapse_navigation': True, 'sticky_navigation': True, 'navigation_depth': 4, 'includehidden': True, 'titles_only': False, 'github_url': 'https://github.com/ai-windows-admin-ai/ai-windows-admin', 'language': 'ru'}
+html_theme_options = {'logo_only': True, 'display_version': True, 'prev_next_buttons_location': 'bottom', 'style_external_links': False, 'collapse_navigation': True, 'sticky_navigation': True, 'navigation_depth': 4, 'includehidden': True, 'titles_only': False, 'github_url': 'https://github.com/ai-tc-ai/ai-tc', 'language': 'ru'}
 html_logo = '_static/images/logo.png'
 html_favicon = '_static/images/favicon.ico'
 latex_elements = {'papersize': 'a4', 'pointsize': '11pt', 'preamble': '\n\\usepackage[utf8]{inputenc}\n\\usepackage[russian]{babel}\n', 'fontenc': '', 'inputenc': ''}
-latex_documents = [('index', 'ai-windows-admin-ru.tex', 'Документация AI-Windows-Admin', 'AI-Windows-Admin Team', 'manual')]
+latex_documents = [('index', 'ai-tc-ru.tex', 'Документация ai-tc', 'ai-tc Team', 'manual')]
 autodoc_default_options = {'members': True, 'member-order': 'bysource', 'special-members': '__init__', 'undoc-members': False, 'show-inheritance': True, 'typehints': 'description'}
 autosummary_generate = True
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None), 'sphinx': ('https://www.sphinx-doc.org/en/master', None)}

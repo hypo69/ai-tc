@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Maintenance - Generate Ssl Certs
+# Process Name: ai-tc Scripts Maintenance - Generate Ssl Certs
 # =============================================================================
 # Description:
 #   Generate Root CA and server leaf certificate for localhost.
@@ -14,11 +14,11 @@
 #     res = generate_certificates()
 #
 # File: generate_ssl_certs.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.maintenance
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:44
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -66,7 +66,7 @@ def generate_certificates(certs_dir: Path | None=None, extra_ips: list[str] | No
             ca_key = None
     if not ca_cert or not ca_key:
         ca_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-        ca_name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'aiwindowsadmin Local Root CA'), x509.NameAttribute(NameOID.ORGANIZATION_NAME, 'aiwindowsadmin Development')])
+        ca_name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'aitc Local Root CA'), x509.NameAttribute(NameOID.ORGANIZATION_NAME, 'aitc Development')])
         ca_cert = x509.CertificateBuilder().subject_name(ca_name).issuer_name(ca_name).public_key(ca_key.public_key()).serial_number(x509.random_serial_number()).not_valid_before(datetime.now(timezone.utc) - timedelta(days=1)).not_valid_after(datetime.now(timezone.utc) + timedelta(days=3650)).add_extension(x509.BasicConstraints(ca=True, path_length=None), critical=True).add_extension(x509.KeyUsage(digital_signature=True, content_commitment=False, key_encipherment=False, data_encipherment=False, key_agreement=False, key_cert_sign=True, crl_sign=True, encipher_only=False, decipher_only=False), critical=True).sign(ca_key, hashes.SHA256())
         ca_cert_path.write_bytes(ca_cert.public_bytes(serialization.Encoding.PEM))
         ca_key_path.write_bytes(ca_key.private_bytes(encoding=serialization.Encoding.PEM, format=serialization.PrivateFormat.TraditionalOpenSSL, encryption_algorithm=serialization.NoEncryption()))
@@ -87,7 +87,7 @@ def generate_certificates(certs_dir: Path | None=None, extra_ips: list[str] | No
         except Exception:
             pass
     server_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    server_name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'localhost'), x509.NameAttribute(NameOID.ORGANIZATION_NAME, 'aiwindowsadmin Local Server')])
+    server_name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'localhost'), x509.NameAttribute(NameOID.ORGANIZATION_NAME, 'aitc Local Server')])
     server_cert = x509.CertificateBuilder().subject_name(server_name).issuer_name(ca_name).public_key(server_key.public_key()).serial_number(x509.random_serial_number()).not_valid_before(datetime.now(timezone.utc) - timedelta(days=1)).not_valid_after(datetime.now(timezone.utc) + timedelta(days=1825)).add_extension(x509.BasicConstraints(ca=False, path_length=None), critical=True).add_extension(x509.KeyUsage(digital_signature=True, content_commitment=False, key_encipherment=True, data_encipherment=False, key_agreement=False, key_cert_sign=False, crl_sign=False, encipher_only=False, decipher_only=False), critical=True).add_extension(x509.ExtendedKeyUsage([ExtendedKeyUsageOID.SERVER_AUTH, ExtendedKeyUsageOID.CLIENT_AUTH]), critical=False).add_extension(x509.SubjectAlternativeName(san_list), critical=False).sign(ca_key, hashes.SHA256())
     cert_path.write_bytes(server_cert.public_bytes(serialization.Encoding.PEM))
     key_path.write_bytes(server_key.private_bytes(encoding=serialization.Encoding.PEM, format=serialization.PrivateFormat.TraditionalOpenSSL, encryption_algorithm=serialization.NoEncryption()))

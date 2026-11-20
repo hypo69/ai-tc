@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows SDK Core - Package Root
+# Process Name: ai-tc Apps Windows SDK Core - Package Root
 # =============================================================================
 # Description:
 #   Ядро SafeOps, системной диагностики, аудита и безопасности Windows.
@@ -10,11 +10,11 @@
 #     from apps.windows.sdk.core import SafeExecutor, WinAPI, DiagnosticsEngine
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

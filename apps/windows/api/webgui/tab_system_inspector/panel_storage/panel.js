@@ -8,11 +8,11 @@
  *   интенсивности IOPS, температуры, наработки и интеграции с AIModalDialog.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_system_inspector/panel_storage
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 16:10:00
+ * Updated: 2026-11-13 13:40:00
  * =============================================================================
  */
 
@@ -20,7 +20,6 @@ import {
   escapeHtml,
   formatSparkTimeLabel,
   createGaugeSvg,
-  createPercentSliderHtml,
   createTempSliderHtml,
   buildSmoothSvgPath
 } from '../common/ui_utils.js';
@@ -52,6 +51,32 @@ export function initStoragePanel() {
   if (btnLin) btnLin.onclick = () => setStorageSparkScale('lin');
 
   window.setStorageSparkScale = setStorageSparkScale;
+  window.inspectStorageSpecsWithAi = () => {
+    if (window.AITableModal) {
+      const storageModel = document.getElementById('sys-metric-storage-model')?.innerText || 'Storage';
+      const pct = document.getElementById('sys-storage-pct')?.innerText || '0%';
+      const used = document.getElementById('sys-storage-used')?.innerText || '';
+      window.AITableModal.show({
+        icon: '💾',
+        title: storageModel,
+        subtitle: 'Дисковая подсистема, накопители и тома Windows',
+        panelId: 'storage',
+        tableType: 'hardware',
+        badges: [
+          { text: 'Storage', class: 'badge bg-info' },
+          { text: pct, class: 'badge bg-primary' }
+        ],
+        metadata: [
+          { label: 'Подсистема', value: storageModel },
+          { label: 'Загрузка', value: pct },
+          { label: 'Использование', value: used }
+        ],
+        rawTitle: 'JSON Телеметрии Дисков',
+        rawContent: JSON.stringify(lastStorageSparkData || {}, null, 2),
+        requestData: lastStorageSparkData || {}
+      });
+    }
+  };
 }
 
 /**
@@ -212,7 +237,11 @@ export function renderStorageCards(data) {
   set('sys-storage-kpi-temp', maxTemp != null ? `${maxTemp.toFixed(0)} °C` : '-- °C');
   set('sys-storage-pct', `${usedPct.toFixed(1)}%`);
   set('sys-storage-used', `${usedGb.toFixed(1)} / ${totGb.toFixed(1)} GB`);
-  set('sys-storage-temp-label', `Макс. температура: ${maxTemp != null ? maxTemp.toFixed(0) + ' °C' : '-- °C'}`);
+  set('sys-storage-temp-label', maxTemp != null ? `${maxTemp.toFixed(0)} °C` : '-- °C');
+  set('sys-storage-spec-drives', `${drives.length}`);
+  set('sys-storage-spec-parts', `${partitions.length}`);
+  set('sys-storage-spec-free', `${freeGb.toFixed(1)} GB`);
+  set('sys-storage-spec-used', `${usedGb.toFixed(1)} GB`);
 
   const storageGauge = document.getElementById('sys-metric-storage-gauge');
   if (storageGauge) storageGauge.innerHTML = createGaugeSvg(usedPct, 120, 68);
@@ -256,7 +285,20 @@ export function renderStorageCards(data) {
       const totGb = d.total_gb != null ? Number(d.total_gb) : 0;
       const usedGb = d.used_gb != null ? Number(d.used_gb) : 0;
       const freeGb = Math.max(0, totGb - usedGb);
-      const percentSlider = createPercentSliderHtml(pct, false, `${usedGb.toFixed(0)} / ${totGb.toFixed(0)} GB`);
+
+      const tempSliderHtml = temp != null
+        ? createTempSliderHtml(temp, 20, 75, false)
+        : `
+          <div class="sys-temp-slider-wrap">
+            <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 0.78rem;">
+              <span class="text-muted"><i class="bi bi-thermometer-half me-1"></i>t° накопителя</span>
+              <span class="font-monospace text-muted fw-bold">-- °C</span>
+            </div>
+            <div class="sys-temp-slider-track">
+              <div class="sys-temp-slider-bar" style="width: 0%; background: var(--border-color);"></div>
+            </div>
+          </div>
+        `;
 
       let mediaBadgeClass = 'bg-warning-subtle text-warning border-warning';
       let iconHtml = '<i class="bi bi-hdd-fill text-warning fs-5"></i>';
@@ -279,42 +321,99 @@ export function renderStorageCards(data) {
               <span class="badge bg-success-subtle text-success border border-success font-monospace" style="font-size: 0.70rem;">● ${escapeHtml(d.health_status || 'SMART OK')}</span>
             </div>
             <div class="d-flex align-items-center gap-2">
-              <span class="badge bg-dark border text-light font-monospace px-2.5 py-1" style="font-size: 0.80rem;">${usedGb.toFixed(1)} / ${totGb.toFixed(1)} GB (${pct.toFixed(1)}%)</span>
+              <span class="badge bg-dark border text-light font-monospace px-2.5 py-1" style="font-size: 0.80rem; font-variant-numeric: tabular-nums;">${usedGb.toFixed(1)} / ${totGb.toFixed(1)} GB (${pct.toFixed(1)}%)</span>
             </div>
           </div>
-          <div class="row g-3 align-items-center">
-            <div class="col-12 col-md-6 col-lg-3">
-              <div class="p-2.5 rounded-2 h-100" style="background: var(--surface-2); border: 1px solid var(--border-color);">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                  <span class="small text-muted fw-bold">Емкость и Занято</span>
-                  <span class="fw-bold font-monospace ${pct >= 85 ? 'text-danger' : 'text-info'}">${pct.toFixed(1)}%</span>
+          <div class="row g-3 align-items-stretch">
+            <!-- 1. Заполнение накопителя (Спидометр) + Температурный слайдер -->
+            <div class="col-12 col-md-4">
+              <div class="p-2.5 rounded-2 h-100 d-flex flex-column justify-content-between" style="background: var(--surface-2); border: 1px solid var(--border-color);">
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-1.5">
+                    <span class="small text-muted fw-bold d-flex align-items-center gap-1">
+                      <i class="bi bi-pie-chart text-info"></i>Заполнение накопителя
+                    </span>
+                    <span class="fw-bold font-monospace ${pct >= 85 ? 'text-danger' : 'text-info'}" style="font-size: 0.88rem; font-variant-numeric: tabular-nums;">${pct.toFixed(1)}%</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-2.5 my-1">
+                    <div style="width: 86px; height: 50px; flex-shrink: 0;">${createGaugeSvg(pct, 86, 50)}</div>
+                    <div class="flex-grow-1" style="min-width: 0;">
+                      <div class="font-monospace fw-bold text-body text-truncate" style="font-size: 0.86rem; font-variant-numeric: tabular-nums;">${usedGb.toFixed(1)} / ${totGb.toFixed(1)} GB</div>
+                      <div class="small text-muted font-monospace text-truncate" style="font-size: 0.74rem; font-variant-numeric: tabular-nums;">Свободно: <span class="text-success fw-semibold">${freeGb.toFixed(1)} GB</span></div>
+                    </div>
+                  </div>
                 </div>
-                <div class="d-flex align-items-center gap-2 my-1">
-                  <div style="width: 80px; height: 46px; flex-shrink: 0;">${createGaugeSvg(pct, 80, 46)}</div>
-                  <div class="flex-grow-1 font-monospace fw-bold" style="font-size: 0.85rem;">${usedGb.toFixed(1)} / ${totGb.toFixed(1)} GB</div>
+                <div class="mt-2 pt-1.5 border-top" style="border-color: var(--border-subtle) !important;">
+                  ${tempSliderHtml}
                 </div>
-                ${percentSlider}
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-3">
-              <div class="p-2.5 rounded-2 h-100" style="background: var(--surface-2); border: 1px solid var(--border-color);">
-                <span class="small text-muted fw-bold d-block mb-1">Интенсивность I/O</span>
-                <div class="small text-info font-monospace">Чтение: ${escapeHtml(d.read_rate_raw || '0 B/s')}</div>
-                <div class="small text-warning font-monospace">Запись: ${escapeHtml(d.write_rate_raw || '0 B/s')}</div>
+            <!-- 2. Интенсивность ввода-вывода (I/O, Скорость чтения/записи) -->
+            <div class="col-12 col-md-4">
+              <div class="p-2.5 rounded-2 h-100 d-flex flex-column justify-content-between" style="background: var(--surface-2); border: 1px solid var(--border-color);">
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small text-muted fw-bold d-flex align-items-center gap-1">
+                      <i class="bi bi-arrow-left-right text-warning"></i>Интенсивность I/O
+                    </span>
+                    <span class="badge bg-dark border border-secondary text-light font-monospace" style="font-size: 0.68rem;">
+                      ${d.activity_percent != null ? d.activity_percent.toFixed(0) + '% нагр.' : 'I/O Stream'}
+                    </span>
+                  </div>
+                  <div class="d-flex flex-column gap-1.5 font-monospace" style="font-size: 0.80rem; font-variant-numeric: tabular-nums;">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="text-muted"><i class="bi bi-arrow-down-circle text-info me-1"></i>Чтение (Read):</span>
+                      <span class="text-info fw-bold text-truncate">${escapeHtml(d.read_rate_raw || '0 B/s')}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="text-muted"><i class="bi bi-arrow-up-circle text-warning me-1"></i>Запись (Write):</span>
+                      <span class="text-warning fw-bold text-truncate">${escapeHtml(d.write_rate_raw || '0 B/s')}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="text-muted"><i class="bi bi-file-earmark-arrow-down text-secondary me-1"></i>Σ Прочитано:</span>
+                      <span class="text-body fw-semibold text-truncate">${escapeHtml(d.data_read_raw || '--')}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-2 pt-1.5 border-top d-flex justify-content-between align-items-center font-monospace small" style="border-color: var(--border-subtle) !important; font-size: 0.74rem;">
+                  <span class="text-muted">Активность шины:</span>
+                  <span class="${(d.activity_percent || 0) > 60 ? 'text-danger fw-bold' : (d.activity_percent || 0) > 20 ? 'text-warning fw-bold' : 'text-success'}">
+                    ${d.activity_percent != null ? d.activity_percent.toFixed(1) + '%' : 'В норме'}
+                  </span>
+                </div>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-3">
-              <div class="p-2.5 rounded-2 h-100" style="background: var(--surface-2); border: 1px solid var(--border-color);">
-                <span class="small text-muted fw-bold d-block mb-1">Температура</span>
-                <span class="fw-bold font-monospace text-warning fs-5">${temp != null ? temp.toFixed(0) + ' °C' : '-- °C'}</span>
-                ${createTempSliderHtml(temp, 25, 75, false)}
-              </div>
-            </div>
-            <div class="col-12 col-md-6 col-lg-3">
-              <div class="p-2.5 rounded-2 h-100" style="background: var(--surface-2); border: 1px solid var(--border-color);">
-                <span class="small text-muted fw-bold d-block mb-1">Записано / Ресурс</span>
-                <div class="small text-warning font-monospace">Σ Запись: ${escapeHtml(d.data_written_raw || '--')}</div>
-                <div class="small text-muted font-monospace">Наработка: ${formatDriveHours(d.power_on_hours)}</div>
+            <!-- 3. Ресурс накопителя, Наработка и SMART-состояние -->
+            <div class="col-12 col-md-4">
+              <div class="p-2.5 rounded-2 h-100 d-flex flex-column justify-content-between" style="background: var(--surface-2); border: 1px solid var(--border-color);">
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small text-muted fw-bold d-flex align-items-center gap-1">
+                      <i class="bi bi-shield-check text-success"></i>Ресурс и Состояние
+                    </span>
+                    <span class="badge bg-success-subtle text-success border border-success font-monospace" style="font-size: 0.68rem;">
+                      ● ${escapeHtml(d.health_status || 'SMART OK')}
+                    </span>
+                  </div>
+                  <div class="d-flex flex-column gap-1.5 font-monospace" style="font-size: 0.80rem; font-variant-numeric: tabular-nums;">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="text-muted"><i class="bi bi-disc text-primary me-1"></i>Σ Записано (TBW):</span>
+                      <span class="text-warning fw-bold text-truncate">${escapeHtml(d.data_written_raw || '--')}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="text-muted"><i class="bi bi-clock-history text-secondary me-1"></i>Наработка:</span>
+                      <span class="text-body fw-semibold text-truncate">${formatDriveHours(d.power_on_hours)}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="text-muted"><i class="bi bi-power text-secondary me-1"></i>${d.life_percent != null ? 'Ресурс SSD (Life):' : 'Циклы включения:'}</span>
+                      <span class="text-body fw-semibold text-truncate">${d.life_percent != null ? d.life_percent + '%' : (d.power_on_count != null ? d.power_on_count.toLocaleString() + ' раз' : '--')}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-2 pt-1.5 border-top d-flex justify-content-between align-items-center font-monospace small" style="border-color: var(--border-subtle) !important; font-size: 0.74rem;">
+                  <span class="text-muted">Интерфейс:</span>
+                  <span class="text-body fw-semibold">${escapeHtml(d.interface_type || d.media_type || 'SATA/NVMe')}</span>
+                </div>
               </div>
             </div>
           </div>

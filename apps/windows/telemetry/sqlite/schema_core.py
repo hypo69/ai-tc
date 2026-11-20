@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - Schema Core
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - Schema Core
 # =============================================================================
 # Description:
 #   DDL-определения базового ядра телеметрии (5 из 12 таблиц):
@@ -8,11 +8,11 @@
 #   process_file_events.
 #
 # File: schema_core.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 12:55:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

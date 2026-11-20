@@ -18,11 +18,11 @@
 #                       platform="linux", username="admin", auth_method="key")
 #
 # File: host.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.schemas
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:36:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from typing import Literal

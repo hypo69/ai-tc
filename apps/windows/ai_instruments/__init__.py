@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI Instruments Package
+# Process Name: ai-tc AI Instruments Package
 # =============================================================================
 # Description:
 #   Изолированная подсистема инструментов ИИ-агента (ai_instruments.db).
@@ -12,11 +12,11 @@
 #     from apps.windows.ai_instruments import AIInstrumentsService, AIInstrumentsStorage
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.ai_instruments
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 12:44:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

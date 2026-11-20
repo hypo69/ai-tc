@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - rag_search
+# Process Name: ai-tc Apps Windows Api Routers - rag_search
 # =============================================================================
 # Description:
 #   Эндпойнты конфигурации RAG и веб-поиска.
 #   Вынесено из router_admin.py (этап 4 оптимизации).
 #
 # File: rag_search.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.admin
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-12 06:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

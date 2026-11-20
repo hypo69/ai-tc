@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules System_Checkpoints Tests - Test Winre Manager
+# Process Name: ai-tc Apps Windows Modules System_Checkpoints Tests - Test Winre Manager
 # =============================================================================
 # Description:
 #   Тесты менеджера среды восстановления Windows RE (WinRE / reagentc).
@@ -12,11 +12,11 @@
 #     res = test_parse_reagentc_info_english()
 #
 # File: test_winre_manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.system_checkpoints.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Тесты менеджера среды восстановления Windows RE (WinRE / reagentc)."""

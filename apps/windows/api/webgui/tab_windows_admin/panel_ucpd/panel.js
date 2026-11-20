@@ -10,7 +10,7 @@
  * Файл: apps/windows/api/webgui/tab_windows_admin/panel_ucpd/panel.js
  * Пакет: windows/api/webgui/tab_windows_admin
  * Автор: hypo69
- * Updated: 2026-11-01 14:40:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -67,7 +67,7 @@ export function bindUcpdEvents() {
 export async function loadUcpdStatus() {
   appendUcpdLog('Запрос согласованного статуса UCPD и задачи UcpdVelocity...');
   try {
-    const data = await safeApiFetch('/api/kernel-protection/ucpd/status');
+    const data = await safeApiFetch('/api/v1/kernel-protection/ucpd/status');
     ucpdStatusCache = data;
     renderUcpdStatus(data);
     appendUcpdLog(`Статус получен: ${data.status_label_ru} (${data.windows_version})`);
@@ -218,7 +218,7 @@ async function handleUcpdToggleClick() {
   if (toggleBtn) toggleBtn.disabled = true;
 
   try {
-    const res = await safeApiFetch('/api/kernel-protection/ucpd/set-state', {
+    const res = await safeApiFetch('/api/v1/kernel-protection/ucpd/set-state', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -265,7 +265,7 @@ async function handleRunTaskbarDaExperiment() {
   }
 
   try {
-    const res = await safeApiFetch('/api/kernel-protection/ucpd/test-taskbarda', {
+    const res = await safeApiFetch('/api/v1/kernel-protection/ucpd/test-taskbarda', {
       method: 'POST'
     });
 

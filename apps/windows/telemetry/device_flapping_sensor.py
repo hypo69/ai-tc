@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Device Flapping Sensor
+# Process Name: ai-tc Apps Windows Telemetry - Device Flapping Sensor
 # =============================================================================
 # Description:
 #   Сенсор непрерывного мониторинга периферии, обнаружения дребезга и PnP-телеметрии.
@@ -12,11 +12,11 @@
 #     service = DeviceTransitionEvent()
 #
 # File: device_flapping_sensor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 17:39:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

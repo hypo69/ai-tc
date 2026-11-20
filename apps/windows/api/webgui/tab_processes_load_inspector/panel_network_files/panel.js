@@ -1,7 +1,7 @@
 /**
  * Модуль сетевой активности программ и мониторинга изменений файлов хоста.
  * Файл: apps/windows/api/webgui/tab_processes_load_inspector/panel_network_files/panel.js
- * Updated: 2026-11-01 17:45:00
+ * Updated: 2026-11-12 05:07:00
  */
 
 import {
@@ -20,6 +20,55 @@ let isNetPaused = false;
 
 let cachedFileEvents = [];
 let isWatcherPaused = false;
+let fileEventSource = null;
+
+/**
+ * Запускает реактивный поток Server-Sent Events (SSE) для файлового мониторинга.
+ */
+export function startFileEventsStream() {
+  if (fileEventSource) return;
+  if (!isProcessesTabActive()) return;
+  const activeSub = getActiveSubTabId();
+  if (activeSub !== 'files-io' && activeSub !== 'files') return;
+
+  try {
+    fileEventSource = new EventSource('/api/v1/tab-processes-load-inspector/panel-file-watcher/stream?limit=50');
+
+    fileEventSource.onmessage = (event) => {
+      if (!event.data || isWatcherPaused) return;
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type === 'initial' && Array.isArray(payload.events)) {
+          cachedFileEvents = payload.events;
+          renderFileEventsTable(cachedFileEvents);
+        } else if (payload.type === 'events' && Array.isArray(payload.events)) {
+          cachedFileEvents = [...payload.events, ...cachedFileEvents].slice(0, 100);
+          renderFileEventsTable(cachedFileEvents);
+        }
+      } catch (parseErr) {
+        console.debug('[ProcessWatcher] Ошибка разбора SSE сообщения:', parseErr);
+      }
+    };
+
+    fileEventSource.onerror = () => {
+      stopFileEventsStream();
+    };
+  } catch (err) {
+    console.debug('[ProcessWatcher] Не удалось открыть SSE соединение:', err);
+  }
+}
+
+/**
+ * Останавливает поток Server-Sent Events (SSE) для файлового мониторинга.
+ */
+export function stopFileEventsStream() {
+  if (fileEventSource) {
+    try {
+      fileEventSource.close();
+    } catch (_) {}
+    fileEventSource = null;
+  }
+}
 
 /**
  * Инициализирует элементы управления для сети и файлового мониторинга.
@@ -55,6 +104,87 @@ export function initNetworkFilesPanel() {
       btnWatcherPause.className = isWatcherPaused ? 'btn btn-xs btn-outline-warning' : 'btn btn-xs btn-outline-secondary';
     });
   }
+
+  const btnRefreshWatcher = document.getElementById('btn-proc-refresh-watcher');
+  if (btnRefreshWatcher) {
+    btnRefreshWatcher.addEventListener('click', async () => {
+      const icon = btnRefreshWatcher.querySelector('i');
+      if (icon) icon.classList.add('spin-animation');
+      try {
+        await fetchLiveFileEvents(true);
+      } finally {
+        if (icon) icon.classList.remove('spin-animation');
+      }
+    });
+  }
+
+  const btnWatcherExpand = document.getElementById('btn-proc-watcher-expand');
+  if (btnWatcherExpand) {
+    btnWatcherExpand.addEventListener('click', () => {
+      const container = document.getElementById('proc-watcher-table-container');
+      if (!container) return;
+      if (container.style.maxHeight === 'none') {
+        container.style.maxHeight = '700px';
+        btnWatcherExpand.classList.remove('active');
+      } else {
+        container.style.maxHeight = 'none';
+        btnWatcherExpand.classList.add('active');
+      }
+    });
+  }
+
+  const btnChangeWatchDir = document.getElementById('btn-proc-change-watch-dir');
+  if (btnChangeWatchDir) {
+    btnChangeWatchDir.addEventListener('click', async () => {
+      const currentDir = document.getElementById('proc-watch-dir-path')?.textContent || '';
+      const newDir = window.prompt('Укажите путь к папке для мониторинга ReadDirectoryChangesW:', currentDir !== 'Загрузка...' ? currentDir : 'C:\\');
+      if (newDir && newDir.trim()) {
+        try {
+          const resp = await fetch('/api/v1/telemetry/tracked-directories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'add', directory_path: newDir.trim() })
+          });
+          if (resp.ok) {
+            updateWatchDirBadge(newDir.trim());
+          }
+        } catch (e) {
+          console.error('[ProcessWatcher] Ошибка обновления директории:', e);
+        }
+      }
+    });
+  }
+
+  loadTrackedDirectories();
+}
+
+/**
+ * Загружает и отображает список активных отслеживаемых директорий.
+ */
+async function loadTrackedDirectories() {
+  try {
+    const res = await fetch('/api/v1/telemetry/tracked-directories');
+    if (res.ok) {
+      const data = await res.json();
+      const dirs = data.tracked_directories || [];
+      if (dirs.length > 0) {
+        updateWatchDirBadge(dirs[0]);
+      } else {
+        updateWatchDirBadge('Не настроено');
+      }
+    }
+  } catch (_) {
+    updateWatchDirBadge('C:\\Users');
+  }
+}
+
+/**
+ * Обновляет текст бэйджа отслеживаемой папки.
+ * @param {string} dirPath - Путь к папке.
+ */
+function updateWatchDirBadge(dirPath) {
+  const el = document.getElementById('proc-watch-dir-path');
+  if (el) el.textContent = dirPath;
 }
 
 /**
@@ -149,11 +279,11 @@ export function renderNetworkActivityTable(activities) {
 }
 
 /**
- * Запрашивает события изменений файлов в реальном времени.
- * @param {boolean} [force=false] - Принудительный опрос.
+ * Запрашивает срез последних событий файловой активности из базы данных телеметрии.
+ * @param {boolean} [force=false] - Принудительный запрос независимо от активности суб-вкладки.
  */
 export async function fetchLiveFileEvents(force = false) {
-  if (!isProcessesTabActive() || (!force && getActiveSubTabId() !== 'files')) return;
+  if (!isProcessesTabActive() || (!force && getActiveSubTabId() !== 'files-io' && getActiveSubTabId() !== 'files')) return;
   try {
     const res = await fetch('/api/v1/tab-processes-load-inspector/panel-file-watcher/events?limit=50');
     if (res.ok) {

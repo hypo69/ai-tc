@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Telemetry Win32_FFI Compatibility Bridge
+# Process Name: ai-tc Telemetry Win32_FFI Compatibility Bridge
 # =============================================================================
 # Description:
 #   Мост обратной совместимости для импорта win32_ffi из apps.windows.telemetry.win32_ffi.
 #   Перенаправляет вызовы на apps.windows.sdk.win32_ffi.
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.win32_ffi
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 17:39:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Мост обратной совместимости win32_ffi."""

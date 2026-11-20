@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Service
+# Process Name: ai-tc Apps Windows Telemetry - Service
 # =============================================================================
 # Description:
 #   Фоновый сервис посекундного сбора системных метрик с сохранением в SQLite.
@@ -12,11 +12,11 @@
 #     instance = TelemetryLoggerService.get_instance()
 #
 # File: service.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -98,6 +98,8 @@ class TelemetryLoggerService:
 
         self._w64_collector: Optional[AIW64Collector] = None
         self._w64_etw_collector: Optional[AIW64ETWCollector] = None
+        self.collect_file_events = self.config_manager.is_file_events_enabled()
+        self._dir_watch_engine = None
 
         self._running = False
         self._thread: Optional[threading.Thread] = None
@@ -133,7 +135,7 @@ class TelemetryLoggerService:
         self.defender_audit_interval_sec: float = self.config_manager.get_defender_audit_interval_seconds()
         self.process_activity_sync_interval_sec: float = self.config_manager.get_process_activity_sync_interval_seconds()
         self.software_audit_interval_sec: float = self.config_manager.get_software_audit_interval_seconds()
-        self.internet_speed_interval_sec: float = 3600.0
+        self.internet_speed_interval_sec: float = self.config_manager.get_internet_speed_interval_seconds()
         self._last_internet_speed_time: Optional[float] = None
 
     @classmethod
@@ -286,6 +288,16 @@ class TelemetryLoggerService:
             except Exception as init_snap_ex:
                 logger.debug(f'Ошибка запуска начального сбора телеметрии: {init_snap_ex}')
 
+        # При старте телеметрии запускаем мониторинг файловых директорий (если включен collect_file_events)
+        if self.collect_file_events:
+            try:
+                from .directory_watcher import DirectoryWatchEngine
+                self._dir_watch_engine = DirectoryWatchEngine.get_instance(config_manager=self.config_manager)
+                self._dir_watch_engine.start()
+                logger.info(f'[Телеметрия] DirectoryWatchEngine запущен для {len(self._dir_watch_engine.get_tracked_directories())} директорий')
+            except Exception as dw_ex:
+                logger.warning(f'[Телеметрия] Ошибка запуска DirectoryWatchEngine: {dw_ex}')
+
         self._thread = threading.Thread(target=self._worker_loop, name='TelemetryLoggerWorker', daemon=True)
         self._thread.start()
         logger.info(f'Фоновый сервис телеметрии запущен в БД (интервал: {self.interval_sec}с, аудит железа: {self.hardware_audit_interval_sec}с, W64: {self.enable_w64}, БД: {self.storage.db_path})')
@@ -306,6 +318,12 @@ class TelemetryLoggerService:
             self.w64_collector.stop()
         if self.w64_etw_collector:
             self.w64_etw_collector.stop()
+        if getattr(self, '_dir_watch_engine', None):
+            try:
+                self._dir_watch_engine.stop()
+            except Exception as dw_stop_ex:
+                logger.debug(f'Ошибка остановки DirectoryWatchEngine: {dw_stop_ex}')
+            self._dir_watch_engine = None
 
         if self._thread and self._thread.is_alive():
             self._thread.join(timeout=3.0)
@@ -337,6 +355,21 @@ class TelemetryLoggerService:
             self.software_audit_interval_sec = max(1.0, self.config_manager.get_software_audit_interval_seconds())
             self.db_cleanup_interval_sec = max(5.0, self.config_manager.get_db_cleanup_interval_seconds())
             self.rollup_interval_sec = max(1.0, self.config_manager.get_aggregation_interval())
+
+            new_collect_files = self.config_manager.is_file_events_enabled()
+            if new_collect_files != self.collect_file_events:
+                self.collect_file_events = new_collect_files
+                if self._running:
+                    if self.collect_file_events:
+                        try:
+                            from .directory_watcher import DirectoryWatchEngine
+                            self._dir_watch_engine = DirectoryWatchEngine.get_instance(config_manager=self.config_manager)
+                            self._dir_watch_engine.start()
+                        except Exception as ex:
+                            logger.warning(f'[Телеметрия] Ошибка запуска DirectoryWatchEngine: {ex}')
+                    elif getattr(self, '_dir_watch_engine', None):
+                        self._dir_watch_engine.stop()
+                        self._dir_watch_engine = None
             current_mode = self.config_manager.get_telemetry_mode()
             if self._previous_mode == 'live_stream' and current_mode == 'audit':
                 # При отключении live stream составляем отчет ресурсопотребления и компактифицируем
@@ -714,7 +747,7 @@ class TelemetryLoggerService:
                             logger.debug(f'Ошибка при сохранении периодического отчета сканера ПО в telemetry.db: {sc_ex}')
                         self._last_software_audit_time = loop_start
 
-                    # 7. Периодический замер скорости интернета FAST.com (1 раз в час, буфер на 144 записи)
+                    # 7. Периодический замер скорости интернета FAST.com (6 раз в сутки / каждые 4 часа, буфер на 144 записи)
                     if self._last_internet_speed_time is None or loop_start - self._last_internet_speed_time >= self.internet_speed_interval_sec:
                         try:
                             from apps.windows.telemetry.internet_speed import get_internet_speed_sensor
@@ -845,6 +878,7 @@ class TelemetryLoggerService:
                 'defender_audit_interval_sec': self.defender_audit_interval_sec,
                 'process_activity_sync_interval_sec': self.process_activity_sync_interval_sec,
                 'software_audit_interval_sec': self.software_audit_interval_sec,
+                'internet_speed_interval_sec': self.internet_speed_interval_sec,
             },
             'ticks_recorded': self._ticks_count,
             'uptime_seconds': uptime,

@@ -8,11 +8,11 @@
  *   знаний WikiLLM Knowledge Editor.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_app_internals/panel_wikillm_settings
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 17:05:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

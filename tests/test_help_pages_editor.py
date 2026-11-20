@@ -11,11 +11,11 @@ Description:
   5. Проверка интеграции панели редактора в #tab-app-internals#helppages-editor.
 
 File: test_help_pages_editor.py
-Project: ai-windows-admin
+Project: ai-tc
 Package: tests
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-31 18:06:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 """
 

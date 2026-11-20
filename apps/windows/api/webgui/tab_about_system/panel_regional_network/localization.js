@@ -2,7 +2,7 @@
  * Модуль управления языковыми пакетами (Русский, Иврит, Английский),
  * клавиатурными раскладками и часовыми поясами.
  * Файл: apps/windows/api/webgui/tab_about_system/panel_regional_network/localization.js
- * Updated: 2026-10-28 14:44:00
+ * Updated: 2026-11-16 05:48:00
  */
 
 import { escapeHtml } from '../common/ui_utils.js';
@@ -158,16 +158,16 @@ export function renderLanguagePacksList(packs = [], onManagePack = null) {
   const activeCount = items.filter(x => x.is_active).length;
 
   const flagIcons = {
-    'ru-ru': '🇷🇺',
-    'he-il': '🇮🇱',
-    'en-us': '🇺🇸',
-    'en-gb': '🇬🇧',
+    'ru-ru': `<svg class="lang-flag-svg" viewBox="0 0 640 480" width="26" height="18" style="border-radius: 3px; box-shadow: 0 0 2px rgba(0,0,0,0.3);"><g fill-rule="evenodd" stroke-width="1pt"><path fill="#ffffff" d="M0 0h640v480H0z"/><path fill="#0039a6" d="M0 160h640v320H0z"/><path fill="#d52b1e" d="M0 320h640v160H0z"/></g></svg>`,
+    'he-il': `<svg class="lang-flag-svg" viewBox="0 0 640 480" width="26" height="18" style="border-radius: 3px; box-shadow: 0 0 2px rgba(0,0,0,0.3);"><path fill="#ffffff" d="M0 0h640v480H0z"/><path fill="#0038b8" d="M0 50h640v60H0zm0 260h640v60H0z"/><g fill="none" stroke="#0038b8" stroke-width="12" stroke-linejoin="round"><path d="M320 155l52 90H268zl"/><path d="M320 285l52-90H268zl"/></g></svg>`,
+    'en-us': `<svg class="lang-flag-svg" viewBox="0 0 640 480" width="26" height="18" style="border-radius: 3px; box-shadow: 0 0 2px rgba(0,0,0,0.3);"><path fill="#bd3d44" d="M0 0h640v480H0z"/><path stroke="#ffffff" stroke-width="37" d="M0 55h640m0 74H0m0 74h640m0 74H0m0 74h640m0 74H0"/><path fill="#192f5d" d="M0 0h260v260H0z"/></svg>`,
+    'en-gb': `<svg class="lang-flag-svg" viewBox="0 0 640 480" width="26" height="18" style="border-radius: 3px; box-shadow: 0 0 2px rgba(0,0,0,0.3);"><path fill="#012169" d="M0 0h640v480H0z"/><path fill="#ffffff" d="m75 0 245 180L565 0h75v50L440 240l200 150v50h-75L320 260 75 440H0v-50l200-150L0 50V0z"/><path stroke="#c8102e" stroke-width="40" d="m0 0 640 440M640 0 0 440"/><path fill="#ffffff" d="M260 0h120v480H260zM0 180h640v120H0z"/><path fill="#c8102e" d="M280 0h80v480H280zM0 200h640v80H0z"/></svg>`,
   };
 
   container.innerHTML = items.map(p => {
     const tag = p.tag || '';
     const tagLower = tag.toLowerCase();
-    const flag = flagIcons[tagLower] || '🌐';
+    const flag = flagIcons[tagLower] || '<span class="ui-badge ui-badge-neutral">🌐</span>';
     const isInstalled = !!p.is_installed;
     const isActive = !!p.is_active;
     const isDisplay = !!p.is_display_language;
@@ -181,50 +181,56 @@ export function renderLanguagePacksList(packs = [], onManagePack = null) {
     const availableLayouts = (Array.isArray(p.available_layouts) ? p.available_layouts : [])
       .filter(av => !activeKlids.has(String(av.klid || '').toUpperCase()));
 
-    // Бейджи статусов пакета
+    // Бейджи статусов пакета с использованием дизайн-системы ui-badge (без цвета cyan в NightView)
     const muiBadge = isInstalled
-      ? `<span class="badge border border-success text-success bg-transparent py-0.5 px-2" title="Языковой пакет MUI установлен в системе">
+      ? `<span class="ui-badge ui-badge-success" title="Языковой пакет MUI установлен в системе">
           <i class="bi bi-box-seam-fill me-1"></i>MUI установлен
          </span>`
-      : `<span class="badge border border-warning text-warning bg-transparent py-0.5 px-2" title="Пакет интерфейса MUI не установлен">
+      : `<span class="ui-badge ui-badge-warning" title="Пакет интерфейса MUI не установлен">
           <i class="bi bi-cloud-slash me-1"></i>MUI не установлен
          </span>`;
 
     const inputOrderBadge = isActive
-      ? `<span class="badge ${isDefaultInput ? 'border border-info text-info' : 'border border-secondary text-body'} bg-transparent py-0.5 px-2" title="Порядок переключения языка ввода (Alt+Shift / Win+Space)">
+      ? `<span class="ui-badge ${isDefaultInput ? 'ui-badge-info fw-bold' : 'ui-badge-neutral'}" title="Порядок переключения языка ввода (Alt+Shift / Win+Space)">
           <i class="bi bi-keyboard-fill me-1"></i>${isDefaultInput ? 'Ввод #1 (По умолч.)' : `Ввод #${orderIdx || '?'}`}
          </span>`
-      : `<span class="badge border border-secondary text-muted bg-transparent py-0.5 px-2">
+      : `<span class="ui-badge ui-badge-neutral text-muted" title="Язык исключен из активных раскладок">
           <i class="bi bi-slash-circle me-1"></i>Ввод отключен
          </span>`;
 
     const displayBadge = isDisplay
-      ? `<span class="badge border border-primary text-primary bg-transparent py-0.5 px-2" title="Текущий язык интерфейса Windows (Display Language)">
-          <i class="bi bi-window-desktop me-1"></i>Текущий язык интерфейса
+      ? `<span class="ui-badge ui-badge-info" title="Текущий язык интерфейса Windows (Display Language)">
+          <i class="bi bi-window-desktop me-1"></i>Язык интерфейса
          </span>`
       : '';
 
     const osInstallBadge = isOsInstall
-      ? `<span class="badge border border-info text-info bg-transparent py-0.5 px-2" title="Основной язык установленной ОС (InstallLanguage)">
+      ? `<span class="ui-badge ui-badge-neutral" title="Основной язык установленной ОС (InstallLanguage)">
           <i class="bi bi-disc-fill me-1"></i>Базовый язык ОС
          </span>`
       : '';
 
     const radioId = `reg-radio-disp-${escapeHtml(tagLower)}`;
-    const displayRadioHtml = `
-      <div class="form-check p-1.5 px-2.5 my-1.5 rounded border d-flex align-items-center justify-content-between" style="background: var(--surface-2); border-color: ${isDisplay ? 'var(--bs-primary)' : 'var(--border-color)'} !important;">
-        <div class="d-flex align-items-center gap-2">
+    const displayRadioHtml = isDisplay
+      ? `
+        <div class="lang-display-indicator p-2 rounded border d-flex align-items-center justify-content-between my-2" style="background: var(--surface-2); border-color: var(--nav-active) !important;">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill text-primary small"></i>
+            <span class="small fw-bold text-primary" style="font-size: 0.78rem;">Текущий язык интерфейса ОС</span>
+          </div>
+          <span class="ui-badge ui-badge-info font-monospace py-0 px-1.5" style="font-size: 0.7rem;">Активен</span>
+        </div>
+      `
+      : `
+        <label class="lang-display-selector p-2 rounded border d-flex align-items-center gap-2 my-2 cursor-pointer" style="background: var(--surface-2); border-color: var(--border-color) !important; cursor: pointer;">
           <input class="form-check-input m-0 radio-lang-display" type="radio"
             name="reg-display-language-radio" id="${radioId}"
-            value="${escapeHtml(tag)}" data-tag="${escapeHtml(tag)}"
-            ${isDisplay ? 'checked' : ''} style="cursor: pointer;">
-          <label class="form-check-label small fw-semibold ${isDisplay ? 'text-primary' : 'text-body'} mb-0" for="${radioId}" style="cursor: pointer; font-size: 0.77rem;">
+            value="${escapeHtml(tag)}" data-tag="${escapeHtml(tag)}" style="cursor: pointer;">
+          <span class="small fw-semibold text-body" style="font-size: 0.78rem; cursor: pointer;">
             Сделать языком интерфейса
-          </label>
-        </div>
-        ${isDisplay ? '<i class="bi bi-check-circle-fill text-primary small" title="Активный язык интерфейса Windows"></i>' : ''}
-      </div>
-    `;
+          </span>
+        </label>
+      `;
 
     // Список активных клавиатурных раскладок
     let layoutsHtml = '';
@@ -232,7 +238,7 @@ export function renderLanguagePacksList(packs = [], onManagePack = null) {
       layoutsHtml = activeLayouts.map(l => {
         const klidStr = String(l.klid || '').toUpperCase();
         const slotBadge = l.preload_slot
-          ? `<span class="badge bg-secondary-subtle text-muted font-monospace py-0 px-1 me-1" title="Слот в HKCU\\Keyboard Layout\\Preload">#${l.preload_slot}</span>`
+          ? `<span class="ui-badge ui-badge-neutral font-monospace py-0 px-1 me-1" style="font-size: 0.68rem;" title="Слот в HKCU\\Keyboard Layout\\Preload">#${l.preload_slot}</span>`
           : '';
         const canRemove = activeLayouts.length > 1;
         const removeBtn = canRemove
@@ -244,14 +250,14 @@ export function renderLanguagePacksList(packs = [], onManagePack = null) {
           : `<span class="text-muted small ms-1" title="Базовая раскладка языка"><i class="bi bi-lock-fill" style="font-size: 0.7rem;"></i></span>`;
 
         return `
-          <div class="d-flex align-items-center justify-content-between py-1 px-2 rounded border mb-1" style="background: var(--surface-2); border-color: var(--border-color) !important;">
-            <div class="d-flex align-items-center text-truncate me-1" style="font-size: 0.78rem;">
+          <div class="lang-layout-item d-flex align-items-center justify-content-between py-1.5 px-2 rounded border mb-1.5" style="background: var(--surface-2); border-color: var(--border-color) !important;">
+            <div class="d-flex align-items-center text-truncate me-2" style="font-size: 0.78rem;">
               ${slotBadge}
-              <i class="bi bi-keyboard text-info me-1.5"></i>
-              <span class="text-body text-truncate" title="${escapeHtml(l.name)}">${escapeHtml(l.name)}</span>
+              <i class="bi bi-keyboard text-muted me-1.5"></i>
+              <span class="text-body text-truncate fw-medium" title="${escapeHtml(l.name)}">${escapeHtml(l.name)}</span>
             </div>
-            <div class="d-flex align-items-center flex-shrink-0">
-              <span class="badge font-monospace text-muted border border-secondary-subtle py-0 px-1" style="font-size: 0.68rem;" title="Keyboard Layout ID (KLID)">${escapeHtml(klidStr)}</span>
+            <div class="d-flex align-items-center gap-1 flex-shrink-0">
+              <span class="ui-badge ui-badge-neutral font-monospace py-0 px-1" style="font-size: 0.68rem;" title="Keyboard Layout ID (KLID)">${escapeHtml(klidStr)}</span>
               ${removeBtn}
             </div>
           </div>
@@ -259,7 +265,7 @@ export function renderLanguagePacksList(packs = [], onManagePack = null) {
       }).join('');
     } else {
       layoutsHtml = `
-        <div class="text-muted small fst-italic py-1.5 px-2 rounded border text-center mb-1" style="background: var(--surface-2); border-color: var(--border-color) !important; font-size: 0.76rem;">
+        <div class="text-muted small fst-italic py-2 px-2 rounded border text-center mb-1" style="background: var(--surface-2); border-color: var(--border-color) !important; font-size: 0.76rem;">
           Нет активных раскладок клавиатуры
         </div>
       `;
@@ -273,14 +279,14 @@ export function renderLanguagePacksList(packs = [], onManagePack = null) {
         `<option value="${escapeHtml(av.klid)}">${escapeHtml(av.name)} [${escapeHtml(av.klid)}]</option>`
       ).join('');
       addLayoutHtml = `
-        <div class="input-group input-group-sm mt-1.5">
-          <select id="${selectId}" class="form-select form-select-sm bg-dark text-body border-secondary font-monospace" style="font-size: 0.73rem;">
+        <div class="input-group input-group-sm mt-auto pt-1">
+          <select id="${selectId}" class="form-select form-select-sm font-monospace" style="font-size: 0.75rem;">
             ${opts}
           </select>
-          <button type="button" class="btn btn-sm btn-outline-info px-2 btn-lang-pack-add-layout"
+          <button type="button" class="btn btn-sm btn-outline-primary px-2.5 btn-lang-pack-add-layout"
             data-tag="${escapeHtml(tag)}" data-select-id="${selectId}"
             title="Добавить выбранную раскладку клавиатуры">
-            <i class="bi bi-plus-lg"></i> Раскладка
+            <i class="bi bi-plus-lg me-1"></i>Раскладка
           </button>
         </div>
       `;
@@ -288,29 +294,21 @@ export function renderLanguagePacksList(packs = [], onManagePack = null) {
 
     // Кнопки управления пакетом
     const btnDefaultInput = (isActive && !isDefaultInput)
-      ? `<button type="button" class="btn btn-sm btn-outline-info py-0.5 px-2 font-monospace btn-lang-pack-action"
+      ? `<button type="button" class="btn btn-sm btn-outline-primary py-0.5 px-2.5 font-monospace btn-lang-pack-action"
           data-tag="${escapeHtml(tag)}" data-action="set_default_input"
           title="Сделать основным языком ввода по умолчанию (#1)">
           <i class="bi bi-star me-1"></i>Сделать #1
          </button>`
       : (isDefaultInput
-        ? `<span class="badge bg-info-subtle text-info border border-info border-opacity-25 py-1 px-2 font-monospace">
+        ? `<span class="ui-badge ui-badge-info py-0.5 px-2 font-monospace">
             <i class="bi bi-star-fill me-1"></i>Основной ввод (#1)
            </span>`
         : '');
 
-    const btnDisplayLang = !isDisplay
-      ? `<button type="button" class="btn btn-sm btn-outline-primary py-0.5 px-2 font-monospace btn-lang-pack-action"
-          data-tag="${escapeHtml(tag)}" data-action="set_display_language"
-          title="Установить как язык интерфейса Windows (потребуется перезаход в систему)">
-          <i class="bi bi-window-desktop me-1"></i>Интерфейс ОС
-         </button>`
-      : '';
-
     let btnPrimaryToggle = '';
     if (!isInstalled && !isActive) {
       btnPrimaryToggle = `
-        <button type="button" class="btn btn-sm btn-info text-dark fw-semibold py-0.5 px-2.5 font-monospace btn-lang-pack-action"
+        <button type="button" class="btn btn-sm btn-primary py-0.5 px-2.5 font-monospace btn-lang-pack-action"
           data-tag="${escapeHtml(tag)}" data-action="install"
           title="Установить языковой пакет и включить раскладку">
           <i class="bi bi-cloud-arrow-down me-1"></i>Установить пакет
@@ -332,26 +330,28 @@ export function renderLanguagePacksList(packs = [], onManagePack = null) {
     }
 
     return `
-      <div class="col-12 col-lg-4">
-        <div class="p-2.5 rounded border h-100 d-flex flex-column justify-content-between" style="background: var(--surface-1); border-color: var(--border-color) !important;">
+      <div class="col-12 col-lg-4 d-flex">
+        <div class="lang-pack-card card p-3 rounded-3 border d-flex flex-column justify-content-between w-100 shadow-sm" style="background: var(--surface-1); border-color: var(--border-color) !important;">
           <div>
             <!-- Шапка карточки языка -->
-            <div class="d-flex align-items-center justify-content-between mb-1">
-              <div class="d-flex align-items-center gap-1.5">
-                <span style="font-size: 1.35rem; line-height: 1;">${flag}</span>
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px;">
+                  ${flag}
+                </div>
                 <div>
-                  <div class="fw-bold small text-body lh-sm">${escapeHtml(p.native_name || p.name)}</div>
+                  <div class="fw-bold text-body lh-sm" style="font-size: 0.92rem;">${escapeHtml(p.native_name || p.name)}</div>
                   <div class="text-muted" style="font-size: 0.74rem;">${escapeHtml(p.name)}</div>
                 </div>
               </div>
-              <div class="text-end">
-                <span class="badge font-monospace text-info border border-info-subtle py-0.5 px-1.5" style="background: var(--surface-2); font-size: 0.72rem;">${escapeHtml(tag)}</span>
-                ${lcid ? `<div class="text-muted font-monospace mt-0.5" style="font-size: 0.65rem;">LCID: ${escapeHtml(lcid)}</div>` : ''}
+              <div class="d-flex align-items-center gap-1.5 flex-shrink-0">
+                <span class="ui-badge ui-badge-info font-monospace">${escapeHtml(tag)}</span>
+                ${lcid ? `<span class="ui-badge ui-badge-neutral font-monospace">LCID: ${escapeHtml(lcid)}</span>` : ''}
               </div>
             </div>
 
-            <!-- Статусы пакета -->
-            <div class="d-flex align-items-center flex-wrap gap-1 my-2">
+            <!-- Статусы пакета (гармоничная высота ряда) -->
+            <div class="d-flex align-items-center flex-wrap gap-1.5 mb-2" style="min-height: 2.2rem;">
               ${muiBadge}
               ${inputOrderBadge}
               ${displayBadge}
@@ -362,23 +362,25 @@ export function renderLanguagePacksList(packs = [], onManagePack = null) {
             ${displayRadioHtml}
 
             <!-- Секция раскладок клавиатуры -->
-            <div class="mt-2 pt-2 border-top" style="border-color: var(--border-color) !important;">
-              <div class="d-flex align-items-center justify-content-between mb-1">
-                <span class="small fw-semibold text-muted" style="font-size: 0.74rem;">
-                  <i class="bi bi-keyboard me-1"></i>Раскладки клавиатуры (${activeLayouts.length}):
+            <div class="mt-2 pt-2 border-top d-flex flex-column" style="border-color: var(--border-color) !important;">
+              <div class="d-flex align-items-center justify-content-between mb-1.5">
+                <span class="small fw-semibold text-muted" style="font-size: 0.75rem;">
+                  <i class="bi bi-keyboard me-1 text-primary"></i>Раскладки клавиатуры (${activeLayouts.length}):
                 </span>
               </div>
-              ${layoutsHtml}
+              <div class="lang-layouts-list mb-2" style="min-height: 60px;">
+                ${layoutsHtml}
+              </div>
               ${addLayoutHtml}
             </div>
           </div>
 
           <!-- Панель действий с языковым пакетом -->
-          <div class="pt-2 mt-2.5 border-top d-flex align-items-center justify-content-between flex-wrap gap-1" style="border-color: var(--border-color) !important;">
-            <div class="d-flex align-items-center flex-wrap gap-1">
+          <div class="pt-2.5 mt-auto border-top d-flex align-items-center justify-content-between flex-wrap gap-2" style="border-color: var(--border-color) !important;">
+            <div class="d-flex align-items-center gap-2">
               ${btnDefaultInput}
             </div>
-            <div>
+            <div class="d-flex align-items-center gap-2 ms-auto">
               ${btnPrimaryToggle}
             </div>
           </div>

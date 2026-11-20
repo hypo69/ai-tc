@@ -5,23 +5,22 @@ Process Name: Windows Web Interface - App Internals Documentation
 Description:
   Документация вкладки «Внутренняя кухня» (App Internals).
   Описывает архитектуру субпанелей и двухуровневого меню блоков,
-  а также разделение двух баз знаний WikiLLM:
-  1. Подсказки по системе (локальный файл SQLite на диске)
-  2. База инструментов агента в цепочке размышлений (сервер Hostinger).
+  а также разделение двух баз знаний WikiLLM и единого центра управления
+  базами данных (Database Workbench).
 
 # File: README.md
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/tab_app_internals
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-11 23:20:00
+Updated: 2026-11-19 17:25:00
 =============================================================================
 -->
 
 # Вкладка «Внутренняя кухня» (App Internals)
 
 ## Описание
-Вкладка **«Внутренняя кухня»** (`tab_app_internals`) представляет собой служебный хаб администрирования веб-интерфейса AI Windows Admin, организующий субпанели и базы знаний:
+Вкладка **«Внутренняя кухня»** (`tab_app_internals`) представляет собой служебный хаб администрирования веб-интерфейса ai-tc, организующий субпанели и базы знаний:
 1. `telemetry`: Телеметрия (Telemetry Control & Config)
 2. `models`: Модели и API (Models & Providers)
 3. `logs`: Центр логов (Logs Center)
@@ -29,10 +28,11 @@ Updated: 2026-11-11 23:20:00
 5. `etw`: Трассировка ETW (Performance Tracing)
 6. `settings`: Параметры (Log Settings)
 7. `wikillm-system`: **Подсказки по системе (WikiLLM System Knowledge)** — общие рекомендации и подсказки по Windows OS, хранящиеся в локальном файле SQLite на диске (`data/windows_wikillm/knowledge.db`).
-8. `instruments`: **База инструментов ИИ-агента (WikiLLM AI Instruments)** — инструменты и скрипты PowerShell/CMD, используемые в цепочке размышлений над задачами (см. conversation `8bdc91cc-bd8f-4a2b-b7d9-d13455e82580`), хранящиеся на сервере Hostinger.
+8. `instruments`: **База инструментов ИИ-агента (u177424397_tool_chains)** — инструменты и команды, хранящиеся в MariaDB на сервере Hostinger (`srv1373.hstgr.io`, БД `u177424397_tool_chains`).
 9. `tooltips-editor`: **Редактор тултипов (Tooltips Editor)** — интерактивный визуальный редактор всплывающих подсказок (AI Smart Tooltips & i18n hints) с мультиязычностью и предпросмотром.
 10. `helppages-editor`: **Редактор подсказок (Help Pages Editor)** — редактор атомарных блоков и композитных страниц справки системы.
 11. `codebase-rag`: **RAG Кода и Диагностики (Codebase AST & Diagnostic RAG)** — управление AST-индексами кодовой базы и формирование диагностических заключений по логам и ошибкам.
+12. `db-manager`: **Управление БД и хостингом (Database Workbench)** — быстрый просмотр параметров, структуры таблиц, прямая SQL-консоль (SELECT, INSERT, DELETE), инструменты сжатия (VACUUM, OPTIMIZE), экспорт данных с серверов Hostinger и SQLite, создание и восстановление бэкапов с ZIP-сжатием.
 
 ---
 
@@ -44,14 +44,22 @@ Updated: 2026-11-11 23:20:00
 - Каждая кнопка снабжена статическим тултипом (`title="..."`, `data-i18n-title="..."`) без обращения к модели и меткой (`data-i18n="..."`).
 
 ### Уровень 2: Подменю блоков внутри панелей (`blockId`)
+- **В панели «Управление БД» (`db-manager`)**:
+  - `block-db-overview`: Параметры и структура (сводные метрики, статус подключений, размеры на диске, схема таблиц SQLite и Hostinger MariaDB);
+  - `block-db-console`: SQL Консоль (прямой ввод и исполнение команд `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `SHOW TABLES`, `PRAGMA` с табличным просмотром результатов и статистикой времени);
+  - `block-db-compress`: Сжатие и оптимизация (полная дефрагментация хранилища SQLite `VACUUM`, сброс WAL-журнала, `OPTIMIZE TABLE` для таблиц MariaDB на сервере Hostinger);
+  - `block-db-export`: Экспорт с хостинга (выгрузка любых таблиц или всей базы данных Hostinger/SQLite в форматы SQL Dump, JSON или CSV со скачиванием);
+  - `block-db-backups`: Бэкапы (создание атомарных снимков баз в один клик с ZIP-сжатием, хранение в `data/backups/`, скачивание, безопасное восстановление и удаление).
+
 - **В панели «Подсказки по системе» (`wikillm-system`)**:
   - `block-sys-storage`: Хранилище SQLite (путь к `.db`, проверка целостности, создание таблиц);
   - `block-sys-params`: Параметры WikiLLM (модель, порог уверенности, контекстное окно, автообогащение);
   - `block-sys-articles`: Статьи подсказок (встроенный редактор базы знаний WikiLLM).
+
 - **В панели «База инструментов» (`instruments`)**:
-  - `block-inst-hostinger`: Сервер Hostinger (REST PHP API шлюз `wikillm_hostinger.php`, токен, БД `u177424397_comp_knowledge`, таблица `ai_instruments`, проверка связи);
+  - `block-inst-hostinger`: Сервер Hostinger (MariaDB direct TCP `srv1373.hstgr.io`, БД `u177424397_tool_chains`, таблица `ai_instruments`, проверка связи);
   - `block-inst-runtime`: Цепочка размышлений (таймауты, запуск от администратора, SafeOps, автоизвлечение инструментов из рассуждений модели);
-  - `block-inst-catalog`: Каталог инструментов (поиск, фильтрация по сущностям, тестовый запуск скрипта и удаление).
+  - `block-inst-catalog`: Каталог инструментов и **Мастер создания команд для модели**.
 
 - **В панели «RAG Кода и Диагностики» (`codebase-rag`)**:
   - `block-code-diagnose`: Интеллектуальная диагностика ошибок, логов и архитектуры кода;
@@ -72,6 +80,12 @@ http://localhost:8001/tc#tab-app-internals#<panel_id>#block-<block_id>
 ```
 
 ### Примеры маршрутов:
+- `http://localhost:8001/tc#tab-app-internals#db-manager` — единая панель управления БД и хостингом
+- `http://localhost:8001/tc#tab-app-internals#db-manager#block-db-overview` — сводка параметров и схемы баз
+- `http://localhost:8001/tc#tab-app-internals#db-manager#block-db-console` — прямая консоль выполнения SQL
+- `http://localhost:8001/tc#tab-app-internals#db-manager#block-db-compress` — инструменты сжатия хранилища (VACUUM / OPTIMIZE)
+- `http://localhost:8001/tc#tab-app-internals#db-manager#block-db-export` — мастер экспорта с хостинга (SQL, JSON, CSV)
+- `http://localhost:8001/tc#tab-app-internals#db-manager#block-db-backups` — каталог резервных копий и восстановление
 - `http://localhost:8001/tc#tab-app-internals#telemetry` — мониторинг телеметрии
 - `http://localhost:8001/tc#tab-app-internals#models` — управление моделями и провайдерами
 - `http://localhost:8001/tc#tab-app-internals#logs` — центр внутренних логов
@@ -79,19 +93,20 @@ http://localhost:8001/tc#tab-app-internals#<panel_id>#block-<block_id>
 - `http://localhost:8001/tc#tab-app-internals#etw` — трассировка ETW
 - `http://localhost:8001/tc#tab-app-internals#settings` — параметры и ротация логов
 - `http://localhost:8001/tc#tab-app-internals#wikillm-system#block-sys-storage` — локальное хранилище подсказок SQLite
-- `http://localhost:8001/tc#tab-app-internals#wikillm-system#block-sys-params` — параметры модели генерации подсказок
-- `http://localhost:8001/tc#tab-app-internals#wikillm-system#block-sys-articles` — редактор статей подсказок
 - `http://localhost:8001/tc#tab-app-internals#instruments#block-inst-hostinger` — настройки подключения к серверу Hostinger
-- `http://localhost:8001/tc#tab-app-internals#instruments#block-inst-runtime` — параметры инструментов в цепочке размышлений
-- `http://localhost:8001/tc#tab-app-internals#instruments#block-inst-catalog` — библиотека инструментов агента
-- `http://localhost:8001/tc#tab-app-internals#tooltips-editor` — редактор всплывающих подсказок и базы знаний тултипов
-- `http://localhost:8001/tc#tab-app-internals#helppages-editor` — редактор страниц и блоков контекстной справки
 - `http://localhost:8001/tc#tab-app-internals#codebase-rag#block-code-diagnose` — диагностика ошибок и логов по AST кодовой базы
 
 ---
 
 ## Программное API
 - `window.initAppInternalsTab()` — главная инициализация вкладки
+- `window.initDbManagerPanel()` — инициализация панели Database Manager
+- `window.switchDbManagerBlock(blockId)` — переключение блока внутри Database Manager
+- `window.executeConsoleQuery()` — отправка прямого SQL запроса
+- `window.executeDatabaseCompression()` — выполнение операции сжатия
+- `window.executeDatabaseExport()` — создание файла экспорта
+- `window.executeCreateBackup()` — создание новой резервной копии
+- `window.loadDbBackups()` — загрузка каталога бэкапов
 - `window.switchAppInternalsSubTab(panelId, blockId, updateUrl)` — переключение субпанели и блока
 - `window.switchAppInternalsBlock(panelId, blockId, updateUrl)` — переключение блока внутри панели
 - `window.getAppInternalsPanelFromHash()` — извлечение панели из хэша

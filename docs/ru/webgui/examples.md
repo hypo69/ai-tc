@@ -465,4 +465,4 @@ console.log(`Hit rate: ${stats.apiCache.hitRate}%`);
 
 ---
 
-**© 2026 AI-Windows-Admin Team**
+**© 2026 ai-tc Team**

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - helpers
+# Process Name: ai-tc Apps Windows Api Routers - helpers
 # =============================================================================
 # Description:
 #   Вспомогательные функции чата: выбор модели, очистка истории, нормализация.
 #   Вынесено из router_chat.py (этап 4 оптимизации).
 #
 # File: helpers.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.chat
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-30 13:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def _get_default_system_instruction() -> str:
                 return content
         except Exception as e:
             logger.debug(f"[router_chat] Could not read default prompt file: {e}")
-    return "Вы — интеллектуальный ассистент платформы AI Windows Admin с доступом к Google Workspace и RAG-базе знаний."
+    return "Вы — интеллектуальный ассистент платформы ai-tc с доступом к Google Workspace и RAG-базе знаний."
 
 def get_chat_model(selected_model_name: str, system_instruction: str = "", user_id: str = ""):
     """Dynamically construct or retrieve cached AI model instance."""
@@ -262,7 +262,7 @@ def _resolve_default_model_and_provider(profile: str = "") -> tuple[str, str, st
     import json
     from pathlib import Path
 
-    cfg_env = os.getenv("AIWINDOWSADMIN_CONFIG") or os.getenv("CONFIG_FILE")
+    cfg_env = os.getenv("AITC_CONFIG") or os.getenv("AIWINDOWSADMIN_CONFIG") or os.getenv("CONFIG_FILE")
     active_path = None
     if cfg_env:
         p = Path(cfg_env)

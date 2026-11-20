@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Approved Responses Store Module
+# Process Name: ai-tc AI - Approved Responses Store Module
 # =============================================================================
 # Description:
 #   Потокобезопасное хранилище одобренных пользователем ответов модели (для дообучения и RAG).
@@ -13,11 +13,11 @@
 #     print(res)
 #
 # File: approved_responses_store.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:43:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

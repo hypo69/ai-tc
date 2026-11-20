@@ -3,7 +3,7 @@
  * @description Модальное окно инспектора навыка (просмотр SKILL.md, README, файлов, тестирование в Sandbox, сборка архива)
  * @author hypo69
  * @version 1.0.0
- * Updated: 2026-10-17 01:20:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { apiFetch, formatBytes } from '../common/ui_utils.js';
@@ -25,7 +25,7 @@ export function getCurrentSkill() {
  */
 export async function openSkillDetails(name, defaultTab = 'detail-tab-skillmd') {
   try {
-    const res = await apiFetch(`/api/skills/${encodeURIComponent(name)}`);
+    const res = await apiFetch(`/api/v1/skills/${encodeURIComponent(name)}`);
     if (!res.ok) throw new Error(`Failed to load skill details: ${res.statusText}`);
     const data = await res.json();
     currentSkill = data.skill;
@@ -124,7 +124,7 @@ export async function runSandboxTest() {
   if (outputBox) outputBox.textContent = `⏳ Отправка запроса к модели для навыка '${currentSkill.name}'...\n`;
 
   try {
-    const res = await apiFetch(`/api/skills/${encodeURIComponent(currentSkill.name)}/test`, {
+    const res = await apiFetch(`/api/v1/skills/${encodeURIComponent(currentSkill.name)}/test`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt })
@@ -163,7 +163,7 @@ export async function saveCurrentSkill(onRefresh) {
     const instructions = document.getElementById('detail-skill-instructions')?.value;
     const readme = document.getElementById('detail-skill-readme')?.value;
 
-    const res = await apiFetch(`/api/skills/${encodeURIComponent(currentSkill.name)}`, {
+    const res = await apiFetch(`/api/v1/skills/${encodeURIComponent(currentSkill.name)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ description, description_ru, instructions, readme })
@@ -202,7 +202,7 @@ export async function saveCurrentSkill(onRefresh) {
  */
 export async function packageSkill(name, onRefresh) {
   try {
-    const res = await apiFetch(`/api/skills/${encodeURIComponent(name)}/package`, {
+    const res = await apiFetch(`/api/v1/skills/${encodeURIComponent(name)}/package`, {
       method: 'POST'
     });
     if (!res.ok) {
@@ -244,7 +244,7 @@ export async function deleteSkill(name, onRefresh) {
   }
 
   try {
-    const res = await apiFetch(`/api/skills/${encodeURIComponent(name)}`, {
+    const res = await apiFetch(`/api/v1/skills/${encodeURIComponent(name)}`, {
       method: 'DELETE'
     });
     if (!res.ok) {

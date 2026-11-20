@@ -1,9 +1,9 @@
 /**
  * =============================================================================
- * Process Name: AI-Windows-Admin Web Styles - Main Stylesheet Manifest
+ * Process Name: ai-tc Web Styles - Main Stylesheet Manifest
  * =============================================================================
  * Description:
- *   Главный манифест стилей веб-интерфейса AI-Windows-Admin.
+ *   Главный манифест стилей веб-интерфейса ai-tc.
  *
  *   Зачем нужен этот файл:
  *     1. Модульная сборка стилей: агрегирует все слои оформления интерфейса
@@ -16,34 +16,34 @@
  *     <link rel="stylesheet" href="/src/api/webgui/css/main.css?v=20261101_v5">
  *
  * File: main.css
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: src/api/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-12 01:25:00
+ * Updated: 2026-11-20 16:35:00
  * =============================================================================
  */
 
 /* 1. Дизайн-токены и переменные тем (светлая NightView/кирпичная/тёмная/терминал) */
-@import "variables.css?v=20261101_v5";
+@import "variables.css?v=20261116_v1";
 
 /* 2. Базовые стили страницы, скроллбары и контейнеры вкладок */
-@import "base.css?v=20261101_v5";
+@import "base.css?v=20261116_v1";
 
 /* 3. Навигационная панель, вкладки, выпадающие меню и переключатели */
-@import "nav.css?v=20261101_v5";
+@import "nav.css?v=20261116_v1";
 
 /* 4. Общие UI-компоненты (карточки, формы, кнопки, модалки, таблицы, бейджи, чипы) */
-@import "components.css?v=20261112_v1";
+@import "components.css?v=20261120_v2";
 
 /* 5. Чат, сообщения, сайдбар истории диалогов и дебаггер */
-@import "chat.css?v=20261101_v5";
+@import "chat.css?v=20261116_v1";
 
 /* 6. Управление торрентами, поиск релизов, карточки трекеров */
-@import "torrents.css?v=20261101_v5";
+@import "torrents.css?v=20261116_v1";
 
 /* 7. Адаптивные переопределения и совместимость тем с Bootstrap */
-@import "overrides.css?v=20261101_v5";
+@import "overrides.css?v=20261116_v1";
 
 /* 8. Глобальные переопределения для минимизации дублирования CSS */
-@import "global-overrides.css?v=20261101_v5";
+@import "global-overrides.css?v=20261116_v1";

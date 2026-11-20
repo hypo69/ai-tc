@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - About System Panels
+# Process Name: ai-tc Tests - About System Panels
 # =============================================================================
 # Description:
 #   Тестирование наполнения данных для панелей вкладки «О системе»:
@@ -11,11 +11,11 @@
 #   - Независимые API накопителей (/storage-wear) и батареи (/battery)
 #
 # File: test_about_system_panels.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 18:48:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from pathlib import Path

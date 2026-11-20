@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Collector
+# Process Name: ai-tc Apps Windows Telemetry - Collector
 # =============================================================================
 # Description:
 #   Движок сбора системных метрик, аппаратной структуры и показателей производительности.
@@ -12,11 +12,11 @@
 #     service = SystemCollector()
 #
 # File: collector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 14:05:00
+# Updated: 2026-11-20 15:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -583,9 +583,12 @@ class SystemCollector(TelemetryHistoryMixin):
                                 clean_dev = part.device.rstrip('\\')
                                 ctypes.windll.kernel32.QueryDosDeviceW(clean_dev, dos_buf, 1024)
                                 dos_dev = dos_buf.value
-                                if 'google' in vol_name.lower() or '@' in vol_name or 'onedrive' in vol_name.lower() or ('dropbox' in vol_name.lower()) or ('volume{' in dos_dev.lower() and 'harddiskvolume' not in dos_dev.lower()):
+                                clean_dev_upper = clean_dev.upper()
+                                if clean_dev_upper in ('G:', 'J:') or 'google' in vol_name.lower() or 'google' in dos_dev.lower() or '@' in vol_name or 'onedrive' in vol_name.lower() or ('dropbox' in vol_name.lower()) or ('volume{' in dos_dev.lower() and 'harddiskvolume' not in dos_dev.lower()):
                                     is_virtual = True
-                                    drive_type = 'Google Drive' if 'google' in vol_name.lower() or '@' in vol_name else 'Cloud / Virtual'
+                                    drive_type = 'Google Drive' if (clean_dev_upper in ('G:', 'J:') or 'google' in vol_name.lower() or 'google' in dos_dev.lower() or '@' in vol_name) else 'Cloud / Virtual'
+                                    if clean_dev_upper in ('G:', 'J:') and not vol_name:
+                                        vol_name = 'Google Drive'
                             except Exception:
                                 pass
                         cached_meta = {
@@ -981,6 +984,7 @@ class SystemCollector(TelemetryHistoryMixin):
         if self._monitors_cached is not None:
             return self._monitors_cached
         monitors: List[MonitorInfo] = []
+        wmi_monitors: List[Dict[str, str]] = []
         if os.name == 'nt':
             try:
                 import ctypes.wintypes
@@ -989,7 +993,6 @@ class SystemCollector(TelemetryHistoryMixin):
                 class DISPLAY_DEVICEW(ctypes.Structure):
                     _fields_ = [('cb', ctypes.wintypes.DWORD), ('DeviceName', ctypes.wintypes.WCHAR * 32), ('DeviceString', ctypes.wintypes.WCHAR * 128), ('StateFlags', ctypes.wintypes.DWORD), ('DeviceID', ctypes.wintypes.WCHAR * 128), ('DeviceKey', ctypes.wintypes.WCHAR * 128)]
                 # Опрос WMI WmiMonitorID для сопоставления точных EDID названий, производителей и серийных номеров
-                wmi_monitors: List[Dict[str, str]] = []
                 try:
                     import win32com.client
                     wmi = win32com.client.GetObject('winmgmts:\\\\.\\root\\wmi')
@@ -1118,7 +1121,7 @@ class SystemCollector(TelemetryHistoryMixin):
                     inv = self._storage.get_monitor_inventory()
                     if inv:
                         for im in inv:
-                            if 'windisc' not in str(im.get('device', '')).lower():
+                            if 'windisc' not in str(im.get('device', '')).lower() and im.get('name') != 'Primary Monitor':
                                 monitors.append(MonitorInfo(
                                     device=im.get('device', '\\\\.\\DISPLAY1'),
                                     name=im.get('name', 'Display Monitor'),
@@ -1134,10 +1137,33 @@ class SystemCollector(TelemetryHistoryMixin):
                                 ))
                 except Exception as inv_err:
                     logger.debug(f'Ошибка извлечения мониторов из инвентаря: {inv_err}')
-        if not monitors:
-            monitors.append(MonitorInfo(device='\\\\.\\DISPLAY1', name='Primary Monitor', adapter='Display Adapter', width=1920, height=1080, frequency_hz=60, bits_per_pixel=32, is_primary=True, orientation='горизонтальная'))
-        self._monitors_cached = monitors
-        return monitors
+        if monitors:
+            self._monitors_cached = monitors
+            return monitors
+        # Fallback через WMI WmiMonitorID (работает даже в Session 0 / при заблокированном экране);
+        # не кэшируем, чтобы при возврате интерактивной сессии получить точные разрешения и адаптеры
+        if wmi_monitors:
+            wmi_fallback = [
+                MonitorInfo(
+                    device=f'\\\\.\\DISPLAY{idx}',
+                    name=wm.get('name') or 'Display Monitor',
+                    vendor=wm.get('mfg', ''),
+                    serial_number=wm.get('sn', ''),
+                    adapter='',
+                    width=1920,
+                    height=1080,
+                    frequency_hz=60,
+                    bits_per_pixel=32,
+                    is_primary=(idx == 1),
+                    orientation='горизонтальная',
+                )
+                for idx, wm in enumerate(wmi_monitors, 1)
+                if wm.get('name') or wm.get('sn')
+            ]
+            if wmi_fallback:
+                return wmi_fallback
+        # Заглушку не кэшируем: при следующем вызове опрос дисплеев будет повторён
+        return [MonitorInfo(device='\\\\.\\DISPLAY1', name='Primary Monitor', adapter='Display Adapter', width=1920, height=1080, frequency_hz=60, bits_per_pixel=32, is_primary=True, orientation='горизонтальная')]
 
     def get_updates_info(self) -> WindowsUpdateInfo:
         """Collect Windows Update status (делегирует SoftwareInfoCollector).
@@ -1223,6 +1249,17 @@ class SystemCollector(TelemetryHistoryMixin):
         except Exception as ex:
             logger.debug(f"[SystemCollector] Ошибка загрузки снимка из SQLite: {ex}")
             return None
+
+    def get_winrt_telemetry(self, force_refresh: bool = False) -> Any:
+        """Сбор моментального снимка современной подсистемы WinRT и UWP.
+
+        Returns:
+            WinRTSnapshot: Типизированный снимок телеметрии WinRT (питание, сеть, медиа, графика, устройства, пакеты).
+        """
+        if not hasattr(self, "_winrt_collector") or self._winrt_collector is None:
+            from apps.windows.telemetry.winrt_collector import WinRTCollector
+            self._winrt_collector = WinRTCollector()
+        return self._winrt_collector.get_winrt_snapshot(force_refresh=force_refresh)
 
     async def get_snapshot(self, process_limit: Any = 20, force_live: bool = False) -> SystemSnapshot:
         """Capture point-in-time system telemetry snapshot.

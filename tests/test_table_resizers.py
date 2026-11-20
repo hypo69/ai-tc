@@ -13,11 +13,11 @@
 #   pytest tests/test_table_resizers.py -v
 #
 # File: test_table_resizers.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 17:00:00
+# Updated: 2026-11-20 16:35:00
 # =============================================================================
 
 from __future__ import annotations
@@ -101,13 +101,67 @@ def test_processes_load_inspector_main_js_integration():
 
 
 def test_index_html_files_include_table_resizer():
-    """Проверка подключения table-resizer.js в apps/index.html и admin/index.html."""
-    apps_index = _WEBGUI_DIR / "apps" / "index.html"
-    admin_index = _WEBGUI_DIR / "admin" / "index.html"
+    """Проверка подключения table-resizer.js и table-sorter.js во всех входных HTML-страницах."""
+    entry_pages = [
+        _WEBGUI_DIR / "index.html",
+        _WEBGUI_DIR / "apps" / "index.html",
+        _WEBGUI_DIR / "admin" / "index.html",
+        _WEBGUI_DIR / "user" / "index.html",
+        _WEBGUI_DIR / "system_inspector.html",
+    ]
 
-    assert apps_index.exists()
-    assert admin_index.exists()
+    for page in entry_pages:
+        assert page.exists(), f"Файл {page} должен существовать"
+        content = page.read_text(encoding="utf-8")
+        assert "table-resizer.js" in content, f"В {page} отсутствует подключение table-resizer.js"
+        assert "table-sorter.js" in content, f"В {page} отсутствует подключение table-sorter.js"
 
-    assert "table-resizer.js" in apps_index.read_text(encoding="utf-8")
-    assert "table-resizer.js" in admin_index.read_text(encoding="utf-8")
+
+def test_table_sorter_js_exists_and_exports_api():
+    """Проверка существования и структуры универсального сортировщика таблиц table-sorter.js."""
+    sorter_path = _COMMON_WEBGUI_DIR / "js" / "table-sorter.js"
+    assert sorter_path.exists(), f"Файл {sorter_path} должен существовать"
+    content = sorter_path.read_text(encoding="utf-8")
+    assert "window.TableSorter" in content
+    assert "sortTableByColumn" in content
+    assert "parseCellValue" in content
+    assert "data-sort-dir" in content
+    assert "ut-sortable" in content
+    assert "MutationObserver" in content
+
+
+def test_table_resizer_universal_auto_discovery():
+    """Проверка универсального обнаружения всех таблиц и компактной шапки со ссылкой 100%."""
+    resizer_path = _COMMON_WEBGUI_DIR / "js" / "table-resizer.js"
+    content = resizer_path.read_text(encoding="utf-8")
+    assert "ensureTableContainer" in content
+    assert "isAutoDiscovered" in content
+    assert "ut-table-header-bar" in content
+    assert "startGlobalTableObserver" in content
+
+
+def test_components_css_universal_sorting_and_ltr_rtl_alignment():
+    """Проверка стилей сортировки и LTR/RTL-выравнивания таблиц в обоих файлах components.css."""
+    for css_path in (_WEBGUI_DIR / "css" / "components.css", _COMMON_WEBGUI_DIR / "css" / "components.css"):
+        assert css_path.exists(), f"Файл {css_path} должен существовать"
+        content = css_path.read_text(encoding="utf-8")
+        assert "table thead th.ut-sortable" in content
+        assert '[data-sort-dir="asc"]' in content
+        assert '[data-sort-dir="desc"]' in content
+        assert ".ut-table-header-bar" in content
+        assert ".table-responsive thead th" in content
+        assert "position: sticky;" in content
+        assert "text-align: left !important;" in content
+        assert '[dir="rtl"] table td' in content
+        assert "text-align: right !important;" in content
+
+
+def test_global_i18n_syncs_rtl_direction():
+    """Проверка синхронизации атрибута dir (ltr/rtl) в global-i18n.js."""
+    i18n_path = _WEBGUI_DIR / "js" / "global-i18n.js"
+    assert i18n_path.exists()
+    content = i18n_path.read_text(encoding="utf-8")
+    assert "syncRtlDirection" in content
+    assert "setAttribute('dir'" in content
+
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Router Module
+# Process Name: ai-tc AI - Router Module
 # =============================================================================
 # Description:
 #   Represents a unified AI capability request.
@@ -12,11 +12,11 @@
 #     service = AIRequest()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.orchestration
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Represents a unified AI capability request."""

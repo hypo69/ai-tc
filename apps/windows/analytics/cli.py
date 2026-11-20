@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry_Research - Cli
+# Process Name: ai-tc Apps Windows Telemetry_Research - Cli
 # =============================================================================
 # Description:
 #   CLI интерфейс для исследования логов телеметрии и построения графиков.
@@ -14,11 +14,11 @@
 #     res = parse_args()
 #
 # File: cli.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.analytics
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 16:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ from .models import ResearchScenarioRequest
 def parse_args() -> argparse.Namespace:
     """Парсинг аргументов командной строки."""
     parser = argparse.ArgumentParser(
-        description="AI-Windows-Admin: Исследование логов телеметрии и генерация графиков",
+        description="ai-tc: Исследование логов телеметрии и генерация графиков",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(

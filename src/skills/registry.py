@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin SKILLS - Registry Module
+# Process Name: ai-tc SKILLS - Registry Module
 # =============================================================================
 # Description:
 #   Загружает, нормализует и регистрирует навыки (skills) для ИИ-агентов.
@@ -13,11 +13,11 @@
 #     skills = registry.discover()
 #
 # File: registry.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.skills
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

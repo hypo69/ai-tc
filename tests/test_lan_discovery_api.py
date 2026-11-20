@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - LAN Discovery API
+# Process Name: ai-tc Tests - LAN Discovery API
 # =============================================================================
 # Description:
 #   Модульные тесты эндпоинтов автоматического обнаружения компьютеров в LAN,
 #   опроса подсетей, кеша соседей ядра и проверки портов узла.
 #
 # File: test_lan_discovery_api.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 18:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from unittest.mock import MagicMock, patch
@@ -31,13 +31,13 @@ def api_client():
 
 
 def test_get_subnets(api_client):
-    """Тест эндпоинта /api/network/subnets."""
+    """Тест эндпоинта /api/v1/network/subnets."""
     mock_ifaces = [{'name': 'Ethernet', 'ip': '192.168.1.100', 'cidr': '192.168.1.0/24'}]
     mock_gateways = {'192.168.1.1'}
 
     with patch.object(router._lan_scanner, "get_local_interfaces_info", return_value=mock_ifaces), \
          patch.object(router._lan_scanner, "get_default_gateways", return_value=mock_gateways):
-        resp = api_client.get("/api/network/subnets")
+        resp = api_client.get("/api/v1/network/subnets")
         assert resp.status_code == 200
         data = resp.json()
         assert "subnets" in data
@@ -48,7 +48,7 @@ def test_get_subnets(api_client):
 
 
 def test_get_devices_cache(api_client):
-    """Тест эндпоинта /api/network/devices (чтение кеша соседей)."""
+    """Тест эндпоинта /api/v1/network/devices (чтение кеша соседей)."""
     mock_devs = [
         LanDevice(
             ip="192.168.1.1",
@@ -73,7 +73,7 @@ def test_get_devices_cache(api_client):
     ]
 
     with patch.object(router._lan_scanner, "discover_devices", return_value=mock_devs):
-        resp = api_client.get("/api/network/devices?scan=false")
+        resp = api_client.get("/api/v1/network/devices?scan=false")
         assert resp.status_code == 200
         data = resp.json()
         assert data["total"] == 2
@@ -84,7 +84,7 @@ def test_get_devices_cache(api_client):
 
 
 def test_post_devices_scan(api_client):
-    """Тест эндпоинта /api/network/devices/scan (активное глубокое сканирование)."""
+    """Тест эндпоинта /api/v1/network/devices/scan (активное глубокое сканирование)."""
     mock_devs = [
         LanDevice(
             ip="192.168.1.10",
@@ -98,7 +98,7 @@ def test_post_devices_scan(api_client):
     ]
 
     with patch.object(router._lan_scanner, "discover_devices", return_value=mock_devs):
-        resp = api_client.post("/api/network/devices/scan")
+        resp = api_client.post("/api/v1/network/devices/scan")
         assert resp.status_code == 200
         data = resp.json()
         assert data["status"] == "SUCCESS"
@@ -108,8 +108,8 @@ def test_post_devices_scan(api_client):
 
 
 def test_probe_device_ports(api_client):
-    """Тест эндпоинта экспресс-проверки портов /api/network/devices/probe."""
-    resp = api_client.get("/api/network/devices/probe?ip=127.0.0.1")
+    """Тест эндпоинта экспресс-проверки портов /api/v1/network/devices/probe."""
+    resp = api_client.get("/api/v1/network/devices/probe?ip=127.0.0.1")
     assert resp.status_code == 200
     data = resp.json()
     assert data["ip"] == "127.0.0.1"

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules System_Control_Center - Tui
+# Process Name: ai-tc Apps Windows Modules System_Control_Center - Tui
 # =============================================================================
 # Description:
 #   Терминальный интерфейс (TUI) для System Control Center.
@@ -10,11 +10,11 @@
 #     import apps.windows.sdk.modules.system_control_center.tui as tui
 #
 # File: tui.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.system_control_center
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

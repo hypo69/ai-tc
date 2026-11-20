@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Tests - History Retention
+# Process Name: ai-tc Apps Windows Telemetry Tests - History Retention
 # =============================================================================
 # Description:
 #   Тесты хранения истории потребления ресурсов (железо и приложения):
@@ -11,11 +11,11 @@
 #   - размер тика опирается на interval_seconds.
 #
 # File: test_history_retention.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 12:50:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import json

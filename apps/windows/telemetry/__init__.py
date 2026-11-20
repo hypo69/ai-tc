@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Package Root
+# Process Name: ai-tc Apps Windows Telemetry - Package Root
 # =============================================================================
 # Description:
 #   Слой 3: Сбор, хранение, каталогизация и аналитика телеметрии Windows.
@@ -10,15 +10,15 @@
 #     from apps.windows.telemetry import SystemCollector, DiagnosticEngine
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 08:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
-"""Единый слой телеметрии Windows (Слой 3) платформы AI-Windows-Admin."""
+"""Единый слой телеметрии Windows (Слой 3) платформы ai-tc."""
 
 # Регистрация алиасов обратной совместимости для win32_ffi и analytics
 try:
@@ -132,6 +132,7 @@ from apps.windows.telemetry.w64_etw_collector import AIW64ETWCollector
 from apps.windows.telemetry.security_collector import WindowsSecurityCollector
 from apps.windows.telemetry.security_normalizer import SecurityEventNormalizer
 from apps.windows.telemetry.hardware_collector import HardwareCollector
+from apps.windows.telemetry.winrt_collector import WinRTCollector
 
 # Аналитический контур (прямой импорт без lazy __getattr__)
 from apps.windows.analytics.aggregator import TelemetryAggregator
@@ -200,6 +201,7 @@ __all__ = [
     # Коллекторы
     "SystemCollector",
     "HardwareCollector",
+    "WinRTCollector",
     "SensorCollector",
     "FileCollector",
     "WindowsSecurityCollector",

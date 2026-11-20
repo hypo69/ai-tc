@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI Instruments - Service
+# Process Name: ai-tc AI Instruments - Service
 # =============================================================================
 # Description:
 #   Координатор и сервис изолированной базы данных инструментов ИИ-агента
@@ -15,11 +15,11 @@
 #     res = srv.execute_instrument("inst_restart_spooler")
 #
 # File: service.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.ai_instruments
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 17:43:30
+# Updated: 2026-11-12 12:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -283,9 +283,10 @@ class AIInstrumentsService:
         existing_ids = set()
         if not force:
             try:
-                existing = self.storage.list_instruments(limit=500)
+                existing = self.storage.list_instruments(limit=5000)
                 existing_ids = {it.tool_id for it in existing}
-                if len(existing_ids) >= len(DEFAULT_AGENT_INSTRUMENTS):
+                missing = [r for r in DEFAULT_AGENT_INSTRUMENTS if r.get("tool_id") not in existing_ids]
+                if not missing:
                     return []
             except Exception as ex:
                 logger.warning(f"[AIInstrumentsService] Ошибка проверки инструментов перед синхронизацией: {ex}")

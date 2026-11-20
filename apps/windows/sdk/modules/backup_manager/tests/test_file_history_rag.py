@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Backup_Manager Tests - Test File History Rag
+# Process Name: ai-tc Apps Windows Modules Backup_Manager Tests - Test File History Rag
 # =============================================================================
 # Description:
 #   Создает фиктивное окружение Windows File History и каталог индекса RAG.
@@ -12,11 +12,11 @@
 #     res = mock_file_history_env()
 #
 # File: test_file_history_rag.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.backup_manager.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Создает фиктивное окружение Windows File History и каталог индекса RAG."""

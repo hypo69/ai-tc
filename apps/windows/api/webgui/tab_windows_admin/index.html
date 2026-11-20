@@ -17,11 +17,11 @@ Description:
   - Реестр OS-level операций каталога Accounts & Identity (~180)
 
 File: index.html
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/tab_windows_admin
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-12 01:25:00
+Updated: 2026-11-20 15:46:30
 =============================================================================
 -->
 <style>
@@ -29,14 +29,15 @@ Updated: 2026-11-12 01:25:00
     padding: 0.5rem 0.75rem;
   }
   .winadmin-card {
-    background: var(--surface-1, #1e293b);
-    border: 1px solid var(--border-color, #334155);
+    background: var(--surface-1);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 0.5rem 0.75rem;
+    color: var(--text-color);
   }
   .winadmin-label {
     font-size: 0.72rem;
-    color: var(--text-muted, #94a3b8);
+    color: var(--text-muted);
     text-transform: uppercase;
     font-weight: 600;
   }
@@ -52,42 +53,58 @@ Updated: 2026-11-12 01:25:00
     font-size: 0.72rem;
   }
   .winadmin-meter-card {
-    background: var(--surface-2, rgba(15, 23, 42, 0.5));
-    border: 1px solid var(--border-color, #334155);
+    background: var(--surface-2);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
   }
   .winadmin-header-strip {
-    background: var(--surface-2, rgba(15, 23, 42, 0.5));
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border-color);
   }
   .winadmin-side-strip {
-    background: var(--surface-2, rgba(15, 23, 42, 0.6));
+    background: var(--surface-2);
+    border-right: 1px solid var(--border-color);
   }
   .winadmin-audit-box {
-    background: var(--surface-2, rgba(15, 23, 42, 0.5));
-    border: 1px solid var(--border-color, #334155);
+    background: var(--surface-2);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
     min-height: 200px;
     max-height: 380px;
     overflow-y: auto;
   }
   .winadmin-dossier-box {
-    background: var(--surface-2, rgba(15, 23, 42, 0.6));
-    border: 1px solid var(--border-color, #334155);
+    background: var(--surface-2);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
     white-space: pre-wrap;
     display: none;
   }
   .winadmin-console-box {
-    background: var(--surface-2, rgba(15, 23, 42, 0.7));
-    color: var(--text-color, #f8fafc);
-    border: 1px solid var(--border-color, #334155);
+    background: var(--surface-2);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
     max-height: 220px;
     min-height: 120px;
     overflow-y: auto;
     font-size: 0.76rem;
   }
   .winadmin-panel {
-    background: var(--surface-1, #1e293b);
-    border: 1px solid var(--border-color, #334155);
+    background: var(--surface-1);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     overflow: hidden;
+  }
+  .winadmin-panel-clickable {
+    cursor: pointer;
+  }
+  .winadmin-group-row {
+    cursor: pointer;
+    transition: background-color 0.12s ease;
+  }
+  .winadmin-group-row:hover {
+    background-color: var(--surface-2);
   }
   .winadmin-table {
     width: 100%;
@@ -96,21 +113,21 @@ Updated: 2026-11-12 01:25:00
     border-collapse: collapse;
   }
   .winadmin-table th {
-    background: var(--surface-2, #0f172a);
+    background: var(--surface-2);
     padding: 5px 8px;
-    color: var(--text-muted, #94a3b8);
+    color: var(--text-muted);
     font-weight: 600;
-    border-bottom: 1px solid var(--border-color, #334155);
+    border-bottom: 1px solid var(--border-color);
   }
   .winadmin-table td {
     padding: 4px 8px;
-    border-bottom: 1px solid var(--border-subtle, rgba(51, 65, 85, 0.4));
+    border-bottom: 1px solid var(--border-subtle);
     vertical-align: middle;
   }
   .winadmin-filter-btn.active {
-    background-color: var(--color-primary, #3b82f6) !important;
-    color: var(--text-on-primary, #fff) !important;
-    border-color: var(--color-primary, #3b82f6) !important;
+    background-color: var(--nav-active) !important;
+    color: #ffffff !important;
+    border-color: var(--nav-active) !important;
   }
   .badge-hidden {
     background-color: var(--bs-secondary-bg-subtle, rgba(100, 116, 139, 0.2));
@@ -186,38 +203,38 @@ Updated: 2026-11-12 01:25:00
   </div>
 
   <!-- Блок меню переключения панелей на вкладке. Выбранная панель добавляется в url -->
-  <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
+  <div class="main-nav-container rounded px-2 py-1 mb-3">
     <div class="d-flex align-items-center gap-1 flex-wrap" id="winadmin-subtabs" role="tablist">
-      <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-users-btn" data-panel-id="users" data-term="winadmin-users" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-users" type="button" role="tab">
-        <i class="bi bi-people-fill text-primary"></i>
+      <button class="btn btn-sm active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-users-btn" data-panel-id="users" data-term="winadmin-users" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-users" type="button" role="tab">
+        <i class="bi bi-people-fill"></i>
         <span>Учетные записи и сессии</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-groups-btn" data-panel-id="groups" data-term="winadmin-groups" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-groups" type="button" role="tab">
-        <i class="bi bi-diagram-3 text-info"></i>
+      <button class="btn btn-sm d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-groups-btn" data-panel-id="groups" data-term="winadmin-groups" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-groups" type="button" role="tab">
+        <i class="bi bi-diagram-3"></i>
         <span>Группы безопасности</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-events-btn" data-panel-id="events" data-term="winadmin-events" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-events" type="button" role="tab">
-        <i class="bi bi-shield-shaded text-warning"></i>
+      <button class="btn btn-sm d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-events-btn" data-panel-id="events" data-term="winadmin-events" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-events" type="button" role="tab">
+        <i class="bi bi-shield-shaded"></i>
         <span>Журнал безопасности</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-security-btn" data-panel-id="security" data-term="winadmin-security" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-security" type="button" role="tab">
-        <i class="bi bi-shield-check text-success"></i>
+      <button class="btn btn-sm d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-security-btn" data-panel-id="security" data-term="winadmin-security" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-security" type="button" role="tab">
+        <i class="bi bi-shield-check"></i>
         <span>Аудит доступа и SAM</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-pid-btn" data-panel-id="pid-инспецтор" data-term="winadmin-pid" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-pid" type="button" role="tab">
-        <i class="bi bi-cpu text-primary"></i>
+      <button class="btn btn-sm d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-pid-btn" data-panel-id="pid-inspector" data-term="winadmin-pid" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-pid" type="button" role="tab">
+        <i class="bi bi-cpu"></i>
         <span>PID-инспектор</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-catalog-btn" data-panel-id="catalog" data-term="winadmin-catalog" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-catalog" type="button" role="tab">
-        <i class="bi bi-journal-code text-info"></i>
+      <button class="btn btn-sm d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-catalog-btn" data-panel-id="catalog" data-term="winadmin-catalog" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-catalog" type="button" role="tab">
+        <i class="bi bi-journal-code"></i>
         <span>Каталог операций (~180)</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-ucpd-btn" data-panel-id="ucpd" data-term="winadmin-ucpd" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-ucpd" type="button" role="tab">
-        <i class="bi bi-shield-lock-fill text-danger"></i>
+      <button class="btn btn-sm d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-ucpd-btn" data-panel-id="ucpd" data-term="winadmin-ucpd" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-ucpd" type="button" role="tab">
+        <i class="bi bi-shield-lock-fill"></i>
         <span>Драйвер UCPD & Ассоциации</span>
       </button>
-      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-acl-btn" data-panel-id="acl" data-term="winadmin-acl" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-acl" type="button" role="tab">
-        <i class="bi bi-shield-lock text-warning"></i>
+      <button class="btn btn-sm d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-winadmin-acl-btn" data-panel-id="acl" data-term="winadmin-acl" data-ai-tooltip="true" data-placement="top" data-bs-toggle="pill" data-bs-target="#subtab-winadmin-acl" type="button" role="tab">
+        <i class="bi bi-shield-lock"></i>
         <span>Управление ACL и правами доступа</span>
       </button>
     </div>
@@ -370,13 +387,17 @@ Updated: 2026-11-12 01:25:00
 
     <!-- 2. Подраздел: Группы безопасности -->
     <div class="tab-pane fade" id="subtab-winadmin-groups" role="tabpanel">
-      <div class="winadmin-panel" data-panel-id="panel-winadmin-groups" id="panel-winadmin-groups">
+      <div class="winadmin-panel winadmin-panel-clickable" data-panel-id="panel-winadmin-groups" id="panel-winadmin-groups" title="Нажмите на панель или строку группы для добавления пользователя в группу">
         <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-2">
           <div class="d-flex align-items-center gap-2">
             <span class="panel-title"><i class="bi bi-diagram-3 me-1 text-primary"></i> Группы безопасности и граф членства</span>
             <span class="ui-badge ui-badge-neutral" id="winadmin-groups-badge">0 групп</span>
           </div>
           <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-xs btn-outline-primary d-inline-flex align-items-center gap-1" id="btn-open-group-members-modal" type="button" title="Добавить пользователя в группу безопасности">
+              <i class="bi bi-person-plus"></i>
+              <span>Добавить в группу</span>
+            </button>
             <button class="btn btn-xs btn-outline-secondary btn-table-expand-100" id="winadmin-groups-btn-table-expand" data-target-container="winadmin-groups-table-container" title="Раскрыть таблицу на 100% высоты без скроллера">100%</button>
             <div class="input-group input-group-sm" style="width: 220px;">
               <span class="input-group-text"><i class="bi bi-search"></i></span>
@@ -492,11 +513,17 @@ Updated: 2026-11-12 01:25:00
         </div>
         <div class="col-md-5">
           <div class="winadmin-panel h-100" data-panel-id="panel-winadmin-sam" id="panel-winadmin-sam">
-            <div class="panel-header">
-              <span class="panel-title"><i class="bi bi-key-fill me-1 text-primary"></i> Политика паролей SAM</span>
+            <div class="panel-header d-flex justify-content-between align-items-center gap-2">
+              <span class="panel-title"><i class="bi bi-key-fill me-1 text-primary"></i> Политика безопасности SAM</span>
+              <div class="d-flex align-items-center gap-1">
+                <span class="ui-badge ui-badge-neutral small d-none" id="sam-computer-role-badge" title="Роль компьютера в SAM"></span>
+                <button class="btn btn-xs btn-outline-secondary py-0 px-2" id="btn-refresh-sam-policy" title="Обновить политику SAM" type="button">
+                  <i class="bi bi-arrow-clockwise"></i>
+                </button>
+              </div>
             </div>
             <div class="p-3 small" id="password-policy-container">
-              <div class="text-muted">Загрузка политики паролей SAM...</div>
+              <div class="text-muted">Загрузка политики безопасности SAM...</div>
             </div>
           </div>
         </div>
@@ -1068,7 +1095,7 @@ Updated: 2026-11-12 01:25:00
     <div class="modal-content shadow-lg">
       <div class="modal-header">
         <h5 class="modal-title d-flex align-items-center gap-2">
-          <img src="/html/assets/red_drill.png?v=20261101_v1" alt="Drill" style="width: 18px; height: 18px;" class="me-1">
+          <img src="/html/assets/red_drill.png?v=20261113_v1" alt="" title="" style="width: 18px; height: 18px;" class="me-1">
           <span>Безопасность и параметры учетной записи:</span>
           <span class="text-primary font-monospace fw-bold" id="user-security-modal-username">—</span>
         </h5>
@@ -1369,6 +1396,117 @@ Updated: 2026-11-12 01:25:00
                   <span>Применить параметры UAC</span>
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer py-2 px-3 border-top border-secondary border-opacity-25">
+        <button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" type="button">Закрыть</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно: Управление участниками группы безопасности -->
+<div aria-hidden="true" class="modal fade" id="groupMembersModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content shadow-lg border border-secondary">
+      <div class="modal-header border-bottom border-secondary border-opacity-25 py-2.5 px-3">
+        <h5 class="modal-title d-flex align-items-center gap-2 fs-6">
+          <i class="bi bi-diagram-3 text-primary fs-5"></i>
+          <span>Управление участниками группы безопасности</span>
+        </h5>
+        <button aria-label="Закрыть" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+      </div>
+      <div class="modal-body p-3">
+        <!-- Выбор целевой группы -->
+        <div class="mb-3">
+          <label class="form-label small fw-semibold text-body mb-1" for="group-members-select">
+            <i class="bi bi-shield me-1 text-primary"></i> Целевая группа безопасности
+          </label>
+          <select class="form-select form-select-sm" id="group-members-select">
+            <option value="">Загрузка групп...</option>
+          </select>
+        </div>
+
+        <!-- Сводная карточка выбранной группы -->
+        <div class="winadmin-card mb-3">
+          <div class="row g-2 align-items-center">
+            <div class="col-md-5">
+              <div class="winadmin-label">SID группы</div>
+              <div class="font-monospace small text-body text-truncate" id="group-modal-sid" title="—">—</div>
+            </div>
+            <div class="col-md-4">
+              <div class="winadmin-label">Тип</div>
+              <div id="group-modal-type"><span class="ui-badge ui-badge-neutral">—</span></div>
+            </div>
+            <div class="col-md-3 text-md-end">
+              <div class="winadmin-label">Участников</div>
+              <span class="ui-badge ui-badge-neutral" id="group-modal-members-count">0 уч.</span>
+            </div>
+            <div class="col-12 pt-1 border-top border-secondary border-opacity-25">
+              <div class="winadmin-label">Описание</div>
+              <div class="small text-muted" id="group-modal-description">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Форма добавления пользователя в группу -->
+        <div class="card border border-secondary shadow-sm mb-3">
+          <div class="card-header py-1.5 px-3 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-person-plus-fill text-primary fs-6"></i>
+              <span class="fw-semibold text-body small">Добавить пользователя в группу</span>
+            </div>
+            <span class="ui-badge ui-badge-neutral small">Add-LocalGroupMember</span>
+          </div>
+          <div class="card-body p-2.5">
+            <div class="row g-2 align-items-end">
+              <div class="col-md-5">
+                <label class="form-label small text-muted mb-1" for="group-add-user-select">Локальный пользователь</label>
+                <select class="form-select form-select-sm" id="group-add-user-select">
+                  <option value="">— Выберите пользователя —</option>
+                </select>
+              </div>
+              <div class="col-md-5">
+                <label class="form-label small text-muted mb-1" for="group-add-user-input">Имя пользователя (или DOMAIN\User)</label>
+                <input class="form-control form-control-sm font-monospace" id="group-add-user-input" placeholder="Введите имя учетной записи..." type="text"/>
+              </div>
+              <div class="col-md-2 d-grid">
+                <button class="btn btn-sm btn-primary d-inline-flex align-items-center justify-content-center gap-1" id="btn-group-add-member" type="button">
+                  <i class="bi bi-plus-lg"></i>
+                  <span>Добавить</span>
+                </button>
+              </div>
+            </div>
+            <div class="mt-2 small" id="group-members-feedback" style="display: none;"></div>
+          </div>
+        </div>
+
+        <!-- Список текущих участников группы -->
+        <div class="card border border-secondary shadow-sm">
+          <div class="card-header py-1.5 px-3 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-people text-info fs-6"></i>
+              <span class="fw-semibold text-body small">Текущие участники группы</span>
+            </div>
+            <button class="btn btn-xs btn-outline-secondary py-0 px-2" id="btn-group-members-refresh" title="Обновить список участников" type="button">
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive" style="max-height: 240px; overflow-y: auto;">
+              <table class="winadmin-table mb-0">
+                <thead class="sticky-top">
+                  <tr>
+                    <th>Участник</th>
+                    <th style="text-align: right; width: 120px;">Действия</th>
+                  </tr>
+                </thead>
+                <tbody id="group-members-tbody">
+                  <tr><td class="text-center text-muted py-3" colspan="2">Выберите группу безопасности</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

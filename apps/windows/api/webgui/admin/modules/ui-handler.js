@@ -13,11 +13,11 @@
  *     import { setupUIHandlers, showHelpModal, showChatLogicModal } from '/windows/api/webgui/admin/modules/ui-handler.js';
  *
  * File: ui-handler.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/admin/modules
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 19:16:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
@@ -34,7 +34,7 @@ export function setupUIHandlers() {
 
 function initHelpContent() {
   helpContent = {
-    'overview': `<h4>🚀 Обзор проекта</h4><p>ai-windows-admin — интегрированная среда для работы с AI, RAG и системным управлением.</p>`,
+    'overview': `<h4>🚀 Обзор проекта</h4><p>ai-tc — интегрированная среда для работы с AI, RAG и системным управлением.</p>`,
     'google_oauth': `<h4>🔑 Google OAuth и аккаунты</h4><p>Интеграция с Gmail, Drive, Sheets и Docs через OAuth 2.0 и Service Accounts.</p>`,
     'ai_models': `<h4>🤖 ИИ Провайдеры и Модели</h4><p>Облачные (Gemini, OpenAI, Groq) и локальные (Ollama, Foundry, DirectML) модели.</p>`,
     'gdrive_sync': `<h4>☁️ Google Drive Sync</h4><p>Автоматическая синхронизация баз данных и файлов с Google Drive.</p>`,

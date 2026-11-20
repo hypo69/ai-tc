@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Kernel Protection - Protection Mechanisms Auditor
+# Process Name: ai-tc Apps Windows Modules Kernel Protection - Protection Mechanisms Auditor
 # =============================================================================
 # Description:
 #   Аудитор системных механизмов защиты Windows: HVCI (Memory Integrity), Secure Boot,
@@ -14,11 +14,11 @@
 #     mechanisms = auditor.audit_all_mechanisms()
 #
 # File: protection_mechanisms.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.kernel_protection.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 14:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

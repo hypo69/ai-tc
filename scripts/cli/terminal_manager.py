@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Cli - Terminal Manager
+# Process Name: ai-tc Scripts Cli - Terminal Manager
 # =============================================================================
 # Description:
 #   Terminal manager utility for configuring and launching multi-pane workspaces.
@@ -14,11 +14,11 @@
 #     res = get_terminal_profiles()
 #
 # File: terminal_manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.cli
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Terminal manager utility for configuring and launching multi-pane workspaces.
@@ -43,7 +43,7 @@ def get_terminal_profiles() -> Dict[str, List[Dict[str, str]]]:
         Dict[str, List[Dict[str, str]]]: Mapping of profile name to list of pane definitions.
     """
     python_exe = sys.executable
-    return {'ai-windows-admin': [{'title': 'FastAPI Server', 'command': f'''powershell.exe -NoExit -ExecutionPolicy Bypass -File "{PROJECT_ROOT / 'launchers' / 'Run-Unicorn.ps1'}"'''}, {'title': 'Assist CLI', 'command': f'''powershell.exe -NoExit -ExecutionPolicy Bypass -File "{PROJECT_ROOT / 'assist.ps1'}"'''}, {'title': 'Telegram Bot', 'command': f'''powershell.exe -NoExit -ExecutionPolicy Bypass -File "{PROJECT_ROOT / 'launchers' / 'Run-TelegramBot.ps1'}" -Foreground'''}, {'title': 'System Log Stream', 'command': f'''powershell.exe -NoExit -Command "Get-Content -Path '{PROJECT_ROOT / 'logs' / 'app.log'}' -Wait -Tail 30 -ErrorAction SilentlyContinue"'''}], 'network': [{'title': 'Network DPI Terminal', 'command': f'"{python_exe}" -m apps.windows.network'}, {'title': 'Network Traffic Stream', 'command': f'"{python_exe}" -m apps.windows.network --simulate'}], 'cloudflared': [{'title': 'Cloudflared Monitor Dashboard', 'command': f'"{python_exe}" -m apps.cloudflared_monitor'}, {'title': 'Cloudflared Live Log Stream', 'command': f'''powershell.exe -NoExit -Command "Get-Content -Path '{PROJECT_ROOT / 'logs' / 'cloudflared.log'}' -Wait -Tail 30 -ErrorAction SilentlyContinue"'''}, {'title': 'Tunnel Launcher Control', 'command': f'''powershell.exe -NoExit -ExecutionPolicy Bypass -File "{PROJECT_ROOT / 'launchers' / 'Run-Cloudflared.ps1'}"'''}]}
+    return {'ai-tc': [{'title': 'FastAPI Server', 'command': f'''powershell.exe -NoExit -ExecutionPolicy Bypass -File "{PROJECT_ROOT / 'launchers' / 'Run-Unicorn.ps1'}"'''}, {'title': 'Assist CLI', 'command': f'''powershell.exe -NoExit -ExecutionPolicy Bypass -File "{PROJECT_ROOT / 'assist.ps1'}"'''}, {'title': 'Telegram Bot', 'command': f'''powershell.exe -NoExit -ExecutionPolicy Bypass -File "{PROJECT_ROOT / 'launchers' / 'Run-TelegramBot.ps1'}" -Foreground'''}, {'title': 'System Log Stream', 'command': f'''powershell.exe -NoExit -Command "Get-Content -Path '{PROJECT_ROOT / 'logs' / 'app.log'}' -Wait -Tail 30 -ErrorAction SilentlyContinue"'''}], 'network': [{'title': 'Network DPI Terminal', 'command': f'"{python_exe}" -m apps.windows.network'}, {'title': 'Network Traffic Stream', 'command': f'"{python_exe}" -m apps.windows.network --simulate'}], 'cloudflared': [{'title': 'Cloudflared Monitor Dashboard', 'command': f'"{python_exe}" -m apps.cloudflared_monitor'}, {'title': 'Cloudflared Live Log Stream', 'command': f'''powershell.exe -NoExit -Command "Get-Content -Path '{PROJECT_ROOT / 'logs' / 'cloudflared.log'}' -Wait -Tail 30 -ErrorAction SilentlyContinue"'''}, {'title': 'Tunnel Launcher Control', 'command': f'''powershell.exe -NoExit -ExecutionPolicy Bypass -File "{PROJECT_ROOT / 'launchers' / 'Run-Cloudflared.ps1'}"'''}]}
 
 def is_windows_terminal_available() -> bool:
     """Check if Windows Terminal (wt.exe) is available in PATH.
@@ -53,7 +53,7 @@ def is_windows_terminal_available() -> bool:
     """
     return shutil.which('wt.exe') is not None or shutil.which('wt') is not None
 
-def build_wt_command(profile_name: str='ai-windows-admin') -> Optional[List[str]]:
+def build_wt_command(profile_name: str='ai-tc') -> Optional[List[str]]:
     """Build Windows Terminal CLI command arguments for multi-pane layout.
 
     Args:
@@ -82,7 +82,7 @@ def build_wt_command(profile_name: str='ai-windows-admin') -> Optional[List[str]
 def main() -> None:
     """CLI entrypoint for terminal manager."""
     parser = argparse.ArgumentParser(description='Terminal Workspace Manager')
-    parser.add_argument('--profile', type=str, default='ai-windows-admin', choices=['ai-windows-admin', 'network', 'cloudflared'], help='Workspace layout profile')
+    parser.add_argument('--profile', type=str, default='ai-tc', choices=['ai-tc', 'network', 'cloudflared'], help='Workspace layout profile')
     parser.add_argument('--list', action='store_true', help='List available profiles')
     args = parser.parse_args()
     if args.list:

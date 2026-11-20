@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows SDK - Main Client Facade
+# Process Name: ai-tc Apps Windows SDK - Main Client Facade
 # =============================================================================
 # Description:
 #   Единый программный интерфейс (SDK Facade) для доступа ко всем подсистемам
@@ -21,15 +21,15 @@
 #     features = windows_sdk.features.get_features()
 #
 # File: client.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 14:40:00
+# Updated: 2026-11-16 05:40:00
 # =============================================================================
 
 from __future__ import annotations
-"""Единый фасад Windows SDK (Software Development Kit) для AI-Windows-Admin."""
+"""Единый фасад Windows SDK (Software Development Kit) для ai-tc."""
 
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
@@ -41,6 +41,7 @@ from apps.windows.sdk import core
 from apps.windows.sdk import drivers
 from apps.windows.sdk import features
 from apps.windows.sdk import modules
+from apps.windows.sdk.winrt import WinRTSubsystem
 
 
 class NativeSubsystem:
@@ -205,12 +206,13 @@ class ModulesSubsystem:
 class WindowsSDK:
     """Единый комплексный SDK для операционной системы Windows.
 
-    Объединяет 5 функциональных уровней:
+    Объединяет 6 функциональных уровней:
     1. `native`: C-FFI низкоуровневые вызовы
     2. `drivers`: Драйверный слой и каталоги
     3. `features`: Windows Optional Features
     4. `core`: SafeOps, аудит, корреляция и аналитика
     5. `modules`: 27 специализированных модулей управления
+    6. `winrt`: Современная подсистема Windows Runtime и UWP
     """
 
     def __init__(self) -> None:
@@ -220,7 +222,8 @@ class WindowsSDK:
         self.features = FeaturesSubsystem()
         self.core = CoreSubsystem()
         self.modules = ModulesSubsystem()
-        logger.debug("[WindowsSDK] Инициализирован единый Windows SDK")
+        self.winrt = WinRTSubsystem()
+        logger.debug("[WindowsSDK] Инициализирован единый Windows SDK (включая WinRT/UWP)")
 
     def get_health_summary(self) -> Dict[str, Any]:
         """Получение быстрой сводки здоровья системы.
@@ -271,5 +274,6 @@ __all__ = [
     "FeaturesSubsystem",
     "CoreSubsystem",
     "ModulesSubsystem",
+    "WinRTSubsystem",
 ]
 

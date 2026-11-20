@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Diagnostics Prompt Resolver
+# Process Name: ai-tc Tests - Diagnostics Prompt Resolver
 # =============================================================================
 # Description:
 #   Тесты механизма разрешения и привязки системных инструкций и промптов
 #   к идентификаторам панелей (panel_id) и типам таблиц (table_type).
 #
 # File: test_diagnostics_prompt_resolver.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 12:15:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

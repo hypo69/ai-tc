@@ -9,11 +9,11 @@
  * - Телеметрию батареи и профилей электропитания
  * - Профили брандмауэра Windows Defender и статус UAC
  * 
- * Updated: 2026-11-03 14:05:00
+ * Updated: 2026-11-16 05:24:00
  */
 
-import { apiFetch, setText, setStatusText, setFormattedStatusHtml, formatStatusHtml, setHtml, escapeHtml } from '../common/ui_utils.js?v=20261028_v4';
-import { applyBatteryData, fetchBatteryWear } from '../panel_battery/panel.js?v=20261028_v4';
+import { apiFetch, setText, setStatusText, setFormattedStatusHtml, formatStatusHtml, setHtml, escapeHtml } from '../common/ui_utils.js?v=20261116_v1';
+import { applyBatteryData, fetchBatteryWear } from '../panel_battery/panel.js?v=20261116_v1';
 
 /**
  * Форматирование коммерческого наименования процессора.
@@ -209,12 +209,17 @@ export function renderMonitorsSpec(monitors) {
   if (!container) return;
 
   // Фильтруем фиктивные виртуальные дисплеи Session 0 (WinDisc)
-  const validMonitors = (Array.isArray(monitors) ? monitors : []).filter(m => {
+  let validMonitors = (Array.isArray(monitors) ? monitors : []).filter(m => {
     if (!m) return false;
     const dev = String(m.device || '').toLowerCase();
     const name = String(m.name || '').toLowerCase();
     return !dev.includes('windisc') && !name.includes('windisc');
   });
+
+  const nonDummy = validMonitors.filter(m => m.name !== 'Primary Monitor' && m.vendor !== 'Универсальный монитор');
+  if (nonDummy.length > 0) {
+    validMonitors = nonDummy;
+  }
 
   if (validMonitors.length === 0) {
     container.innerHTML = '<span class="text-muted">Мониторы не обнаружены</span>';
@@ -426,9 +431,9 @@ export function applyDisksWearData(data) {
           const isSsd = (d.media_type && d.media_type.toUpperCase().includes('SSD')) || (d.bus_type && d.bus_type.toUpperCase().includes('NVME'));
           const diskIcon = isSsd ? 'bi-device-ssd text-info' : 'bi-hdd text-primary';
           const typeBus = [d.media_type, d.bus_type].filter(Boolean).join(' / ') || 'Storage';
-          const partsBadge = d.partitions && d.partitions !== '—'
-            ? `<span class="badge bg-primary-subtle text-info border border-info-subtle font-monospace">${escapeHtml(d.partitions)}</span>`
-            : '';
+          const partsHtml = (d.partitions && d.partitions !== '—')
+            ? String(d.partitions).split(',').map(p => `<span class="badge bg-primary-subtle text-info border border-info-subtle font-monospace me-1 mb-1">${escapeHtml(p.trim())}</span>`).join('')
+            : '<span class="text-muted font-monospace">—</span>';
           const freeGbStr = (d.free_gb != null && !isNaN(Number(d.free_gb)))
             ? `${Number(d.free_gb).toFixed(1)} GB`
             : '<span class="text-muted">—</span>';
@@ -455,6 +460,10 @@ export function applyDisksWearData(data) {
             </div>
           `;
 
+          const volBadge = d.volume_name
+            ? `<span class="badge bg-info-subtle text-info border border-info-subtle me-1.5">${escapeHtml(d.volume_name)}</span>`
+            : '';
+
           return `
             <tr>
               <td class="fw-bold text-body">
@@ -462,12 +471,12 @@ export function applyDisksWearData(data) {
                   <i class="bi ${diskIcon} me-2 fs-6"></i>
                   <div>
                     <div class="text-truncate" style="max-width: 250px;" title="${escapeHtml(diskName)}">${escapeHtml(diskName)}</div>
-                    <div class="small text-muted font-monospace mt-0.5">${devId}${d.serial_number && d.serial_number !== 'N/A' ? `<span class="text-secondary">S/N: ${escapeHtml(d.serial_number)}</span>` : ''}</div>
+                    <div class="small text-muted font-monospace mt-0.5">${devId}${volBadge}${d.serial_number && d.serial_number !== 'N/A' ? `<span class="text-secondary">S/N: ${escapeHtml(d.serial_number)}</span>` : ''}</div>
                   </div>
                 </div>
               </td>
               <td class="text-muted font-monospace"><span class="badge bg-secondary-subtle text-body border border-secondary">${escapeHtml(typeBus)}</span></td>
-              <td>${partsBadge}</td>
+              <td>${partsHtml}</td>
               <td style="text-align: right;" class="text-body font-monospace">${d.total_gb} GB</td>
               <td style="text-align: right;" class="text-success font-monospace">${freeGbStr}</td>
               <td>${pohHtml}</td>

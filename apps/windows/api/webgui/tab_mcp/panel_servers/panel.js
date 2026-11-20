@@ -8,11 +8,11 @@
  *   удаление, фильтрация (stdio / sse / enabled / disabled) и текстовый поиск.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_mcp/panel_servers
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:41:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -304,7 +304,7 @@ export function renderError(msg) {
 export async function refreshServers() {
   showLoading(true);
   try {
-    const res = await apiFetch('/api/admin/mcp/servers');
+    const res = await apiFetch('/api/v1/admin/mcp/servers');
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}: ${res.statusText}`);
     }
@@ -326,7 +326,7 @@ export async function refreshServers() {
  */
 export async function toggleServer(serverId) {
   try {
-    const res = await apiFetch(`/api/admin/mcp/servers/${encodeURIComponent(serverId)}/toggle`, {
+    const res = await apiFetch(`/api/v1/admin/mcp/servers/${encodeURIComponent(serverId)}/toggle`, {
       method: 'POST'
     });
     if (!res.ok) {
@@ -350,7 +350,7 @@ export async function deleteServer(serverId) {
   }
 
   try {
-    const res = await apiFetch(`/api/admin/mcp/servers/${encodeURIComponent(serverId)}`, {
+    const res = await apiFetch(`/api/v1/admin/mcp/servers/${encodeURIComponent(serverId)}`, {
       method: 'DELETE'
     });
     if (!res.ok) {

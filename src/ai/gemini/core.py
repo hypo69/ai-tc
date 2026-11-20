@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Core Module
+# Process Name: ai-tc AI - Core Module
 # =============================================================================
 # Description:
-#   Модуль реализации компонента `GoogleGenerativeAICore` системы AI-Windows-Admin.
+#   Модуль реализации компонента `GoogleGenerativeAICore` системы ai-tc.
 #
 # Usage Examples:
 #   Python API:
@@ -14,19 +14,19 @@
 #     print(result)
 #
 # File: core.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:46:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
-"""Модуль реализации компонента `GoogleGenerativeAICore` системы AI-Windows-Admin."""
+"""Модуль реализации компонента `GoogleGenerativeAICore` системы ai-tc."""
 
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 from google import genai
 from src.ai.orchestration.model_manager import add_unsupported_model as _mgr_add_unsupported_model, get_available_models as _mgr_get_available_models, load_unsupported_models as _mgr_load_unsupported_models
 from src.config import server_cfg, ai_cfg

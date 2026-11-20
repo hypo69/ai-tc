@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Servicing_Integrity - Tui
+# Process Name: ai-tc Apps Windows Modules Servicing_Integrity - Tui
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     service = ServicingIntegrityTUI()
 #
 # File: tui.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.servicing_integrity
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:44
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -60,7 +60,7 @@ class ServicingIntegrityTUI:
             st_color = 'green' if f.state.lower() == 'enabled' else 'dim'
             table.add_row(f.name, f"[{st_color}]{f.state}[/{st_color}]")
 
-        self.console.logger.console(Panel('[bold white]AI-Windows-Admin: Windows Servicing & Component Integrity[/bold white]', style='blue'))
+        self.console.logger.console(Panel('[bold white]ai-tc: Windows Servicing & Component Integrity[/bold white]', style='blue'))
         self.console.logger.console(panel)
         self.console.logger.console(table)
 

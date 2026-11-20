@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Roadmap - Patches & WikiLLM Settings Service
+# Process Name: ai-tc Roadmap - Patches & WikiLLM Settings Service
 # =============================================================================
 # Description:
 #   Сервис параметров конфигурации WikiLLM по умолчанию.
 #
 # File: patches.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: roadmap
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 14:30:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

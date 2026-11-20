@@ -13,11 +13,11 @@ Usage Examples:
       <iframe src="/windows/api/webgui/rc/index.html" class="w-100 h-100 border-0"></iframe>
 
 File: index.html
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/rc
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-15 19:30:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 -->
 
@@ -612,7 +612,7 @@ Updated: 2026-10-15 19:30:00
       auth: {
         async check() {
           try {
-            const response = await fetch('/auth/check');
+            const response = await fetch('/api/v1/auth/check');
             return await response.json();
           } catch {
             return { authenticated: false };
@@ -640,7 +640,7 @@ Updated: 2026-10-15 19:30:00
           });
         },
         async logout() {
-          return api.fetch('/auth/logout', { method: 'POST' });
+          return api.fetch('/api/v1/auth/logout', { method: 'POST' });
         }
       }
     };
@@ -764,7 +764,7 @@ Updated: 2026-10-15 19:30:00
       listDiv.innerHTML = '<div class="text-center p-3"><span class="spinner-border spinner-border-sm text-primary"></span></div>';
 
       try {
-        const response = await fetch('/api/control/active_players');
+        const response = await fetch('/api/v1/control/active_players');
         const data = await response.json();
         const players = data.players || [];
         const currentUserEmail = data.user_email;
@@ -904,7 +904,7 @@ Updated: 2026-10-15 19:30:00
       }
 
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${window.location.host}/api/control/ws?role=remote&room=${encodeURIComponent(currentRoomName)}`;
+      const wsUrl = `${protocol}//${window.location.host}/api/v1/control/ws?role=remote&room=${encodeURIComponent(currentRoomName)}`;
       
       ws = new WebSocket(wsUrl);
 
@@ -1136,7 +1136,7 @@ Updated: 2026-10-15 19:30:00
           generation_config: { is_rc: true }
         };
         
-        const response = await fetch('/api/chat', {
+        const response = await fetch('/api/v1/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -1419,7 +1419,7 @@ Updated: 2026-10-15 19:30:00
 
       // Try backend TTS first
       try {
-        const response = await fetch('/auth/settings');
+        const response = await fetch('/api/v1/auth/settings');
         if (response.ok) {
           const userSettings = await response.json();
           if (userSettings.tts_enabled === 1 && userSettings.tts_system && userSettings.tts_system !== 'browser') {
@@ -1503,7 +1503,7 @@ Updated: 2026-10-15 19:30:00
     }
 
     async function sendToAiModel(message) {
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/v1/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, generation_config: { is_rc: true } })

@@ -7,11 +7,11 @@
 #   модули `ssh-mcp-core`, так и по протоколу Streamable HTTP / Remote MCP.
 #
 # File: client.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from typing import Any, Dict, Optional

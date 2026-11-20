@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Pixel RAG Engine
+# Process Name: ai-tc AI - Pixel RAG Engine
 # =============================================================================
 # Description:
 #   Мультимодальный визуальный RAG-движок для индексации, поиска и сопоставления
@@ -15,11 +15,11 @@
 #     matches = pixel_rag.search_by_text("ошибка диска", top_k=3)
 #
 # File: pixel_rag.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.rag
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:55:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

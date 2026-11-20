@@ -1,7 +1,7 @@
 /**
  * Модуль панели статуса и KPI сетевой подсистемы.
  * Файл: apps/windows/api/webgui/tab_network/panel_kpi_status/panel.js
- * Updated: 2026-10-17 01:55:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 /**
@@ -18,7 +18,7 @@ export async function fetchNetworkStatus(fallbackPacketsCount = 0) {
   const kpiAnomalies = document.getElementById('net-kpi-anomalies');
 
   try {
-    const res = await fetch('/api/network/status');
+    const res = await fetch('/api/v1/network/status');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 

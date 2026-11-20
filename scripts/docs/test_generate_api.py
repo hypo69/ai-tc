@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Docs - Test Generate Api
+# Process Name: ai-tc Scripts Docs - Test Generate Api
 # =============================================================================
 # Description:
 #   Unit-тесты для скрипта generate_api.py
@@ -14,11 +14,11 @@
 #     service = TestDocstringParser()
 #
 # File: test_generate_api.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.docs
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Unit-тесты для скрипта generate_api.py

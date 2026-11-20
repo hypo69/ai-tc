@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Kernel Protection - Tests
+# Process Name: ai-tc Apps Windows Modules Kernel Protection - Tests
 # =============================================================================
 # Description:
 #   Комплексные модульные тесты подсистемы инвентаризации драйверов,
@@ -10,11 +10,11 @@
 #   pytest apps/windows/sdk/modules/kernel_protection/tests/test_kernel_protection.py -v
 #
 # File: test_kernel_protection.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.kernel_protection.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 14:40:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 import pytest
@@ -161,8 +161,8 @@ def test_safe_ops_unconfirmed_risk():
 
 
 def test_api_summary_endpoint(api_client):
-    """Проверка REST эндпоинта /api/kernel-protection/summary."""
-    response = api_client.get("/api/kernel-protection/summary")
+    """Проверка REST эндпоинта /api/v1/kernel-protection/summary."""
+    response = api_client.get("/api/v1/kernel-protection/summary")
     assert response.status_code == 200
     data = response.json()
     assert "total_drivers_count" in data
@@ -179,7 +179,7 @@ def test_api_investigate_blocker_endpoint(api_client):
         "target_path": r"Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDa",
         "operation": "modify"
     }
-    response = api_client.post("/api/kernel-protection/investigate-blocker", json=payload)
+    response = api_client.post("/api/v1/kernel-protection/investigate-blocker", json=payload)
     assert response.status_code == 200
     verdict = response.json()
     assert "is_blocked" in verdict

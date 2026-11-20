@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Router CPU Load
+# Process Name: ai-tc Apps Windows Api Routers - Router CPU Load
 # =============================================================================
 # Description:
 #   GET /api/v1/panel/cpu-load — иерархические метрики процессора:
@@ -14,11 +14,11 @@
 #     app.include_router(init_router())
 #
 # File: router_cpu_load.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 19:05:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

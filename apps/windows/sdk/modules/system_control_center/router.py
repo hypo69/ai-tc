@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules System_Control_Center - Router
+# Process Name: ai-tc Apps Windows Modules System_Control_Center - Router
 # =============================================================================
 # Description:
 #   FastAPI роутер для микросервиса System Control Center.
@@ -12,11 +12,11 @@
 #     service = ProfileApplyRequest()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.system_control_center
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 19:39:20
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ from apps.windows.sdk.core.safe_executor import SafeExecutor
 from apps.windows.sdk.core.system_restore import WindowsSystemRestoreManager
 from apps.windows.sdk.core.system_param_manager import SafeSystemParamManager
 
-router = APIRouter(prefix='/api/system-control', tags=['System Control Center'])
+router = APIRouter(prefix='/api/v1/system-control', tags=['System Control Center'])
 _telemetry_logger = AppTelemetryLogger('system_control_center')
 _executor = SafeExecutor()
 _restore_mgr = WindowsSystemRestoreManager()

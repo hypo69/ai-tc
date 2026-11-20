@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Software Scanner - Filesystem Probe
+# Process Name: ai-tc Software Scanner - Filesystem Probe
 # =============================================================================
 # Description:
 #   Зонд файловой системы Windows: безопасный обход каталогов установки,
 #   пользовательских профилей, извлечение PE-метаданных и разбор ярлыков.
 #
 # File: filesystem_probe.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.software_scanner.probes
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 19:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -10,7 +10,7 @@
  * Файл: apps/windows/api/webgui/tab_scenarios/panel_chat/chat.js
  * Пакет: windows/api/webgui/tab_scenarios
  * Автор: hypo69
- * Updated: 2026-10-22 03:45:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -233,7 +233,7 @@ export async function submitChat() {
   if (cleanCmd === '/skills' || cleanCmd === '/skills list' || cleanCmd.startsWith('/skills search')) {
     try {
       const searchParam = cleanCmd.startsWith('/skills search') ? cleanCmd.replace('/skills search', '').trim() : '';
-      const url = searchParam ? `/api/admin/skills?q=${encodeURIComponent(searchParam)}` : '/api/admin/skills';
+      const url = searchParam ? `/api/v1/admin/skills?q=${encodeURIComponent(searchParam)}` : '/api/v1/admin/skills';
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();

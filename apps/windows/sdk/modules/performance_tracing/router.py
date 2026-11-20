@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Performance_Tracing - Router
+# Process Name: ai-tc Apps Windows Modules Performance_Tracing - Router
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     res = init_router()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.performance_tracing
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ from apps.windows.sdk.modules.performance_tracing.core.models import (
     PerformanceTracingReport,
 )
 
-router = APIRouter(prefix='/api/performance-tracing', tags=['Performance & Tracing Manager'])
+router = APIRouter(prefix='/api/v1/performance-tracing', tags=['Performance & Tracing Manager'])
 _manager = PerformanceTracingManager()
 
 

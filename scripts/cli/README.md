@@ -1,6 +1,6 @@
 # Модуль `scripts/cli` — Кроссплатформенные CLI-модули
 
-Кроссплатформенные утилиты Python, обеспечивающие работу консольного интерфейса AI Windows Admin (`manage_tools.py`, `assist`) на Windows, Linux и macOS.
+Кроссплатформенные утилиты Python, обеспечивающие работу консольного интерфейса ai-tc (`manage_tools.py`, `assist`) на Windows, Linux и macOS.
 
 ## Структура файлов
 

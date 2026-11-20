@@ -10,11 +10,11 @@
  *     <script src="/windows/telemetry_research/web/app.js?v=20261001_v1" type="module"></script>
  *
  * File: app.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/telemetry_research/web
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -245,7 +245,7 @@ async function submitAiQuery(queryText) {
   if (spinner) spinner.style.display = "inline-block";
 
   try {
-    const res = await fetch("/api/chat", {
+    const res = await fetch("/api/v1/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -512,7 +512,7 @@ async function loadSources() {
   if (!select) return;
 
   try {
-    const res = await fetch("/api/sources");
+    const res = await fetch("/api/v1/sources");
     if (!res.ok) return;
     const files = await res.json();
     select.innerHTML = '<option value="">Все доступные источники (telemetry.db + логи)</option>';
@@ -606,7 +606,7 @@ async function loadCurrentState(silent = false) {
   const dbPath = selectSource && selectSource.value && selectSource.value.endsWith(".db") ? selectSource.value : "";
 
   try {
-    const url = `/api/current-state?limit=${limit}${dbPath ? `&db_path=${encodeURIComponent(dbPath)}` : ""}`;
+    const url = `/api/v1/current-state?limit=${limit}${dbPath ? `&db_path=${encodeURIComponent(dbPath)}` : ""}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -858,7 +858,7 @@ async function runResearch() {
   }
 
   try {
-    const res = await fetch("/api/run-research", {
+    const res = await fetch("/api/v1/run-research", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ source_path: sourcePath || null }),
@@ -1132,7 +1132,7 @@ async function loadRecords() {
     if (sourcePath) params.append("source_path", sourcePath);
     if (searchQuery) params.append("query", searchQuery);
 
-    const res = await fetch(`/api/records?${params.toString()}`);
+    const res = await fetch(`/api/v1/records?${params.toString()}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
@@ -1219,7 +1219,7 @@ async function loadClientResources(askGemini = false) {
 
   const selectSource = document.getElementById("select-source");
   const sourcePath = selectSource ? selectSource.value : "";
-  const queryUrl = `/api/client-resources?ask_gemini=${askGemini}&limit=50${sourcePath ? `&db_path=${encodeURIComponent(sourcePath)}` : ""}`;
+  const queryUrl = `/api/v1/client-resources?ask_gemini=${askGemini}&limit=50${sourcePath ? `&db_path=${encodeURIComponent(sourcePath)}` : ""}`;
 
   try {
     const res = await fetch(queryUrl);
@@ -1404,7 +1404,7 @@ window.evaluateSingleProgramInGemini = async function (pid, encodedName) {
   }
 
   try {
-    const res = await fetch("/api/client-resources/evaluate", {
+    const res = await fetch("/api/v1/client-resources/evaluate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(prog),

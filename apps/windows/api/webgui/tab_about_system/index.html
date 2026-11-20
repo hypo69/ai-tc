@@ -13,11 +13,11 @@ Usage Examples:
       <iframe src="/windows/api/webgui/about_system_tab/index.html" class="w-100 h-100 border-0"></iframe>
 
  * File: index.html
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/about_system_tab
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-03 14:05:00
+ * Updated: 2026-11-16 05:48:00
  * =============================================================================
 -->
 <!-- About System Application Tab -->
@@ -28,10 +28,10 @@ Usage Examples:
       <span class="tab-header-icon fs-4 text-warning">ℹ️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title mb-0">Информация о системе Windows</h3>
+          <h3 class="tab-header-title mb-0" data-i18n="aboutSystem.title">Информация о системе Windows</h3>
           
         </div>
-        <small class="tab-header-subtitle text-secondary">Спецификации ОС, материнской платы, процессора, BIOS, сборки Windows и аппаратная телеметрия</small>
+        <small class="tab-header-subtitle text-secondary" data-i18n="aboutSystem.subtitle">Спецификации ОС, материнской платы, процессора, BIOS, сборки Windows и аппаратная телеметрия</small>
       </div>
     </div>
     
@@ -72,7 +72,7 @@ Usage Examples:
 <div class="modal-body p-3" style="overflow-y: auto;">
 <!-- Filter Buttons -->
 <div class="d-flex align-items-center gap-1.5 flex-wrap mb-3" id="about-history-filter-group">
-<button class="btn btn-sm btn-info text-dark fw-bold rounded-pill px-2.5 py-0.5 btn-history-filter active" data-metric="all">Все метрики</button>
+<button class="btn btn-sm btn-primary fw-semibold rounded-pill px-2.5 py-0.5 btn-history-filter active" data-metric="all">Все метрики</button>
 <button class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5 btn-history-filter" data-metric="cpu">CPU</button>
 <button class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5 btn-history-filter" data-metric="memory">Память (RAM)</button>
 <button class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5 btn-history-filter" data-metric="gpu">GPU</button>
@@ -146,7 +146,7 @@ Usage Examples:
 <span class="badge bg-dark text-info border border-info border-opacity-30 px-2.5 py-1 font-monospace" id="about-ai-engine-name" style="font-size: 0.72rem;">
 <i class="bi bi-cpu me-1"></i>Unified AI / Heuristic
               </span>
-<button class="btn btn-sm btn-info text-dark fw-bold rounded-pill px-3 py-1 shadow-sm d-flex align-items-center gap-1.5" id="btn-about-ai-rescan" title="Выполнить глубокий пересканирующий аудит с вызовом AI">
+<button class="btn btn-sm btn-primary fw-semibold rounded-pill px-3 py-1 shadow-sm d-flex align-items-center gap-1.5" id="btn-about-ai-rescan" title="Выполнить глубокий пересканирующий аудит с вызовом AI">
 <i class="bi bi-lightning-charge-fill" id="ic-about-ai-rescan"></i>
 <span id="txt-about-ai-rescan">Rescan</span>
 </button>
@@ -161,14 +161,14 @@ Usage Examples:
 <div class="d-flex align-items-center gap-2">
 <span class="spinner-grow spinner-grow-sm text-info" id="about-ai-live-pulse" role="status" style="width: 0.75rem; height: 0.75rem;"></span>
 <strong class="text-info small" style="font-size: 0.80rem;">Текущий сбор сенсоров:</strong>
-<span class="text-light small font-monospace" id="about-ai-live-status-text">Опрос датчиков и системных интерфейсов хоста...</span>
+<span class="text-body small font-monospace" id="about-ai-live-status-text">Опрос датчиков и системных интерфейсов хоста...</span>
 </div>
 <div class="d-flex align-items-center gap-1.5 flex-wrap font-monospace" style="font-size: 0.70rem;">
-<span class="badge bg-secondary bg-opacity-40 text-light border border-secondary" id="chip-sensor-lhm">🌡️ LHM Sensors</span>
-<span class="badge bg-secondary bg-opacity-40 text-light border border-secondary" id="chip-sensor-wmi">⚡ WMI Cores</span>
-<span class="badge bg-secondary bg-opacity-40 text-light border border-secondary" id="chip-sensor-ram">🧠 RAM &amp; Procs</span>
-<span class="badge bg-secondary bg-opacity-40 text-light border border-secondary" id="chip-sensor-disks">💾 Disks &amp; SMART</span>
-<span class="badge bg-secondary bg-opacity-40 text-light border border-secondary" id="chip-sensor-net">🌐 Network &amp; OS</span>
+<span class="badge bg-secondary-subtle border border-secondary text-body" id="chip-sensor-lhm">🌡️ LHM Sensors</span>
+<span class="badge bg-secondary-subtle border border-secondary text-body" id="chip-sensor-wmi">⚡ WMI Cores</span>
+<span class="badge bg-secondary-subtle border border-secondary text-body" id="chip-sensor-ram">🧠 RAM &amp; Procs</span>
+<span class="badge bg-secondary-subtle border border-secondary text-body" id="chip-sensor-disks">💾 Disks &amp; SMART</span>
+<span class="badge bg-secondary-subtle border border-secondary text-body" id="chip-sensor-net">🌐 Network &amp; OS</span>
 </div>
 </div>
 <!-- Live metrics snapshot ticker -->
@@ -216,9 +216,9 @@ Usage Examples:
 <span class="small text-info fw-bold font-monospace text-uppercase" style="font-size: 0.75rem;">
 <i class="bi bi-award-fill me-1"></i>Итоговый синтез и вердикт инженера
               </span>
-<span class="badge bg-secondary-subtle text-light font-monospace" id="about-ai-synthesis-status" style="font-size: 0.68rem;">Готов к запуску</span>
+<span class="badge bg-secondary-subtle text-body font-monospace" id="about-ai-synthesis-status" style="font-size: 0.68rem;">Готов к запуску</span>
 </div>
-<div class="small text-light" id="about-ai-summary-text" style="line-height: 1.55; white-space: pre-line;">
+<div class="small text-body" id="about-ai-summary-text" style="line-height: 1.55; white-space: pre-line;">
               Нажмите «Rescan» для запуска пошаговой AI-диагностики сенсоров по 4 доменам (CPU/GPU, Память, Диски, Сеть).
             </div>
 <div class="mt-2 pt-2 border-top border-secondary border-opacity-20 d-none" id="about-ai-actions-box">
@@ -308,11 +308,11 @@ Usage Examples:
 </div>
 </div>
 </div>
-<!-- Regional, Timezone & User Account Settings Modal Dialog -->
+<!-- Regional, Timezone & User Account Settings Modal Dialog (Стандарт 90vw × 90vh, LTR выравнивание к верху) -->
 <div aria-hidden="true" aria-labelledby="aboutRegionalSettingsModalLabel" class="modal fade" id="aboutRegionalSettingsModal" tabindex="-1">
-<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-<div class="modal-content" style="background: var(--surface-1); color: var(--text-color); border: 1px solid var(--border-color);">
-<div class="modal-header" style="background: var(--surface-2); border-bottom: 1px solid var(--border-color);">
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+<div class="modal-content shadow">
+<div class="modal-header">
 <div class="d-flex align-items-center gap-2">
 <span class="fs-5">⚙️</span>
 <div>
@@ -342,58 +342,58 @@ Usage Examples:
 </ul>
 <!-- Pane 1: Timezone -->
 <div class="regional-tab-pane" id="pane-tz">
-<div class="p-2.5 mb-2 rounded border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
-<div class="d-flex justify-content-between align-items-center mb-2">
+<div class="card p-3 mb-2 rounded-3 border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
+<div class="d-flex align-items-center justify-content-start gap-2 mb-2">
 <span class="small text-muted">Текущий часовой пояс:</span>
-<span class="badge bg-info text-dark font-monospace" id="reg-cur-tz-badge">Загрузка...</span>
+<span class="ui-badge ui-badge-info font-monospace" id="reg-cur-tz-badge">Загрузка...</span>
 </div>
 <div class="mb-2">
 <label class="form-label small fw-bold mb-1">Поиск и выбор часового пояса:</label>
 <input class="form-control form-control-sm mb-2" id="reg-tz-search-input" placeholder="Фильтр поясов (например: Jerusalem, Moscow, UTC, Rome)..." type="text"/>
-<select class="form-select form-select-sm font-monospace" id="reg-tz-select" size="6" style="height: 140px; font-size: 0.8rem;">
+<select class="form-select form-select-sm font-monospace" id="reg-tz-select" size="8" style="font-size: 0.8rem;">
 <option value="">Загрузка списка часовых поясов...</option>
 </select>
 </div>
-<div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top" style="border-color: var(--border-color) !important;">
-<span class="small text-muted font-monospace" id="reg-tz-selected-label">Выберите пояс из списка</span>
-<button class="btn btn-sm btn-info text-dark fw-bold px-3 rounded-pill" id="btn-reg-save-tz">
+<div class="d-flex align-items-center justify-content-start gap-3 mt-3 pt-2 border-top" style="border-color: var(--border-color) !important;">
+<button class="btn btn-sm btn-primary fw-semibold px-3 rounded-pill" id="btn-reg-save-tz">
 <i class="bi bi-check-lg me-1"></i> Применить пояс
-                </button>
+</button>
+<span class="small text-muted font-monospace" id="reg-tz-selected-label">Выберите пояс из списка</span>
 </div>
 </div>
 </div>
 <!-- Pane 2: Locales & Language Packs -->
 <div class="regional-tab-pane d-none" id="pane-loc">
   <!-- Блок 1: Полный контроль языковых пакетов и раскладок клавиатуры (Русский, Иврит, Английский) -->
-  <div class="p-2.5 mb-3 rounded border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2 pb-2 border-bottom" style="border-color: var(--border-color) !important;">
+  <div class="card p-3 mb-3 rounded-3 border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
+    <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap mb-3 pb-2 border-bottom" style="border-color: var(--border-color) !important;">
       <div>
         <div class="d-flex align-items-center gap-2">
-          <i class="bi bi-translate text-info"></i>
-          <span class="small fw-bold">Языковые пакеты и раскладки клавиатуры (Русский • Иврит • Английский)</span>
+          <i class="bi bi-translate text-primary fs-5"></i>
+          <span class="fw-bold" style="font-size: 0.95rem;">Языковые пакеты и раскладки клавиатуры (Русский • Иврит • Английский)</span>
         </div>
-        <div class="small text-muted" style="font-size: 0.72rem;">
+        <div class="small text-muted" style="font-size: 0.78rem;">
           Полный контроль установленных языковых пакетов (MUI), порядка переключения ввода и клавиатурных раскладок
         </div>
       </div>
-      <div class="d-flex align-items-center gap-1.5">
-        <button class="btn btn-sm btn-outline-info rounded-pill px-2.5 py-0.5 font-monospace" id="btn-reg-sync-trio" title="Подключить и синхронизировать всю тройку языков (Русский, Иврит, Английский) и их стандартные раскладки">
+      <div>
+        <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 font-monospace" id="btn-reg-sync-trio" title="Подключить и синхронизировать всю тройку языков (Русский, Иврит, Английский) и их стандартные раскладки">
           <i class="bi bi-check2-all me-1"></i>Подключить всю тройку (RU • HE • EN)
         </button>
       </div>
     </div>
-    <div class="row g-2" id="reg-lang-packs-container">
-      <div class="col-12 text-center py-3 text-muted small">
-        <span class="spinner-border spinner-border-sm text-info me-1" role="status"></span>Загрузка установленных языковых пакетов и раскладок клавиатуры...
+    <div class="row g-3" id="reg-lang-packs-container">
+      <div class="col-12 text-center py-4 text-muted small">
+        <span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>Загрузка установленных языковых пакетов и раскладок клавиатуры...
       </div>
     </div>
   </div>
 
   <!-- Блок 2: Системная локаль и региональные форматы -->
-  <div class="p-2.5 mb-2 rounded border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
+  <div class="card p-3 mb-2 rounded-3 border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
     <div class="d-flex align-items-center gap-2 mb-2">
-      <i class="bi bi-globe2 text-warning"></i>
-      <span class="small fw-bold">Системная локаль и региональные форматы (System Locale &amp; Culture)</span>
+      <i class="bi bi-globe2 text-warning fs-5"></i>
+      <span class="fw-bold" style="font-size: 0.92rem;">Системная локаль и региональные форматы (System Locale &amp; Culture)</span>
     </div>
     <div class="row g-3 mb-2">
       <div class="col-sm-6">
@@ -410,7 +410,7 @@ Usage Examples:
           <option value="zh-CN">中文 (简体, 中国) [zh-CN]</option>
           <option value="ja-JP">日本語 (日本) [ja-JP]</option>
         </select>
-        <div class="small text-muted mt-1" style="font-size: 0.72rem;">Для программ без поддержки Юникода (ANSI) и системных служб.</div>
+        <div class="small text-muted mt-1" style="font-size: 0.74rem;">Для программ без поддержки Юникода (ANSI) и системных служб.</div>
       </div>
       <div class="col-sm-6">
         <label class="form-label small fw-bold mb-1">Пользовательская культура (User Culture):</label>
@@ -421,14 +421,14 @@ Usage Examples:
           <option value="he-IL">עברית (ישראל) [he-IL]</option>
           <option value="de-DE">Deutsch (Deutschland) [de-DE]</option>
         </select>
-        <div class="small text-muted mt-1" style="font-size: 0.72rem;">Язык форматирования дат, времени, чисел и валюты.</div>
+        <div class="small text-muted mt-1" style="font-size: 0.74rem;">Язык форматирования дат, времени, чисел и валюты.</div>
       </div>
     </div>
-    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top" style="border-color: var(--border-color) !important;">
-      <span class="small text-warning"><i class="bi bi-info-circle me-1"></i>Смена системной локали вступает в силу после перезагрузки</span>
-      <button class="btn btn-sm btn-info text-dark fw-bold px-3 rounded-pill" id="btn-reg-save-loc">
+    <div class="d-flex align-items-center justify-content-start gap-3 mt-3 pt-2 border-top" style="border-color: var(--border-color) !important;">
+      <button class="btn btn-sm btn-primary fw-semibold px-4 py-1.5 rounded-pill" id="btn-reg-save-loc">
         <i class="bi bi-check-lg me-1"></i> Применить локаль
       </button>
+      <span class="small text-warning"><i class="bi bi-info-circle me-1"></i>Смена системной локали вступает в силу после перезагрузки</span>
     </div>
   </div>
 </div>
@@ -454,27 +454,31 @@ Usage Examples:
       <label class="form-label small fw-bold mb-1">Описание учетной записи (Description):</label>
       <input class="form-control form-control-sm" id="reg-usr-desc-input" placeholder="Например: Основная рабочая учетная запись" type="text"/>
     </div>
-    <div class="p-2 mb-2 rounded border small font-monospace" style="background: var(--surface-1); border-color: var(--border-color) !important; font-size: 0.74rem;">
-      <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
-        <span class="text-muted">Тип аккаунта:</span>
-        <span class="text-light" id="reg-usr-type-badge">Локальный пользователь Windows</span>
-      </div>
-      <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
-        <span class="text-muted">Каталог профиля:</span>
-        <span class="text-light" id="reg-usr-profile-badge">--</span>
-      </div>
-      <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
-        <span class="text-muted">Идентификатор SID:</span>
-        <span class="text-info" id="reg-usr-sid-badge">--</span>
-      </div>
-      <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
-        <span class="text-muted">Группы безопасности:</span>
-        <span class="text-light" id="reg-usr-groups-badge">--</span>
-      </div>
-      <div class="d-flex justify-content-between py-0.5">
-        <span class="text-muted">Последний вход:</span>
-        <span class="text-light" id="reg-usr-logon-badge">--</span>
-      </div>
+    <div class="table-responsive p-2 mb-2 rounded border" style="background: var(--surface-1); border-color: var(--border-color) !important;">
+      <table class="table table-sm table-borderless reg-info-table font-monospace mb-0" style="font-size: 0.74rem;">
+        <tbody>
+          <tr>
+            <td>Тип аккаунта:</td>
+            <td id="reg-usr-type-badge">Локальный пользователь Windows</td>
+          </tr>
+          <tr>
+            <td>Каталог профиля:</td>
+            <td id="reg-usr-profile-badge">--</td>
+          </tr>
+          <tr>
+            <td>Идентификатор SID:</td>
+            <td class="text-info" id="reg-usr-sid-badge">--</td>
+          </tr>
+          <tr>
+            <td>Группы безопасности:</td>
+            <td id="reg-usr-groups-badge">--</td>
+          </tr>
+          <tr>
+            <td>Последний вход:</td>
+            <td id="reg-usr-logon-badge">--</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- Блок 2: Политика и параметры безопасности пароля учетной записи -->
@@ -483,19 +487,27 @@ Usage Examples:
         <i class="bi bi-shield-lock text-info"></i>
         <span class="small fw-bold">Политика пароля учетной записи</span>
       </div>
-      <div class="p-2 mb-2 rounded border small font-monospace" style="background: var(--surface-1); border-color: var(--border-color) !important; font-size: 0.74rem;">
-        <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
-          <span class="text-muted">Дата установки пароля:</span>
-          <span class="text-light" id="reg-usr-pwd-lastset">--</span>
-        </div>
-        <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-10">
-          <span class="text-muted">Срок действия пароля:</span>
-          <span class="text-warning" id="reg-usr-pwd-expires">--</span>
-        </div>
-        <div class="d-flex justify-content-between py-0.5">
-          <span class="text-muted">Неудачных попыток входа:</span>
-          <span class="text-light" id="reg-usr-pwd-badcount">0</span>
-        </div>
+      <div class="table-responsive p-2 mb-2 rounded border" style="background: var(--surface-1); border-color: var(--border-color) !important;">
+        <table class="table table-sm table-borderless reg-info-table font-monospace mb-0" style="font-size: 0.74rem;">
+          <tbody>
+            <tr>
+              <td>Дата установки пароля:</td>
+              <td class="text-light" id="reg-usr-pwd-lastset">--</td>
+            </tr>
+            <tr>
+              <td>Срок действия пароля:</td>
+              <td class="text-warning" id="reg-usr-pwd-expires">--</td>
+            </tr>
+            <tr>
+              <td>Неудачных попыток входа:</td>
+              <td class="text-light" id="reg-usr-pwd-badcount">0</td>
+            </tr>
+            <tr>
+              <td>Обязательность пароля:</td>
+              <td id="reg-usr-pwd-req-status">--</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
       <div class="row g-2 mb-2">
         <div class="col-12">
@@ -507,14 +519,17 @@ Usage Examples:
             <input class="form-check-input" type="checkbox" id="reg-usr-pwd-cannot-change">
             <label class="form-check-label small" for="reg-usr-pwd-cannot-change">Запретить пользователю смену пароля</label>
           </div>
-          <div class="form-check form-switch mb-1">
-            <input class="form-check-input" type="checkbox" id="reg-usr-pwd-required" checked>
-            <label class="form-check-label small" for="reg-usr-pwd-required">Требовать пароль для учетной записи</label>
+          <div class="form-check form-switch mb-1 d-flex align-items-center justify-content-between">
+            <div>
+              <input class="form-check-input me-2" type="checkbox" id="reg-usr-pwd-not-required">
+              <label class="form-check-label small fw-bold" for="reg-usr-pwd-not-required">Не требовать пароль <span class="text-muted fw-normal font-monospace" style="font-size: 0.72rem;">(net user &lt;user&gt; /passwordreq:no)</span></label>
+            </div>
+            <span class="badge bg-secondary font-monospace" id="reg-usr-pwd-req-badge" style="font-size: 0.7rem;">--</span>
           </div>
         </div>
       </div>
-      <div class="d-flex justify-content-end align-items-center pt-2">
-        <button class="btn btn-sm btn-info text-dark fw-bold px-3 rounded-pill" id="btn-reg-save-usr">
+      <div class="d-flex justify-content-start align-items-center pt-2">
+        <button class="btn btn-sm btn-primary fw-semibold px-3 rounded-pill" id="btn-reg-save-usr">
           <i class="bi bi-check-lg me-1"></i> Сохранить профиль и политики
         </button>
       </div>
@@ -547,13 +562,13 @@ Usage Examples:
         </div>
       </div>
     </div>
-    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top" style="border-color: var(--border-color) !important;">
-      <span class="small text-muted" style="font-size: 0.72rem;">
-        <i class="bi bi-info-circle me-1"></i>Требования сложности зависят от локальной политики хоста
-      </span>
+    <div class="d-flex align-items-center justify-content-start gap-3 mt-2 pt-2 border-top" style="border-color: var(--border-color) !important;">
       <button class="btn btn-sm btn-warning text-dark fw-bold px-3 rounded-pill" id="btn-reg-change-pwd">
         <i class="bi bi-key-fill me-1"></i> Обновить пароль
       </button>
+      <span class="small text-muted" style="font-size: 0.72rem;">
+        <i class="bi bi-info-circle me-1"></i>Требования сложности зависят от локальной политики хоста
+      </span>
     </div>
   </div>
 
@@ -586,62 +601,58 @@ Usage Examples:
         </div>
       </div>
     </div>
-    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top" style="border-color: var(--border-color) !important;">
-      <span class="small text-muted" style="font-size: 0.72rem;">Применяется ко всем локальным пользователям</span>
-      <button class="btn btn-sm btn-outline-info fw-bold px-3 rounded-pill" id="btn-reg-save-policy">
+    <div class="d-flex align-items-center justify-content-start gap-3 mt-2 pt-2 border-top" style="border-color: var(--border-color) !important;">
+      <button class="btn btn-sm btn-outline-primary fw-semibold px-3 rounded-pill" id="btn-reg-save-policy">
         <i class="bi bi-shield-lock me-1"></i> Применить политику хоста
       </button>
+      <span class="small text-muted" style="font-size: 0.72rem;">Применяется ко всем локальным пользователям</span>
     </div>
   </div>
 </div>
 <!-- Pane 4: Network & Computer Name -->
 <div class="regional-tab-pane d-none" id="pane-net">
-<div class="p-2.5 mb-2 rounded border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
+<div class="card p-3 mb-2 rounded-3 border" style="background: var(--surface-2); border-color: var(--border-color) !important;">
 <div class="row g-2 mb-3">
 <div class="col-sm-6">
 <label class="form-label small fw-bold mb-1">Имя компьютера (Hostname):</label>
 <div class="input-group input-group-sm">
 <input class="form-control form-control-sm font-monospace" id="reg-net-host-input" maxlength="15" placeholder="HOST-NAME" type="text"/>
-<button class="btn btn-sm btn-info text-dark fw-bold px-2.5" id="btn-reg-save-host" title="Переименовать компьютер">
+<button class="btn btn-sm btn-primary fw-semibold px-2.5" id="btn-reg-save-host" title="Переименовать компьютер">
 <i class="bi bi-check-lg me-1"></i> Сохранить
 </button>
 </div>
-<div class="small text-muted mt-1" style="font-size: 0.72rem;">Текущее: <span class="badge bg-secondary-subtle text-light font-monospace" id="reg-cur-host-badge">--</span></div>
+<div class="small text-muted mt-1" style="font-size: 0.72rem;">Текущее: <span class="badge bg-secondary-subtle text-body font-monospace" id="reg-cur-host-badge">--</span></div>
 </div>
 <div class="col-sm-6">
 <label class="form-label small fw-bold mb-1">Рабочая группа (Workgroup):</label>
 <div class="input-group input-group-sm">
 <input class="form-control form-control-sm font-monospace" id="reg-net-wg-input" maxlength="15" placeholder="WORKGROUP" type="text"/>
-<button class="btn btn-sm btn-info text-dark fw-bold px-2.5" id="btn-reg-save-wg" title="Изменить рабочую группу">
+<button class="btn btn-sm btn-primary fw-semibold px-2.5" id="btn-reg-save-wg" title="Изменить рабочую группу">
 <i class="bi bi-check-lg me-1"></i> Сохранить
 </button>
 </div>
-<div class="small text-muted mt-1" style="font-size: 0.72rem;">Текущая: <span class="badge bg-secondary-subtle text-light font-monospace" id="reg-cur-wg-badge">--</span></div>
+<div class="small text-muted mt-1" style="font-size: 0.72rem;">Текущая: <span class="badge bg-secondary-subtle text-body font-monospace" id="reg-cur-wg-badge">--</span></div>
 </div>
 </div>
 <div class="mb-3 p-2 rounded border" style="background: var(--surface-1); border-color: var(--border-color) !important;">
-<div class="d-flex justify-content-between align-items-center mb-2">
+<div class="d-flex align-items-center justify-content-start gap-2 mb-2">
 <span class="small fw-bold">Сетевой профиль (Network Category):</span>
 <span class="badge font-monospace" id="reg-cur-net-category-badge">Загрузка...</span>
 </div>
-<div class="row g-2">
-<div class="col-6">
-<button class="btn btn-sm btn-outline-success py-1 px-2 fw-semibold w-100" id="btn-modal-net-private">
+<div class="d-flex align-items-center justify-content-start gap-2 mb-2">
+<button class="btn btn-sm btn-outline-success py-1 px-3 fw-semibold" id="btn-modal-net-private">
 <i class="bi bi-shield-check me-1"></i>Частная сеть
 </button>
-</div>
-<div class="col-6">
-<button class="btn btn-sm btn-outline-warning py-1 px-2 fw-semibold w-100" id="btn-modal-net-public">
+<button class="btn btn-sm btn-outline-warning py-1 px-3 fw-semibold" id="btn-modal-net-public">
 <i class="bi bi-shield-lock me-1"></i>Общедоступная сеть
 </button>
-</div>
 </div>
 <div class="small text-muted mt-1.5" style="font-size: 0.72rem;">
 В частной сети разрешен поиск устройств и общий доступ к файлам/принтерам. В общедоступной сети компьютер изолирован от локальной сети.
 </div>
 </div>
 <div class="p-2 rounded border" style="background: var(--surface-1); border-color: var(--border-color) !important;">
-<div class="d-flex justify-content-between align-items-center mb-2">
+<div class="d-flex align-items-center justify-content-start gap-3 flex-wrap mb-2">
 <div>
 <span class="small fw-bold">Сетевое обнаружение (Network Discovery):</span>
 <span class="badge font-monospace ms-1" id="reg-net-discovery-badge">Загрузка...</span>
@@ -678,7 +689,7 @@ Usage Examples:
 <div class="ui-kpi-label d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-1.5">
 <i class="bi bi-windows text-info"></i>
-<span>Платформа &amp; ОС</span>
+<span data-i18n="aboutSystem.kpiPlatformOs">Платформа &amp; ОС</span>
 </div>
 <button class="btn btn-sm btn-link p-0 text-muted text-decoration-none btn-card-history" data-bs-target="#aboutSystemHistoryModal" data-bs-toggle="modal" data-metric="os" title="История ОС / Host из базы данных">
 <i class="bi bi-clock-history"></i>
@@ -696,7 +707,7 @@ Usage Examples:
 <div class="ui-kpi-label d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-1.5">
 <i class="bi bi-shield-check text-success"></i>
-<span>Безопасность системы</span>
+<span data-i18n="aboutSystem.kpiSecurity">Безопасность системы</span>
 </div>
 <button class="btn btn-sm btn-link p-0 text-muted text-decoration-none btn-card-history" data-bs-target="#aboutSystemHistoryModal" data-bs-toggle="modal" data-metric="security" title="История безопасности из базы данных">
 <i class="bi bi-clock-history"></i>
@@ -712,7 +723,7 @@ Usage Examples:
 <div class="ui-kpi-label d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-1.5">
 <i class="bi bi-shield-lock text-warning"></i>
-<span>Точки восстановления</span>
+<span data-i18n="aboutSystem.kpiRestorePoints">Точки восстановления</span>
 </div>
 <button class="btn btn-sm btn-link p-0 text-muted text-decoration-none btn-card-history" data-bs-target="#aboutSystemHistoryModal" data-bs-toggle="modal" data-metric="restore_points" title="История точек восстановления из базы данных">
 <i class="bi bi-clock-history"></i>
@@ -728,7 +739,7 @@ Usage Examples:
 <div class="ui-kpi-label d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-1.5">
 <i class="bi bi-hdd-fill text-info"></i>
-<span>Системный накопитель (C:)</span>
+<span data-i18n="aboutSystem.kpiStorageC">Системный накопитель (C:)</span>
 </div>
 <button class="btn btn-sm btn-link p-0 text-muted text-decoration-none btn-card-history" data-bs-target="#aboutSystemHistoryModal" data-bs-toggle="modal" data-metric="storage" title="История накопителя C: из базы данных">
 <i class="bi bi-clock-history"></i>
@@ -747,7 +758,7 @@ Usage Examples:
 <div class="panel-header">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-motherboard text-info"></i>
-<span class="panel-title">Конфигурация оборудования и ОС</span>
+<span class="panel-title" data-i18n="aboutSystem.hardwareOsTitle">Конфигурация оборудования и ОС</span>
 </div>
 </div>
 <table class="ui-spec-table">
@@ -838,11 +849,11 @@ Usage Examples:
 <div class="panel-header">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-person-badge text-success"></i>
-<span class="panel-title">Окружение пользователя, сеть и безопасность</span>
+<span class="panel-title" data-i18n="aboutSystem.userEnvSecurityTitle">Окружение пользователя, сеть и безопасность</span>
 </div>
 <div class="d-flex align-items-center gap-2">
-<button class="btn btn-sm btn-outline-info rounded-pill px-2.5 py-0.5" data-bs-target="#aboutRegionalSettingsModal" data-bs-toggle="modal" id="btn-open-regional-settings" style="font-size: 0.75rem;" title="Настроить сеть, часовой пояс, язык, локаль и пользователя">
-<i class="bi bi-gear-fill me-1"></i>Настроить
+<button class="btn btn-sm btn-outline-info rounded-pill px-2.5 py-0.5" data-bs-target="#aboutRegionalSettingsModal" data-bs-toggle="modal" id="btn-open-regional-settings" style="font-size: 0.75rem;" data-i18n-title="aboutSystem.btnOpenRegionalTitle" title="Настроить сеть, часовой пояс, язык, локаль и пользователя">
+<i class="bi bi-gear-fill me-1"></i><span data-i18n="aboutSystem.btnRegionalSettings">Настроить</span>
             </button>
 <span class="small text-muted font-monospace" id="about-ident-time-badge">Локальное время: --:--:--</span>
 </div>
@@ -913,8 +924,8 @@ Usage Examples:
 <span class="badge bg-warning font-monospace" id="about-net-category-badge">Общая</span>
 <span class="small text-muted font-monospace" id="about-net-iface-name">Ethernet</span>
 <div class="btn-group btn-group-sm ms-1" role="group">
-<button class="btn btn-sm btn-outline-secondary font-monospace py-0 px-2.5" id="btn-net-profile-private" title="Сделать сеть доверенной (частной)">Частная</button>
-<button class="btn btn-sm btn-warning font-monospace py-0 px-2.5 fw-semibold" id="btn-net-profile-public" title="Ограничить видимость ПК (общедоступная)">Общая</button>
+<button class="btn btn-sm btn-outline-secondary font-monospace py-0 px-2.5" id="btn-net-profile-private" data-i18n-title="aboutSystem.netProfilePrivateTitle" title="Сделать сеть доверенной (частной)"><span data-i18n="aboutSystem.netProfilePrivate">Частная</span></button>
+<button class="btn btn-sm btn-warning font-monospace py-0 px-2.5 fw-semibold" id="btn-net-profile-public" data-i18n-title="aboutSystem.netProfilePublicTitle" title="Ограничить видимость ПК (общедоступная)"><span data-i18n="aboutSystem.netProfilePublic">Общая</span></button>
 </div>
 </div>
 <button class="btn btn-sm btn-link p-0 text-info text-decoration-none btn-open-reg-tab" data-bs-target="#aboutRegionalSettingsModal" data-bs-toggle="modal" data-reg-tab="pane-net" title="Настроить сеть и имя ПК">
@@ -931,8 +942,8 @@ Usage Examples:
 <div class="d-flex align-items-center gap-1.5 flex-wrap">
 <span class="badge font-monospace border border-secondary border-opacity-50 text-body-secondary" id="about-net-discovery-pill">Обнаружение: Выкл</span>
 <div class="btn-group btn-group-sm ms-1" role="group">
-<button class="btn btn-sm btn-outline-secondary font-monospace py-0 px-2" id="btn-net-discovery-on" title="Включить сетевое обнаружение">Вкл</button>
-<button class="btn btn-sm btn-secondary text-white font-monospace py-0 px-2 fw-semibold" id="btn-net-discovery-off" title="Отключить сетевое обнаружение">Выкл</button>
+<button class="btn btn-sm btn-outline-secondary font-monospace py-0 px-2" id="btn-net-discovery-on" data-i18n-title="aboutSystem.netDiscoveryOnTitle" title="Включить сетевое обнаружение"><span data-i18n="aboutSystem.netDiscoveryOn">Вкл</span></button>
+<button class="btn btn-sm btn-secondary text-white font-monospace py-0 px-2 fw-semibold" id="btn-net-discovery-off" data-i18n-title="aboutSystem.netDiscoveryOffTitle" title="Отключить сетевое обнаружение"><span data-i18n="aboutSystem.netDiscoveryOff">Выкл</span></button>
 </div>
 </div>
 </div>
@@ -988,7 +999,7 @@ Usage Examples:
 <div class="panel-header">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-hdd-stack-fill text-primary"></i>
-<span class="panel-title">Storage Volumes &amp; Partitions</span>
+<span class="panel-title" data-i18n="aboutSystem.storageVolumesTitle">Storage Volumes &amp; Partitions</span>
 </div>
 <div class="d-flex align-items-center gap-2">
 <span class="badge bg-secondary-subtle border border-secondary text-body" id="about-disks-count">-- Drives</span>
@@ -998,19 +1009,19 @@ Usage Examples:
 <table class="about-sys-spec-table">
 <thead>
 <tr>
-<th style="width: 14%;">Drive</th>
-<th style="width: 14%;">FS</th>
-<th style="width: 14%;">Total</th>
-<th style="width: 14%;">Used</th>
-<th style="width: 14%;">Free</th>
-<th style="width: 20%;">Usage</th>
-<th style="width: 10%;">SMART</th>
+<th style="width: 25%;" data-i18n="aboutSystem.thVolumeDisk">Том / Диск (Метка)</th>
+<th style="width: 9%;" data-i18n="aboutSystem.thFs">FS</th>
+<th style="width: 13%;" data-i18n="aboutSystem.thTotal">Total</th>
+<th style="width: 13%;" data-i18n="aboutSystem.thUsed">Used</th>
+<th style="width: 13%;" data-i18n="aboutSystem.thFree">Free</th>
+<th style="width: 17%;" data-i18n="aboutSystem.thUsage">Usage</th>
+<th style="width: 10%;" data-i18n="aboutSystem.thSmart">SMART</th>
 </tr>
 </thead>
 <tbody id="about-sys-disks-tbody">
 <!-- Injected dynamically -->
 <tr>
-<td class="text-center py-3 text-muted" colspan="7">Загрузка разделов дисков...</td>
+<td class="text-center py-3 text-muted" colspan="7" data-i18n="aboutSystem.loadingDisks">Загрузка разделов дисков...</td>
 </tr>
 </tbody>
 </table>
@@ -1025,14 +1036,14 @@ Usage Examples:
 <div class="panel-header d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-hdd-fill text-primary"></i>
-<span class="panel-title">Здоровье накопителей SSD/NVMe и износ (Wear &amp; SMART)</span>
+<span class="panel-title" data-i18n="aboutSystem.disksWearTitle">Здоровье накопителей SSD/NVMe и износ (Wear &amp; SMART)</span>
 </div>
 <div class="d-flex align-items-center gap-2">
 <span class="badge bg-secondary-subtle border border-secondary text-body" id="diag-wear-disks-count">0 дисков</span>
 </div>
 <div class="d-flex align-items-center gap-2">
-<button class="btn btn-sm btn-outline-info rounded-pill px-3 py-1 fw-semibold d-flex align-items-center gap-1" id="btn-diag-disks-wear-refresh" title="Обновить телеметрию дисков">
-<i class="bi bi-arrow-clockwise"></i> Обновить диски
+<button class="btn btn-sm btn-outline-info rounded-pill px-3 py-1 fw-semibold d-flex align-items-center gap-1" id="btn-diag-disks-wear-refresh" data-i18n-title="aboutSystem.btnDisksWearRefreshTitle" title="Обновить телеметрию дисков">
+<i class="bi bi-arrow-clockwise"></i> <span data-i18n="aboutSystem.btnDisksWearRefresh">Обновить диски</span>
 </button>
 </div>
 </div>
@@ -1068,14 +1079,14 @@ Usage Examples:
 <div class="panel-header d-flex justify-content-between align-items-center">
 <div class="d-flex align-items-center gap-2">
 <i class="bi bi-battery-charging text-warning"></i>
-<span class="panel-title">Деградация и состояние батареи (Battery Degradation)</span>
+<span class="panel-title" data-i18n="aboutSystem.batteryWearTitle">Деградация и состояние батареи (Battery Degradation)</span>
 </div>
 <div class="d-flex align-items-center gap-2">
 <span class="ui-badge ui-badge-info font-monospace" id="diag-battery-source-badge">AC Mains</span>
 </div>
 <div class="d-flex align-items-center gap-2">
-<button class="btn btn-sm btn-outline-info rounded-pill px-3 py-1 fw-semibold d-flex align-items-center gap-1" id="btn-diag-battery-refresh" title="Обновить глубокую телеметрию аккумулятора и питания">
-<i class="bi bi-arrow-clockwise"></i> Обновить батарею
+<button class="btn btn-sm btn-outline-info rounded-pill px-3 py-1 fw-semibold d-flex align-items-center gap-1" id="btn-diag-battery-refresh" data-i18n-title="aboutSystem.btnBatteryRefreshTitle" title="Обновить глубокую телеметрию аккумулятора и питания">
+<i class="bi bi-arrow-clockwise"></i> <span data-i18n="aboutSystem.btnBatteryRefresh">Обновить батарею</span>
 </button>
 </div>
 </div>
@@ -1092,20 +1103,20 @@ Usage Examples:
 <div class="about-sys-panel" data-panel-id="panel-about-hardware-tree" id="panel-about-hardware-tree">
 <div class="panel-header">
 <div class="d-flex align-items-center gap-2">
-<button class="panel-toggle-drill collapsed me-1" id="btn-about-sys-tree-toggle" title="Развернуть все / Свернуть все категории" type="button">
-<img alt="Развернуть все/Свернуть все" src="/html/assets/red_drill.png?v=20261008_v1"/>
+<button class="panel-toggle-drill collapsed me-1" id="btn-about-sys-tree-toggle" title="" type="button">
+<img alt="" src="/html/assets/red_drill.png?v=20261113_v1" title=""/>
 </button>
-<span class="panel-title">Полная спецификация оборудования</span>
+<span class="panel-title" data-i18n="aboutSystem.hardwareSpecTitle">Полная спецификация оборудования</span>
 <span class="badge bg-secondary-subtle border border-secondary text-body" id="about-sys-node-count">Hardware Tree</span>
 </div>
 <div class="d-flex align-items-center gap-2">
-<input class="form-control form-control-sm" id="about-sys-search" placeholder="Поиск компонентов..." style="max-width: 220px; font-size: 0.76rem; height: 26px;" type="text"/>
+<input class="form-control form-control-sm" id="about-sys-search" data-i18n-placeholder="aboutSystem.searchComponentsPlaceholder" placeholder="Поиск компонентов..." style="max-width: 220px; font-size: 0.76rem; height: 26px;" type="text"/>
 </div>
 </div>
 <div class="p-3" id="about-sys-tree-container">
 <div class="text-center py-4 small text-muted">
 <div class="spinner-border spinner-border-sm text-info mb-2" role="status"></div>
-<div>Загрузка спецификации оборудования...</div>
+<div data-i18n="aboutSystem.loadingSpec">Загрузка спецификации оборудования...</div>
 </div>
 </div>
 </div>

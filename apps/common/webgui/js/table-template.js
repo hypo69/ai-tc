@@ -4,7 +4,7 @@
  * =============================================================================
  * Description:
  *   Центральный шаблонизатор адаптивных интерактивных таблиц для экосистемы
- *   AI Windows Admin и Test Computer.
+ *   ai-tc и Test Computer.
  *
  *   Функционал:
  *     1. Генерация стандартной DOM-триады таблицы (шапка с тумблером 100%,
@@ -30,11 +30,11 @@
  *     TableTemplate.apply('winadmin-groups-table-container');
  *
  * File: table-template.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps.common.webgui.js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 16:25:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

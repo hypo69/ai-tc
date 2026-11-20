@@ -15,11 +15,11 @@
  *     await loadTab('template', '/html/tab_template/index.html?v=20261015_v1', '/html/tab_template/main.js?v=20261015_v1');
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/templates/tab_template
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-15 12:15:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

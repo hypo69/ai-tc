@@ -22,6 +22,16 @@ import {
   initAppInternalsActivityPanel,
   loadAppInternalsActivityLogs,
 } from './panel_activity/panel.js?v=20261111_v1';
+import {
+  initDbManagerPanel,
+  switchDbManagerBlock,
+  loadDbOverview,
+  executeConsoleQuery,
+  executeDatabaseCompression,
+  executeDatabaseExport,
+  executeCreateBackup,
+  loadDbBackups,
+} from './panel_db_manager/panel.js?v=20261119_v1';
 /**
  * =============================================================================
  * Process Name: Windows App Internals Tab - Main Orchestrator
@@ -29,16 +39,16 @@ import {
  * Description:
  *   Модульный клиентский оркестратор консолидированной панели «Внутренняя кухня».
  *   Координирует суб-панели телеметрии, моделей, логов, журнала активности, ETW-трассировки,
- *   системных настроек, базы знаний подсказок по системе (локальный SQLite)
- *   и базы инструментов агента (сервер Hostinger) с поддержкой двухуровневой
- *   URL-маршрутизации (#tab-app-internals#<panel_id>#block-<block_id>).
+ *   системных настроек, базы знаний подсказок по системе (локальный SQLite),
+ *   базы инструментов агента (сервер Hostinger) и единого менеджера баз данных
+ *   с поддержкой двухуровневой URL-маршрутизации (#tab-app-internals#<panel_id>#block-<block_id>).
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_app_internals
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-11 23:20:00
+ * Updated: 2026-11-19 17:25:00
  * =============================================================================
  */
 
@@ -79,10 +89,11 @@ import {
   bindInstrumentsCatalogButtons,
   loadInstrumentsCatalog,
   openInstrumentEditorModal,
+  openCommandWizardModal,
   saveInstrumentFromModal,
   exportInstrumentsCatalogCsv,
   importInstrumentsCatalogCsv,
-} from './panel_instruments_db/panel.js?v=20261101_v1';
+} from './panel_instruments_db/panel.js?v=20261112_v1';
 
 let isAppInternalsInitialized = false;
 
@@ -196,6 +207,14 @@ window.executeDiagnose = executeDiagnose;
 window.executeBuildIndex = executeBuildIndex;
 window.executeSymbolSearch = executeSymbolSearch;
 window.executeCodeSearch = executeCodeSearch;
+window.initDbManagerPanel = initDbManagerPanel;
+window.switchDbManagerBlock = switchDbManagerBlock;
+window.loadDbOverview = loadDbOverview;
+window.executeConsoleQuery = executeConsoleQuery;
+window.executeDatabaseCompression = executeDatabaseCompression;
+window.executeDatabaseExport = executeDatabaseExport;
+window.executeCreateBackup = executeCreateBackup;
+window.loadDbBackups = loadDbBackups;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initAppInternalsTab);

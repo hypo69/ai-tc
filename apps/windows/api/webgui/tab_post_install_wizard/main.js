@@ -10,11 +10,11 @@
  *     <script src="/html/tab_post_install_wizard/main.js?v=20261006_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_post_install_wizard
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -45,7 +45,7 @@
    */
   async function fetchElevationStatus() {
     try {
-      const res = await fetch('/api/system-control/status');
+      const res = await fetch('/api/v1/system-control/status');
       if (!res.ok) return;
       const data = await res.json();
       const elevBadge = document.getElementById('piw-elevation-badge');
@@ -68,7 +68,7 @@
    */
   async function loadWizardProfiles() {
     try {
-      const res = await fetch('/api/system-control/profiles');
+      const res = await fetch('/api/v1/system-control/profiles');
       if (!res.ok) return;
       const data = await res.json();
       const profiles = data.profiles || [];
@@ -155,7 +155,7 @@
       const profileSelect = document.getElementById('piw-profile-select');
       const profileId = profileSelect ? profileSelect.value : 'post_install';
 
-      const res = await fetch('/api/system-control/profiles/apply', {
+      const res = await fetch('/api/v1/system-control/profiles/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ profile_id: profileId, step_ids: stepIds }),

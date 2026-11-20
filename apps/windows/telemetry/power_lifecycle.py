@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Power Lifecycle
+# Process Name: ai-tc Apps Windows Telemetry - Power Lifecycle
 # =============================================================================
 # Description:
 #   Движок сбора, разбора и корреляции событий жизненного цикла питания Windows
@@ -16,11 +16,11 @@
 #     sessions = engine.get_sessions(limit=20)
 #
 # File: power_lifecycle.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 16:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ import socket
 import subprocess
 import time
 from datetime import datetime, timezone, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 try:
     from logger import logger

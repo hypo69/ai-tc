@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin GitHub - Package Init
+# Process Name: ai-tc GitHub - Package Init
 # =============================================================================
 # Description:
 #   Пакет управления задачами GitHub Issues, вехами Milestones, досками Projects
@@ -12,11 +12,11 @@
 #   service = GitHubService()
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.github
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:48:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

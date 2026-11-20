@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Windows API - GitHub Issues Router
+# Process Name: ai-tc Windows API - GitHub Issues Router
 # =============================================================================
 # Description:
 #   FastAPI роутер для управления GitHub Issues, вехами Milestones, метками
 #   и Git-контекстом репозитория для глобальной вкладки WebGUI tab_issues.
 #
 # Usage Examples:
-#   GET  /api/issues/git-info
-#   GET  /api/issues?state=open
-#   POST /api/issues
+#   GET  /api/v1/issues/git-info
+#   GET  /api/v1/issues?state=open
+#   POST /api/v1/issues
 #
 # File: router_issues.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 14:41:44
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ from src.github.service import GitHubService
 from src.github.models import IssueType, Priority, Component
 from src.ai.agents.github_issue_agent import GitHubIssueAgent
 
-router = APIRouter(prefix="/api/issues", tags=["github_issues"])
+router = APIRouter(prefix="/api/v1/issues", tags=["github_issues"])
 _service = GitHubService()
 _agent = GitHubIssueAgent(service=_service)
 

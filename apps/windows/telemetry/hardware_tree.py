@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Hardware Tree Builder
+# Process Name: ai-tc Apps Windows Telemetry - Hardware Tree Builder
 # =============================================================================
 # Description:
 #   Построитель иерархического дерева компонентов (AIDA64-подобная спецификация)
@@ -18,11 +18,11 @@
 #     nodes = await builder.build(force=False)
 #
 # File: hardware_tree.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 11:15:00
+# Updated: 2026-11-20 15:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -847,6 +847,13 @@ class HardwareTreeBuilder:
                 logger.debug(f"[HardwareTree] WMI root\\wmi WmiMonitorID warning: {edid_err}")
 
         for mon in self._collector.get_monitors():
+            # Не записываем в инвентарь виртуальные дисплеи Session 0 и заглушку Primary Monitor,
+            # чтобы sync_hardware_components_lifecycle не помечал реальные мониторы как REMOVED
+            if "windisc" in str(mon.device or "").lower():
+                continue
+            if mon.name == "Primary Monitor" and mon.adapter in ("", "Display Adapter"):
+                continue
+
             # Точный поиск EDID по серийному номеру, названию модели или коду производителя
             edid_match: Dict[str, str] = {}
             for em in edid_monitors:
@@ -918,6 +925,27 @@ class HardwareTreeBuilder:
                 pnp_disk_dates = SetupAPI().get_disk_install_dates()
             except Exception as pnp_err:
                 logger.debug(f"[HardwareTree] SetupAPI get_disk_install_dates warning: {pnp_err}")
+
+        wmi_vol_map: Dict[str, Dict[str, Any]] = {}
+        if os.name == "nt":
+            try:
+                import win32com.client
+                wmi_obj_vol = win32com.client.GetObject("winmgmts:")
+                for ld in wmi_obj_vol.InstancesOf("Win32_LogicalDisk"):
+                    dev_id = str(getattr(ld, "DeviceID", "") or "").strip().upper()
+                    vol_name = str(getattr(ld, "VolumeName", "") or "").strip()
+                    vol_sn = str(getattr(ld, "VolumeSerialNumber", "") or "").strip()
+                    drv_type = getattr(ld, "DriveType", None)
+                    type_labels = {2: "Съемный накопитель (USB Flash)", 3: "Локальный фиксированный диск", 4: "Сетевой диск", 5: "CD/DVD привод"}
+                    wmi_vol_map[dev_id] = {
+                        "name": vol_name,
+                        "sn": vol_sn,
+                        "type": type_labels.get(drv_type, "Локальный том"),
+                        "compressed": getattr(ld, "Compressed", False),
+                        "quotas": getattr(ld, "SupportsDiskQuotas", False),
+                    }
+            except Exception as ld_err:
+                logger.debug(f"[HardwareTree] WMI LogicalDisk query warning: {ld_err}")
 
         if os.name == "nt":
             try:
@@ -1129,6 +1157,21 @@ class HardwareTreeBuilder:
                     if pnp_id:
                         disk_props["Идентификатор PnP"] = pnp_id
 
+                    # Привязка логических томов и их пользовательских имен
+                    if matched_health and getattr(matched_health, "partitions", None):
+                        raw_parts = str(matched_health.partitions)
+                        letters = re.findall(r"([A-Za-z]:)", raw_parts)
+                        vol_displays = []
+                        for let in letters:
+                            u_let = let.upper()
+                            v_name = wmi_vol_map.get(u_let, {}).get("name")
+                            if v_name:
+                                vol_displays.append(f"{v_name} ({u_let})")
+                            else:
+                                vol_displays.append(u_let)
+                        if vol_displays:
+                            disk_props["Разделы и тома (Имя диска)"] = ", ".join(vol_displays)
+
                     nodes.append(HardwareNode(category="Physical Disk", name=f"{model} ({size_gb} GB, {bus_display})", properties=disk_props))
             except Exception as e:
                 logger.debug(f"[HardwareTree] WMI DiskDrive query warning: {e}")
@@ -1136,27 +1179,6 @@ class HardwareTreeBuilder:
         # ---------------------------------------------------------------------
         # 9. ДИСКОВЫЕ ТОМА (Storage Volume)
         # ---------------------------------------------------------------------
-        wmi_vol_map: Dict[str, Dict[str, Any]] = {}
-        if os.name == "nt":
-            try:
-                import win32com.client
-                wmi_obj = win32com.client.GetObject("winmgmts:")
-                for ld in wmi_obj.InstancesOf("Win32_LogicalDisk"):
-                    dev_id = str(getattr(ld, "DeviceID", "") or "").strip().upper()
-                    vol_name = str(getattr(ld, "VolumeName", "") or "").strip()
-                    vol_sn = str(getattr(ld, "VolumeSerialNumber", "") or "").strip()
-                    drv_type = getattr(ld, "DriveType", None)
-                    type_labels = {2: "Съемный накопитель (USB Flash)", 3: "Локальный фиксированный диск", 4: "Сетевой диск", 5: "CD/DVD привод"}
-                    wmi_vol_map[dev_id] = {
-                        "name": vol_name,
-                        "sn": vol_sn,
-                        "type": type_labels.get(drv_type, "Локальный том"),
-                        "compressed": getattr(ld, "Compressed", False),
-                        "quotas": getattr(ld, "SupportsDiskQuotas", False),
-                    }
-            except Exception as ld_err:
-                logger.debug(f"[HardwareTree] WMI LogicalDisk query warning: {ld_err}")
-
         partitions, _ = self._collector.get_disk_metrics()
         for part in partitions:
             v_info = wmi_vol_map.get(part.device.upper().rstrip("\\"), {})

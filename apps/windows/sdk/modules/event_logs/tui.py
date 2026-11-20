@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Event_Logs - Tui
+# Process Name: ai-tc Apps Windows Modules Event_Logs - Tui
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     service = EventLogsTUI()
 #
 # File: tui.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.event_logs
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:44
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -64,7 +64,7 @@ class EventLogsTUI:
                 f"[{st_color}]{'Активен' if c.enabled else 'Отключен'}[/{st_color}]"
             )
 
-        self.console.logger.console(Panel('[bold white]AI-Windows-Admin: Windows Event Log Center[/bold white]', style='blue'))
+        self.console.logger.console(Panel('[bold white]ai-tc: Windows Event Log Center[/bold white]', style='blue'))
         self.console.logger.console(panel)
         self.console.logger.console(table)
 

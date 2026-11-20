@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Defender Manager
+# Process Name: ai-tc Apps Windows Core - Defender Manager
 # =============================================================================
 # Description:
 #   Служба взаимодействия с Microsoft Defender Antivirus через утилиту MpCmdRun.exe
@@ -12,11 +12,11 @@
 #     service = DefenderManager()
 #
 # File: defender_manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -6,11 +6,11 @@
 //   (kino.davidka.net).
 //
 // File: main.js
-// Project: ai-windows-admin
+// Project: ai-tc
 // Package: apps.windows.api.webgui.tab_cloudflared
 // Author: hypo69
 // Copyright: © 2026 hypo69
-// Updated: 2026-10-30 14:00:00
+// Updated: 2026-11-12 05:00:00
 // =============================================================================
 
 (function() {
@@ -19,7 +19,7 @@
 
   async function fetchTunnelStatus() {
     try {
-      const res = await fetch('/api/cloudflared/status');
+      const res = await fetch('/api/v1/cloudflared/status');
       if (!res.ok) return;
       const data = await res.json();
       
@@ -59,7 +59,7 @@
 
   async function fetchLogs() {
     try {
-      const res = await fetch('/api/cloudflared/logs?limit=50');
+      const res = await fetch('/api/v1/cloudflared/logs?limit=50');
       if (!res.ok) return;
       const data = await res.json();
       const logs = data.logs || [];
@@ -88,7 +88,7 @@
 
   async function runDiagnostics() {
     try {
-      const res = await fetch('/api/cloudflared/diagnostic');
+      const res = await fetch('/api/v1/cloudflared/diagnostic');
       if (!res.ok) return;
       const report = await res.json();
 
@@ -136,7 +136,7 @@
           if (!confirm('Перезапустить туннель Cloudflare?')) return;
           restartBtn.disabled = true;
           try {
-            const res = await fetch('/api/cloudflared/restart', { method: 'POST' });
+            const res = await fetch('/api/v1/cloudflared/restart', { method: 'POST' });
             const data = await res.json();
             alert(data.message || 'Перезапуск инициирован');
           } catch (e) {
@@ -153,7 +153,7 @@
           testBtn.disabled = true;
           testBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Опрос...';
           try {
-            const res = await fetch('/api/cloudflared/test-endpoint', { method: 'POST' });
+            const res = await fetch('/api/v1/cloudflared/test-endpoint', { method: 'POST' });
             const data = await res.json();
             const msg = `Результат проверки Ingress:\nДоступен: ${data.is_reachable ? 'ДА' : 'НЕТ'}\nКод ответа: ${data.status_code || 'N/A'}\nЗадержка: ${data.response_time_ms || 0} мс`;
             alert(msg);

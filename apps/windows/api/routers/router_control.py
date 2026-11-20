@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Router Control
+# Process Name: ai-tc Apps Windows Api Routers - Router Control
 # =============================================================================
 # Description:
 #   Manages WebSocket connections and REST endpoints for synchronized remote control,
@@ -12,11 +12,11 @@
 #     service = ControlConnectionManager()
 #
 # File: router_control.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -101,7 +101,7 @@ class ControlConnectionManager:
             self.disconnect(ws, room_id, target_role)
 
 manager = ControlConnectionManager()
-router = APIRouter(prefix="/api/control", tags=["control"])
+router = APIRouter(prefix="/api/v1/control", tags=["control"])
 
 def get_room_id(token: Optional[str], room: Optional[str]) -> str:
     """Определение идентификатора комнаты на основе JWT токена или параметров."""

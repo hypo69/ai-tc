@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Windows Controller Agent Module
+# Process Name: ai-tc AI - Windows Controller Agent Module
 # =============================================================================
 # Description:
 #   Автономный агент управления операционной системой Windows.
@@ -15,11 +15,11 @@
 #     print(result)
 #
 # File: windows_controller_agent.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.agents
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:49:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

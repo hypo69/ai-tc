@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Common File Editor - Backend Service
+# Process Name: ai-tc Common File Editor - Backend Service
 # =============================================================================
 # Description:
 #   Сервисный уровень универсального редактора файлов (apps/common/file_editor).
@@ -13,11 +13,11 @@
 #   - Построчное сравнение (Unified Diff) буфера редактора с версией на диске.
 #
 # File: service.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.common.file_editor
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:31:20
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

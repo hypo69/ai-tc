@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Roadmap TZ v18.0 Features Suite
+# Process Name: ai-tc Tests - Roadmap TZ v18.0 Features Suite
 # =============================================================================
 # Description:
 #   Комплексный автоматический тестовый набор для проверки всех 5 требований
@@ -11,11 +11,11 @@
 #     python -m unittest tests/test_v18_features.py
 #
 # File: test_v18_features.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 16:03:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

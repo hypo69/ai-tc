@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Capability Registry Module
+# Process Name: ai-tc AI - Capability Registry Module
 # =============================================================================
 # Description:
 #   Standard capability identifiers for AI workloads.
@@ -12,11 +12,11 @@
 #     service = AICapability()
 #
 # File: capability_registry.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.orchestration
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Standard capability identifiers for AI workloads."""

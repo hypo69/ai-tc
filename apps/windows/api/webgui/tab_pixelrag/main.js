@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/tab_pixelrag/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_pixelrag
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 12:50:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

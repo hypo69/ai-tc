@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Focus_Policy - Models
+# Process Name: ai-tc Apps Windows Modules Focus_Policy - Models
 # =============================================================================
 # Description:
 #   Модели данных Focus Policy Engine: профили фокусировки, уведомления, статус, итог сессии.
@@ -12,11 +12,11 @@
 #     profile = FocusProfile(profile_id='p1', name='Работа')
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.focus_policy
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

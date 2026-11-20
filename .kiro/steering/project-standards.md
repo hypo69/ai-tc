@@ -6,7 +6,7 @@ inclusion: auto
 
 # 🚀 Project Standards & Development Guidelines
 
-Central steering document that coordinates all development standards for the AI-Windows-Admin project.
+Central steering document that coordinates all development standards for the ai-tc project.
 
 ## Quick Navigation
 
@@ -18,7 +18,7 @@ Central steering document that coordinates all development standards for the AI-
 
 ## Project Overview
 
-**ai-windows-admin** is a comprehensive system for:
+**ai-tc** is a comprehensive system for:
 - AI model integration (Gemini, OpenAI, Groq, Ollama, etc.)
 - Document processing and RAG (Retrieval-Augmented Generation)
 - Media organization and automation

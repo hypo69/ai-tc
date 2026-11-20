@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/tab_admin/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_admin
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-03 15:56:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -32,7 +32,7 @@ async function initSystemAdminTab() {
 async function refreshSystemDashboard() {
   try {
     // 1. Загрузка дисков
-    const drivesData = await window.api.fetch('/api/control/rescan', { method: 'GET' }).catch(() => ({ drives: [], details: [] }));
+    const drivesData = await window.api.fetch('/api/v1/control/rescan', { method: 'GET' }).catch(() => ({ drives: [], details: [] }));
     const drives = Array.isArray(drivesData.drives) ? drivesData.drives : [];
     const details = Array.isArray(drivesData.details) ? drivesData.details : [];
     const drivesCountEl = document.getElementById('sys-drives-count');
@@ -82,7 +82,7 @@ async function refreshSystemDashboard() {
     }
 
     // 2. Загрузка статуса плагинов
-    const pluginsData = await window.api.fetch('/api/admin/plugins').catch(() => ({ plugins: [] }));
+    const pluginsData = await window.api.fetch('/api/v1/admin/plugins').catch(() => ({ plugins: [] }));
     const plugins = pluginsData.plugins || [];
     const pluginsCountEl = document.getElementById('sys-plugins-count');
     const pluginsActiveEl = document.getElementById('sys-plugins-active-count');
@@ -97,7 +97,7 @@ async function refreshSystemDashboard() {
 async function rescanStorageDrives() {
   try {
     if (typeof showNotification === 'function') showNotification('Пересканирование накопителей ОС...', 'info');
-    const result = await window.api.fetch('/api/control/rescan', { method: 'GET' });
+    const result = await window.api.fetch('/api/v1/control/rescan', { method: 'GET' });
     const drivesList = Array.isArray(result.drives) ? result.drives.join(', ') : 'OK';
     if (typeof showNotification === 'function') showNotification(`Диски обновлены: ${drivesList}`, 'success');
     await refreshSystemDashboard();
@@ -233,7 +233,7 @@ function switchToTab(tabName) {
 // Schedulers Management Logic
 async function refreshSchedulersConfig() {
   try {
-    const res = await window.api.fetch('/api/admin/schedulers');
+    const res = await window.api.fetch('/api/v1/admin/schedulers');
     if (!res || !res.config) return;
     
     const cfg = res.config;
@@ -298,7 +298,7 @@ async function saveSchedulersConfig() {
 
     if (typeof showNotification === 'function') showNotification('Сохранение конфигурации планировщика...', 'info');
 
-    const res = await window.api.fetch('/api/admin/schedulers', {
+    const res = await window.api.fetch('/api/v1/admin/schedulers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -321,7 +321,7 @@ async function triggerSchedulerJob(jobName) {
       showNotification(`Запуск фоновой задачи '${jobName}'...`, 'info');
     }
 
-    const res = await window.api.fetch(`/api/admin/schedulers/trigger/${jobName}`, {
+    const res = await window.api.fetch(`/api/v1/admin/schedulers/trigger/${jobName}`, {
       method: 'POST'
     });
 

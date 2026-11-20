@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Process_Manager - Tui
+# Process Name: ai-tc Apps Windows Modules Process_Manager - Tui
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     service = ProcessManagerTUI()
 #
 # File: tui.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.process_manager
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:44
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -67,7 +67,7 @@ class ProcessManagerTUI:
                 str(p.username or '-')
             )
 
-        self.console.logger.console(Panel('[bold white]AI-Windows-Admin: Windows Process & Memory Manager[/bold white]', style='blue'))
+        self.console.logger.console(Panel('[bold white]ai-tc: Windows Process & Memory Manager[/bold white]', style='blue'))
         self.console.logger.console(panel)
         self.console.logger.console(table)
 

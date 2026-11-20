@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows API - Config Helper
+# Process Name: ai-tc Apps Windows API - Config Helper
 # =============================================================================
 # Description:
 #   Унифицированное чтение и сохранение настроек AI-моделей и провайдеров в config.json.
@@ -12,11 +12,11 @@
 #     save_ai_config(provider='gemini', model_name='gemini-3.1-flash-lite')
 #
 # File: config_helper.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 16:32:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ from logger import logger
 
 def resolve_active_config_path(profile: str = "") -> Path:
     """Находит актуальный путь к конфигурационному файлу apps/windows/config.json."""
-    cfg_env = os.getenv("AIWINDOWSADMIN_CONFIG") or os.getenv("CONFIG_FILE")
+    cfg_env = os.getenv("AITC_CONFIG") or os.getenv("AIWINDOWSADMIN_CONFIG") or os.getenv("CONFIG_FILE")
     if cfg_env:
         p = Path(cfg_env)
         active_p = p if p.is_absolute() else (__root__ / cfg_env)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Sysadmin - Router
+# Process Name: ai-tc Apps Windows Modules Sysadmin - Router
 # =============================================================================
 # Description:
 #   FastAPI router integration for Windows System Administrator & Multi-Directory Watcher.
@@ -12,11 +12,11 @@
 #     service = AuditPolicyRequest()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.sysadmin
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 15:25:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ from .src.directory_watcher import DirectoryWatcher, get_directory_watcher
 from .src.file_auditor import WindowsFileAuditor
 from .src.state import SecurityEvent, SystemAdminState
 router = APIRouter()
-sysadmin_router = APIRouter(prefix='/api/sysadmin', tags=['sysadmin'])
+sysadmin_router = APIRouter(prefix='/api/v1/sysadmin', tags=['sysadmin'])
 file_audit_router = APIRouter(prefix='/api/v1/system/file-audit', tags=['file-audit'])
 _telemetry_logger = AppTelemetryLogger('windows_sysadmin')
 state = SystemAdminState()

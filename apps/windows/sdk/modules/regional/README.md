@@ -2,7 +2,7 @@
 
 ## 📋 Обзор модуля
 
-Пакет **`apps.windows.sdk.modules.regional`** является официальным компонентом Windows SDK проекта **AI-Windows-Admin**.
+Пакет **`apps.windows.sdk.modules.regional`** является официальным компонентом Windows SDK проекта **ai-tc**.
 Он инкапсулирует все прямые низкоуровневые операции с операционной системой Windows, связанные с:
 1. **Языковыми пакетами (Language Packs / MUI)**: считывание установленных пакетов из системного реестра (`HKLM\SYSTEM\CurrentControlSet\Control\MUI\UILanguages`), активных раскладок пользователя и безопасная установка через PowerShell (`Install-Language`, `Set-WinUserLanguageList`).
 2. **Часовыми поясами (Timezones)**: инспекция через `[System.TimeZoneInfo]` и изменение через `tzutil.exe /s`.

@@ -27,7 +27,7 @@
 # Package: root
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 15:50:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -134,7 +134,7 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
         argparse.Namespace: Распарсенные аргументы.
     """
     parser = argparse.ArgumentParser(
-        description='AI-Windows-Admin Windows System API (TC) Launcher',
+        description='ai-tc Windows System API (TC) Launcher',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -238,6 +238,7 @@ def run_tc(
     # 2. Настройка профиля конфигурации
     windows_config = __root__ / WINDOWS_CONFIG_REL_PATH
     if windows_config.exists():
+        os.environ['AITC_CONFIG'] = str(windows_config)
         os.environ['AIWINDOWSADMIN_CONFIG'] = str(windows_config)
         os.environ['CONFIG_FILE'] = str(windows_config)
         logger.info(f'  [⚙️ Config Profile]: {windows_config}')

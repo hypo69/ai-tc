@@ -9,7 +9,7 @@
  * Файл: apps/windows/api/webgui/tab_windows_admin/panel_catalog/panel.js
  * Пакет: windows/api/webgui/tab_windows_admin
  * Автор: hypo69
- * Updated: 2026-10-20 17:18:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -27,7 +27,7 @@ export function getCatalogCache() {
 export async function loadCatalog() {
   const tbody = document.getElementById('catalog-table-body');
   try {
-    const res = await fetch('/api/windows/identity/catalog');
+    const res = await fetch('/api/v1/windows/identity/catalog');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     _catalogCache = await res.json();
     renderCatalogTable(_catalogCache);

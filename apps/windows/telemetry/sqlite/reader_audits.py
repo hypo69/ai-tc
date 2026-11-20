@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - TelemetryAuditReaderMixin
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - TelemetryAuditReaderMixin
 # =============================================================================
 # Description:
 #   Миксин чтения аудитов: перезагрузки, архивы оборудования и автозагрузки,
 #   журналы, брандмауэр, службы, Defender, ПО, процессы и Live Stream из 12 базовых таблиц.
 #
 # File: reader_audits.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 16:01:00
+# Updated: 2026-11-12 12:35:00
 # =============================================================================
 
 from __future__ import annotations
@@ -311,6 +311,7 @@ class TelemetryAuditReaderMixin:
                 item = dict(d)
                 item.setdefault("camera_active_apps", [])
                 item.setdefault("microphone_active_apps", [])
+                item.setdefault("audio_sessions", [])
                 item.setdefault("userassist_top_apps", [])
                 results.append(item)
             return results

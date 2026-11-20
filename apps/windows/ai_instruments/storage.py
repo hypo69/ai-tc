@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI Instruments - Storage
+# Process Name: ai-tc AI Instruments - Storage
 # =============================================================================
 # Description:
 #   Хранилище инструментов ИИ-агента (ai_instruments.db).
@@ -17,11 +17,11 @@
 #     tool = storage.save_instrument(inst)
 #
 # File: storage.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.ai_instruments
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 17:31:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -308,7 +308,7 @@ class AIInstrumentsStorage:
             data=encoded_data,
             headers={
                 "Content-Type": "application/json; charset=utf-8",
-                "User-Agent": "AI-Windows-Admin-Instruments/1.0",
+                "User-Agent": "ai-tc-Instruments/1.0",
                 "X-API-Key": str(self.hostinger_config.get("php_api_key", "")).strip(),
             },
             method="POST",

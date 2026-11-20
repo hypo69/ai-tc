@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows DB
+# Process Name: ai-tc Apps Windows DB
 # =============================================================================
 # Description:
-#   Пакет управления базами данных (MariaDB, SQLite) для AI-Windows-Admin.
+#   Пакет управления базами данных (MariaDB, SQLite) для ai-tc.
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.db
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 20:39:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Пакет управления базами данных (MariaDB, SQLite)."""

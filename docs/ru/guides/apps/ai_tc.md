@@ -1,8 +1,8 @@
-# AI Windows Admin Admin
+# ai-tc Admin
 
 ## Назначение
 
-Приложение `ai_windows_admin_admin` консолидирует административные сервисы и функции управления системой в соответствии с модульной архитектурой платформы AI Windows Admin:
+Приложение `ai_tc_admin` консолидирует административные сервисы и функции управления системой в соответствии с модульной архитектурой платформы ai-tc:
 - **Управление конфигурациями**: режимы RAG, параметры веб-поиска, настройки моделей и конфигурационные файлы приложений `/apps`.
 - **Версионирование инструкций**: управление системными промптами чата и стилями диктора, сохранение версий и быстрая активация версий.
 - **Управление источниками данных**: просмотр, валидация и редактирование `sources.json`.
@@ -12,12 +12,12 @@
 ## Структура
 
 ```
-apps/ai_windows_admin_admin/
+apps/ai_tc_admin/
 ├── README.md                          # Документация приложения
 ├── __init__.py                        # Экспорт точки входа и роутера
 ├── __main__.py                        # Точка входа для запуска в автономном режиме / CLI
 ├── config.json                        # Локальная конфигурация микроприложения
-├── router.py                          # FastAPI роутер (/api/v1/ai_windows_admin_admin)
+├── router.py                          # FastAPI роутер (/api/v1/ai_tc_admin)
 ├── tui.py                             # Терминальный интерфейс администратора (TUI)
 ├── src/
 │   ├── config_manager.py              # Управление конфигурациями (RAG, поиск, apps)
@@ -31,22 +31,22 @@ apps/ai_windows_admin_admin/
 
 ### Запуск интерактивного TUI
 ```powershell
-python -m apps.ai_windows_admin_admin --mode tui
+python -m apps.ai_tc_admin --mode tui
 ```
 
 ### Запуск автономного сервера API
 ```powershell
-python -m apps.ai_windows_admin_admin --mode server --port 8110
+python -m apps.ai_tc_admin --mode server --port 8110
 ```
 
 ### Вывод краткого системного статуса в JSON
 ```powershell
-python -m apps.ai_windows_admin_admin --mode status
+python -m apps.ai_tc_admin --mode status
 ```
 
 ## API
 
-Базовый префикс: `/api/v1/ai_windows_admin_admin`
+Базовый префикс: `/api/v1/ai_tc_admin`
 
 | Метод | Эндпоинт | Описание |
 |---|---|---|

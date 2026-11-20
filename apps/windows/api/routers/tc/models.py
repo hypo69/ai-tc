@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - models
+# Process Name: ai-tc Apps Windows Api Routers - models
 # =============================================================================
 # Description:
 #   Pydantic-модели TC.
 #   Вынесено из router_tc.py (этап 4 оптимизации).
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.tc
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-22 13:30:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

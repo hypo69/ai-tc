@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - History Module
+# Process Name: ai-tc AI - History Module
 # =============================================================================
 # Description:
 #   Миксин для управления историей диалогов в GoogleGenerativeAI.
@@ -14,11 +14,11 @@
 #     print(result)
 #
 # File: history.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:43:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Миксин для управления историей диалогов в GoogleGenerativeAI."""

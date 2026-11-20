@@ -13,11 +13,11 @@ Usage Examples:
       <iframe src="/windows/api/webgui/user/components/google_signin.html" class="w-100 h-100 border-0"></iframe>
 
 File: google_signin.html
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/user/components
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-10 17:35:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 -->
 
@@ -50,7 +50,7 @@ Updated: 2026-10-10 17:35:00
   // Check authentication status
   async function checkAuthStatus() {
     try {
-      const response = await fetch('/auth/check');
+      const response = await fetch('/api/v1/auth/check');
       const data = await response.json();
       
       if (data.authenticated) {
@@ -87,7 +87,7 @@ Updated: 2026-10-10 17:35:00
   // Handle logout click
   logoutBtn?.addEventListener('click', async () => {
     try {
-      await fetch('/auth/logout', { method: 'POST' });
+      await fetch('/api/v1/auth/logout', { method: 'POST' });
       // Reload page to update UI
       window.location.reload();
     } catch (error) {

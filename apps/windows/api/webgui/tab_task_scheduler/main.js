@@ -13,11 +13,11 @@
  *     import { initTaskSchedulerTab } from '/windows/api/webgui/tab_task_scheduler/main.js';
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_task_scheduler
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-16 14:55:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -69,7 +69,7 @@ export function updateHistoryUI(enabled) {
 
 export async function fetchTaskSchedulerHistoryStatus() {
   try {
-    const res = await fetch('/api/task-scheduler/history-status');
+    const res = await fetch('/api/v1/task-scheduler/history-status');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     updateHistoryUI(data.enabled);
@@ -85,7 +85,7 @@ export async function toggleTaskSchedulerHistory(targetState) {
   if (bannerBtn) bannerBtn.disabled = true;
 
   try {
-    const res = await fetch('/api/task-scheduler/history-status', {
+    const res = await fetch('/api/v1/task-scheduler/history-status', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ enabled: targetState })
@@ -120,7 +120,7 @@ export async function fetchTaskSchedulerSummary() {
   }
 
   try {
-    const res = await fetch('/api/task-scheduler/summary');
+    const res = await fetch('/api/v1/task-scheduler/summary');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderTasks(data);
@@ -253,7 +253,7 @@ function applyTaskFilters() {
 async function executeTaskAction(taskTarget, action) {
   if (window.toast) window.toast.info('Планировщик', `${action}: ${taskTarget}`);
   try {
-    const res = await fetch('/api/task-scheduler/action', {
+    const res = await fetch('/api/v1/task-scheduler/action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

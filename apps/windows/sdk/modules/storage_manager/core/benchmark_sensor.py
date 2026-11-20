@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Storage_Manager Core - Benchmark Sensor
+# Process Name: ai-tc Apps Windows Modules Storage_Manager Core - Benchmark Sensor
 # =============================================================================
 # Description:
 #   Сенсор телеметрии производительности дисковой подсистемы.
@@ -15,11 +15,11 @@
 #     results = sensor.run_quick_benchmark(file_size_mb=16, duration_sec=1)
 #
 # File: benchmark_sensor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.storage_manager.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:26:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -54,3 +54,21 @@ print(f"Статус системы: {summary['status']}")
 - `GET /api/windows/hardware/gpu` — Детальная телеметрия графических процессоров.
 - `GET /api/windows/hardware/smart` — S.M.A.R.T. здоровье дисков.
 - `POST /api/windows/benchmark/stress` — Запуск контролируемого стресс-теста.
+
+## 🧩 PawnIO (Tier 5 — опциональный Kernel Hardware Access)
+
+**Полностью опционален:** если `PawnIOLib.dll` не найдена, провайдер молча недоступен (`NOT_FOUND`), остальная диагностика работает как раньше. Если установлен — `PawnIOProvider` (`providers/pawnio_provider.py`, клиент `pawnio_client.py`) сам определяет процессор, перебирая модули (`PawnIO.Modules`), и читает максимум датчиков; каждый регистр читается независимо — отклонённые драйвером пропускаются.
+
+| Модуль | CPU | Датчики |
+|---|---|---|
+| `IntelMSR` | Intel | температура пакета, thermal/power-limit throttling, множитель×100 МГц, VID, лимит PL1, мощность пакета/ядер/графики/DRAM/платформы (RAPL) |
+| `AMDFamily17` | AMD Zen (17h+) | Tctl/Tdie (SMN), мощность пакета |
+| `AMDFamily10` | AMD K10–K15 | температура сокетов (MISCCTL) |
+| `AMDFamily0F` | AMD K8 | температура сокетов (THERMTRIP) |
+
+- Данные идут в существующие `SensorReading` / `SensorSnapshot`; инвентаризацию дают остальные провайдеры (без дублирования).
+- `PawnIOLib.dll` ищется через `UtilityDiscovery` (ключ `pawnio`); модули `*.bin` — в `modules/` рядом с DLL.
+- Безопасность: белый список read-ioctl (`read_msr`, `read_smn`, `read_miscctl`, `get_thermtrip`); запись, произвольный Pawn-код и unrestricted-сборка запрещены; SMN/PCI-доступ под мьютексом `Global\Access_PCI`.
+- Имена ioctl и размеры сверены с исходниками `PawnIO.Modules`; формулы декодирования (Zen/K10/K8, ratio/VID Intel) взяты из публичных описаний и **не проверены на железе**.
+- Не реализовано: `RyzenSMU` PM-table (раскладка зависит от версии), `ZhaoxinMSR`, SMBus/LPC/EC/GPU/PCH (отдельные модули, другая модель данных).
+- Лицензия: PawnIO — GPL-2.0 с исключением для IOCTL, модули — LGPL-2.1+. Перед распространением бинарников проверьте совместимость.

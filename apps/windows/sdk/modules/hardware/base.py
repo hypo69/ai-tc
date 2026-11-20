@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Hardware - Base
+# Process Name: ai-tc Apps Windows Modules Hardware - Base
 # =============================================================================
 # Description:
 #   Базовые абстракции и протоколы для аппаратных провайдеров.
@@ -12,11 +12,11 @@
 #     service = ProviderStatus()
 #
 # File: base.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.hardware
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-16 04:50:00
 # =============================================================================
 
 from __future__ import annotations
@@ -41,6 +41,7 @@ class ProviderTier(int, Enum):
     TIER_2_PRIMARY = 2
     TIER_3_SPECIALIZED = 3
     TIER_4_AUXILIARY = 4
+    TIER_5_KERNEL = 5
 
 class ProviderCapability(str, Enum):
     """Возможности аппаратного провайдера."""

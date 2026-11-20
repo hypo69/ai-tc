@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - User Query Rag Module
+# Process Name: ai-tc AI - User Query Rag Module
 # =============================================================================
 # Description:
 #   Возвращает путь к базе данных RAG для конкретного пользователя и именованной базы знаний (роли).
@@ -13,11 +13,11 @@
 #     print(res)
 #
 # File: user_query_rag.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:43:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

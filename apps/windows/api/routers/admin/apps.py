@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - apps
+# Process Name: ai-tc Apps Windows Api Routers - apps
 # =============================================================================
 # Description:
 #   Эндпойнты статуса и конфигурации приложений /apps.
 #   Вынесено из router_admin.py (этап 4 оптимизации).
 #
 # File: apps.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.admin
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 14:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -227,7 +227,7 @@ APPS_REGISTRY: List[Dict[str, Any]] = [
 def get_apps_status(profile: Optional[str] = None) -> Dict[str, Any]:
     """Retrieve enabled/disabled status for all /apps applications based on active configuration file."""
     import os
-    cfg_env = os.getenv("AIWINDOWSADMIN_CONFIG") or os.getenv("CONFIG_FILE")
+    cfg_env = os.getenv("AITC_CONFIG") or os.getenv("AIWINDOWSADMIN_CONFIG") or os.getenv("CONFIG_FILE")
     active_path: Optional[Path] = None
     if profile in ("tc", "test-computer", "test_computer", "apps_tc"):
         for candidate in [__root__ / "config_tc.json", __root__ / "tc.json"]:

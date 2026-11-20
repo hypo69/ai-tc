@@ -41,12 +41,13 @@
   "heavy_mode_max_duration_days": 5,
   "heavy_mode_auto_switch_enabled": true,
   "watch_directories": [
-    "C:\\Users\\"
+    "C:\\Users",
+    "C:\\Users\\onela\\AppData\\Local\\AI-TC\\data"
   ],
   "log_filename": "ai_sensors_polls.json",
   "collect_serial_numbers": true,
   "collect_hardware_inventory": false,
-  "collect_file_events": false,
+  "collect_file_events": true,
   "heavy_collectors": {
     "hardware_sensors": true,
     "storage_smart": true,
@@ -109,7 +110,7 @@
     },
     "internet": {
       "enabled": true,
-      "interval_seconds": 3600.0,
+      "interval_seconds": 14400.0,
       "metrics": [
         "ping",
         "download",
@@ -143,7 +144,8 @@
     "collect_file_events": true,
     "max_file_size_mb": 50,
     "watch_directories": [
-      "C:\\Users\\"
+      "C:\\Users",
+      "C:\\Users\\onela\\AppData\\Local\\AI-TC\\data"
     ]
   },
   "w64_collector": {
@@ -192,7 +194,7 @@
     "acpi_thermal_ttl_sec": 15.0,
     "storage_smart_ttl_sec": 30.0,
     "cloud_storage_ttl_sec": 120.0,
-    "internet_speed_ttl_sec": 1800.0,
+    "internet_speed_ttl_sec": 14400.0,
     "network_adapter_stats_ttl_sec": 15.0,
     "physical_disks_health_ttl_sec": 43200.0,
     "forensics_consent_store_ttl_sec": 60.0,
@@ -254,6 +256,7 @@
     "handles_interval_sec": 30.0,
     "network_ports_interval_sec": 30.0,
     "network_activity_interval_sec": 30.0,
-    "disk_scan_interval_sec": 43200.0
+    "disk_scan_interval_sec": 43200.0,
+    "internet_speed_interval_sec": 14400.0
   }
 }

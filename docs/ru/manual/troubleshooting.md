@@ -105,10 +105,10 @@ assist status
 | Файл | Содержимое |
 |---|---|
 | `logs/uvicorn_*.log` | Консольный вывод сервера |
-| `ai-windows-admin/logs/fastapi.log` | Маршрутизация запросов FastAPI |
-| `ai-windows-admin/logs/info.log` | Системные события |
-| `ai-windows-admin/logs/errors.log` | Ошибки |
-| `ai-windows-admin/logs/gemini.log` | Запросы к Gemini API |
+| `ai-tc/logs/fastapi.log` | Маршрутизация запросов FastAPI |
+| `ai-tc/logs/info.log` | Системные события |
+| `ai-tc/logs/errors.log` | Ошибки |
+| `ai-tc/logs/gemini.log` | Запросы к Gemini API |
 | `logs/foundry_stdout.log` | Вывод Microsoft AI Foundry |
 | `logs/ollama_stdout.log` | Вывод Ollama |
 | `logs/telegram_bot.log` | Telegram-бот |

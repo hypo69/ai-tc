@@ -7,11 +7,11 @@
 #   и в роутере загрузки GPU (/api/v1/panel/gpu-load).
 #
 # File: test_gpu_dedup.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 20:45:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

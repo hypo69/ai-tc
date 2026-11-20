@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Model Pool State Module
+# Process Name: ai-tc AI - Model Pool State Module
 # =============================================================================
 # Description:
 #   Ensure that the secrets directory exists on the filesystem.
@@ -13,11 +13,11 @@
 #     print(res)
 #
 # File: model_pool_state.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.orchestration
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:48:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

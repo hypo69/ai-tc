@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Personalization Module
+# Process Name: ai-tc Apps Windows - Personalization Module
 # =============================================================================
 # Description:
 #   Модуль персонализации, тем оформления, настройки курсора, обоев рабочего
@@ -9,7 +9,7 @@
 # Usage Examples:
 #   from apps.windows.sdk.modules.personalization import PersonalizationManager, personalization_router
 #
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Пакет управления персонализацией и внешним видом Windows."""

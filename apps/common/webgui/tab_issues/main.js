@@ -7,11 +7,11 @@
  *   метками, шаблонами и связью с локальным Git-репозиторием.
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/common/webgui/tab_issues
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-03 14:41:44
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -106,7 +106,7 @@
    */
   async function loadGitInfo() {
     try {
-      const res = await fetch('/api/issues/git-info');
+      const res = await fetch('/api/v1/issues/git-info');
       const data = await res.json();
       if (data.status !== 'ok') return;
 
@@ -172,7 +172,7 @@
     }
 
     try {
-      const res = await fetch(`/api/issues?state=${encodeURIComponent(state)}&limit=100`);
+      const res = await fetch(`/api/v1/issues?state=${encodeURIComponent(state)}&limit=100`);
       const data = await res.json();
       currentIssues = data.issues || [];
 
@@ -347,7 +347,7 @@
     const actionText = document.getElementById('modal-ai-action-text');
 
     try {
-      const res = await fetch(`/api/issues/${currentActiveIssue.number}/create-branch`, { method: 'POST' });
+      const res = await fetch(`/api/v1/issues/${currentActiveIssue.number}/create-branch`, { method: 'POST' });
       const data = await res.json();
       if (actionResult && actionText) {
         actionResult.classList.remove('d-none');
@@ -375,7 +375,7 @@
     const actionText = document.getElementById('modal-ai-action-text');
 
     try {
-      const res = await fetch(`/api/issues/${currentActiveIssue.number}/ai-plan`);
+      const res = await fetch(`/api/v1/issues/${currentActiveIssue.number}/ai-plan`);
       const data = await res.json();
       if (actionResult && actionText) {
         actionResult.classList.remove('d-none');
@@ -404,7 +404,7 @@
   async function handleModalToggleState() {
     if (!currentActiveIssue) return;
     const isClosing = currentActiveIssue.state === 'open';
-    const endpoint = isClosing ? `/api/issues/${currentActiveIssue.number}/close` : `/api/issues/${currentActiveIssue.number}/reopen`;
+    const endpoint = isClosing ? `/api/v1/issues/${currentActiveIssue.number}/close` : `/api/v1/issues/${currentActiveIssue.number}/reopen`;
     const payload = isClosing ? { reason: 'completed', comment: 'Закрыто через WebGUI AI-TC' } : {};
 
     try {
@@ -433,7 +433,7 @@
     if (!val) return;
 
     try {
-      const res = await fetch(`/api/issues/${currentActiveIssue.number}/comment`, {
+      const res = await fetch(`/api/v1/issues/${currentActiveIssue.number}/comment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ comment: val })
@@ -452,7 +452,7 @@
    */
   async function loadTemplates() {
     try {
-      const res = await fetch('/api/issues/templates');
+      const res = await fetch('/api/v1/issues/templates');
       const data = await res.json();
       availableTemplates = data.templates || [];
       const select = document.getElementById('new-issue-template-select');
@@ -518,7 +518,7 @@
     };
 
     try {
-      const res = await fetch('/api/issues', {
+      const res = await fetch('/api/v1/issues', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -544,7 +544,7 @@
    */
   async function loadLabels() {
     try {
-      const res = await fetch('/api/issues/labels');
+      const res = await fetch('/api/v1/issues/labels');
       const data = await res.json();
       const tbody = document.getElementById('labels-table-body');
       if (!tbody || !data.labels) return;
@@ -568,7 +568,7 @@
    */
   async function handleSyncLabels() {
     try {
-      const res = await fetch('/api/issues/labels/sync', { method: 'POST' });
+      const res = await fetch('/api/v1/issues/labels/sync', { method: 'POST' });
       const data = await res.json();
       alert(`Синхронизировано меток: ${data.synced_count || 0}`);
     } catch (err) {

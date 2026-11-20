@@ -11,7 +11,7 @@
  * Package: apps/common/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-03 15:05:00
+ * Updated: 2026-11-12 12:56:00
  * =============================================================================
  */
 
@@ -396,7 +396,7 @@ body.theme-nightview-70 {
 
   /* Panel Header (NightView - H3) */
   --panel-header-font-size: 1.75rem;
-  --panel-header-color: #18181b;
+  --panel-header-color: #1d4ed8;
   --panel-header-bg: #e2dac9;
 
   /* Tab Header (NightView) */
@@ -605,12 +605,18 @@ html[data-theme="theme-high-contrast"] {
 
 h3.panel-header,
 .panel-header h3,
+.panel-title,
 .panel-header .panel-title {
   font-size: var(--panel-header-font-size, 1.75rem);
   font-weight: 600;
   color: var(--panel-header-color, var(--ui-text-primary));
   line-height: 1.3;
   margin: 0;
+}
+
+.panel-title i,
+.panel-header .panel-title i {
+  color: inherit !important;
 }
 
 /* Заголовок страницы/вкладки .tab-header */

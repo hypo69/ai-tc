@@ -3,20 +3,25 @@
  * Process Name: Windows Forensics Tab - Main Script
  * =============================================================================
  * Description:
- *   Клиентский скрипт управления интерфейсом форензики и суб-вкладками:
- *   Хронологический таймлайн активности (Telemetry Timeline) и
- *   Форензика запуска программ из реестра Windows (UserAssist ROT13).
+ *   Клиентский скрипт цифровой криминалистики (Digital Forensics & Incident Response):
+ *   - Интеллектуальное расследование инцидентов (AI Incident Reconstruction & Root Cause)
+ *   - Единый супер-таймлайн артефактов (Super-Timeline)
+ *   - Артефакты запусков программ (Prefetch & UserAssist)
+ *   - Внешние накопители (USBSTOR Registry)
+ *   - Хронология жизненного цикла ОС и сбоев (Reboots, Crashes, BSOD)
+ *   - Оперативная телеметрия и звук в реальном времени (WASAPI Live Monitor)
+ *   - Юридическая цепочка сохранности доказательств (Chain of Custody SHA-256)
  *
  * Usage Examples:
  *   HTML Integration:
- *     <script src="/html/tab_forensics/main.js?v=20261016_v2" type="module"></script>
+ *     <script src="/html/tab_forensics/main.js?v=20261112_v2" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_forensics
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 16:42:00
+ * Updated: 2026-11-12 12:45:00
  * =============================================================================
  */
 
@@ -24,6 +29,7 @@
   'use strict';
 
   let autoRefreshTimer = null;
+  const TAB_ID = 'tab-forensics';
   const POLL_ID = 'forensics';
   const SUBTAB_STORAGE_KEY = 'forensics_active_subtab';
 
@@ -54,16 +60,57 @@
     }
   }
 
-  async function apiFetch(url) {
+  async function apiFetch(url, options) {
     if (window.api && typeof window.api.fetch === 'function') {
-      return await window.api.fetch(url);
+      return await window.api.fetch(url, options);
     }
-    const res = await fetch(url);
+    const res = await fetch(url, options);
     if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
     return await res.json();
   }
 
-  async function fetchForensicsActivity(forceRefresh = false) {
+  function normalizeSubTabId(targetId) {
+    if (!targetId) return 'investigation';
+    const clean = String(targetId).replace('#subpane-forensics-', '').replace('subpane-forensics-', '').replace('#', '').toLowerCase();
+    const valid = ['investigation', 'supertimeline', 'execution', 'usb', 'reboots', 'live'];
+    return valid.includes(clean) ? clean : 'investigation';
+  }
+
+  function getPanelFromHash() {
+    try {
+      const hash = window.location.hash || '';
+      if (!hash.includes('forensics')) return null;
+      const parts = hash.split('#');
+      for (const p of parts) {
+        if (!p) continue;
+        const norm = normalizeSubTabId(p);
+        if (norm && norm !== 'investigation') return norm;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  function updateUrlWithPanel(panelId) {
+    try {
+      const norm = normalizeSubTabId(panelId);
+      const curHash = window.location.hash || '';
+      const baseTab = '#tab-forensics';
+      const newHash = `${baseTab}#${norm}`;
+      if (curHash !== newHash && window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', newHash);
+      }
+    } catch (_) {}
+  }
+
+  function isForensicsTabActive() {
+    if (typeof window.isTabActive === 'function') {
+      return window.isTabActive('tab-forensics') || window.isTabActive('forensics');
+    }
+    return true;
+  }
+
+  // 1. Загрузка живой телеметрии и звуковых сессий
+  async function fetchLiveForensics(forceRefresh = false) {
     try {
       const url = forceRefresh ? '/api/v1/system/diagnostics/forensics?refresh=true' : '/api/v1/system/diagnostics/forensics';
       const data = await apiFetch(url);
@@ -75,299 +122,415 @@
       }
 
       const idleSec = data.user_idle_seconds !== undefined ? Number(data.user_idle_seconds) : 0;
-      setText('diag-user-idle-time', `${idleSec.toFixed(1)} сек`);
+      setText('diag-user-idle-time', `${idleSec.toFixed(1)} с`);
       const statusBadge = document.getElementById('diag-user-status-badge');
       if (statusBadge) {
-        if (idleSec > 300) {
-          statusBadge.className = 'badge bg-warning-subtle text-warning border border-warning';
-          statusBadge.textContent = 'Пользователь отошел (>5 мин)';
-        } else {
-          statusBadge.className = 'badge bg-success-subtle text-success border border-success';
-          statusBadge.textContent = 'Пользователь активен';
-        }
+        statusBadge.textContent = idleSec > 300 ? 'Пользователь отошел (>5 мин)' : 'Пользователь активен';
+        statusBadge.className = idleSec > 300 ? 'badge bg-warning-subtle text-warning border border-warning' : 'badge bg-success-subtle text-success border border-success';
       }
 
-      // Camera Apps
-      const camContainer = document.getElementById('diag-cam-access-list');
-      if (camContainer) {
-        if (data.camera_active_apps && data.camera_active_apps.length > 0) {
-          camContainer.innerHTML = data.camera_active_apps.map(a => `
+      const sessions = data.audio_sessions || [];
+      const playbackSessions = sessions.filter(s => s.device_flow !== 'capture');
+      const captureSessions = sessions.filter(s => s.device_flow === 'capture');
+      const activePlayback = playbackSessions.filter(s => s.is_active_now);
+      const activeCapture = captureSessions.filter(s => s.is_active_now);
+
+      // Радар - Звук (Наушники / Колонки)
+      const soundListEl = document.getElementById('diag-sound-access-list');
+      if (soundListEl) {
+        if (activePlayback.length > 0) {
+          soundListEl.innerHTML = activePlayback.map(s => `
             <div class="d-flex align-items-center justify-content-between py-1 border-bottom border-secondary-subtle">
-              <span class="text-truncate" style="max-width: 140px;" title="${escapeHtml(a.app_name)}">${escapeHtml(a.app_name)}</span>
-              <span class="badge ${a.is_active_now ? 'bg-danger' : 'bg-secondary'}" style="font-size: 0.65rem;">
-                ${a.is_active_now ? 'Захват камеры' : 'В доступе'}
-              </span>
+              <span class="text-truncate fw-semibold" style="max-width: 110px;" title="${escapeHtml(s.name)}">${escapeHtml(s.name)}</span>
+              <span class="badge bg-success" style="font-size: 0.65rem;">Звук Live</span>
             </div>
           `).join('');
         } else {
-          camContainer.innerHTML = '<span class="text-muted small">Нет активных обращений к камере</span>';
+          soundListEl.innerHTML = '<span class="text-muted small">Нет активного звука</span>';
         }
       }
 
-      // Mic Apps
-      const micContainer = document.getElementById('diag-mic-access-list');
-      if (micContainer) {
-        if (data.microphone_active_apps && data.microphone_active_apps.length > 0) {
-          micContainer.innerHTML = data.microphone_active_apps.map(a => `
+      // Радар - Микрофон
+      const micListEl = document.getElementById('diag-mic-access-list');
+      if (micListEl) {
+        if (activeCapture.length > 0) {
+          micListEl.innerHTML = activeCapture.map(s => `
             <div class="d-flex align-items-center justify-content-between py-1 border-bottom border-secondary-subtle">
-              <span class="text-truncate" style="max-width: 140px;" title="${escapeHtml(a.app_name)}">${escapeHtml(a.app_name)}</span>
-              <span class="badge ${a.is_active_now ? 'bg-danger' : 'bg-secondary'}" style="font-size: 0.65rem;">
-                ${a.is_active_now ? 'Запись звука' : 'В доступе'}
-              </span>
+              <span class="text-truncate fw-semibold" style="max-width: 110px;" title="${escapeHtml(s.name)}">${escapeHtml(s.name)}</span>
+              <span class="badge bg-danger" style="font-size: 0.65rem;">Запись звука</span>
             </div>
           `).join('');
         } else {
-          micContainer.innerHTML = '<span class="text-muted small">Нет активных обращений к микрофону</span>';
+          micListEl.innerHTML = '<span class="text-muted small">Нет записи</span>';
         }
       }
 
-      // Timeline History Table
-      const timelineTbody = document.getElementById('diag-timeline-tbody');
-      if (timelineTbody) {
-        const historyList = data.history || [];
-        setText('diag-timeline-count', `${historyList.length} срезов`);
-        setText('subtab-forensics-timeline-badge', `${historyList.length}`);
-        if (historyList.length === 0) {
-          timelineTbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Снимков активности в базе пока нет. Они накапливаются демоном телеметрии...</td></tr>';
+      // Радар - Камера
+      const camListEl = document.getElementById('diag-cam-access-list');
+      if (camListEl) {
+        const camApps = data.camera_active_apps || [];
+        if (camApps.length > 0) {
+          camListEl.innerHTML = camApps.map(a => `
+            <div class="d-flex align-items-center justify-content-between py-1 border-bottom border-secondary-subtle">
+              <span class="text-truncate" style="max-width: 110px;">${escapeHtml(a.app_name)}</span>
+              <span class="badge ${a.is_active_now ? 'bg-danger' : 'bg-secondary'}" style="font-size: 0.65rem;">${a.is_active_now ? 'Камера' : 'В доступе'}</span>
+            </div>
+          `).join('');
         } else {
-          timelineTbody.innerHTML = historyList.map(h => {
-            const fg = h.foreground_window || {};
-            const timeStr = formatTime(h.timestamp);
-            const idle = Number(h.user_idle_seconds || 0).toFixed(0);
-            const hasCam = (h.camera_active_apps || []).some(x => x.is_active_now);
-            const hasMic = (h.microphone_active_apps || []).some(x => x.is_active_now);
-            let sensorBadge = '<span class="text-muted">-</span>';
-            if (hasCam && hasMic) {
-              sensorBadge = '<span class="badge bg-danger" title="Камера + Микрофон">Cam + Mic</span>';
-            } else if (hasCam) {
-              sensorBadge = '<span class="badge bg-danger" title="Камера активна">Cam</span>';
-            } else if (hasMic) {
-              sensorBadge = '<span class="badge bg-warning text-dark" title="Микрофон активен">Mic</span>';
-            }
+          camListEl.innerHTML = '<span class="text-muted small">Нет обращений</span>';
+        }
+      }
+
+      // Таблица звуковых сессий WASAPI
+      const soundTbody = document.getElementById('diag-sound-sessions-tbody');
+      setText('diag-sound-streams-count', `${sessions.length} сессий`);
+      if (soundTbody) {
+        if (sessions.length === 0) {
+          soundTbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Звуковые сессии не обнаружены</td></tr>';
+        } else {
+          soundTbody.innerHTML = sessions.map(s => {
+            const isCap = s.device_flow === 'capture';
+            const flowBadge = isCap
+              ? '<span class="badge bg-warning-subtle text-warning border border-warning"><i class="bi bi-mic me-1"></i>Микрофон</span>'
+              : '<span class="badge bg-success-subtle text-success border border-success"><i class="bi bi-headphones me-1"></i>Наушники/Звук</span>';
+            const statusBadge = s.is_active_now
+              ? `<span class="badge ${isCap ? 'bg-warning text-dark' : 'bg-success'}">Активен</span>`
+              : '<span class="badge bg-body-secondary text-secondary">В покое</span>';
+            const peakVal = Number(s.peak_level || 0);
+            const meterPct = Math.min(100, Math.round(peakVal * 100));
 
             return `
               <tr>
-                <td class="text-muted font-monospace small">${escapeHtml(timeStr)}</td>
-                <td class="fw-bold text-info"><i class="bi bi-window text-secondary me-1"></i>${escapeHtml(fg.process_name || 'unknown')} <span class="text-muted small">(${fg.pid || 0})</span></td>
-                <td class="text-body text-truncate" style="max-width: 320px;" title="${escapeHtml(fg.title || '')}">${escapeHtml(fg.title || '-')}</td>
-                <td style="text-align: right;" class="font-monospace ${idle > 300 ? 'text-warning' : 'text-body'}">${idle} с</td>
-                <td style="text-align: center;">${sensorBadge}</td>
+                <td>${flowBadge}</td>
+                <td class="fw-bold text-info"><i class="bi bi-window text-secondary me-1"></i>${escapeHtml(s.name)} <span class="text-muted small">(${s.pid || 0})</span></td>
+                <td class="text-body text-truncate" style="max-width: 200px;">${escapeHtml(s.device_name || 'Аудиоустройство')}</td>
+                <td style="text-align: center;">${statusBadge}</td>
+                <td style="text-align: right;" class="font-monospace">${s.volume}%</td>
+                <td style="text-align: center;">
+                  <div class="d-inline-flex align-items-center gap-1">
+                    <div class="live-meter-bar" style="width: 50px;"><div class="live-meter-fill" style="width: ${meterPct}%;"></div></div>
+                    <span class="font-monospace small text-muted">${(peakVal*100).toFixed(0)}%</span>
+                  </div>
+                </td>
               </tr>
             `;
           }).join('');
         }
       }
+    } catch (e) {
+      console.warn('[Forensics] fetchLiveForensics error:', e);
+    }
+  }
 
-      // UserAssist Apps Table
-      const uaTbody = document.getElementById('diag-userassist-tbody');
-      if (uaTbody && data.userassist_top_apps) {
-        setText('diag-userassist-count', `${data.userassist_top_apps.length} программ`);
-        setText('subtab-forensics-userassist-badge', `${data.userassist_top_apps.length}`);
-        if (data.userassist_top_apps.length === 0) {
-          uaTbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">Данных UserAssist в реестре не обнаружено (или трекинг отключен в Windows)</td></tr>';
+  // 2. Супер-таймлайн цифровых доказательств
+  async function fetchSuperTimeline() {
+    try {
+      const cat = document.getElementById('supertimeline-cat-filter')?.value || '';
+      const q = document.getElementById('supertimeline-search')?.value || '';
+      let url = '/api/v1/system/diagnostics/forensics/super-timeline?limit=100';
+      if (cat) url += `&category=${encodeURIComponent(cat)}`;
+      if (q) url += `&query=${encodeURIComponent(q)}`;
+
+      const list = await apiFetch(url);
+      const tbody = document.getElementById('supertimeline-tbody');
+      setText('subtab-supertimeline-badge', String(list.length));
+
+      if (tbody) {
+        if (!list || list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">Артефактов по заданным критериям не найдено</td></tr>';
         } else {
-          uaTbody.innerHTML = data.userassist_top_apps.map(a => `
+          tbody.innerHTML = list.map(t => {
+            let catBadge = '<span class="badge bg-secondary">Прочее</span>';
+            if (t.category === 'execution') catBadge = '<span class="badge bg-primary-subtle text-primary border border-primary">Запуск</span>';
+            else if (t.category === 'usb') catBadge = '<span class="badge bg-info-subtle text-info border border-info">USB</span>';
+            else if (t.category === 'system_lifecycle') catBadge = '<span class="badge bg-danger-subtle text-danger border border-danger">Событие ОС</span>';
+            else if (t.category === 'security') catBadge = '<span class="badge bg-warning-subtle text-warning border border-warning">Безопасность</span>';
+
+            return `
+              <tr>
+                <td class="font-monospace text-muted small">${escapeHtml(formatTime(t.timestamp))}</td>
+                <td>${catBadge}</td>
+                <td class="small text-secondary">${escapeHtml(t.source)}</td>
+                <td class="fw-semibold text-body">${escapeHtml(t.action)}</td>
+                <td class="fw-bold text-info">${escapeHtml(t.entity)}</td>
+                <td class="text-muted small text-truncate" style="max-width: 280px;" title="${escapeHtml(t.details)}">${escapeHtml(t.details)}</td>
+                <td class="font-monospace small text-secondary" style="text-align: center;">${escapeHtml((t.sha256 || '').slice(0, 10))}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
+    } catch (e) {
+      console.warn('[Forensics] fetchSuperTimeline error:', e);
+    }
+  }
+
+  // 3. Артефакты запусков (Prefetch & UserAssist)
+  async function fetchExecutionArtifacts() {
+    try {
+      const list = await apiFetch('/api/v1/system/diagnostics/forensics/artifacts/prefetch?limit=100');
+      const tbody = document.getElementById('exec-tbody');
+      setText('exec-count-badge', `${list.length} артефактов`);
+      setText('subtab-execution-badge', String(list.length));
+
+      if (tbody) {
+        if (!list || list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Prefetch-артефактов не обнаружено</td></tr>';
+        } else {
+          tbody.innerHTML = list.map(a => `
             <tr>
-              <td class="fw-bold text-white"><i class="bi bi-app text-info me-1.5"></i>${escapeHtml(a.name)}</td>
-              <td style="text-align: right;" class="text-info font-monospace">${a.run_count} раз</td>
-              <td style="text-align: right;" class="text-warning font-monospace">${escapeHtml(a.focus_formatted)}</td>
-              <td class="small text-muted text-truncate" style="max-width: 280px;" title="${escapeHtml(a.path)}">${escapeHtml(a.path)}</td>
+              <td class="fw-bold text-info"><i class="bi bi-file-earmark-binary text-secondary me-1"></i>${escapeHtml(a.name)}</td>
+              <td><span class="badge bg-body-secondary text-body border border-secondary-subtle">${escapeHtml(a.source)}</span></td>
+              <td style="text-align: right;" class="font-monospace fw-bold text-warning">${a.run_count} раз</td>
+              <td class="font-monospace small text-muted">${escapeHtml(formatTime(a.last_run_time))}</td>
+              <td class="small text-muted font-monospace text-truncate" style="max-width: 320px;" title="${escapeHtml(a.path)}">${escapeHtml(a.path)}</td>
             </tr>
           `).join('');
         }
       }
-    } catch (err) {
-      console.warn('[ForensicsTab] fetchForensicsActivity error:', err);
+    } catch (e) {
+      console.warn('[Forensics] fetchExecutionArtifacts error:', e);
     }
   }
 
-  /**
-   * Программное переключение между суб-вкладками форензики (как в tab-processes-load-inspector).
-   * @param {string} subtabId - Идентификатор субвкладки ('timeline' | 'userassist')
-   */
-  function switchForensicsSubTab(subtabId) {
-    let btnId = 'subtab-forensics-timeline-btn';
-    const cleanId = String(subtabId || '').toLowerCase();
-    if (cleanId === 'userassist' || cleanId === 'rot13' || cleanId === 'apps' || cleanId === 'registry') {
-      btnId = 'subtab-forensics-userassist-btn';
-    } else {
-      btnId = 'subtab-forensics-timeline-btn';
+  // 4. Накопители (USBSTOR Registry)
+  async function fetchUsbArtifacts() {
+    try {
+      const list = await apiFetch('/api/v1/system/diagnostics/forensics/artifacts/usb');
+      const tbody = document.getElementById('usb-tbody');
+      setText('usb-count-badge', `${list.length} устройств`);
+      setText('subtab-usb-badge', String(list.length));
+
+      if (tbody) {
+        if (!list || list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">В реестре USBSTOR записей не обнаружено</td></tr>';
+        } else {
+          tbody.innerHTML = list.map(u => `
+            <tr>
+              <td class="fw-bold text-body"><i class="bi bi-usb-symbol text-info me-1"></i>${escapeHtml(u.friendly_name || u.product)}</td>
+              <td class="text-secondary">${escapeHtml(u.vendor)}</td>
+              <td class="font-monospace text-info small fw-semibold">${escapeHtml(u.serial_number || 'Generic')}</td>
+              <td class="font-monospace text-muted small">${escapeHtml(u.revision || '-')}</td>
+              <td class="font-monospace text-muted small text-truncate" style="max-width: 280px;" title="${escapeHtml(u.device_id)}">${escapeHtml(u.device_id)}</td>
+            </tr>
+          `).join('');
+        }
+      }
+    } catch (e) {
+      console.warn('[Forensics] fetchUsbArtifacts error:', e);
+    }
+  }
+
+  // 5. Жизненный цикл ОС, сбои и перезагрузки
+  async function fetchRebootArtifacts() {
+    try {
+      const list = await apiFetch('/api/v1/system/diagnostics/forensics/artifacts/reboots?limit=50');
+      const tbody = document.getElementById('reboots-tbody');
+      setText('reboots-count-badge', `${list.length} событий`);
+      setText('subtab-reboots-badge', String(list.length));
+
+      if (tbody) {
+        if (!list || list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Событий перезагрузок в журнале не обнаружено</td></tr>';
+        } else {
+          tbody.innerHTML = list.map(r => {
+            let typeBadge = '<span class="badge bg-secondary">Событие</span>';
+            if (r.shutdown_type === 'crash_bsod') typeBadge = '<span class="badge bg-danger">BSOD Сбой</span>';
+            else if (r.shutdown_type === 'dirty_shutdown') typeBadge = '<span class="badge bg-warning text-dark">Внезапное выключение</span>';
+            else if (r.shutdown_type === 'graceful') typeBadge = '<span class="badge bg-success">Штатное выключение</span>';
+            else if (r.shutdown_type === 'boot') typeBadge = '<span class="badge bg-info text-dark">Запуск ядра</span>';
+
+            return `
+              <tr>
+                <td class="font-monospace text-muted small">${escapeHtml(formatTime(r.timestamp))}</td>
+                <td style="text-align: center;"><span class="badge bg-body-secondary text-body font-monospace">${r.event_id}</span></td>
+                <td>${typeBadge}</td>
+                <td class="fw-semibold text-info small text-truncate" style="max-width: 180px;">${escapeHtml(r.initiator || r.source)}</td>
+                <td class="small text-secondary text-truncate" style="max-width: 380px;" title="${escapeHtml(r.details || r.reason)}">${escapeHtml(r.details || r.reason)}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
+    } catch (e) {
+      console.warn('[Forensics] fetchRebootArtifacts error:', e);
+    }
+  }
+
+  // 6. Интеллектуальное расследование инцидента (AI Incident Investigation)
+  async function runInvestigation() {
+    const btn = document.getElementById('btn-run-investigation');
+    const badge = document.getElementById('investigation-status-badge');
+    const scenario = document.getElementById('investigation-scenario-select')?.value || 'reboot_crash';
+    const targetTime = document.getElementById('investigation-target-time')?.value || '';
+    const winMin = parseInt(document.getElementById('investigation-window-minutes')?.value || '30', 10);
+
+    if (btn) btn.disabled = true;
+    if (badge) {
+      badge.className = 'badge bg-warning text-dark';
+      badge.textContent = 'Исследование цифровых доказательств...';
     }
 
+    try {
+      const rep = await apiFetch('/api/v1/system/diagnostics/forensics/investigate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          scenario_type: scenario,
+          timestamp_target: targetTime || null,
+          window_minutes: winMin,
+        }),
+      });
+
+      if (!rep) return;
+
+      setText('rep-case-id', rep.investigation_id || 'CASE-001');
+      setText('rep-confidence', `Достоверность: ${Math.round((rep.confidence_score || 0.9) * 100)}%`);
+      setText('rep-target-time', `Ориентир: ${formatTime(rep.target_time)}`);
+      setText('rep-root-cause-text', rep.root_cause_analysis || 'Анализ завершен.');
+
+      const findingsList = document.getElementById('rep-findings-list');
+      if (findingsList) {
+        const items = rep.key_findings || [];
+        if (items.length > 0) {
+          findingsList.innerHTML = items.map(f => `<li class="mb-1">${escapeHtml(f)}</li>`).join('');
+        } else {
+          findingsList.innerHTML = '<li>Критических аномалий в исследованном окне не зафиксировано</li>';
+        }
+      }
+
+      const cocList = document.getElementById('rep-coc-list');
+      setText('rep-coc-count', `${(rep.chain_of_custody || []).length} доказательств`);
+      if (cocList) {
+        cocList.innerHTML = (rep.chain_of_custody || []).map(c => `
+          <div class="d-flex align-items-center justify-content-between py-0.5 border-bottom border-secondary-subtle">
+            <span class="text-truncate me-2">[${escapeHtml(c.artifact_type)}] ${escapeHtml(c.evidence_id)}</span>
+            <span class="text-info">${escapeHtml(c.sha256_hash.slice(0, 16))}...</span>
+          </div>
+        `).join('');
+      }
+
+      if (badge) {
+        badge.className = 'badge bg-success-subtle text-success border border-success';
+        badge.textContent = 'Заключение сформировано';
+      }
+      if (window.showToast) window.showToast(`Расследование ${rep.investigation_id} завершено`, 'success');
+    } catch (e) {
+      console.warn('[Forensics] runInvestigation error:', e);
+      if (badge) {
+        badge.className = 'badge bg-danger-subtle text-danger border border-danger';
+        badge.textContent = 'Ошибка расследования';
+      }
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  // Переключение вкладок
+  function switchForensicsSubTab(subtabId, updateUrl = true) {
+    const cleanId = normalizeSubTabId(subtabId);
+    const btnId = `subtab-forensics-${cleanId}-btn`;
     const btn = document.getElementById(btnId);
     if (btn) {
       if (window.bootstrap && typeof window.bootstrap.Tab === 'function') {
-        const tabInstance = window.bootstrap.Tab.getOrCreateInstance(btn);
-        tabInstance.show();
+        window.bootstrap.Tab.getOrCreateInstance(btn).show();
       } else {
         btn.click();
       }
-      try {
-        localStorage.setItem(SUBTAB_STORAGE_KEY, btnId === 'subtab-forensics-userassist-btn' ? 'userassist' : 'timeline');
-      } catch (_) {}
+      try { localStorage.setItem(SUBTAB_STORAGE_KEY, cleanId); } catch (_) {}
+      if (updateUrl) updateUrlWithPanel(cleanId);
     }
+    loadCurrentSubTab(cleanId);
   }
 
-  function getFrequency() {
-    try {
-      const saved = localStorage.getItem(`poll_freq_${POLL_ID}`);
-      if (saved) return saved;
-    } catch (_) {}
-    return 'manual';
-  }
-
-  function setFrequency(freq) {
-    try {
-      localStorage.setItem(`poll_freq_${POLL_ID}`, freq);
-    } catch (_) {}
-    applyPoller(freq, false);
-  }
-
-  function stopPolling() {
-    if (window.unregisterTabPoller) {
-      window.unregisterTabPoller(`tab-forensics_${POLL_ID}`);
-    }
-    if (autoRefreshTimer) {
-      clearInterval(autoRefreshTimer);
-      autoRefreshTimer = null;
-    }
-  }
-
-  function applyPoller(freq, runInitial = false) {
-    stopPolling();
-    if (freq === 'start' || freq === 'manual') {
-      if (runInitial && (window.isTabActive ? window.isTabActive('tab-forensics') : true)) {
-        fetchForensicsActivity();
+  function loadCurrentSubTab(subtabId) {
+    if (subtabId === 'supertimeline') fetchSuperTimeline();
+    else if (subtabId === 'execution') fetchExecutionArtifacts();
+    else if (subtabId === 'usb') fetchUsbArtifacts();
+    else if (subtabId === 'reboots') fetchRebootArtifacts();
+    else if (subtabId === 'live') fetchLiveForensics();
+    else if (subtabId === 'investigation') {
+      const caseIdEl = document.getElementById('rep-case-id');
+      if (caseIdEl && caseIdEl.textContent.includes('--')) {
+        runInvestigation();
       }
-      return;
     }
+  }
 
-    const intervalSec = parseInt(freq, 10);
-    if (isNaN(intervalSec) || intervalSec <= 0) return;
-
-    const intervalMs = intervalSec * 1000;
-    const pollerId = `tab-forensics_${POLL_ID}`;
-
-    if (window.registerTabPoller) {
-      window.registerTabPoller('tab-forensics', fetchForensicsActivity, intervalMs, { pollerId, immediate: runInitial });
-    } else {
-      if (runInitial && (window.isTabActive ? window.isTabActive('tab-forensics') : true)) {
-        fetchForensicsActivity();
-      }
-      autoRefreshTimer = setInterval(() => {
-        if (window.isTabActive ? window.isTabActive('tab-forensics') : true) {
-          fetchForensicsActivity();
-        }
-      }, intervalMs);
-    }
+  function loadAllForensicData(force = false) {
+    fetchLiveForensics(force);
+    fetchSuperTimeline();
+    fetchExecutionArtifacts();
+    fetchUsbArtifacts();
+    fetchRebootArtifacts();
   }
 
   function bindEvents() {
     const btnRefresh = document.getElementById('btn-diag-forensics-refresh');
-    if (btnRefresh) {
-      btnRefresh.onclick = () => fetchForensicsActivity(true);
-    }
+    if (btnRefresh) btnRefresh.onclick = () => loadAllForensicData(true);
 
-    const select = document.getElementById('diag-forensics-poll-freq');
-    if (select) {
-      select.onchange = (e) => {
-        const newFreq = e.target.value;
-        setFrequency(newFreq);
-        if (newFreq !== 'manual' && newFreq !== 'start') {
-          fetchForensicsActivity();
-        }
-        if (window.showToast) {
-          const label = select.options[select.selectedIndex]?.text || newFreq;
-          window.showToast(`Частота опроса форензики: ${label}`, 'info');
-        }
+    const btnInvestigate = document.getElementById('btn-run-investigation');
+    if (btnInvestigate) btnInvestigate.onclick = runInvestigation;
+
+    const catFilter = document.getElementById('supertimeline-cat-filter');
+    if (catFilter) catFilter.onchange = fetchSuperTimeline;
+
+    const searchInput = document.getElementById('supertimeline-search');
+    if (searchInput) {
+      searchInput.oninput = () => {
+        clearTimeout(searchInput._timer);
+        searchInput._timer = setTimeout(fetchSuperTimeline, 300);
       };
     }
 
-    // Слушатель переключения суб-вкладок для сохранения состояния
     const subtabsNav = document.getElementById('forensics-subtabs-nav');
     if (subtabsNav) {
       subtabsNav.querySelectorAll('button[data-bs-toggle="pill"]').forEach(btn => {
         btn.addEventListener('shown.bs.tab', (e) => {
-          const pId = e.target.getAttribute('data-panel-id') || normalizeSubTabId(e.target.getAttribute('data-bs-target'));
+          const pId = normalizeSubTabId(e.target.getAttribute('data-panel-id'));
           updateUrlWithPanel(pId);
-          try {
-            localStorage.setItem(SUBTAB_STORAGE_KEY, pId);
-          } catch (_) {}
-        });
-        btn.addEventListener('click', () => {
-          const pId = btn.getAttribute('data-panel-id') || normalizeSubTabId(btn.getAttribute('data-bs-target'));
-          updateUrlWithPanel(pId);
+          try { localStorage.setItem(SUBTAB_STORAGE_KEY, pId); } catch (_) {}
+          loadCurrentSubTab(pId);
         });
       });
+    }
 
-      window.addEventListener('hashchange', () => {
-        if (!isForensicsTabActive()) return;
-        const target = getPanelFromHash();
-        if (target) {
-          switchForensicsSubTab(target, false);
-        }
-      });
+    const pollSelect = document.getElementById('diag-forensics-poll-freq');
+    if (pollSelect) {
+      pollSelect.onchange = (e) => {
+        applyPoller(e.target.value);
+      };
+    }
+  }
 
-      document.addEventListener('tab:activated', (e) => {
-        const tid = e.detail?.tabId;
-        if (tid === TAB_ID || tid === 'forensics') {
-          const target = getPanelFromHash();
-          if (target) {
-            switchForensicsSubTab(target, false);
-          } else {
-            updateUrlWithPanel('timeline');
-          }
-        }
-      });
+  function applyPoller(freq) {
+    if (autoRefreshTimer) {
+      clearInterval(autoRefreshTimer);
+      autoRefreshTimer = null;
+    }
+    const sec = parseInt(freq, 10);
+    if (!isNaN(sec) && sec > 0) {
+      autoRefreshTimer = setInterval(() => {
+        if (isForensicsTabActive()) fetchLiveForensics();
+      }, sec * 1000);
     }
   }
 
   async function initForensicsTab() {
     bindEvents();
-    const currentFreq = getFrequency();
-    const select = document.getElementById('diag-forensics-poll-freq');
-    if (select) select.value = currentFreq;
-
-    // Восстановление активной суб-вкладки из URL hash или хранилища
-    const panelFromHash = getPanelFromHash();
-    if (panelFromHash) {
-      switchForensicsSubTab(panelFromHash, false);
-    } else {
-      try {
-        const savedSubtab = localStorage.getItem(SUBTAB_STORAGE_KEY);
-        if (savedSubtab) {
-          switchForensicsSubTab(savedSubtab, false);
-        } else {
-          updateUrlWithPanel('timeline');
-        }
-      } catch (_) {}
-    }
-
-    applyPoller(currentFreq, true);
+    const saved = getPanelFromHash() || localStorage.getItem(SUBTAB_STORAGE_KEY) || 'investigation';
+    switchForensicsSubTab(saved, false);
+    loadAllForensicData(false);
   }
 
   window.initForensicsTab = initForensicsTab;
   window.switchForensicsSubTab = switchForensicsSubTab;
-  window.getForensicsPanelFromHash = getPanelFromHash;
-  window.updateForensicsUrlWithPanel = updateUrlWithPanel;
-  window.normalizeForensicsSubTabId = normalizeSubTabId;
-  window.activateForensicsTab = () => {
-    applyPoller(getFrequency(), true);
-  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-      if (window.isTabActive ? window.isTabActive('tab-forensics') : false) {
-        initForensicsTab();
-      } else {
-        bindEvents();
-      }
+      if (isForensicsTabActive()) initForensicsTab();
     });
   } else {
-    if (window.isTabActive ? window.isTabActive('tab-forensics') : false) {
-      initForensicsTab();
-    } else {
-      bindEvents();
-    }
+    if (isForensicsTabActive()) initForensicsTab();
   }
 })();

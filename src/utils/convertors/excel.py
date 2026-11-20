@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Excel Convertor Module
+# Process Name: ai-tc UTILS - Excel Convertor Module
 # =============================================================================
 # Description:
 #   Утилиты конвертации электронных таблиц Excel (.xlsx, .xls) в словари Python,
@@ -14,11 +14,11 @@
 #     print(md_tables)
 #
 # File: excel.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils.convertors
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 11:21:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

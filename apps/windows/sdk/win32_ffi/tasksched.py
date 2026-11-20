@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Win32_Ffi - Tasksched
+# Process Name: ai-tc Apps Windows Telemetry Win32_Ffi - Tasksched
 # =============================================================================
 # Description:
 #   Интерфейс к Task Scheduler 2.0 COM API Windows (реэкспорт из native).
@@ -12,11 +12,11 @@
 #     service = TaskSchedulerAPI()
 #
 # File: tasksched.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.win32_ffi
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-14 23:28:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

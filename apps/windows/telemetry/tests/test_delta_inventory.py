@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Tests - Change-Only Inventory
+# Process Name: ai-tc Apps Windows Telemetry Tests - Change-Only Inventory
 # =============================================================================
 # Description:
 #   TDD-тесты Change-Only хранения: DeltaInventory (службы, брандмауэр),
@@ -11,11 +11,11 @@
 #   pytest apps/windows/telemetry/tests/test_delta_inventory.py
 #
 # File: test_delta_inventory.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-14 02:15:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

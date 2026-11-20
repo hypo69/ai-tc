@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Cli Commands - Network
+# Process Name: ai-tc Scripts Cli Commands - Network
 # =============================================================================
 # Description:
 #   Команды захвата сетевого трафика и анализа TShark (network).
@@ -12,11 +12,11 @@
 #     res = register_network_parser()
 #
 # File: network.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.cli.commands
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 13:24:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

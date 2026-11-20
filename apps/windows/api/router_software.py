@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api - Router Software
+# Process Name: ai-tc Apps Windows Api - Router Software
 # =============================================================================
 # Description:
 #   Реализует вспомогательные функции для работы с программным обеспечением.
 #   В частности, исправлена функция ``_find_matching_folder``.
 #
 # File: router_software.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-14 03:09:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Router, включающий утилиту поиска соответствующей папки и эндпоинты ИИ ПО.

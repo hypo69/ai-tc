@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Security_Acl - Tui
+# Process Name: ai-tc Apps Windows Modules Security_Acl - Tui
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     service = SecurityAclTUI()
 #
 # File: tui.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.security_acl
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:44
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -54,7 +54,7 @@ class SecurityAclTUI:
             style='blue'
         )
 
-        self.console.logger.console(Panel('[bold white]AI-Windows-Admin: Windows Security & Access Control[/bold white]', style='blue'))
+        self.console.logger.console(Panel('[bold white]ai-tc: Windows Security & Access Control[/bold white]', style='blue'))
         self.console.logger.console(panel)
 
 

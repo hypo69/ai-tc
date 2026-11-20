@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI Agents - Windows Event Logs Tools Module
+# Process Name: ai-tc AI Agents - Windows Event Logs Tools Module
 # =============================================================================
 # Description:
 #   Инструменты прямого взаимодействия с подсистемой Windows Event Log & Log Intelligence
@@ -16,11 +16,11 @@
 #     res = await windows_event_log_query(action="recent_errors")
 #
 # File: event_logs.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.agents.windows_tools
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

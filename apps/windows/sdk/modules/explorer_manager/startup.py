@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows SDK Modules Explorer - Startup Manager
+# Process Name: ai-tc Apps Windows SDK Modules Explorer - Startup Manager
 # =============================================================================
 # Description:
 #   Управление стартовым представлением Windows File Explorer.
@@ -17,11 +17,11 @@
 #     manager.set_startup_view('this_pc')
 #
 # File: startup.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.explorer_manager
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

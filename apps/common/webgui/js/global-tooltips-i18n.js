@@ -3,21 +3,20 @@
  * Process Name: Windows Web Interface - Global AI Smart Tooltips i18n
  * =============================================================================
  * Description:
- *   Единый интеллектуальный модуль всплывающих подсказок (AI Smart Tooltips).
- *   Позиционирование: строго НАД элементом (placement: top).
- *   Интерактивность: при наведении мыши появляется подсказка с контекстным пояснением.
- *   Проверка кэша ответов: если ответ уже был получен от модели или содержится в базе
- *   знаний, отображается готовое пояснение без сетевой задержки.
- *   Кнопки вызова модели исключены, используется статический перевод.
- *   При запросе уточнения открывается стандартное модальное окно ИИ-ассистента
- *   (window.AIModalDialog.show), а результат кэшируется для мгновенного показа в будущем.
+ *   Единый автономный модуль всплывающих подсказок (Global Tooltips i18n).
+ *   - Полное исключение системных подсказок браузера и Bootstrap Tooltip.
+ *   - Использование исключительно кастомных подсказок AISmartTooltip.
+ *   - Настраиваемый интервал задержки появления (по умолчанию 500 мс / 0.5 сек)
+ *     через системную конфигурацию, внутренние настройки или localStorage.
+ *   - Отображает готовые мультиязычные справочные описания (i18n: ru, en, uk, he).
+ *   - Позиционирование: строго над или под курсором мыши по оси X.
  *
  * File: global-tooltips-i18n.js
- * Project: ai-assistant
+ * Project: ai-tc
  * Package: apps/common/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-10 18:19:00
+ * Updated: 2026-11-16 02:08:00
  * =============================================================================
  */
 
@@ -40,28 +39,20 @@
    * для мгновенного ответа при первом наведении без сетевой задержки.
    */
   const DEFAULT_KNOWLEDGE_BASE = {
-    'rag': {
-      title: 'Поиск RAG',
-      fullTitle: 'RAG Search / Векторный семантический поиск',
-      icon: '🔍',
-      summary: 'Глобальный пятиэтапный поиск RAG на базе векторных эмбеддингов FAISS, извлечения фактов и семантического анализа документации.',
-      category: 'База знаний',
+    'workspace': {
+      title: 'Рабочее пространство',
+      fullTitle: 'Workspace / Проектная область',
+      icon: '📁',
+      summary: 'Рабочая область проекта со связанными файлами, источниками контекста, базой фактов и документацией.',
+      category: 'Рабочая область',
       source: 'wikillm'
     },
-    'obsidian': {
-      title: 'Obsidian Vault',
-      fullTitle: 'Obsidian Vault / Экспорт базы знаний',
-      icon: '💎',
-      summary: 'Экспорт документов, сущностей и связей рабочей области в формат хранилища заметок Obsidian с поддержкой Markdown и графа.',
-      category: 'Интеграция',
-      source: 'wikillm'
-    },
-    'git_engine': {
-      title: 'Движок Git',
-      fullTitle: 'Git Engine / Локальное версионирование на месте',
-      icon: '🌿',
-      summary: 'Высокоскоростной локальный движок Git для слежения за файлами на месте без перемещения и создания снимков состояния.',
-      category: 'Версионирование',
+    'create_workspace': {
+      title: 'Создать новое пространство',
+      fullTitle: 'Create New Workspace / Инициализация Git и отслеживание на месте',
+      icon: '➕',
+      summary: 'Создание изолированного рабочего пространства с инициализацией Git и слежением за файлами и директориями на месте без их перемещения.',
+      category: 'Рабочая область',
       source: 'wikillm'
     },
     'diff': {
@@ -72,12 +63,20 @@
       category: 'Версионирование',
       source: 'wikillm'
     },
-    'timeline': {
-      title: 'Шкала времени',
-      fullTitle: 'Codebase Timeline / Хронология эволюции проекта',
-      icon: '⏱️',
-      summary: 'Хронологическая шкала эволюции кодовой базы, фиксация ключевых архитектурных решений и этапов разработки.',
-      category: 'Хронология',
+    'git_engine': {
+      title: 'Движок Git',
+      fullTitle: 'Git Engine / Локальное версионирование на месте',
+      icon: '🌿',
+      summary: 'Высокоскоростной локальный движок Git для слежения за файлами на месте без перемещения и создания снимков состояния.',
+      category: 'Версионирование',
+      source: 'wikillm'
+    },
+    'gmail': {
+      title: 'Управление Gmail',
+      fullTitle: 'Gmail Manager / Интеллектуальный почтовый диспетчер',
+      icon: '📧',
+      summary: 'Интеграция с почтовой инфраструктурой Gmail: поиск сообщений, категоризация, извлечение фактов и отправка отчетов.',
+      category: 'Коммуникации',
       source: 'wikillm'
     },
     'graph': {
@@ -96,12 +95,12 @@
       category: 'Среда ИИ',
       source: 'wikillm'
     },
-    'verification': {
-      title: 'Контур верификации',
-      fullTitle: 'Verification Circuit / 2-шаговая верификация архитектуры',
-      icon: '✅',
-      summary: 'Автоматический двухшаговый контур проверки целостности, архитектурных инвариантов и контрактов подсистем.',
-      category: 'Верификация',
+    'obsidian': {
+      title: 'Obsidian Vault',
+      fullTitle: 'Obsidian Vault / Экспорт базы знаний',
+      icon: '💎',
+      summary: 'Экспорт документов, сущностей и связей рабочей области в формат хранилища заметок Obsidian с поддержкой Markdown и графа.',
+      category: 'Интеграция',
       source: 'wikillm'
     },
     'plugins': {
@@ -112,29 +111,28 @@
       category: 'Расширения',
       source: 'wikillm'
     },
-    'gmail': {
-      title: 'Управление Gmail',
-      fullTitle: 'Gmail Manager / Интеллектуальный почтовый диспетчер',
-      icon: '📧',
-      summary: 'Интеграция с почтовой инфраструктурой Gmail: поиск сообщений, категоризация, извлечение фактов и отправка отчетов.',
-      category: 'Коммуникации',
+    'rag': {
+      title: 'Поиск RAG',
+      fullTitle: 'RAG Search / Векторный семантический поиск',
+      icon: '🔍',
+      summary: 'Глобальный пятиэтапный поиск RAG на базе векторных эмбеддингов FAISS, извлечения фактов и семантического анализа документации.',
+      category: 'База знаний',
       source: 'wikillm'
     },
-
-    'workspace': {
-      title: 'Рабочее пространство',
-      fullTitle: 'Workspace / Проектная область',
-      icon: '📁',
-      summary: 'Рабочая область проекта со связанными файлами, источниками контекста, базой фактов и документацией.',
-      category: 'Рабочая область',
+    'timeline': {
+      title: 'Шкала времени',
+      fullTitle: 'Codebase Timeline / Хронология эволюции проекта',
+      icon: '⏱️',
+      summary: 'Хронологическая шкала эволюции кодовой базы, фиксация ключевых архитектурных решений и этапов разработки.',
+      category: 'Хронология',
       source: 'wikillm'
     },
-    'create_workspace': {
-      title: 'Создать новое пространство',
-      fullTitle: 'Create New Workspace / Инициализация Git и отслеживание на месте',
-      icon: '➕',
-      summary: 'Создание изолированного рабочего пространства с инициализацией Git и слежением за файлами и директориями на месте без их перемещения.',
-      category: 'Рабочая область',
+    'verification': {
+      title: 'Контур верификации',
+      fullTitle: 'Verification Circuit / 2-шаговая верификация архитектуры',
+      icon: '✅',
+      summary: 'Автоматический двухшаговый контур проверки целостности, архитектурных инвариантов и контрактов подсистем.',
+      category: 'Верификация',
       source: 'wikillm'
     },
     'qa': {
@@ -1379,14 +1377,29 @@
         normKey.replace(/^process:/i, '').replace(/\.exe$/i, '')
       ];
 
-      // 1. Проверяем быстрый in-memory кэш
+      // 1. Проверяем словарь i18n текущего активного языка (ru, en, uk, he)
+      const i18n = window.i18n || (window.parent && window.parent.i18n);
+      const currentLang = (i18n && (i18n.lang || i18n.currentLang)) || 'ru';
+      const dict = (i18n && i18n.translations && i18n.translations[currentLang] && i18n.translations[currentLang].tooltips) || null;
+      if (dict) {
+        for (const v of variations) {
+          if (dict[v]) {
+            return dict[v];
+          }
+          if (dict.kb && dict.kb[v]) {
+            return dict.kb[v];
+          }
+        }
+      }
+
+      // 2. Проверяем быстрый in-memory кэш
       for (const v of variations) {
         if (this.memoryCache.has(v)) {
           return this.memoryCache.get(v);
         }
       }
 
-      // 2. Проверяем localStorage
+      // 3. Проверяем localStorage
       const all = this.getAll();
       if (all) {
         for (const v of variations) {
@@ -1397,7 +1410,7 @@
         }
       }
 
-      // 3. Проверяем встроенную базу знаний
+      // 4. Проверяем встроенную базу знаний (резервный fallback)
       for (const v of variations) {
         if (DEFAULT_KNOWLEDGE_BASE[v]) {
           const item = Object.assign({}, DEFAULT_KNOWLEDGE_BASE[v], { isKnowledgeBase: true });
@@ -1442,6 +1455,48 @@
     moveRafId: null,
 
     /**
+     * Возвращает интервал задержки появления подсказки в миллисекундах.
+     * Задержка настраивается через системный конфиг (window.APP_CONFIG.tooltipDelay),
+     * внутренние настройки (window.TooltipConfig.showDelay) или localStorage (ai_tooltip_delay_ms).
+     * Значение по умолчанию: 500 мс (0.5 секунды).
+     * @returns {number} Задержка показа в мс
+     */
+    getShowDelay() {
+      if (typeof window !== 'undefined') {
+        if (window.APP_CONFIG && typeof window.APP_CONFIG.tooltipDelay === 'number') {
+          return Math.max(0, window.APP_CONFIG.tooltipDelay);
+        }
+        if (window.TooltipConfig && typeof window.TooltipConfig.showDelay === 'number') {
+          return Math.max(0, window.TooltipConfig.showDelay);
+        }
+        try {
+          const stored = localStorage.getItem('ai_tooltip_delay_ms') || localStorage.getItem('tooltip_show_delay');
+          if (stored !== null) {
+            const parsed = parseInt(stored, 10);
+            if (!isNaN(parsed) && parsed >= 0) return parsed;
+          }
+        } catch (_) {}
+      }
+      return 500; // По умолчанию 0.5 секунды (500 мс)
+    },
+
+    /**
+     * Устанавливает интервал задержки появления подсказки в миллисекундах
+     * и сохраняет его во внутренних настройках (localStorage).
+     * @param {number} ms Задержка в мс
+     * @returns {number} Примененная задержка
+     */
+    setShowDelay(ms) {
+      const val = Math.max(0, parseInt(ms, 10) || 0);
+      try {
+        localStorage.setItem('ai_tooltip_delay_ms', String(val));
+      } catch (_) {}
+      if (!window.TooltipConfig) window.TooltipConfig = {};
+      window.TooltipConfig.showDelay = val;
+      return val;
+    },
+
+    /**
      * Создает или возвращает DOM-контейнер для карточки тултипа.
      * @returns {HTMLElement} Элемент контейнера тултипа
      */
@@ -1462,11 +1517,11 @@
             <div class="ai-smart-tooltip-header">
               <div class="ai-smart-tooltip-title" id="ai-smart-tooltip-title">
                 <span id="ai-smart-tooltip-icon">💡</span>
-                <span id="ai-smart-tooltip-title-text">Подсказка</span>
+                <span id="ai-smart-tooltip-title-text">Справка</span>
               </div>
-              <span class="ai-smart-tooltip-badge" id="ai-smart-tooltip-badge">WikiLLM</span>
+              <span class="ai-smart-tooltip-badge" id="ai-smart-tooltip-badge">Справка</span>
             </div>
-            <div class="ai-smart-tooltip-body" id="ai-smart-tooltip-body" style="display: none;"></div>
+            <div class="ai-smart-tooltip-body" id="ai-smart-tooltip-body">Загрузка пояснения...</div>
             <div class="ai-smart-tooltip-arrow"></div>
           </div>
         `;
@@ -1482,16 +1537,6 @@
           this.isHoveringTooltip = false;
           this.scheduleHide(150);
         });
-
-        // Клик по кнопке обращения к модели в тултипе
-        const actionBtn = el.querySelector('#ai-smart-tooltip-action-btn');
-        if (actionBtn) {
-          actionBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            this.handleActionClick();
-          });
-        }
 
         // Автоматическое скрытие тултипа при скролле страницы или панелей
         window.addEventListener('scroll', () => {
@@ -1544,18 +1589,17 @@
                      '';
 
       const i18nTitleKey = getAttr('data-i18n-title');
-      let titleFromI18n = '';
+      let localizedTitle = '';
       if (i18nTitleKey && window.i18n && typeof window.i18n.t === 'function') {
-        const tr = window.i18n.t(i18nTitleKey);
-        if (tr && tr !== i18nTitleKey) {
-          titleFromI18n = tr;
-        }
+        localizedTitle = window.i18n.t(i18nTitleKey);
       }
 
-      const rawTitle = titleFromI18n ||
+      const rawTitle = localizedTitle || 
                        getAttr('data-title') || 
+                       getAttr('data-original-title') || 
                        getAttr('title') || 
                        getAttr('data-bs-title') || 
+                       getAttr('data-hint') || 
                        el.textContent || 
                        '';
 
@@ -1580,7 +1624,11 @@
           const idLower = idStr.toLowerCase();
           const textLower = cleanTitle.toLowerCase();
 
-          if (idLower.includes('cfa') || textLower.includes('cfa') || textLower.includes('ransomware')) {
+          if (idLower.includes('subtab-internals-logs') || idLower.includes('internals-logs')) {
+            key = 'internals-logs';
+          } else if (idLower.includes('tooltips-editor')) {
+            key = 'tooltips-editor';
+          } else if (idLower.includes('cfa') || textLower.includes('cfa') || textLower.includes('ransomware')) {
             key = 'cfa';
           } else if (idLower.includes('asr') || textLower.includes('asr')) {
             key = 'asr';
@@ -1731,8 +1779,6 @@
       return {
         key: key.toLowerCase(),
         title: cleanTitle,
-        i18nTitleKey: i18nTitleKey,
-        titleFromI18n: titleFromI18n,
         panelId: panelId,
         elementId: idStr,
         isProcess: isProcess,
@@ -1743,10 +1789,6 @@
     },
 
     /**
-     * Отображает интеллектуальный тултип НАД элементом.
-     * @param {HTMLElement} targetEl Целевой элемент
-     */
-    /**
      * Отображает интеллектуальный тултип по горизонтали строго над или под мышкой (ось X).
      * @param {HTMLElement} targetEl Целевой элемент
      * @param {number|null} [mouseX=null] Координата X курсора мыши
@@ -1754,6 +1796,10 @@
      */
     show(targetEl, mouseX = null, mouseY = null) {
       if (!targetEl || !document.body.contains(targetEl)) return;
+      if (StandardTooltipManager.isRedDrill(targetEl)) {
+        this.hide();
+        return;
+      }
 
       const meta = this.resolveElementMeta(targetEl);
       if (!meta || !meta.key) return;
@@ -1764,55 +1810,63 @@
       const x = (typeof mouseX === 'number') ? mouseX : this.lastMouseX;
       const y = (typeof mouseY === 'number') ? mouseY : this.lastMouseY;
 
-      // Проверяем наличие ответа в кэше/базе знаний
+      // Проверяем наличие ответа в базе локализации / кэше
       const cached = TooltipCache.get(meta.key);
-      const hasCachedAnswer = Boolean(cached && cached.summary);
+      const hasCachedAnswer = Boolean(cached && (cached.summary || cached.title));
+
+      const rawDesc = targetEl.getAttribute('data-original-title') || 
+                      targetEl.getAttribute('data-bs-title') || 
+                      targetEl.getAttribute('title') || 
+                      targetEl.getAttribute('data-hint') || 
+                      (targetEl.getAttribute('data-i18n-title') && window.i18n && typeof window.i18n.t === 'function' ? window.i18n.t(targetEl.getAttribute('data-i18n-title')) : '') || 
+                      '';
+
+      // Если нет ни данных в словаре/кэше, ни текста подсказки в атрибутах - не показываем пустую плашку
+      if (!hasCachedAnswer && !rawDesc.trim() && !meta.title.trim()) {
+        return;
+      }
 
       // Заполняем DOM тултипа
       const iconEl = container.querySelector('#ai-smart-tooltip-icon');
       const titleEl = container.querySelector('#ai-smart-tooltip-title-text');
       const badgeEl = container.querySelector('#ai-smart-tooltip-badge');
       const bodyEl = container.querySelector('#ai-smart-tooltip-body');
-      const actionBtn = container.querySelector('#ai-smart-tooltip-action-btn');
-      const actionText = container.querySelector('#ai-smart-tooltip-action-text');
 
-      const t = (k, def) => (window.i18n && typeof window.i18n.t === 'function' ? window.i18n.t(k, def) : def);
-      const dict = (window.i18n && window.i18n.translations && window.i18n.translations[window.i18n.lang]) || {};
-      const v = meta.key;
-      const kbTerm = (dict.kb && dict.kb[v]) || (dict.tooltips && dict.tooltips.kb && dict.tooltips.kb[v]);
-      const kbTitle = (kbTerm && kbTerm.title) || t(`tooltips.kb.${v}.title`, null);
-      const kbSummary = (kbTerm && kbTerm.summary) || t(`tooltips.kb.${v}.summary`, null);
-
-      const displayTitle = kbTitle || meta.titleFromI18n || (cached && cached.fullTitle) || (cached && cached.title) || meta.title || t('tooltips.defaultTitle', 'Элемент интерфейса');
+      const displayTitle = (cached && (cached.fullTitle || cached.title)) || (rawDesc ? meta.title : '') || 'Подсказка';
       const displayIcon = (cached && cached.icon) || '💡';
+      const displayCategory = (cached && cached.category) || 'Справка';
 
       if (iconEl) iconEl.textContent = displayIcon;
       if (titleEl) titleEl.textContent = displayTitle;
 
       if (badgeEl) {
-        const badgeText = (cached && cached.source === 'wikillm')
-          ? t('tooltips.badgeWikillm', 'WikiLLM')
-          : (cached && cached.category ? cached.category : t('tooltips.badgeNavigation', 'Навигация'));
-        badgeEl.textContent = badgeText;
+        badgeEl.textContent = displayCategory;
         badgeEl.style.display = 'inline-block';
       }
 
-      // Защита от показа сырых ключей вида titles.* / workspace.* в заголовке
-      let resolvedTitle = kbTitle || meta.titleFromI18n || (cached && cached.fullTitle) || (cached && cached.title) || meta.title;
-      if (resolvedTitle && (resolvedTitle.startsWith('titles.') || resolvedTitle.startsWith('workspace.') || resolvedTitle.startsWith('tooltips.'))) {
-        resolvedTitle = targetEl.getAttribute('title') || targetEl.getAttribute('data-bs-title') || t('tooltips.defaultTitle', 'Элемент интерфейса');
-      }
-      const safeTitle = resolvedTitle || t('tooltips.defaultTitle', 'Элемент интерфейса');
-      if (titleEl) titleEl.textContent = safeTitle;
+      const isProcBadge = targetEl.classList?.contains('ai-proc-badge') || Boolean(targetEl.closest?.('.ai-proc-badge'));
+      const procGeneralSummary = targetEl.getAttribute('data-general-summary') || targetEl.closest?.('.ai-proc-badge')?.getAttribute('data-general-summary');
 
-      if (bodyEl) {
-        const desc = kbSummary || (cached && cached.summary) || '';
-        if (desc && desc !== safeTitle) {
-          bodyEl.textContent = desc;
-          bodyEl.style.display = 'block';
-        } else {
-          bodyEl.textContent = '';
-          bodyEl.style.display = 'none';
+      if (isProcBadge) {
+        if (iconEl) iconEl.textContent = '🤖';
+        if (titleEl) titleEl.textContent = (cached && (cached.fullTitle || cached.title)) || meta.title || 'Процесс Windows';
+        if (badgeEl) {
+          badgeEl.textContent = 'WikiLLM (Общие данные)';
+          badgeEl.className = 'ai-smart-tooltip-badge badge border border-success text-success';
+          badgeEl.style.display = 'inline-block';
+        }
+        if (bodyEl) {
+          bodyEl.textContent = procGeneralSummary || (cached && cached.summary) || 'Общие сведения о программе из базы знаний WikiLLM.';
+        }
+      } else if (hasCachedAnswer && cached.summary) {
+        if (bodyEl) {
+          bodyEl.textContent = cached.summary;
+        }
+      } else {
+        // Базовое пояснение из атрибутов элемента или дефолтное описание
+        const fallbackDesc = rawDesc || `Контекстное назначение элемента «${meta.title || displayTitle}».`;
+        if (bodyEl) {
+          bodyEl.textContent = fallbackDesc;
         }
       }
 
@@ -1840,8 +1894,11 @@
       const tipRect = tipEl.getBoundingClientRect();
 
       // Опорная точка по горизонтали (ось X):
+      // Если передана координата мыши, выравниваем тултип строго над или под мышкой.
+      // Иначе центрируем по середине целевого элемента.
       let targetX = (typeof mouseX === 'number') ? mouseX : (rect.left + rect.width / 2);
       if (rect.width > 0) {
+        // Ограничиваем targetX в пределах горизонтальных границ целевого элемента
         targetX = Math.max(rect.left, Math.min(rect.right, targetX));
       }
 
@@ -1861,6 +1918,7 @@
       const spacing = 10;
       const currentMouseY = (typeof mouseY === 'number') ? mouseY : (rect.top + rect.height / 2);
 
+      // Рассчитываем вертикальную координату размещения НАД мышкой / элементом
       let topAbove = (typeof mouseY === 'number' && mouseY >= rect.top && mouseY <= rect.bottom)
         ? (mouseY - tipHeight - spacing)
         : (rect.top - tipHeight - spacing);
@@ -1868,13 +1926,16 @@
       let top = Math.min(topAbove, rect.top - tipHeight - spacing);
 
       // Проверка свободного места сверху (размещение НАД или ПОД мышкой):
+      // Если сверху места недостаточно (< margin), размещаем ПОД мышкой/элементом
       const bottomSpace = window.innerHeight - (Math.max(rect.bottom, currentMouseY) + spacing);
       if (top < margin && bottomSpace >= tipHeight) {
+        // Размещаем ПОД мышкой / элементом
         top = Math.max(rect.bottom, currentMouseY) + spacing;
         tipEl.classList.add('placement-bottom');
       } else {
+        // Размещаем НАД мышкой / элементом
         if (top < margin) {
-          top = margin;
+          top = margin; // Прижимаем к верхнему краю экрана при жестком дефиците высоты
         }
         tipEl.classList.remove('placement-bottom');
       }
@@ -1924,8 +1985,8 @@
     },
 
     /**
-     * Обрабатывает детальный просмотр элемента.
-     * Открывает стандартное модальное окно ИИ-помощника (window.AIModalDialog.show) с передачей
+     * Обрабатывает действие по клику на элемент навигации или строку процесса.
+     * Открывает стандартное модальное окно (window.AIModalDialog.show) с передачей
      * глубокого контекста открываемого раздела, а не абстрактного security event.
      */
     handleActionClick() {
@@ -1957,7 +2018,7 @@
         targetPaneEl = document.querySelector(targetSelector);
       }
       if (!targetPaneEl) {
-        // Проверяем распространенные соглашения именования контейнеров в ai-assistant
+        // Проверяем распространенные соглашения именования контейнеров в ai-tc
         const candidateSelectors = [
           `#slc-${meta.key}-container`,
           `#subpane-${meta.key}`,
@@ -2110,23 +2171,42 @@
       el.__aiTooltipBound = true;
 
       // Если у элемента был нативный заголовок title, сохраняем его и убираем стандартный браузерный тултип
-      if (el.hasAttribute('title')) {
-        el.setAttribute('data-original-title', el.getAttribute('title'));
+      if (el.hasAttribute && el.hasAttribute('title')) {
+        const t = el.getAttribute('title');
+        if (t) el.setAttribute('data-original-title', t);
         el.removeAttribute('title');
+      }
+
+      // Дочерние элементы (иконки, спаны) также не должны вызывать системный тултип браузера
+      if (el.querySelectorAll) {
+        el.querySelectorAll('[title]').forEach((ch) => {
+          const ct = ch.getAttribute('title');
+          if (ct) ch.setAttribute('data-original-title', ct);
+          ch.removeAttribute('title');
+        });
       }
 
       el.addEventListener('mouseenter', (e) => {
         this.clearTimers();
+        if (e && e.target && StandardTooltipManager.isRedDrill(e.target)) {
+          this.hide();
+          return;
+        }
         if (e && typeof e.clientX === 'number') {
           this.lastMouseX = e.clientX;
           this.lastMouseY = e.clientY;
         }
+        const delay = this.getShowDelay();
         this.showTimer = setTimeout(() => {
           this.show(el, this.lastMouseX, this.lastMouseY);
-        }, 180);
+        }, delay);
       });
 
       el.addEventListener('mousemove', (e) => {
+        if (e && e.target && StandardTooltipManager.isRedDrill(e.target)) {
+          this.hide();
+          return;
+        }
         if (e && typeof e.clientX === 'number') {
           this.lastMouseX = e.clientX;
           this.lastMouseY = e.clientY;
@@ -2151,7 +2231,11 @@
       });
 
       el.addEventListener('focus', () => {
-        this.show(el);
+        this.clearTimers();
+        const delay = this.getShowDelay();
+        this.showTimer = setTimeout(() => {
+          this.show(el);
+        }, delay);
       });
 
       el.addEventListener('blur', () => {
@@ -2168,20 +2252,6 @@
 
       // Селектор: все кнопки подменю Defender, кнопки действий сканирования, вкладки и элементы с data-ai-tooltip
       const selector = [
-        '#ws-subtabs-nav .nav-link',
-        '#workspace-subtabs-nav .nav-link',
-        '.ws-subtab-btn',
-        '#nav-tab-workspace',
-        '#nav-tab-commits',
-        '#nav-tab-diff',
-        '#nav-tab-graph',
-        '#nav-tab-rag',
-        '#nav-tab-status',
-        '#nav-tab-timeline',
-        '#nav-tab-verification',
-        '#ide-activity-bar button',
-        '#ide-file-navigator button',
-        '#tab-workspace button',
         '#defSubTabs .nav-link',
         '#def-tab-cfa-btn',
         '#def-tab-asr-btn',
@@ -2228,6 +2298,9 @@
         '#btn-winadmin-acl-grant',
         '#winadmin-user-filters button',
         '#processes-subtabs-nav .nav-link',
+        '#app-internals-subtabs-nav button',
+        '#wikillm-sys-blocks-nav button',
+        '#instruments-blocks-nav button',
         '#btn-global-refresh',
         '#engine-status-badge',
         '[data-ai-tooltip]',
@@ -2245,79 +2318,113 @@
   const StandardTooltipManager = {
     instances: new WeakMap(),
 
-    initElement(el) {
-      if (!el || this.instances.has(el) || el.__aiTooltipBound) return;
+    /**
+     * Проверяет, является ли элемент иконкой красной дрели, кнопкой Drill-Down
+     * или ее дочерним элементом, для которых запрещены любые всплывающие подсказки.
+     * @param {HTMLElement} el
+     * @returns {boolean}
+     */
+    isRedDrill(el) {
+      if (!el || typeof el.getAttribute !== 'function') return false;
+      if (el.tagName === 'IMG' && (el.src || '').includes('red_drill')) return true;
+      if (el.matches && el.matches('.panel-toggle-drill, .btn-drilldown-proc, .sys-drill-btn, .proc-drilldown-btn, .pm-btn-drilldown, .btn-user-security-drilldown, [class*="-drill"], [class*="drilldown"]')) return true;
+      if (el.querySelector && el.querySelector('img[src*="red_drill"]')) return true;
+      if (el.closest && el.closest('.panel-toggle-drill, .btn-drilldown-proc, .sys-drill-btn, .proc-drilldown-btn, .pm-btn-drilldown, .btn-user-security-drilldown, [class*="-drill"], [class*="drilldown"], img[src*="red_drill"]')) return true;
+      return false;
+    },
 
-      // Элементы с AI Smart Tooltip обрабатываются специальным контроллером
-      if (el.matches && el.matches('#defSubTabs .nav-link, #def-tab-cfa-btn, [data-ai-tooltip], [data-term], [id^="btn-def-"], #slc-source-tabs .slc-source-btn, #slc-mode-tabs .slc-subtab-btn, #sum-subtabs-nav .sum-subtab-btn, [id^="btn-slc-"], [id^="btn-sum-"], #software-subtabs-nav .nav-link, #sw-packages-subtabs .nav-link, [id^="sw-btn-"], [id^="subtab-sw-"], #winadmin-subtabs .nav-link, [id^="btn-winadmin-"], [id^="subtab-winadmin-"], [id^="btn-acl-"], [id^="btn-check-"], #processes-subtabs-nav .nav-link, [id^="subtab-proc-"], [id^="pm-"], [id^="btn-proc-"], [id^="btn-diag-leaks-"]')) {
-        AISmartTooltip.bindElement(el);
+    initElement(el) {
+      if (!el) return;
+
+      // Полное отключение всплывающих подсказок для иконки красной дрели и кнопок Drill-Down
+      if (this.isRedDrill(el)) {
+        el.removeAttribute('title');
+        el.removeAttribute('data-bs-title');
+        el.removeAttribute('data-i18n-title');
+        el.removeAttribute('data-hint');
+        el.removeAttribute('data-original-title');
+        el.setAttribute('title', '');
+        try {
+          const inst = window.bootstrap?.Tooltip?.getInstance?.(el);
+          if (inst && typeof inst.dispose === 'function') inst.dispose();
+        } catch (_) {}
         return;
       }
 
-      // Если в Bootstrap уже зарегистрирован экземпляр Tooltip для данного элемента, сохраняем ссылку и выходим
-      if (window.bootstrap && window.bootstrap.Tooltip && typeof window.bootstrap.Tooltip.getInstance === 'function') {
-        const existingTooltip = window.bootstrap.Tooltip.getInstance(el);
-        if (existingTooltip) {
-          this.instances.set(el, existingTooltip);
-          return;
-        }
+      // Обязательно уничтожаем любые сторонние экземпляры Bootstrap Tooltip
+      if (window.bootstrap?.Tooltip?.getInstance) {
+        try {
+          const existing = window.bootstrap.Tooltip.getInstance(el);
+          if (existing && typeof existing.dispose === 'function') {
+            existing.dispose();
+          }
+        } catch (_) {}
       }
 
+      // Переносим и гарантированно удаляем системный title
       let titleText = '';
-      if (el.hasAttribute('data-i18n-title')) {
+      if (el.hasAttribute && el.hasAttribute('data-i18n-title')) {
         const key = el.getAttribute('data-i18n-title');
         titleText = window.i18n && typeof window.i18n.t === 'function' ? window.i18n.t(key) : '';
       }
-
-      if (!titleText) {
-        titleText = el.getAttribute('title') || el.getAttribute('data-bs-title') || el.getAttribute('data-hint');
+      if (!titleText && el.getAttribute) {
+        titleText = el.getAttribute('title') || el.getAttribute('data-original-title') || el.getAttribute('data-bs-title') || el.getAttribute('data-hint') || '';
       }
 
-      if (!titleText) return;
-
-      if (el.hasAttribute('title')) {
-        el.setAttribute('data-bs-title', titleText);
+      if (el.hasAttribute && el.hasAttribute('title')) {
+        if (titleText) el.setAttribute('data-original-title', titleText);
         el.removeAttribute('title');
       }
 
-      const isRowOrNode = el.matches && el.matches('tr, .tree-node-item, .slc-channel-item, .list-group-item');
-      const defaultPlacement = isRowOrNode ? 'top' : 'auto';
-      const placement = el.getAttribute('data-bs-placement') || defaultPlacement;
-
-      if (window.bootstrap && window.bootstrap.Tooltip) {
-        try {
-          const tooltipConfig = {
-            title: () => {
-              if (el.hasAttribute('data-i18n-title')) {
-                const key = el.getAttribute('data-i18n-title');
-                const trans = window.i18n && typeof window.i18n.t === 'function' ? window.i18n.t(key) : '';
-                if (trans && trans !== key) return trans;
-              }
-              return el.getAttribute('data-bs-title') || el.getAttribute('data-original-title') || el.getAttribute('title') || '';
-            },
-            trigger: 'hover focus',
-            placement: placement,
-            fallbackPlacements: ['top', 'bottom', 'right', 'left'],
-            delay: { show: 150, hide: 100 },
-            html: true,
-            container: 'body'
-          };
-
-          const tooltip = typeof window.bootstrap.Tooltip.getOrCreateInstance === 'function'
-            ? window.bootstrap.Tooltip.getOrCreateInstance(el, tooltipConfig)
-            : new window.bootstrap.Tooltip(el, tooltipConfig);
-
-          this.instances.set(el, tooltip);
-        } catch (_) {}
+      // Дочерние элементы также не должны вызывать системный тултип браузера
+      if (el.querySelectorAll) {
+        el.querySelectorAll('[title]').forEach((ch) => {
+          const ct = ch.getAttribute('title');
+          if (ct) ch.setAttribute('data-original-title', ct);
+          ch.removeAttribute('title');
+        });
       }
+
+      // Конфигурация динамического заголовка
+      const tooltipConfig = {
+        title: () => (el.getAttribute('data-original-title') || el.getAttribute('data-bs-title') || '')
+      };
+
+      // Регистрируем ТОЛЬКО наш кастомный тултип AISmartTooltip
+      AISmartTooltip.bindElement(el);
     },
 
     initAll(container = document) {
       if (!container || !container.querySelectorAll) return;
+
+      // Принудительное удаление подсказок для всех иконок красной дрели и связанных кнопок
+      const drillSelectors = '.panel-toggle-drill, .btn-drilldown-proc, .sys-drill-btn, .proc-drilldown-btn, .pm-btn-drilldown, .btn-user-security-drilldown, img[src*="red_drill"], [class*="-drill"], [class*="drilldown"]';
+      container.querySelectorAll(drillSelectors).forEach((del) => {
+        del.removeAttribute('title');
+        del.removeAttribute('data-bs-title');
+        del.removeAttribute('data-i18n-title');
+        del.removeAttribute('data-hint');
+        del.removeAttribute('data-original-title');
+        del.setAttribute('title', '');
+        try {
+          const inst = window.bootstrap?.Tooltip?.getInstance?.(del);
+          if (inst && typeof inst.dispose === 'function') inst.dispose();
+        } catch (_) {}
+      });
+
+      // Перехватываем и зачищаем title у всех элементов контейнера
+      container.querySelectorAll('[title]').forEach((el) => {
+        const t = el.getAttribute('title');
+        if (t) el.setAttribute('data-original-title', t);
+        el.removeAttribute('title');
+      });
+
       const selectors = [
         'button', '.btn', '[data-bs-toggle="tooltip"]',
-        '[data-i18n-title]', '[data-hint]', '.card-header h5',
-        'tr[data-explain-key]', '.tree-node-item', '.slc-channel-item'
+        '[data-i18n-title]', '[data-hint]', '[data-original-title]',
+        '.card-header h5', 'tr[data-explain-key]', '.tree-node-item',
+        '.slc-channel-item', '.ide-activity-item', '.nav-link',
+        '[data-ai-tooltip]', '[data-term]'
       ].join(',');
 
       container.querySelectorAll(selectors).forEach((el) => this.initElement(el));
@@ -2329,6 +2436,18 @@
         for (const m of mutations) {
           for (const node of m.addedNodes) {
             if (node.nodeType === Node.ELEMENT_NODE) {
+              if (node.hasAttribute && node.hasAttribute('title')) {
+                const t = node.getAttribute('title');
+                if (t) node.setAttribute('data-original-title', t);
+                node.removeAttribute('title');
+              }
+              if (node.querySelectorAll) {
+                node.querySelectorAll('[title]').forEach((el) => {
+                  const t = el.getAttribute('title');
+                  if (t) el.setAttribute('data-original-title', t);
+                  el.removeAttribute('title');
+                });
+              }
               this.initAll(node);
             }
           }
@@ -2394,6 +2513,40 @@
     AISmartTooltip.lastMouseY = e.clientY;
   }, { passive: true });
 
+  // Глобальное предотвращение появления системного тултипа браузера:
+  // При наведении курсора или фокусе мгновенно переносим title в data-original-title до срабатывания браузера
+  document.addEventListener('mouseover', (e) => {
+    const target = e.target;
+    if (!target) return;
+    const elWithTitle = target.closest ? target.closest('[title]') : (target.hasAttribute && target.hasAttribute('title') ? target : null);
+    if (elWithTitle && elWithTitle.hasAttribute('title')) {
+      const t = elWithTitle.getAttribute('title');
+      if (t) {
+        elWithTitle.setAttribute('data-original-title', t);
+      }
+      elWithTitle.removeAttribute('title');
+      if (!elWithTitle.__aiTooltipBound && !StandardTooltipManager.isRedDrill(elWithTitle)) {
+        AISmartTooltip.bindElement(elWithTitle);
+      }
+    }
+  }, { capture: true, passive: true });
+
+  document.addEventListener('focusin', (e) => {
+    const target = e.target;
+    if (!target) return;
+    const elWithTitle = target.closest ? target.closest('[title]') : (target.hasAttribute && target.hasAttribute('title') ? target : null);
+    if (elWithTitle && elWithTitle.hasAttribute('title')) {
+      const t = elWithTitle.getAttribute('title');
+      if (t) {
+        elWithTitle.setAttribute('data-original-title', t);
+      }
+      elWithTitle.removeAttribute('title');
+      if (!elWithTitle.__aiTooltipBound && !StandardTooltipManager.isRedDrill(elWithTitle)) {
+        AISmartTooltip.bindElement(elWithTitle);
+      }
+    }
+  }, { capture: true, passive: true });
+
   // Инициализация при загрузке документа
   document.addEventListener('DOMContentLoaded', () => {
     StandardTooltipManager.initAll();
@@ -2402,6 +2555,7 @@
     window.addEventListener('i18n:languageChanged', () => {
       StandardTooltipManager.initAll();
     });
+
     window.addEventListener('i18n:ready', () => {
       StandardTooltipManager.initAll();
     });

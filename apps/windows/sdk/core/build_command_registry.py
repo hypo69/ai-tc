@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Build Command Registry
+# Process Name: ai-tc Apps Windows Core - Build Command Registry
 # =============================================================================
 # Description:
 #   Скрипт генерации полного реестра штатных команд Windows 10/11
@@ -10,11 +10,11 @@
 #   python apps/windows/core/build_command_registry.py
 #
 # File: build_command_registry.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from logger import logger

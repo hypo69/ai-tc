@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Hardware - Registry
+# Process Name: ai-tc Apps Windows Modules Hardware - Registry
 # =============================================================================
 # Description:
 #   Центральный реестр аппаратных провайдеров Windows Diagnostic Engine.
@@ -12,11 +12,11 @@
 #     service = HardwareProviderRegistry()
 #
 # File: registry.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.hardware
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-16 04:50:00
 # =============================================================================
 
 from __future__ import annotations
@@ -31,6 +31,7 @@ from apps.windows.hardware.providers.cpuz_provider import CpuzProvider
 from apps.windows.hardware.providers.gpuz_provider import GpuzProvider
 from apps.windows.hardware.providers.hwinfo_provider import HwinfoProvider
 from apps.windows.hardware.providers.native_win_provider import NativeWinProvider
+from apps.windows.hardware.providers.pawnio_provider import PawnIOProvider
 
 class HardwareProviderRegistry:
     """Реестр аппаратных провайдеров с авто-обнаружением внешних утилит."""
@@ -53,6 +54,7 @@ class HardwareProviderRegistry:
         self._providers['cpuz'] = CpuzProvider(binary_path=cpuz_path)
         gpuz_path = self.discovery.find_utility('gpuz')
         self._providers['gpuz'] = GpuzProvider(binary_path=gpuz_path)
+        self._providers['pawnio'] = PawnIOProvider(binary_path=self.discovery.find_utility('pawnio'))
         logger.debug(f'Зарегистрировано {len(self._providers)} аппаратных провайдеров')
 
     def get_provider(self, key: str) -> Optional[BaseHardwareProvider]:

@@ -53,7 +53,7 @@
   </defs>
 
   <!-- Title & Header -->
-  <text x="500" y="40" text-anchor="middle" fill="#f0f6fc" font-size="22" font-weight="700" letter-spacing="0.5">АРХИТЕКТУРА ИНТЕРАКТИВНОЙ ПЛАТЫ: AIWINDOWSADMIN</text>
+  <text x="500" y="40" text-anchor="middle" fill="#f0f6fc" font-size="22" font-weight="700" letter-spacing="0.5">АРХИТЕКТУРА ИНТЕРАКТИВНОЙ ПЛАТЫ: AI-TC</text>
   <text x="500" y="65" text-anchor="middle" fill="#8b949e" font-size="13">Универсальный переключатель моделей через единый API</text>
 
   <!-- 1. USER LAYER -->
@@ -76,7 +76,7 @@
   <!-- Connection API -> Switch -->
   <line x1="500" y1="250" x2="500" y2="285" stroke="#58a6ff" stroke-width="2.5" marker-end="url(#arrow)" />
 
-  <!-- 3. UNIVERSAL SWITCH (AI_WINDOWS_ADMIN CORE) -->
+  <!-- 3. UNIVERSAL SWITCH (AI_TC CORE) -->
   <g filter="url(#dropShadow)">
     <rect x="180" y="290" width="640" height="70" rx="12" fill="url(#switchGrad)" stroke="#f0883e" stroke-width="2" />
     <text x="500" y="320" text-anchor="middle" fill="#1c1917" font-size="17" font-weight="700">🔌 Универсальный переключатель: UnifiedChatModel / get_chat_model()</text>
@@ -90,7 +90,7 @@
   <path d="M 500 360 L 500 380 L 700 380 L 700 425" fill="none" stroke="#10a37f" stroke-width="2" marker-end="url(#arrow)" />
   <path d="M 500 360 L 500 380 L 900 380 L 900 425" fill="none" stroke="#f85149" stroke-width="2" marker-end="url(#arrow)" />
 
-  <!-- 4. MODEL SLOTS (AI_WINDOWS_ADMIN MODULES) -->
+  <!-- 4. MODEL SLOTS (AI_TC MODULES) -->
   <!-- Gemini -->
   <g filter="url(#dropShadow)">
     <rect x="20" y="430" width="160" height="110" rx="8" fill="#161b22" stroke="#4facfe" stroke-width="1.5" />

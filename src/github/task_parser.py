@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin GitHub - Task Parser & Specification Builder
+# Process Name: ai-tc GitHub - Task Parser & Specification Builder
 # =============================================================================
 # Description:
 #   Преобразование GitHub Issues в структурированные технические задания (ТЗ)
@@ -15,11 +15,11 @@
 #   branch_name = parser.generate_branch_name(issue)
 #
 # File: task_parser.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.github
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:48:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

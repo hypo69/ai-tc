@@ -1,6 +1,6 @@
 # Skill Factory
 
-Utility package and agent skill for scaffolding, managing, and packaging AI Windows Admin agent skills.
+Utility package and agent skill for scaffolding, managing, and packaging ai-tc agent skills.
 
 ## Overview
 Skill Factory provides tools to create standardized skills in `skills/<skill_name>/` and package them into distributable `.skill` files.

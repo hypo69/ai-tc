@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Network - Speedtest
+# Process Name: ai-tc Apps Windows Modules Network - Speedtest
 # =============================================================================
 # Description:
 #   Движок измерения скорости и качества интернет-соединения для Network Terminal.
@@ -16,11 +16,11 @@
 #     print(report['record'])  # плоская запись для time-series / ai-diagnostics
 #
 # File: speedtest.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.network
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 19:37:25
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ from apps.common.telemetry_logger import AppTelemetryLogger
 
 _FAST_HOME = 'https://fast.com/'
 _FAST_API = 'https://api.fast.com/netflix/speedtest/v2'
-_UA = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AI-Windows-Admin/NetworkTerminal'}
+_UA = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ai-tc/NetworkTerminal'}
 _CHUNK = b'0' * 65536
 _GRADES = [
     {'grade': 'Отличное (Ultra Fast)', 'rating': 'A+', 'color': '#4ade80', 'summary': 'Идеально подходит для 4K-стриминга, онлайн-гейминга, быстрой работы AI-моделей и больших загрузок.'},

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - runners_update
+# Process Name: ai-tc Apps Windows Api Routers - runners_update
 # =============================================================================
 # Description:
 #   Сценарий безопасного обновления (Safe Update Guard).
 #   Вынесено из router_scenarios.py (этап 4 оптимизации).
 #
 # File: runners_update.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.scenarios
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-12 06:20:00
+# Updated: 2026-11-20 16:48:00
 # =============================================================================
 
 from __future__ import annotations
@@ -90,13 +90,13 @@ async def _run_safe_update_guard_scenario() -> ScenarioRunResult:
     try:
         from apps.windows.sdk.core.system_restore import WindowsSystemRestoreManager
         sr_mgr = WindowsSystemRestoreManager()
-        prot_stat = sr_mgr.check_protection_status()
+        prot_stat = await asyncio.to_thread(sr_mgr.check_protection_status)
 
         if prot_stat.get("system_protection_enabled", False):
             res_sr = await asyncio.to_thread(
                 sr_mgr.create_restore_point,
                 description="Подготовка к обновлению Windows 11 26H2",
-                restore_point_type="WINDOWS_UPDATE"
+                restore_point_type="MODIFY_SETTINGS"
             )
             s3_dur = (time.perf_counter() - s3_start) * 1000
             sr_success = res_sr.get("success", False)

@@ -6,11 +6,11 @@
 #   Внутренние модули ядра монитора Cloudflare Tunnel.
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.cloudflared_monitor.src
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 14:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Пакет внутренних компонентов супервизора Cloudflared."""

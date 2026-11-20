@@ -1,4 +1,4 @@
-# Scripts Documentation for ai-windows-admin project
+# Scripts Documentation for ai-tc project
 
 **Version:** 1.0  
 
@@ -172,7 +172,7 @@ python analyze_dependencies.py
 
 ## Contacts and Support
 
-**Project:** ai-windows-admin  
+**Project:** ai-tc  
 
 **Last updated:** 06 October 2026 10:10  
 

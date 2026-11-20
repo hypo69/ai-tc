@@ -1,23 +1,23 @@
 <#
 =============================================================================
-Process Name: AI-Windows-Admin Automation - Manage Certs
+Process Name: ai-tc Automation - Manage Certs
 =============================================================================
 Description:
-  Проверка, генерация и установка локальных SSL-сертификатов для ai-windows-admin
+  Проверка, генерация и установка локальных SSL-сертификатов для ai-tc
 
 Usage Examples:
   PowerShell Execution:
     .\manage_certs.ps1
 
 File: manage_certs.ps1
-Project: ai-windows-admin
+Project: ai-tc
 Package: .skills/cert-installer/scripts
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-30 19:46:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 .SYNOPSIS
-    Проверка, генерация и установка локальных SSL-сертификатов для ai-windows-admin
+    Проверка, генерация и установка локальных SSL-сертификатов для ai-tc
 .DESCRIPTION
     1
 #>

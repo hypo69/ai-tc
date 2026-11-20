@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - TShark and Network State
+# Process Name: ai-tc Tests - TShark and Network State
 # =============================================================================
 # Description:
 #   Модульные тесты для пакета apps.tshark и NetworkTerminalState.
@@ -9,11 +9,11 @@
 #   pytest tests/test_tshark_and_network_state.py
 #
 # File: test_tshark_and_network_state.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 13:41:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

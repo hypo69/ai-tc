@@ -19,11 +19,11 @@
 #     tr = RemoteMCPTransport("remote-win-01", "https://10.0.0.5:8765/mcp", "token")
 #
 # File: remote_mcp_transport.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.transports
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:47:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import hashlib

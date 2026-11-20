@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Performance_Tracing Tests - Test Performance Tracing
+# Process Name: ai-tc Apps Windows Modules Performance_Tracing Tests - Test Performance Tracing
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     res = manager()
 #
 # File: test_performance_tracing.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.performance_tracing.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -65,13 +65,33 @@ async def test_collector_action_simulation(manager: PerformanceTracingManager):
 
 def test_performance_endpoints(client: TestClient):
     """Проверка REST эндпоинтов performance_tracing."""
-    resp = client.get('/api/performance-tracing/report')
+    resp = client.get('/api/v1/performance-tracing/report')
     assert resp.status_code == 200
     data = resp.json()
     assert 'counter_samples' in data
     assert 'collectors' in data
 
-    resp_counters = client.get('/api/performance-tracing/counters')
+    resp_counters = client.get('/api/v1/performance-tracing/counters')
     assert resp_counters.status_code == 200
     assert len(resp_counters.json()) > 0
+
+    # Проверка вызова action без явного collector_name (защита от ошибки 422 Unprocessable Content)
+    resp_action_default = client.post('/api/v1/performance-tracing/action', json={'action': 'typeperf_cpu_sample', 'dry_run': True})
+    assert resp_action_default.status_code == 200
+    data_action = resp_action_default.json()
+    assert data_action['status'] == 'DRY_RUN_SUCCESS'
+    assert 'value' in data_action
+
+    # Проверка вызова action с полным набором параметров
+    resp_action_full = client.post(
+        '/api/v1/performance-tracing/action',
+        json={
+            'collector_name': 'typeperf_cpu_sample',
+            'action': 'typeperf_cpu_sample',
+            'dry_run': False,
+            'confirmed_by_user': True
+        }
+    )
+    assert resp_action_full.status_code == 200
+    assert resp_action_full.json()['status'] == 'SUCCESS'
 

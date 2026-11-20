@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Tshark - Models
+# Process Name: ai-tc Apps Tshark - Models
 # =============================================================================
 # Description:
 #   Модели данных для работы с TShark, сетевыми пакетами и анализом трафика.
@@ -12,11 +12,11 @@
 #     pkt = PacketSummary(packet_number=1, timestamp="2026-10-20T12:00:00Z", source="192.168.1.2", destination="1.1.1.1", protocol="DNS", length=64)
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.tshark
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 13:22:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

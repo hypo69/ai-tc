@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - User Environment Tab Verification
+# Process Name: ai-tc Tests - User Environment Tab Verification
 # =============================================================================
 # Description:
 #   Интеграционные и контрактные тесты объединенной вкладки окружения пользователя
@@ -8,11 +8,11 @@
 #   реестре tab-registry.js, меню, карте сайта и отсутствия хардкода стилей.
 #
 # File: test_user_environment_tab.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 12:03:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

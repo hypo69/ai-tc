@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows API - Interactive Scenario Agent Router
+# Process Name: ai-tc Apps Windows API - Interactive Scenario Agent Router
 # =============================================================================
 # Description:
 #   Слой 7: Модуль пошагового диалогового агента сценариев со стейт-машиной
@@ -13,11 +13,11 @@
 #   GET  /api/v1/interactive-agent/sessions/{session_id}
 #
 # File: router_interactive_agent.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 20:45:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

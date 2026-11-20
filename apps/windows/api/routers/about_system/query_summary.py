@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - query_summary
+# Process Name: ai-tc Apps Windows Api Routers - query_summary
 # =============================================================================
 # Description:
 #   Запрос полной сводки системы исключительно из базы данных telemetry.db.
 #   Прямые запросы к физическим датчикам, psutil и WMI запрещены архитектурой.
 #
 # File: query_summary.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.about_system
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 14:05:00
+# Updated: 2026-11-20 15:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -23,7 +23,12 @@ from typing import Any, Dict, List
 
 from logger import logger
 from apps.windows.telemetry.sqlite import TelemetryStorage
-from apps.windows.api.routers.about_system.helpers import get_current_user_account_info, get_clean_system_timezone, get_windows_install_date
+from apps.windows.api.routers.about_system.helpers import (
+    get_current_user_account_info,
+    get_clean_system_timezone,
+    get_windows_install_date,
+    get_windows_volume_labels,
+)
 from apps.windows.sdk.modules.regional.keyboard_helper import get_detailed_language_packs, get_system_language_identity
 
 
@@ -181,6 +186,62 @@ async def query_system_summary_full(storage: TelemetryStorage, process_limit: in
 
     if not snap.get("disks"):
         snap["disks"] = []
+
+    # Обогащение дисков именами (метками томов) и метаданными облачных томов (Google Drive / Cloud)
+    vol_labels = get_windows_volume_labels()
+    existing_letters = set()
+
+    for d in snap.get("disks", []):
+        dev = str(d.get("device") or d.get("mountpoint") or "").upper().rstrip("\\")
+        letter = dev[:2] if len(dev) >= 2 and dev[1] == ":" else (f"{dev}:" if len(dev) == 1 else dev)
+        if letter:
+            existing_letters.add(letter)
+        if not d.get("volume_name") and letter in vol_labels:
+            d["volume_name"] = vol_labels[letter]
+
+        vol_name = str(d.get("volume_name") or "")
+        d_type = str(d.get("drive_type") or "")
+        is_gdrive = (
+            dev in ("G:", "J:") or letter in ("G:", "J:") or
+            "google" in vol_name.lower() or
+            "google" in d_type.lower()
+        )
+        if is_gdrive:
+            d["is_virtual"] = True
+            d["drive_type"] = "Google Drive"
+            if not d.get("volume_name"):
+                d["volume_name"] = vol_labels.get(letter) or "Google Drive"
+
+    # Подтягиваем смонтированные тома пользовательской сессии (Google Drive G:, J: и др.),
+    # если они отсутствуют в снимке службы
+    try:
+        import psutil
+        for p in psutil.disk_partitions(all=False):
+            p_dev = p.device.upper().rstrip("\\")
+            p_let = p_dev[:2] if len(p_dev) >= 2 and p_dev[1] == ":" else (f"{p_dev}:" if len(p_dev) == 1 else p_dev)
+            if p_let not in existing_letters:
+                try:
+                    usage = psutil.disk_usage(p.mountpoint)
+                    v_name = vol_labels.get(p_let)
+                    is_gd = p_let in ("G:", "J:") or (v_name and "google" in v_name.lower())
+                    snap["disks"].append({
+                        "device": p.device,
+                        "mountpoint": p.mountpoint,
+                        "fstype": p.fstype or ("FAT32" if is_gd else "NTFS"),
+                        "total_gb": round(usage.total / 1024 ** 3, 2),
+                        "used_gb": round(usage.used / 1024 ** 3, 2),
+                        "free_gb": round(usage.free / 1024 ** 3, 2),
+                        "percent": round(usage.percent, 1),
+                        "volume_name": v_name,
+                        "is_virtual": is_gd,
+                        "drive_type": "Google Drive" if is_gd else "Fixed",
+                    })
+                    existing_letters.add(p_let)
+                except (PermissionError, OSError):
+                    pass
+    except Exception as ps_err:
+        logger.debug(f"[query_summary] Ошибка проверки дополнительных томов: {ps_err}")
+
     if not snap.get("physical_disks"):
         try:
             snap["physical_disks"] = storage.get_disk_inventory() or []
@@ -206,21 +267,53 @@ async def query_system_summary_full(storage: TelemetryStorage, process_limit: in
         m for m in inv_monitors
         if isinstance(m, dict) and m.get("device") and "windisc" not in str(m.get("device")).lower()
     ]
+    non_dummy_inv = [
+        m for m in valid_inv
+        if not (m.get("name") == "Primary Monitor" and m.get("adapter") in ("", "Display Adapter"))
+    ]
 
     snap_monitors = [
         m for m in (snap.get("monitors") or [])
         if isinstance(m, dict) and m.get("device") and "windisc" not in str(m.get("device")).lower()
     ]
+    non_dummy_snap = [
+        m for m in snap_monitors
+        if not (m.get("name") == "Primary Monitor" and m.get("adapter") in ("", "Display Adapter"))
+    ]
 
-    # Инвентарь hardware_components содержит наиболее полные спецификации дисплеев
-    if valid_inv:
-        snap["monitors"] = valid_inv
-    elif snap_monitors:
-        snap["monitors"] = snap_monitors
-    elif inv_monitors:
-        snap["monitors"] = inv_monitors
+    # Приоритет: реальные мониторы из hardware_components -> реальные из снимка -> живой SystemCollector
+    if non_dummy_inv:
+        snap["monitors"] = non_dummy_inv
+    elif non_dummy_snap:
+        snap["monitors"] = non_dummy_snap
     else:
-        snap["monitors"] = []
+        # Прямой опрос живых мониторов через SystemCollector, если в БД нет реальных дисплеев
+        live_list: List[Dict[str, Any]] = []
+        try:
+            from apps.windows.telemetry.collector import SystemCollector
+            live_mons = SystemCollector().get_monitors()
+            live_list = [
+                {
+                    "device": m.device,
+                    "name": m.name,
+                    "vendor": m.vendor,
+                    "adapter": m.adapter,
+                    "width": m.width,
+                    "height": m.height,
+                    "frequency_hz": m.frequency_hz,
+                    "bits_per_pixel": m.bits_per_pixel,
+                    "is_primary": m.is_primary,
+                    "orientation": m.orientation,
+                    "serial_number": m.serial_number,
+                    "production_date": None,
+                }
+                for m in live_mons
+                if "windisc" not in str(m.device).lower()
+                and not (m.name == "Primary Monitor" and m.adapter in ("", "Display Adapter"))
+            ]
+        except Exception:
+            live_list = []
+        snap["monitors"] = live_list or valid_inv or snap_monitors or []
 
     # Обогащаем дисплеи детальными именами EDID и атрибутами из инвентаря оборудования
     try:

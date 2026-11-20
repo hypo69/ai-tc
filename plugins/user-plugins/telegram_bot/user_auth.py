@@ -11,7 +11,7 @@
 # Package: plugins.telegram_bot
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:45:00
+# Updated: 2026-11-15 18:18:00
 # =============================================================================
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ import hmac
 import json
 import os
 from pathlib import Path
+import secrets
 import threading
 import time
 from typing import Any, Dict, List, Optional
@@ -54,6 +55,42 @@ def _save_state(state: Dict[str, Any]) -> None:
             os.replace(tmp_path, _AUTH_FILE)
         except Exception:
             pass
+
+
+def generate_telegram_link_token(ttl_seconds: int = 900) -> str:
+    """Генерирует одноразовый 8-значный код привязки для Telegram-бота."""
+    token = f"{secrets.randbelow(90000000) + 10000000}"
+    with _AUTH_LOCK:
+        state = _load_state()
+        state["pending_token"] = token
+        state["token_expires_at"] = time.time() + ttl_seconds
+        _save_state(state)
+    return token
+
+
+def get_telegram_link_status() -> Dict[str, Any]:
+    """Возвращает статус текущей привязки Telegram-аккаунта."""
+    state = _load_state()
+    tg_id = state.get("telegram_id")
+    return {
+        "status": "success",
+        "linked": bool(tg_id),
+        "telegram_id": tg_id,
+        "telegram_username": state.get("telegram_username"),
+        "user_id": 1,
+        "user_name": state.get("user_name", "Администратор"),
+    }
+
+
+def unlink_telegram_account() -> bool:
+    """Отвязывает Telegram-аккаунт."""
+    with _AUTH_LOCK:
+        state = _load_state()
+        state.pop("telegram_id", None)
+        state.pop("telegram_username", None)
+        state.pop("pending_token", None)
+        _save_state(state)
+        return True
 
 
 def link_telegram_account(token: str, tg_id: int, tg_username: str) -> bool:

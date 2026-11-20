@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Chat Module
+# Process Name: ai-tc AI - Chat Module
 # =============================================================================
 # Description:
 #   Универсальный чат-клиент для любого OpenAI-совместимого эндпоинта.
@@ -14,11 +14,11 @@
 #     print(result)
 #
 # File: chat.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.providers.openai
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:53:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Универсальный чат-клиент для любого OpenAI-совместимого эндпоинта."""

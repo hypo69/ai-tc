@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Firewall_Manager - Router
+# Process Name: ai-tc Apps Windows Modules Firewall_Manager - Router
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     res = init_router()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.firewall_manager
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ from apps.windows.sdk.modules.firewall_manager.core.models import (
     FirewallRuleActionRequest,
 )
 
-router = APIRouter(prefix='/api/firewall-manager', tags=['Firewall Manager'])
+router = APIRouter(prefix='/api/v1/firewall-manager', tags=['Firewall Manager'])
 _manager = FirewallManager()
 
 

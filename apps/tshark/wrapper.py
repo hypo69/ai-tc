@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Tshark - Wrapper
+# Process Name: ai-tc Apps Tshark - Wrapper
 # =============================================================================
 # Description:
 #   Обертка для запуска утилиты TShark, захвата пакетов и чтения дампов PCAP.
@@ -14,11 +14,11 @@
 #         interfaces = wrapper.list_interfaces()
 #
 # File: wrapper.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.tshark
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 13:41:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

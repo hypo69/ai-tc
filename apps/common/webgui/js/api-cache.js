@@ -13,11 +13,11 @@
  *     import { CACHE_STRATEGIES } from '/windows/api/webgui/js/api-cache.js';
  *
  * File: api-cache.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-25 23:38:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

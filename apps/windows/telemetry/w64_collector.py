@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - W64 Collector
+# Process Name: ai-tc Apps Windows Telemetry - W64 Collector
 # =============================================================================
 # Description:
 #   AI Windows 64-bit Collector - модуль сбора детальных системных событий телеметрии.
@@ -12,11 +12,11 @@
 #     service = AIW64Collector()
 #
 # File: w64_collector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-19 00:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

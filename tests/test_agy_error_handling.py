@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - AGY Provider Error Handling
+# Process Name: ai-tc Tests - AGY Provider Error Handling
 # =============================================================================
 # Description:
 #   Модульные тесты для проверки остановки и возврата ошибки клиенту при сбоях
 #   провайдера AGY (Error 503 UNAVAILABLE, WS close code 1006, harness crash).
 #
 # File: test_agy_error_handling.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 11:27:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Тесты обработки и возврата ошибок провайдера AGY."""

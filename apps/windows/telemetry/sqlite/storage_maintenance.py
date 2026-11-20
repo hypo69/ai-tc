@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - TelemetryMaintenanceStorageMixin
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - TelemetryMaintenanceStorageMixin
 # =============================================================================
 # Description:
 #   Миксин фасада хранилища: обслуживание БД (размер, WAL, vacuum, очистка) и агрегация.
@@ -14,11 +14,11 @@
 #     class TelemetryStorage(TelemetryMaintenanceStorageMixin): ...
 #
 # File: storage_maintenance.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 13:05:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

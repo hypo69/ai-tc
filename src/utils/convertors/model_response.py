@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Model Response Parser
+# Process Name: ai-tc UTILS - Model Response Parser
 # =============================================================================
 # Description:
 #   Универсальный парсер ответов языковых моделей (LLM).
@@ -17,11 +17,11 @@
 #     print(result["actions"])
 #
 # File: model_response.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils.convertors
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 19:47:00
+# Updated: 2026-11-13 15:30:00
 # =============================================================================
 
 from __future__ import annotations
@@ -35,6 +35,7 @@ from bs4 import BeautifulSoup
 from logger import logger
 from src.utils.convertors.html import escape2html, html2escape
 from src.utils.convertors.md import md2html
+from src.utils.jjson import j_dumps
 
 
 class ModelResponseParser:
@@ -142,7 +143,7 @@ class ModelResponseParser:
         def _action_replacer(match: re.Match) -> str:
             raw_json = match.group(1).strip()
             try:
-                parsed = json.loads(raw_json)
+                parsed = j_dumps(raw_json, exc_info=False)
                 if isinstance(parsed, dict):
                     # Приводим к стандарту структуры Action
                     action_id = str(parsed.get("action_id") or parsed.get("id") or f"action-{len(actions) + 1}")
@@ -173,7 +174,7 @@ class ModelResponseParser:
         def _tool_call_replacer(match: re.Match) -> str:
             raw_json = match.group(1).strip()
             try:
-                parsed = json.loads(raw_json)
+                parsed = j_dumps(raw_json, exc_info=False)
                 if isinstance(parsed, dict):
                     t_name = parsed.get("tool_name") or ""
                     args = parsed.get("arguments") or parsed

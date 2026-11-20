@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Router
+# Process Name: ai-tc Apps Windows - Router
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     service = InvestigateRequest()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:00:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 """Роутер диагностики, управления окнами, персонализации, идентификации и безопасности Windows."""
@@ -39,7 +39,7 @@ from apps.windows.sdk.modules.personalization.router import router as personaliz
 from apps.windows.sdk.modules.accounts_identity.router import router as accounts_identity_router
 from apps.windows.sdk.software_scanner.router import router as software_scanner_router
 
-router = APIRouter(prefix='/api/windows', tags=['windows-diagnostics'])
+router = APIRouter(prefix='/api/v1/windows', tags=['windows-diagnostics'])
 router.include_router(personalization_router, prefix='/personalization', tags=['Personalization'])
 router.include_router(accounts_identity_router, tags=['Accounts & Identity'])
 router.include_router(software_scanner_router, tags=['Software Scanner'])
@@ -190,7 +190,7 @@ async def investigate_symptom(req: InvestigateRequest) -> Dict[str, Any]:
     return {
         'symptom': req.symptom,
         'status': 'stub',
-        'message': 'POST endpoint stub: Use GET /api/windows/audit/full for analysis',
+        'message': 'POST endpoint stub: Use GET /api/v1/windows/audit/full for analysis',
         'timestamp': datetime.now(timezone.utc).isoformat()
     }
 
@@ -200,7 +200,7 @@ async def simulate_action(req: ActionExecuteRequest) -> Dict[str, Any]:
     return {
         'action_id': req.action_id,
         'status': 'stub',
-        'message': 'POST endpoint stub: Simulation not available, use GET /api/windows/audit/* for information'
+        'message': 'POST endpoint stub: Simulation not available, use GET /api/v1/windows/audit/* for information'
     }
 
 @router.post('/actions/execute')
@@ -244,7 +244,7 @@ async def start_defender_scan(request: Request, req: DefenderScanRequest) -> Dic
     return {
         'status': 'stub',
         'scan_type': req.scan_type,
-        'message': 'POST endpoint stub: Defender scan not available, use GET /api/windows/defender/status for information'
+        'message': 'POST endpoint stub: Defender scan not available, use GET /api/v1/windows/defender/status for information'
     }
 
 @router.post('/defender/update-signatures')
@@ -252,7 +252,7 @@ async def update_defender_signatures(request: Request) -> Dict[str, Any]:
     """Заглушка для обновления сигнатур Defender (POST → GET)."""
     return {
         'status': 'stub',
-        'message': 'POST endpoint stub: Signature update not available, use GET /api/windows/defender/status for information'
+        'message': 'POST endpoint stub: Signature update not available, use GET /api/v1/windows/defender/status for information'
     }
 
 @router.post('/defender/cfa')
@@ -261,7 +261,7 @@ async def toggle_controlled_folder_access(request: Request, req: DefenderToggleF
     return {
         'status': 'stub',
         'mode': req.mode,
-        'message': 'POST endpoint stub: CFA toggle not available, use GET /api/windows/defender/status for information'
+        'message': 'POST endpoint stub: CFA toggle not available, use GET /api/v1/windows/defender/status for information'
     }
 
 @router.post('/defender/pua')
@@ -270,7 +270,7 @@ async def toggle_pua_protection(request: Request, req: DefenderToggleFeatureRequ
     return {
         'status': 'stub',
         'mode': req.mode,
-        'message': 'POST endpoint stub: PUA protection toggle not available, use GET /api/windows/defender/status for information'
+        'message': 'POST endpoint stub: PUA protection toggle not available, use GET /api/v1/windows/defender/status for information'
     }
 
 @router.get('/hardware/monitor')
@@ -352,7 +352,7 @@ async def run_stress_benchmark(req: StressTestRequest) -> Dict[str, Any]:
     return {
         'status': 'stub',
         'target': req.target,
-        'message': 'POST endpoint stub: Stress test not available, use GET /api/windows/hardware/monitor for real-time data'
+        'message': 'POST endpoint stub: Stress test not available, use GET /api/v1/windows/hardware/monitor for real-time data'
     }
 
 class AIBenchmarkRequest(BaseModel):
@@ -370,7 +370,7 @@ async def run_ai_benchmark(req: AIBenchmarkRequest) -> Dict[str, Any]:
         'status': 'stub',
         'provider': req.provider,
         'model': req.model_name,
-        'message': 'POST endpoint stub: AI benchmark not available, use GET /api/windows/benchmark/ai/history for historical data'
+        'message': 'POST endpoint stub: AI benchmark not available, use GET /api/v1/windows/benchmark/ai/history for historical data'
     }
 
 _stress_engine = None
@@ -765,30 +765,85 @@ async def get_hardware_compare_report_api(change_id: Optional[int] = None, compo
         raise HTTPException(status_code=404, detail="Недостаточно данных сессий live stream для формирования сравнительного отчета")
     return rep
 
+
+# =============================================================================
+# Эндпоинты подсистемы WinRT и UWP (Windows Runtime Provider)
+# =============================================================================
+
+@router.get('/winrt/status')
+async def get_winrt_status_api() -> Dict[str, Any]:
+    """Статус провайдера WinRTProvider и поддерживаемые пространства имён."""
+    from apps.windows.sdk.winrt import WinRTProvider
+    provider = WinRTProvider()
+    return provider.get_status().model_dump()
+
+
+@router.get('/winrt/snapshot')
+async def get_winrt_snapshot_api() -> Dict[str, Any]:
+    """Комплексный снимок телеметрии WinRT (питание, сеть, медиа, графика, устройства, UWP/Phone Link)."""
+    from apps.windows.sdk.winrt import WinRTProvider
+    provider = WinRTProvider()
+    snap = await provider.probe_snapshot_async()
+    return snap.model_dump(mode="json")
+
+
+@router.get('/winrt/power')
+async def get_winrt_power_api() -> Dict[str, Any]:
+    """Телеметрия питания через WinRT (Windows.System.Power)."""
+    from apps.windows.sdk.winrt import WinRTProvider
+    provider = WinRTProvider()
+    res = await provider.power.get_power_telemetry_async()
+    return res.model_dump()
+
+
+@router.get('/winrt/network')
+async def get_winrt_network_api() -> Dict[str, Any]:
+    """Телеметрия сетевого подключения через WinRT (Windows.Networking.Connectivity)."""
+    from apps.windows.sdk.winrt import WinRTProvider
+    provider = WinRTProvider()
+    res = await provider.network.get_network_telemetry_async()
+    return res.model_dump()
+
+
+@router.get('/winrt/media')
+async def get_winrt_media_api() -> Dict[str, Any]:
+    """Телеметрия активных медиасессий ОС через WinRT (Windows.Media.Control)."""
+    from apps.windows.sdk.winrt import WinRTProvider
+    provider = WinRTProvider()
+    res = await provider.media.get_media_telemetry_async()
+    return res.model_dump()
+
+
+@router.get('/winrt/graphics')
+async def get_winrt_graphics_api() -> Dict[str, Any]:
+    """Телеметрия поддержки захвата экрана и кодеков (Windows.Graphics)."""
+    from apps.windows.sdk.winrt import WinRTProvider
+    provider = WinRTProvider()
+    res = await provider.graphics.get_graphics_telemetry_async()
+    return res.model_dump()
+
+
+@router.get('/winrt/devices')
+async def get_winrt_devices_api() -> Dict[str, Any]:
+    """Инвентаризация устройств по классам WinRT (Windows.Devices.Enumeration)."""
+    from apps.windows.sdk.winrt import WinRTProvider
+    provider = WinRTProvider()
+    res = await provider.devices.get_devices_telemetry_async()
+    return res.model_dump()
+
+
+@router.get('/winrt/appmodel')
+async def get_winrt_appmodel_api() -> Dict[str, Any]:
+    """Телеметрия приложений UWP/MSIX и статуса Phone Link (Windows.ApplicationModel)."""
+    from apps.windows.sdk.winrt import WinRTProvider
+    provider = WinRTProvider()
+    res = await provider.appmodel.get_appmodel_telemetry_async()
+    return res.model_dump()
+
 def init_router(app: Optional[Any]=None, state: Optional[Any]=None) -> APIRouter:
     """Инициализация FastAPI роутера."""
-    from apps.windows.sdk.core.software_transparency import init_software_transparency_router
-    from apps.windows.api.router_capabilities import init_router as init_capabilities_router
-    from apps.windows.wikillm.router import init_router as init_wikillm_router
-    from src.ai.rag.router import init_router as init_rag_router
     from apps.windows.sdk.modules.programms_history_deep_researh.router import router as prog_history_router
 
-    if app is not None:
-        try:
-            from apps.windows.api.server import safe_include_router
-            safe_include_router(app, init_rag_router())
-        except Exception:
-            app.include_router(init_rag_router())
-
-    router.include_router(init_capabilities_router())
-    router.include_router(init_wikillm_router())
     router.include_router(prog_history_router)
-    try:
-        from apps.windows.sdk.modules.storage_manager.router import init_router as init_storage_router
-        router.include_router(init_storage_router())
-    except Exception as exc:
-        logger.debug(f'Storage manager router not registered: {exc}')
-    chat_prov = state.chat_model if state and hasattr(state, 'chat_model') else None
-    router.include_router(init_software_transparency_router(chat_provider=chat_prov), prefix='/software-transparency', tags=['Software Transparency'])
     return router
 __all__ = ['init_router', 'router']

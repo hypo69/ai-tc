@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI -   Init   Module
+# Process Name: ai-tc AI -   Init   Module
 # =============================================================================
 # Description:
 #   Модуль основной системы (`__init__`).
@@ -9,11 +9,11 @@
 #
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.providers.onnx
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Модуль основной системы (`__init__`)."""

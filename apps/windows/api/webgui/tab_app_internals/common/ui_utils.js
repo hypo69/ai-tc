@@ -7,11 +7,11 @@
  *   нормализация идентификаторов панелей, динамическая загрузка скриптов и системные нотификации.
  *
  * File: ui_utils.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_app_internals/common
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-12 02:30:00
+ * Updated: 2026-11-19 17:25:00
  * =============================================================================
  */
 
@@ -40,6 +40,7 @@ export function isAppInternalsTabActive() {
 export function normalizeSubTabId(rawId) {
   if (!rawId) return 'telemetry';
   const s = String(rawId).toLowerCase().trim().replace(/^#/, '').replace(/^panel-/, '');
+  if (s.includes('db-manager') || s.includes('database') || s.includes('db-workbench') || s.includes('databases') || s.includes('db_manager')) return 'db-manager';
   if (s.includes('codebase') || s.includes('code-rag') || s.includes('coderag') || s.includes('diag')) return 'codebase-rag';
   if (s.includes('telemetry') || s.includes('metric') || s.includes('cpu')) return 'telemetry';
   if (s.includes('model') || s.includes('provider') || s.includes('foundry') || s.includes('ollama')) return 'models';
@@ -64,9 +65,19 @@ export function normalizeSubTabId(rawId) {
 export function normalizeBlockId(blockId, panelId = '') {
   if (!blockId) {
     if (panelId === 'codebase-rag') return 'block-code-diagnose';
+    if (panelId === 'db-manager') return 'block-db-overview';
     return panelId === 'instruments' ? 'block-inst-hostinger' : 'block-sys-storage';
   }
   const s = String(blockId).toLowerCase().trim().replace(/^#/, '');
+
+  // Блоки для Database Manager
+  if (panelId === 'db-manager' || s.startsWith('block-db-')) {
+    if (s.includes('console') || s.includes('query') || s.includes('sql')) return 'block-db-console';
+    if (s.includes('compress') || s.includes('vacuum') || s.includes('optimize')) return 'block-db-compress';
+    if (s.includes('export') || s.includes('dump')) return 'block-db-export';
+    if (s.includes('backup') || s.includes('restore')) return 'block-db-backups';
+    return 'block-db-overview';
+  }
 
   // Блоки для Codebase RAG
   if (panelId === 'codebase-rag' || s.includes('code')) {
@@ -113,13 +124,14 @@ export function getActiveSubTabId() {
 
 /**
  * Возвращает идентификатор активного блока подменю в указанной панели.
- * @param {string} panelId - 'wikillm-system', 'instruments' или 'codebase-rag'
+ * @param {string} panelId - 'wikillm-system', 'instruments', 'codebase-rag' или 'db-manager'
  * @returns {string}
  */
 export function getActiveBlockId(panelId) {
   let navId = 'wikillm-sys-blocks-nav';
   if (panelId === 'instruments') navId = 'instruments-blocks-nav';
   else if (panelId === 'codebase-rag') navId = 'codebase-blocks-nav';
+  else if (panelId === 'db-manager') navId = 'dbmanager-blocks-nav';
   const activeBtn = document.querySelector(`#${navId} button.active`);
   if (activeBtn) {
     const bId = activeBtn.getAttribute('data-block-id');

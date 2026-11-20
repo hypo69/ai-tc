@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Collector Top Processes
+# Process Name: ai-tc Tests - Collector Top Processes
 # =============================================================================
 # Description:
 #   Тесты SystemCollector.get_top_processes: лимит, сортировка и ленивое
 #   чтение командной строки только для процессов из топ-N.
 #
 # File: test_collector_top_processes.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-11 04:25:19
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Probe Module
+# Process Name: ai-tc AI - Probe Module
 # =============================================================================
 # Description:
 #   Check if current operating system is Windows.
@@ -13,11 +13,11 @@
 #     print(res)
 #
 # File: probe.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.providers.windows_ai
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Check if current operating system is Windows."""

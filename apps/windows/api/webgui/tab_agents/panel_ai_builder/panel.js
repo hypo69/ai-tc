@@ -8,11 +8,11 @@
  *   выбранной LLM-модели (Gemini / Foundry / Ollama).
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_agents/panel_ai_builder
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:37:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -57,7 +57,7 @@ export async function handleRunAiGenerate() {
   }
 
   try {
-    const res = await fetchJson('/api/agents/generate-prompt', {
+    const res = await fetchJson('/api/v1/agents/generate-prompt', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ task_description: taskDesc, provider, model })

@@ -81,7 +81,12 @@
     "--table-color": "#18181b",
     "--table-border-color": "#cfc5b4",
     "--about-card-bg": "linear-gradient(135deg, #f6f1e8 0%, #ede6d9 100%)",
-    "--badge-font-size": "calc(0.72rem + 1pt)",
-    "color-scheme": "light"
+    "--badge-scale": "1.08",
+    "--badge-font-size": "calc((0.72rem + 1pt) * 1.08)",
+    "color-scheme": "light",
+    "--bs-primary": "#1d4ed8",
+    "--bs-info": "#184674",
+    "--bs-info-rgb": "24, 70, 116",
+    "--panel-header-color": "#1d4ed8"
   }
 }

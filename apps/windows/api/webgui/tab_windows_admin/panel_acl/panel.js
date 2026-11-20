@@ -9,7 +9,7 @@
  * Файл: apps/windows/api/webgui/tab_windows_admin/panel_acl/panel.js
  * Пакет: windows/api/webgui/tab_windows_admin
  * Автор: hypo69
- * Updated: 2026-10-20 17:18:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -44,14 +44,14 @@ export async function inspectAcl(path) {
     let aces = [];
 
     try {
-      const resAcl = await safeApiFetch(`/api/security-acl/acl?path=${encodeURIComponent(targetPath)}`);
+      const resAcl = await safeApiFetch(`/api/v1/security-acl/acl?path=${encodeURIComponent(targetPath)}`);
       if (Array.isArray(resAcl) && resAcl.length > 0) {
         aces = resAcl;
       } else if (resAcl && Array.isArray(resAcl.entries) && resAcl.entries.length > 0) {
         aces = resAcl.entries;
       }
     } catch (errAcl) {
-      console.debug('[WinAdminTab] Запрос /api/security-acl/acl fallback:', errAcl);
+      console.debug('[WinAdminTab] Запрос /api/v1/security-acl/acl fallback:', errAcl);
     }
 
     if (!aces || aces.length === 0) {
@@ -104,7 +104,7 @@ export async function executeAclAction(customAction = null) {
   appendAclLog(`Выполнение ${action} для «${targetPath}» (Субъект: ${user}, Права: ${perm}, DryRun: ${dryRun})...`);
 
   try {
-    const res = await fetch('/api/security-acl/action', {
+    const res = await fetch('/api/v1/security-acl/action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: targetPath, user: user, permission: perm, action: action, dry_run: dryRun })

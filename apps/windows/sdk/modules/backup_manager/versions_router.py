@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Backup_Manager - Versions Router
+# Process Name: ai-tc Apps Windows Modules Backup_Manager - Versions Router
 # =============================================================================
 # Description:
 #   REST API версионирования файлов: /api/v1/versions/{save,list,restore}.
@@ -12,11 +12,11 @@
 #     router = init_router()
 #
 # File: versions_router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.backup_manager
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

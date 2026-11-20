@@ -7,11 +7,11 @@
  *   кнопок озвучивания ответа через TTS и обработки удаленных транскриптов.
  *
  * File: panel_messages/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_chat/panel_messages
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:25:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

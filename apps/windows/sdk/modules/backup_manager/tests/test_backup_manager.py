@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Backup_Manager Tests - Test Backup Manager
+# Process Name: ai-tc Apps Windows Modules Backup_Manager Tests - Test Backup Manager
 # =============================================================================
 # Description:
-#   Модуль реализации компонентов подсистемы Windows AI-Windows-Admin (test_backup_manager).
+#   Модуль реализации компонентов подсистемы Windows ai-tc (test_backup_manager).
 #
 # Usage Examples:
 #   Python API:
@@ -12,14 +12,14 @@
 #     res = test_libraries_creation_and_parse()
 #
 # File: test_backup_manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.backup_manager.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
-"""Модуль реализации компонентов подсистемы Windows AI-Windows-Admin (test_backup_manager)."""
+"""Модуль реализации компонентов подсистемы Windows ai-tc (test_backup_manager)."""
 
 import pytest
 from pathlib import Path

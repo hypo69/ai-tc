@@ -1,7 +1,7 @@
 # `src.utils` Module — Common Utility Library
 
 ## Purpose
-The `src.utils` directory is a collection of reusable helper modules, data converters, and low-level system utilities shared across the entire AI Windows Admin application.
+The `src.utils` directory is a collection of reusable helper modules, data converters, and low-level system utilities shared across the entire ai-tc application.
 
 ---
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Router Storage
+# Process Name: ai-tc Apps Windows Api Routers - Router Storage
 # =============================================================================
 # Description:
 #   Алиас-роутер параметров хранилища и накопителей (SMART 190 / 194).
@@ -12,11 +12,11 @@
 #     app.include_router(init_router())
 #
 # File: router_storage.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 15:46:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Software Scanner - Report Formatter
+# Process Name: ai-tc Software Scanner - Report Formatter
 # =============================================================================
 # Description:
 #   Форматирование и экспорт результатов глубокого сканирования ПО в JSON,
 #   словари и человекочитаемые отчеты.
 #
 # File: report.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.software_scanner
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 19:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - WikiLLM Articles & Category Filter
+# Process Name: ai-tc Tests - WikiLLM Articles & Category Filter
 # =============================================================================
 # Description:
 #   Модульные тесты эндпоинта GET /api/v1/wikillm/articles, фильтрации по категориям,
 #   облаку тегов и поисковому запросу согласно ТЗ v23 (Задача №33).
 #
 # File: test_wikillm_articles.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 12:30:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - Delta & LOCF
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - Delta & LOCF
 # =============================================================================
 # Description:
 #   Движок дельта-трекинга (Change-Only Storage) и реконструкции срезов
@@ -18,11 +18,11 @@
 #     full_snap = reconstructor.reconstruct_snapshot_row(row, conn)
 #
 # File: delta_tracker.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-14 00:55:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

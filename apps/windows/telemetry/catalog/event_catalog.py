@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Event Catalog
+# Process Name: ai-tc Apps Windows Telemetry - Event Catalog
 # =============================================================================
 # Description:
 #   Иерархический каталог провайдеров и каналов Windows Event Log,
@@ -17,11 +17,11 @@
 #     domains = engine.get_domains_summary()
 #
 # File: event_catalog.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 16:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

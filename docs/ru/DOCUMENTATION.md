@@ -1,4 +1,4 @@
-# AI Windows Admin — Полная документация проекта
+# ai-tc — Полная документация проекта
 
 > Интерактивный стенд для исследования, тестирования и сравнения языковых моделей ИИ.
 
@@ -52,7 +52,7 @@ docs/ru/
 
 ## 📚 Учебная книга
 
-Практическое руководство по работе со стендом AI Windows Admin:
+Практическое руководство по работе со стендом ai-tc:
 
 | # | Глава |
 |---|-------|
@@ -90,7 +90,7 @@ docs/ru/
 
 ## 🔗 Ссылки
 
-- **GitHub:** https://github.com/hypo69/AI-Windows-Admin
-- **Issues:** https://github.com/hypo69/AI-Windows-Admin/issues
+- **GitHub:** https://github.com/hypo69/ai-tc
+- **Issues:** https://github.com/hypo69/ai-tc/issues
 - **Автор:** hypo69@yandex.com
 - **Лицензия:** MIT © 2026 hypo69

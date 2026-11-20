@@ -13,11 +13,11 @@
  *     import { initFirewallManagerTab } from '/windows/api/webgui/tab_firewall_manager/main.js';
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_firewall_manager
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-16 17:05:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -42,7 +42,7 @@ export async function fetchFirewallSummary() {
   }
   inFlightSummaryPromise = (async () => {
     try {
-      const res = await fetch('/api/firewall-manager/summary');
+      const res = await fetch('/api/v1/firewall-manager/summary');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       renderFirewall(data);
@@ -66,7 +66,7 @@ export async function forceRefreshFirewall() {
     tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4"><span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>Пересканирование правил через netsh...</td></tr>';
   }
   try {
-    const res = await fetch('/api/firewall-manager/refresh', { method: 'POST' });
+    const res = await fetch('/api/v1/firewall-manager/refresh', { method: 'POST' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderFirewall(data);
@@ -185,7 +185,7 @@ function applyFirewallFilters() {
 
 async function executeFirewallAction(ruleName, action) {
   try {
-    const res = await fetch('/api/firewall-manager/action', {
+    const res = await fetch('/api/v1/firewall-manager/action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rule_name: ruleName, action: action, dry_run: false, confirmed_by_user: true })

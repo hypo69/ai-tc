@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Dev - Init Skill
+# Process Name: ai-tc Scripts Dev - Init Skill
 # =============================================================================
 # Description:
 #   Инициализирует директорию и файлы для нового навыка.
@@ -14,11 +14,11 @@
 #     res = init_skill()
 #
 # File: init_skill.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.dev
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 20:37:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Инициализирует директорию и файлы для нового навыка."""

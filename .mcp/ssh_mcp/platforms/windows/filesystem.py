@@ -9,11 +9,11 @@
 #   и целостности SHA-256 (Раздел 4.6 ТЗ).
 #
 # File: filesystem.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.platforms.windows
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:53:15
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import hashlib

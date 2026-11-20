@@ -12,11 +12,11 @@
  *   - Создание новых страниц и блоков справки
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_app_internals/panel_helppages_editor
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 18:03:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

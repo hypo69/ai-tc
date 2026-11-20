@@ -10,17 +10,17 @@
  *     <script src="/windows/api/webgui/js/toast.js?v=20261001_v1" type="module"></script>
  *
  * File: toast.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
 /**
  * toast.js — Универсальная система всплывающих окон (Toast & Floating Notifications)
- * для веб-интерфейса AI-Windows-Admin.
+ * для веб-интерфейса ai-tc.
  *
  * Предоставляет функции:
  * - window.showToast(message, type, options)

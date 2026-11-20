@@ -13,11 +13,11 @@
 #   $ py -m apps.cloudflared_monitor --mode server --port 8104
 #
 # File: __main__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.cloudflared_monitor
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 14:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """CLI точка входа для Cloudflared Tunnel Monitor."""
@@ -84,7 +84,7 @@ def _run_standalone_server(
 def main() -> None:
     """Парсит аргументы командной строки и выполняет запрошенное действие."""
     parser = argparse.ArgumentParser(
-        description="AI-Windows-Admin Cloudflare Tunnel Monitor & Diagnostics Workspace"
+        description="ai-tc Cloudflare Tunnel Monitor & Diagnostics Workspace"
     )
     parser.add_argument(
         "--mode",

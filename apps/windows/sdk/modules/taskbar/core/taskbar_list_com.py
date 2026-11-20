@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Taskbar - ITaskbarList3 COM
+# Process Name: ai-tc Apps Windows Modules Taskbar - ITaskbarList3 COM
 # =============================================================================
 # Description:
 #   Обертка COM интерфейса ITaskbarList3 для управления индикатором прогресса и оверлеями
@@ -14,11 +14,11 @@
 #     tb.set_progress_value(hwnd, 50, 100)
 #
 # File: taskbar_list_com.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.taskbar.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

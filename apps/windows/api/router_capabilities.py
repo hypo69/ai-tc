@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api - Router Capabilities
+# Process Name: ai-tc Apps Windows Api - Router Capabilities
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     res = init_router()
 #
 # File: router_capabilities.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 08:11:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

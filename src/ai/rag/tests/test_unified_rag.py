@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Unified RAG Unit Tests
+# Process Name: ai-tc AI - Unified RAG Unit Tests
 # =============================================================================
 # Description:
 #   Модульные тесты для TextRAG, PixelRAG, LogRAG и UnifiedKnowledgeHub.
@@ -9,11 +9,11 @@
 #   pytest src/ai/rag/tests/test_unified_rag.py -v
 #
 # File: test_unified_rag.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.rag.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 18:12:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -204,7 +204,7 @@ class PaymentProcessor:
 
 
 def test_codebase_rag_fastapi_router_endpoints(tmp_path: Path) -> None:
-    """Проверка REST API эндпоинтов /api/rag/codebase/*."""
+    """Проверка REST API эндпоинтов /api/v1/rag/codebase/*."""
     proj_dir = tmp_path / "api_proj"
     proj_dir.mkdir(parents=True, exist_ok=True)
     (proj_dir / "worker.py").write_text(
@@ -217,30 +217,30 @@ def test_codebase_rag_fastapi_router_endpoints(tmp_path: Path) -> None:
     app.include_router(init_router(hub))
     client = TestClient(app)
 
-    # 1. Сборка индекса через POST /api/rag/codebase/build
+    # 1. Сборка индекса через POST /api/v1/rag/codebase/build
     build_resp = client.post(
-        "/api/rag/codebase/build",
+        "/api/v1/rag/codebase/build",
         json={"project_root": str(proj_dir), "index_name": "codebase"},
     )
     assert build_resp.status_code == 200
     assert build_resp.json()["result"]["total_symbols"] == 1
 
-    # 2. Список индексов через GET /api/rag/codebase/indexes
-    idx_resp = client.get("/api/rag/codebase/indexes")
+    # 2. Список индексов через GET /api/v1/rag/codebase/indexes
+    idx_resp = client.get("/api/v1/rag/codebase/indexes")
     assert idx_resp.status_code == 200
     assert len(idx_resp.json()["indexes"]) == 1
 
-    # 3. Поиск символов через POST /api/rag/codebase/symbols
+    # 3. Поиск символов через POST /api/v1/rag/codebase/symbols
     sym_resp = client.post(
-        "/api/rag/codebase/symbols",
+        "/api/v1/rag/codebase/symbols",
         json={"symbol": "run_worker_task", "index_name": "codebase"},
     )
     assert sym_resp.status_code == 200
     assert sym_resp.json()["total_found"] == 1
 
-    # 4. Заключение по ошибке и логам через POST /api/rag/codebase/diagnose
+    # 4. Заключение по ошибке и логам через POST /api/v1/rag/codebase/diagnose
     diag_resp = client.post(
-        "/api/rag/codebase/diagnose",
+        "/api/v1/rag/codebase/diagnose",
         json={
             "question": "Из-за чего останавливается воркер?",
             "logs": ["[CRITICAL] worker.py:4 task_id=0 rejected"],

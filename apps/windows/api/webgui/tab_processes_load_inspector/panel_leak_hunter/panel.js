@@ -2,7 +2,7 @@
  * Модуль аудита утечек ресурсов и дескрипторов процессов (Leak Hunter).
  * Анализ дескрипторов (Handles), GDI/USER объектов, Page Faults и рисков утечек.
  * Файл: apps/windows/api/webgui/tab_processes_load_inspector/panel_leak_hunter/panel.js
- * Updated: 2026-10-18 22:53:00
+ * Updated: 2026-11-13 13:35:00
  */
 
 import {
@@ -189,8 +189,8 @@ export function renderProcessLeaksTable(processes) {
     return `
       <tr class="proc-leak-row" data-pid="${p.pid}" ${tooltipAttrs} style="cursor: pointer;">
         <td class="text-center no-modal-trigger" style="width: 36px;" onclick="event.stopPropagation();">
-          <button type="button" class="btn btn-xs btn-outline-info btn-drilldown-proc proc-drilldown-btn" data-pid="${p.pid}" title="Drill-down: 🔬 Process Intelligence Deep Dive (7 виджетов)">
-            <img src="/html/assets/red_drill.png?v=20261015_v2" alt="Drill-down" style="width: 14px; height: 14px; vertical-align: middle;">
+          <button type="button" class="btn btn-xs btn-outline-info btn-drilldown-proc proc-drilldown-btn" data-pid="${p.pid}" title="">
+            <img src="/html/assets/red_drill.png?v=20261113_v1" alt="" title="" style="width: 14px; height: 14px; vertical-align: middle;">
           </button>
         </td>
         <td><span class="text-info font-monospace">${p.pid}</span></td>

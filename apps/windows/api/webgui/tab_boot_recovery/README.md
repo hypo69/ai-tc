@@ -2,7 +2,7 @@
 
 **Путь:** `apps/windows/api/webgui/tab_boot_recovery`  
 **Идентификатор вкладки:** `tab-boot-recovery`  
-**Updated:** 2026-10-17 02:11:00  
+**Updated:** 2026-11-12 05:00:00  
 **Автор:** hypo69  
 
 ---
@@ -47,7 +47,7 @@
 
 История снимков и дельт состояний сохраняется локально в SQLite по пути:
 ```
-%ProgramData%\AI-Windows-Admin\apps\windows\telemetry\logs\state_journal.sqlite
+%ProgramData%\ai-tc\apps\windows\telemetry\logs\state_journal.sqlite
 ```
 
 Таблицы:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Backup_Manager Core - Models
+# Process Name: ai-tc Apps Windows Modules Backup_Manager Core - Models
 # =============================================================================
 # Description:
 #   Модели данных для приложения Windows Backup, Libraries & File History Manager.
@@ -12,11 +12,11 @@
 #     service = ServiceState()
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.backup_manager.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

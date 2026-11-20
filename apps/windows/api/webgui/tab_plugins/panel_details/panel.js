@@ -1,7 +1,7 @@
 /**
  * Модуль панели подробных сведений, переключения активности и сохранения настроек плагина.
  * Файл: apps/windows/api/webgui/tab_plugins/panel_details/panel.js
- * Updated: 2026-10-17 01:55:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { showPluginNotification } from '../common/ui_utils.js';
@@ -125,7 +125,7 @@ export async function toggleCurrentPlugin(enabled) {
 
   try {
     logToPluginConsole(`Переключение плагина '${selectedPluginName}' -> ${enabled ? 'ВКЛ' : 'ВЫКЛ'}...`);
-    const endpoint = `/api/admin/plugins/${selectedPluginName}/toggle`;
+    const endpoint = `/api/v1/admin/plugins/${selectedPluginName}/toggle`;
     let res;
     if (window.api && typeof window.api.fetch === 'function') {
       res = await window.api.fetch(endpoint, {
@@ -192,7 +192,7 @@ export async function saveCurrentPluginConfig() {
 
   try {
     logToPluginConsole(`Сохранение параметров плагина '${selectedPluginName}'...`);
-    const endpoint = `/api/admin/plugins/${selectedPluginName}/config`;
+    const endpoint = `/api/v1/admin/plugins/${selectedPluginName}/config`;
     let res;
     if (window.api && typeof window.api.fetch === 'function') {
       res = await window.api.fetch(endpoint, {

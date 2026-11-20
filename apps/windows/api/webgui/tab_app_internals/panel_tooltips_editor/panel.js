@@ -8,11 +8,11 @@
  *   с мгновенным живым предпросмотром (Live Preview) и сохранением в локали и кэш.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_app_internals/panel_tooltips_editor
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 18:06:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

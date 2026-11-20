@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Storage Manager Core - Windows Storage Sensor
+# Process Name: ai-tc Apps Windows Modules Storage Manager Core - Windows Storage Sensor
 # =============================================================================
 # Description:
 #   Сенсор диагностики накопителей Windows без сторонних утилит.
@@ -16,11 +16,11 @@
 #     disks = sensor.get_physical_disks()
 #
 # File: windows_storage_sensor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.storage_manager.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-18 08:14:00
+# Updated: 2026-11-20 15:14:00
 # =============================================================================
 
 from __future__ import annotations
@@ -34,6 +34,7 @@ import platform
 import re
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from dataclasses import asdict, dataclass, field
@@ -632,16 +633,16 @@ class WindowsStorageSensor:
         self.timeout_sec = timeout_sec
         self.ttl_sec = ttl_sec
 
-        # Загрузка сохраненного снимка с диска, если память еще пуста
+        # Загрузка сохраненного снимка из telemetry.db (inventory_state), если память еще пуста
         if not WindowsStorageSensor._CACHE_SNAPSHOT:
-            snap_file = _PROJECT_ROOT / "storage_snapshot.json"
-            if snap_file.is_file():
-                try:
-                    with open(snap_file, "r", encoding="utf-8") as f:
-                        WindowsStorageSensor._CACHE_SNAPSHOT = json.load(f)
-                        WindowsStorageSensor._CACHE_TIME = time.time()
-                except Exception as ex:
-                    logger.debug(f"[WindowsStorageSensor] Ошибка загрузки storage_snapshot.json: {ex}")
+            try:
+                from apps.windows.telemetry.sqlite import TelemetryStorage
+                cached = TelemetryStorage(read_only=True).get_latest_storage_sensor_snapshot()
+                if cached is not None:
+                    WindowsStorageSensor._CACHE_SNAPSHOT = cached
+                    WindowsStorageSensor._CACHE_TIME = time.time()
+            except Exception as ex:
+                logger.debug(f"[WindowsStorageSensor] Ошибка загрузки снимка из telemetry.db: {ex}")
 
     @property
     def is_windows(self) -> bool:
@@ -769,11 +770,10 @@ class WindowsStorageSensor:
             WindowsStorageSensor._CACHE_SNAPSHOT = snapshot
             WindowsStorageSensor._CACHE_TIME = time.time()
             try:
-                snap_file = _PROJECT_ROOT / "storage_snapshot.json"
-                with open(snap_file, "w", encoding="utf-8") as f:
-                    json.dump(snapshot, f, ensure_ascii=False, indent=2)
-            except Exception as io_err:
-                logger.debug(f"[WindowsStorageSensor] Ошибка записи storage_snapshot.json: {io_err}")
+                from apps.windows.telemetry.sqlite import TelemetryStorage
+                TelemetryStorage().save_storage_sensor_snapshot(snapshot)
+            except Exception as db_err:
+                logger.debug(f"[WindowsStorageSensor] Ошибка сохранения снимка в telemetry.db: {db_err}")
             return snapshot
         finally:
             with WindowsStorageSensor._BG_LOCK:
@@ -1175,16 +1175,53 @@ def collect_storage_snapshot() -> Dict[str, Any]:
     return sensor.collect_snapshot()
 
 
-def save_snapshot(snapshot: Dict[str, Any], output_path: Path) -> None:
-    """Сохраняет диагностический снимок в UTF-8 JSON файл.
+def save_snapshot(snapshot: Dict[str, Any], output_path: Path, quiet: bool = False) -> None:
+    """Атомарно сохраняет диагностический снимок в UTF-8 JSON файл.
+
+    Запись выполняется через уникальный временный файл в целевой директории
+    с последующей атомарной заменой os.replace(), что исключает гонку записи
+    и появление хвостовых данных (Extra data) при параллельном доступе.
 
     Args:
         snapshot: Диагностический снимок.
         output_path: Путь к выходному JSON-файлу.
+        quiet: Не выводить информационное сообщение в лог.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2, default=str), encoding='utf-8')
-    logger.info(f'Снимок сохранен: {output_path}')
+    payload = json.dumps(snapshot, ensure_ascii=False, indent=2, default=str)
+    temp_file: Optional[Path] = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            'w',
+            dir=str(output_path.parent),
+            prefix=f'.{output_path.name}.',
+            suffix='.tmp',
+            delete=False,
+            encoding='utf-8',
+        ) as tf:
+            temp_file = Path(tf.name)
+            tf.write(payload)
+            tf.flush()
+            os.fsync(tf.fileno())
+
+        for attempt in range(3):
+            try:
+                os.replace(temp_file, output_path)
+                temp_file = None
+                break
+            except PermissionError:
+                if attempt == 2:
+                    raise
+                time.sleep(0.05)
+    finally:
+        if temp_file is not None and temp_file.exists():
+            try:
+                temp_file.unlink()
+            except OSError:
+                pass
+
+    if not quiet:
+        logger.info(f'Снимок сохранен: {output_path}')
 
 
 def main() -> int:

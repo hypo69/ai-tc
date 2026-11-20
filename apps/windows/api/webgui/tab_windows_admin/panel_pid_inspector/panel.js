@@ -11,7 +11,7 @@
  * Файл: apps/windows/api/webgui/tab_windows_admin/panel_pid_inspector/panel.js
  * Пакет: windows/api/webgui/tab_windows_admin
  * Автор: hypo69
- * Updated: 2026-11-01 15:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -33,7 +33,7 @@ export async function loadProcessesList() {
   try {
     let list = [];
     try {
-      const res = await fetch('/api/process-manager/list?limit=0&sort_by=name');
+      const res = await fetch('/api/v1/process-manager/list?limit=0&sort_by=name&live=true');
       if (res.ok) {
         list = await res.json();
       }
@@ -41,10 +41,9 @@ export async function loadProcessesList() {
 
     if (!Array.isArray(list) || list.length === 0) {
       try {
-        const fbRes = await fetch('/api/v1/tc/processes?limit=300&sort_by=name');
+        const fbRes = await fetch('/api/v1/tab-processes-load-inspector/panel-process-manager/list?limit=0&sort_by=name&live=true');
         if (fbRes.ok) {
-          const fbData = await fbRes.json();
-          list = fbData.processes || [];
+          list = await fbRes.json();
         }
       } catch (_) {}
     }
@@ -176,7 +175,7 @@ export async function handleExplainPid(targetPid = null) {
   }
 
   try {
-    const res = await fetch(`/api/windows/identity/explain-pid/${pidVal}`);
+    const res = await fetch(`/api/v1/windows/identity/explain-pid/${pidVal}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 

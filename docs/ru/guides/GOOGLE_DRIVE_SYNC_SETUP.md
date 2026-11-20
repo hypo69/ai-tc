@@ -58,7 +58,7 @@ python scripts/setup_google_drive_sync.py --init
 
 **Что произойдёт**:
 - ✓ Проверка подключения к Google Drive API
-- ✓ Создание папки "AI-Windows-Admin-Sync" на Google Drive
+- ✓ Создание папки "ai-tc-sync" на Google Drive
 - ✓ Подготовка системы к синхронизации
 
 ## 🔄 Использование
@@ -169,7 +169,7 @@ include_sync_routes(app)
 После синхронизации на Google Drive появится папка:
 
 ```
-AI-Windows-Admin-Sync/
+ai-tc-sync/
 ├── data/
 │   ├── news_service.db
 │   ├── rag_documents/
@@ -205,7 +205,7 @@ AI-Windows-Admin-Sync/
   "include_secrets": true,                     // Включить секреты
   "include_configs": true,                     // Включить конфиги
   "exclude_patterns": [...],                   // Исключённые файлы
-  "drive_folder_name": "AI-Windows-Admin-Sync"   // Имя папки на Google Drive
+  "drive_folder_name": "ai-tc-sync"   // Имя папки на Google Drive
 }
 ```
 

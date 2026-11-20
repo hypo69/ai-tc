@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/apps/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/apps
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-12 02:25:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -26,9 +26,9 @@
 import { setupGlobalApi, setupThemeAndLang } from './modules/init-interface.js';
 import { fetchAppsStatus, updateModelBadge } from './modules/status-manager.js';
 import { initModelTester, sendModelPing } from './modules/model-tester.js';
-import { APP_TAB_DEFS } from './modules/tabs-config.js?v=20261111_v1';
+import { APP_TAB_DEFS } from './modules/tabs-config.js?v=20261120_v1';
 import { applyTranslations } from '../js/i18n.js';
-import { switchTab, loadTab, setupTabClicks } from '../js/tab-core.js?v=20261031_v4';
+import { switchTab, loadTab, setupTabClicks } from '../js/tab-core.js?v=20261120_v1';
 import { loadPanelData, initPanels } from '../js/panel-loader.js';
 
 // Глобальный экспорт
@@ -134,13 +134,6 @@ export async function switchAppTab(tabId) {
     setTimeout(() => {
       if (typeof window.switchSoftwareSubTab === 'function') {
         window.switchSoftwareSubTab('packages');
-      }
-    }, 70);
-  } else if (tabId === 'tab-ninite-updater' || tabId === 'ninite-updater') {
-    tabId = 'tab-software-monitor';
-    setTimeout(() => {
-      if (typeof window.switchSoftwareSubTab === 'function') {
-        window.switchSoftwareSubTab('packages', 'block-ninite');
       }
     }, 70);
   } else if (tabId === 'tab-startup-auditor' || tabId === 'startup-auditor' || tabId === 'windows_startup_auditor') {
@@ -367,7 +360,7 @@ async function executeLaunchItem(item, iconEl = null) {
   const origContent = iconEl ? iconEl.innerHTML : '';
   if (iconEl) iconEl.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
   try {
-    const res = await fetch('/api/recovery/launch', { method: 'POST' });
+    const res = await fetch('/api/v1/recovery/launch', { method: 'POST' });
     const data = await res.json();
     if (res.ok && data.success) {
       if (window.toast) {
@@ -861,7 +854,7 @@ async function init() {
   await setupThemeAndLang();
 
   if (location.pathname.startsWith('/tc'))
-    document.title = 'AI Windows Admin — Test Computer (/tc)';
+    document.title = 'ai-tc — Test Computer (/tc)';
 
   // Единый обработчик кликов
   setupTabClicks();

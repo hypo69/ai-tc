@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Router Issues Unit Tests
+# Process Name: ai-tc Tests - Router Issues Unit Tests
 # =============================================================================
 # Description:
 #   Модульные тесты FastAPI роутера управления GitHub Issues и Git-контекстом.
@@ -9,11 +9,11 @@
 #   pytest tests/test_router_issues.py -v
 #
 # File: test_router_issues.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 14:41:44
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ class TestRouterIssues:
 
     def test_get_git_info(self, test_client: TestClient) -> None:
         """Проверка эндпоинта информации о Git-репозитории."""
-        response = test_client.get("/api/issues/git-info")
+        response = test_client.get("/api/v1/issues/git-info")
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
@@ -65,7 +65,7 @@ class TestRouterIssues:
         )
 
         with patch.object(_service, "get_issues", return_value=[sample_issue]):
-            response = test_client.get("/api/issues?state=open")
+            response = test_client.get("/api/v1/issues?state=open")
             assert response.status_code == 200
             data = response.json()
             assert data["status"] == "ok"
@@ -78,7 +78,7 @@ class TestRouterIssues:
 
     def test_get_issue_templates(self, test_client: TestClient) -> None:
         """Проверка чтения шаблонов задач из .github/ISSUE_TEMPLATE/."""
-        response = test_client.get("/api/issues/templates")
+        response = test_client.get("/api/v1/issues/templates")
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
@@ -90,7 +90,7 @@ class TestRouterIssues:
 
     def test_get_standard_labels(self, test_client: TestClient) -> None:
         """Проверка получения стандартной палитры меток AI-TC."""
-        response = test_client.get("/api/issues/labels")
+        response = test_client.get("/api/v1/issues/labels")
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
@@ -119,7 +119,7 @@ class TestRouterIssues:
                 "component": "component:network",
                 "assignee": "@me"
             }
-            response = test_client.post("/api/issues", json=payload)
+            response = test_client.post("/api/v1/issues", json=payload)
             assert response.status_code == 200
             data = response.json()
             assert data["status"] == "ok"
@@ -128,7 +128,7 @@ class TestRouterIssues:
     def test_create_branch_for_issue_mocked(self, test_client: TestClient) -> None:
         """Проверка создания ветки Git под задачу."""
         with patch.object(_agent, "setup_workspace_branch", return_value="fix/125-config-fix"):
-            response = test_client.post("/api/issues/125/create-branch")
+            response = test_client.post("/api/v1/issues/125/create-branch")
             assert response.status_code == 200
             data = response.json()
             assert data["status"] == "ok"
@@ -150,7 +150,7 @@ class TestRouterIssues:
         )
 
         with patch.object(_agent, "prepare_task", return_value=sample_plan):
-            response = test_client.get("/api/issues/125/ai-plan")
+            response = test_client.get("/api/v1/issues/125/ai-plan")
             assert response.status_code == 200
             data = response.json()
             assert data["status"] == "ok"

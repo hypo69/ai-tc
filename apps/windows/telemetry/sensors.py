@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Sensors
+# Process Name: ai-tc Apps Windows Telemetry - Sensors
 # =============================================================================
 # Description:
 #   Движок считывания показаний температурных датчиков, напряжений и вентиляторов.
@@ -12,11 +12,11 @@
 #     res = get_hardware_sensors()
 #
 # File: sensors.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 10:55:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Process_Manager Core - Manager
+# Process Name: ai-tc Apps Windows Modules Process_Manager Core - Manager
 # =============================================================================
 # Description:
 #   Диспетчер процессов Windows с поддержкой классификации на Apps,
@@ -15,11 +15,11 @@
 #     categorized = service.generate_categorized_report()
 #
 # File: manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.process_manager.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 16:16:00
+# Updated: 2026-11-20 15:50:30
 # =============================================================================
 
 from __future__ import annotations
@@ -47,14 +47,24 @@ class ProcessManager:
         """Инициализация менеджера процессов."""
         self._classifier = ProcessClassifier()
 
-    def list_processes(self) -> List[ProcessItem]:
+    def list_processes(self, include_details: bool = True) -> List[ProcessItem]:
         """Получение списка всех активных процессов через psutil.
 
+        Args:
+            include_details (bool): Если ``True``, запрашиваются полные метаданные
+                (``cmdline``, ``exe``, ``create_time``). Если ``False``, выполняется
+                быстрый сбор всех активных процессов (~70 мс) без чтения командной строки.
+
         Returns:
-            List[ProcessItem]: Список всех активных процессов с метаданными запуска.
+            List[ProcessItem]: Список всех активных процессов.
         """
         processes: List[ProcessItem] = []
-        raw_list = list(psutil.process_iter(['pid', 'ppid', 'name', 'username', 'cpu_percent', 'memory_info', 'num_threads', 'create_time', 'exe']))
+        attrs = (
+            ['pid', 'ppid', 'name', 'username', 'cpu_percent', 'memory_info', 'num_threads', 'create_time', 'exe']
+            if include_details
+            else ['pid', 'ppid', 'name', 'username', 'memory_info', 'num_threads']
+        )
+        raw_list = list(psutil.process_iter(attrs))
         pid_to_name = {p.info.get('pid'): p.info.get('name') for p in raw_list if p.info.get('pid')}
 
         for p in raw_list:
@@ -65,20 +75,27 @@ class ProcessManager:
                 ppid = p_info.get('ppid')
                 parent_name = pid_to_name.get(ppid) if ppid else None
 
-                mem_mb = round((p_info.get('memory_info').rss / (1024 ** 2)), 1) if p_info.get('memory_info') else 0.0
-                create_ts = float(p_info.get('create_time') or 0.0)
-                c_time = datetime.fromtimestamp(create_ts).strftime('%Y-%m-%d %H:%M:%S') if create_ts else ''
-                uptime = self._classifier._format_uptime(create_ts)
+                mem_info = p_info.get('memory_info')
+                mem_mb = round((mem_info.rss / (1024 ** 2)), 1) if mem_info else 0.0
 
+                c_time = ''
+                uptime: Optional[str] = None
                 cmd_str: Optional[str] = None
-                try:
-                    raw_cmd = p.cmdline()
-                    if raw_cmd:
-                        cmd_str = ' '.join(raw_cmd)
-                except Exception:
-                    pass
+                launch_sum: Optional[str] = None
+                exe_path: Optional[str] = None
 
-                launch_sum = self._classifier._extract_launch_summary(name, cmd_str)
+                if include_details:
+                    create_ts = float(p_info.get('create_time') or 0.0)
+                    c_time = datetime.fromtimestamp(create_ts).strftime('%Y-%m-%d %H:%M:%S') if create_ts else ''
+                    uptime = self._classifier._format_uptime(create_ts)
+                    exe_path = p_info.get('exe')
+                    try:
+                        raw_cmd = p.cmdline()
+                        if raw_cmd:
+                            cmd_str = ' '.join(raw_cmd)
+                    except Exception:
+                        pass
+                    launch_sum = self._classifier._extract_launch_summary(name, cmd_str)
 
                 processes.append(ProcessItem(
                     pid=pid,
@@ -90,7 +107,7 @@ class ProcessManager:
                     num_threads=p_info.get('num_threads') or 1,
                     create_time=c_time,
                     uptime_str=uptime,
-                    exe_path=p_info.get('exe'),
+                    exe_path=exe_path,
                     command_line=cmd_str,
                     launch_summary=launch_sum,
                     parent_name=parent_name,

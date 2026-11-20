@@ -15,11 +15,11 @@ Description:
   7. Стандарты и навыки: отражение регламента в webgui-developer/SKILL.md и WEBGUI.md.
 
 File: test_software_monitor_url_routing.py
-Project: ai-windows-admin
+Project: ai-tc
 Package: tests
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-12 02:30:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 """
 

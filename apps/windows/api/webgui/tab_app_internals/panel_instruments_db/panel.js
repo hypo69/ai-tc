@@ -8,11 +8,11 @@
  *   SQLite локально), проверки связи, параметров рантайма и каталога инструментов.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_app_internals/panel_instruments_db
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 17:44:30
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
@@ -26,10 +26,11 @@ import {
   loadInstrumentsCatalog,
   bindInstrumentsCatalogButtons,
   openInstrumentEditorModal,
+  openCommandWizardModal,
   saveInstrumentFromModal,
   exportInstrumentsCatalogCsv,
   importInstrumentsCatalogCsv,
-} from './catalog.js?v=20261101_v1';
+} from './catalog.js?v=20261112_v1';
 
 export {
   loadInstrumentsRuntimeConfig,
@@ -38,6 +39,7 @@ export {
   loadInstrumentsCatalog,
   bindInstrumentsCatalogButtons,
   openInstrumentEditorModal,
+  openCommandWizardModal,
   saveInstrumentFromModal,
   exportInstrumentsCatalogCsv,
   importInstrumentsCatalogCsv,

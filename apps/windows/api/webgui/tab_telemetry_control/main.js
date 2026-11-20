@@ -10,11 +10,11 @@
  *   - Применение изменений в config.json через Hot Reload.
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_telemetry_control
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-11 20:37:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -25,7 +25,7 @@
 
   async function loadConfig() {
     try {
-      const res = await fetch(`/api/windows/telemetry/config?v=${Date.now()}`);
+      const res = await fetch(`/api/v1/windows/telemetry/config?v=${Date.now()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       currentConfig = data.config || {};
@@ -186,7 +186,7 @@
         }
       };
 
-      const res = await fetch('/api/windows/telemetry/config', {
+      const res = await fetch('/api/v1/windows/telemetry/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ config: updated })
@@ -216,7 +216,7 @@
     try {
       const btn = document.getElementById('tc-ctrl-btn-compact-now');
       if (btn) btn.disabled = true;
-      const res = await fetch('/api/windows/telemetry/config/compact-now', {
+      const res = await fetch('/api/v1/windows/telemetry/config/compact-now', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -247,7 +247,7 @@
 
   async function runHeavySequentially() {
     try {
-      const res = await fetch('/api/windows/telemetry/collect-heavy-sequentially', {
+      const res = await fetch('/api/v1/windows/telemetry/collect-heavy-sequentially', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ collectors: ['wmi', 'smart', 'ports', 'handles'] })
@@ -297,7 +297,7 @@
         if (labelEl) labelEl.textContent = 'Включить и обновить (Task Scheduler)';
       }
       if (badge && task.run_as_user) {
-        badge.title = `Задача: ${task.task_name || 'AI-Windows-Admin-Telemetry'} | Пользователь: ${task.run_as_user} | Триггер: ${task.schedule_type || 'AtStartup'}`;
+        badge.title = `Задача: ${task.task_name || 'ai-tc-telemetry'} | Пользователь: ${task.run_as_user} | Триггер: ${task.schedule_type || 'AtStartup'}`;
       }
     } else {
       if (badge) {
@@ -310,7 +310,7 @@
 
   async function loadTaskSchedulerStatus() {
     try {
-      const res = await fetch(`/api/windows/telemetry/config/task-scheduler/status?v=${Date.now()}`);
+      const res = await fetch(`/api/v1/windows/telemetry/config/task-scheduler/status?v=${Date.now()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       applyTaskStatusUi(data.task || null);
@@ -338,7 +338,7 @@
       const intervalVal = parseFloat(document.getElementById('tc-ctrl-fast-interval')?.value || '5.0') || 5.0;
       const topProcVal = parseInt(document.getElementById('tc-ctrl-top-processes')?.value || '10', 10) || 10;
 
-      const res = await fetch('/api/windows/telemetry/config/task-scheduler/install', {
+      const res = await fetch('/api/v1/windows/telemetry/config/task-scheduler/install', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

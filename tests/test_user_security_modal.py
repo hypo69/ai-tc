@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - User Security Modal & Drill-Down Tests
+# Process Name: ai-tc Tests - User Security Modal & Drill-Down Tests
 # =============================================================================
 # Description:
 #   Модульные тесты проверки функционала модального окна безопасности, смены
@@ -11,11 +11,11 @@
 #   pytest tests/test_user_security_modal.py -v
 #
 # File: test_user_security_modal.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 15:52:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Модульные тесты для проверки функционала безопасности пользователя и модального окна Drill-Down."""

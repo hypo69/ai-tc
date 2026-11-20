@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Archive Module
+# Process Name: ai-tc UTILS - Archive Module
 # =============================================================================
 # Description:
 #   Безопасная распаковка архивов (ZIP, TAR, GZ, BZ2) с защитой от Zip Slip / Path Traversal.
@@ -12,11 +12,11 @@
 #     files = extract_archive("archive.zip")
 #
 # File: archive.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:38:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

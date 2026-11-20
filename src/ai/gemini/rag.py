@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Rag Module
+# Process Name: ai-tc AI - Rag Module
 # =============================================================================
 # Description:
 #   Векторный индекс RAG на базе Gemini Embedding API и FAISS с потокобезопасностью
@@ -15,11 +15,11 @@
 #     print(result)
 #
 # File: rag.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:43:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Векторный индекс RAG на базе Gemini Embedding API и FAISS.

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Task_Scheduler - Router
+# Process Name: ai-tc Apps Windows Modules Task_Scheduler - Router
 # =============================================================================
 # Description:
 #   FastAPI маршрутизатор для управления планировщиком задач Windows (Task Scheduler).
@@ -12,11 +12,11 @@
 #     router = init_router()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.task_scheduler
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 19:05:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ from apps.windows.sdk.modules.task_scheduler.core.models import (
     TaskSchedulerReport,
 )
 
-router = APIRouter(prefix='/api/task-scheduler', tags=['Task Scheduler Manager'])
+router = APIRouter(prefix='/api/v1/task-scheduler', tags=['Task Scheduler Manager'])
 _manager = TaskSchedulerManager()
 
 

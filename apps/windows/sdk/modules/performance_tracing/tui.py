@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Performance_Tracing - Tui
+# Process Name: ai-tc Apps Windows Modules Performance_Tracing - Tui
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     service = PerformanceTracingTUI()
 #
 # File: tui.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.performance_tracing
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:44
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -58,7 +58,7 @@ class PerformanceTracingTUI:
             st_color = 'green' if c.status.lower() == 'running' else 'dim'
             table.add_row(c.name, c.collector_type, f"[{st_color}]{c.status}[/{st_color}]")
 
-        self.console.logger.console(Panel('[bold white]AI-Windows-Admin: Windows Performance & ETW Tracing[/bold white]', style='blue'))
+        self.console.logger.console(Panel('[bold white]ai-tc: Windows Performance & ETW Tracing[/bold white]', style='blue'))
         self.console.logger.console(panel)
         self.console.logger.console(table)
 

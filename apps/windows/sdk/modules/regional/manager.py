@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Regional - Manager
+# Process Name: ai-tc Apps Windows Modules Regional - Manager
 # =============================================================================
 # Description:
 #   Менеджер региональных параметров Windows, языковых пакетов (MUI),
@@ -19,11 +19,11 @@
 #     rm.set_timezone("Russian Standard Time")
 #
 # File: manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.regional
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 14:30:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,10 +1,10 @@
 /**
  * Клиент API диагностики сетевой инфраструктуры и общие хелперы отображения.
  * Файл: apps/windows/api/webgui/tab_network/panel_infra/api.js
- * Updated: 2026-10-28 16:30:00
+ * Updated: 2026-11-20 16:45:00
  */
 
-const BASE = '/api/network/infra';
+const BASE = '/api/v1/network/infra';
 
 /** Метаданные статусов данных (ТЗ § 6.2): подпись и CSS-классы темы. */
 export const STATUS_META = {
@@ -67,7 +67,7 @@ export function severityBadge(severity) {
 
 /**
  * Выполняет запрос к API и возвращает JSON; бросает Error с текстом HTTP-ошибки.
- * @param {string} path - Путь относительно /api/network/infra.
+ * @param {string} path - Путь относительно /api/v1/network/infra.
  * @param {{method?: string, params?: Object}} [opts] - Параметры запроса.
  * @returns {Promise<Object>}
  */

@@ -1,8 +1,8 @@
 # Начало работы
 
-Этот раздел поможет вам запустить AI-Windows-Admin за несколько минут.
+Этот раздел поможет вам запустить ai-tc за несколько минут.
 
-Полное описание возможностей платформы — в **[README.md](https://github.com/hypo69/AI-Windows-Admin#readme)**.
+Полное описание возможностей платформы — в **[README.md](https://github.com/hypo69/ai-tc#readme)**.
 
 ---
 
@@ -22,7 +22,7 @@
 Откройте PowerShell **от имени администратора**:
 
 ```powershell
-irm https://raw.githubusercontent.com/hypo69/AI-Windows-Admin/master/install.ps1 | iex
+irm https://raw.githubusercontent.com/hypo69/ai-tc/master/install.ps1 | iex
 ```
 
 Установщик проведёт вас через 8 шагов: создание `venv`, установка зависимостей, SSL-сертификаты, регистрация команды `assist`.
@@ -50,8 +50,8 @@ ADMIN_PASSWORD=ваш_пароль
 ## Быстрый старт (Linux / macOS)
 
 ```bash
-git clone https://github.com/hypo69/AI-Windows-Admin.git
-cd AI-Windows-Admin
+git clone https://github.com/hypo69/ai-tc.git
+cd ai-tc
 bash install.sh
 cp .env.example .env
 # отредактируйте .env

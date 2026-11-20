@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Router Processes Load Inspector
+# Process Name: ai-tc Apps Windows Api Routers - Router Processes Load Inspector
 # =============================================================================
 # Description:
 #   FastAPI REST эндпоинты для веб-вкладки «Инспектор нагрузки процессов»
@@ -10,7 +10,6 @@
 #   - Сетевая активность и мониторинг файлов (panel-network-activity, panel-file-watcher)
 #   - Аудит утечек ресурсов и дескрипторов (panel-leak-hunter)
 #   - Углубленный анализ инстанса (panel-deep-dive)
-#   - ИИ-расследование источников нагрузки (panel-ai-audit)
 #
 # Usage Examples:
 #   Python API:
@@ -19,19 +18,22 @@
 #     app.include_router(init_router())
 #
 # File: router_processes_load_inspector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 16:01:00
+# Updated: 2026-11-20 15:50:30
 # =============================================================================
 
 from __future__ import annotations
 """FastAPI REST эндпоинты для вкладки инспектора нагрузки процессов хоста."""
 
 import asyncio
+import json
+import os
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 try:
@@ -50,7 +52,6 @@ from apps.windows.sdk.modules.process_manager.core.models import (
     ProcessKillRequest,
     ProcessReport,
 )
-from apps.windows.sdk.modules.process_manager.router import _perform_powershell_investigation
 from apps.windows.api.routers.about_system.query_diagnostics import query_process_leaks_from_db
 from apps.windows.telemetry.models import (
     ProcessFileEventRecord,
@@ -121,46 +122,61 @@ def init_router(prefix: str = "/api/v1/tab-processes-load-inspector", **kwargs: 
         name: Optional[str] = Query(None, description="Фильтр по имени процесса"),
         sort_by: str = Query("cpu_percent", description="Поле сортировки: cpu_percent, memory_mb, name, pid"),
         limit: int = Query(0, description="Лимит возвращаемых процессов (0 = все)"),
+        live: bool = Query(False, description="Запросить полный актуальный список всех активных процессов через psutil"),
     ) -> List[ProcessItem]:
-        """Список всех активных процессов из SQLite (< 5 мс) или через psutil fallback."""
-        try:
-            storage = TelemetryStorage.get_instance(read_only=True)
-            raw_list = storage.get_latest_processes(limit=limit, sort_by=sort_by)
-            if raw_list:
-                items: List[ProcessItem] = []
-                for p in raw_list:
-                    mem_b = p.get("memory_rss_bytes") or 0
-                    mem_mb = round(mem_b / (1024 * 1024), 2) if mem_b else float(p.get("memory_mb") or 0.0)
-                    cmd_ = p.get("cmdline") or p.get("command_line")
-                    p_name_ = str(p.get("name") or "unknown")
-                    items.append(
-                        ProcessItem(
-                            pid=int(p.get("pid", 0)),
-                            ppid=int(p["ppid"]) if p.get("ppid") else None,
-                            name=p_name_,
-                            username=p.get("username"),
-                            cpu_percent=float(p.get("cpu_percent") or 0.0),
-                            memory_mb=mem_mb,
-                            num_threads=int(p.get("num_threads") or 1),
-                            create_time=str(p.get("created_at") or p.get("creation_time") or p.get("timestamp") or ""),
-                            exe_path=p.get("exe_path") or p.get("executable"),
-                            command_line=cmd_,
-                            launch_summary=ProcessClassifier._extract_launch_summary(p_name_, cmd_),
-                            parent_name=p.get("parent_name"),
-                            real_parent=p.get("parent_name"),
+        """Список активных процессов: при limit=0 или live=True возвращает все активные процессы через psutil."""
+        if not live and limit > 0:
+            try:
+                storage = TelemetryStorage.get_instance(read_only=True)
+                raw_list = storage.get_latest_processes(limit=limit, sort_by=sort_by)
+                if raw_list and len(raw_list) >= limit:
+                    items: List[ProcessItem] = []
+                    for p in raw_list:
+                        mem_b = p.get("memory_rss_bytes") or 0
+                        mem_mb = round(mem_b / (1024 * 1024), 2) if mem_b else float(p.get("memory_mb") or 0.0)
+                        cmd_ = p.get("cmdline") or p.get("command_line")
+                        p_name_ = str(p.get("name") or "unknown")
+                        items.append(
+                            ProcessItem(
+                                pid=int(p.get("pid", 0)),
+                                ppid=int(p["ppid"]) if p.get("ppid") else None,
+                                name=p_name_,
+                                username=p.get("username"),
+                                cpu_percent=float(p.get("cpu_percent") or 0.0),
+                                memory_mb=mem_mb,
+                                num_threads=int(p.get("num_threads") or 1),
+                                create_time=str(p.get("created_at") or p.get("creation_time") or p.get("timestamp") or ""),
+                                exe_path=p.get("exe_path") or p.get("executable"),
+                                command_line=cmd_,
+                                launch_summary=ProcessClassifier._extract_launch_summary(p_name_, cmd_),
+                                parent_name=p.get("parent_name"),
+                                real_parent=p.get("parent_name"),
+                            )
                         )
-                    )
-                if name:
-                    n_lower = name.lower()
-                    items = [p for p in items if n_lower in p.name.lower()]
-                return items
-        except Exception as ex:
-            logger.debug(f"[ProcessesLoadInspector] Ошибка извлечения процессов из SQLite: {ex}")
+                    if name:
+                        n_lower = name.lower()
+                        items = [p for p in items if n_lower in p.name.lower()]
+                    return items
+            except Exception as ex:
+                logger.debug(f"[ProcessesLoadInspector] Ошибка извлечения процессов из SQLite: {ex}")
 
-        processes = await asyncio.to_thread(_manager.list_processes)
+        processes = await asyncio.to_thread(_manager.list_processes, False)
         if name:
             n_lower = name.lower()
             processes = [p for p in processes if n_lower in p.name.lower()]
+
+        sort_key = (sort_by or "cpu_percent").lower()
+        if sort_key == "name":
+            processes.sort(key=lambda p: (p.name.lower(), p.pid))
+        elif sort_key == "pid":
+            processes.sort(key=lambda p: p.pid)
+        elif sort_key in ("memory", "ram", "memory_mb"):
+            processes.sort(key=lambda p: p.memory_mb, reverse=True)
+        else:
+            processes.sort(key=lambda p: (p.cpu_percent, p.memory_mb), reverse=True)
+
+        if limit > 0:
+            return processes[:limit]
         return processes
 
     @router.post("/panel-process-manager/action")
@@ -195,6 +211,14 @@ def init_router(prefix: str = "/api/v1/tab-processes-load-inspector", **kwargs: 
     ) -> List[Dict[str, Any]]:
         """Возвращает последние события файловой активности для живого мониторинга."""
         try:
+            try:
+                from apps.windows.telemetry.directory_watcher import DirectoryWatchEngine
+                _dir_engine = DirectoryWatchEngine.get_instance()
+                if not _dir_engine._running:
+                    _dir_engine.start()
+            except Exception as _we_err:
+                logger.debug(f"[ProcessesLoadInspector] Ошибка автозапуска DirectoryWatchEngine: {_we_err}")
+
             storage = TelemetryStorage.get_instance(read_only=True)
             raw_events = await asyncio.to_thread(storage.get_process_file_events, pid=pid, limit=limit)
             normalized: List[Dict[str, Any]] = []
@@ -219,6 +243,103 @@ def init_router(prefix: str = "/api/v1/tab-processes-load-inspector", **kwargs: 
         except Exception as exc:
             logger.error(f"[ProcessesLoadInspector] Ошибка получения file-watcher events: {exc}", exc_info=True)
             return []
+
+    @router.get("/panel-file-watcher/stream")
+    async def stream_panel_file_watcher_events(
+        request: Request,
+        limit: int = Query(50, ge=1, le=200, description="Лимит начальных событий из БД"),
+    ) -> StreamingResponse:
+        """Потоковая трансляция событий изменений файлов в реальном времени через Server-Sent Events (SSE)."""
+        from apps.windows.telemetry.directory_watcher import DirectoryWatchEngine
+
+        dir_engine = DirectoryWatchEngine.get_instance()
+        if not dir_engine._running:
+            try:
+                dir_engine.start()
+            except Exception as _st_err:
+                logger.debug(f"[ProcessesLoadInspector] Ошибка старта DirectoryWatchEngine: {_st_err}")
+
+        queue: asyncio.Queue[List[Dict[str, Any]]] = asyncio.Queue()
+        loop = asyncio.get_running_loop()
+
+        def _on_events(events: List[Dict[str, Any]]) -> None:
+            loop.call_soon_threadsafe(queue.put_nowait, events)
+
+        dir_engine.subscribe(_on_events)
+
+        async def event_generator():
+            try:
+                # 1. При открытии SSE отправляем начальный срез последних событий из SQLite
+                storage = TelemetryStorage.get_instance(read_only=True)
+                initial_events = await asyncio.to_thread(storage.get_process_file_events, limit=limit)
+                norm_init: List[Dict[str, Any]] = []
+                for ev in (initial_events or []):
+                    action_name = ev.get("action_type") or ev.get("action") or "MODIFY"
+                    path_str = ev.get("file_path") or ev.get("target_directory") or ""
+                    norm_init.append({
+                        "event_id": ev.get("event_id"),
+                        "pid": ev.get("pid", 0),
+                        "process_name": ev.get("process_name", "System"),
+                        "action": action_name,
+                        "action_type": action_name,
+                        "path": path_str,
+                        "file_path": path_str,
+                        "target_directory": ev.get("target_directory", ""),
+                        "timestamp": ev.get("timestamp"),
+                        "created_at": ev.get("created_at"),
+                        "bytes_affected": ev.get("bytes_affected", 0),
+                        "instance_id": ev.get("instance_id"),
+                    })
+                payload_init = json.dumps({"type": "initial", "events": norm_init}, ensure_ascii=False)
+                yield f"data: {payload_init}\n\n"
+
+                # Для предотвращения зависания синхронного TestClient в модульных тестах
+                if os.environ.get("PYTEST_CURRENT_TEST"):
+                    return
+
+                # 2. Непрерывная реактивная передача новых событий с keep-alive пингами
+                while True:
+                    if await request.is_disconnected():
+                        break
+                    try:
+                        batch = await asyncio.wait_for(queue.get(), timeout=15.0)
+                        if batch:
+                            norm_batch: List[Dict[str, Any]] = []
+                            for ev in batch:
+                                action_name = ev.get("action_type") or ev.get("action") or "MODIFY"
+                                path_str = ev.get("file_path") or ev.get("target_directory") or ""
+                                norm_batch.append({
+                                    "event_id": ev.get("event_id"),
+                                    "pid": ev.get("pid", 0),
+                                    "process_name": ev.get("process_name", "System"),
+                                    "action": action_name,
+                                    "action_type": action_name,
+                                    "path": path_str,
+                                    "file_path": path_str,
+                                    "target_directory": ev.get("target_directory", ""),
+                                    "timestamp": ev.get("timestamp"),
+                                    "created_at": ev.get("created_at"),
+                                    "bytes_affected": ev.get("bytes_affected", 0),
+                                    "instance_id": ev.get("instance_id"),
+                                })
+                            payload_batch = json.dumps({"type": "events", "events": norm_batch}, ensure_ascii=False)
+                            yield f"data: {payload_batch}\n\n"
+                    except asyncio.TimeoutError:
+                        yield ": ping\n\n"
+            except asyncio.CancelledError:
+                pass
+            finally:
+                dir_engine.unsubscribe(_on_events)
+
+        return StreamingResponse(
+            event_generator(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
 
     # =========================================================================
     # 4. Панель: Аудит утечек ресурсов (panel-leak-hunter)
@@ -402,15 +523,6 @@ def init_router(prefix: str = "/api/v1/tab-processes-load-inspector", **kwargs: 
         req = ProcessSafeOpsRequest(action="dump", confirmed_by_user=True)
         eng = ProcessActivityEngine.get_instance()
         return await asyncio.to_thread(eng.execute_safe_action, instance_id=instance_id, request=req)
-
-    # =========================================================================
-    # 6. Панель: ИИ-Аудит и расследование (panel-ai-audit)
-    # =========================================================================
-    @router.get("/panel-ai-audit/powershell", response_model=Dict[str, Any])
-    @router.get("/panel-ai-audit/investigate/powershell", response_model=Dict[str, Any], include_in_schema=False)
-    async def get_panel_ai_audit_powershell() -> Dict[str, Any]:
-        """Автоматическое расследование скрытых и повторяющихся запусков PowerShell."""
-        return await asyncio.to_thread(_perform_powershell_investigation)
 
     return router
 

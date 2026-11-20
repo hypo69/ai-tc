@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Live File Events ReadDirectoryChangesW
+# Process Name: ai-tc Tests - Live File Events ReadDirectoryChangesW
 # =============================================================================
 # Description:
 #   Модульные тесты для проверки службы мониторинга изменений файлов
@@ -11,11 +11,11 @@
 #     pytest tests/test_file_audit_live_events.py
 #
 # File: test_file_audit_live_events.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 14:15:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import os

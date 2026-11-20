@@ -18,11 +18,11 @@
 #     verifier.verify_fingerprint("srv-01", "10.0.0.1", 22, "ssh-ed25519", "SHA256:...")
 #
 # File: host_verification.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.security
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:43:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import base64

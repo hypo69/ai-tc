@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Window Management Control Plane Manager
+# Process Name: ai-tc Apps Windows - Window Management Control Plane Manager
 # =============================================================================
 # Description:
 #   Центральный координатор Windows Window Management Control Plane.
@@ -19,11 +19,11 @@
 #     plane.rollback_change(res.change_id)
 #
 # File: manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.window_control_plane
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -202,7 +202,7 @@ class WindowManagementControlPlane:
         if create_rp:
             desc = (
                 request.custom_comment
-                or f"AI-Windows-Admin: Window Control Plane '{setting.name_ru}' ({old_val} -> {request.value})"
+                or f"ai-tc: Window Control Plane '{setting.name_ru}' ({old_val} -> {request.value})"
             )
             logger.info(f"Создание точки восстановления перед изменением '{setting.id}'...")
             try:
@@ -315,7 +315,7 @@ class WindowManagementControlPlane:
         if request.create_restore_point:
             try:
                 self.restore_manager.create_restore_point(
-                    description=request.comment or f"AI-Windows-Admin: Batch Apply ({len(request.settings)} settings)",
+                    description=request.comment or f"ai-tc: Batch Apply ({len(request.settings)} settings)",
                     restore_point_type="MODIFY_SETTINGS",
                 )
                 rp_created = True

@@ -6,11 +6,11 @@
 #   Экспорт всех моделей данных Pydantic для удобного импорта компонентами ядра.
 #
 # File: __init__.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.schemas
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:37:45
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from .command import CommandDefinition, ParameterSpec

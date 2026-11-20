@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/admin/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/admin
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-03 15:52:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -100,15 +100,15 @@ window.api = {
   users: {
     async list(params = {}) {
       const q = new URLSearchParams(params).toString();
-      return window.api.fetch(`/api/admin/users${q ? '?' + q : ''}`);
+      return window.api.fetch(`/api/v1/admin/users${q ? '?' + q : ''}`);
     },
     
     async get(userId) {
-      return window.api.fetch(`/api/admin/users/${userId}`);
+      return window.api.fetch(`/api/v1/admin/users/${userId}`);
     },
 
     async create(data) {
-      return window.api.fetch('/api/admin/users', {
+      return window.api.fetch('/api/v1/admin/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -116,7 +116,7 @@ window.api = {
     },
     
     async update(userId, data) {
-      return window.api.fetch(`/api/admin/users/${userId}`, {
+      return window.api.fetch(`/api/v1/admin/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -124,7 +124,7 @@ window.api = {
     },
 
     async setPassword(userId, password) {
-      return window.api.fetch(`/api/admin/users/${userId}/password`, {
+      return window.api.fetch(`/api/v1/admin/users/${userId}/password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })
@@ -132,19 +132,19 @@ window.api = {
     },
 
     async toggleActive(userId) {
-      return window.api.fetch(`/api/admin/users/${userId}/toggle-active`, {
+      return window.api.fetch(`/api/v1/admin/users/${userId}/toggle-active`, {
         method: 'POST'
       });
     },
 
     async toggleRole(userId) {
-      return window.api.fetch(`/api/admin/users/${userId}/toggle-role`, {
+      return window.api.fetch(`/api/v1/admin/users/${userId}/toggle-role`, {
         method: 'POST'
       });
     },
     
     async delete(userId) {
-      return window.api.fetch(`/api/admin/users/${userId}`, {
+      return window.api.fetch(`/api/v1/admin/users/${userId}`, {
         method: 'DELETE'
       });
     }
@@ -154,32 +154,32 @@ window.api = {
   skills: {
     async list(params = {}) {
       const q = new URLSearchParams(params).toString();
-      return window.api.fetch(`/api/admin/skills${q ? '?' + q : ''}`);
+      return window.api.fetch(`/api/v1/admin/skills${q ? '?' + q : ''}`);
     },
     async get(name) {
-      return window.api.fetch(`/api/admin/skills/${encodeURIComponent(name)}`);
+      return window.api.fetch(`/api/v1/admin/skills/${encodeURIComponent(name)}`);
     },
     async create(data) {
-      return window.api.fetch('/api/admin/skills', {
+      return window.api.fetch('/api/v1/admin/skills', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
     },
     async update(name, data) {
-      return window.api.fetch(`/api/admin/skills/${encodeURIComponent(name)}`, {
+      return window.api.fetch(`/api/v1/admin/skills/${encodeURIComponent(name)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
     },
     async delete(name) {
-      return window.api.fetch(`/api/admin/skills/${encodeURIComponent(name)}`, {
+      return window.api.fetch(`/api/v1/admin/skills/${encodeURIComponent(name)}`, {
         method: 'DELETE'
       });
     },
     async package(name) {
-      return window.api.fetch(`/api/admin/skills/${encodeURIComponent(name)}/package`, {
+      return window.api.fetch(`/api/v1/admin/skills/${encodeURIComponent(name)}/package`, {
         method: 'POST'
       });
     }
@@ -188,49 +188,49 @@ window.api = {
   // MCP Servers management API
   mcp: {
     async list() {
-      return window.api.fetch('/api/admin/mcp/servers');
+      return window.api.fetch('/api/v1/admin/mcp/servers');
     },
     async get(id) {
-      return window.api.fetch(`/api/admin/mcp/servers/${encodeURIComponent(id)}`);
+      return window.api.fetch(`/api/v1/admin/mcp/servers/${encodeURIComponent(id)}`);
     },
     async create(data) {
-      return window.api.fetch('/api/admin/mcp/servers', {
+      return window.api.fetch('/api/v1/admin/mcp/servers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
     },
     async update(id, data) {
-      return window.api.fetch(`/api/admin/mcp/servers/${encodeURIComponent(id)}`, {
+      return window.api.fetch(`/api/v1/admin/mcp/servers/${encodeURIComponent(id)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
     },
     async delete(id) {
-      return window.api.fetch(`/api/admin/mcp/servers/${encodeURIComponent(id)}`, {
+      return window.api.fetch(`/api/v1/admin/mcp/servers/${encodeURIComponent(id)}`, {
         method: 'DELETE'
       });
     },
     async toggle(id) {
-      return window.api.fetch(`/api/admin/mcp/servers/${encodeURIComponent(id)}/toggle`, {
+      return window.api.fetch(`/api/v1/admin/mcp/servers/${encodeURIComponent(id)}/toggle`, {
         method: 'POST'
       });
     },
     async test(id) {
-      return window.api.fetch(`/api/admin/mcp/servers/${encodeURIComponent(id)}/test`, {
+      return window.api.fetch(`/api/v1/admin/mcp/servers/${encodeURIComponent(id)}/test`, {
         method: 'POST'
       });
     },
     async testAdhoc(data) {
-      return window.api.fetch('/api/admin/mcp/test', {
+      return window.api.fetch('/api/v1/admin/mcp/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
     },
     async getTools() {
-      return window.api.fetch('/api/admin/mcp/tools');
+      return window.api.fetch('/api/v1/admin/mcp/tools');
     }
   },
 
@@ -582,7 +582,41 @@ function setupDropdownTabs() {
   const mainTabs = document.getElementById('mainTabs');
   if (!mainTabs) return;
 
-  // 1. Dropdown Toggle Buttons
+  // 1. Поддержка onover (hover) для выпадающих меню навбара
+  mainTabs.querySelectorAll('.dropdown').forEach((dropdownEl) => {
+    let hideTimer = null;
+
+    const showDropdown = () => {
+      clearTimeout(hideTimer);
+      const menu = dropdownEl.querySelector('.dropdown-menu');
+      const toggle = dropdownEl.querySelector('.dropdown-toggle');
+      if (!menu) return;
+
+      document.querySelectorAll('#mainTabs .dropdown-menu.show').forEach((otherMenu) => {
+        if (otherMenu !== menu) {
+          otherMenu.classList.remove('show');
+          otherMenu.closest('.dropdown')?.querySelector('.dropdown-toggle')?.classList.remove('show');
+        }
+      });
+
+      menu.classList.add('show');
+      if (toggle) toggle.classList.add('show');
+    };
+
+    const hideDropdown = () => {
+      hideTimer = setTimeout(() => {
+        const menu = dropdownEl.querySelector('.dropdown-menu');
+        const toggle = dropdownEl.querySelector('.dropdown-toggle');
+        if (menu) menu.classList.remove('show');
+        if (toggle) toggle.classList.remove('show');
+      }, 200);
+    };
+
+    dropdownEl.addEventListener('mouseenter', showDropdown);
+    dropdownEl.addEventListener('mouseleave', hideDropdown);
+  });
+
+  // Dropdown Toggle Buttons (клик)
   mainTabs.querySelectorAll('.dropdown-toggle').forEach((btn) => {
     btn.onclick = (e) => {
       e.preventDefault();
@@ -608,13 +642,22 @@ function setupDropdownTabs() {
 
   // 2. Dropdown Item Buttons (Tab Switchers & Action Buttons)
   mainTabs.querySelectorAll('.dropdown-item').forEach((item) => {
+    item.addEventListener('mouseenter', () => {
+      item.focus({ preventScroll: true });
+    });
+
     item.onclick = (e) => {
-      const targetId = item.getAttribute('data-tab') || item.getAttribute('data-bs-target')?.replace('#', '');
-      const pluginName = item.getAttribute('data-plugin');
+      const button = e.target.closest('.dropdown-item') || item;
+      const targetId = button.getAttribute('data-tab') || button.getAttribute('data-bs-target')?.replace('#', '') ||
+                      item.getAttribute('data-tab') || item.getAttribute('data-bs-target')?.replace('#', '');
+      const pluginName = button.getAttribute('data-plugin') || item.getAttribute('data-plugin');
 
       // Close dropdown menu
-      item.closest('.dropdown-menu')?.classList.remove('show');
-      item.closest('.dropdown')?.querySelector('.dropdown-toggle')?.classList.remove('show');
+      const menu = button.closest('.dropdown-menu') || item.closest('.dropdown-menu');
+      if (menu) {
+        menu.classList.remove('show');
+        menu.closest('.dropdown')?.querySelector('.dropdown-toggle')?.classList.remove('show');
+      }
 
       if (pluginName && typeof window.openPluginFromDropdown === 'function') {
         e.preventDefault();
@@ -729,10 +772,10 @@ async function initInterface() {
 
   // Определение и фильтрация вкладок микроприложений (/apps)
   const appTabDefs = [
-    { id: 'about_system', tab: 'about-system', html: '/html/tab_about_system/index.html?v=20261020_v10', js: '/html/tab_about_system/main.js?v=20261020_v10' },
+    { id: 'about_system', tab: 'about-system', html: '/html/tab_about_system/index.html?v=20261112_v3', js: '/html/tab_about_system/main.js?v=20261112_v3' },
     { id: 'network_terminal', tab: 'network', html: '/html/tab_network/index.html', js: '/html/tab_network/main.js' },
-    { id: 'system_inspector', tab: 'hardware-load-inspector', html: '/html/tab_system_inspector/index.html?v=20261020_v4', js: '/html/tab_system_inspector/main.js?v=20261020_v4' },
-    { id: 'processes_load_inspector', tab: 'processes-load-inspector', html: '/html/tab_processes_load_inspector/index.html?v=20261028_v1', js: '/html/tab_processes_load_inspector/main.js?v=20261028_v1' },
+    { id: 'system_inspector', tab: 'hardware-load-inspector', html: '/html/tab_system_inspector/index.html?v=20261120_v1', js: '/html/tab_system_inspector/main.js?v=20261120_v1' },
+    { id: 'processes_load_inspector', tab: 'processes-load-inspector', html: '/html/tab_processes_load_inspector/index.html?v=20261113_v1', js: '/html/tab_processes_load_inspector/main.js?v=20261113_v1' },
     { id: 'chat', tab: 'chat', html: '/html/tab_chat/index.html', js: '/html/tab_chat/main.js' },
     { id: 'scenarios', tab: 'scenarios', html: '/html/tab_scenarios/index.html', js: '/html/tab_scenarios/main.js' },
     { id: 'user_assistant', tab: 'user-assistant', html: '/html/tab_user_assistant/index.html', js: '/html/tab_user_assistant/main.js' },
@@ -740,7 +783,7 @@ async function initInterface() {
     { id: 'website_monitor', tab: 'website-monitor', html: '/html/tab_website_monitor/index.html', js: '/html/tab_website_monitor/main.js' },
     { id: 'cloudflared_monitor', tab: 'cloudflared', html: '/html/tab_cloudflared/index.html', js: '/html/tab_cloudflared/main.js' },
     { id: 'process_leaks', tab: 'process-leaks', html: '/html/tab_process_leaks/index.html?v=20260924_v1', js: '/html/tab_process_leaks/main.js?v=20260924_v1' },
-    { id: 'forensics', tab: 'forensics', html: '/html/tab_forensics/index.html?v=20260924_v1', js: '/html/tab_forensics/main.js?v=20260924_v1' },
+    { id: 'forensics', tab: 'forensics', html: '/html/tab_forensics/index.html?v=20261112_v1', js: '/html/tab_forensics/main.js?v=20261112_v1' },
     { id: 'throttling', tab: 'throttling', html: '/html/tab_throttling/index.html?v=20260924_v1', js: '/html/tab_throttling/main.js?v=20260924_v1' },
     { id: 'storage_wear', tab: 'storage-wear', html: '/html/tab_storage_wear/index.html?v=20261015_v1', js: '/html/tab_storage_wear/main.js?v=20261015_v1' },
     { id: 'peripherals', tab: 'peripherals', html: '/html/tab_peripherals/index.html?v=20261016_v2', js: '/html/tab_peripherals/main.js?v=20261016_v2' },
@@ -757,7 +800,7 @@ async function initInterface() {
   
   // Синхронизация видимости вкладок плагинов
   try {
-    const pluginsData = await window.api.fetch('/api/admin/plugins');
+    const pluginsData = await window.api.fetch('/api/v1/admin/plugins');
     if (window.syncPluginTabsVisibility && pluginsData && pluginsData.plugins) {
       window.syncPluginTabsVisibility(pluginsData.plugins);
     }
@@ -931,7 +974,7 @@ async function loadTabContent(tabName, url, jsOverrideSrc) {
 function initHelpContent() {
   window.HELP_CONTENT = window.HELP_CONTENT || {};
   const defaults = {
-    'overview': `<h4>🚀 Обзор проекта</h4><p>ai-windows-admin — интегрированная среда для работы с AI, RAG и системным управлением.</p>`,
+    'overview': `<h4>🚀 Обзор проекта</h4><p>ai-tc — интегрированная среда для работы с AI, RAG и системным управлением.</p>`,
     'google_oauth': `<h4>🔑 Google OAuth и аккаунты</h4><p>Интеграция с Gmail, Drive, Sheets и Docs через OAuth 2.0 и Service Accounts.</p>`,
     'ai_models': `<h4>🤖 ИИ Провайдеры и Модели</h4><p>Облачные (Gemini, OpenAI, Groq) и локальные (Ollama, Foundry, DirectML) модели.</p>`,
     'gdrive_sync': `<h4>☁️ Google Drive Sync</h4><p>Автоматическая синхронизация баз данных и файлов с Google Drive.</p>`,
@@ -991,7 +1034,7 @@ async function initAdminTab() {
   let modelsGrouped = {};
   // 2. Загружаем доступные модели
   try {
-    const modelsData = await window.api.fetch('/api/chat/models');
+    const modelsData = await window.api.fetch('/api/v1/chat/models');
     modelsGrouped = modelsData.models || {};
     if (Array.isArray(modelsGrouped)) {
       modelsGrouped = { 'gemini': modelsGrouped };
@@ -1047,7 +1090,7 @@ async function initAdminTab() {
   
   // 4. Загружаем текущие настройки пользователя (выбранную модель)
   try {
-    const settingsData = await window.api.fetch('/auth/settings');
+    const settingsData = await window.api.fetch('/api/v1/auth/settings');
     const savedModel = settingsData && settingsData.model ? settingsData.model : '';
     if (savedModel) {
       modelSelect.value = savedModel;
@@ -1067,7 +1110,7 @@ async function initAdminTab() {
     saveBtn.textContent = 'Сохранение...';
     
     try {
-      await window.api.fetch('/auth/settings', {
+      await window.api.fetch('/api/v1/auth/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: selectedModel })

@@ -1,6 +1,6 @@
 <#
 =============================================================================
-Process Name: AI-Windows-Admin Automation - Create And Register
+Process Name: ai-tc Automation - Create And Register
 =============================================================================
 Description:
   Create GitHub repository (using gh CLI or provided remote) and push current workspace, then attempt to register the project on Read the Docs using API token
@@ -10,11 +10,11 @@ Usage Examples:
     .\create_and_register.ps1
 
 File: create_and_register.ps1
-Project: ai-windows-admin
+Project: ai-tc
 Package: scripts/deploy
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-10 17:35:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 .SYNOPSIS
     Create GitHub repository (using gh CLI or provided remote) and push current workspace, then attempt to register the project on Read the Docs using API token
@@ -24,7 +24,7 @@ Updated: 2026-10-10 17:35:00
 #>
 
 param(
-	[string]$RepoName = "AI-Windows-Admin",
+	[string]$RepoName = "ai-tc",
 	[string]$Branch = "main",
 	[string]$RemoteUrl = "",
 	[string]$RtdToken = $env:READTHEDOCS_API_TOKEN

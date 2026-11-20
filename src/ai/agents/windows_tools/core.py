@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI Agents - Windows Core Tools Module
+# Process Name: ai-tc AI Agents - Windows Core Tools Module
 # =============================================================================
 # Description:
 #   Базовые инструменты взаимодействия с подсистемой Windows OS (аудит, процессы, службы, PowerShell).
 #
 # File: core.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.agents.windows_tools
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -222,7 +222,7 @@ async def windows_manage_process(action: str = 'list', pid: Optional[int] = None
 
 
 @tool
-async def windows_manage_restore_point(action: str = 'list', description: str = 'AI-Windows-Admin Checkpoint', sequence_number: Optional[int] = None) -> str:
+async def windows_manage_restore_point(action: str = 'list', description: str = 'ai-tc Checkpoint', sequence_number: Optional[int] = None) -> str:
     """Управляет точками восстановления Windows (System Restore).
 
     Args:

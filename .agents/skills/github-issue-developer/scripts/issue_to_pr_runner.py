@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Skill - Issue to PR Automation Runner
+# Process Name: ai-tc Skill - Issue to PR Automation Runner
 # =============================================================================
 # Description:
 #   Консольный оркестратор для сквозного выполнения задач по GitHub Issue:
@@ -12,11 +12,11 @@
 #   py issue_to_pr_runner.py verify-and-pr 125 --summary "Исправлена ошибка загрузки"
 #
 # File: issue_to_pr_runner.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: .agents.skills.github-issue-developer.scripts
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:48:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

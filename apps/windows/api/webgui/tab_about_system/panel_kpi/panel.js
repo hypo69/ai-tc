@@ -7,7 +7,7 @@
  * - Контрольные точки восстановления (Checkpoints / Restore Points)
  * - Накопители и сводную емкость дисков
  * 
- * Updated: 2026-10-17 00:37:00
+ * Updated: 2026-11-12 12:40:00
  */
 
 import { setText, setFormattedStatusHtml } from '../common/ui_utils.js';
@@ -45,6 +45,10 @@ export function applyKpiData(kpi) {
   if (kpi.storage) {
     if (kpi.storage.display_title) setText('about-kpi-stor-title', kpi.storage.display_title);
     if (kpi.storage.display_subtitle) setText('about-kpi-stor-clean', kpi.storage.display_subtitle);
+    if (kpi.storage.volume_name) {
+      const cardTitleEl = document.querySelector('#panel-about-storage .ui-kpi-label span');
+      if (cardTitleEl) cardTitleEl.textContent = `Системный диск ${kpi.storage.volume_name} (C:)`;
+    }
   }
 }
 

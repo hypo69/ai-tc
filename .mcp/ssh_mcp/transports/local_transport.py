@@ -19,11 +19,11 @@
 #     await tr.connect()
 #
 # File: local_transport.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.transports
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:46:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import asyncio

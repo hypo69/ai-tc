@@ -1,8 +1,8 @@
 /**
  * Панели диагностики сетевой инфраструктуры: panel-network-overview/adapters/switches/
- * ip-config/nat/wsl/diagnostics/history. Данные — API /api/network/infra/*.
+ * ip-config/nat/wsl/diagnostics/history. Данные — API /api/v1/network/infra/*.
  * Файл: apps/windows/api/webgui/tab_network/panel_infra/panel.js
- * Updated: 2026-10-28 16:30:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { esc, fmtTime, infraRequest, severityBadge, statusBadge } from './api.js';

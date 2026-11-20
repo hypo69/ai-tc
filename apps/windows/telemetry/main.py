@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Main
+# Process Name: ai-tc Apps Windows Telemetry - Main
 # =============================================================================
 # Description:
 #   Главная точка входа для автономной службы системной телеметрии Windows.
@@ -14,11 +14,11 @@
 #     ./tlm.ps1 -Foreground
 #
 # File: main.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 12:03:00
+# Updated: 2026-11-12 12:40:00
 # =============================================================================
 
 from __future__ import annotations
@@ -83,7 +83,7 @@ def parse_arguments() -> argparse.Namespace:
         argparse.Namespace: Распарсенные аргументы запуска.
     """
     parser = argparse.ArgumentParser(
-        description="AI-Windows-Admin Telemetry Service Entrypoint",
+        description="ai-tc Telemetry Service Entrypoint",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument('--mode', choices=['minimal', 'hybrid', 'full'], default=None, help='Режим работы: minimal (легковесный), hybrid (минимал + тяжелые периодически), full (полный стек)')
@@ -225,6 +225,17 @@ def run_telemetry_service(
             )
         except Exception as w64_err:
             logger.debug(f'Не удалось создать W64 сборщики: {w64_err}')
+
+    # Запуск фонового мониторинга файловых директорий (DirectoryWatchEngine)
+    dir_watch_engine = None
+    if cfg_mgr.is_file_events_enabled():
+        try:
+            from .directory_watcher import DirectoryWatchEngine
+            dir_watch_engine = DirectoryWatchEngine.get_instance(config_manager=cfg_mgr)
+            dir_watch_engine.start()
+            logger.info(f'[Телеметрия] DirectoryWatchEngine запущен для {len(dir_watch_engine.get_tracked_directories())} директорий')
+        except Exception as dw_err:
+            logger.debug(f'Не удалось запустить DirectoryWatchEngine: {dw_err}')
 
     logger.info('=' * 60)
     logger.info(f'Запущен сервис телеметрии Windows [Режим: {mode.upper()}]')
@@ -602,11 +613,11 @@ def run_telemetry_service(
                 res = sensor.check_and_run_hourly(force=False, skip_if_busy=True)
                 if res and res.get('download_mbps', 0.0) > 0.0:
                     logger.console(
-                        f"🌐 [FAST.COM] Часовой замер скорости: ↓{res.get('download_mbps', 0.0):.1f} Mbps, "
+                        f"🌐 [FAST.COM] Периодический замер скорости (6 раз в сутки): ↓{res.get('download_mbps', 0.0):.1f} Mbps, "
                         f"↑{res.get('upload_mbps', 0.0):.1f} Mbps, пинг: {res.get('ping_ms', 0.0):.1f} мс"
                     )
             except Exception as ex:
-                logger.debug(f"Ошибка часового теста скорости интернета FAST.com: {ex}")
+                logger.debug(f"Ошибка периодического теста скорости интернета FAST.com: {ex}")
 
     def _trigger_granular_collector(collector_name: str) -> None:
         def _runner():
@@ -742,7 +753,26 @@ def run_telemetry_service(
             for part in cached_part_list:
                 try:
                     usage = psutil.disk_usage(part.mountpoint)
-                    disk_partitions.append(DiskPartitionMetrics(device=part.device, mountpoint=part.mountpoint, fstype=part.fstype, total_gb=round(usage.total / 1024 ** 3, 2), used_gb=round(usage.used / 1024 ** 3, 2), free_gb=round(usage.free / 1024 ** 3, 2), percent=usage.percent))
+                    vol_name = ''
+                    if os.name == 'nt':
+                        try:
+                            import ctypes
+                            vol_buf = ctypes.create_unicode_buffer(1024)
+                            mount_root = part.mountpoint if part.mountpoint.endswith('\\') else f'{part.mountpoint}\\'
+                            if ctypes.windll.kernel32.GetVolumeInformationW(mount_root, vol_buf, 1024, None, None, None, None, 0):
+                                vol_name = vol_buf.value
+                        except Exception:
+                            pass
+                    disk_partitions.append(DiskPartitionMetrics(
+                        device=part.device,
+                        mountpoint=part.mountpoint,
+                        fstype=part.fstype,
+                        total_gb=round(usage.total / 1024 ** 3, 2),
+                        used_gb=round(usage.used / 1024 ** 3, 2),
+                        free_gb=round(usage.free / 1024 ** 3, 2),
+                        percent=usage.percent,
+                        volume_name=vol_name or None,
+                    ))
                 except (PermissionError, OSError):
                     continue
             cur_net_io = psutil.net_io_counters()
@@ -978,6 +1008,7 @@ def run_telemetry_service(
                             "user_idle_seconds": int(idle_sec),
                             "camera_active_apps": forensics.camera_active_apps,
                             "microphone_active_apps": forensics.microphone_active_apps,
+                            "audio_sessions": forensics.audio_sessions,
                             "userassist_top_apps": forensics.userassist_top_apps,
                         })
                         last_forensics_window = cur_win_key
@@ -1012,7 +1043,7 @@ def run_telemetry_service(
             proc_sync_int = heavy_intervals.get('process_activity_sync_interval_sec', 60.0)
             startup_int = heavy_intervals.get('startup_audit_interval_sec', 0.0)
             software_int = heavy_intervals.get('software_audit_interval_sec', 0.0)
-            internet_speed_int = heavy_intervals.get('internet_speed_interval_sec', 3600.0)
+            internet_speed_int = heavy_intervals.get('internet_speed_interval_sec', 14400.0)
 
             if mode.lower() in ('hybrid', 'full') and tick > 1:
                 if hw_int > 0 and h_collectors.get('hardware_sensors', True) and (now_sec - last_hw_sensors_time >= hw_int):
@@ -1118,6 +1149,11 @@ def run_telemetry_service(
         if w64_etw_collector:
             try:
                 w64_etw_collector.stop()
+            except Exception:
+                pass
+        if dir_watch_engine:
+            try:
+                dir_watch_engine.stop()
             except Exception:
                 pass
         logger.info('Процесс телеметрии успешно завершен')

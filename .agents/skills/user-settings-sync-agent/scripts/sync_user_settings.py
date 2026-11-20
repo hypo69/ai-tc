@@ -15,11 +15,11 @@
 #     py .agents/skills/user-settings-sync-agent/scripts/sync_user_settings.py --source AI-TC
 #
 # File: sync_user_settings.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: .agents.skills.user-settings-sync-agent.scripts
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 14:58:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

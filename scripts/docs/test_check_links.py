@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Docs - Test Check Links
+# Process Name: ai-tc Scripts Docs - Test Check Links
 # =============================================================================
 # Description:
 #   Unit-тесты для скрипта check_links.py
@@ -14,11 +14,11 @@
 #     service = TestLinkCheckerExtractLinks()
 #
 # File: test_check_links.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.docs
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Unit-тесты для скрипта check_links.py

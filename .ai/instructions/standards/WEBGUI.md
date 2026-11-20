@@ -8,11 +8,11 @@ Description:
   модули вкладок tab_<tab_id>).
 
 File: WEBGUI.md
-Project: ai-windows-admin
+Project: ai-tc
 Package: .ai/instructions/standards
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-12 02:30:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 -->
 

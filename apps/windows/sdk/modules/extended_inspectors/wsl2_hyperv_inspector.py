@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Extended Inspectors - WSL2 & Hyper-V Inspector
+# Process Name: ai-tc Apps Windows Modules Extended Inspectors - WSL2 & Hyper-V Inspector
 # =============================================================================
 # Description:
 #   Мониторинг виртуальных дисков .vhdx WSL2 / Hyper-V и их автоматическая оптимизация.
@@ -13,11 +13,11 @@
 #     report = inspector.inspect_vhdx_disks()
 #
 # File: wsl2_hyperv_inspector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.extended_inspectors
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

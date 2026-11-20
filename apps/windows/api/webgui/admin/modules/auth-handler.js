@@ -13,11 +13,11 @@
  *     import { setupAuthHandlers } from '/windows/api/webgui/admin/modules/auth-handler.js';
  *
  * File: auth-handler.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/admin/modules
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -91,7 +91,7 @@ async function verifyPassword() {
   }
 
   try {
-    const response = await fetch('/api/admin/verify-password', {
+    const response = await fetch('/api/v1/admin/verify-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: passwordInput.value })

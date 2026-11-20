@@ -2,7 +2,7 @@
 
 ## AI Providers
 
-AI-Windows-Admin supports multiple LLM backends with automatic routing:
+ai-tc supports multiple LLM backends with automatic routing:
 
 | Provider | Prefix | Notes |
 |---|---|---|

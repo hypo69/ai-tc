@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows DB - System Knowledge Paths
+# Process Name: ai-tc Apps Windows DB - System Knowledge Paths
 # =============================================================================
 # Description:
 #   Динамическое разрешение путей к базе данных системных подсказок WikiLLM
@@ -16,11 +16,11 @@
 #     res = migrate_system_knowledge_db()
 #
 # File: paths.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.db
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 12:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

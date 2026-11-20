@@ -1,7 +1,7 @@
 # Telegram Channel & Group RAG Search Tab
 
 ## Overview
-This web interface tab provides an interactive frontend for the `telegram_channel_rag` plugin in AI Windows Admin.
+This web interface tab provides an interactive frontend for the `telegram_channel_rag` plugin in ai-tc.
 
 ## Features
 - **Channel & Group Subscription Management**: Add Telegram channel by username or link (e.g., `@canozrimb` or `https://t.me/canozrimb`), choose message fetch depth, view indexed messages, re-index on demand, or unsubscribe.

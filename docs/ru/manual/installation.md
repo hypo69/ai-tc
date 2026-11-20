@@ -2,7 +2,7 @@
 
 > **Updated: 2026-10-27 12:00:00**
 
-## Инструкции по установке AI-Windows-Admin
+## Инструкции по установке ai-tc
 
 ### Системные требования
 
@@ -26,15 +26,15 @@ Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File
 
 #### Windows (PowerShell):
 ```powershell
-git clone https://github.com/hypo69/AI-Windows-Admin.git
-cd AI-Windows-Admin
+git clone https://github.com/hypo69/ai-tc.git
+cd ai-tc
 .\install.ps1
 ```
 
 #### Linux / macOS (Bash):
 ```bash
-git clone https://github.com/hypo69/AI-Windows-Admin.git
-cd AI-Windows-Admin
+git clone https://github.com/hypo69/ai-tc.git
+cd ai-tc
 bash install.sh
 ```
 
@@ -48,8 +48,8 @@ bash install.sh
 ### Ручная установка из репозитория
 
 ```powershell
-git clone https://github.com/hypo69/AI-Windows-Admin.git
-cd AI-Windows-Admin
+git clone https://github.com/hypo69/ai-tc.git
+cd ai-tc
 python -m venv venv
 .\venv\Scripts\Activate.ps1    # Для Linux/macOS: source venv/bin/activate
 pip install --upgrade pip

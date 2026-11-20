@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Ns Module
+# Process Name: ai-tc UTILS - Ns Module
 # =============================================================================
 # Description:
 #   Convert SimpleNamespace objects to various formats: dict, JSON, CSV, XML, XLS.
@@ -10,11 +10,11 @@
 #     import src.utils.convertors.ns as ns
 #
 # File: ns.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils.convertors
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Convert SimpleNamespace objects to various formats: dict, JSON, CSV, XML, XLS."""

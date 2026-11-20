@@ -3,7 +3,7 @@
  * @description Пошаговый мастер создания навыков (Wizard: метаданные, инструкции SKILL.md, скрипты, предпросмотр)
  * @author hypo69
  * @version 1.0.0
- * Updated: 2026-10-17 01:18:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { apiFetch } from '../common/ui_utils.js';
@@ -295,7 +295,7 @@ export async function createSkillFromWizard(onSuccess) {
   }
 
   try {
-    const res = await apiFetch('/api/skills', {
+    const res = await apiFetch('/api/v1/skills', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

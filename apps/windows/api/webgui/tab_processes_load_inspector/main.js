@@ -2,7 +2,7 @@
  * Корневой оркестратор комплексного инспектора процессов хоста (Processes Load Inspector).
  * Координирует работу панелей: Диспетчер процессов, Топ потоков, Deep Dive, Сеть/Файлы, Leak Hunter и ИИ-ассистент.
  * Файл: apps/windows/api/webgui/tab_processes_load_inspector/main.js
- * Updated: 2026-11-01 17:45:00
+ * Updated: 2026-11-13 15:48:43
  */
 
 import {
@@ -14,7 +14,7 @@ import {
   updateUrlWithPanel as uiUpdateUrlWithPanel,
   showToast,
   syncWikiLLMProcessKnowledge
-} from './common/ui_utils.js?v=20261101_v1';
+} from './common/ui_utils.js?v=20261112_v2';
 import {
   initProcessManagerPanel,
   fetchProcessManagerSummary,
@@ -22,9 +22,8 @@ import {
 } from './panel_process_manager/panel.js?v=20261020_v2';
 import {
   openProcessAiModal,
-  openPowerShellInvestigationModal,
   resolveAIModal
-} from './panel_ai_audit/panel.js?v=20261031_v2';
+} from './panel_ai_audit/panel.js?v=20261113_v1';
 import {
   initTopStreamPanel,
   fetchHostProcesses
@@ -37,8 +36,10 @@ import {
 import {
   initNetworkFilesPanel,
   fetchNetworkActivity,
-  fetchLiveFileEvents
-} from './panel_network_files/panel.js?v=20261101_v2';
+  fetchLiveFileEvents,
+  startFileEventsStream,
+  stopFileEventsStream
+} from './panel_network_files/panel.js?v=20261112_v3';
 import {
   initLeakHunterPanel,
   fetchProcessLeaks,
@@ -107,6 +108,7 @@ export async function fetchActiveSubTabOnly(force = false) {
     case 'net':
       await fetchNetworkActivity(force);
       break;
+    case 'files-io':
     case 'files':
       await fetchLiveFileEvents(force);
       break;
@@ -125,6 +127,7 @@ export function stopPolling() {
     activeSubPollerTimer = null;
   }
   stopDeepDiveSamplePolling();
+  stopFileEventsStream();
   if (window.unregisterTabPoller) {
     window.unregisterTabPoller('tab-processes-load-inspector_active');
   }
@@ -138,6 +141,13 @@ export function startPolling() {
   if (!isProcessesTabActive()) return;
   const activeSub = getActiveSubTabId();
 
+  // Для субпанели файловых событий ('files', 'files-io') циклический опрос через Web API отключен:
+  // события передаются через реактивный SSE поток (startFileEventsStream)
+  if (activeSub === 'files' || activeSub === 'files-io') {
+    startFileEventsStream();
+    return;
+  }
+
   // Единый интервал опроса 5 секунд, привязанный к шагу сброса телеметрии в SQLite (tc_flush_interval_seconds: 5.0)
   const intervalMs = 5000;
 
@@ -145,7 +155,7 @@ export function startPolling() {
     window.registerTabPoller('tab-processes-load-inspector', async () => {
       if (!isProcessesTabActive()) return;
       const currentActive = getActiveSubTabId();
-      if (currentActive !== activeSub) return;
+      if (currentActive !== activeSub || currentActive === 'files' || currentActive === 'files-io') return;
       await fetchActiveSubTabOnly();
     }, intervalMs, { pollerId: 'tab-processes-load-inspector_active', immediate: false });
   } else {
@@ -155,7 +165,7 @@ export function startPolling() {
         return;
       }
       const currentActive = getActiveSubTabId();
-      if (currentActive !== activeSub) {
+      if (currentActive !== activeSub || currentActive === 'files' || currentActive === 'files-io') {
         stopPolling();
         return;
       }
@@ -205,6 +215,7 @@ export function adjustProcessTableHeights() {
  */
 export function deactivateTab() {
   stopPolling();
+  stopFileEventsStream();
 }
 
 /**
@@ -231,6 +242,7 @@ export function switchProcessesSubTab(subtabId, updateUrl = true) {
       btnId = 'subtab-proc-net-btn';
       paneId = 'subpane-proc-net';
       break;
+    case 'files-io':
     case 'files':
       btnId = 'subtab-proc-files-btn';
       paneId = 'subpane-proc-files';
@@ -266,6 +278,11 @@ export function switchProcessesSubTab(subtabId, updateUrl = true) {
   }
 
   if (isProcessesTabActive()) {
+    if (canonical === 'files' || canonical === 'files-io') {
+      startFileEventsStream();
+    } else {
+      stopFileEventsStream();
+    }
     fetchActiveSubTabOnly(true);
     startPolling();
   }
@@ -275,8 +292,6 @@ export function switchProcessesSubTab(subtabId, updateUrl = true) {
  * Инициализирует глобальные обработчики событий вкладки.
  */
 function setupGlobalEventListeners() {
-  document.getElementById('pm-btn-investigate-powershell')?.addEventListener('click', openPowerShellInvestigationModal);
-
   document.getElementById('pm-btn-prompt-settings')?.addEventListener('click', async () => {
     const modal = await resolveAIModal();
     if (modal && typeof modal.openPromptEditor === 'function') {

@@ -1,6 +1,6 @@
 # 🪟 Реестр нативных функций Windows API (Native API Registry)
 
-Данный документ представляет собой **техническую карту программного доступа к Windows** для всех подсистем AI-Windows-Admin и Windows Diagnostic & Administration Center.
+Данный документ представляет собой **техническую карту программного доступа к Windows** для всех подсистем ai-tc и Windows Diagnostic & Administration Center.
 
 Каждый компонент анализируется через 4 уровня взаимодействия:
 1. **Native Windows API (Win32, NT API, специализированные DLL)** — основной высокопроизводительный уровень.

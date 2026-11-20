@@ -1,7 +1,7 @@
 /**
  * Модуль панели сетевых адаптеров и интерфейсов хоста.
  * Файл: apps/windows/api/webgui/tab_network/panel_adapters/panel.js
- * Updated: 2026-10-17 01:55:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { formatBytes } from '../common/ui_utils.js';
@@ -25,7 +25,7 @@ export async function fetchAdapters() {
   const kpiActive = document.getElementById('net-kpi-adapters-active');
 
   try {
-    const res = await fetch('/api/network/interfaces');
+    const res = await fetch('/api/v1/network/interfaces');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const adapters = await res.json();
     allAdapters = Array.isArray(adapters) ? adapters : [];

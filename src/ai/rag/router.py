@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Unified RAG Router
+# Process Name: ai-tc AI - Unified RAG Router
 # =============================================================================
 # Description:
 #   FastAPI REST API роутер для унифицированного RAG, Pixel RAG и базы знаний.
@@ -12,11 +12,11 @@
 #     router = init_router()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.rag
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 17:33:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ from .unified_hub import UnifiedKnowledgeHub
 from .text_rag import TextRAG
 from .pixel_rag import PixelRAG
 
-router = APIRouter(prefix="/api/rag", tags=["Unified RAG & Knowledge Hub"])
+router = APIRouter(prefix="/api/v1/rag", tags=["Unified RAG & Knowledge Hub"])
 _hub_instance: Any = False
 _MAX_UPLOAD_IMAGE_BYTES = 25 * 1024 * 1024
 

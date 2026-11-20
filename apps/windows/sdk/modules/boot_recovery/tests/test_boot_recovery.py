@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Boot_Recovery Tests - Test Boot Recovery
+# Process Name: ai-tc Apps Windows Modules Boot_Recovery Tests - Test Boot Recovery
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     res = manager()
 #
 # File: test_boot_recovery.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.boot_recovery.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -65,15 +65,15 @@ async def test_boot_action_simulation(manager: BootRecoveryManager):
 
 def test_boot_recovery_endpoints(client: TestClient):
     """Проверка REST эндпоинтов boot_recovery."""
-    resp = client.get('/api/boot-recovery/report')
+    resp = client.get('/api/v1/boot-recovery/report')
     assert resp.status_code == 200
     data = resp.json()
     assert 'entries' in data
     assert 'winre' in data
 
-    resp_entries = client.get('/api/boot-recovery/entries')
+    resp_entries = client.get('/api/v1/boot-recovery/entries')
     assert resp_entries.status_code == 200
 
-    resp_winre = client.get('/api/boot-recovery/winre')
+    resp_winre = client.get('/api/v1/boot-recovery/winre')
     assert resp_winre.status_code == 200
 

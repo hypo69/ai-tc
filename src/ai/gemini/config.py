@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Config Module
+# Process Name: ai-tc AI - Config Module
 # =============================================================================
 # Description:
-#   Модуль реализации компонента `GoogleGenerativeAIConfigMixin` системы AI-Windows-Admin.
+#   Модуль реализации компонента `GoogleGenerativeAIConfigMixin` системы ai-tc.
 #
 # Usage Examples:
 #   Python API:
@@ -12,11 +12,11 @@
 #     service = GoogleGenerativeAIConfigMixin()
 #
 # File: config.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 09:18:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 

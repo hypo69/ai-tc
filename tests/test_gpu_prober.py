@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - GPU Prober
+# Process Name: ai-tc Tests - GPU Prober
 # =============================================================================
 # Description:
 #   Тесты GpuProber.probe_all: слияние источников без дублей, применение
 #   WDDM-счётчиков, параллельность внешних опросов и устойчивость к ошибкам.
 #
 # File: test_gpu_prober.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-11 04:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

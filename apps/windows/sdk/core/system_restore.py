@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - System Restore
+# Process Name: ai-tc Apps Windows Core - System Restore
 # =============================================================================
 # Description:
 #   Модуль создания и управления точками восстановления Windows.
@@ -12,11 +12,11 @@
 #     service = WindowsSystemRestoreManager()
 #
 # File: system_restore.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 16:48:00
 # =============================================================================
 
 from __future__ import annotations
@@ -33,6 +33,14 @@ from logger import logger
 class WindowsSystemRestoreManager:
     """Менеджер точек восстановления Windows (System Restore)."""
     DEFAULT_POLICY: Dict[str, Any] = {'max_storage_size': '10%', 'max_points': 5, 'auto_prune': True, 'schedule_trigger': 'daily', 'schedule_time': '03:00', 'frequency_limit_minutes': 0}
+    # Допустимые значения ValidateSet параметра -RestorePointType командлета Checkpoint-Computer
+    VALID_RESTORE_POINT_TYPES: tuple[str, ...] = (
+        'APPLICATION_INSTALL',
+        'APPLICATION_UNINSTALL',
+        'DEVICE_DRIVER_INSTALL',
+        'MODIFY_SETTINGS',
+        'CANCELLED_OPERATION',
+    )
 
     def __init__(self, timeout_seconds: int=45, policy_file: Optional[str]=None) -> None:
         """Инициализация менеджера точек восстановления.
@@ -169,18 +177,22 @@ class WindowsSystemRestoreManager:
         """
         clean_desc = description.replace('"', "'").strip()
         if not clean_desc:
-            clean_desc = f"AI-Windows-Admin Parameter Change {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            clean_desc = f"ai-tc Parameter Change {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        normalized_type = str(restore_point_type or 'MODIFY_SETTINGS').strip().upper()
+        if normalized_type not in self.VALID_RESTORE_POINT_TYPES:
+            logger.warning(f"Тип точки восстановления '{restore_point_type}' не поддерживается Checkpoint-Computer; используется 'MODIFY_SETTINGS'.")
+            normalized_type = 'MODIFY_SETTINGS'
         storage_info = self.get_shadow_storage_info()
         eviction_warning = storage_info.get('at_risk_of_eviction', False)
         if eviction_warning:
             logger.warning(f"Внимание: заполнение хранилища теневых копий составляет {storage_info.get('usage_percent')}%.")
-        logger.info(f"Создание точки восстановления Windows: '{clean_desc}' (Type: {restore_point_type})")
-        ps_cmd = f'Checkpoint-Computer -Description "{clean_desc}" -RestorePointType "{restore_point_type}" -ErrorAction Stop'
+        logger.info(f"Создание точки восстановления Windows: '{clean_desc}' (Type: {normalized_type})")
+        ps_cmd = f'Checkpoint-Computer -Description "{clean_desc}" -RestorePointType "{normalized_type}" -ErrorAction Stop'
         try:
             res = subprocess.run(['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', ps_cmd], capture_output=True, text=True, timeout=self.timeout_seconds)
             if res.returncode == 0:
                 logger.info(f"Точка восстановления успешно создана: '{clean_desc}'")
-                return {'success': True, 'description': clean_desc, 'restore_point_type': restore_point_type, 'created_at': datetime.now().isoformat(), 'storage_info': storage_info, 'message': f"Точка восстановления '{clean_desc}' успешно создана."}
+                return {'success': True, 'description': clean_desc, 'restore_point_type': normalized_type, 'created_at': datetime.now().isoformat(), 'storage_info': storage_info, 'message': f"Точка восстановления '{clean_desc}' успешно создана."}
             else:
                 err_msg = res.stderr.strip() or res.stdout.strip()
                 is_freq_limit = '1440 minutes' in err_msg or 'frequency' in err_msg.lower()
@@ -258,7 +270,7 @@ class WindowsSystemRestoreManager:
             subprocess.run(['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', reg_cmd], capture_output=True, text=True, timeout=self.timeout_seconds)
         except Exception as ex:
             logger.debug(f'Не удалось обновить реестр частоты точек восстановления: {ex}')
-        task_name = 'AI-Windows-Admin-SystemRestore'
+        task_name = 'ai-tc-SystemRestore'
         if trigger == 'disabled':
             del_cmd = f"Unregister-ScheduledTask -TaskName '{task_name}' -Confirm:$false -ErrorAction SilentlyContinue"
             try:

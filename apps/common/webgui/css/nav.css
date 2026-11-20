@@ -14,7 +14,7 @@
  * Package: apps/common/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 17:37:00
+ * Updated: 2026-11-13 16:10:00
  * =============================================================================
  */
 
@@ -25,12 +25,15 @@
 
 /* ── Главная панель навигации ────────────────────────────────────────────── */
 .main-nav-container {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
   background-color: var(--nav-bg);
   border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
   min-height: 34px;
   max-width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 /* ── Ссылка брендинга и логотипа приложения ───────────────────────────────── */
@@ -103,10 +106,29 @@
   box-shadow: var(--shadow-md) !important;
 }
 
-.nav-tabs .dropdown-menu.show {
+.nav-tabs .dropdown-menu.show,
+.nav-tabs .nav-item.dropdown:hover > .dropdown-menu,
+.main-nav-container .dropdown:hover > .dropdown-menu {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
+}
+
+/* ── Защита от перехвата событий дочерними элементами в кнопках меню ───── */
+/* Гарантирует, что события onover (hover), mouseenter и click всегда        */
+/* обрабатываются на всю площадь кнопки целиком, а не только на текст/иконку */
+.nav-tabs .dropdown-item > *,
+.dropdown-menu .dropdown-item > *,
+.dropdown-menu button > *,
+.dropdown-menu a > *,
+.nav-tabs .nav-link > *,
+.main-nav-container button > *,
+.main-nav-container a > *,
+.subtabs-nav button > *,
+.subtabs-nav a > *,
+.left-drawer-nav button > *,
+.left-drawer-nav a > * {
+  pointer-events: none;
 }
 
 .nav-tabs .dropdown-item {
@@ -1145,4 +1167,125 @@ body[dir="rtl"] .ide-main-viewport.sidebar-collapsed {
   margin-left: 0 !important;
   width: calc(100% - 48px) !important;
   max-width: calc(100% - 48px) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ЕДИНЫЙ СТАНДАРТ МЕНЮ, ПОДМЕНЮ И БЛОКОВ (NightView / UI Kit Standard)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. Контейнеры меню и подменю */
+.main-nav-container,
+.subnav-container,
+.subtabs-nav-container,
+.nav-subtabs-container {
+  background-color: var(--nav-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  min-height: 34px;
+  box-sizing: border-box;
+}
+
+/* 2. Подменю, группы кнопок и навигационные вкладки */
+[role="tablist"]:not(.nav-tabs),
+.nav-pills,
+.subtabs-nav {
+  background-color: var(--nav-bg, var(--surface-1));
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 3px 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+[role="tablist"]:not(.nav-tabs) .nav-link,
+[role="tablist"]:not(.nav-tabs) .btn,
+.nav-pills .nav-link,
+.subtabs-nav .nav-link,
+.subtabs-nav .btn,
+.event-filter-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--nav-text, var(--text-color));
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+[role="tablist"]:not(.nav-tabs) .nav-link:hover,
+[role="tablist"]:not(.nav-tabs) .btn:hover,
+.nav-pills .nav-link:hover,
+.subtabs-nav .nav-link:hover,
+.subtabs-nav .btn:hover,
+.event-filter-btn:hover {
+  background-color: var(--nav-hover-bg);
+  color: var(--nav-active);
+  border-color: transparent;
+}
+
+[role="tablist"]:not(.nav-tabs) .nav-link.active,
+[role="tablist"]:not(.nav-tabs) .btn.active,
+.nav-pills .nav-link.active,
+.subtabs-nav .nav-link.active,
+.subtabs-nav .btn.active,
+.event-filter-btn.active {
+  background-color: var(--nav-active) !important;
+  border-color: var(--nav-active) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+[role="tablist"]:not(.nav-tabs) .nav-link.active i,
+[role="tablist"]:not(.nav-tabs) .btn.active i,
+.nav-pills .nav-link.active i,
+.subtabs-nav .nav-link.active i,
+.subtabs-nav .btn.active i,
+.event-filter-btn.active i {
+  color: #ffffff !important;
+}
+
+[role="tablist"]:not(.nav-tabs) .nav-link:not(.active) i,
+[role="tablist"]:not(.nav-tabs) .btn:not(.active) i,
+.nav-pills .nav-link:not(.active) i,
+.subtabs-nav .nav-link:not(.active) i,
+.subtabs-nav .btn:not(.active) i,
+.event-filter-btn:not(.active) i {
+  color: var(--nav-active);
+}
+
+/* 3. Блоки и карточки */
+.ui-card,
+.winadmin-card,
+.winadmin-panel,
+.panel-block {
+  background-color: var(--surface-1);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-color);
+}
+
+.panel-header,
+.ui-card-header,
+.winadmin-header-strip {
+  background-color: var(--surface-2) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--panel-header-color, var(--nav-active)) !important;
+}
+
+/* 4. Заголовки таблиц и панелей (синий акцент меню) */
+.panel-title,
+.panel-header .panel-title,
+.card-title,
+.ui-table-title {
+  color: var(--panel-header-color, var(--nav-active)) !important;
+  font-weight: 600;
+}
+
+.panel-title i,
+.panel-header .panel-title i,
+.card-title i {
+  color: inherit !important;
 }

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Root - Header
+# Process Name: ai-tc Root - Header
 # =============================================================================
 # Description:
 #   Определение корневого каталога проекта (__root__) и нормализация системных путей.
@@ -21,11 +21,11 @@
 #     config_path = __root__ / "config.json"
 #
 # File: header.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: root
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 18:24:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import json

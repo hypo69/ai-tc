@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Cli - Assist
+# Process Name: ai-tc Scripts Cli - Assist
 # =============================================================================
 # Description:
-#   Cross-platform CLI assistant for AI Windows Admin project management.
+#   Cross-platform CLI assistant for ai-tc project management.
 #
 # Usage Examples:
 #   CLI:
@@ -14,14 +14,14 @@
 #     service = AssistCLI()
 #
 # File: assist.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.cli
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 16:32:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
-"""Cross-platform CLI assistant for AI Windows Admin project management.
+"""Cross-platform CLI assistant for ai-tc project management.
 
 CLI assistant providing cross-platform project management utilities,
 originally ported from PowerShell assist.ps1 for Windows, Linux, macOS.
@@ -57,7 +57,7 @@ C_GRAY = '\x1b[90m'
 C_MAGENTA = '\x1b[95m'
 
 class AssistCLI:
-    """Главный CLI class для управления AI-Windows-Admin"""
+    """Главный CLI class для управления ai-tc"""
 
     def __init__(self):
         self.paths = init_paths()
@@ -330,7 +330,7 @@ class AssistCLI:
 
 def main():
     """Главная function"""
-    parser = argparse.ArgumentParser(description='CLI ассистент для управления AI-Windows-Admin', formatter_class=argparse.RawDescriptionHelpFormatter, epilog='\nExamples:\n  assist start                  # Запустить основной сервер\n  assist start unicorn          # Запустить FastAPI через uvicorn\n  assist stop                   # Остановить все сервисы\n  assist status                 # Показать status\n  assist providers              # List провайдеров ИИ\n  assist logs 50                # Последние 50 строк логов\n  assist config get server.port # Получить значение\n  assist config set server.port 8080  # Установить значение\n  assist test                   # Запустить тесты\n        ')
+    parser = argparse.ArgumentParser(description='CLI ассистент для управления ai-tc', formatter_class=argparse.RawDescriptionHelpFormatter, epilog='\nExamples:\n  assist start                  # Запустить основной сервер\n  assist start unicorn          # Запустить FastAPI через uvicorn\n  assist stop                   # Остановить все сервисы\n  assist status                 # Показать status\n  assist providers              # List провайдеров ИИ\n  assist logs 50                # Последние 50 строк логов\n  assist config get server.port # Получить значение\n  assist config set server.port 8080  # Установить значение\n  assist test                   # Запустить тесты\n        ')
     subparsers = parser.add_subparsers(dest='command', help='Команда')
     start_parser = subparsers.add_parser('start', help='Запустить сервис')
     start_parser.add_argument('service', nargs='?', default='run', help='Сервис (run, unicorn, light, foundry)')

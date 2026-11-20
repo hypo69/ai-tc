@@ -11,7 +11,7 @@
  * Файл: apps/windows/api/webgui/tab_windows_admin/panel_users/panel.js
  * Пакет: windows/api/webgui/tab_windows_admin
  * Автор: hypo69
- * Updated: 2026-11-12 01:25:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -43,7 +43,7 @@ export function setCurrentUserFilter(filter) {
  */
 export async function fetchAccounts(filterType = currentUserFilter) {
   try {
-    const res = await fetch(`/api/sysadmin/accounts?filter_type=${encodeURIComponent(filterType)}`);
+    const res = await fetch(`/api/v1/sysadmin/accounts?filter_type=${encodeURIComponent(filterType)}`);
     if (!res.ok) return;
     const data = await res.json();
     _accountsCache = data.accounts || [];
@@ -98,7 +98,12 @@ export function renderUsersTable(accounts) {
       : (u.profile_path ? `<span class="text-muted" title="${escapeHtml(u.profile_path)}">Локальный</span>` : '<span class="text-muted">-</span>');
 
     const groupsStr = (u.groups && u.groups.length > 0) ? u.groups.join(', ') : 'Users';
-    const fullNameDesc = u.full_name ? `${escapeHtml(u.full_name)}` : (u.description ? `<span class="text-muted">${escapeHtml(u.description)}</span>` : '<span class="text-muted">—</span>');
+    const fullNameParts = [];
+    if (u.full_name) fullNameParts.push(`<div>${escapeHtml(u.full_name)}</div>`);
+    if (u.description && u.description !== u.full_name) {
+      fullNameParts.push(`<div class="text-muted">${escapeHtml(u.description)}</div>`);
+    }
+    const fullNameDesc = fullNameParts.length > 0 ? fullNameParts.join('') : '<span class="text-muted">—</span>';
 
     const uacBadge = u.is_admin
       ? `<button class="btn btn-xs btn-outline-warning py-0.5 px-2 d-inline-flex align-items-center gap-1 btn-open-user-uac" data-user="${escapeHtml(u.name)}" title="Настроить UAC для ${escapeHtml(u.name)}">
@@ -111,8 +116,8 @@ export function renderUsersTable(accounts) {
     return `
       <tr class="winadmin-user-row" data-idx="${idx}" style="cursor: pointer;" title="Нажмите для открытия досье Principal">
         <td class="text-center no-modal-trigger" style="width: 36px;">
-          <button type="button" class="btn-drilldown-proc btn-user-security-drilldown" data-user="${escapeHtml(u.name)}" title="Безопасность и параметры учетной записи: ${escapeHtml(u.name)}">
-            <img src="/html/assets/red_drill.png?v=20261112_v1" alt="Безопасность пользователя" style="width: 18px; height: 18px; vertical-align: middle;">
+          <button type="button" class="btn-drilldown-proc btn-user-security-drilldown" data-user="${escapeHtml(u.name)}" title="">
+            <img src="/html/assets/red_drill.png?v=20261113_v1" alt="" title="" style="width: 18px; height: 18px; vertical-align: middle;">
           </button>
         </td>
         <td>
@@ -193,7 +198,7 @@ export function renderUsersTable(accounts) {
       evt.stopPropagation();
       const user = btn.getAttribute('data-user');
       if (confirm(`Отключить сессию пользователя ${user}?`)) {
-        await fetch(`/api/sysadmin/users/${encodeURIComponent(user)}/disconnect`, { method: 'POST' });
+        await fetch(`/api/v1/sysadmin/users/${encodeURIComponent(user)}/disconnect`, { method: 'POST' });
         fetchAccounts(currentUserFilter);
         fetchStatus();
       }
@@ -247,7 +252,7 @@ export async function openUserAiModal(identifierOrObj) {
 
   if (!u && typeof identifierOrObj === 'string') {
     try {
-      const res = await fetch(`/api/windows/identity/explain/${encodeURIComponent(identifierOrObj)}`);
+      const res = await fetch(`/api/v1/windows/identity/explain/${encodeURIComponent(identifierOrObj)}`);
       if (res.ok) {
         u = await res.json();
       }
@@ -322,7 +327,7 @@ export async function handleCreateUserSubmit() {
   }
 
   try {
-    const res = await fetch('/api/windows/identity/users', {
+    const res = await fetch('/api/v1/windows/identity/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -357,7 +362,7 @@ export async function handleCreateUserSubmit() {
 export async function deleteUserAction(username) {
   if (!confirm(`Вы уверены, что хотите удалить пользователя '${username}'?`)) return;
   try {
-    const res = await fetch(`/api/windows/identity/users/${encodeURIComponent(username)}`, {
+    const res = await fetch(`/api/v1/windows/identity/users/${encodeURIComponent(username)}`, {
       method: 'DELETE',
     });
     const data = await res.json();

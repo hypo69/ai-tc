@@ -1,7 +1,7 @@
 /**
  * Модуль управления и запуска пошаговой AI-диагностики системы.
  * Файл: apps/windows/api/webgui/tab_about_system/panel_ai_diagnostics/panel.js
- * Updated: 2026-10-20 17:45:00
+ * Updated: 2026-11-12 12:40:00
  */
 
 import { apiFetch, escapeHtml } from '../common/ui_utils.js';
@@ -243,7 +243,10 @@ export async function runAIDiagnostics(isManualRescan = false) {
     const diskGroup = groups.find(g => g.group_id === 'storage_smart');
     if (diskGroup && diskGroup.payload) {
       const parts = diskGroup.payload.storage_partitions || [];
-      if (tickDisks) tickDisks.textContent = parts.map(p => `${p.mountpoint || p.device || 'Vol'}: ${p.free_gb ?? 0} GB св.`).join(', ') || 'OK';
+      if (tickDisks) tickDisks.textContent = parts.map(p => {
+        const title = p.volume_name ? `${p.volume_name} (${p.mountpoint || p.device || ''})` : (p.mountpoint || p.device || 'Vol');
+        return `${title}: ${p.free_gb ?? 0} GB св.`;
+      }).join(', ') || 'OK';
     }
 
     const cardsState = groups.map(g => {

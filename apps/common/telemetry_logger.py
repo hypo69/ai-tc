@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Common - App Telemetry Logger
+# Process Name: ai-tc Apps Common - App Telemetry Logger
 # =============================================================================
 # Description:
 #   Универсальный логгер телеметрии приложений и SDK модулей Windows.
@@ -16,11 +16,11 @@
 #     logger.log_event('start_capture', 'SUCCESS', {'interface': 'eth0'})
 #
 # File: telemetry_logger.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.common
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 19:36:45
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

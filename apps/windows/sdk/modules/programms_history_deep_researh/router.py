@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-# Updated: 2026-10-03 23:59:30
+# Updated: 2026-11-20 16:45:00
 """router.py – FastAPI роутер для модуля programms_history_deep_researh.
 
-Точка доступа `/api/windows/program-history/report` возвращает JSON‑отчёт,
+Точка доступа `/api/v1/windows/program-history/report` возвращает JSON‑отчёт,
 сгенерированный `report.generate_report()`.
 """
 

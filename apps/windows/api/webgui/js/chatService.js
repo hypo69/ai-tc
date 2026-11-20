@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/js/chatService.js?v=20261001_v1" type="module"></script>
  *
  * File: chatService.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -135,7 +135,7 @@ window.chatService = {
   _abortController: null,
 
   /**
-   * Sends a chat message to the /api/chat backend.
+   * Sends a chat message to the /api/v1/chat backend.
    * Resolves to the text reply or throws the parsed error object/string.
    * 
    * @param {string} message 
@@ -165,7 +165,7 @@ window.chatService = {
     }
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/v1/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, history, generation_config: effectiveGenConfig }),
@@ -316,7 +316,7 @@ window.chatService = {
 
     let userSettings = null;
     try {
-      const response = await fetch('/auth/settings');
+      const response = await fetch('/api/v1/auth/settings');
       if (response.ok) {
         userSettings = await response.json();
         if (userSettings.tts_enabled === 1 && userSettings.tts_system && userSettings.tts_system !== 'browser') {
@@ -499,7 +499,7 @@ window.updateChatBadges = function(modelName, searchEngine) {
 // Автоматически загружаем настройки и обновляем бейджи модели и поиска при загрузке страницы
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const response = await fetch('/auth/settings');
+    const response = await fetch('/api/v1/auth/settings');
     if (response.ok) {
       const settings = await response.json();
       const modelName = settings.model || '';

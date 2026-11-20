@@ -13,11 +13,11 @@ Usage Examples:
       <iframe src="/windows/api/webgui/tab_system_inspector/index.html" class="w-100 h-100 border-0"></iframe>
 
  * File: index.html
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_system_inspector
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 12:50:00
+ * Updated: 2026-11-20 15:17:00
  =============================================================================
 -->
 <!-- System & Hardware Inspector Application Tab -->
@@ -77,14 +77,21 @@ Usage Examples:
     display: none;
   }
 
-  /* Единый строгий стиль заголовка модели оборудования */
-  .sys-metric-model-title {
+  /* Единый строгий стиль заголовков шапок карточек */
+  .sys-card-header-bar .sys-label {
     font-size: var(--sys-metric-title-size, 1.05rem);
     font-weight: 800;
     letter-spacing: 0.25px;
     display: inline-block;
-    color: var(--sys-metric-title-color, #2b0d14) !important;
-    text-shadow: var(--sys-metric-title-shadow, 0 1px 2px rgba(43, 13, 20, 0.18));
+    color: var(--tab-header-title-color, var(--text-color, var(--ui-text-primary))) !important;
+    text-shadow: none;
+  }
+
+  /* Заголовки моделей оборудования используют универсальный стиль .panel-title */
+  .sys-metric-model-title {
+    display: block;
+    max-width: 100%;
+    text-shadow: none;
   }
 
   /* Карточки основных разделов (CPU, GPU, RAM, Net, Storage) */
@@ -96,8 +103,12 @@ Usage Examples:
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     overflow: hidden;
     color: var(--text-color);
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.25rem !important;
     padding: 0 !important;
+  }
+  #sys-gpu-panels-container {
+    gap: 1.25rem !important;
+    margin-bottom: 1.25rem !important;
   }
   .sys-card:hover {
     border-color: var(--border-strong);
@@ -125,7 +136,7 @@ Usage Examples:
   /* Заголовки секций с повышенной контрастностью и интерактивностью */
   .sys-core-section-title {
     font-size: 0.85rem !important;
-    color: var(--text-color) !important;
+    color: var(--tab-header-title-color, var(--text-color, var(--ui-text-primary))) !important;
     font-weight: 700 !important;
     padding-bottom: 6px;
     border-bottom: 1.5px solid var(--border-subtle);
@@ -176,7 +187,7 @@ Usage Examples:
   }
   .sys-compact-mode .sys-card {
     padding: 0 !important;
-    margin-bottom: 0.45rem !important;
+    margin-bottom: 1.25rem !important;
   }
   .sys-compact-mode .sys-card-top-banner {
     margin-bottom: 0 !important;
@@ -186,12 +197,13 @@ Usage Examples:
     display: none;
   }
   .sys-compact-mode .row.mb-2,
-  .sys-compact-mode .row.mb-3 {
-    margin-bottom: 0.45rem !important;
+  .sys-compact-mode .row.mb-3,
+  .sys-compact-mode .row.mb-4 {
+    margin-bottom: 1.25rem !important;
   }
   .sys-compact-mode #sys-gpu-panels-container {
-    gap: 0.45rem !important;
-    margin-bottom: 0.45rem !important;
+    gap: 1.25rem !important;
+    margin-bottom: 1.25rem !important;
   }
 
   /* Принудительное развертывание карточки компонента по клику на значок дрели (Drill-down) или верхнюю панель */
@@ -277,17 +289,20 @@ Usage Examples:
   }
 
   /* Верхний баннер панелей: строгое выравнивание колонок через CSS Grid, общий фон с карточкой */
+  /* Верхний баннер панелей: строгое равномерное распределение колонок (3 равные трети по 33.3%) */
   .sys-card-top-banner {
     display: grid !important;
-    grid-template-columns: minmax(280px, 1fr) 280px 330px !important;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 1.25rem !important;
+    width: 100% !important;
+    min-height: 104px;
     background-color: var(--surface-1) !important;
     border: none;
     border-radius: 0;
-    padding: 0.5rem 0.75rem !important;
+    padding: 0.6rem 0.85rem !important;
     margin-bottom: 0 !important;
+    box-sizing: border-box !important;
   }
   [data-theme="dark"] .sys-card-top-banner {
     background-color: var(--surface-1) !important;
@@ -299,19 +314,105 @@ Usage Examples:
   }
   .sys-banner-col-info {
     min-width: 0;
-    width: 100%;
+    width: 100% !important;
+    height: 100%;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
   }
   .sys-banner-col-gauge {
-    width: 280px;
-    min-width: 280px;
-    max-width: 280px;
-    justify-self: center;
+    min-width: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100%;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Фиксированный контейнер спидометра и цифровых значений против прыжков лейаута */
+  .sys-gauge-box {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 270px !important;
+    min-width: 270px !important;
+    max-width: 270px !important;
+    margin: 0 auto !important;
+    gap: 10px !important;
+    box-sizing: border-box !important;
+  }
+  .sys-gauge-svg-wrap {
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+    height: 68px !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .sys-gauge-val-wrap {
+    width: 140px !important;
+    min-width: 140px !important;
+    max-width: 140px !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    text-align: left !important;
+    overflow: hidden !important;
+  }
+  .sys-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    font-variant-numeric: tabular-nums !important;
+    font-feature-settings: "tnum" 1 !important;
+    font-size: 1.95rem !important;
+    line-height: 1 !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+    text-align: left !important;
+    letter-spacing: -0.5px !important;
+  }
+  .sys-gauge-subtext {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    font-variant-numeric: tabular-nums !important;
+    font-feature-settings: "tnum" 1 !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+    max-width: 140px !important;
+    margin-top: 4px !important;
+    text-align: left !important;
+    color: var(--text-color) !important;
+  }
+  .sys-gauge-slider-wrap {
+    width: 270px !important;
+    min-width: 270px !important;
+    max-width: 270px !important;
+    margin: 4px auto 0 auto !important;
+    box-sizing: border-box !important;
   }
   .sys-banner-col-specs {
-    width: 330px;
-    min-width: 330px;
-    max-width: 330px;
-    justify-self: end;
+    min-width: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100%;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: stretch !important;
+    box-sizing: border-box !important;
   }
 
   /* Панель графиков истории */
@@ -353,21 +454,17 @@ Usage Examples:
     color: #22c55e;
   }
 
-  @media (max-width: 1280px) {
+  @media (max-width: 1200px) {
     .sys-card-top-banner {
-      grid-template-columns: 1fr 280px !important;
-    }
-    .sys-banner-col-specs {
-      grid-column: span 2;
-      justify-self: stretch;
-      width: 100%;
-      max-width: 100%;
+      grid-template-columns: 1.15fr 0.95fr 1.05fr !important;
+      gap: 0.75rem !important;
     }
   }
 
-  @media (max-width: 860px) {
+  @media (max-width: 960px) {
     .sys-card-top-banner {
       grid-template-columns: 1fr !important;
+      min-height: auto;
     }
     .sys-banner-col-gauge,
     .sys-banner-col-specs {
@@ -380,22 +477,26 @@ Usage Examples:
 
   /* Сетка и плашки ключевых экспресс-метрик (KPI Pills) в центре верхних баннеров */
   .sys-banner-kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
-    gap: 6px;
-    width: 100%;
-    max-width: 580px;
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px !important;
+    width: 100% !important;
+    max-width: 100% !important;
     margin-top: 4px;
   }
   .sys-kpi-pill {
     background: var(--surface-2);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-sm, 4px);
-    padding: 4px 7px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 1px;
+    padding: 4px 6px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    box-sizing: border-box !important;
     transition: all 0.15s ease;
     box-shadow: none;
   }
@@ -640,24 +741,51 @@ Usage Examples:
     font-weight: 600;
   }
 
-  /* Спецификации CPU: интерактивная карточка */
+  /* Спецификации оборудования: интерактивная карточка единого стандарта для всех панелей */
+  .sys-specs-card,
   .sys-cpu-specs-card,
-  .sys-gpu-specs-card {
+  .sys-gpu-specs-card,
+  .sys-ram-specs-card,
+  .sys-net-specs-card,
+  .sys-storage-specs-card {
     transition: all 0.15s ease;
     cursor: pointer;
     position: relative;
     user-select: none;
-    background: var(--surface-2);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-sm, 4px);
+    background: var(--surface-2) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: var(--radius-sm, 4px) !important;
     color: var(--text-color);
     box-shadow: none;
+    height: 100% !important;
+    min-height: 86px;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    padding: 6px 10px !important;
+    box-sizing: border-box !important;
   }
+  .sys-specs-card:hover,
   .sys-cpu-specs-card:hover,
-  .sys-gpu-specs-card:hover {
+  .sys-gpu-specs-card:hover,
+  .sys-ram-specs-card:hover,
+  .sys-net-specs-card:hover,
+  .sys-storage-specs-card:hover {
     border-color: var(--nav-active) !important;
     box-shadow: var(--shadow-sm) !important;
     transform: translateY(-1px);
+  }
+  .sys-specs-grid,
+  .sys-cpu-specs-grid,
+  .sys-gpu-specs-grid,
+  .sys-ram-specs-grid,
+  .sys-net-specs-grid,
+  .sys-storage-specs-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 3px 10px !important;
+    font-size: 0.74rem !important;
+    line-height: 1.25 !important;
   }
 
   /* Сворачиваемая интерактивная плашка детализации CPU */
@@ -794,30 +922,30 @@ Usage Examples:
     </div>
     <div class="d-flex align-items-center gap-2 flex-wrap">
         <button class="panel-toggle-drill collapsed me-2" id="btn-sys-toggle-compact" onclick="window.toggleSysCompactMode &amp;&amp; window.toggleSysCompactMode()" title="" type="button">
-<img alt="Развернуть/Свернуть" src="/html/assets/red_drill.png?v=20261020_v1" title=""/>
+<img alt="" src="/html/assets/red_drill.png?v=20261113_v1" title=""/>
 </button>
       </div>
   </div>
 <!-- 1. Панель Загрузка CPU -->
-<div class="row g-2 mb-2">
+<div class="row g-2 mb-3">
 <div class="col-12">
 <div class="sys-card sys-card-cpu h-100" id="sys-card-cpu" data-panel-id="panel-cpu">
 <div class="sys-card-header-bar">
 <div class="d-flex align-items-center gap-2">
-<span class="sys-label text-info" style="font-size: 1.05rem; font-weight: 800;"><i class="bi bi-cpu text-info me-1.5"></i>Загрузка CPU</span>
+<span class="sys-label"><i class="bi bi-cpu text-info me-1.5"></i>Загрузка CPU</span>
 </div>
 <span class="small badge bg-dark border border-secondary text-info font-monospace" id="sys-metric-cpu-sub" style="font-size: 0.84rem;">-- Ядер</span>
 </div>
 <!-- Верхний баннер: Название слева, Спидометр и датчик температуры по центру, Сводная таблица CPU справа -->
-<div class="sys-card-top-banner" id="sys-card-cpu-banner" onclick="window.toggleSysCardDrill &amp;&amp; window.toggleSysCardDrill('sys-card-cpu', event)" title="Нажмите для развертывания/сворачивания деталей CPU">
+<div class="sys-card-top-banner" id="sys-card-cpu-banner" onclick="window.toggleSysCardDrill && window.toggleSysCardDrill('sys-card-cpu', event)" title="Нажмите для развертывания/сворачивания деталей CPU">
 <!-- Левая колонка: Модель процессора и экспресс-метрики KPI -->
-<div class="sys-banner-col-info d-flex flex-column align-items-start justify-content-center">
-<div class="text-start mb-1.5 d-flex align-items-center">
-<button class="sys-drill-btn" id="sys-drill-btn-cpu" onclick="event.stopPropagation(); window.toggleSysCardDrill &amp;&amp; window.toggleSysCardDrill('sys-card-cpu', event)" title="" type="button">
-<img alt="Дрель" src="/html/assets/red_drill.png?v=20261020_v1" title=""/>
+<div class="sys-banner-col-info">
+<div class="text-start mb-1 d-flex align-items-center">
+<button class="sys-drill-btn" id="sys-drill-btn-cpu" onclick="event.stopPropagation(); window.toggleSysCardDrill && window.toggleSysCardDrill('sys-card-cpu', event)" title="" type="button">
+<img alt="" src="/html/assets/red_drill.png?v=20261113_v1" title=""/>
 </button>
-<div>
-<span class="sys-metric-model-title" id="sys-metric-cpu-model">--</span>
+<div class="text-truncate">
+<span class="panel-title sys-metric-model-title text-truncate" id="sys-metric-cpu-model">--</span>
 <div class="d-flex align-items-center gap-1.5 mt-0.5">
 <span class="badge bg-dark border border-secondary text-light font-monospace" id="sys-metric-cpu-vendor-badge" style="font-size: 0.70rem;">Intel Corporation · 64-bit</span>
 <span class="badge bg-success-subtle text-success border border-success font-monospace" id="sys-cpu-status-badge" style="font-size: 0.70rem;">● Active</span>
@@ -844,20 +972,20 @@ Usage Examples:
 </div>
 </div>
 <!-- Центральная колонка: Спидометр загрузки, справа от него значение с динамическим оттенком, а СНИЗУ — датчик температуры -->
-<div class="sys-banner-col-gauge d-flex flex-column justify-content-between gap-1.5">
-<div class="d-flex align-items-center gap-2.5">
-<div id="sys-metric-cpu-gauge" style="width: 120px; height: 68px; flex-shrink: 0;"></div>
-<div>
-<div class="sys-value text-info" id="sys-metric-cpu-val" style="font-size: 2.1rem; line-height: 1; font-weight: 800; transition: color 0.3s ease, text-shadow 0.3s ease;">0.0%</div>
-<div class="text-light mt-1 font-monospace" id="sys-metric-cpu-package-temp" style="font-size: 0.82rem; font-weight: 700;">Пакет: -- °C</div>
+<div class="sys-banner-col-gauge">
+<div class="sys-gauge-box">
+<div class="sys-gauge-svg-wrap" id="sys-metric-cpu-gauge"></div>
+<div class="sys-gauge-val-wrap">
+<div class="sys-value text-info" id="sys-metric-cpu-val" style="transition: color 0.3s ease, text-shadow 0.3s ease;">0.0%</div>
+<div class="sys-gauge-subtext text-light" id="sys-metric-cpu-package-temp">Пакет: -- °C</div>
 </div>
 </div>
 <!-- Датчик температуры Package расположен ПОД спидометром загрузки -->
-<div id="sys-metric-cpu-package-slider" style="width: 100%;"></div>
+<div class="sys-gauge-slider-wrap" id="sys-metric-cpu-package-slider"></div>
 </div>
 <!-- Правая колонка: Сводная таблица о процессоре (кликабельна для запуска AI-аудита) -->
 <div class="sys-banner-col-specs">
-<div class="sys-cpu-specs-card p-2 rounded-2 d-flex flex-column justify-content-between h-100" id="sys-cpu-specs-card" onclick="window.inspectCpuSpecsWithAi &amp;&amp; window.inspectCpuSpecsWithAi()" title="Нажмите для вызова AI-аудита и экспертного анализа архитектуры процессора">
+<div class="sys-specs-card sys-cpu-specs-card" id="sys-cpu-specs-card" onclick="window.inspectCpuSpecsWithAi && window.inspectCpuSpecsWithAi()" title="Нажмите для вызова AI-аудита и экспертного анализа архитектуры процессора">
 <div class="d-flex justify-content-between align-items-center mb-1 pb-1 border-bottom" style="border-color: var(--border-subtle) !important;">
 <span class="text-light fw-bold d-flex align-items-center gap-1" style="font-size: 0.78rem;">
 <i class="bi bi-info-circle text-info"></i>Характеристики CPU
@@ -865,7 +993,7 @@ Usage Examples:
 </span>
 <span class="badge bg-dark border border-secondary text-info font-monospace" id="sys-cpu-spec-arch" style="font-size: 0.68rem;">x86_64</span>
 </div>
-<div class="sys-cpu-specs-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: 0.74rem;">
+<div class="sys-specs-grid sys-cpu-specs-grid">
 <div class="d-flex justify-content-between"><span class="text-muted">Сокет:</span><span class="text-light font-monospace fw-semibold" id="sys-cpu-spec-socket">--</span></div>
 <div class="d-flex justify-content-between"><span class="text-muted">Ядра/Потоки:</span><span class="text-light font-monospace fw-semibold" id="sys-cpu-spec-cores">--</span></div>
 <div class="d-flex justify-content-between"><span class="text-muted">Базовая част.:</span><span class="text-info font-monospace fw-semibold" id="sys-cpu-spec-base-freq">--</span></div>
@@ -908,7 +1036,7 @@ Usage Examples:
 <div class="sys-cpu-details-accordion-btn d-flex justify-content-between align-items-center flex-wrap gap-2" id="sys-cpu-details-toggle-btn" onclick="window.toggleSysCpuDetails &amp;&amp; window.toggleSysCpuDetails()" title="Нажмите, чтобы развернуть или скрыть детализацию по ядрам, потокам и сенсорам CPU">
 <div class="d-flex align-items-center gap-2 flex-wrap">
 <button class="panel-toggle-drill collapsed me-1" id="sys-cpu-details-drill-btn" onclick="event.stopPropagation(); window.toggleSysCpuDetails &amp;&amp; window.toggleSysCpuDetails()" title="" type="button">
-<img alt="Дрель" src="/html/assets/red_drill.png?v=20261020_v1" title=""/>
+<img alt="" src="/html/assets/red_drill.png?v=20261113_v1" title=""/>
 </button>
 <span class="fw-bold" style="font-size: 0.88rem; color: var(--text-color);">Детализация: Ядра, потоки и сенсоры CPU</span>
 <span class="badge bg-dark border border-secondary text-info font-monospace ms-1" id="sys-cores-count-badge" style="font-size: 0.72rem;">0 ядер</span>
@@ -919,14 +1047,14 @@ Usage Examples:
 <div id="sys-cpu-details-collapse" style="display: none; flex-direction: column; gap: 14px; margin-top: 10px;">
 <!-- 1. Нагрузка и температура по ядрам и потокам -->
 <div>
-<div class="sys-core-section-title d-flex justify-content-between align-items-center mb-2" style="font-size: 0.82rem;">
+<div class="sys-core-section-title d-flex justify-content-between align-items-center mb-2">
 <span><i class="bi bi-cpu text-info me-1"></i>Нагрузка и температура по ядрам и потокам</span>
 </div>
 <div id="sys-metric-cpu-cores" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; font-size: 0.78rem;"></div>
 </div>
 <!-- 2. Общие показатели CPU (датчики системы) -->
 <div>
-<div class="sys-core-section-title d-flex justify-content-between align-items-center mb-2" style="font-size: 0.82rem;">
+<div class="sys-core-section-title d-flex justify-content-between align-items-center mb-2">
 <span><i class="bi bi-lightning-charge text-warning me-1"></i>Общие показатели CPU (датчики системы)</span>
 </div>
 <div id="sys-metric-cpu-sensors" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; font-size: 0.78rem;">
@@ -942,31 +1070,31 @@ Usage Examples:
 <!-- Четкий стильный разделитель панелей -->
 <div class="sys-section-divider"></div>
 <!-- 2. Панели Загрузки GPU (Для каждого найденного GPU создается отдельная полноразмерная панель) -->
-<div class="d-flex flex-column gap-2 mb-2" id="sys-gpu-panels-container">
+<div class="d-flex flex-column gap-3 mb-3" id="sys-gpu-panels-container">
 <!-- GPU карточки динамически монтируются и обновляются из main.js -->
 </div>
 <!-- Четкий стильный разделитель панелей -->
 <div class="sys-section-divider"></div>
 <!-- 3. Панель Память (RAM) и Дисковый ввод-вывод -->
-<div class="row g-2 mb-2">
+<div class="row g-2 mb-3">
 <div class="col-12">
 <div class="sys-card sys-card-ram" id="sys-card-ram" data-panel-id="panel-ram">
 <div class="sys-card-header-bar">
 <div class="d-flex align-items-center gap-2">
-<span class="sys-label text-success" style="font-size: 1.05rem; font-weight: 800;"><i class="bi bi-memory text-success me-1.5"></i>Память (RAM) и Дисковый ввод-вывод</span>
+<span class="sys-label"><i class="bi bi-memory text-success me-1.5"></i>Память (RAM) и Дисковый ввод-вывод</span>
 </div>
 <span class="small badge bg-dark border border-secondary text-light font-monospace" id="sys-memio-ts" style="font-size: 0.84rem;">--</span>
 </div>
 <!-- Верхний баннер: Модель слева, Gauge RAM по центру, Слайдер файла подкачки справа -->
-<div class="sys-card-top-banner" id="sys-card-ram-banner" onclick="window.toggleSysCardDrill &amp;&amp; window.toggleSysCardDrill('sys-card-ram', event)" title="Нажмите для развертывания/сворачивания деталей RAM">
+<div class="sys-card-top-banner" id="sys-card-ram-banner" onclick="window.toggleSysCardDrill && window.toggleSysCardDrill('sys-card-ram', event)" title="Нажмите для развертывания/сворачивания деталей RAM">
 <!-- Левая колонка: Модель RAM и экспресс-метрики KPI -->
-<div class="sys-banner-col-info d-flex flex-column align-items-start justify-content-center">
-<div class="text-start mb-1.5 d-flex align-items-center">
-<button class="sys-drill-btn" id="sys-drill-btn-ram" onclick="event.stopPropagation(); window.toggleSysCardDrill &amp;&amp; window.toggleSysCardDrill('sys-card-ram', event)" title="" type="button">
-<img alt="Дрель" src="/html/assets/red_drill.png?v=20261020_v1" title=""/>
+<div class="sys-banner-col-info">
+<div class="text-start mb-1 d-flex align-items-center">
+<button class="sys-drill-btn" id="sys-drill-btn-ram" onclick="event.stopPropagation(); window.toggleSysCardDrill && window.toggleSysCardDrill('sys-card-ram', event)" title="" type="button">
+<img alt="" src="/html/assets/red_drill.png?v=20261113_v1" title=""/>
 </button>
-<div>
-<span class="sys-metric-model-title" id="sys-metric-ram-model">-- GB RAM</span>
+<div class="text-truncate">
+<span class="panel-title sys-metric-model-title text-truncate" id="sys-metric-ram-model">-- GB RAM</span>
 <div class="d-flex align-items-center gap-1.5 mt-0.5">
 <span class="badge bg-dark border border-secondary text-light font-monospace" id="sys-ram-type-badge" style="font-size: 0.70rem;">DDR4 · System Memory</span>
 <span class="badge bg-success-subtle text-success border border-success font-monospace" id="sys-ram-status-badge" style="font-size: 0.70rem;">● Dual Channel</span>
@@ -992,18 +1120,35 @@ Usage Examples:
 </div>
 </div>
 </div>
-<!-- Центральная колонка: Большой Gauge RAM -->
-<div class="sys-banner-col-gauge d-flex align-items-center gap-2.5">
-<div id="sys-metric-ram-gauge" style="width: 120px; height: 68px; flex-shrink: 0;"></div>
-<div>
-<div class="sys-value text-success" id="sys-memio-pct" style="font-size: 2.1rem; line-height: 1; font-weight: 800;">0.0%</div>
-<div class="text-light mt-1 font-monospace" id="sys-memio-used" style="font-size: 0.82rem; font-weight: 700;">0.0 / 0.0 GB</div>
+<!-- Центральная колонка: Большой Gauge RAM и слайдер загрузки памяти снизу -->
+<div class="sys-banner-col-gauge">
+<div class="sys-gauge-box">
+<div class="sys-gauge-svg-wrap" id="sys-metric-ram-gauge"></div>
+<div class="sys-gauge-val-wrap">
+<div class="sys-value text-success" id="sys-memio-pct">0.0%</div>
+<div class="sys-gauge-subtext text-light" id="sys-memio-used">0.0 / 0.0 GB</div>
 </div>
 </div>
-<!-- Правая колонка: Файл подкачки со слайдером -->
-<div class="sys-banner-col-specs d-flex flex-column justify-content-center">
-<span class="text-light mb-1 font-monospace" id="sys-memio-swap" style="font-size: 0.80rem; font-weight: 700;">Файл подкачки: 0%</span>
-<div id="sys-metric-ram-slider" style="width: 100%;"></div>
+<div class="sys-gauge-slider-wrap" id="sys-metric-ram-slider"></div>
+</div>
+<!-- Правая колонка: Характеристики RAM и файла подкачки -->
+<div class="sys-banner-col-specs">
+<div class="sys-specs-card sys-ram-specs-card" id="sys-ram-specs-card" onclick="window.inspectRamSpecsWithAi && window.inspectRamSpecsWithAi()" title="AI-аудит оперативной памяти">
+<div class="d-flex justify-content-between align-items-center mb-1 pb-1 border-bottom" style="border-color: var(--border-subtle) !important;">
+<span class="text-light fw-bold d-flex align-items-center gap-1" style="font-size: 0.78rem;">
+<i class="bi bi-info-circle text-success"></i>Характеристики RAM
+<span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace ms-1" style="font-size: 0.62rem;"><i class="bi bi-stars me-0.5"></i>AI</span>
+</span>
+<span class="badge bg-dark border border-secondary text-success font-monospace" id="sys-ram-spec-type" style="font-size: 0.68rem;">DDR4</span>
+</div>
+<div class="sys-specs-grid sys-ram-specs-grid">
+<div class="d-flex justify-content-between"><span class="text-muted">Тип памяти:</span><span class="text-light font-monospace fw-semibold" id="sys-ram-spec-type-val">DDR4</span></div>
+<div class="d-flex justify-content-between"><span class="text-muted">Каналы:</span><span class="text-success font-monospace fw-semibold" id="sys-ram-spec-channels">Dual Channel</span></div>
+<div class="d-flex justify-content-between"><span class="text-muted">Свободно:</span><span class="text-info font-monospace fw-semibold" id="sys-ram-spec-free">-- GB</span></div>
+<div class="d-flex justify-content-between"><span class="text-muted">Всего RAM:</span><span class="text-light font-monospace fw-semibold" id="sys-ram-spec-total">-- GB</span></div>
+<div class="d-flex justify-content-between" style="grid-column: span 2;"><span class="text-muted">Файл подкачки:</span><span class="text-warning font-monospace fw-semibold" id="sys-memio-swap">0.0%</span></div>
+</div>
+</div>
 </div>
 </div>
 <!-- Скрытый блок деталей RAM (открывается по клику на панель с красной дрелью) -->
@@ -1112,25 +1257,25 @@ Usage Examples:
 <!-- Четкий стильный разделитель панелей -->
 <div class="sys-section-divider"></div>
 <!-- 4. Панель Сетевые адаптеры и беспроводная связь (Ethernet / Wi-Fi / Bluetooth) -->
-<div class="row g-2 mb-2">
+<div class="row g-2 mb-3">
 <div class="col-12">
 <div class="sys-card sys-card-net" id="sys-card-net" data-panel-id="panel-network">
 <div class="sys-card-header-bar">
 <div class="d-flex align-items-center gap-2">
-<span class="sys-label text-info" style="font-size: 1.05rem; font-weight: 800;"><i class="bi bi-hdd-network text-info me-1.5"></i>Сетевые адаптеры и беспроводная связь</span>
+<span class="sys-label"><i class="bi bi-hdd-network text-info me-1.5"></i>Сетевые адаптеры и беспроводная связь</span>
 </div>
 <span class="small badge bg-dark border border-secondary text-light font-monospace" id="sys-net-ts" style="font-size: 0.84rem;">--</span>
 </div>
 <!-- Верхний баннер: Модель слева, Gauge трафика по центру, Слайдер линка справа -->
-<div class="sys-card-top-banner" id="sys-card-net-banner" onclick="window.toggleSysCardDrill &amp;&amp; window.toggleSysCardDrill('sys-card-net', event)" title="Нажмите для развертывания/сворачивания деталей Сети">
+<div class="sys-card-top-banner" id="sys-card-net-banner" onclick="window.toggleSysCardDrill && window.toggleSysCardDrill('sys-card-net', event)" title="Нажмите для развертывания/сворачивания деталей Сети">
 <!-- Левая колонка: Модель сети и экспресс-метрики KPI -->
-<div class="sys-banner-col-info d-flex flex-column align-items-start justify-content-center">
-<div class="text-start mb-1.5 d-flex align-items-center">
-<button class="sys-drill-btn" id="sys-drill-btn-net" onclick="event.stopPropagation(); window.toggleSysCardDrill &amp;&amp; window.toggleSysCardDrill('sys-card-net', event)" title="" type="button">
-<img alt="Дрель" src="/html/assets/red_drill.png?v=20261020_v1" title=""/>
+<div class="sys-banner-col-info">
+<div class="text-start mb-1 d-flex align-items-center">
+<button class="sys-drill-btn" id="sys-drill-btn-net" onclick="event.stopPropagation(); window.toggleSysCardDrill && window.toggleSysCardDrill('sys-card-net', event)" title="" type="button">
+<img alt="" src="/html/assets/red_drill.png?v=20261113_v1" title=""/>
 </button>
-<div>
-<span class="sys-metric-model-title" id="sys-metric-net-model">Ethernet (1000 Mbps) · Wi-Fi / BT</span>
+<div class="text-truncate">
+<span class="panel-title sys-metric-model-title text-truncate" id="sys-metric-net-model">Ethernet (1000 Mbps)</span>
 <div class="d-flex align-items-center gap-1.5 mt-0.5">
 <span class="badge bg-dark border border-secondary text-light font-monospace" id="sys-net-speed-badge" style="font-size: 0.70rem;">1.0 Gbps Full Duplex</span>
 <span class="badge bg-success-subtle text-success border border-success font-monospace" id="sys-net-status-badge" style="font-size: 0.70rem;">● Link Active</span>
@@ -1156,18 +1301,35 @@ Usage Examples:
 </div>
 </div>
 </div>
-<!-- Центральная колонка: Большой Gauge трафика -->
-<div class="sys-banner-col-gauge d-flex align-items-center gap-2.5">
-<div id="sys-metric-net-gauge" style="width: 120px; height: 68px; flex-shrink: 0;"></div>
-<div>
-<div class="sys-value text-info" id="sys-net-speed-val" style="font-size: 2.1rem; line-height: 1; font-weight: 800;">0 B/s</div>
-<div class="text-light mt-1 font-monospace text-truncate" id="sys-net-sub-details" style="font-size: 0.82rem; font-weight: 700; max-width: 150px;">⬇ 0 B/s · ⬆ 0 B/s</div>
+<!-- Центральная колонка: Большой Gauge трафика и слайдер загрузки канала снизу -->
+<div class="sys-banner-col-gauge">
+<div class="sys-gauge-box">
+<div class="sys-gauge-svg-wrap" id="sys-metric-net-gauge"></div>
+<div class="sys-gauge-val-wrap">
+<div class="sys-value text-info" id="sys-net-speed-val">0 B/s</div>
+<div class="sys-gauge-subtext text-light" id="sys-net-sub-details">⬇ 0 B/s · ⬆ 0 B/s</div>
 </div>
 </div>
-<!-- Правая колонка: Загрузка канала со слайдером -->
-<div class="sys-banner-col-specs d-flex flex-column justify-content-center">
-<span class="text-light mb-1 font-monospace" id="sys-net-util-label" style="font-size: 0.80rem; font-weight: 700;">Загрузка канала: 0%</span>
-<div id="sys-metric-net-slider" style="width: 100%;"></div>
+<div class="sys-gauge-slider-wrap" id="sys-metric-net-slider"></div>
+</div>
+<!-- Правая колонка: Характеристики сети -->
+<div class="sys-banner-col-specs">
+<div class="sys-specs-card sys-net-specs-card" id="sys-net-specs-card" onclick="window.inspectNetSpecsWithAi && window.inspectNetSpecsWithAi()" title="AI-аудит сетевого адаптера">
+<div class="d-flex justify-content-between align-items-center mb-1 pb-1 border-bottom" style="border-color: var(--border-subtle) !important;">
+<span class="text-light fw-bold d-flex align-items-center gap-1" style="font-size: 0.78rem;">
+<i class="bi bi-info-circle text-info"></i>Характеристики Сети
+<span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace ms-1" style="font-size: 0.62rem;"><i class="bi bi-stars me-0.5"></i>AI</span>
+</span>
+<span class="badge bg-dark border border-secondary text-info font-monospace" id="sys-net-spec-badge" style="font-size: 0.68rem;">Ethernet</span>
+</div>
+<div class="sys-specs-grid sys-net-specs-grid">
+<div class="d-flex justify-content-between"><span class="text-muted">Скорость:</span><span class="text-light font-monospace fw-semibold" id="sys-net-spec-speed">1000 Mbps</span></div>
+<div class="d-flex justify-content-between"><span class="text-muted">Режим:</span><span class="text-info font-monospace fw-semibold" id="sys-net-spec-duplex">Full Duplex</span></div>
+<div class="d-flex justify-content-between"><span class="text-muted">Статус:</span><span class="text-success font-monospace fw-semibold" id="sys-net-spec-status">Connected</span></div>
+<div class="d-flex justify-content-between"><span class="text-muted">MTU:</span><span class="text-light font-monospace fw-semibold">1500</span></div>
+<div class="d-flex justify-content-between" style="grid-column: span 2;"><span class="text-muted">Загрузка канала:</span><span class="text-info font-monospace fw-semibold" id="sys-net-util-label">0.0%</span></div>
+</div>
+</div>
 </div>
 </div>
 <!-- Скрытый блок деталей Network (открывается по клику на панель с красной дрелью) -->
@@ -1342,7 +1504,7 @@ Usage Examples:
 <div class="small text-muted speed-summary-text" id="sys-speed-summary-text">Нажмите «Запустить тест скорости», чтобы измерить пропускную способность канала, задержку (Ping) и джиттер.</div>
 </div>
 <!-- DNS & Edge Servers Latency Table -->
-<h6 class="small fw-bold text-info mb-2"><i class="bi bi-globe me-1"></i> Задержка к опорным DNS &amp; CDN серверам:</h6>
+<h6 class="sys-core-section-title mb-2"><i class="bi bi-globe text-info me-1"></i> Задержка к опорным DNS &amp; CDN серверам:</h6>
 <div class="table-responsive">
 <table class="net-table">
 <thead>
@@ -1373,27 +1535,27 @@ Usage Examples:
 <!-- Четкий стильный разделитель панелей -->
 <div class="sys-section-divider"></div>
 <!-- 5. Панель Параметры накопителей (Диски SSD / HDD / NVMe) -->
-<div class="row g-2 mb-2">
+<div class="row g-2 mb-3">
 <div class="col-12">
 <div class="sys-card sys-card-storage" id="sys-card-storage" data-panel-id="panel-storage">
 <div class="sys-card-header-bar">
 <div class="d-flex align-items-center gap-2">
-<span class="sys-label text-info" style="font-size: 1.05rem; font-weight: 800;"><i class="bi bi-hdd-fill text-info me-1.5"></i>Параметры накопителей (Диски SSD / HDD / NVMe)</span>
+<span class="sys-label"><i class="bi bi-hdd-fill text-info me-1.5"></i>Параметры накопителей (Диски SSD / HDD / NVMe)</span>
 <span class="badge bg-info-subtle text-info border border-info" id="sys-storage-drives-badge" style="font-size: 0.74rem;">0 дисков</span>
 <span class="badge bg-dark border border-secondary text-light" id="sys-storage-parts-badge" style="font-size: 0.74rem;">0 разделов</span>
 </div>
 <span class="small badge bg-dark border border-secondary text-light font-monospace" id="sys-storage-ts" style="font-size: 0.84rem;">Live</span>
 </div>
 <!-- Верхний баннер: Модель слева, Gauge общего объема по центру, Слайдер макс t° справа -->
-<div class="sys-card-top-banner" id="sys-card-storage-banner" onclick="window.toggleSysCardDrill &amp;&amp; window.toggleSysCardDrill('sys-card-storage', event)" title="Нажмите для развертывания/сворачивания деталей накопителей">
+<div class="sys-card-top-banner" id="sys-card-storage-banner" onclick="window.toggleSysCardDrill && window.toggleSysCardDrill('sys-card-storage', event)" title="Нажмите для развертывания/сворачивания деталей накопителей">
 <!-- Левая колонка: Модель хранилища и экспресс-метрики KPI -->
-<div class="sys-banner-col-info d-flex flex-column align-items-start justify-content-center">
-<div class="text-start mb-1.5 d-flex align-items-center">
-<button class="sys-drill-btn" id="sys-drill-btn-storage" onclick="event.stopPropagation(); window.toggleSysCardDrill &amp;&amp; window.toggleSysCardDrill('sys-card-storage', event)" title="" type="button">
-<img alt="Дрель" src="/html/assets/red_drill.png?v=20261020_v1" title=""/>
+<div class="sys-banner-col-info">
+<div class="text-start mb-1 d-flex align-items-center">
+<button class="sys-drill-btn" id="sys-drill-btn-storage" onclick="event.stopPropagation(); window.toggleSysCardDrill && window.toggleSysCardDrill('sys-card-storage', event)" title="" type="button">
+<img alt="" src="/html/assets/red_drill.png?v=20261113_v1" title=""/>
 </button>
-<div>
-<span class="sys-metric-model-title" id="sys-metric-storage-model">Дисковая подсистема и накопители</span>
+<div class="text-truncate">
+<span class="panel-title sys-metric-model-title text-truncate" id="sys-metric-storage-model">Дисковая подсистема и накопители</span>
 <div class="d-flex align-items-center gap-1.5 mt-0.5">
 <span class="badge bg-dark border border-secondary text-light font-monospace" id="sys-storage-summary-badge-top" style="font-size: 0.70rem;">NVMe / SSD / HDD</span>
 <span class="badge bg-success-subtle text-success border border-success font-monospace" id="sys-storage-status-badge" style="font-size: 0.70rem;">● SMART OK</span>
@@ -1419,18 +1581,35 @@ Usage Examples:
 </div>
 </div>
 </div>
-<!-- Центральная колонка: Большой Gauge общего объема -->
-<div class="sys-banner-col-gauge d-flex align-items-center gap-2.5">
-<div id="sys-metric-storage-gauge" style="width: 120px; height: 68px; flex-shrink: 0;"></div>
-<div>
-<div class="sys-value text-info" id="sys-storage-pct" style="font-size: 2.1rem; line-height: 1; font-weight: 800;">0.0%</div>
-<div class="text-light mt-1 font-monospace text-truncate" id="sys-storage-used" style="font-size: 0.82rem; font-weight: 700; max-width: 150px;">0.0 / 0.0 GB</div>
+<!-- Центральная колонка: Большой Gauge общего объема и слайдер максимальной температуры снизу -->
+<div class="sys-banner-col-gauge">
+<div class="sys-gauge-box">
+<div class="sys-gauge-svg-wrap" id="sys-metric-storage-gauge"></div>
+<div class="sys-gauge-val-wrap">
+<div class="sys-value text-info" id="sys-storage-pct">0.0%</div>
+<div class="sys-gauge-subtext text-light" id="sys-storage-used">0.0 / 0.0 GB</div>
 </div>
 </div>
-<!-- Правая колонка: Слайдер максимальной t° -->
-<div class="sys-banner-col-specs d-flex flex-column justify-content-center">
-<span class="text-light mb-1 font-monospace" id="sys-storage-temp-label" style="font-size: 0.80rem; font-weight: 700;">Макс. температура: -- °C</span>
-<div id="sys-metric-storage-temp-slider" style="width: 100%;"></div>
+<div class="sys-gauge-slider-wrap" id="sys-metric-storage-temp-slider"></div>
+</div>
+<!-- Правая колонка: Характеристики накопителей -->
+<div class="sys-banner-col-specs">
+<div class="sys-specs-card sys-storage-specs-card" id="sys-storage-specs-card" onclick="window.inspectStorageSpecsWithAi && window.inspectStorageSpecsWithAi()" title="AI-аудит накопителей">
+<div class="d-flex justify-content-between align-items-center mb-1 pb-1 border-bottom" style="border-color: var(--border-subtle) !important;">
+<span class="text-light fw-bold d-flex align-items-center gap-1" style="font-size: 0.78rem;">
+<i class="bi bi-info-circle text-info"></i>Характеристики Накопителей
+<span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace ms-1" style="font-size: 0.62rem;"><i class="bi bi-stars me-0.5"></i>AI</span>
+</span>
+<span class="badge bg-dark border border-secondary text-success font-monospace" id="sys-storage-spec-badge" style="font-size: 0.68rem;">NVMe / SSD</span>
+</div>
+<div class="sys-specs-grid sys-storage-specs-grid">
+<div class="d-flex justify-content-between"><span class="text-muted">Дисков:</span><span class="text-light font-monospace fw-semibold" id="sys-storage-spec-drives">--</span></div>
+<div class="d-flex justify-content-between"><span class="text-muted">Разделов:</span><span class="text-light font-monospace fw-semibold" id="sys-storage-spec-parts">--</span></div>
+<div class="d-flex justify-content-between"><span class="text-muted">Свободно:</span><span class="text-success font-monospace fw-semibold" id="sys-storage-spec-free">-- GB</span></div>
+<div class="d-flex justify-content-between"><span class="text-muted">Занято:</span><span class="text-info font-monospace fw-semibold" id="sys-storage-spec-used">-- GB</span></div>
+<div class="d-flex justify-content-between" style="grid-column: span 2;"><span class="text-muted">Макс. t°:</span><span class="text-warning font-monospace fw-semibold" id="sys-storage-temp-label">-- °C</span></div>
+</div>
+</div>
 </div>
 </div>
 <!-- Скрытый блок деталей Накопителей (открывается по клику на панель с красной дрелью) -->

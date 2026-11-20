@@ -7,11 +7,11 @@
  *   Объединяет панели BCD/WinRE и советника точек восстановления RestorePointAdvisor.
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_boot_recovery
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 02:11:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

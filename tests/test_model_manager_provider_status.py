@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Model Manager Provider Status Check
+# Process Name: ai-tc Tests - Model Manager Provider Status Check
 # =============================================================================
 # Description:
 #   Тесты механизма проверки активности провайдеров (is_provider_enabled)
 #   в модуле ModelManager и предотвращения сетевых обращений к неактивным сервисам.
 #
 # File: test_model_manager_provider_status.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 16:48:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

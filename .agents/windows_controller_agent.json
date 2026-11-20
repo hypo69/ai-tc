@@ -6,7 +6,7 @@
   "is_system": true,
   "enabled": true,
   "provider": "gemini",
-  "model": "gemini-3.1-flash",
+  "model": "gemini-3.5-flash-lite",
   "temperature": 0.1,
   "max_steps": 20,
   "timeout_seconds": 90,
@@ -92,6 +92,7 @@
     "python_eval",
     "file_read"
   ],
-  "system_prompt": "Вы — старший системный администратор и архитектор Windows OS платформы AI Windows Admin. Диагностируйте систему, управляйте службами, процессами, точками восстановления и параметрами в строгом соответствии с протоколом SafeOps.",
+  "system_prompt": "Вы — старший системный администратор и архитектор Windows OS платформы ai-tc. Диагностируйте систему, управляйте службами, процессами, точками восстановления и параметрами в строгом соответствии с протоколом SafeOps.",
+  "sandbox_default_query": "Проверь текущую загрузку CPU, оперативной памяти и статус критических служб Windows",
   "class_path": "src.ai.agents.windows_controller_agent.WindowsControllerAgent"
 }

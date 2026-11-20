@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Agent Module
+# Process Name: ai-tc AI - Agent Module
 # =============================================================================
 # Description:
 #   Агент для автономной работы и рассуждений через LangChain + ReAct.
@@ -12,11 +12,11 @@
 #     service = MediaSearchAgent()
 #
 # File: agent.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.agents
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 10:06:00
+# Updated: 2026-11-13 15:30:00
 # =============================================================================
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ import asyncio
 from pathlib import Path
 from typing import AsyncIterator
 from logger import logger
-from src.utils.jjson import j_loads_ns
+from src.utils.jjson import j_dumps, j_loads_ns
 from .prompts import GENERAL_AGENT_SYSTEM_PROMPT, MEDIA_SEARCH_SYSTEM_PROMPT, TOOL_SELECTION_GUIDELINES, RESULT_FORMAT_INSTRUCTIONS
 from .tools import web_search, rag_search, python_eval, file_read
 
@@ -133,18 +133,11 @@ class MediaSearchAgent:
                 content = ''.join([c.get('text', '') if isinstance(c, dict) else str(c) for c in raw_content])
             else:
                 content = str(raw_content)
-            cleaned_content = content.strip()
-            if cleaned_content.startswith('```'):
-                cleaned_content = re.sub('^```(?:json)?\\s*', '', cleaned_content)
-                cleaned_content = re.sub('\\s*```$', '', cleaned_content).strip()
-            try:
-                parsed = json.loads(cleaned_content)
-                if isinstance(parsed, dict):
-                    action = parsed.get('action', 'info')
-                    return {'action': action, **parsed}
-                return {'action': 'info', 'text': content}
-            except (json.JSONDecodeError, ValueError):
-                return {'action': 'info', 'text': content}
+            parsed = j_dumps(content, exc_info=False)
+            if isinstance(parsed, dict):
+                action = parsed.get('action', 'info')
+                return {'action': action, **parsed}
+            return {'action': 'info', 'text': content}
         except asyncio.TimeoutError:
             logger.error(f'[MediaSearchAgent] Таймаут ({self.timeout}с) при поиске: "{query}"')
             return {'action': 'error', 'data': {'message': f'Превышено время ожидания ({self.timeout}с)'}}

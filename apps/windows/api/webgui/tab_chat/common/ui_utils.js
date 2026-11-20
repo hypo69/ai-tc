@@ -7,18 +7,18 @@
  *   Markdown и генерации кратких заголовков сессий чата.
  *
  * File: common/ui_utils.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_chat/common
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:25:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
-export const STORAGE_KEY_SESSIONS = 'ai_windows_admin_chat_sessions_v2';
-export const STORAGE_KEY_ACTIVE_SESSION_ID = 'ai_windows_admin_active_session_id';
-export const STORAGE_KEY_SIDEBAR_COLLAPSED = 'ai_windows_admin_chat_sidebar_collapsed';
-export const LEGACY_STORAGE_KEY = 'ai_windows_admin_chat_history';
+export const STORAGE_KEY_SESSIONS = 'ai_tc_chat_sessions_v2';
+export const STORAGE_KEY_ACTIVE_SESSION_ID = 'ai_tc_active_session_id';
+export const STORAGE_KEY_SIDEBAR_COLLAPSED = 'ai_tc_chat_sidebar_collapsed';
+export const LEGACY_STORAGE_KEY = 'ai_tc_chat_history';
 export const CACHE_TAG = 'chat';
 
 /**

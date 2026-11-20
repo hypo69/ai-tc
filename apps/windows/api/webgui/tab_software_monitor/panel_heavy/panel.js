@@ -7,11 +7,11 @@
  *   процессора (CPU), оперативной памяти (RAM) и дискового I/O с поддержкой кэша IndexedDB.
  *
  * File: panel_heavy/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_software_scanner/panel_heavy
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:45:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

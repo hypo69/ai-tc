@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - TelemetryInventoryWriterMixin
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - TelemetryInventoryWriterMixin
 # =============================================================================
 # Description:
 #   Миксин записи инвентаризации и сэмплов оборудования (CPU, RAM, GPU, Диски,
@@ -9,11 +9,11 @@
 #   process_file_events и incidents.
 #
 # File: writer_inventory.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 20:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

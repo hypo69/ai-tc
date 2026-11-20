@@ -9,7 +9,7 @@
  * Файл: apps/windows/api/webgui/tab_windows_admin/panel_security_events/panel.js
  * Пакет: windows/api/webgui/tab_windows_admin
  * Автор: hypo69
- * Updated: 2026-10-20 17:18:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -38,7 +38,7 @@ export async function loadSecurityEvents() {
   const badge = document.getElementById('winadmin-events-badge');
 
   try {
-    const res = await fetch('/api/windows/identity/audit?limit=100');
+    const res = await fetch('/api/v1/windows/identity/audit?limit=100');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     _eventsCache = await res.json();
 

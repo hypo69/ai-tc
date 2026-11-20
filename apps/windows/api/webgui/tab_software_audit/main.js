@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/tab_software_audit/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_software_audit
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 16:15:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -96,7 +96,7 @@
     try {
       // 1. Пытаемся получить сводный аналитический отчет (из телеметрии SQLite или пересканирование по требованию)
       const qReport = forceRefresh ? '?force_refresh=true' : '';
-      let reportRes = await fetch('/api/windows/software/audit' + qReport, { signal: abortController.signal });
+      let reportRes = await fetch('/api/v1/windows/software/audit' + qReport, { signal: abortController.signal });
       if (!reportRes.ok) {
         reportRes = await fetch('/api/v1/windows-admin/software/audit' + qReport, { signal: abortController.signal });
       }
@@ -106,7 +106,7 @@
 
       // 2. Получаем полный список установленных приложений
       const qApps = forceRefresh ? '&force_refresh=true' : '';
-      let appsRes = await fetch('/api/windows/software?limit=500' + qApps, { signal: abortController.signal });
+      let appsRes = await fetch('/api/v1/windows/software?limit=500' + qApps, { signal: abortController.signal });
       if (!appsRes.ok) {
         // Fallback на router_windows_admin
         appsRes = await fetch('/api/v1/windows-admin/software?limit=500' + qApps, { signal: abortController.signal });
@@ -149,7 +149,7 @@
       // Отображение сформированного локального CSV/SQLite отчета при задержках или таймауте сервера
       let fallbackLoaded = false;
       try {
-        const fallbackRes = await fetch('/api/windows/software-scanner/latest-report');
+        const fallbackRes = await fetch('/api/v1/windows/software-scanner/latest-report');
         if (fallbackRes.ok) {
           const report = await fallbackRes.json();
           if (report && report.inventory && report.inventory.length > 0) {

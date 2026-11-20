@@ -1,14 +1,14 @@
 ---
 name: skill-factory
-description: Tool and guide for creating, packaging, and managing the lifecycle of AI Windows Admin and Gemini CLI skills. Use for initializing new skills, guidelines for creating effective skills, and automated builds in skills/.
+description: Tool and guide for creating, packaging, and managing the lifecycle of ai-tc and Gemini CLI skills. Use for initializing new skills, guidelines for creating effective skills, and automated builds in skills/.
 description_i18n:
-  en: Tool and guide for creating, packaging, and managing the lifecycle of AI Windows Admin and Gemini CLI skills. Use for initializing new skills, guidelines for creating effective skills, and automated builds in skills/.
-  ru: Инструмент и руководство по созданию, упаковке и управлению жизненным циклом навыков AI Windows Admin и Gemini CLI. Используйте для инициализации новых навыков, создания эффективных манифестов и автоматической сборки в skills/.
+  en: Tool and guide for creating, packaging, and managing the lifecycle of ai-tc and Gemini CLI skills. Use for initializing new skills, guidelines for creating effective skills, and automated builds in skills/.
+  ru: Инструмент и руководство по созданию, упаковке и управлению жизненным циклом навыков ai-tc и Gemini CLI. Используйте для инициализации новых навыков, создания эффективных манифестов и автоматической сборки в skills/.
 ---
 
 # 🏭 Skill Factory & Creator
 
-Этот навык управляет жизненным циклом навыков для AI Windows Admin, Gemini CLI и Antigravity, а также содержит полное руководство по проектированию и созданию эффективных навыков.
+Этот навык управляет жизненным циклом навыков для ai-tc, Gemini CLI и Antigravity, а также содержит полное руководство по проектированию и созданию эффективных навыков.
 
 ---
 

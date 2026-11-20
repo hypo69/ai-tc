@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - System Engineering & Resilience Core
+# Process Name: ai-tc UTILS - System Engineering & Resilience Core
 # =============================================================================
 # Description:
 #   Фундаментальные механизмы системной инженерии (Beyond Vibe Coding):
@@ -21,11 +21,11 @@
 #   '0.30'
 #
 # File: system_engineering.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:15:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -7,11 +7,11 @@
  *   Соответствует ТЗ v3 пункт 13.
  *
  * File: firewall.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/defender
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-13 15:52:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

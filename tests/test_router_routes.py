@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Router Routes Stability
+# Process Name: ai-tc Tests - Router Routes Stability
 # =============================================================================
 # Description:
 #   Проверяет, что набор маршрутов (метод + путь) роутеров не изменился
 #   после декомпозиции модулей роутеров (этап 4 оптимизации).
 #
 # File: test_router_routes.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-12 05:55:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

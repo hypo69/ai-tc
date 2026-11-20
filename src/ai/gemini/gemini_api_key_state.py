@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Gemini Api Key State Module
+# Process Name: ai-tc AI - Gemini Api Key State Module
 # =============================================================================
 # Description:
 #   Управление пулом API-ключей Gemini, их статусами, квотами и ротацией.
@@ -13,11 +13,11 @@
 #     print(res)
 #
 # File: gemini_api_key_state.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:43:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

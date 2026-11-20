@@ -1,9 +1,9 @@
 <#
 =============================================================================
-Process Name: AI-Windows-Admin Automation - Run Installer Gemini
+Process Name: ai-tc Automation - Run Installer Gemini
 =============================================================================
 Description:
-  Запуск интерактивного установщика AI Windows Admin через Gemini CLI
+  Запуск интерактивного установщика ai-tc через Gemini CLI
   с моделью gemini-3.1-flash-lite.
 
 Usage Examples:
@@ -11,11 +11,11 @@ Usage Examples:
     .\run_installer_gemini.ps1
 
 File: run_installer_gemini.ps1
-Project: ai-windows-admin
+Project: ai-tc
 Package: .agents/skills/project-installer/scripts
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-31 19:10:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 .SYNOPSIS
     Интерактивный запуск установщика проекта через Gemini CLI.
@@ -58,7 +58,7 @@ Write-Host "Корень проекта: $projectRoot" -ForegroundColor Gray
 Write-Host "Инструкция:     $instructionFile" -ForegroundColor Gray
 Write-Host ""
 
-$prompt = "Ты интерактивный установщик AI Windows Admin. Прочти и выполни инструкции из '$instructionFile'. Пошагово проведи установку, выполни pre-flight проверки, запусти телеметрию tlm.ps1, создай venv, установи requirements.txt, настрой .env и в конце запусти verify_installation.py."
+$prompt = "Ты интерактивный установщик ai-tc. Прочти и выполни инструкции из '$instructionFile'. Пошагово проведи установку, выполни pre-flight проверки, запусти телеметрию tlm.ps1, создай venv, установи requirements.txt, настрой .env и в конце запусти verify_installation.py."
 
 # Выполнение Gemini CLI с моделью gemini-3.1-flash-lite
 gemini --model "gemini-3.1-flash-lite" --prompt "$prompt"

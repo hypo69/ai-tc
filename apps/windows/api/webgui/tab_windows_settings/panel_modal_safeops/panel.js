@@ -7,11 +7,11 @@
  *   применения изменений системных параметров Windows с созданием контрольных точек отката.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_windows_settings/panel_modal_safeops
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:46:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

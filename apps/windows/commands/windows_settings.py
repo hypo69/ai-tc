@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Commands - Windows Settings Command Executor
+# Process Name: ai-tc Commands - Windows Settings Command Executor
 # =============================================================================
 # Description:
 #   Единый исполнитель команд управления системой Windows (Command Executor):
@@ -16,11 +16,11 @@
 #     print(res.success, res.actual)
 #
 # File: windows_settings.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.commands
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 13:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

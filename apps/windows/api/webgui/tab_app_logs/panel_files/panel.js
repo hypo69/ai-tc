@@ -3,15 +3,15 @@
  * Process Name: Windows App Logs - Files Panel
  * =============================================================================
  * Description:
- *   Модуль управления файлами внутренних журналов (%APPDATA%\AI-Windows-Admin\logs):
+ *   Модуль управления файлами внутренних журналов (%APPDATA%\ai-tc\logs):
  *   загрузка списка файлов, отрисовка бейджей с индикаторами ошибок и очистка логов.
  *
  * File: panel_files/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_app_logs/panel_files
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:35:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
@@ -81,7 +81,7 @@ export async function clearSingleLog(fileName, onCleared = null) {
  * @param {Function} [onCleared=null] - Колбэк после завершения очистки.
  */
 export async function clearAllLogs(onCleared = null) {
-  if (!confirm('Вы действительно хотите очистить ВСЕ файлы логов программы (%APPDATA%\\AI-Windows-Admin\\logs)? Все журналы будут обнулены.')) {
+  if (!confirm('Вы действительно хотите очистить ВСЕ файлы логов программы (%APPDATA%\\ai-tc\\logs)? Все журналы будут обнулены.')) {
     return;
   }
   try {

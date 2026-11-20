@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Common WebGUI Static Files Handler
+# Process Name: ai-tc Common WebGUI Static Files Handler
 # =============================================================================
 # Description:
 #   Универсальный статический обработчик FastAPI для объединения нескольких
@@ -8,11 +8,11 @@
 #   и каскадного поиска в общем репозитории apps/common/webgui.
 #
 # File: static_files.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.common.webgui
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:31:50
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry_Research - Deep Diagnostics
+# Process Name: ai-tc Apps Windows Telemetry_Research - Deep Diagnostics
 # =============================================================================
 # Description:
 #   Модуль глубокой аппаратной и системной диагностики, поведенческой форензики и анализа утечек.
@@ -12,11 +12,11 @@
 #     service = LASTINPUTINFO()
 #
 # File: deep_diagnostics.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.analytics
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-18 08:15:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

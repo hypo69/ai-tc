@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows API Routers - Telemetry
+# Process Name: ai-tc Apps Windows API Routers - Telemetry
 # =============================================================================
 # Description:
 #   Слой 7: Высокопроизводительный REST API роутер попроцессной телеметрии
@@ -12,11 +12,11 @@
 #   POST /api/v1/telemetry/tracked-directories {"action": "add", "directory_path": "C:\\Projects"}
 #
 # File: router_telemetry.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 12:55:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -309,13 +309,14 @@ def _evaluate_process_suspicion(
             children = proc.children(recursive=True)
             for ch in children:
                 try:
-                    cname = ch.name().lower()
+                    raw_name = ch.name()
+                    cname = (raw_name or '').lower()
                     if cname in ('powershell.exe', 'pwsh.exe'):
                         powershell_count += 1
                         suspicious_children += 1
                     elif cname in ('cmd.exe', 'wscript.exe', 'cscript.exe', 'mshta.exe', 'rundll32.exe', 'bitsadmin.exe', 'certutil.exe'):
                         suspicious_children += 1
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                except Exception:
                     continue
         except Exception:
             pass
@@ -384,7 +385,10 @@ def _evaluate_process_suspicion(
 
 
 @router.get('/processes/{pid}/deep-history', response_model=ProcessDeepHistoryResponse)
-async def get_process_deep_history(pid: int) -> ProcessDeepHistoryResponse:
+async def get_process_deep_history(
+    pid: int,
+    name: Optional[str] = Query(None, description='Имя исполняемого файла для поиска в архиве телеметрии')
+) -> ProcessDeepHistoryResponse:
     """Возвращает полную историю жизненного цикла и накопленной телеметрии процесса.
 
     Включает:
@@ -396,252 +400,301 @@ async def get_process_deep_history(pid: int) -> ProcessDeepHistoryResponse:
       - Доступ к оборудованию конфиденциальности (камера, микрофон);
       - Дескрипторы ОС (Handles, GDI/USER objects).
     """
-    proc: Optional[psutil.Process] = None
     try:
-        proc = psutil.Process(pid)
-    except (psutil.NoSuchProcess, psutil.AccessDenied):
-        pass
+        proc: Optional[psutil.Process] = None
+        try:
+            proc = psutil.Process(pid)
+        except Exception:
+            pass
 
-    # Данные из базы SQLite телеметрии
-    storage = TelemetryStorage.get_instance(read_only=True)
-    sqlite_row = storage.get_process_pid_snapshot(pid=pid)
+        # Данные из базы SQLite телеметрии
+        storage = TelemetryStorage.get_instance(read_only=True)
+        sqlite_row = storage.get_process_pid_snapshot(pid=pid)
 
-    # Если процесс завершился и нет в SQLite
-    if not proc and not sqlite_row:
-        raise HTTPException(
-            status_code=404,
-            detail=f'История процесса с PID {pid} не найдена (процесс завершен и отсутствует в базе телеметрии)'
+        # Резервный поиск в архиве завершенных процессов (process_lifecycle_sessions)
+        session_row: Optional[Dict[str, Any]] = None
+        if not proc and not sqlite_row:
+            sessions = storage.get_process_lifecycle_sessions(pid=pid, limit=1)
+            if sessions:
+                session_row = sessions[0]
+            elif name:
+                sessions = storage.get_process_lifecycle_sessions(app_name=name, limit=1)
+                if sessions:
+                    session_row = sessions[0]
+
+        # Если процесс завершился и нет записей в БД
+        if not proc and not sqlite_row and not session_row:
+            raise HTTPException(
+                status_code=404,
+                detail=f'История процесса с PID {pid} не найдена (процесс завершен и отсутствует в базе телеметрии)'
+            )
+
+        # 1. Паспорт запуска
+        proc_name = ''
+        exe_path = None
+        cmd_line = None
+        start_time_iso = ''
+        uptime_sec = 0.0
+        user_name = None
+        ppid_val = None
+        parent_name_val = None
+        session_id_val = None
+
+        if proc:
+            try:
+                proc_name = proc.name()
+            except Exception:
+                proc_name = str(pid)
+            try:
+                exe_path = proc.exe()
+            except Exception:
+                pass
+            try:
+                cmd_line = " ".join(proc.cmdline())
+            except Exception:
+                pass
+            try:
+                c_time = proc.create_time()
+                start_time_iso = datetime.fromtimestamp(c_time, tz=timezone.utc).isoformat()
+                uptime_sec = max(0.0, round(time.time() - c_time, 1))
+            except Exception:
+                pass
+            try:
+                user_name = proc.username()
+            except Exception:
+                pass
+            try:
+                ppid_val = proc.ppid()
+                p_obj = proc.parent()
+                if p_obj:
+                    parent_name_val = p_obj.name()
+            except Exception:
+                pass
+            try:
+                session_id_val = getattr(proc, 'terminal', lambda: None)() or None
+            except Exception:
+                pass
+
+        if sqlite_row:
+            if not proc_name:
+                proc_name = str(sqlite_row.get('process_name') or pid)
+            if not exe_path:
+                exe_path = sqlite_row.get('executable_path')
+            if not start_time_iso:
+                start_time_iso = str(sqlite_row.get('timestamp') or '')
+        elif session_row:
+            if not proc_name:
+                proc_name = str(session_row.get('name') or name or pid)
+            if not exe_path:
+                exe_path = session_row.get('exe_path')
+            if not cmd_line:
+                cmd_line = session_row.get('cmdline')
+            if not start_time_iso:
+                start_time_iso = str(session_row.get('created_at') or '')
+            uptime_sec = float(session_row.get('lifetime_sec') or 0.0)
+            user_name = session_row.get('username') or user_name
+            ppid_val = session_row.get('ppid')
+            parent_name_val = session_row.get('parent_name')
+            session_id_val = session_row.get('session_id')
+
+        # 2. Память
+        ws_mb = 0.0
+        peak_ws_mb = 0.0
+        priv_mb = 0.0
+        page_faults = 0
+
+        if proc:
+            try:
+                mem = proc.memory_info()
+                ws_mb = round(float(mem.rss) / (1024 * 1024), 2)
+                peak_ws_mb = round(float(getattr(mem, 'peak_wset', mem.rss)) / (1024 * 1024), 2)
+                priv_mb = round(float(getattr(mem, 'private', getattr(mem, 'vms', 0))) / (1024 * 1024), 2)
+                page_faults = int(getattr(mem, 'num_page_faults', 0))
+            except Exception:
+                pass
+        elif sqlite_row:
+            ws_mb = round(float(sqlite_row.get('working_set_bytes') or 0) / (1024 * 1024), 2)
+            peak_ws_mb = ws_mb
+            priv_mb = round(float(sqlite_row.get('private_bytes') or 0) / (1024 * 1024), 2)
+            page_faults = int(sqlite_row.get('page_faults_count') or 0)
+        elif session_row:
+            peak_ws_mb = round(float(session_row.get('peak_working_set_mb') or 0.0), 2)
+            ws_mb = peak_ws_mb
+            priv_mb = round(float(session_row.get('peak_private_mb') or 0.0), 2)
+
+        # 3. Диск (накопленный I/O)
+        read_bytes = 0
+        write_bytes = 0
+        read_ops = 0
+        write_ops = 0
+
+        if proc:
+            try:
+                io_cnt = proc.io_counters()
+                if io_cnt:
+                    read_bytes = int(io_cnt.read_bytes)
+                    write_bytes = int(io_cnt.write_bytes)
+                    read_ops = int(io_cnt.read_count)
+                    write_ops = int(io_cnt.write_count)
+            except Exception:
+                pass
+        elif sqlite_row:
+            read_bytes = int(sqlite_row.get('read_bytes_total') or 0)
+            write_bytes = int(sqlite_row.get('write_bytes_total') or 0)
+            read_ops = int(sqlite_row.get('read_ops_total') or 0)
+            write_ops = int(sqlite_row.get('write_ops_total') or 0)
+        elif session_row:
+            read_bytes = int(session_row.get('io_read_bytes') or 0)
+            write_bytes = int(session_row.get('io_write_bytes') or 0)
+            read_ops = int(session_row.get('io_read_ops') or 0)
+            write_ops = int(session_row.get('io_write_ops') or 0)
+
+        read_mb = round(float(read_bytes) / (1024 * 1024), 2)
+        write_mb = round(float(write_bytes) / (1024 * 1024), 2)
+
+        # 4. Процессор
+        cpu_pct = 0.0
+        u_time = 0.0
+        k_time = 0.0
+        threads_num = 1
+
+        if proc:
+            try:
+                cpu_pct = float(proc.cpu_percent(interval=None))
+                cpu_times = proc.cpu_times()
+                if cpu_times:
+                    u_time = round(float(cpu_times.user), 2)
+                    k_time = round(float(cpu_times.system), 2)
+                threads_num = int(proc.num_threads())
+            except Exception:
+                pass
+        elif sqlite_row:
+            cpu_pct = float(sqlite_row.get('cpu_percent') or 0.0)
+            u_time = round(float(sqlite_row.get('user_time_ms') or 0) / 1000.0, 2)
+            k_time = round(float(sqlite_row.get('kernel_time_ms') or 0) / 1000.0, 2)
+            threads_num = int(sqlite_row.get('thread_count') or 1)
+        elif session_row:
+            u_time = round(float(session_row.get('cpu_time_user_sec') or 0.0), 2)
+            k_time = round(float(session_row.get('cpu_time_kernel_sec') or 0.0), 2)
+
+        total_cpu_time = round(u_time + k_time, 2)
+
+        # 5. Сетевые сокеты и трафик
+        net_sent = 0
+        net_recv = 0
+        if sqlite_row:
+            net_sent = int(sqlite_row.get('net_bytes_sent_total') or 0)
+            net_recv = int(sqlite_row.get('net_bytes_recv_total') or 0)
+
+        active_sockets: List[ProcessSocketConnection] = []
+        if proc:
+            try:
+                conns = proc.net_connections(kind='inet')
+                for c in conns:
+                    l_addr = f"{c.laddr.ip}:{c.laddr.port}" if c.laddr else ""
+                    r_addr = f"{c.raddr.ip}:{c.raddr.port}" if c.raddr else ""
+                    proto = "TCP" if c.type == 1 else "UDP"
+                    active_sockets.append(ProcessSocketConnection(
+                        protocol=proto,
+                        local_address=l_addr,
+                        remote_address=r_addr,
+                        status=str(c.status or 'NONE')
+                    ))
+            except Exception:
+                pass
+
+        # 6. Оборудование и приватность (микрофон, камера)
+        mic_status, cam_status = _get_process_camera_mic_status(proc_name, exe_path)
+
+        # 7. Дескрипторы и UI-объекты
+        h_count = 0
+        if proc:
+            try:
+                h_count = proc.num_handles()
+            except Exception:
+                pass
+        elif sqlite_row:
+            h_count = int(sqlite_row.get('handle_count') or 0)
+
+        gdi_objs, user_objs = _get_gui_resources(pid)
+        if sqlite_row:
+            gdi_objs = int(sqlite_row.get('gdi_objects') or gdi_objs)
+            user_objs = int(sqlite_row.get('user_objects') or user_objs)
+
+        # 8. Видео / GPU
+        vram_mb = 0.0
+        gpu_util = 0.0
+        if sqlite_row:
+            vram_mb = round(float(sqlite_row.get('gpu_vram_bytes') or 0) / (1024 * 1024), 2)
+            gpu_util = float(sqlite_row.get('gpu_utilization') or 0.0)
+
+        # 9. Оценка подозрительности и аномалий поведения
+        susp_score, susp_level, ps_count, susp_child_count, susp_triggers = _evaluate_process_suspicion(
+            proc=proc,
+            proc_name=proc_name,
+            cmd_line=cmd_line,
+            parent_name=parent_name_val,
+            mic_status=mic_status,
+            cam_status=cam_status,
+            user_objects=user_objs,
+            gdi_objects=gdi_objs,
         )
 
-    # 1. Паспорт запуска
-    proc_name = ''
-    exe_path = None
-    cmd_line = None
-    start_time_iso = ''
-    uptime_sec = 0.0
-    user_name = None
-    ppid_val = None
-    parent_name_val = None
-    session_id_val = None
-
-    if proc:
-        try:
-            proc_name = proc.name()
-        except Exception:
-            proc_name = str(pid)
-        try:
-            exe_path = proc.exe()
-        except Exception:
-            pass
-        try:
-            cmd_line = " ".join(proc.cmdline())
-        except Exception:
-            pass
-        try:
-            c_time = proc.create_time()
-            start_time_iso = datetime.fromtimestamp(c_time, tz=timezone.utc).isoformat()
-            uptime_sec = max(0.0, round(time.time() - c_time, 1))
-        except Exception:
-            pass
-        try:
-            user_name = proc.username()
-        except Exception:
-            pass
-        try:
-            ppid_val = proc.ppid()
-            p_obj = proc.parent()
-            if p_obj:
-                parent_name_val = p_obj.name()
-        except Exception:
-            pass
-        try:
-            session_id_val = getattr(proc, 'terminal', lambda: None)() or None
-        except Exception:
-            pass
-
-    if sqlite_row:
-        if not proc_name:
-            proc_name = str(sqlite_row.get('process_name', pid))
-        if not exe_path:
-            exe_path = sqlite_row.get('executable_path')
-        if not start_time_iso:
-            start_time_iso = str(sqlite_row.get('timestamp') or '')
-
-    # 2. Память
-    ws_mb = 0.0
-    peak_ws_mb = 0.0
-    priv_mb = 0.0
-    page_faults = 0
-
-    if proc:
-        try:
-            mem = proc.memory_info()
-            ws_mb = round(float(mem.rss) / (1024 * 1024), 2)
-            peak_ws_mb = round(float(getattr(mem, 'peak_wset', mem.rss)) / (1024 * 1024), 2)
-            priv_mb = round(float(getattr(mem, 'private', getattr(mem, 'vms', 0))) / (1024 * 1024), 2)
-            page_faults = int(getattr(mem, 'num_page_faults', 0))
-        except Exception:
-            pass
-    elif sqlite_row:
-        ws_mb = round(float(sqlite_row.get('working_set_bytes', 0)) / (1024 * 1024), 2)
-        peak_ws_mb = ws_mb
-        priv_mb = round(float(sqlite_row.get('private_bytes', 0)) / (1024 * 1024), 2)
-        page_faults = int(sqlite_row.get('page_faults_count', 0))
-
-    # 3. Диск (накопленный I/O)
-    read_bytes = 0
-    write_bytes = 0
-    read_ops = 0
-    write_ops = 0
-
-    if proc:
-        try:
-            io_cnt = proc.io_counters()
-            if io_cnt:
-                read_bytes = int(io_cnt.read_bytes)
-                write_bytes = int(io_cnt.write_bytes)
-                read_ops = int(io_cnt.read_count)
-                write_ops = int(io_cnt.write_count)
-        except Exception:
-            pass
-    elif sqlite_row:
-        read_bytes = int(sqlite_row.get('read_bytes_total', 0))
-        write_bytes = int(sqlite_row.get('write_bytes_total', 0))
-        read_ops = int(sqlite_row.get('read_ops_total', 0))
-        write_ops = int(sqlite_row.get('write_ops_total', 0))
-
-    read_mb = round(float(read_bytes) / (1024 * 1024), 2)
-    write_mb = round(float(write_bytes) / (1024 * 1024), 2)
-
-    # 4. Процессор
-    cpu_pct = 0.0
-    u_time = 0.0
-    k_time = 0.0
-    threads_num = 1
-
-    if proc:
-        try:
-            cpu_pct = float(proc.cpu_percent(interval=None))
-            cpu_times = proc.cpu_times()
-            if cpu_times:
-                u_time = round(float(cpu_times.user), 2)
-                k_time = round(float(cpu_times.system), 2)
-            threads_num = int(proc.num_threads())
-        except Exception:
-            pass
-    elif sqlite_row:
-        cpu_pct = float(sqlite_row.get('cpu_percent', 0.0))
-        u_time = round(float(sqlite_row.get('user_time_ms', 0)) / 1000.0, 2)
-        k_time = round(float(sqlite_row.get('kernel_time_ms', 0)) / 1000.0, 2)
-        threads_num = int(sqlite_row.get('thread_count', 1))
-
-    total_cpu_time = round(u_time + k_time, 2)
-
-    # 5. Сетевые сокеты и трафик
-    net_sent = 0
-    net_recv = 0
-    if sqlite_row:
-        net_sent = int(sqlite_row.get('net_bytes_sent_total', 0))
-        net_recv = int(sqlite_row.get('net_bytes_recv_total', 0))
-
-    active_sockets: List[ProcessSocketConnection] = []
-    if proc:
-        try:
-            conns = proc.net_connections(kind='inet')
-            for c in conns:
-                l_addr = f"{c.laddr.ip}:{c.laddr.port}" if c.laddr else ""
-                r_addr = f"{c.raddr.ip}:{c.raddr.port}" if c.raddr else ""
-                proto = "TCP" if c.type == 1 else "UDP"
-                active_sockets.append(ProcessSocketConnection(
-                    protocol=proto,
-                    local_address=l_addr,
-                    remote_address=r_addr,
-                    status=str(c.status or 'NONE')
-                ))
-        except Exception:
-            pass
-
-    # 6. Оборудование и приватность (микрофон, камера)
-    mic_status, cam_status = _get_process_camera_mic_status(proc_name, exe_path)
-
-    # 7. Дескрипторы и UI-объекты
-    h_count = 0
-    if proc:
-        try:
-            h_count = proc.num_handles()
-        except Exception:
-            pass
-    elif sqlite_row:
-        h_count = int(sqlite_row.get('handle_count', 0))
-
-    gdi_objs, user_objs = _get_gui_resources(pid)
-
-    # 8. Видео / GPU
-    vram_mb = 0.0
-    gpu_util = 0.0
-    if sqlite_row:
-        vram_mb = round(float(sqlite_row.get('gpu_vram_bytes', 0)) / (1024 * 1024), 2)
-        gpu_util = float(sqlite_row.get('gpu_utilization', 0.0))
-
-    # 9. Оценка подозрительности и аномалий поведения (Process Suspicion & Anomaly Analysis)
-    susp_score, susp_level, ps_count, susp_child_count, susp_triggers = _evaluate_process_suspicion(
-        proc=proc,
-        proc_name=proc_name,
-        cmd_line=cmd_line,
-        parent_name=parent_name_val,
-        mic_status=mic_status,
-        cam_status=cam_status,
-        user_objects=user_objs,
-        gdi_objects=gdi_objs,
-    )
-
-    return ProcessDeepHistoryResponse(
-        pid=pid,
-        process_name=proc_name,
-        executable_path=exe_path,
-        command_line=cmd_line,
-        start_time=start_time_iso,
-        uptime_seconds=uptime_sec,
-        user_name=user_name,
-        ppid=ppid_val,
-        parent_name=parent_name_val,
-        session_id=session_id_val,
-        memory_working_set_mb=ws_mb,
-        memory_peak_working_set_mb=peak_ws_mb,
-        memory_private_bytes_mb=priv_mb,
-        memory_page_faults_total=page_faults,
-        disk_read_bytes_total=read_bytes,
-        disk_write_bytes_total=write_bytes,
-        disk_read_mb_total=read_mb,
-        disk_write_mb_total=write_mb,
-        disk_read_ops_total=read_ops,
-        disk_write_ops_total=write_ops,
-        cpu_percent=cpu_pct,
-        cpu_user_time_sec=u_time,
-        cpu_kernel_time_sec=k_time,
-        cpu_total_time_sec=total_cpu_time,
-        thread_count=threads_num,
-        gpu_vram_mb=vram_mb,
-        gpu_load_percent=gpu_util,
-        net_bytes_sent_total=net_sent,
-        net_bytes_recv_total=net_recv,
-        net_sent_mb_total=round(float(net_sent) / (1024 * 1024), 2),
-        net_recv_mb_total=round(float(net_recv) / (1024 * 1024), 2),
-        active_sockets_count=len(active_sockets),
-        sockets=active_sockets,
-        microphone=mic_status,
-        camera=cam_status,
-        handles_count=h_count,
-        gdi_objects=gdi_objs,
-        user_objects=user_objs,
-        suspicion_score=susp_score,
-        suspicion_level=susp_level,
-        powershell_spawns_count=ps_count,
-        suspicious_children_count=susp_child_count,
-        suspicion_triggers=susp_triggers,
-        sqlite_snapshots_count=1 if sqlite_row else 0,
-        timestamp=datetime.now(timezone.utc).isoformat(),
-    )
+        return ProcessDeepHistoryResponse(
+            pid=pid,
+            process_name=proc_name,
+            executable_path=exe_path,
+            command_line=cmd_line,
+            start_time=start_time_iso,
+            uptime_seconds=uptime_sec,
+            user_name=user_name,
+            ppid=ppid_val,
+            parent_name=parent_name_val,
+            session_id=session_id_val,
+            memory_working_set_mb=ws_mb,
+            memory_peak_working_set_mb=peak_ws_mb,
+            memory_private_bytes_mb=priv_mb,
+            memory_page_faults_total=page_faults,
+            disk_read_bytes_total=read_bytes,
+            disk_write_bytes_total=write_bytes,
+            disk_read_mb_total=read_mb,
+            disk_write_mb_total=write_mb,
+            disk_read_ops_total=read_ops,
+            disk_write_ops_total=write_ops,
+            cpu_percent=cpu_pct,
+            cpu_user_time_sec=u_time,
+            cpu_kernel_time_sec=k_time,
+            cpu_total_time_sec=total_cpu_time,
+            thread_count=threads_num,
+            gpu_vram_mb=vram_mb,
+            gpu_load_percent=gpu_util,
+            net_bytes_sent_total=net_sent,
+            net_bytes_recv_total=net_recv,
+            net_sent_mb_total=round(float(net_sent) / (1024 * 1024), 2),
+            net_recv_mb_total=round(float(net_recv) / (1024 * 1024), 2),
+            active_sockets_count=len(active_sockets),
+            sockets=active_sockets,
+            microphone=mic_status,
+            camera=cam_status,
+            handles_count=h_count,
+            gdi_objects=gdi_objs,
+            user_objects=user_objs,
+            suspicion_score=susp_score,
+            suspicion_level=susp_level,
+            powershell_spawns_count=ps_count,
+            suspicious_children_count=susp_child_count,
+            suspicion_triggers=susp_triggers,
+            sqlite_snapshots_count=1 if (sqlite_row or session_row) else 0,
+            timestamp=datetime.now(timezone.utc).isoformat(),
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error(f"[Telemetry] Ошибка формирования глубокой телеметрии для PID {pid}: {exc}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Ошибка формирования расширенной телеметрии для PID {pid}: {exc}"
+        )
 
 
 @router.get('/processes/{pid}/file-activity', response_model=List[ProcessFileEventItem])

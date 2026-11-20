@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm - Engine
+# Process Name: ai-tc Apps Windows Wikillm - Engine
 # =============================================================================
 # Description:
 #   Главный координатор прогрессивной базы знаний WikiLLM. Управляет 4-уровневым
@@ -12,11 +12,11 @@
 #     service = WikiLLMEngine()
 #
 # File: engine.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 17:29:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

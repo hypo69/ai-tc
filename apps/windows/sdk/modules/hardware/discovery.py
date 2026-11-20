@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Hardware - Discovery
+# Process Name: ai-tc Apps Windows Modules Hardware - Discovery
 # =============================================================================
 # Description:
 #   Детектор и сканер местоположения портативных утилит Windows.
@@ -12,11 +12,11 @@
 #     service = UtilityDiscovery()
 #
 # File: discovery.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.hardware
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-16 05:55:00
 # =============================================================================
 
 from __future__ import annotations
@@ -31,8 +31,8 @@ from logger import logger
 class UtilityDiscovery:
     """Интеллектуальный сканер для поиска исполняемых файлов утилит."""
     _GLOBAL_CACHE: Dict[str, Optional[str]] = {}
-    UTILITY_EXECUTABLES: Dict[str, List[str]] = {'aida64': ['aida64.exe', 'aida64_cl.exe'], 'hwinfo': ['HWiNFO64.exe', 'HWiNFO32.exe', 'HWiNFO.exe'], 'cpuz': ['cpuz_x64.exe', 'cpuz.exe', 'cpuz64.exe'], 'gpuz': ['GPU-Z.exe', 'GPUZ.exe'], 'crystaldiskinfo': ['DiskInfo64.exe', 'DiskInfo32.exe', 'DiskInfo.exe'], 'speccy': ['Speccy64.exe', 'Speccy.exe'], 'coretemp': ['Core Temp.exe', 'CoreTemp.exe'], 'afterburner': ['MSIAfterburner.exe', 'RTSS.exe']}
-    KNOWN_INSTALL_DIRS: Dict[str, List[str]] = {'aida64': ['FinalWire/AIDA64 Extreme', 'FinalWire/AIDA64 Engineer', 'FinalWire/AIDA64 Business', 'AIDA64 Extreme', 'AIDA64'], 'hwinfo': ['HWiNFO64', 'HWiNFO32', 'HWiNFO'], 'cpuz': ['CPUID/CPU-Z', 'CPUID/cpu-z', 'CPU-Z', 'cpuz'], 'gpuz': ['GPU-Z', 'TechPowerUp GPU-Z', 'gpuz'], 'crystaldiskinfo': ['CrystalDiskInfo'], 'speccy': ['Speccy', 'CCleaner/Speccy'], 'coretemp': ['Core Temp'], 'afterburner': ['MSI Afterburner']}
+    UTILITY_EXECUTABLES: Dict[str, List[str]] = {'aida64': ['aida64.exe', 'aida64_cl.exe'], 'hwinfo': ['HWiNFO64.exe', 'HWiNFO32.exe', 'HWiNFO.exe'], 'cpuz': ['cpuz_x64.exe', 'cpuz.exe', 'cpuz64.exe'], 'gpuz': ['GPU-Z.exe', 'GPUZ.exe'], 'crystaldiskinfo': ['DiskInfo64.exe', 'DiskInfo32.exe', 'DiskInfo.exe'], 'speccy': ['Speccy64.exe', 'Speccy.exe'], 'coretemp': ['Core Temp.exe', 'CoreTemp.exe'], 'afterburner': ['MSIAfterburner.exe', 'RTSS.exe'], 'pawnio': ['PawnIOLib.dll']}
+    KNOWN_INSTALL_DIRS: Dict[str, List[str]] = {'aida64': ['FinalWire/AIDA64 Extreme', 'FinalWire/AIDA64 Engineer', 'FinalWire/AIDA64 Business', 'AIDA64 Extreme', 'AIDA64'], 'hwinfo': ['HWiNFO64', 'HWiNFO32', 'HWiNFO'], 'cpuz': ['CPUID/CPU-Z', 'CPUID/cpu-z', 'CPU-Z', 'cpuz'], 'gpuz': ['GPU-Z', 'TechPowerUp GPU-Z', 'gpuz'], 'crystaldiskinfo': ['CrystalDiskInfo'], 'speccy': ['Speccy', 'CCleaner/Speccy'], 'coretemp': ['Core Temp'], 'afterburner': ['MSI Afterburner'], 'pawnio': ['PawnIO']}
 
     @classmethod
     def clear_cache(cls) -> None:
@@ -126,8 +126,6 @@ class UtilityDiscovery:
         self._cached_paths[key] = None
         if self._is_default_root:
             self._GLOBAL_CACHE[key] = None
-        '# TODO: вернуть корректное значение'
-        logger.error('Функция find_utility вернула пустой результат')
         return None
 
     def scan_all_available(self) -> Dict[str, Optional[str]]:

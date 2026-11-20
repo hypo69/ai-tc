@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/tab_rag/modules/docRag.js?v=20261001_v1" type="module"></script>
  *
  * File: docRag.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_rag/modules
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -50,7 +50,7 @@ export async function uploadFiles(files) {
     if (progressBar) progressBar.style.width = '50%';
     if (percentText) percentText.textContent = '50%';
 
-    const res = await fetch('/api/rag/upload', {
+    const res = await fetch('/api/v1/rag/upload', {
       method: 'POST',
       body: formData,
     });
@@ -90,7 +90,7 @@ export async function uploadFiles(files) {
  */
 export async function loadRagStatus() {
   try {
-    const res = await ragCachedFetch('/api/rag/status', {
+    const res = await ragCachedFetch('/api/v1/rag/status', {
       tags: ['rag-status']
     });
     if (!res.ok) return;
@@ -131,7 +131,7 @@ export async function loadRagDocuments() {
   if (!tbody) return;
 
   try {
-    const res = await ragCachedFetch('/api/rag/documents', {
+    const res = await ragCachedFetch('/api/v1/rag/documents', {
       tags: ['rag-documents']
     });
     if (!res.ok) return;
@@ -225,7 +225,7 @@ export async function loadRagDocuments() {
 export async function deleteRagDocument(filename) {
   if (!confirm(`Удалить документ «${filename}» из базы знаний?`)) return;
   try {
-    const res = await fetch(`/api/rag/documents/${encodeURIComponent(filename)}`, {
+    const res = await fetch(`/api/v1/rag/documents/${encodeURIComponent(filename)}`, {
       method: 'DELETE',
     });
     window.showToast?.(`Документ «${filename}» успешно удален`, 'success');
@@ -255,7 +255,7 @@ export async function buildRagIndex() {
   }
 
   try {
-    const res = await fetch('/api/rag/build', {
+    const res = await fetch('/api/v1/rag/build', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -309,7 +309,7 @@ export async function executeRagSearch() {
   }
 
   try {
-    const res = await fetch('/api/rag/search', {
+    const res = await fetch('/api/v1/rag/search', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

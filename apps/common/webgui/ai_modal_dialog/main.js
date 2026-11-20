@@ -22,15 +22,15 @@
  *     });
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps.windows.api.webgui.ai_modal_dialog
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 13:12:00
+ * Updated: 2026-11-20 17:10:00
  * =============================================================================
  */
 
-// Universal AI Modal Dialog Module for AI-Windows-Admin
+// Universal AI Modal Dialog Module for ai-tc
 // Enables interactive row inspection, WikiLLM grounding, in-place system instruction editing, and AI contextual explanation.
 
 (function () {
@@ -426,6 +426,7 @@
     const code = errCore?.code || errorObj?.code || err?.status || null;
     const status = errCore?.status || errorObj?.status || '';
     const msg = errCore?.message || errorObj?.message || rawText || 'Неизвестная ошибка модели';
+    const rawResponse = errCore?.raw_response || errorObj?.raw_response || null;
 
     let friendlyReason = '';
     const searchStr = `${code || ''} ${status} ${msg}`.toLowerCase();
@@ -454,9 +455,86 @@
       friendlyReason,
       message: msg,
       jsonString,
+      rawResponse,
       code,
       status
     };
+  }
+
+  /**
+   * Восстанавливает читаемый Markdown-отчет из сырого ответа модели или сложночитаемого JSON.
+   * @param {string} rawResponse Сырой ответ модели
+   * @returns {string} Форматированный Markdown
+   */
+  function parseRawResponseToMarkdown(rawResponse) {
+    if (!rawResponse) return '';
+    const text = String(rawResponse).trim();
+
+    // 1. Попытка распарсить как JSON-объект карточки
+    try {
+      let clean = text;
+      if (clean.startsWith('```')) {
+        clean = clean.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+      }
+      const fb = clean.indexOf('{');
+      const lb = clean.lastIndexOf('}');
+      if (fb !== -1 && lb > fb) {
+        clean = clean.slice(fb, lb + 1);
+      }
+      const data = JSON.parse(clean);
+      if (data && typeof data === 'object') {
+        const parts = [];
+        if (data.summary) parts.push(data.summary);
+        if (data.developer || data.category) {
+          parts.push(`\n**Разработчик / Категория:** ${data.developer || 'Неизвестен'} (${data.category || 'Компонент'})\n`);
+        }
+        if (data.security_verdict) {
+          parts.push(`\n**Оценка безопасности:**\n${data.security_verdict}\n`);
+        }
+        if (data.performance_impact) {
+          parts.push(`\n**Влияние на производительность:**\n${data.performance_impact}\n`);
+        }
+        if (data.recommendation) {
+          parts.push(`\n**Рекомендация:**\n${data.recommendation}\n`);
+        }
+        if (Array.isArray(data.action_steps) && data.action_steps.length > 0) {
+          parts.push(`\n**Рекомендуемые действия:**\n` + data.action_steps.map(s => `- ${s}`).join('\n') + '\n');
+        }
+        if (data.developer_advice) {
+          parts.push(`\n---\n### Советы разработчику & Автоматизация\n\n${data.developer_advice}\n`);
+        }
+        return parts.join('\n');
+      }
+    } catch (_) {}
+
+    // 2. Эвристическое извлечение полей через regex, если JSON синтаксически поврежден
+    const summaryM = text.match(/"summary"\s*:\s*"((?:\\.|[^"\\])*)"/s);
+    if (summaryM) {
+      const summary = summaryM[1].replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+      const devM = text.match(/"developer"\s*:\s*"((?:\\.|[^"\\])*)"/s);
+      const catM = text.match(/"category"\s*:\s*"((?:\\.|[^"\\])*)"/s);
+      const secM = text.match(/"security_verdict"\s*:\s*"((?:\\.|[^"\\])*)"/s);
+      const perfM = text.match(/"performance_impact"\s*:\s*"((?:\\.|[^"\\])*)"/s);
+      const recM = text.match(/"recommendation"\s*:\s*"((?:\\.|[^"\\])*)"/s);
+      const adviceM = text.match(/"developer_advice"\s*:\s*"((?:\\.|[^"\\])*)"/s);
+
+      const parts = [summary];
+      if (devM || catM) {
+        parts.push(`\n**Разработчик / Категория:** ${devM ? devM[1] : 'Неизвестен'} (${catM ? catM[1] : 'Компонент'})\n`);
+      }
+      if (secM) parts.push(`\n**Оценка безопасности:**\n${secM[1].replace(/\\n/g, '\n').replace(/\\"/g, '"')}\n`);
+      if (perfM) parts.push(`\n**Влияние на производительность:**\n${perfM[1].replace(/\\n/g, '\n').replace(/\\"/g, '"')}\n`);
+      if (recM) parts.push(`\n**Рекомендация:**\n${recM[1].replace(/\\n/g, '\n').replace(/\\"/g, '"')}\n`);
+      if (adviceM) parts.push(`\n---\n### Советы разработчику & Автоматизация\n\n${adviceM[1].replace(/\\n/g, '\n').replace(/\\"/g, '"')}\n`);
+      return parts.join('\n');
+    }
+
+    // 3. Снятие markdown-блоков, если это чистый Markdown
+    let clean = text;
+    if (clean.startsWith('```')) {
+      clean = clean.replace(/^```(?:json|markdown)?\s*/i, '').replace(/\s*```$/, '');
+    }
+    return clean;
   }
 
   /**
@@ -2566,6 +2644,9 @@
       `;
     }
 
+    const currentModalSeq = (window.__uaiModalShowSeq = (window.__uaiModalShowSeq || 0) + 1);
+    let diagRequestSeq = 0;
+
     async function checkWikiLLMKnowledge() {
       if (!aiExplanation) return;
       if (getAssistantMode() === 'model_only') {
@@ -2604,6 +2685,8 @@
           })
         }, 4000);
 
+        if (diagRequestSeq > 0 || currentModalSeq !== window.__uaiModalShowSeq) return;
+
         if (data && (data.is_verified || data.source === 'wikillm') && (data.general_summary || data.summary)) {
           cachedWikiData = data;
           const isProcess = (opts.tableType === 'process' || (opts.panelId && opts.panelId.includes('process')));
@@ -2622,6 +2705,7 @@
           }
         }
       } catch (err) {
+        if (diagRequestSeq > 0 || currentModalSeq !== window.__uaiModalShowSeq) return;
         const autoEnrichToggle = document.getElementById('toggle-auto-enrich-on-miss');
         if (autoEnrichToggle && autoEnrichToggle.checked) {
           executeDiagnostics(false, true);
@@ -2631,7 +2715,11 @@
       }
     }
 
-    checkWikiLLMKnowledge();
+    // При opts.autoRun === true не запускаем параллельный checkWikiLLMKnowledge(),
+    // чтобы исключить гонку и двойной запрос к /api/v1/diagnostics/explain
+    if (opts.autoRun !== true) {
+      checkWikiLLMKnowledge();
+    }
     fetchDynamicQuickQuestions(opts);
 
     // Привязка кнопки настройки шаблона промпта
@@ -2644,6 +2732,9 @@
     async function executeDiagnostics(forceRefresh = false, autoSave = false, isHybridProcess = false) {
       const aiExplanation = document.getElementById('uai-modal-ai-explanation');
       if (!aiExplanation) return;
+
+      const mySeq = ++diagRequestSeq;
+      const myModalSeq = currentModalSeq;
 
       const currentSysInstruction = systemTextarea ? systemTextarea.value.trim() : '';
       const currentModel = modelInput ? modelInput.value.trim() : '';
@@ -2689,6 +2780,8 @@
           })
         }, 0);
 
+        if (mySeq !== diagRequestSeq || myModalSeq !== window.__uaiModalShowSeq) return;
+
         if (!data || data.error || !data.summary) {
           throw {
             message: data?.error?.message || 'Модель не вернула диагностическое заключение',
@@ -2721,6 +2814,7 @@
           approveInWikiLLM(data, opts);
         }
       } catch (err) {
+        if (mySeq !== diagRequestSeq || myModalSeq !== window.__uaiModalShowSeq) return;
         // При ошибке: в WikiLLM НЕ записываем, выводим сообщение с расшифровкой и сырым JSON ответа
         const errInfo = decipherModelError(err);
         if (isHybridProcess) {
@@ -2757,6 +2851,18 @@
             <div class="small text-secondary mb-1">
               <strong>Сообщение:</strong> <span class="text-light">${escapeHtml(errInfo.message)}</span>
             </div>
+            ${errInfo.rawResponse ? `
+              <div class="mt-2 mb-2 p-2 rounded border border-info border-opacity-50 bg-info bg-opacity-10">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                  <span class="small text-info-emphasis">
+                    <i class="bi bi-file-earmark-text me-1"></i>Ответ модели содержит текст анализа, который можно отобразить.
+                  </span>
+                  <button type="button" class="btn btn-xs btn-outline-info d-inline-flex align-items-center gap-1" id="btn-uai-render-raw-md">
+                    <i class="bi bi-file-earmark-richtext"></i> Разобрать и показать как Markdown
+                  </button>
+                </div>
+              </div>
+            ` : ''}
             ${errInfo.jsonString ? `
               <div class="mt-2">
                 <div class="small text-secondary mb-1"><strong>Ответ модели / Детали ошибки (JSON):</strong></div>
@@ -2765,6 +2871,27 @@
             ` : ''}
           </div>
         `;
+
+        const renderMdBtn = document.getElementById('btn-uai-render-raw-md');
+        if (renderMdBtn && errInfo.rawResponse) {
+          renderMdBtn.onclick = () => {
+            const mdText = parseRawResponseToMarkdown(errInfo.rawResponse);
+            aiExplanation.innerHTML = `
+              <div class="alert alert-warning py-1.5 px-2.5 mb-2 small d-flex align-items-center justify-content-between">
+                <div><i class="bi bi-magic me-1"></i>Восстановленный отчет из ответа модели (Markdown)</div>
+                <button type="button" class="btn btn-xs btn-outline-secondary" id="btn-uai-back-to-error"><i class="bi bi-arrow-left"></i> Назад к ошибке</button>
+              </div>
+              <div class="dialogue-block mb-3 text-light" style="line-height: 1.6;">
+                ${parseModelResponse(mdText)}
+              </div>
+            `;
+            attachInteractiveCommandHandlers(aiExplanation);
+            const backBtn = document.getElementById('btn-uai-back-to-error');
+            if (backBtn) {
+              backBtn.onclick = () => executeDiagnostics(forceRefresh, autoSave);
+            }
+          };
+        }
 
         const retryBtn = document.getElementById('btn-uai-modal-retry');
         if (retryBtn) {
@@ -2866,7 +2993,7 @@
             body: JSON.stringify(payload)
           }, 6000);
         } catch (_) {
-          respData = await safeApiFetch('/api/windows/wikillm/approve', {
+          respData = await safeApiFetch('/api/v1/windows/wikillm/approve', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)

@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/tab_search/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_search
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -37,7 +37,7 @@ async function initSearchTab() {
   // --- 1. Load Dynamic Models via SDK / Tools ---
   async function loadModels() {
     try {
-      const modelsData = await window.api.fetch('/api/chat/models');
+      const modelsData = await window.api.fetch('/api/v1/chat/models');
       const modelsGrouped = modelsData.models || {};
       const geminiList = modelsGrouped.gemini || [];
       const geminiCliList = modelsGrouped.gemini_cli || ['gemini-3.1-flash-lite', 'gemini-3.1-flash', 'gemini-2.5-pro'];
@@ -95,7 +95,7 @@ async function initSearchTab() {
   async function loadConfig() {
     try {
       await loadModels();
-      const data = await window.api.fetch('/api/admin/web-search/config');
+      const data = await window.api.fetch('/api/v1/admin/web-search/config');
       if (data) {
         if (data.engine && engineSelect) {
           engineSelect.value = data.engine;
@@ -125,7 +125,7 @@ async function initSearchTab() {
     const agy_model = agyModelSelect ? agyModelSelect.value : 'agy-flash';
 
     try {
-      await window.api.fetch('/api/admin/web-search/config', {
+      await window.api.fetch('/api/v1/admin/web-search/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ engine, gemini_model, gemini_cli_model, agy_model })
@@ -173,7 +173,7 @@ async function initSearchTab() {
       testOutputContainer.innerHTML = `<span class="text-info">⏳ Выполнение поиска через <strong>${engine}</strong> по запросу: "${query}"...</span>`;
 
       try {
-        const response = await window.api.fetch('/api/admin/web-search/test', {
+        const response = await window.api.fetch('/api/v1/admin/web-search/test', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query, engine })

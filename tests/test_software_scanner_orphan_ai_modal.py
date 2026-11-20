@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Software Scanner Orphan AI Modal
+# Process Name: ai-tc Tests - Software Scanner Orphan AI Modal
 # =============================================================================
 # Description:
 #   Модульные тесты для проверки интеграции универсального модального окна
@@ -11,11 +11,11 @@
 #   pytest tests/test_software_scanner_orphan_ai_modal.py -v
 #
 # File: test_software_scanner_orphan_ai_modal.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 15:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

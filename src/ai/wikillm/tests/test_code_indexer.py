@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm Tests - Test Code Indexer
+# Process Name: ai-tc Apps Windows Wikillm Tests - Test Code Indexer
 # =============================================================================
 # Description:
 #   Тесты для AST индексатора структуры Python кода (Code Knowledge).
@@ -12,11 +12,11 @@
 #     res = test_index_python_file()
 #
 # File: test_code_indexer.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.wikillm.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

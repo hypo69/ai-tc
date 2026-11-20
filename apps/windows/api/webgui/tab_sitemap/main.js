@@ -4,7 +4,7 @@
  * =============================================================================
  * Description:
  *   Клиентский контроллер интерактивной карты сайта (Sitemap) веб-интерфейса
- *   AI Windows Admin (/tc). Динамически сопоставляет реестр вкладок с активной
+ *   ai-tc (/tc). Динамически сопоставляет реестр вкладок с активной
  *   конфигурацией меню (tc_menu_config.json), рассчитывает статус активности,
  *   обеспечивает живую фильтрацию, поиск и мгновенный переход к разделам.
  *
@@ -16,11 +16,11 @@
  *     import { initSitemapTab, deactivateSitemapTab } from '/html/tab_sitemap/main.js';
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_sitemap
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-15 17:00:00
+ * Updated: 2026-11-20 16:28:00
  * =============================================================================
  */
 
@@ -60,7 +60,6 @@ function setupEventListeners() {
   const clearBtn = document.getElementById('sitemap-search-clear-btn');
   const statusFilter = document.getElementById('sitemap-status-filter');
   const categoryFilter = document.getElementById('sitemap-category-filter');
-  const refreshBtn = document.getElementById('sitemap-refresh-btn');
 
   if (searchInput && !searchInput.dataset.bound) {
     searchInput.dataset.bound = 'true';
@@ -99,21 +98,6 @@ function setupEventListeners() {
     categoryFilter.addEventListener('change', (e) => {
       currentCategoryFilter = e.target.value || 'all';
       renderCards();
-    });
-  }
-
-  if (refreshBtn && !refreshBtn.dataset.bound) {
-    refreshBtn.dataset.bound = 'true';
-    refreshBtn.addEventListener('click', async () => {
-      refreshBtn.disabled = true;
-      const icon = refreshBtn.querySelector('i');
-      if (icon) icon.classList.add('spin-animation');
-      await loadSitemapData();
-      refreshBtn.disabled = false;
-      if (icon) icon.classList.remove('spin-animation');
-      if (window.toast) {
-        window.toast.success('Карта сайта', 'Статусы меню успешно обновлены');
-      }
     });
   }
 }
@@ -253,17 +237,8 @@ function normalizeTabId(str) {
  * @param {Array} tabs 
  */
 function updateHeaderStats(tabs) {
-  const total = tabs.length;
-  const activeCount = tabs.filter(t => t.isActiveInMenu).length;
-  const hiddenCount = total - activeCount;
-
   const totalBadge = document.getElementById('sitemap-total-badge');
-  const statActive = document.getElementById('sitemap-stat-active');
-  const statHidden = document.getElementById('sitemap-stat-hidden');
-
-  if (totalBadge) totalBadge.textContent = `Всего вкладок: ${total}`;
-  if (statActive) statActive.textContent = String(activeCount);
-  if (statHidden) statHidden.textContent = String(hiddenCount);
+  if (totalBadge) totalBadge.textContent = `Всего вкладок: ${tabs.length}`;
 }
 
 /**

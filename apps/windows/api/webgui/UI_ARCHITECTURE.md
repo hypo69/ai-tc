@@ -1,20 +1,20 @@
 <!--
 =============================================================================
-Process Name: AI-Windows-Admin UI - Architecture Specification
+Process Name: ai-tc UI - Architecture Specification
 =============================================================================
 Description:
-  Архитектурный стандарт и спецификация построения веб-интерфейса AI-Windows-Admin.
+  Архитектурный стандарт и спецификация построения веб-интерфейса ai-tc.
 
 Usage Examples:
   Документация и руководство разработчика:
     UI_ARCHITECTURE.md
 
 File: UI_ARCHITECTURE.md
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-31 16:50:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 -->
 

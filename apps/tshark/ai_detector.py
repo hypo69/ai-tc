@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Tshark - AI Detector
+# Process Name: ai-tc Apps Tshark - AI Detector
 # =============================================================================
 # Description:
 #   Модуль интеллектуального аудита и классификации сетевых аномалий.
@@ -13,11 +13,11 @@
 #     report = await detector.diagnose_traffic(packets, stats, heuristics)
 #
 # File: ai_detector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.tshark
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 13:22:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

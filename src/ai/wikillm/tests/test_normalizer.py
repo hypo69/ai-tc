@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm Tests - Test Normalizer
+# Process Name: ai-tc Apps Windows Wikillm Tests - Test Normalizer
 # =============================================================================
 # Description:
 #   Тесты для нормализатора канонических ключей и шаблонов артефактов.
@@ -12,11 +12,11 @@
 #     res = test_normalize_hex_code()
 #
 # File: test_normalizer.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.wikillm.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

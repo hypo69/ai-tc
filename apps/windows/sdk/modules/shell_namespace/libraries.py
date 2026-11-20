@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows SDK Modules Shell - Libraries Manager
+# Process Name: ai-tc Apps Windows SDK Modules Shell - Libraries Manager
 # =============================================================================
 # Description:
 #   Модуль управления библиотеками Windows (.library-ms).
@@ -15,11 +15,11 @@
 #     libs = manager.list_libraries()
 #
 # File: libraries.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.shell_namespace
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

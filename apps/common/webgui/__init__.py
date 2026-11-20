@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Common WebGUI - Package Init
+# Process Name: ai-tc Apps Common WebGUI - Package Init
 # =============================================================================
 # Description:
 #   Общие веб-решения, стили, темы, i18n и универсальные компоненты UI
-#   для приложений экосистемы AI Windows Admin.
+#   для приложений экосистемы ai-tc.
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.common.webgui
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 14:41:44
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

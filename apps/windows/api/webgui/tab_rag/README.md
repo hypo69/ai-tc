@@ -1,7 +1,7 @@
 # RAG Tab Web Interface
 
 ## Overview
-Provides an interactive web interface for managing knowledge base documents, workspace Multi-RAG collections, codebase AST indexes, configuring vector indexing settings, triggering embeddings building, and testing semantic similarity search in AI Windows Admin.
+Provides an interactive web interface for managing knowledge base documents, workspace Multi-RAG collections, codebase AST indexes, configuring vector indexing settings, triggering embeddings building, and testing semantic similarity search in ai-tc.
 
 ## Modular Architecture
 

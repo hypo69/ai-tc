@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Sound Manager & API Tests
+# Process Name: ai-tc Tests - Sound Manager & API Tests
 # =============================================================================
 # Description:
 #   Модульные тесты для подсистемы управления звуком Windows:
@@ -11,11 +11,11 @@
 #   pytest tests/test_sound_manager.py -v
 #
 # File: test_sound_manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-27 12:05:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import pytest

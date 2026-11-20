@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Telemetry SQLite API Stability
+# Process Name: ai-tc Tests - Telemetry SQLite API Stability
 # =============================================================================
 # Description:
 #   Тесты стабильности публичного API TelemetryWriter и TelemetryReader при
@@ -8,11 +8,11 @@
 #   записи на временной БД.
 #
 # File: test_telemetry_sqlite_api.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 17:15:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

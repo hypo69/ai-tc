@@ -11,11 +11,11 @@
  *   - Блоки Уровня 2: #tab-software-monitor#panel-packages#block-<block_id>
  *
  * File: panel_subtabs/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_software_monitor/panel_subtabs
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-12 02:25:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

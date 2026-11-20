@@ -1,39 +1,34 @@
-﻿/**
+/**
  * =============================================================================
  * Process Name: Windows WebGUI - Universal Table Resizer & Adaptive Height
  * =============================================================================
  * Description:
- *   Универсальный модуль управления высотой и интерактивными ползунками таблиц
- *   для всех интерфейсов Test Computer / AI Windows Admin.
+ *   Универсальный модуль управления высотой, интерактивными ползунками и
+ *   ссылкой раскрытия 100% для абсолютно всех таблиц веб-интерфейса ai-tc.
  *
  *   Функциональные возможности:
- *     1. Пропорциональное адаптивное увеличение высоты таблицы под объем данных.
- *     2. Интерактивный ползунок (.sys-table-resizer) для ручного растягивания
- *        и сжатия высоты с сохранением настроек пользователя в localStorage.
- *     3. Кнопка "100%" (.btn-table-expand-100) в заголовке панели для мгновенного
- *        раскрытия таблицы на полную высоту содержимого без вертикального скроллера.
- *     4. Двойной клик по ползунку ресайзера сбрасывает кастомную высоту и
- *        возвращает адаптивный автоматический расчет.
- *     5. Автоматическое отслеживание изменений строк через MutationObserver.
+ *     1. Автоматическое обнаружение и подключение ко всем <table> в DOM
+ *        (включая динамические вкладки, модальные окна и AJAX-таблицы).
+ *     2. Если в таблице много строк (> 10 или превышает maxAutoHeight):
+ *        - отображается нижний ползунок (.sys-table-resizer) для растягивания
+ *          нижней границы вниз/вверх с сохранением высоты в localStorage;
+ *        - в шапке таблицы (или панели) отображается ссылка «100%»,
+ *          разворачивающая таблицу на все 100% строк без вертикального скроллера.
+ *     3. Двойной клик по ползунку сбрасывает ручную высоту к авто-расчету.
+ *     4. Автоматическое отслеживание изменений строк через MutationObserver.
  *
  * Usage Examples:
- *   HTML:
- *     <button class="btn btn-xs btn-outline-secondary btn-table-expand-100" id="btn-top-expand">100%</button>
- *     <div class="table-responsive" id="my-table-container"><table>...</table></div>
- *     <div class="sys-table-resizer" data-container-id="my-table-container">
- *       <div class="sys-table-resizer-grip"></div>
- *     </div>
- *
  *   JavaScript:
  *     window.setupTableResizer({ containerId: 'my-table-container' });
  *     window.autoAdjustTableHeight('my-table-container', rowCount);
+ *     window.initAllTableResizers(document);
  *
  * File: table-resizer.js
- * Project: ai-windows-admin
- * Package: windows/api/webgui/js
+ * Project: ai-tc
+ * Package: apps.common.webgui.js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-03 15:05:00
+ * Updated: 2026-11-20 15:45:00
  * =============================================================================
  */
 
@@ -43,8 +38,25 @@
   /** Хранилище активных экземпляров контроллеров таблиц: containerId -> TableResizerInstance */
   const resizersRegistry = new Map();
 
+  /** Порог количества строк, после которого таблица считается длинной. */
+  const MANY_ROWS_THRESHOLD = 10;
+
   /**
-   * Класс контроллера изменения высоты таблицы.
+   * Подсчитывает фактическое количество строк данных в tbody таблицы.
+   *
+   * @param {HTMLElement} container
+   * @returns {number}
+   */
+  function countTableRows(container) {
+    const rows = container.querySelectorAll('tbody tr');
+    if (rows.length === 1 && rows[0].querySelector('td[colspan]')) {
+      return 0;
+    }
+    return rows.length;
+  }
+
+  /**
+   * Класс контроллера изменения высоты таблицы и ссылки 100%.
    */
   class TableResizerInstance {
     constructor(options = {}) {
@@ -57,19 +69,43 @@
       this.containerId = this.container.id || `tbl-container-${Math.random().toString(36).slice(2, 9)}`;
       if (!this.container.id) this.container.id = this.containerId;
 
-      this.resizer = typeof options.resizer === 'string'
-        ? document.getElementById(options.resizer)
-        : (options.resizer || this.findResizerElement() || (options.autoCreate !== false ? this.createResizerElement() : null));
+      this.isAutoDiscovered = Boolean(options.isAutoDiscovered);
+      this.autoCreatedResizer = false;
+      this.autoCreatedExpand = false;
+      this.headerBar = null;
 
-      this.expandBtn = typeof options.expandBtn === 'string'
+      const existingResizer = typeof options.resizer === 'string'
+        ? document.getElementById(options.resizer)
+        : (options.resizer || this.findResizerElement());
+
+      if (existingResizer) {
+        this.resizer = existingResizer;
+      } else if (options.autoCreate !== false) {
+        this.resizer = this.createResizerElement();
+        this.autoCreatedResizer = Boolean(this.resizer);
+      } else {
+        this.resizer = null;
+      }
+
+      const existingExpand = typeof options.expandBtn === 'string'
         ? document.getElementById(options.expandBtn)
-        : (options.expandBtn || this.findExpandButton() || (options.autoCreate !== false ? this.createExpandButton() : null));
+        : (options.expandBtn || this.findExpandButton());
+
+      if (existingExpand) {
+        this.expandBtn = existingExpand;
+      } else if (options.autoCreate !== false) {
+        this.expandBtn = this.createExpandButton();
+        this.autoCreatedExpand = Boolean(this.expandBtn);
+      } else {
+        this.expandBtn = null;
+      }
 
       this.minHeight = options.minHeight || 140;
-      this.maxHeight = options.maxHeight || 1200;
-      this.maxAutoHeight = options.maxAutoHeight || 660;
+      this.maxHeight = options.maxHeight || 1800;
+      this.maxAutoHeight = options.maxAutoHeight || (this.isAutoDiscovered ? 440 : 660);
       this.rowHeight = options.rowHeight || 34;
       this.headerHeight = options.headerHeight || 38;
+      this.manyRowsThreshold = options.manyRowsThreshold || MANY_ROWS_THRESHOLD;
       this.storageKey = options.storageKey || `sys_tbl_height_${this.containerId}`;
 
       this.isExpanded100 = false;
@@ -83,44 +119,57 @@
 
       this.init();
     }
+
     /**
      * Поиск элемента ползунка resizer рядом с контейнером.
      */
     findResizerElement() {
-      // 1. Поиск по data-container-id
-      let el = document.querySelector(`.sys-table-resizer[data-container-id="${this.containerId}"], .slc-table-resizer[data-container-id="${this.containerId}"], .table-resizer[data-container-id="${this.containerId}"]`);
+      let el = document.querySelector(
+        `.sys-table-resizer[data-container-id="${this.containerId}"], ` +
+        `.slc-table-resizer[data-container-id="${this.containerId}"], ` +
+        `.table-resizer[data-container-id="${this.containerId}"]`
+      );
       if (el) return el;
 
-      // 2. Следующий сосед
-      if (this.container.nextElementSibling && (this.container.nextElementSibling.classList.contains('sys-table-resizer') || this.container.nextElementSibling.classList.contains('slc-table-resizer') || this.container.nextElementSibling.classList.contains('table-resizer'))) {
-        return this.container.nextElementSibling;
+      const next = this.container.nextElementSibling;
+      if (next && (
+        next.classList.contains('sys-table-resizer') ||
+        next.classList.contains('slc-table-resizer') ||
+        next.classList.contains('table-resizer')
+      )) {
+        return next;
       }
-      // 3. Внутри родительской панели
+
       const panel = this.container.closest('.sys-panel, .card, [data-panel-id]');
-      if (panel) {
+      if (panel && panel.querySelectorAll('table').length === 1) {
         el = panel.querySelector('.sys-table-resizer, .slc-table-resizer, .table-resizer');
         if (el) return el;
       }
       return null;
     }
+
     /**
-     * Поиск кнопки 100% в шапке панели или по контейнеру.
+     * Поиск существующей кнопки/ссылки 100% в шапке панели или по контейнеру.
      */
     findExpandButton() {
       if (this.containerId) {
-        const directBtn = document.querySelector(`.btn-table-expand-100[data-target-container="${this.containerId}"]`) ||
-                          document.getElementById(`${this.containerId}-expand`) ||
-                          (this.containerId === 'pm-table-container' ? document.getElementById('pm-btn-table-expand') : null);
+        const directBtn =
+          document.querySelector(`.btn-table-expand-100[data-target-container="${this.containerId}"]`) ||
+          document.getElementById(`${this.containerId}-expand`) ||
+          document.getElementById(`${this.containerId}-btn-table-expand`) ||
+          (this.containerId === 'pm-table-container' ? document.getElementById('pm-btn-table-expand') : null);
         if (directBtn) return directBtn;
       }
+
       const panel = this.container.closest('.winadmin-panel, .sys-panel, .card, [data-panel-id]');
-      if (panel) {
+      if (panel && panel.querySelectorAll('table').length === 1) {
         return panel.querySelector('.btn-table-expand-100');
       }
       return null;
     }
+
     /**
-     * Создание и вставка ползунка resizer через центральный шаблонизатор.
+     * Создание и вставка нижнего ползунка resizer непосредственно под контейнером.
      */
     createResizerElement() {
       if (!this.container || !this.container.parentNode) return null;
@@ -130,6 +179,7 @@
       resizer.setAttribute('data-container-id', this.containerId);
       resizer.title = 'Потяните для изменения высоты таблицы (двойной клик — авто-высота)';
       resizer.innerHTML = '<div class="sys-table-resizer-grip"></div>';
+
       if (this.container.nextSibling) {
         this.container.parentNode.insertBefore(resizer, this.container.nextSibling);
       } else {
@@ -137,31 +187,66 @@
       }
       return resizer;
     }
+
     /**
-     * Создание и вставка кнопки 100% в шапку панели через центральный шаблонизатор.
+     * Создание и вставка ссылки «100%» в шапку панели либо в компактную шапку таблицы.
      */
     createExpandButton() {
-      if (!this.container) return null;
+      if (!this.container || !this.container.parentNode) return null;
+
+      const link = document.createElement('a');
+      link.href = '#';
+      link.setAttribute('role', 'button');
+      link.className = 'btn btn-xs btn-outline-secondary btn-table-expand-100';
+      link.id = `${this.containerId}-btn-table-expand`;
+      link.setAttribute('data-target-container', this.containerId);
+      link.title = 'Раскрыть таблицу на все 100% строк без скроллера';
+      link.textContent = '100%';
+
       const panel = this.container.closest('.winadmin-panel, .sys-panel, .card, [data-panel-id]');
-      if (!panel) return null;
-      const header = panel.querySelector('.panel-header, .card-header');
-      if (!header) return null;
+      const isSingleTablePanel = panel && panel.querySelectorAll('table').length === 1;
+      const header = isSingleTablePanel ? panel.querySelector('.panel-header, .card-header') : null;
 
-      const btn = document.createElement('button');
-      btn.className = 'btn btn-xs btn-outline-secondary btn-table-expand-100';
-      btn.id = `${this.containerId}-btn-table-expand`;
-      btn.setAttribute('data-target-container', this.containerId);
-      btn.title = 'Раскрыть таблицу на 100% высоты без скроллера';
-      btn.textContent = '100%';
-
-      const actionsGroup = header.querySelector('.d-flex.align-items-center.gap-2, .d-flex.align-items-center, .card-header-actions');
-      if (actionsGroup) {
-        actionsGroup.insertBefore(btn, actionsGroup.firstChild);
-      } else {
-        header.appendChild(btn);
+      if (header) {
+        const actionsGroup = header.querySelector('.d-flex.align-items-center.gap-2, .d-flex.align-items-center, .card-header-actions');
+        if (actionsGroup) {
+          actionsGroup.insertBefore(link, actionsGroup.firstChild);
+        } else {
+          link.classList.add('ms-auto');
+          header.appendChild(link);
+        }
+        return link;
       }
-      return btn;
+
+      // Если у таблицы нет внешней шапки панели — создаем компактную шапку таблицы
+      const bar = document.createElement('div');
+      bar.className = 'ut-table-header-bar';
+      bar.setAttribute('data-for-container', this.containerId);
+      bar.appendChild(link);
+      this.container.parentNode.insertBefore(bar, this.container);
+      this.headerBar = bar;
+      return link;
     }
+
+    /**
+     * Управляет видимостью авто-созданных контролов (ползунок и ссылка 100%).
+     *
+     * @param {boolean} visible
+     */
+    setAutoControlsVisible(visible) {
+      if (!this.isAutoDiscovered) return;
+      if (this.autoCreatedResizer && this.resizer) {
+        this.resizer.hidden = !visible;
+      }
+      if (this.autoCreatedExpand) {
+        if (this.headerBar) {
+          this.headerBar.hidden = !visible;
+        } else if (this.expandBtn) {
+          this.expandBtn.hidden = !visible;
+        }
+      }
+    }
+
     /**
      * Инициализация событий, localStorage и MutationObserver.
      */
@@ -169,57 +254,62 @@
       if (this.container._tableResizerBound) return;
       this.container._tableResizerBound = true;
 
-      // Восстановление высоты из localStorage
+      // Восстановление пользовательской высоты из localStorage
       try {
         const saved = localStorage.getItem(this.storageKey);
         if (saved) {
           const parsed = parseInt(saved, 10);
           if (!isNaN(parsed) && parsed >= this.minHeight && parsed <= this.maxHeight) {
             this.container.style.height = `${parsed}px`;
+            this.container.style.maxHeight = 'none';
+            this.container.style.overflowY = 'auto';
             this.customHeight = parsed;
             this.isCustomHeight = true;
           }
         }
       } catch (_) {}
 
-      // Привязка событий перетаскивания ползунка
       if (this.resizer) {
         this.resizer.setAttribute('data-container-id', this.containerId);
         this.setupDragEvents();
       }
-      // Привязка кнопки 100%
-      if (this.expandBtn) {
+
+      if (this.expandBtn && !this.expandBtn._expandBound) {
+        this.expandBtn._expandBound = true;
         this.expandBtn.addEventListener('click', (e) => {
           e.preventDefault();
           this.toggle100();
         });
       }
-      // Наблюдатель за обновлением строк tbody
+
       this.setupMutationObserver();
 
-      // Начальный авто-расчет при отсутствии кастомной высоты
       if (!this.isCustomHeight) {
         this.autoAdjust();
+      } else {
+        this.setAutoControlsVisible(true);
       }
     }
+
     /**
-     * Настройка перетаскивания ползунка мышь/тач.
+     * Настройка перетаскивания ползунка (мышь и сенсорный экран).
      */
     setupDragEvents() {
+      if (this.resizer._dragBound) return;
+      this.resizer._dragBound = true;
+
       const onStart = (e) => {
         this.isDragging = true;
         this.startY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
-        this.startHeight = this.container.getBoundingClientRect().height;
+        this.startHeight = this.container.getBoundingClientRect().height || this.maxAutoHeight;
 
         if (this.isExpanded100) {
           this.isExpanded100 = false;
           this.container.classList.remove('expanded-100');
-          if (this.expandBtn) {
-            this.expandBtn.classList.remove('active', 'btn-info', 'text-dark');
-            this.expandBtn.classList.add('btn-outline-secondary');
-            this.expandBtn.title = 'Раскрыть таблицу на 100% высоты без скроллера';
-          }
+          this.container.style.overflowY = 'auto';
+          this.updateExpandBtnState(false);
         }
+
         this.resizer.classList.add('resizing');
         document.body.style.cursor = 'row-resize';
         document.body.style.userSelect = 'none';
@@ -230,18 +320,20 @@
         window.addEventListener('touchend', onEnd);
         e.preventDefault();
       };
+
       const onMove = (e) => {
         if (!this.isDragging) return;
         const currentY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : null);
         if (currentY === null) return;
 
         const delta = currentY - this.startY;
-        let newH = this.startHeight + delta;
-        newH = Math.max(this.minHeight, Math.min(this.maxHeight, newH));
+        const newH = Math.max(this.minHeight, Math.min(this.maxHeight, this.startHeight + delta));
 
         this.container.style.height = `${newH}px`;
         this.container.style.maxHeight = 'none';
+        this.container.style.overflowY = 'auto';
       };
+
       const onEnd = () => {
         if (!this.isDragging) return;
         this.isDragging = false;
@@ -263,14 +355,32 @@
           } catch (_) {}
         }
       };
+
       this.resizer.addEventListener('mousedown', onStart);
       this.resizer.addEventListener('touchstart', onStart, { passive: false });
-
-      // Двойной клик сбрасывает сохраненный размер
-      this.resizer.addEventListener('dblclick', () => {
-        this.resetToAuto();
-      });
+      this.resizer.addEventListener('dblclick', () => this.resetToAuto());
     }
+
+    /**
+     * Обновляет визуальное состояние кнопки/ссылки 100%.
+     *
+     * @param {boolean} active
+     */
+    updateExpandBtnState(active) {
+      if (!this.expandBtn) return;
+      if (active) {
+        this.expandBtn.classList.add('active', 'btn-info', 'text-dark');
+        this.expandBtn.classList.remove('btn-outline-secondary');
+        this.expandBtn.setAttribute('aria-pressed', 'true');
+        this.expandBtn.title = 'Свернуть таблицу к обычной высоте';
+      } else {
+        this.expandBtn.classList.remove('active', 'btn-info', 'text-dark');
+        this.expandBtn.classList.add('btn-outline-secondary');
+        this.expandBtn.setAttribute('aria-pressed', 'false');
+        this.expandBtn.title = 'Раскрыть таблицу на все 100% строк без скроллера';
+      }
+    }
+
     /**
      * Сброс пользовательской высоты и возврат к авто-расчету.
      */
@@ -284,117 +394,110 @@
 
       this.container.classList.remove('expanded-100');
       this.container.style.maxHeight = '';
+      this.container.style.height = '';
       this.container.style.overflowY = 'auto';
-
-      if (this.expandBtn) {
-        this.expandBtn.classList.remove('active', 'btn-info', 'text-dark');
-        this.expandBtn.classList.add('btn-outline-secondary');
-        this.expandBtn.title = 'Раскрыть таблицу на 100% высоты без скроллера';
-      }
+      this.updateExpandBtnState(false);
       this.autoAdjust();
     }
+
     /**
-     * Переключение режима 100% высоты без скроллера.
+     * Переключение режима 100% высоты без вертикального скроллера.
      */
     toggle100() {
       if (this.isExpanded100) {
-        // Выключение режима 100%
         this.isExpanded100 = false;
         this.container.classList.remove('expanded-100');
         this.container.style.maxHeight = '';
         this.container.style.overflowY = 'auto';
+        this.updateExpandBtnState(false);
 
-        if (this.expandBtn) {
-          this.expandBtn.classList.remove('active', 'btn-info', 'text-dark');
-          this.expandBtn.classList.add('btn-outline-secondary');
-          this.expandBtn.title = 'Раскрыть таблицу на 100% высоты без скроллера';
-        }
         if (this.isCustomHeight && this.customHeight) {
           this.container.style.height = `${this.customHeight}px`;
+          this.container.style.maxHeight = 'none';
         } else if (this.savedHeightBefore100) {
           this.container.style.height = `${this.savedHeightBefore100}px`;
         } else {
           this.autoAdjust();
         }
       } else {
-        // Включение режима 100%
         this.isExpanded100 = true;
-        this.savedHeightBefore100 = this.container.getBoundingClientRect().height || parseInt(this.container.style.height, 10) || 320;
+        this.savedHeightBefore100 =
+          this.container.getBoundingClientRect().height ||
+          parseInt(this.container.style.height, 10) ||
+          this.maxAutoHeight;
+
         this.container.classList.add('expanded-100');
-
-        const table = this.container.querySelector('table');
-        const fullContentH = Math.max(
-          table ? table.scrollHeight : 0,
-          this.container.scrollHeight,
-          this.minHeight
-        );
-
         this.container.style.maxHeight = 'none';
-        this.container.style.height = `${fullContentH + 8}px`;
+        this.container.style.height = 'auto';
         this.container.style.overflowY = 'visible';
-
-        if (this.expandBtn) {
-          this.expandBtn.classList.add('active', 'btn-info', 'text-dark');
-          this.expandBtn.classList.remove('btn-outline-secondary');
-          this.expandBtn.title = 'Свернуть таблицу к обычной высоте';
-        }
+        this.updateExpandBtnState(true);
       }
     }
+
     /**
-     * Наблюдатель за изменением содержимого tbody.
+     * Наблюдатель за изменением содержимого tbody или заменой таблицы.
      */
     setupMutationObserver() {
-      const targetTbody = this.container.querySelector('tbody');
-      if (!targetTbody || typeof MutationObserver === 'undefined') return;
+      if (typeof MutationObserver === 'undefined') return;
 
       let debounceTimer = null;
-      this.observer = new MutationObserver(() => {
+      const onMutate = () => {
         if (debounceTimer) clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-          this.autoAdjust();
-        }, 40);
-      });
+        debounceTimer = setTimeout(() => this.autoAdjust(), 50);
+      };
 
-      this.observer.observe(targetTbody, { childList: true, subtree: false });
+      const targetTbody = this.container.querySelector('tbody');
+      const observeTarget = targetTbody || this.container;
+      this.observer = new MutationObserver(onMutate);
+      this.observer.observe(observeTarget, {
+        childList: true,
+        subtree: !targetTbody
+      });
     }
+
     /**
      * Адаптивный расчет высоты таблицы пропорционально числу строк.
-     * @param {number} [forcedRowCount] - Принудительное количество строк
+     *
+     * @param {number} [forcedRowCount] - Принудительное количество строк.
      */
     autoAdjust(forcedRowCount) {
       if (this.isExpanded100) {
-        // В режиме 100% всегда обновляем высоту под полный scrollHeight
-        const table = this.container.querySelector('table');
-        const fullContentH = Math.max(
-          table ? table.scrollHeight : 0,
-          this.container.scrollHeight,
-          this.minHeight
-        );
         this.container.style.maxHeight = 'none';
-        this.container.style.height = `${fullContentH + 8}px`;
+        this.container.style.height = 'auto';
+        this.container.style.overflowY = 'visible';
         return;
       }
-      // Если пользователь вручную зафиксировал высоту ползунком — не перебиваем
+
       if (this.isCustomHeight && this.customHeight) {
+        this.setAutoControlsVisible(true);
         return;
       }
-      let count = 0;
-      if (typeof forcedRowCount === 'number') {
-        count = forcedRowCount;
-      } else {
-        const rows = this.container.querySelectorAll('tbody tr');
-        // Отсекаем одиночные строки-заглушки типа "Ожидание потока...", "Нет данных"
-        if (rows.length === 1) {
-          const firstRow = rows[0];
-          if (firstRow.querySelector('td[colspan]')) {
-            count = 0;
-          } else {
-            count = 1;
-          }
-        } else {
-          count = rows.length;
+
+      const count = typeof forcedRowCount === 'number'
+        ? forcedRowCount
+        : countTableRows(this.container);
+
+      const table = this.container.querySelector('table');
+      const tableHeight = table ? table.scrollHeight : 0;
+
+      // Для авто-обнаруженных таблиц: показываем ползунок и 100% только если строк много
+      if (this.isAutoDiscovered) {
+        const isLongTable = count > this.manyRowsThreshold || (tableHeight > this.maxAutoHeight + 24);
+        if (!isLongTable) {
+          this.container.style.height = '';
+          this.container.style.maxHeight = '';
+          this.setAutoControlsVisible(false);
+          return;
         }
+
+        this.container.style.overflowY = 'auto';
+        this.container.style.maxHeight = 'none';
+        this.container.style.height = `${this.maxAutoHeight}px`;
+        this.setAutoControlsVisible(true);
+        return;
       }
+
+      // Для таблиц с явным data-resizable-table / .sys-table-resizer
       let calculatedH;
       if (count <= 0) {
         calculatedH = Math.min(180, this.minHeight + 30);
@@ -407,10 +510,48 @@
       this.container.style.height = `${calculatedH}px`;
     }
   }
+
+  /**
+   * Возвращает или создает скроллируемый контейнер для произвольной таблицы <table>.
+   *
+   * @param {HTMLTableElement} table
+   * @returns {HTMLElement|null}
+   */
+  function ensureTableContainer(table) {
+    if (!table || !table.parentElement) return null;
+
+    // 1. Таблица уже внутри .table-responsive
+    const resp = table.closest('.table-responsive');
+    if (resp && resp.querySelectorAll('table').length === 1) {
+      return resp;
+    }
+
+    // 2. Если родительский <div> содержит только эту таблицу — используем его напрямую
+    const parent = table.parentElement;
+    if (
+      parent.tagName === 'DIV' &&
+      parent.children.length === 1 &&
+      !parent.classList.contains('card-body') &&
+      !parent.classList.contains('modal-body') &&
+      !parent.classList.contains('tab-pane')
+    ) {
+      parent.classList.add('table-responsive');
+      return parent;
+    }
+
+    // 3. Оборачиваем таблицу в .table-responsive.ut-auto-table-container
+    const wrapper = document.createElement('div');
+    wrapper.className = 'table-responsive ut-auto-table-container';
+    parent.insertBefore(wrapper, table);
+    wrapper.appendChild(table);
+    return wrapper;
+  }
+
   /**
    * Настройка и регистрация контроллера для контейнера таблицы.
-   * @param {Object} options 
-   * @returns {TableResizerInstance}
+   *
+   * @param {Object} options
+   * @returns {TableResizerInstance|null}
    */
   function setupTableResizer(options) {
     if (!options) return null;
@@ -421,18 +562,25 @@
     if (!container) return null;
 
     const id = container.id;
-    if (resizersRegistry.has(id)) {
+    if (id && resizersRegistry.has(id)) {
       const existing = resizersRegistry.get(id);
       if (options.resizer && !existing.resizer) {
         existing.resizer = typeof options.resizer === 'string' ? document.getElementById(options.resizer) : options.resizer;
-        existing.setupDragEvents();
+        if (existing.resizer) existing.setupDragEvents();
       }
       if (options.expandBtn && !existing.expandBtn) {
         existing.expandBtn = typeof options.expandBtn === 'string' ? document.getElementById(options.expandBtn) : options.expandBtn;
-        existing.expandBtn?.addEventListener('click', (e) => { e.preventDefault(); existing.toggle100(); });
+        if (existing.expandBtn && !existing.expandBtn._expandBound) {
+          existing.expandBtn._expandBound = true;
+          existing.expandBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            existing.toggle100();
+          });
+        }
       }
       return existing;
     }
+
     const instance = new TableResizerInstance({
       ...options,
       container,
@@ -445,10 +593,12 @@
     }
     return instance;
   }
+
   /**
    * Адаптивная подгонка высоты для зарегистрированного контейнера.
-   * @param {string|HTMLElement} containerOrId 
-   * @param {number} [rowCount] 
+   *
+   * @param {string|HTMLElement} containerOrId
+   * @param {number} [rowCount]
    */
   function autoAdjustTableHeight(containerOrId, rowCount) {
     const id = typeof containerOrId === 'string' ? containerOrId : containerOrId?.id;
@@ -457,29 +607,25 @@
     let inst = resizersRegistry.get(id);
     if (!inst) {
       const el = document.getElementById(id);
-      if (el) {
-        inst = setupTableResizer({ container: el });
-      }
+      if (el) inst = setupTableResizer({ container: el });
     }
-    if (inst) {
-      inst.autoAdjust(rowCount);
-    }
+    if (inst) inst.autoAdjust(rowCount);
   }
+
   /**
-   * Автоматическое обнаружение и инициализация всех таблиц с ползунками
+   * Автоматическое обнаружение и инициализация абсолютно всех таблиц
    * внутри переданного корневого элемента.
-   * @param {HTMLElement|Document} [root=document] 
+   *
+   * @param {HTMLElement|Document} [root=document]
    */
   function initAllTableResizers(root = document) {
     if (!root || typeof root.querySelectorAll !== 'function') return;
 
-    // 1. Поиск всех явных ползунков .sys-table-resizer
-    const resizers = root.querySelectorAll('.sys-table-resizer, .slc-table-resizer, .table-resizer');
-    resizers.forEach((resizer) => {
+    // 1. Явные ползунки .sys-table-resizer / .slc-table-resizer / .table-resizer
+    root.querySelectorAll('.sys-table-resizer, .slc-table-resizer, .table-resizer').forEach((resizer) => {
       const containerId = resizer.getAttribute('data-container-id');
       let container = containerId ? document.getElementById(containerId) : null;
       if (!container) {
-        // Предыдущий элемент .table-responsive
         let prev = resizer.previousElementSibling;
         while (prev) {
           if (prev.classList.contains('table-responsive')) {
@@ -494,61 +640,99 @@
       }
     });
 
-    // 2. Поиск таблиц с атрибутом data-resizable-table или data-table-template
-    const resizableContainers = root.querySelectorAll('[data-resizable-table], [data-table-template]');
-    resizableContainers.forEach((container) => {
+    // 2. Контейнеры с явным data-resizable-table или data-table-template
+    root.querySelectorAll('[data-resizable-table], [data-table-template]').forEach((container) => {
       setupTableResizer({ container, autoCreate: true });
     });
+
+    // 3. Все остальные <table> в DOM (универсальное покрытие)
+    const allTables = root.tagName === 'TABLE' ? [root] : Array.from(root.querySelectorAll('table'));
+    allTables.forEach((table) => {
+      if (table.getAttribute('data-no-resize') === 'true') return;
+      // Пропускаем вложенные таблицы внутри ячейки другой таблицы
+      if (table.parentElement && table.parentElement.closest('td, th')) return;
+
+      const existingBound = table.closest('.table-responsive');
+      if (existingBound && existingBound._tableResizerBound) return;
+
+      const container = ensureTableContainer(table);
+      if (!container || container._tableResizerBound) return;
+
+      setupTableResizer({
+        container,
+        autoCreate: true,
+        isAutoDiscovered: true
+      });
+    });
+
+    // 4. Синхронизация с универсальной сортировкой столбцов
+    if (window.TableSorter && typeof window.TableSorter.initAll === 'function') {
+      window.TableSorter.initAll(root);
+    }
   }
+
   /**
-   * Центральный шаблонизатор таблиц WebGUI (AI Windows Admin).
-   * Обеспечивает стандартизацию всех таблиц системы:
-   * - Кнопка "100%" (.btn-table-expand-100) для полного разворачивания без внутреннего скроллера
-   * - Адаптивный скроллируемый контейнер (.table-responsive[data-resizable-table="true"])
-   * - Нижний интерактивный ползунок (.sys-table-resizer) для изменения высоты
+   * Центральный шаблонизатор таблиц WebGUI (ai-tc).
    */
   const TableTemplate = {
-    /**
-     * Возвращает HTML кнопки 100%.
-     * @param {string} containerId - ID контейнера таблицы.
-     * @param {string} [extraClass=''] - Дополнительные CSS классы.
-     * @returns {string}
-     */
     renderExpandButtonHtml(containerId, extraClass = '') {
       const cls = extraClass ? ` ${extraClass}` : '';
-      return `<button class="btn btn-xs btn-outline-secondary btn-table-expand-100${cls}" id="${containerId}-btn-table-expand" data-target-container="${containerId}" title="Раскрыть таблицу на 100% высоты без скроллера">100%</button>`;
+      return `<a href="#" role="button" class="btn btn-xs btn-outline-secondary btn-table-expand-100${cls}" id="${containerId}-btn-table-expand" data-target-container="${containerId}" title="Раскрыть таблицу на все 100% строк без скроллера">100%</a>`;
     },
 
-    /**
-     * Возвращает HTML нижнего ползунка ресайзера.
-     * @param {string} containerId - ID контейнера таблицы.
-     * @param {string} [extraClass=''] - Дополнительные CSS классы.
-     * @returns {string}
-     */
     renderResizerHtml(containerId, extraClass = '') {
       const cls = extraClass ? ` ${extraClass}` : '';
       return `<div class="sys-table-resizer${cls}" id="${containerId}-resizer" data-container-id="${containerId}" title="Потяните для изменения высоты таблицы (двойной клик — авто-высота)"><div class="sys-table-resizer-grip"></div></div>`;
     },
 
-    /**
-     * Применяет центральный шаблон к таблице или контейнеру,
-     * гарантируя наличие кнопки 100% и ползунка-ресайзера.
-     * @param {string|HTMLElement} containerOrId - Контейнер таблицы или его ID.
-     * @param {Object} [options={}] - Настройки ресайзера.
-     * @returns {TableResizerInstance}
-     */
     apply(containerOrId, options = {}) {
       return setupTableResizer({ container: containerOrId, autoCreate: true, ...options });
     },
 
-    /**
-     * Инициализирует центральный шаблонизатор для всех таблиц в корневом элементе.
-     * @param {HTMLElement|Document} [root=document]
-     */
     initAll(root = document) {
       initAllTableResizers(root);
     }
   };
+
+  // Глобальный MutationObserver для автоматического охвата всех динамически добавляемых таблиц
+  let globalDomObserver = null;
+  let pendingNodes = new Set();
+  let observerTimer = null;
+
+  function startGlobalTableObserver() {
+    if (globalDomObserver || typeof MutationObserver === 'undefined' || !document.body) return;
+
+    globalDomObserver = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        for (const node of m.addedNodes) {
+          if (node.nodeType !== Node.ELEMENT_NODE) continue;
+          if (
+            node.classList.contains('sys-table-resizer') ||
+            node.classList.contains('ut-table-header-bar') ||
+            node.classList.contains('ut-auto-table-container')
+          ) {
+            continue;
+          }
+          if (node.tagName === 'TABLE' || (node.querySelector && node.querySelector('table'))) {
+            pendingNodes.add(node);
+          }
+        }
+      }
+
+      if (pendingNodes.size > 0 && !observerTimer) {
+        observerTimer = setTimeout(() => {
+          const batch = Array.from(pendingNodes);
+          pendingNodes.clear();
+          observerTimer = null;
+          batch.forEach((el) => {
+            if (el && el.isConnected) initAllTableResizers(el);
+          });
+        }, 80);
+      }
+    });
+
+    globalDomObserver.observe(document.body, { childList: true, subtree: true });
+  }
 
   // Экспорт в глобальный контекст window
   window.TableTemplate = TableTemplate;
@@ -565,21 +749,46 @@
   window.autoAdjustTableHeight = autoAdjustTableHeight;
   window.initAllTableResizers = initAllTableResizers;
 
-  // Автоматический запуск при готовности страницы
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => initAllTableResizers(document));
+    document.addEventListener('DOMContentLoaded', () => {
+      initAllTableResizers(document);
+      startGlobalTableObserver();
+    });
   } else {
-    setTimeout(() => initAllTableResizers(document), 60);
+    setTimeout(() => {
+      initAllTableResizers(document);
+      startGlobalTableObserver();
+    }, 60);
   }
 
-  // Автоматическая инициализация при переключении вкладок
+  /**
+   * Пересчитывает адаптивную высоту для уже инициализированных таблиц внутри видимого корня.
+   *
+   * @param {HTMLElement|Document} root
+   */
+  function refreshTablesInRoot(root) {
+    if (!root || typeof root.querySelectorAll !== 'function') return;
+    initAllTableResizers(root);
+    resizersRegistry.forEach((inst) => {
+      if (inst && inst.container && root.contains(inst.container)) {
+        inst.autoAdjust();
+      }
+    });
+  }
+
   document.addEventListener('tab:activated', (e) => {
     const tabId = e.detail?.tabId;
     if (tabId) {
       const tabPane = document.getElementById(tabId);
-      if (tabPane) {
-        initAllTableResizers(tabPane);
-      }
+      if (tabPane) refreshTablesInRoot(tabPane);
     }
+  });
+
+  document.addEventListener('shown.bs.modal', (e) => {
+    if (e.target) refreshTablesInRoot(e.target);
+  });
+
+  document.addEventListener('shown.bs.tab', () => {
+    refreshTablesInRoot(document);
   });
 })();

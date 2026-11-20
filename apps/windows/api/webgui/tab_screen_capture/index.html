@@ -1,0 +1,362 @@
+<!--
+=============================================================================
+Process Name: Windows Web Interface - Screen Capture Tab
+=============================================================================
+Description:
+  Веб-интерфейс вкладки Windows.Graphics.Capture & Screen Capture Engine:
+  - Интерактивный предпросмотр экрана и отдельных окон
+  - Управление потоковым видеозахватом с контролем частоты кадров
+  - Панель расширенных настроек графического движка и бэкендов
+  - Журнал визуально-телеметрической корреляции с событиями ядра ETW
+  - Диагностика графической подсистемы Windows.Graphics
+
+Usage Examples:
+  Web Route:
+    /html/tab_screen_capture/index.html?v=20261112_v1
+
+File: index.html
+Project: ai-windows-admin
+Package: windows/api/webgui/tab_screen_capture
+Author: hypo69
+Copyright: © 2026 hypo69
+Updated: 2026-11-12 02:55:00
+=============================================================================
+-->
+
+<div class="container-fluid p-3 d-flex flex-column gap-3 tab-screen-capture-wrapper" style="max-width: 1440px; margin: 0 auto;">
+
+  <!-- 1. Заголовок вкладки -->
+  <div class="tab-header d-flex justify-content-between align-items-center mb-1 flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <span class="tab-header-icon fs-3 text-primary"><i class="bi bi-display"></i></span>
+      <div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <h3 class="tab-header-title mb-0" id="screen-capture-header-title">Windows.Graphics.Capture</h3>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-0.5 small" id="screen-capture-status-badge">Готов к захвату</span>
+          <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5 small" id="screen-capture-fps-badge">0.0 FPS</span>
+        </div>
+        <small class="tab-header-subtitle text-secondary">
+          Аппаратный захват дисплеев, окон приложений, дифференциальный анализ Screen Diff и корреляция с ETW-телеметрией
+        </small>
+      </div>
+    </div>
+
+    <!-- Быстрые действия в шапке -->
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <button type="button" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-2" id="sc-btn-snap" title="Сделать моментальный снимок">
+        <i class="bi bi-camera"></i>
+        <span>Снимок</span>
+      </button>
+
+      <button type="button" class="btn btn-sm btn-success d-flex align-items-center gap-2" id="sc-btn-stream-toggle" title="Старт/Стоп видеопотока">
+        <i class="bi bi-play-circle" id="sc-stream-icon"></i>
+        <span id="sc-stream-label">Старт потока</span>
+      </button>
+
+      <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" id="sc-btn-refresh" title="Обновить список окон и экранов">
+        <i class="bi bi-arrow-clockwise" id="sc-refresh-spinner"></i>
+        <span>Обновить</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. Горизонтальное меню вкладок-пилюль (Nav-Pills) -->
+  <ul class="nav nav-pills gap-1 p-1 bg-body-tertiary rounded-pill border border-subtle align-self-start" id="sc-nav-pills" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active rounded-pill px-3 py-1 small" id="sc-tab-btn-live" data-bs-toggle="pill" data-bs-target="#sc-pane-live" type="button" role="tab">
+        <i class="bi bi-broadcast me-1"></i>Монитор захвата
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link rounded-pill px-3 py-1 small" id="sc-tab-btn-settings" data-bs-toggle="pill" data-bs-target="#sc-pane-settings" type="button" role="tab">
+        <i class="bi bi-sliders me-1"></i>Настройки захвата
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link rounded-pill px-3 py-1 small" id="sc-tab-btn-etw" data-bs-toggle="pill" data-bs-target="#sc-pane-etw" type="button" role="tab">
+        <i class="bi bi-cpu me-1"></i>Корреляция ETW
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link rounded-pill px-3 py-1 small" id="sc-tab-btn-caps" data-bs-toggle="pill" data-bs-target="#sc-pane-caps" type="button" role="tab">
+        <i class="bi bi-info-circle me-1"></i>Возможности API
+      </button>
+    </li>
+  </ul>
+
+  <!-- 3. Содержимое вкладок -->
+  <div class="tab-content w-100" id="sc-tab-content">
+
+    <!-- ПАНЕЛЬ 1: Живой монитор и просмотр -->
+    <div class="tab-pane fade show active" id="sc-pane-live" role="tabpanel">
+      <div class="row g-3">
+        <!-- Левая колонка: выбор цели и метаданные -->
+        <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+          <div class="card border-subtle shadow-sm bg-body">
+            <div class="card-header bg-body-tertiary py-2 px-3 fw-medium small d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-bullseye me-1 text-primary"></i>Объект захвата</span>
+              <span class="badge bg-secondary-subtle text-body small" id="sc-target-kind-badge">Дисплей</span>
+            </div>
+            <div class="card-body p-3 d-flex flex-column gap-3">
+              <div>
+                <label class="form-label small text-secondary mb-1">Режим захвата:</label>
+                <div class="btn-group w-100" role="group">
+                  <input type="radio" class="btn-check" name="sc-target-type" id="sc-type-display" value="display" checked>
+                  <label class="btn btn-sm btn-outline-primary" for="sc-type-display"><i class="bi bi-display me-1"></i>Дисплей</label>
+
+                  <input type="radio" class="btn-check" name="sc-target-type" id="sc-type-window" value="window">
+                  <label class="btn btn-sm btn-outline-primary" for="sc-type-window"><i class="bi bi-window me-1"></i>Окно</label>
+                </div>
+              </div>
+
+              <!-- Выбор монитора -->
+              <div id="sc-display-select-block">
+                <label for="sc-select-display" class="form-label small text-secondary mb-1">Выберите монитор:</label>
+                <select class="form-select form-select-sm" id="sc-select-display">
+                  <option value="0">Загрузка мониторов...</option>
+                </select>
+              </div>
+
+              <!-- Выбор окна -->
+              <div id="sc-window-select-block" class="d-none">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <label for="sc-select-window" class="form-label small text-secondary mb-0">Выберите окно приложения:</label>
+                  <input type="text" class="form-control form-control-sm w-50 py-0" id="sc-input-win-filter" placeholder="Фильтр окон...">
+                </div>
+                <select class="form-select form-select-sm" id="sc-select-window" size="5">
+                  <option value="">Загрузка окон...</option>
+                </select>
+              </div>
+
+              <!-- Информационная плашка кадра -->
+              <div class="p-2 rounded bg-body-tertiary border border-subtle small d-flex flex-column gap-1">
+                <div class="d-flex justify-content-between">
+                  <span class="text-secondary">Разрешение:</span>
+                  <span class="fw-medium font-monospace" id="sc-meta-resolution">-</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-secondary">Размер сжатия:</span>
+                  <span class="fw-medium font-monospace" id="sc-meta-size">-</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-secondary">Динамика Diff:</span>
+                  <span class="fw-medium font-monospace" id="sc-meta-diff">0.0%</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-secondary">Бэкенд:</span>
+                  <span class="badge bg-info-subtle text-info border border-info-subtle" id="sc-meta-backend">WGC / GDI</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Карточка недавних снимков (мини-галерея) -->
+          <div class="card border-subtle shadow-sm bg-body">
+            <div class="card-header bg-body-tertiary py-2 px-3 fw-medium small">
+              <i class="bi bi-clock-history me-1 text-primary"></i>История снимков
+            </div>
+            <div class="card-body p-2" id="sc-history-container" style="max-height: 220px; overflow-y: auto;">
+              <div class="text-center text-secondary small py-3" id="sc-history-empty">Снимков пока нет</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Правая колонка: видоискатель экрана -->
+        <div class="col-12 col-lg-8">
+          <div class="card border-subtle shadow-sm bg-body h-100">
+            <div class="card-header bg-body-tertiary py-2 px-3 fw-medium small d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-eye me-1 text-primary"></i>Видеопоток / Предпросмотр</span>
+              <span class="small text-secondary" id="sc-preview-ts">Ожидание первого кадра</span>
+            </div>
+            <div class="card-body p-2 d-flex align-items-center justify-content-center bg-dark bg-opacity-10 position-relative" style="min-height: 480px;">
+              <div id="sc-preview-empty-state" class="text-center text-secondary p-4">
+                <i class="bi bi-aspect-ratio fs-1 text-secondary opacity-50 mb-2"></i>
+                <div class="fw-medium">Нет активного изображения</div>
+                <small class="text-secondary">Нажмите «Снимок» или включите «Старт потока» для получения кадров</small>
+              </div>
+              <img id="sc-preview-image" src="" alt="Экранный снимок" class="img-fluid rounded border border-subtle d-none shadow-sm" style="max-height: 640px; object-fit: contain;">
+              <div id="sc-stream-spinner" class="spinner-border text-primary position-absolute d-none" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ПАНЕЛЬ 2: Настройки захвата -->
+    <div class="tab-pane fade" id="sc-pane-settings" role="tabpanel">
+      <div class="card border-subtle shadow-sm bg-body" style="max-width: 900px; margin: 0 auto;">
+        <div class="card-header bg-body-tertiary py-2 px-3 fw-medium d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-gear me-1 text-primary"></i>Параметры графического движка захвата</span>
+          <button type="button" class="btn btn-sm btn-primary" id="sc-btn-save-settings">
+            <i class="bi bi-check-circle me-1"></i>Сохранить настройки
+          </button>
+        </div>
+        <div class="card-body p-4 d-flex flex-column gap-3">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label for="sc-cfg-backend" class="form-label small fw-medium text-body">Графический бэкенд захвата:</label>
+              <select class="form-select form-select-sm" id="sc-cfg-backend">
+                <option value="auto">Автовыбор (Windows.Graphics.Capture с GDI fallback)</option>
+                <option value="wgc">Windows.Graphics.Capture (Direct3D 11 / DXGI)</option>
+                <option value="gdi">Win32 GDI / BitBlt / PrintWindow (Универсальный)</option>
+              </select>
+              <small class="text-secondary">WGC обеспечивает нулевое копирование на GPU при наличии DirectX 11.</small>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="sc-cfg-fps" class="form-label small fw-medium text-body">Ограничение FPS потока:</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range" id="sc-cfg-fps" min="1" max="30" step="1" value="10">
+                <span class="badge bg-secondary-subtle text-body border border-subtle font-monospace px-2" id="sc-cfg-fps-val">10 FPS</span>
+              </div>
+              <small class="text-secondary">Рекомендуется 5-15 FPS для минимальной нагрузки на CPU и шину памяти.</small>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="sc-cfg-format" class="form-label small fw-medium text-body">Формат сжатия кадров:</label>
+              <select class="form-select form-select-sm" id="sc-cfg-format">
+                <option value="jpeg">JPEG (Оптимальная пропускная способность)</option>
+                <option value="png">PNG (Без потерь качества, больше размер)</option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="sc-cfg-quality" class="form-label small fw-medium text-body">Качество JPEG (сжатие):</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range" id="sc-cfg-quality" min="20" max="95" step="5" value="80">
+                <span class="badge bg-secondary-subtle text-body border border-subtle font-monospace px-2" id="sc-cfg-quality-val">80%</span>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="sc-cfg-diff-threshold" class="form-label small fw-medium text-body">Порог чувствительности Screen Diff:</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range" id="sc-cfg-diff-threshold" min="0.005" max="0.10" step="0.005" value="0.02">
+                <span class="badge bg-secondary-subtle text-body border border-subtle font-monospace px-2" id="sc-cfg-diff-threshold-val">2.0%</span>
+              </div>
+              <small class="text-secondary">Минимальная площадь изменений для регистрации событий активности.</small>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="sc-cfg-history-size" class="form-label small fw-medium text-body">Размер кольцевого буфера истории:</label>
+              <input type="number" class="form-control form-control-sm" id="sc-cfg-history-size" min="5" max="100" value="30">
+              <small class="text-secondary">Количество последних снимков, хранимых для анализа.</small>
+            </div>
+
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="sc-cfg-etw-toggle" checked>
+                <label class="form-check-label small fw-medium text-body" for="sc-cfg-etw-toggle">
+                  Активировать корреляцию с ETW-телеметрией ядра (CPU, RAM, диск, сбои)
+                </label>
+              </div>
+              <small class="text-secondary d-block mt-1">
+                Связывает каждый снимок с телеметрическими показателями для визуального выявления зависаний и аномалий интерфейса.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ПАНЕЛЬ 3: Корреляция с ETW телеметрией -->
+    <div class="tab-pane fade" id="sc-pane-etw" role="tabpanel">
+      <div class="card border-subtle shadow-sm bg-body">
+        <div class="card-header bg-body-tertiary py-2 px-3 fw-medium d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-activity me-1 text-primary"></i>События визуально-телеметрической корреляции</span>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="sc-btn-refresh-etw">
+            <i class="bi bi-arrow-clockwise me-1"></i>Обновить события
+          </button>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive" style="max-height: 480px;">
+            <table class="table table-hover table-sm align-middle mb-0" id="sc-table-etw">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 140px;">Время UTC</th>
+                  <th>Цель захвата</th>
+                  <th style="width: 90px;">CPU %</th>
+                  <th style="width: 110px;">Память MB</th>
+                  <th style="width: 90px;">Диск %</th>
+                  <th style="width: 110px;">Screen Diff</th>
+                  <th style="width: 130px;">Статус окна</th>
+                  <th>Заключение движка</th>
+                </tr>
+              </thead>
+              <tbody id="sc-tbody-etw">
+                <tr>
+                  <td colspan="8" class="text-center text-secondary py-4">Событий пока не зафиксировано. Включите стрим или сделайте снимок.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ПАНЕЛЬ 4: Возможности API Windows.Graphics -->
+    <div class="tab-pane fade" id="sc-pane-caps" role="tabpanel">
+      <div class="card border-subtle shadow-sm bg-body" style="max-width: 900px; margin: 0 auto;">
+        <div class="card-header bg-body-tertiary py-2 px-3 fw-medium">
+          <i class="bi bi-diagram-3 me-1 text-primary"></i>Графическая подсистема Windows.Graphics в AI-TC
+        </div>
+        <div class="card-body p-4 d-flex flex-column gap-3">
+          <div class="alert alert-info border-info-subtle bg-info-subtle text-info-emphasis d-flex align-items-start gap-2 mb-0">
+            <i class="bi bi-info-circle-fill fs-5 mt-0.5"></i>
+            <div>
+              <strong>Семейство Windows.Graphics API</strong> предоставляет прямой доступ к графической подсистеме Windows без использования устаревших GDI-битмапов, с поддержкой нулевого копирования на GPU (Zero-Copy) и передачи кадров через Direct3D 11.
+            </div>
+          </div>
+
+          <h6 class="fw-semibold text-body mb-1">Пространства имён и их роли в AI-TC:</h6>
+          <div class="table-responsive">
+            <table class="table table-bordered table-sm">
+              <thead class="table-light">
+                <tr>
+                  <th>Пространство имён</th>
+                  <th>Классы / Компоненты</th>
+                  <th>Назначение в AI-TC</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="font-monospace text-primary">Windows.Graphics.Capture</td>
+                  <td>GraphicsCaptureItem, Direct3D11CaptureFramePool, GraphicsCaptureSession</td>
+                  <td>Аппаратный захват потока кадров экранов и окон приложений</td>
+                </tr>
+                <tr>
+                  <td class="font-monospace text-primary">Windows.Graphics.DirectX</td>
+                  <td>DirectXPixelFormat, IDirect3DDevice, IDirect3DSurface</td>
+                  <td>Типы графических ресурсов DirectX и GPU-буферы кадров</td>
+                </tr>
+                <tr>
+                  <td class="font-monospace text-primary">Windows.Graphics.Imaging</td>
+                  <td>BitmapDecoder, BitmapEncoder, SoftwareBitmap</td>
+                  <td>Аппаратное кодирование и компрессия снимков экрана</td>
+                </tr>
+                <tr>
+                  <td class="font-monospace text-primary">Windows.Graphics.Display</td>
+                  <td>DisplayInformation, AdvancedColorInfo</td>
+                  <td>Определение DPI масштабирования, HDR и цветовых профилей</td>
+                </tr>
+                <tr>
+                  <td class="font-monospace text-primary">Windows.Graphics.Effects</td>
+                  <td>IGraphicsEffect, CompositeEffect</td>
+                  <td>Фильтрация, наложение и аппаратная предобработка кадров</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h6 class="fw-semibold text-body mb-1">Статус подсистемы на текущей машине:</h6>
+          <div class="p-3 bg-body-tertiary rounded border border-subtle font-monospace small" id="sc-caps-json-display">
+            Загрузка телеметрии графической подсистемы...
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

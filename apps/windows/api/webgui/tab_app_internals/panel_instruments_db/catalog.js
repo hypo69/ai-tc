@@ -9,15 +9,18 @@
  *   и удаление устаревших инструментов из базы на сервере Hostinger и SQLite.
  *
  * File: catalog.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_app_internals/panel_instruments_db
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 17:44:30
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
-import { notifyUser } from '../common/ui_utils.js?v=20261031_v3';
+import { notifyUser } from '../common/ui_utils.js?v=20261112_v1';
+import { initCommandWizard, openCommandWizardModal } from './command_wizard.js?v=20261112_v1';
+
+export { openCommandWizardModal };
 
 let catalogSearchTimer = null;
 let catalogItemsCache = new Map();
@@ -129,6 +132,9 @@ export function renderInstrumentsCatalog(items) {
         </td>
         <td class="align-middle text-end" onclick="event.stopPropagation();">
           <div class="btn-group btn-group-sm">
+            <button type="button" class="btn btn-outline-info btn-inst-wizard" data-tool-id="${escapeHtml(toolId)}" title="Открыть в мастере команд для модели">
+              <i class="bi bi-magic"></i>
+            </button>
             <button type="button" class="btn btn-outline-primary btn-inst-test" data-tool-id="${escapeHtml(toolId)}" title="Тестовый запуск инструмента">
               <i class="bi bi-play-fill me-0.5"></i>Тест
             </button>
@@ -158,7 +164,18 @@ export function renderInstrumentsCatalog(items) {
     </table>
   `;
 
-  // Подключение кнопок запуска и удаления
+  // Подключение кнопок запуска, мастера и удаления
+  container.querySelectorAll('.btn-inst-wizard').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const toolId = btn.getAttribute('data-tool-id');
+      const item = catalogItemsCache.get(toolId);
+      if (item) {
+        openCommandWizardModal(item.command, item);
+      }
+    });
+  });
+
   container.querySelectorAll('.btn-inst-test').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -385,6 +402,27 @@ function bindInstrumentEditorModalButtons() {
     });
   }
 
+  const wizardBtn = document.getElementById('inst-editor-btn-open-wizard');
+  if (wizardBtn && !wizardBtn._bound) {
+    wizardBtn._bound = true;
+    wizardBtn.addEventListener('click', () => {
+      const toolId = document.getElementById('inst-edit-tool-id')?.value.trim();
+      const item = toolId ? catalogItemsCache.get(toolId) : null;
+      const cmd = document.getElementById('inst-edit-command')?.value.trim() || item?.command || '';
+      if (activeModalInstance) activeModalInstance.hide();
+      openCommandWizardModal(cmd, item || {
+        tool_id: toolId,
+        name: document.getElementById('inst-edit-name')?.value.trim() || '',
+        tool_type: document.getElementById('inst-edit-type')?.value || 'powershell',
+        target_entity: document.getElementById('inst-edit-entity')?.value || 'system',
+        risk_level: document.getElementById('inst-edit-risk')?.value || 'safe',
+        description: document.getElementById('inst-edit-description')?.value.trim() || '',
+        tags: document.getElementById('inst-edit-tags')?.value.trim() || '',
+        command: cmd,
+      });
+    });
+  }
+
   const delBtn = document.getElementById('inst-editor-btn-delete');
   if (delBtn && !delBtn._bound) {
     delBtn._bound = true;
@@ -553,6 +591,15 @@ export function triggerFilteredCatalogLoad() {
  */
 export function bindInstrumentsCatalogButtons() {
   window.openInstrumentEditorModal = openInstrumentEditorModal;
+  window.openCommandWizardModal = openCommandWizardModal;
+
+  const wizardBtn = document.getElementById('inst-catalog-btn-wizard');
+  if (wizardBtn && !wizardBtn._bound) {
+    wizardBtn._bound = true;
+    wizardBtn.addEventListener('click', () => openCommandWizardModal());
+  }
+
+  initCommandWizard(triggerFilteredCatalogLoad);
 
   const createBtn = document.getElementById('inst-catalog-btn-create');
   if (createBtn && !createBtn._bound) {

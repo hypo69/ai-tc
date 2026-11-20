@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Process Provenance Aggregation
+# Process Name: ai-tc Tests - Process Provenance Aggregation
 # =============================================================================
 # Description:
 #   Тесты многоуровневой агрегации процессов с привязкой к параметрам запуска,
 #   командной строке и родительской программе (тики за сутки -> суточные -> недельные -> за всё время).
 #
 # File: test_process_provenance_aggregation.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 19:47:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Telemetry Tests - Tiered Compactor
+# Process Name: ai-tc Telemetry Tests - Tiered Compactor
 # =============================================================================
 # Description:
 #   Модульные тесты для каскадного многоуровневого усреднения и компактификации:
@@ -11,11 +11,11 @@
 #   - thorough_mode: пропуск усреднения и бессрочное сохранение сырых данных
 #
 # File: test_tiered_compactor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 16:50:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import gc

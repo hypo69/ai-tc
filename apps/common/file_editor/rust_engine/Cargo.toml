@@ -1,16 +1,16 @@
 # =============================================================================
-# Process Name: AI-Windows-Admin Common File Editor - Rust Wasm Crate Config
+# Process Name: ai-tc Common File Editor - Rust Wasm Crate Config
 # =============================================================================
 # Description:
 #   Конфигурация крейта Rust для компиляции ядра универсального редактора
 #   файлов в целевую платформу wasm32-unknown-unknown через wasm-pack.
 #
 # File: Cargo.toml
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.common.file_editor.rust_engine
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 17:01:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 [package]

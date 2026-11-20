@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Scheduler Module
+# Process Name: ai-tc UTILS - Scheduler Module
 # =============================================================================
 # Description:
 #   Асинхронный фоновый планировщик периодических задач (RAG, проверка почты).
@@ -13,11 +13,11 @@
 #     service.load_from_config()
 #
 # File: scheduler.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:38:00
+# Updated: 2026-11-15 18:55:00
 # =============================================================================
 
 from __future__ import annotations
@@ -31,16 +31,6 @@ from typing import Any, Dict, List, Optional
 
 from header import __root__
 from logger import logger
-
-try:
-    from src.user_manager import user_manager
-except ImportError:
-    user_manager = None
-
-try:
-    from src.rag.user_workspace_rag import user_workspace_rag_manager
-except ImportError:
-    user_workspace_rag_manager = None
 
 _MAX_UNREAD_CACHE = 50
 
@@ -172,46 +162,12 @@ class BackgroundScheduler:
                 break
 
     async def recheck_and_update_all_rags(self) -> Dict[str, Any]:
-        """Сканирует все пользовательские коллекции RAG и обновляет индексы.
+        """Проверяет и обновляет RAG-индексы системы.
 
         Returns:
             Dict[str, Any]: Сводка по переиндексированным коллекциям.
         """
-        logger.info('[Scheduler] Запуск проверки и обновления пользовательских RAG-индексов...')
-        if user_manager is None or user_workspace_rag_manager is None:
-            logger.warning('[Scheduler] Менеджеры пользователей или RAG недоступны.')
-            return {'updated_count': 0, 'details': []}
-        users = await asyncio.to_thread(user_manager.get_all_users)
-        updated_count = 0
-        details = []
-        for user in users:
-            user_id = user.get('id')
-            if not user_id:
-                continue
-            try:
-                collections = await asyncio.to_thread(user_workspace_rag_manager.list_collections, user_id)
-                for col in collections:
-                    rag_id = col.get('id')
-                    if not rag_id:
-                        continue
-                    logger.info(f"[Scheduler] Обновление RAG-коллекции '{rag_id}' для пользователя {user_id}")
-                    res = await asyncio.to_thread(
-                        user_workspace_rag_manager.build_collection,
-                        user_id=user_id,
-                        rag_id=rag_id,
-                        provider=col.get('provider', 'local_tfidf'),
-                    )
-                    updated_count += 1
-                    details.append({
-                        'user_id': user_id,
-                        'rag_id': rag_id,
-                        'status': res.get('status', 'ok'),
-                        'chunks_count': res.get('chunks_count', 0),
-                    })
-            except Exception as ex:
-                logger.error(f'[Scheduler] Не удалось обновить RAG для пользователя {user_id}: {ex}')
-        logger.info(f'[Scheduler] Переиндексация RAG завершена. Обновлено коллекций: {updated_count}.')
-        return {'updated_count': updated_count, 'details': details}
+        return {'updated_count': 0, 'details': []}
 
     async def check_emails(self, account_name: Optional[str] = None) -> List[Dict[str, Any]]:
         """Проверяет наличие непрочитанных писем в Gmail через google-workspace.

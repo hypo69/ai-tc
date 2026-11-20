@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - SystemCollector Characterization
+# Process Name: ai-tc Tests - SystemCollector Characterization
 # =============================================================================
 # Description:
 #   Характеризационные тесты публичного контракта SystemCollector.
@@ -8,11 +8,11 @@
 #   (этап 4 ТЗ оптимизации). Не привязаны к конкретным значениям системы.
 #
 # File: test_collector_contract.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-11 10:48:15
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

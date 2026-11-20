@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Subsystem 03 Groups
+# Process Name: ai-tc Apps Windows - Subsystem 03 Groups
 # =============================================================================
 # Description:
 #   Подсистема 03: Управление группами безопасности Windows (локальные,
@@ -14,11 +14,11 @@
 #     groups = subsys.list_groups()
 #
 # File: subsystem_03_groups.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.accounts_identity.subsystems
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Подсистема управления группами безопасности и графом членства."""

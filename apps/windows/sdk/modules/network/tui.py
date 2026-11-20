@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Network - Tui
+# Process Name: ai-tc Apps Windows Modules Network - Tui
 # =============================================================================
 # Description:
 #   Rich TUI dashboard renderer and live capture loop for Network Terminal.
@@ -12,11 +12,11 @@
 #     service = NetworkTerminalState()
 #
 # File: tui.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.network
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 13:23:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -149,7 +149,7 @@ def render_ui(state: NetworkTerminalState) -> Any:
     layout['right'].split_column(Layout(name='stats', ratio=1), Layout(name='alerts', ratio=1))
     status_icon = '🟢' if state.wrapper.is_available() else '🔴'
     filter_str = f"Filter: '{state.display_filter}'" if state.display_filter else 'Filter: ALL'
-    header_text = Text(f' AI Windows Admin — Network Terminal | Interface: {state.interface} | {filter_str} | Status: {status_icon} {state.status_msg} ', style='bold white on blue', justify='center')
+    header_text = Text(f' ai-tc — Network Terminal | Interface: {state.interface} | {filter_str} | Status: {status_icon} {state.status_msg} ', style='bold white on blue', justify='center')
     layout['header'].update(Panel(header_text, style='blue'))
     pkt_table = Table(title='Live Captured Packets (Sliding Window)', expand=True, show_edge=False)
     pkt_table.add_column('No', justify='right', style='cyan', width=5)

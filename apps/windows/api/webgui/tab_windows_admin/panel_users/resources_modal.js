@@ -11,7 +11,7 @@
  * Файл: apps/windows/api/webgui/tab_windows_admin/panel_users/resources_modal.js
  * Пакет: windows/api/webgui/tab_windows_admin
  * Автор: hypo69
- * Updated: 2026-11-01 14:54:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -66,7 +66,7 @@ export async function openUserResourcesModal(username, forceRefresh = false) {
   }
 
   try {
-    const res = await fetch(`/api/sysadmin/accounts/${encodeURIComponent(username)}/metrics`);
+    const res = await fetch(`/api/v1/sysadmin/accounts/${encodeURIComponent(username)}/metrics`);
     if (!res.ok) {
       throw new Error(`Ошибка ${res.status}: не удалось получить метрики ресурсов`);
     }

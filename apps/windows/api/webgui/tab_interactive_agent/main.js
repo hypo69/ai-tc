@@ -7,11 +7,11 @@
  *   Управляет отправкой целей, отображением степпера и вводом ответов.
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_interactive_agent
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-13 15:36:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

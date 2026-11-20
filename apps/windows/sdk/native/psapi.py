@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Win32_Ffi - Psapi
+# Process Name: ai-tc Apps Windows Telemetry Win32_Ffi - Psapi
 # =============================================================================
 # Description:
 #   psapi.dll wrapper for process memory and module enumeration.
@@ -12,11 +12,11 @@
 #     service = PROCESS_MEMORY_COUNTERS()
 #
 # File: psapi.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.win32_ffi
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 00:15:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================
 
 """psapi.dll wrapper for process memory and module enumeration."""

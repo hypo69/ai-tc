@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Embeddings Module
+# Process Name: ai-tc AI - Embeddings Module
 # =============================================================================
 # Description:
 #   Mixin class for embedding generation in GoogleGenerativeAI.
@@ -12,11 +12,11 @@
 #     service = GoogleGenerativeAIEmbeddingsMixin()
 #
 # File: embeddings.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:46:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Mixin class for embedding generation in GoogleGenerativeAI."""

@@ -13,11 +13,11 @@
  *     import { switchMainTab } from '/windows/api/webgui/js/main.js';
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-12 02:25:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -418,7 +418,7 @@ async function init() {
 
   // 6. Синхронизация видимости плагинов
   try {
-    const r = await fetch('/api/admin/plugins');
+    const r = await fetch('/api/v1/admin/plugins');
     if (r.ok) {
       const data = await r.json();
       window.syncPluginTabsVisibility?.(data.plugins);
@@ -443,7 +443,7 @@ async function init() {
 // Фоновый WebSocket для remote transcript
 function initComputerStream() {
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const ws = new WebSocket(`${proto}//${location.host}/api/control/ws?role=computer`);
+  const ws = new WebSocket(`${proto}//${location.host}/api/v1/control/ws?role=computer`);
   ws.onmessage = e => {
     try {
       const msg = JSON.parse(e.data);

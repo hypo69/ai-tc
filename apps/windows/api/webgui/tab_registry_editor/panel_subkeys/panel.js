@@ -1,7 +1,7 @@
 /**
  * Модуль панели подразделов реестра (subkeys) и операций над разделами.
  * Файл: apps/windows/api/webgui/tab_registry_editor/panel_subkeys/panel.js
- * Updated: 2026-11-01 14:38:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 /**
@@ -71,7 +71,7 @@ export async function saveModalKey(currentHive, currentPath, onReload) {
   const newPath = currentPath ? `${currentPath}\\${newKeyName}` : newKeyName;
 
   try {
-    const res = await fetch('/api/registry/key', {
+    const res = await fetch('/api/v1/registry/key', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -115,7 +115,7 @@ export async function deleteCurrentKey(currentHive, currentPath, onGoUp) {
   }
 
   try {
-    const res = await fetch('/api/registry/key', {
+    const res = await fetch('/api/v1/registry/key', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

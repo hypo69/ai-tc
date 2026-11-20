@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Sysadmin Src - Watcher Telemetry
+# Process Name: ai-tc Apps Windows Modules Sysadmin Src - Watcher Telemetry
 # =============================================================================
 # Description:
 #   Движок сбора телеметрии, расчета темпа файловых операций и показателей накопителей.
@@ -12,11 +12,11 @@
 #     service = WatcherTelemetrySnapshot()
 #
 # File: watcher_telemetry.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.sysadmin.src
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 19:30:35
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

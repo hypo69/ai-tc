@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Peripherals Diagnostics Endpoint
+# Process Name: ai-tc Tests - Peripherals Diagnostics Endpoint
 # =============================================================================
 # Description:
 #   Модульные и интеграционные тесты эндпоинта диагностики периферии
 #   (/api/v1/system/diagnostics/peripherals и /api/v1/tc/peripherals).
 #
 # File: test_peripherals_diagnostics.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 23:15:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

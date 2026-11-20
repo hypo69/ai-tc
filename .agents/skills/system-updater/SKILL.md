@@ -1,14 +1,14 @@
 ---
 name: system-updater
-description: Update checker, backup creator, and safe updater for AI Windows Admin to latest version with automated database migrations.
+description: Update checker, backup creator, and safe updater for ai-tc to latest version with automated database migrations.
 description_i18n:
-  en: Update checker, backup creator, and safe updater for AI Windows Admin to latest version with automated database migrations.
-  ru: Проверка наличия обновлений, создание резервных копий, скачивание и безопасное обновление AI Windows Admin до последней версии с автоматическим наездом миграций БД.
+  en: Update checker, backup creator, and safe updater for ai-tc to latest version with automated database migrations.
+  ru: Проверка наличия обновлений, создание резервных копий, скачивание и безопасное обновление ai-tc до последней версии с автоматическим наездом миграций БД.
 ---
 
 # 🔄 System Updater Skill
 
-Навык для проверки версий, создания резервных копий, скачивания и безопасного обновления кодовой базы AI Windows Admin до последней стабильной версии с автоматическим наездом миграций баз данных SQLite.
+Навык для проверки версий, создания резервных копий, скачивания и безопасного обновления кодовой базы ai-tc до последней стабильной версии с автоматическим наездом миграций баз данных SQLite.
 
 ---
 

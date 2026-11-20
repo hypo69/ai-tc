@@ -8,15 +8,62 @@
  *   с отображением трассировки шагов ReAct (Thought -> Action -> Observation).
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_agents/panel_sandbox
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:37:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
 import { state, fetchJson, getProviderDisplayName } from '../common/ui_utils.js';
+
+/**
+ * Подбор релевантного тестового запроса для поля ввода песочницы на основе профиля агента.
+ * @param {object} agent - Объект конфигурации агента
+ * @returns {string} Релевантный тестовый запрос
+ */
+export function getRelevantSandboxQuery(agent) {
+  if (!agent || typeof agent !== 'object') {
+    return 'Выполни диагностический тест агента';
+  }
+
+  const explicit = typeof agent.sandbox_default_query === 'string'
+    ? agent.sandbox_default_query.trim()
+    : '';
+  if (explicit) return explicit;
+
+  const agentId = String(agent.id ?? '').toLowerCase();
+  const tools = (agent.tools ?? []).map((t) => String(t).toLowerCase());
+  const description = String(agent.description ?? '').trim();
+  const name = String(agent.name ?? agent.id ?? 'агент').trim();
+
+  if (agentId.includes('github') || tools.some((t) => t.includes('github'))) {
+    return 'Покажи список открытых GitHub Issues в репозитории и предложи приоритетный план их выполнения';
+  }
+  if (agentId.includes('log') || tools.some((t) => t.includes('event_log'))) {
+    return 'Проанализируй критические ошибки и предупреждения в журналах событий Windows (System и Application) за последние 24 часа';
+  }
+  if (
+    agentId.includes('windows') ||
+    tools.some((t) => t.startsWith('windows_') || t === 'system_diagnostics' || t === 'services_manager')
+  ) {
+    return 'Проверь текущую загрузку CPU, оперативной памяти и статус критических служб Windows';
+  }
+  if (
+    agentId.includes('chat') ||
+    tools.some((t) => t === 'wikillm_search' || t === 'rag_search' || t === 'search_web')
+  ) {
+    return 'Найди в базе знаний WikiLLM краткую справку по диагностике и настройке системы';
+  }
+  if (tools.some((t) => t === 'python_eval' || t === 'run_command')) {
+    return 'Выполни быструю диагностическую проверку окружения и выведи краткий отчёт';
+  }
+  if (description) {
+    return `Выполни тестовую задачу по профилю агента «${name}»: ${description}`;
+  }
+  return `Выполни диагностический тест возможностей агента «${name}»`;
+}
 
 /**
  * Открытие модального окна интерактивной песочницы для указанного агента.
@@ -42,8 +89,26 @@ export function openSandbox(agentId) {
   if (msgsList) msgsList.innerHTML = '';
   if (placeholder) placeholder.style.display = 'block';
 
+  // Предзаполнение поля ввода релевантным запросом для выбранного агента
+  const input = document.getElementById('sandbox-input-msg');
+  if (input) {
+    const relevantQuery = getRelevantSandboxQuery(agent);
+    input.value = relevantQuery;
+    input.placeholder = relevantQuery;
+  }
+
   if (window.bootstrap && window.bootstrap.Modal) {
-    new window.bootstrap.Modal(modalEl).show();
+    const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+    if (input) {
+      modalEl.addEventListener(
+        'shown.bs.modal',
+        () => {
+          input.focus();
+        },
+        { once: true }
+      );
+    }
+    modal.show();
   }
 }
 
@@ -92,7 +157,7 @@ export async function handleRunSandboxTest() {
   msgsList.scrollTop = msgsList.scrollHeight;
 
   try {
-    const res = await fetchJson('/api/agents/test', {
+    const res = await fetchJson('/api/v1/agents/test', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ agent_id: agent.id, test_message: query })

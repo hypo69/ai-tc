@@ -1,7 +1,7 @@
 /**
  * Модуль панели списка плагинов и фильтрации каталога.
  * Файл: apps/windows/api/webgui/tab_plugins/panel_list/panel.js
- * Updated: 2026-10-17 01:55:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { isRunningInUserInterface } from '../common/ui_utils.js';
@@ -53,19 +53,19 @@ export async function loadPluginsList(onSelectPlugin, onShowPlaceholder) {
 
   try {
     const isUserUI = isRunningInUserInterface();
-    const endpoint = isUserUI ? '/api/plugins?scope=user' : '/api/admin/plugins';
+    const endpoint = isUserUI ? '/api/v1/plugins?scope=user' : '/api/v1/admin/plugins';
 
     let data;
     if (window.api && typeof window.api.fetch === 'function') {
       try {
         data = await window.api.fetch(endpoint);
       } catch {
-        data = await window.api.fetch('/api/admin/plugins');
+        data = await window.api.fetch('/api/v1/admin/plugins');
       }
     } else {
       let resp = await fetch(endpoint);
       if (!resp.ok && isUserUI) {
-        resp = await fetch('/api/admin/plugins?scope=user');
+        resp = await fetch('/api/v1/admin/plugins?scope=user');
       }
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       data = await resp.json();

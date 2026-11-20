@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Process_Manager -   Init  
+# Process Name: ai-tc Apps Windows Modules Process_Manager -   Init  
 # =============================================================================
 # Description:
 #   # Description:
@@ -9,11 +9,11 @@
 #
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.process_manager
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 00:59:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Модуль управления процессами, глубокого аудита и отслеживания жизненного цикла Windows."""

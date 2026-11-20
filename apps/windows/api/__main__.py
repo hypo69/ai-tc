@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api - Main
+# Process Name: ai-tc Apps Windows Api - Main
 # =============================================================================
 # Description:
 #   Точка входа и запуск внутреннего FastAPI сервера Windows System API (TC)
@@ -15,11 +15,11 @@
 #     res = main()
 #
 # File: __main__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-16 05:37:00
 # =============================================================================
 
 from __future__ import annotations
@@ -35,6 +35,7 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 from logger import logger, get_uvicorn_log_config
+from src.utils.asyncio_windows_patch import apply_windows_asyncio_patch
 
 # =============================================================================
 # Глобальные константы конфигурации
@@ -53,7 +54,7 @@ def _parse_args() -> argparse.Namespace:
         argparse.Namespace: Распарсенные аргументы.
     """
     parser = argparse.ArgumentParser(
-        description='AI-Windows-Admin Windows Internal API Server',
+        description='ai-tc Windows Internal API Server',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -87,6 +88,7 @@ def main() -> None:
 
     Принудительно ограничивает bind только на localhost.
     """
+    apply_windows_asyncio_patch()
     args = _parse_args()
 
     # Защита: запрещаем bind на 0.0.0.0 или внешние адреса

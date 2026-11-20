@@ -1,5 +1,5 @@
 //! =============================================================================
-//! Process Name: AI-Windows-Admin Common File Editor - Rust Wasm Core Entry
+//! Process Name: ai-tc Common File Editor - Rust Wasm Core Entry
 //! =============================================================================
 //! Description:
 //!   Корневой модуль Rust + WebAssembly для универсального редактора файлов.
@@ -8,7 +8,7 @@
 //!   и лексического анализа файлов всех типов VS Code.
 //!
 //! File: lib.rs
-//! Project: ai-windows-admin
+//! Project: ai-tc
 //! Package: apps.common.file_editor.rust_engine
 //! Author: hypo69
 //! Copyright: © 2026 hypo69

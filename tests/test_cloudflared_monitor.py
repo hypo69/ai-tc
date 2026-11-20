@@ -7,11 +7,11 @@
 #   опроса эндпоинта kino.davidka.net и эвристической/ИИ диагностики.
 #
 # File: test_cloudflared_monitor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 14:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Модульные тесты ядра монитора Cloudflared и диагностики."""

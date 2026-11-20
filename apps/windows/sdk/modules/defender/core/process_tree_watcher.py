@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Defender Core - Process Tree Watcher
+# Process Name: ai-tc Apps Windows Modules Defender Core - Process Tree Watcher
 # =============================================================================
 # Description:
 #   Модуль инспекции дерева процессов и детекции подозрительных цепочек выполнения.
@@ -12,11 +12,11 @@
 #     service = ProcessTreeWatcher()
 #
 # File: process_tree_watcher.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.defender.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 14:10:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

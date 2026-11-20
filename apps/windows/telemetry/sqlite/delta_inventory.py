@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - Delta Inventory
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - Delta Inventory
 # =============================================================================
 # Description:
 #   Универсальное хранилище «списочных» состояний (службы, правила брандмауэра,
@@ -15,11 +15,11 @@
 #     active = DeltaInventory.get_active(cursor, 'services')
 #
 # File: delta_inventory.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 13:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

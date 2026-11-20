@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Admin Package
+# Process Name: ai-tc Apps Windows Api Routers - Admin Package
 # =============================================================================
 # Description:
 #   Подпакет эндпойнтов администрирования.
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.admin
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 13:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Подпакет эндпойнтов администрирования (вынесен из router_admin.py)."""

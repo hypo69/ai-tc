@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/tab_tts/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_tts
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -171,7 +171,7 @@ async function initTtsTab() {
 
   // Fetch current user settings
   try {
-    const settings = await ttsFetch('/auth/settings');
+    const settings = await ttsFetch('/api/v1/auth/settings');
     if (settings) {
       if (settings.tts_system) {
         engineSelect.value = settings.tts_system;
@@ -281,7 +281,7 @@ async function initTtsTab() {
         tts_voice: voice
       };
 
-      const response = await fetch('/auth/settings', {
+      const response = await fetch('/api/v1/auth/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

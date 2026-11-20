@@ -170,7 +170,7 @@ Success rate: 100.0%
 
 1. DevTools (F12) → **Application**
 2. **Storage** → **IndexedDB**
-3. **AI_Windows_Admin_DB** → **api_cache**
+3. **ai_tc_db** → **api_cache**
 
 ---
 
@@ -275,7 +275,7 @@ stats.storage.percentUsed // % использования квоты брауз�
 
 ## 📧 Контакты
 
-- **GitHub:** [AI-Windows-Admin Repository](https://github.com/hypo69/hypo)
+- **GitHub:** [ai-tc Repository](https://github.com/hypo69/hypo)
 - **Документация:** [docs/ru/webgui/](docs/ru/webgui/)
 - **Issues:** [GitHub Issues](https://github.com/hypo69/hypo/issues)
 
@@ -297,7 +297,7 @@ stats.storage.percentUsed // % использования квоты брауз�
 
 ---
 
-**© 2026 AI-Windows-Admin Team. MIT License.**
+**© 2026 ai-tc Team. MIT License.**
 
 ---
 

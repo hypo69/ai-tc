@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Log_Intelligence Tests - Test Router System Logs
+# Process Name: ai-tc Apps Windows Log_Intelligence Tests - Test Router System Logs
 # =============================================================================
 # Description:
 #   Тесты FastAPI роутера System Logs Viewer для проверки In-Memory RAG эндпоинтов.
@@ -9,11 +9,11 @@
 #   pytest apps/windows/log_intelligence/tests/test_router_system_logs.py -v
 #
 # File: test_router_system_logs.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.log_intelligence.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 19:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Тесты эндпоинтов FastAPI роутера System Logs Viewer."""

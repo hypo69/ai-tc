@@ -1,6 +1,6 @@
 # docs
 
-MkDocs-based documentation site for AI Windows Admin.
+MkDocs-based documentation site for ai-tc.
 
 ## Structure
 

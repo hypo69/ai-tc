@@ -13,11 +13,11 @@
  *     <script src="/windows/api/webgui/tab_software_transparency/main.js?v=20261101_v2" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_software_transparency
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-12 01:15:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -137,10 +137,10 @@
       const fetchOpts = { signal: AbortSignal.timeout ? AbortSignal.timeout(25000) : undefined };
       let res = await fetch('/api/v1/software-scanner/scan' + q, fetchOpts);
       if (!res.ok) {
-        res = await fetch('/api/windows/software-transparency/scan' + q, fetchOpts);
+        res = await fetch('/api/v1/windows/software-transparency/scan' + q, fetchOpts);
       }
       if (!res.ok) {
-        res = await fetch('/api/windows/api/v1/software-scanner/scan' + q, fetchOpts);
+        res = await fetch('/api/v1/software-scanner/scan' + q, fetchOpts);
       }
       if (!res.ok) throw new Error('HTTP ' + res.status);
 
@@ -402,7 +402,7 @@
     });
   }
 
-  const CONFIG_API_BASES = ['/api/v1/software-scanner', '/api/windows/api/v1/software-scanner'];
+  const CONFIG_API_BASES = ['/api/v1/software-scanner', '/api/v1/software-scanner'];
 
   async function configApiFetch(suffix, opts) {
     let res = null;
@@ -527,7 +527,7 @@
         body: payload
       });
       if (!res.ok) {
-        res = await fetch('/api/windows/software-transparency/research', {
+        res = await fetch('/api/v1/windows/software-transparency/research', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: payload

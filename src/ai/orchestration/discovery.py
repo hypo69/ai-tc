@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Discovery Module
+# Process Name: ai-tc AI - Discovery Module
 # =============================================================================
 # Description:
 #   Discovers available backends, models, and hardware capabilities dynamically.
@@ -14,11 +14,11 @@
 #     print(result)
 #
 # File: discovery.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.orchestration
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:48:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Discovers available backends, models, and hardware capabilities dynamically."""

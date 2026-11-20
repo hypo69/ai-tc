@@ -2,7 +2,7 @@
 
 ## Обзор
 
-Провайдер `gemini_cli` обеспечивает интеграцию с локальной CLI-утилитой Google Gemini CLI (`gemini`) из Python для платформы **AI-Windows-Admin**.
+Провайдер `gemini_cli` обеспечивает интеграцию с локальной CLI-утилитой Google Gemini CLI (`gemini`) из Python для платформы **ai-tc**.
 
 Компонент разделен на два уровня:
 1. **`GeminiCliProvider`** — низкоуровневый клиент управления процессом CLI, обнаружения исполняемого файла в Windows/Linux, обработки таймаутов, потокового вывода stdout, валидации JSON и запуска агентного режима.
@@ -13,7 +13,7 @@
 ## Архитектура
 
 ```text
-               AI-Windows-Admin / API Router
+               ai-tc / API Router
                            │
                            ▼
                    UnifiedChatModel

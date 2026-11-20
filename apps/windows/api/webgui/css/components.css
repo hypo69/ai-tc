@@ -10,16 +10,16 @@
  *     <link rel="stylesheet" href="/windows/api/webgui/css/components.css?v=20261001_v1">
  *
  * File: components.css
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-12 01:25:00
+ * Updated: 2026-11-20 16:35:00
  * =============================================================================
  */
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   COMPONENTS — AI Windows Admin WebGUI
+   COMPONENTS — ai-tc WebGUI
    Базовые UI-компоненты: карточки, формы, кнопки, модалки, таблицы, алерты, бейджи
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -418,10 +418,12 @@
   background: var(--surface-2);
 }
 
-/* ── Модальное окно настроек системы и окружения (#aboutRegionalSettingsModal) ── */
+/* ── Модальное окно настроек системы и окружения (#aboutRegionalSettingsModal) ──
+   Соответствует единому стандарту геометрии 90vw × 90vh (WEBGUI.md § 5.4) */
 #aboutRegionalSettingsModal .modal-dialog {
-  max-width: min(1200px, 94vw);
-  width: 94vw;
+  max-width: min(1320px, 92vw);
+  width: 92vw;
+  margin: 1.75rem auto;
 }
 
 #aboutRegionalSettingsModal .modal-content {
@@ -429,7 +431,8 @@
   color: var(--text-color);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md, 8px);
-  min-height: 640px;
+  min-height: 600px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
 #aboutRegionalSettingsModal .modal-header {
@@ -444,17 +447,67 @@
   flex-shrink: 0;
 }
 
+/* Карточки языковых пакетов в модальном окне */
+#aboutRegionalSettingsModal .lang-pack-card {
+  background-color: var(--surface-1);
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-md, 8px);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  min-height: 380px;
+}
+
+#aboutRegionalSettingsModal .lang-pack-card:hover {
+  border-color: var(--border-strong, #9ca3af) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+#aboutRegionalSettingsModal .lang-flag-svg {
+  display: inline-block;
+  vertical-align: middle;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+#aboutRegionalSettingsModal .lang-display-indicator {
+  background-color: var(--surface-2);
+  border: 1px solid var(--nav-active, #1d4ed8) !important;
+}
+
+#aboutRegionalSettingsModal .lang-display-selector {
+  background-color: var(--surface-2);
+  border: 1px solid var(--border-color) !important;
+  transition: all 0.15s ease;
+}
+
+#aboutRegionalSettingsModal .lang-display-selector:hover {
+  border-color: var(--border-strong, #9ca3af) !important;
+  background-color: var(--nav-hover-bg, var(--surface-2));
+}
+
+#aboutRegionalSettingsModal .lang-layout-item {
+  background-color: var(--surface-2);
+  border: 1px solid var(--border-color) !important;
+  transition: background-color 0.12s ease;
+}
+
+#aboutRegionalSettingsModal .lang-layout-item:hover {
+  background-color: var(--nav-hover-bg, var(--surface-2));
+}
+
 #aboutRegionalSettingsModal .modal-body {
   flex: 1 1 auto;
-  min-height: 520px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
 }
 
 #aboutRegionalSettingsModal .regional-tab-pane {
-  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 0.75rem;
 }
 
 #aboutRegionalSettingsModal .regional-tab-pane.d-none {
@@ -462,11 +515,38 @@
 }
 
 #aboutRegionalSettingsModal .regional-tab-pane > .rounded.border {
-  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
+  align-items: stretch;
   margin-bottom: 0 !important;
+}
+
+/* Таблицы модального окна: выравнивание строго к верху и по левому краю в LTR */
+#aboutRegionalSettingsModal .table {
+  width: auto;
+  max-width: 100%;
+  margin-bottom: 0;
+}
+
+#aboutRegionalSettingsModal .table th,
+#aboutRegionalSettingsModal .table td {
+  vertical-align: top !important;
+  text-align: left;
+}
+
+#aboutRegionalSettingsModal .reg-info-table td:first-child {
+  width: 220px;
+  min-width: 200px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  vertical-align: top !important;
+  text-align: left;
+}
+
+#aboutRegionalSettingsModal .reg-info-table td:last-child {
+  vertical-align: top !important;
+  text-align: left;
 }
 
 #aboutRegionalSettingsModal .regional-tab-subcard {
@@ -671,7 +751,119 @@
 /* Режим раскрытия таблицы на 100% высоты без скроллера */
 .table-responsive.expanded-100 {
   max-height: none !important;
+  height: auto !important;
   overflow-y: visible !important;
+}
+
+/* Фиксированная шапка (sticky thead) во всех скроллируемых таблицах: скроллится только tbody */
+.table-responsive thead,
+.table-responsive thead th,
+[data-resizable-table] thead,
+[data-resizable-table] thead th,
+.ut-auto-table-container thead,
+.ut-auto-table-container thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--surface-2) !important;
+  box-shadow: inset 0 -1px 0 var(--border-color);
+}
+
+.table-responsive.expanded-100 thead,
+.table-responsive.expanded-100 thead th {
+  position: static;
+}
+
+.btn-table-expand-100 {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Компактная шапка таблицы со ссылкой 100% (для таблиц без внешнего .card-header) */
+.ut-table-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  padding: 0.2rem 0.5rem;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border-color);
+  border-bottom: none;
+  border-radius: var(--radius-sm, 6px) var(--radius-sm, 6px) 0 0;
+}
+
+.ut-table-header-bar[hidden],
+.sys-table-resizer[hidden],
+.slc-table-resizer[hidden],
+.table-resizer[hidden],
+.btn-table-expand-100[hidden] {
+  display: none !important;
+}
+
+/* Универсальная сортировка столбцов всех таблиц (asc/desc) */
+table thead th.ut-sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+table thead th.ut-sortable:hover {
+  background-color: var(--nav-hover-bg);
+}
+
+table thead th.ut-sortable::after {
+  content: "⇅";
+  display: inline-block;
+  margin-inline-start: 0.35em;
+  font-size: 0.75em;
+  opacity: 0.35;
+  vertical-align: middle;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+table thead th.ut-sortable:hover::after {
+  opacity: 0.75;
+}
+
+table thead th.ut-sortable[data-sort-dir="asc"]::after {
+  content: "▲";
+  opacity: 1;
+  color: var(--nav-active);
+}
+
+table thead th.ut-sortable[data-sort-dir="desc"]::after {
+  content: "▼";
+  opacity: 1;
+  color: var(--nav-active);
+}
+
+/* Универсальное выравнивание содержимого всех строк таблиц: LTR -> слева, RTL -> справа */
+table th,
+table td,
+.table th,
+.table td {
+  text-align: left !important;
+}
+
+[dir="rtl"] table th,
+[dir="rtl"] table td,
+[dir="rtl"] .table th,
+[dir="rtl"] .table td,
+html[dir="rtl"] table th,
+html[dir="rtl"] table td,
+html[dir="rtl"] .table th,
+html[dir="rtl"] .table td,
+body[dir="rtl"] table th,
+body[dir="rtl"] table td,
+body[dir="rtl"] .table th,
+body[dir="rtl"] .table td {
+  text-align: right !important;
+}
+
+table td.d-flex,
+table th.d-flex {
+  justify-content: flex-start !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -719,9 +911,9 @@
    БЕЙДЖИ
    ═══════════════════════════════════════════════════════════════════════════ */
 .badge {
-  font-size: var(--badge-font-size, 0.72rem);
+  font-size: var(--badge-font-size, calc(0.72rem * var(--badge-scale, 1.08)));
   font-weight: 500;
-  padding: 0.22em 0.5em;
+  padding: var(--badge-padding-y, calc(0.24em * var(--badge-scale, 1.08))) var(--badge-padding-x, calc(0.55em * var(--badge-scale, 1.08)));
   letter-spacing: 0.02em;
 }
 
@@ -748,6 +940,19 @@
 .badge-dark,
 .film-inline-badge {
   color: #ffffff !important;
+}
+
+[data-theme="light"] .badge.bg-secondary,
+[data-theme="light"] .badge-secondary,
+[data-theme="nightview"] .badge.bg-secondary,
+[data-theme="nightview"] .badge-secondary,
+[data-theme="nightview-70"] .badge.bg-secondary,
+[data-theme="nightview-70"] .badge-secondary,
+:root[data-theme="nightview"] .badge.bg-secondary,
+:root[data-theme="nightview"] .badge-secondary,
+:root[data-theme="nightview-70"] .badge.bg-secondary,
+:root[data-theme="nightview-70"] .badge-secondary {
+  color: var(--badge-neutral-text, #18181b) !important;
 }
 
 .badge.bg-warning,
@@ -1431,14 +1636,14 @@ h3.panel-header,
 
 /* ── 5. Унифицированные статусные бейджи ──────────────────────────────────── */
 .ui-badge {
-  font-size: var(--badge-font-size, 0.72rem);
+  font-size: var(--badge-font-size, calc(0.72rem * var(--badge-scale, 1.08)));
   font-weight: 600;
-  padding: 0.2rem 0.55rem;
+  padding: var(--badge-padding-y, calc(0.24em * var(--badge-scale, 1.08))) var(--badge-padding-x, calc(0.58em * var(--badge-scale, 1.08)));
   border-radius: var(--radius-xs, 4px);
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  line-height: 1.2;
+  gap: 0.32rem;
+  line-height: 1.25;
 }
 
 .ui-badge-success {

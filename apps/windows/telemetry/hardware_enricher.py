@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Hardware Enricher
+# Process Name: ai-tc Apps Windows Telemetry - Hardware Enricher
 # =============================================================================
 # Description:
 #   Сервис интеллектуального AI-обогащения компонентов оборудования:
@@ -16,11 +16,11 @@
 #     enricher.start_background_enrichment()
 #
 # File: hardware_enricher.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-18 09:30:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

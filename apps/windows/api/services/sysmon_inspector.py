@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Services - Sysmon Inspector
+# Process Name: ai-tc Apps Windows Services - Sysmon Inspector
 # =============================================================================
 # Description:
 #   Инспектор статуса службы Microsoft Sysmon. Исключает ложноотрицательный
@@ -15,11 +15,11 @@
 #     status = inspector.get_status()
 #
 # File: sysmon_inspector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.services
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 23:58:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -13,11 +13,11 @@
  *     import { STORES, BrowserCacheManager, browserCache } from '/windows/api/webgui/js/browser-cache.js';
  *
  * File: browser-cache.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-24 22:05:00
+# Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
@@ -40,7 +40,7 @@
  * на наличие предупреждений о недоступности IndexedDB.
  */
 
-export const DB_NAME = 'AI_Windows_Admin_DB';
+export const DB_NAME = 'ai_tc_db';
 export const DB_VERSION = 1;
 
 // Стандартные хранилища объектов IndexedDB

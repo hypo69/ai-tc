@@ -1,7 +1,7 @@
 /**
  * Модуль модального окна резервных копий реестра и точек восстановления.
  * Файл: apps/windows/api/webgui/tab_registry_editor/panel_backups/panel.js
- * Updated: 2026-11-01 14:38:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { escapeHtml } from '../common/ui_utils.js';
@@ -22,7 +22,7 @@ export async function openBackupsModal(onRestored) {
   if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Загрузка истории снимков...</td></tr>';
 
   try {
-    const res = await fetch('/api/registry/backups');
+    const res = await fetch('/api/v1/registry/backups');
     if (!res.ok) throw new Error('Ошибка загрузки бэкапов');
     const data = await res.json();
     const backups = data?.backups || [];
@@ -53,7 +53,7 @@ export async function openBackupsModal(onRestored) {
         if (!confirm(`Восстановить реестр из снимка ${backupId}?`)) return;
 
         try {
-          const rRes = await fetch(`/api/registry/restore?backup_id=${encodeURIComponent(backupId)}`, {
+          const rRes = await fetch(`/api/v1/registry/restore?backup_id=${encodeURIComponent(backupId)}`, {
             method: 'POST'
           });
           if (!rRes.ok) {

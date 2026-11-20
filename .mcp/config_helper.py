@@ -21,11 +21,11 @@
 #     port = get_config_value("server.port", 0)
 #
 # File: config_helper.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: .mcp
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:05:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -49,7 +49,7 @@ from src.utils.jjson import j_loads
 
 
 def get_project_root() -> Path:
-    """Определение корневой директории проекта AI Windows Admin.
+    """Определение корневой директории проекта ai-tc.
 
     Поиск выполняется через глобальный маркер `__root__` из `header.py`,
     переменную окружения `AIWINDOWSADMIN_DIR` или проверку наличия `config.json`.
@@ -62,8 +62,9 @@ def get_project_root() -> Path:
         >>> (root / "config.json").exists()
         True
     """
-    if "AIWINDOWSADMIN_DIR" in os.environ and os.environ["AIWINDOWSADMIN_DIR"].strip():
-        env_path = Path(os.environ["AIWINDOWSADMIN_DIR"]).resolve()
+    aitc_dir = os.environ.get("AITC_DIR") or os.environ.get("AIWINDOWSADMIN_DIR", "")
+    if aitc_dir.strip():
+        env_path = Path(aitc_dir).resolve()
         if env_path.exists():
             return env_path
     if (__root__ / "config.json").exists():
@@ -327,7 +328,7 @@ def main(argv: Optional[List[str]] = []) -> int:
         >>> main(["--list"])
         0
     """
-    parser = argparse.ArgumentParser(description="Утилита конфигурации MCP-серверов AI Windows Admin")
+    parser = argparse.ArgumentParser(description="Утилита конфигурации MCP-серверов ai-tc")
     parser.add_argument("--list", action="store_true", help="Вывести список доступных MCP-серверов")
     parser.add_argument("--json", action="store_true", help="Вывести JSON-конфигурацию для клиентов MCP")
     parser.add_argument("--generate", action="store_true", help="Сгенерировать и вывести полную конфигурацию")

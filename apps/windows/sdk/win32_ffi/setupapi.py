@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Win32_Ffi - Setupapi
+# Process Name: ai-tc Apps Windows Telemetry Win32_Ffi - Setupapi
 # =============================================================================
 # Description:
 #   Низкоуровневый интерфейс к SetupAPI и Configuration Manager PnP.
@@ -12,11 +12,11 @@
 #     service = GUID()
 #
 # File: setupapi.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.win32_ffi
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 01:54:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

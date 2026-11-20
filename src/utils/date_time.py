@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Date Time Module
+# Process Name: ai-tc UTILS - Date Time Module
 # =============================================================================
 # Description:
 #   Утилиты работы с датой, временем, UTC ISO 8601 и проверкой временных интервалов.
@@ -16,11 +16,11 @@
 #     print(result, utc_now_iso())
 #
 # File: date_time.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:38:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Утилиты работы с датой, временем, UTC ISO 8601 и проверкой временных интервалов."""

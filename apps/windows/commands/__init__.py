@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Commands - Package Init
+# Process Name: ai-tc Commands - Package Init
 # =============================================================================
 # Description:
 #   Пакет централизованных исполнителей команд Windows Control Plane.
@@ -10,11 +10,11 @@
 #     from apps.windows.commands import WindowsSettingsExecutor, CommandExecutionRequest
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.commands
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 13:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

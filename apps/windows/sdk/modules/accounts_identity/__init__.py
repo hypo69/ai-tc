@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Accounts & Identity Package
+# Process Name: ai-tc Apps Windows - Accounts & Identity Package
 # =============================================================================
 # Description:
 #   Пакет управления субъектами безопасности, пользователями, группами,
@@ -11,14 +11,14 @@
 #     from apps.windows.sdk.modules.accounts_identity import get_accounts_identity_service, identity_router
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.accounts_identity
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
-"""Пакет Accounts & Identity Windows для AI-Windows-Admin."""
+"""Пакет Accounts & Identity Windows для ai-tc."""
 
 from apps.windows.sdk.modules.accounts_identity.models import (
     RiskLevel,

@@ -9,11 +9,11 @@ Description:
     корректного обновления URL hash и остановки фонового опроса неактивных панелей.
 
 File: test_processes_load_inspector_subtabs.py
-Project: ai-windows-admin
+Project: ai-tc
 Package: tests
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-01 17:47:15
+# Updated: 2026-11-12 05:00:00
 =============================================================================
 """
 
@@ -148,3 +148,17 @@ def test_network_activity_process_column_width() -> None:
     assert 'min-width: 340px;' in js_content
 
 
+
+
+def test_processes_load_inspector_files_io_subtab_routing() -> None:
+    """Проверяет каноническую маршрутизацию суб-панели files-io (ReadDirectoryChangesW)."""
+    ui_utils = (_WEBGUI_DIR / "tab_processes_load_inspector" / "common" / "ui_utils.js").read_text(encoding="utf-8")
+    assert "'files-io'" in ui_utils, "ui_utils.js не содержит канонический идентификатор 'files-io'"
+    assert "return 'files-io';" in ui_utils, "ui_utils.js не возвращает 'files-io'"
+
+    main_js = (_WEBGUI_DIR / "tab_processes_load_inspector" / "main.js").read_text(encoding="utf-8")
+    assert "case 'files-io':" in main_js, "main.js не обрабатывает 'files-io' в switch"
+
+    html = (_WEBGUI_DIR / "tab_processes_load_inspector" / "index.html").read_text(encoding="utf-8")
+    assert 'data-panel-id="files-io"' in html, "index.html не содержит data-panel-id='files-io'"
+    assert 'data-panel-id="processes_inspector-files-io"' in html, "index.html не содержит data-panel-id='processes_inspector-files-io'"

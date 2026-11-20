@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Deep Diagnostics
+# Process Name: ai-tc Apps Windows Telemetry - Deep Diagnostics
 # =============================================================================
 # Description:
 #   Модуль глубокой аппаратной и системной диагностики, поведенческой форензики и анализа утечек.
@@ -13,11 +13,11 @@
 #   service = DeepDiagnosticsEngine()
 #
 # File: deep_diagnostics.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 09:19:00
+# Updated: 2026-11-12 12:35:00
 # =============================================================================
 
 """Модуль глубокой аппаратной и системной диагностики, поведенческой форензики и анализа утечек.
@@ -310,12 +310,20 @@ class DeepDiagnosticsEngine:
             self._last_userassist_time = now
         userassist_apps = self._cached_userassist
 
+        audio_sessions_list: List[Dict[str, Any]] = []
+        try:
+            from apps.windows.sdk.modules.sound.session_scanner import AudioSessionScanner
+            audio_sessions_list = [s.model_dump() for s in AudioSessionScanner.scan_sessions()]
+        except Exception as a_err:
+            logger.debug(f'Ошибка опроса аудиосессий: {a_err}')
+
         return ForensicsActivityReport(
             timestamp=datetime.now(timezone.utc).isoformat(),
             foreground_window=fg_window,
             user_idle_seconds=idle_seconds,
             camera_active_apps=cam_apps,
             microphone_active_apps=mic_apps,
+            audio_sessions=audio_sessions_list,
             userassist_top_apps=userassist_apps,
         )
 

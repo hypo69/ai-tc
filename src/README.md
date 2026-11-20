@@ -1,7 +1,7 @@
 # `src` Module — System Core Architecture
 
 ## Purpose
-The `src` directory hosts backend service components and subsystems powering the `AI-Windows-Admin` application:
+The `src` directory hosts backend service components and subsystems powering the `ai-tc` application:
 
 - **Application Layer** (`src.app`): FastAPI application factory, middleware, state management, WebSocket hub, metrics collection, and CORS configuration
 - **AI Model Orchestration** (`src.ai`): Unified multi-provider model switches, Gemini SDK pooling, Microsoft AI Foundry, ONNX, Hugging Face, AGY, Ollama, and LangChain agents
@@ -15,7 +15,7 @@ The `src` directory hosts backend service components and subsystems powering the
 - **Skills Framework** (`src.skills`): Discovery, registration, and contract validation for AI agent skills
 - **Plugins System** (`src.plugins`): Dynamic plugin loading and lifecycle management
 - **Speech Synthesis (TTS)** (`src.tts`): Multi-engine text-to-speech abstractions (Edge-TTS, gTTS, Silero)
-- **User Management** (`src.user_manager`): User profile CRUD, preferences, and session storage backed by SQLite
+- **User Settings** (`src.user_settings`): Single-user local preferences, active model selection, favorites, and system instructions
 - **Utilities & Converters** (`src.utils`): Format converters, file helpers, resilient JSON parsing, SemVer checks, and media processors
 - **Network Management** (`src.network`): Network configuration, port management, and connectivity checks
 - **System Tools** (`src.system`): System-level operations, Windows admin tools, and process management
@@ -100,7 +100,7 @@ register_config_api(app)
 
 ---
 
-## AI Windows Admin — Concept
+## ai-tc — Concept
 
 **Core Idea:** A construction kit platform for connecting and testing AI models in your projects.
 

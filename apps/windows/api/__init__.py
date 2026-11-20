@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows API - Package Root
+# Process Name: ai-tc Apps Windows API - Package Root
 # =============================================================================
 # Description:
 #   Слой 7: Внутренний FastAPI-сервис подсистемы Windows и Auto-Discovery роутеров.
@@ -11,11 +11,11 @@
 #     from apps.windows.api import create_app, discover_and_register_routers
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 07:54:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

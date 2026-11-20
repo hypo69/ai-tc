@@ -8,11 +8,11 @@
  *   матрицу инструментов, AI-генератор и интерактивную песочницу Sandbox.
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_agents
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-30 11:15:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -25,7 +25,7 @@ import {
   bindEditorEvents,
 } from './panel_editor/panel.js';
 import { bindAiBuilderEvents } from './panel_ai_builder/panel.js';
-import { openSandbox, bindSandboxEvents } from './panel_sandbox/panel.js';
+import { openSandbox, bindSandboxEvents } from './panel_sandbox/panel.js?v=20261120_v1';
 
 /**
  * Загрузка всех данных: агенты, каталог инструментов, провайдеры и модели.
@@ -34,9 +34,9 @@ import { openSandbox, bindSandboxEvents } from './panel_sandbox/panel.js';
 export async function loadAllAgentsData() {
   try {
     const [agentsRes, toolsRes, providersRes] = await Promise.all([
-      fetchJson('/api/agents'),
-      fetchJson('/api/agents/tools'),
-      fetchJson('/api/agents/providers')
+      fetchJson('/api/v1/agents'),
+      fetchJson('/api/v1/agents/tools'),
+      fetchJson('/api/v1/agents/providers')
     ]);
 
     state.agents = Array.isArray(agentsRes) ? agentsRes : (agentsRes?.agents || []);

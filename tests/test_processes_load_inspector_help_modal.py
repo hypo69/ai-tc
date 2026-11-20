@@ -11,11 +11,11 @@ Description:
   5. Проверка полноты ключей локализации processesInspectorHelp по всем 4 локалям.
 
 File: test_processes_load_inspector_help_modal.py
-Project: ai-windows-admin
+Project: ai-tc
 Package: tests
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-31 18:41:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 """
 

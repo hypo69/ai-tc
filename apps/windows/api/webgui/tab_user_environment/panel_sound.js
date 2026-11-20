@@ -11,7 +11,7 @@
  * Package: apps.windows.api.webgui.tab_user_environment
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 18:05:00
+ * Updated: 2026-11-20 00:26:30
  * =============================================================================
  */
 
@@ -182,26 +182,30 @@ function renderAudioSessions(sessions) {
   }
 
   listEl.innerHTML = sessions.map((sess) => {
-    const isMuted = Boolean(sess.muted);
-    const vol = Math.round(sess.volume || 0);
-    const appName = escapeHtml(sess.process_name || 'Неизвестный процесс');
-    const pid = sess.process_id;
+    const isMuted = Boolean(sess.is_muted);
+    const vol = Math.round(sess.volume ?? 0);
+    const isSys = Boolean(sess.is_system_sounds);
+    const appName = escapeHtml(sess.name || 'Неизвестный процесс');
+    const target = String(sess.id ?? sess.pid ?? '');
+    const targetEsc = escapeHtml(target);
+    const subLabel = isSys ? 'Служба звуковых оповещений' : `PID: ${sess.pid ?? 0}`;
+    const iconClass = isSys ? 'bi-bell text-warning' : 'bi-app-indicator text-primary';
 
     return `
       <div class="d-flex align-items-center gap-3 p-3 rounded border border-secondary-subtle bg-body-tertiary">
-        <div class="rounded p-2 bg-body text-primary border border-secondary-subtle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-          <i class="bi bi-app-indicator fs-5"></i>
+        <div class="rounded p-2 bg-body border border-secondary-subtle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+          <i class="bi ${iconClass} fs-5"></i>
         </div>
         <div class="flex-grow-1" style="min-width: 150px;">
           <div class="fw-semibold text-truncate" title="${appName}">${appName}</div>
-          <div class="text-muted small">PID: ${pid}</div>
+          <div class="text-muted small">${subLabel}</div>
         </div>
         <div class="d-flex align-items-center gap-2 flex-grow-1" style="max-width: 320px;">
-          <button class="btn btn-sm ${isMuted ? 'btn-outline-danger' : 'btn-outline-secondary'} ue-sound-btn-sess-mute" data-pid="${pid}" title="${isMuted ? 'Включить звук' : 'Заглушить'}">
+          <button class="btn btn-sm ${isMuted ? 'btn-outline-danger' : 'btn-outline-secondary'} ue-sound-btn-sess-mute" data-target="${targetEsc}" data-muted="${isMuted ? 'true' : 'false'}" title="${isMuted ? 'Включить звук' : 'Заглушить'}">
             <i class="bi ${isMuted ? 'bi-volume-mute-fill' : 'bi-volume-up-fill'}"></i>
           </button>
-          <input type="range" class="form-range ue-sound-sess-range flex-grow-1" data-pid="${pid}" min="0" max="100" step="1" value="${vol}">
-          <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle" id="ue-sound-sess-val-${pid}" style="min-width: 45px;">${vol}%</span>
+          <input type="range" class="form-range ue-sound-sess-range flex-grow-1" data-target="${targetEsc}" min="0" max="100" step="1" value="${vol}">
+          <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle" id="ue-sound-sess-val-${targetEsc}" style="min-width: 45px;">${vol}%</span>
         </div>
       </div>
     `;
@@ -209,20 +213,21 @@ function renderAudioSessions(sessions) {
 
   // Привязка обработчиков микшера
   listEl.querySelectorAll('.ue-sound-sess-range').forEach((range) => {
-    const pid = range.getAttribute('data-pid');
-    const valBadge = document.getElementById(`ue-sound-sess-val-${pid}`);
+    const target = range.getAttribute('data-target');
+    const valBadge = document.getElementById(`ue-sound-sess-val-${target}`);
     range.addEventListener('input', () => {
       if (valBadge) valBadge.textContent = `${range.value}%`;
-      clearTimeout(_debounceSessions[pid]);
-      _debounceSessions[pid] = setTimeout(() => {
-        setSessionVolume(parseInt(pid, 10), parseInt(range.value, 10));
+      clearTimeout(_debounceSessions[target]);
+      _debounceSessions[target] = setTimeout(() => {
+        setSessionVolume(target, parseInt(range.value, 10));
       }, 150);
     });
   });
 
   listEl.querySelectorAll('.ue-sound-btn-sess-mute').forEach((btn) => {
-    const pid = parseInt(btn.getAttribute('data-pid'), 10);
-    btn.addEventListener('click', () => toggleSessionMute(pid));
+    const target = btn.getAttribute('data-target');
+    const currentMuted = btn.getAttribute('data-muted') === 'true';
+    btn.addEventListener('click', () => toggleSessionMute(target, !currentMuted));
   });
 }
 
@@ -273,7 +278,7 @@ export async function toggleStartupSound(enabled) {
     const resp = await fetch('/api/v1/sound/startup-sound', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ enabled })
+      body: JSON.stringify({ muted: Boolean(enabled) })
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     showToast(enabled ? 'Звук запуска Windows включен' : 'Звук запуска Windows выключен', 'success');
@@ -291,7 +296,7 @@ export async function playTestSound(soundType) {
     const resp = await fetch('/api/v1/sound/test-sound', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sound_type: soundType })
+      body: JSON.stringify({ sound: soundType })
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     showToast(`Сигнал воспроизведен (${soundType})`, 'success');
@@ -340,53 +345,54 @@ export async function toggleMasterMute() {
 
 /**
  * Установка громкости для сессии приложения.
- * @param {number} processId PID процесса.
+ * @param {string|number} target Идентификатор сессии (PID или 'system_sounds').
  * @param {number} volume Громкость (0-100).
  */
-export async function setSessionVolume(processId, volume) {
+export async function setSessionVolume(target, volume) {
   try {
     const resp = await fetch('/api/v1/sound/session-volume', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ process_id: processId, volume })
+      body: JSON.stringify({ target: String(target), volume: Number(volume) })
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
   } catch (err) {
-    console.warn(`[UESound] Ошибка громкости сессии ${processId}:`, err);
+    console.warn(`[UESound] Ошибка громкости сессии ${target}:`, err);
   }
 }
 
 /**
  * Переключение mute для аудиосессии процесса.
- * @param {number} processId PID процесса.
+ * @param {string|number} target Идентификатор сессии (PID или 'system_sounds').
+ * @param {boolean} muted Новое состояние приглушения.
  */
-export async function toggleSessionMute(processId) {
+export async function toggleSessionMute(target, muted) {
   try {
     const resp = await fetch('/api/v1/sound/session-mute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ process_id: processId })
+      body: JSON.stringify({ target: String(target), muted: Boolean(muted) })
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     await loadSoundState();
   } catch (err) {
-    showToast(`Ошибка заглушения сессии ${processId}: ${err.message}`, 'danger');
+    showToast(`Ошибка заглушения сессии ${target}: ${err.message}`, 'danger');
   }
 }
 
 /**
  * Запуск системных апплетов звука Windows.
- * @param {'settings'|'sndvol'|'mmsys'} applet Целевой апплет.
+ * @param {'settings'|'sndvol'|'mmsys'} tool Целевой системный инструмент.
  */
-export async function launchSoundApplet(applet) {
+export async function launchSoundApplet(tool) {
   try {
-    const resp = await fetch('/api/v1/sound/launch-applet', {
+    const resp = await fetch('/api/v1/sound/launch-tool', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ applet })
+      body: JSON.stringify({ tool })
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    showToast(`Запущен системный апплет: ${applet}`, 'info');
+    showToast(`Запущен системный апплет: ${tool}`, 'info');
   } catch (err) {
     showToast(`Ошибка запуска апплета: ${err.message}`, 'danger');
   }

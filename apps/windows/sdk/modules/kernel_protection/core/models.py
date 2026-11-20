@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Kernel Protection - Models
+# Process Name: ai-tc Apps Windows Modules Kernel Protection - Models
 # =============================================================================
 # Description:
 #   Pydantic-модели данных для системы защиты ядра, аудита системных драйверов,
@@ -13,11 +13,11 @@
 #     driver = SystemDriverInfo(name="ucpd", display_name="User Choice Protection Driver")
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.kernel_protection.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 14:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

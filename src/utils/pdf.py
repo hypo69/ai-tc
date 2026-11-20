@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Pdf Module
+# Process Name: ai-tc UTILS - Pdf Module
 # =============================================================================
 # Description:
 #   Извлечение текстового содержимого из PDF-файлов (pypdf -> pdfminer -> regex fallback)
@@ -13,11 +13,11 @@
 #     text = extract_pdf_text("report.pdf")
 #
 # File: pdf.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

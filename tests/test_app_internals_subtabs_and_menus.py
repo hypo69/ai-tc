@@ -12,11 +12,11 @@
 #   - Проверка эндпоинтов параметров рантайма и проверки SQLite.
 #
 # File: test_app_internals_subtabs_and_menus.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-11 23:25:00
+# Updated: 2026-11-19 17:25:00
 # =============================================================================
 
 from __future__ import annotations
@@ -53,6 +53,7 @@ def test_app_internals_html_menu_structure():
     assert 'data-panel-id="settings"' in html_content
     assert 'data-panel-id="wikillm-system"' in html_content
     assert 'data-panel-id="instruments"' in html_content
+    assert 'data-panel-id="db-manager"' in html_content
 
     # 3. Проверка блоков Уровня 2 для базы системных подсказок
     assert 'data-block-id="block-sys-storage"' in html_content
@@ -64,13 +65,26 @@ def test_app_internals_html_menu_structure():
     assert 'data-block-id="block-inst-runtime"' in html_content
     assert 'data-block-id="block-inst-catalog"' in html_content
 
-    # 5. Проверка статических тултипов без модели
+    # 5. Проверка блоков Уровня 2 для единой панели управления БД (db-manager)
+    assert 'data-block-id="block-db-overview"' in html_content
+    assert 'data-block-id="block-db-console"' in html_content
+    assert 'data-block-id="block-db-compress"' in html_content
+    assert 'data-block-id="block-db-export"' in html_content
+    assert 'data-block-id="block-db-backups"' in html_content
+
+    # 6. Проверка статических тултипов без модели
     assert 'data-i18n-title="internals.subtabSystemKnowledgeTitle"' in html_content
     assert 'data-i18n-title="internals.subtabInstrumentsTitle"' in html_content
+    assert 'data-i18n-title="internals.subtabDbManagerTitle"' in html_content
     assert 'data-i18n-title="internals.blockSysStorageTitle"' in html_content
     assert 'data-i18n-title="internals.blockInstHostingerTitle"' in html_content
     assert 'data-i18n-title="internals.blockInstRuntimeTitle"' in html_content
     assert 'data-i18n-title="internals.blockInstCatalogTitle"' in html_content
+    assert 'data-i18n-title="internals.blockDbOverviewTitle"' in html_content
+    assert 'data-i18n-title="internals.blockDbConsoleTitle"' in html_content
+    assert 'data-i18n-title="internals.blockDbCompressTitle"' in html_content
+    assert 'data-i18n-title="internals.blockDbExportTitle"' in html_content
+    assert 'data-i18n-title="internals.blockDbBackupsTitle"' in html_content
 
 
 def test_locales_contain_internals_keys():
@@ -96,6 +110,18 @@ def test_locales_contain_internals_keys():
         assert "blockInstRuntimeTitle" in internals
         assert "blockInstCatalogLabel" in internals
         assert "blockInstCatalogTitle" in internals
+        assert "subtabDbManagerLabel" in internals
+        assert "subtabDbManagerTitle" in internals
+        assert "blockDbOverviewLabel" in internals
+        assert "blockDbOverviewTitle" in internals
+        assert "blockDbConsoleLabel" in internals
+        assert "blockDbConsoleTitle" in internals
+        assert "blockDbCompressLabel" in internals
+        assert "blockDbCompressTitle" in internals
+        assert "blockDbExportLabel" in internals
+        assert "blockDbExportTitle" in internals
+        assert "blockDbBackupsLabel" in internals
+        assert "blockDbBackupsTitle" in internals
 
 
 def test_ai_instruments_runtime_config_api():

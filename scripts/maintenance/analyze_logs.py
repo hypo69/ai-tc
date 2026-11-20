@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Maintenance - Analyze Logs
+# Process Name: ai-tc Scripts Maintenance - Analyze Logs
 # =============================================================================
 # Description:
 #   Manual log analysis script.
@@ -12,11 +12,11 @@
 #     import scripts.maintenance.analyze_logs as analyze_logs
 #
 # File: analyze_logs.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.maintenance
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Manual log analysis script.

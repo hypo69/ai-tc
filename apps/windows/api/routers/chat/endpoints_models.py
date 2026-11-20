@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - endpoints_models
+# Process Name: ai-tc Apps Windows Api Routers - endpoints_models
 # =============================================================================
 # Description:
 #   Эндпойнты моделей, провайдеров, инструкций и здоровья моделей.
 #   Вынесено из router_chat.py (этап 4 оптимизации).
 #
 # File: endpoints_models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.chat
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-30 13:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

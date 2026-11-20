@@ -7,11 +7,11 @@
  *   выявления аномалий подсистем (CPU/RAM/GPU/Storage) и вывода рекомендаций.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_system_inspector/panel_ai_copilot
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 00:22:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

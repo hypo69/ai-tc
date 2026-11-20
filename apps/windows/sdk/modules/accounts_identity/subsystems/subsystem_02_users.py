@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Subsystem 02 Users
+# Process Name: ai-tc Apps Windows - Subsystem 02 Users
 # =============================================================================
 # Description:
 #   Подсистема 02: Управление локальными и доменными пользователями
@@ -14,11 +14,11 @@
 #     users = subsys.list_users()
 #
 # File: subsystem_02_users.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.accounts_identity.subsystems
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 15:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Подсистема управления учетными записями пользователей Windows SAM."""

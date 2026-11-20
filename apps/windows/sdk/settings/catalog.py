@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Settings SDK - Settings Catalog
+# Process Name: ai-tc Settings SDK - Settings Catalog
 # =============================================================================
 # Description:
 #   Декларативный каталог параметров Windows Control Catalog: описание настроек,
@@ -13,11 +13,11 @@
 #     catalog = get_settings_catalog()
 #
 # File: catalog.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.settings
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 13:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

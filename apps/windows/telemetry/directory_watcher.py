@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Directory Watch Engine
+# Process Name: ai-tc Apps Windows Telemetry - Directory Watch Engine
 # =============================================================================
 # Description:
 #   Движок фонового мониторинга файловой активности в контролируемых директориях
@@ -15,11 +15,11 @@
 #     engine.start()
 #
 # File: directory_watcher.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 09:41:00
+# Updated: 2026-11-13 14:11:00
 # =============================================================================
 
 from __future__ import annotations
@@ -141,43 +141,71 @@ class DirectoryWatchEngine:
     _instance: Optional[DirectoryWatchEngine] = None
     _lock = threading.RLock()
 
-    def __init__(self, config_path: Optional[Path] = None) -> None:
+    def __init__(self, config_path: Optional[Path] = None, config_manager: Optional[Any] = None) -> None:
         """Инициализирует наблюдатель за контролируемыми директориями."""
-        self._config_path = config_path or (Path(__file__).resolve().parent / 'config.json')
+        from .telemetry_config import TelemetryConfigManager
+        self._config_mgr = config_manager or TelemetryConfigManager(config_path=config_path)
+        self._config_path = config_path or getattr(self._config_mgr, 'config_path', None) or (Path(__file__).resolve().parent / 'config.json')
         self._tracked_directories: Set[str] = set()
         self._watch_threads: Dict[str, threading.Thread] = {}
         self._stop_events: Dict[str, threading.Event] = {}
+        self._subscribers: Set[Any] = set()
         self._running = False
         self._load_configuration()
 
     @classmethod
-    def get_instance(cls, config_path: Optional[Path] = None) -> DirectoryWatchEngine:
+    def get_instance(cls, config_path: Optional[Path] = None, config_manager: Optional[Any] = None) -> DirectoryWatchEngine:
         """Возвращает синглтон экземпляр DirectoryWatchEngine."""
         with cls._lock:
             if cls._instance is None:
-                cls._instance = cls(config_path=config_path)
+                cls._instance = cls(config_path=config_path, config_manager=config_manager)
+            elif config_manager is not None and cls._instance._config_mgr is None:
+                cls._instance._config_mgr = config_manager
             return cls._instance
 
     def _load_configuration(self) -> None:
-        """Загружает список отслеживаемых папок из config.json."""
-        if self._config_path.is_file():
+        """Загружает список отслеживаемых папок из конфигурации."""
+        dirs: List[str] = []
+        if self._config_mgr and hasattr(self._config_mgr, 'get_watch_directories'):
+            try:
+                dirs = self._config_mgr.get_watch_directories()
+            except Exception as ex:
+                logger.debug(f'[DirectoryWatchEngine] Ошибка чтения из config_mgr: {ex}')
+
+        if not dirs and self._config_path and Path(self._config_path).is_file():
             try:
                 with open(self._config_path, 'r', encoding='utf-8') as f:
                     cfg = json.load(f)
-                    dirs = cfg.get('watch_directories', [])
-                    for d in dirs:
-                        if isinstance(d, str) and d.strip():
-                            self._tracked_directories.add(os.path.normpath(d.strip()))
+                    dirs = cfg.get('watch_directories', cfg.get('telemetry_options', {}).get('watch_directories', []))
             except Exception as exc:
                 logger.warning(f'[DirectoryWatchEngine] Ошибка загрузки watch_directories: {exc}')
 
+        for d in dirs:
+            if isinstance(d, str) and d.strip():
+                expanded = os.path.expandvars(d.strip())
+                norm = os.path.normpath(expanded)
+                # Корневой диск C:\ исключаем из рекурсивного мониторинга во избежание переполнения буфера
+                if norm in ('C:\\', 'C:', '\\'):
+                    continue
+                self._tracked_directories.add(norm)
+
     def _save_configuration(self) -> None:
-        """Сохраняет актуальный список отслеживаемых директорий в config.json."""
-        if self._config_path.is_file():
+        """Сохраняет актуальный список отслеживаемых директорий в конфигурацию."""
+        sorted_dirs = sorted(list(self._tracked_directories))
+        if self._config_mgr and hasattr(self._config_mgr, 'set_watch_directories'):
+            try:
+                self._config_mgr.set_watch_directories(sorted_dirs)
+                return
+            except Exception as exc:
+                logger.warning(f'[DirectoryWatchEngine] Ошибка сохранения watch_directories через config_mgr: {exc}')
+
+        if self._config_path and Path(self._config_path).is_file():
             try:
                 with open(self._config_path, 'r', encoding='utf-8') as f:
                     cfg = json.load(f)
-                cfg['watch_directories'] = sorted(list(self._tracked_directories))
+                cfg['watch_directories'] = sorted_dirs
+                if 'telemetry_options' in cfg and isinstance(cfg['telemetry_options'], dict):
+                    cfg['telemetry_options']['watch_directories'] = sorted_dirs
                 with open(self._config_path, 'w', encoding='utf-8') as f:
                     json.dump(cfg, f, ensure_ascii=False, indent=2)
             except Exception as exc:
@@ -187,6 +215,16 @@ class DirectoryWatchEngine:
         """Возвращает отсортированный список всех активных отслеживаемых директорий."""
         with self._lock:
             return sorted(list(self._tracked_directories))
+
+    def subscribe(self, callback: Any) -> None:
+        """Регистрирует слушателя для получения живых файловых событий в реальном времени."""
+        with self._lock:
+            self._subscribers.add(callback)
+
+    def unsubscribe(self, callback: Any) -> None:
+        """Удаляет зарегистрированного слушателя."""
+        with self._lock:
+            self._subscribers.discard(callback)
 
     def add_directory(self, directory_path: str) -> bool:
         """Добавляет директорию в список активного мониторинга и запускает поток слежения.
@@ -249,6 +287,9 @@ class DirectoryWatchEngine:
 
     def _start_watcher_thread(self, path: str) -> None:
         """Запускает поток Win32 ReadDirectoryChangesW для указанной директории."""
+        if path in ('C:\\', 'C:', '\\', ''):
+            logger.debug(f'[DirectoryWatchEngine] Пропущен небезопасный корневой путь: {path}')
+            return
         if path in self._watch_threads and self._watch_threads[path].is_alive():
             return
         if not os.path.exists(path):
@@ -297,7 +338,7 @@ class DirectoryWatchEngine:
             logger.debug(f'[DirectoryWatchEngine] Не удалось открыть дескриптор для: {directory}')
             return
 
-        buffer = (ctypes.c_byte * 65536)()
+        buffer = ctypes.create_string_buffer(65536)
         bytes_returned = wintypes.DWORD()
         flags = (
             FILE_NOTIFY_CHANGE_FILE_NAME
@@ -323,7 +364,7 @@ class DirectoryWatchEngine:
                     time.sleep(0.5)
                     continue
 
-                self._process_notifications(buffer, bytes_returned.value, directory)
+                self._process_notifications(buffer.raw, bytes_returned.value, directory)
         except Exception as exc:
             logger.debug(f'[DirectoryWatchEngine] Исключение в цикле {directory}: {exc}')
         finally:
@@ -331,15 +372,29 @@ class DirectoryWatchEngine:
 
     def _process_notifications(self, buffer: Any, buffer_len: int, target_directory: str) -> None:
         """Парсит структуру FILE_NOTIFY_INFORMATION и записывает события в базу данных."""
+        if hasattr(buffer, 'raw'):
+            raw_data = buffer.raw
+        elif isinstance(buffer, (bytes, bytearray, memoryview)):
+            raw_data = bytes(buffer)
+        else:
+            try:
+                raw_data = bytes(buffer)
+            except (ValueError, TypeError):
+                raw_data = bytes(b & 0xFF for b in buffer[:buffer_len])
+
         offset = 0
         events_to_save: List[Dict[str, Any]] = []
         now_ts = datetime.now(timezone.utc).isoformat()
 
         while offset < buffer_len:
-            next_entry_offset = int.from_bytes(bytes(buffer[offset:offset + 4]), 'little')
-            action = int.from_bytes(bytes(buffer[offset + 4:offset + 8]), 'little')
-            file_name_len = int.from_bytes(bytes(buffer[offset + 8:offset + 12]), 'little')
-            file_name_bytes = bytes(buffer[offset + 12:offset + 12 + file_name_len])
+            if offset + 12 > buffer_len:
+                break
+            next_entry_offset = int.from_bytes(raw_data[offset:offset + 4], 'little')
+            action = int.from_bytes(raw_data[offset + 4:offset + 8], 'little')
+            file_name_len = int.from_bytes(raw_data[offset + 8:offset + 12], 'little')
+            fn_start = offset + 12
+            fn_end = min(fn_start + file_name_len, buffer_len)
+            file_name_bytes = raw_data[fn_start:fn_end]
             file_name = file_name_bytes.decode('utf-16le', errors='ignore')
 
             full_path = os.path.join(target_directory, file_name)
@@ -369,7 +424,7 @@ class DirectoryWatchEngine:
                 'created_at': time.time(),
             })
 
-            if next_entry_offset == 0:
+            if next_entry_offset <= 0:
                 break
             offset += next_entry_offset
 
@@ -379,4 +434,12 @@ class DirectoryWatchEngine:
                 storage.insert_process_file_events(events_to_save)
             except Exception as exc:
                 logger.debug(f'[DirectoryWatchEngine] Ошибка сохранения файловых событий: {exc}')
+
+            with self._lock:
+                subs = list(self._subscribers)
+            for sub in subs:
+                try:
+                    sub(events_to_save)
+                except Exception as sub_err:
+                    logger.debug(f'[DirectoryWatchEngine] Ошибка доставки события подписчику: {sub_err}')
 

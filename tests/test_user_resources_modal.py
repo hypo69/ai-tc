@@ -8,14 +8,14 @@ Description:
     - Проверка наличия элементов DOM модального окна #userResourcesModal в index.html
     - Проверка кнопки открытия ресурсов в panel_users/panel.js
     - Проверка экспорта функций в panel_users/resources_modal.js
-    - Проверка структуры метрик в API /api/sysadmin/accounts/{username}/metrics
+    - Проверка структуры метрик в API /api/v1/sysadmin/accounts/{username}/metrics
 
 File: test_user_resources_modal.py
-Project: ai-windows-admin
+Project: ai-tc
 Package: tests
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-01 14:58:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 """
 
@@ -73,7 +73,7 @@ def test_user_resources_modal_module() -> None:
 
 @pytest.mark.asyncio
 async def test_get_account_metrics_api() -> None:
-    """Проверяет структуру ответа эндпоинта /api/sysadmin/accounts/{username}/metrics."""
+    """Проверяет структуру ответа эндпоинта /api/v1/sysadmin/accounts/{username}/metrics."""
     from apps.windows.sdk.modules.sysadmin.router import get_account_metrics
 
     current_user = os.environ.get("USERNAME", "Administrator")

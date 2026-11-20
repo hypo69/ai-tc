@@ -8,7 +8,7 @@
 
 Большинство существующих решений (Ollama, LM Studio, vLLM) запускают отдельные серверные процессы и демоны, общаясь с ними через локальную сеть.
 
-В aiwindowsadmin реализован также **In-Process инференс** ([src/ai/providers/huggingface/](../../../src/ai/providers/huggingface/) и [src/ai/providers/onnx/](../../../src/ai/providers/onnx/)):
+В aitc реализован также **In-Process инференс** ([src/ai/providers/huggingface/](../../../src/ai/providers/huggingface/) и [src/ai/providers/onnx/](../../../src/ai/providers/onnx/)):
 - Веса модели загружаются непосредственно в адресное пространство процесса (RAM / VRAM).
 - Исключаются накладные расходы на сериализацию HTTP-запросов и межпроцессное взаимодействие.
 - Асинхронные вызовы изолируются в syncio executor, предотвращая блокировку Event Loop сервера FastAPI.

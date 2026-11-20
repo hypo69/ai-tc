@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Subsystem 01 Identity
+# Process Name: ai-tc Apps Windows - Subsystem 01 Identity
 # =============================================================================
 # Description:
 #   Подсистема 01: Текущий субъект, контекст безопасности, UPN, FQDN,
@@ -14,11 +14,11 @@
 #     ctx = subsys.get_current_identity_context()
 #
 # File: subsystem_01_identity.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.accounts_identity.subsystems
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Подсистема идентификации текущего пользователя и маркера доступа."""

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Contracts - Package Root
+# Process Name: ai-tc Apps Windows Contracts - Package Root
 # =============================================================================
 # Description:
 #   Zero-dependency единый реестр контрактов, DTO и перечислений для Windows подсистем.
@@ -10,15 +10,15 @@
 #     from apps.windows.contracts import RiskLevel, AuditFinding, SystemSnapshot, CpuMetrics
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.contracts
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
-"""Единый пакет контрактов (Слой 1) платформы AI-Windows-Admin Windows."""
+"""Единый пакет контрактов (Слой 1) платформы ai-tc Windows."""
 
 from apps.windows.contracts.enums import (
     RiskLevel,

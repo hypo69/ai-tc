@@ -9,11 +9,11 @@
  *   сохранение и экспресс-проверка соединения из формы.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_mcp/panel_modal_server
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:41:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -279,8 +279,8 @@ export async function saveServer(event) {
 
   try {
     const endpoint = mode === 'create'
-      ? '/api/admin/mcp/servers'
-      : `/api/admin/mcp/servers/${encodeURIComponent(serverId)}`;
+      ? '/api/v1/admin/mcp/servers'
+      : `/api/v1/admin/mcp/servers/${encodeURIComponent(serverId)}`;
 
     const method = mode === 'create' ? 'POST' : 'PUT';
 
@@ -350,7 +350,7 @@ export async function testCurrentForm() {
   }
 
   try {
-    const res = await apiFetch('/api/admin/mcp/test', {
+    const res = await apiFetch('/api/v1/admin/mcp/test', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - assistant
+# Process Name: ai-tc Apps Windows Api Routers - assistant
 # =============================================================================
 # Description:
 #   AI-ассистент сценариев, динамические навыки и бенчмарк диска.
 #   Вынесено из router_scenarios.py (этап 4 оптимизации).
 #
 # File: assistant.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.scenarios
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-11-10 16:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

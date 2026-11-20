@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Router App Logs
+# Process Name: ai-tc Apps Windows Api Routers - Router App Logs
 # =============================================================================
 # Description:
 #   FastAPI роутер для интеллектуального анализа, экспорта и потокового
-#   мониторинга внутренних логов программы строго из %APPDATA%\AI-Windows-Admin\logs
+#   мониторинга внутренних логов программы строго из %APPDATA%\ai-tc\logs
 #   (log.json, info.log, errors.log, debug.log, windows_api.log и др.).
 #   Оптимизирован для высокопроизводительной работы с большими файлами (>20MB).
 #
@@ -15,11 +15,11 @@
 #     router = init_router()
 #
 # File: router_app_logs.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 04:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -48,10 +48,10 @@ router = APIRouter(prefix="/api/v1/app_logs", tags=["Internal Application Logs"]
 def get_logs_dir() -> Path:
     """Определяет базовую директорию внутренних логов программы.
 
-    Строго использует каталог %APPDATA%/AI-Windows-Admin/logs либо
-    переопределенный через AI_WINDOWS_ADMIN_LOGS_DIR / LOG_DIR.
+    Строго использует каталог %APPDATA%/ai-tc/logs либо
+    переопределенный через AI_TC_LOGS_DIR / LOG_DIR.
     """
-    env_dir = os.environ.get("AI_WINDOWS_ADMIN_LOGS_DIR") or os.environ.get("LOG_DIR")
+    env_dir = os.environ.get("AI_TC_LOGS_DIR") or os.environ.get("LOG_DIR")
     if env_dir:
         return Path(env_dir)
 
@@ -135,7 +135,7 @@ class ClearLogRequest(BaseModel):
 
 @router.get("/overview")
 async def get_logs_overview() -> Dict[str, Any]:
-    """Возвращает сводную информацию по всем файлам логов системы AI-Windows-Admin.
+    """Возвращает сводную информацию по всем файлам логов системы ai-tc.
 
     Включает общий объем, распределение по подсистемам и количество активных ошибок.
     """
@@ -225,7 +225,7 @@ async def get_logs_overview() -> Dict[str, Any]:
 
 @router.get("/files")
 async def list_log_files() -> Dict[str, Any]:
-    """Возвращает список всех доступных файлов внутренних логов в %APPDATA%/AI-Windows-Admin/logs."""
+    """Возвращает список всех доступных файлов внутренних логов в %APPDATA%/ai-tc/logs."""
     def _scan_files():
         logs_dir = get_logs_dir()
         if not logs_dir.exists():

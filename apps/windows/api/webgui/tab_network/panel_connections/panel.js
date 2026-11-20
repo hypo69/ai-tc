@@ -1,7 +1,7 @@
 /**
  * Модуль панели активных сетевых подключений и слушающих портов.
  * Файл: apps/windows/api/webgui/tab_network/panel_connections/panel.js
- * Updated: 2026-10-17 01:55:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 let allConnections = [];
@@ -25,7 +25,7 @@ export async function fetchConnections() {
   const kpiListening = document.getElementById('net-kpi-listening');
 
   try {
-    const res = await fetch('/api/network/connections?limit=250');
+    const res = await fetch('/api/v1/network/connections?limit=250');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 

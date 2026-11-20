@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules System_Checkpoints Tests -   Init  
+# Process Name: ai-tc Apps Windows Modules System_Checkpoints Tests -   Init  
 # =============================================================================
 # Description:
 #   Тестовый пакет приложения контрольных точек Windows.
@@ -9,11 +9,11 @@
 #
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.system_checkpoints.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Тестовый пакет приложения контрольных точек Windows."""

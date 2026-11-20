@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin SDK - User Profile Artifact Scanner
+# Process Name: ai-tc SDK - User Profile Artifact Scanner
 # =============================================================================
 # Description:
 #   Рекурсивный сканер пользовательских профилей для обнаружения артефактов ПО.
 #
 # File: scanner.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.programms_history_deep_researh
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:18:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 r"""scanner.py – рекурсивный сканер пользовательских профилей.
 

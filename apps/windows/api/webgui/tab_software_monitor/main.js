@@ -14,11 +14,11 @@
  *     <script type="module" src="/windows/api/webgui/tab_software_monitor/main.js?v=20261112_v1"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_software_monitor
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-12 02:25:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Compactor
+# Process Name: ai-tc Apps Windows Telemetry - Compactor
 # =============================================================================
 # Description:
 #   Модуль логарифмического и многоуровневого сжатия (rollup) временных рядов.
@@ -10,11 +10,11 @@
 #     from apps.windows.telemetry.compactor import TelemetryCompactor, compute_percentile
 #
 # File: compactor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Модуль `TelemetryCompactor` и вспомогательная функция `compute_percentile`.

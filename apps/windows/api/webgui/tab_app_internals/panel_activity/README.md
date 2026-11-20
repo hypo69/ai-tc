@@ -1,11 +1,11 @@
 <!--
 =============================================================================
 File: README.md
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/tab_app_internals/panel_activity
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-11 23:20:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 -->
 

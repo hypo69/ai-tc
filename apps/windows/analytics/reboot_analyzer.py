@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry_Research - Reboot Analyzer
+# Process Name: ai-tc Apps Windows Telemetry_Research - Reboot Analyzer
 # =============================================================================
 # Description:
 #   Модуль глубокого анализа и корреляции причин перезагрузок Windows.
@@ -12,11 +12,11 @@
 #     service = WindowsRebootAnalyzer()
 #
 # File: reboot_analyzer.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.analytics
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 16:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

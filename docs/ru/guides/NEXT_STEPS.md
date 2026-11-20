@@ -144,7 +144,7 @@ sync.upload_file("config.json", sync.root_folder_id)
 
 После инициализации будет создана папка:
 ```
-📁 AI-Windows-Admin-Sync/
+📁 ai-tc-sync/
    ├── data/
    ├── logs/
    ├── secrets/

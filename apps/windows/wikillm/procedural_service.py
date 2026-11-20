@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm - Procedural Service
+# Process Name: ai-tc Apps Windows Wikillm - Procedural Service
 # =============================================================================
 # Description:
 #   Координатор процедурной памяти WikiLLM и жизненного цикла самообучения
@@ -14,11 +14,11 @@
 #     res = service.synthesize_and_execute("print_hello", {"message": "Hello"})
 #
 # File: procedural_service.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 01:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

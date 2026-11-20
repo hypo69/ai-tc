@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Focus_Policy Tests - Test Focus Policy
+# Process Name: ai-tc Apps Windows Modules Focus_Policy Tests - Test Focus Policy
 # =============================================================================
 # Description:
 #   Тесты Focus Policy Engine: профили, Task Scheduler, перехват уведомлений,
@@ -10,11 +10,11 @@
 #   pytest apps/windows/modules/focus_policy/tests/test_focus_policy.py -v
 #
 # File: test_focus_policy.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.focus_policy.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

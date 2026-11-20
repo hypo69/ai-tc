@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Storage Load Panel
+# Process Name: ai-tc Tests - Storage Load Panel
 # =============================================================================
 # Description:
 #   Модульные тесты панели «Параметры накопителей (Диски SSD / HDD / NVMe)»:
@@ -10,11 +10,11 @@
 #   - Привязка разделов к соответствующим физическим дискам
 #
 # File: test_storage_load_panel.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 11:46:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

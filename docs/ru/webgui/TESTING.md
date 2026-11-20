@@ -60,7 +60,7 @@ Success rate: 100.0%
 
 1. Откройте DevTools (F12)
 2. Перейдите в **Application** → **Storage** → **IndexedDB**
-3. Найдите **AI_Windows_Admin_DB**
+3. Найдите **ai_tc_db**
 4. Проверьте хранилища:
    - `api_cache` — API-запросы
    - `chat_history` — История чатов
@@ -248,4 +248,4 @@ setInterval(async () => {
 
 ---
 
-**© 2026 AI-Windows-Admin Team**
+**© 2026 ai-tc Team**

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Cli Commands - Paperless
+# Process Name: ai-tc Scripts Cli Commands - Paperless
 # =============================================================================
 # Description:
 #   Команды управления Paperless-ngx: запуск/остановка Docker-окружения,
@@ -13,11 +13,11 @@
 #     py manage_tools.py paperless sync --workspace default
 #
 # File: paperless.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.cli.commands
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:32:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

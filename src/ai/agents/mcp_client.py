@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Mcp Client Module
+# Process Name: ai-tc AI - Mcp Client Module
 # =============================================================================
 # Description:
 #   Manager for Model Context Protocol (MCP) client lifecycle and tools.
@@ -12,11 +12,11 @@
 #     service = MCPClientManager()
 #
 # File: mcp_client.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.agents
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:49:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

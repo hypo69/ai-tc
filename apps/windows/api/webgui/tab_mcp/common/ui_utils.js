@@ -8,11 +8,11 @@
  *   реактивное состояние списка серверов и параметров фильтрации.
  *
  * File: ui_utils.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_mcp/common
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:41:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -52,8 +52,8 @@ export function escapeHtml(str) {
 export async function apiFetch(endpoint, options = {}) {
   let url = endpoint;
   let res = await fetch(url, options);
-  if (!res.ok && url.startsWith('/api/admin/mcp')) {
-    const fallbackUrl = url.replace('/api/admin/mcp', '/api/mcp');
+  if (!res.ok && url.startsWith('/api/v1/admin/mcp')) {
+    const fallbackUrl = url.replace('/api/v1/admin/mcp', '/api/v1/mcp');
     const fallbackRes = await fetch(fallbackUrl, options);
     if (fallbackRes.ok) {
       return fallbackRes;

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Csv Module
+# Process Name: ai-tc UTILS - Csv Module
 # =============================================================================
 # Description:
 #   Утилиты чтения, записи и конвертации файлов CSV и JSON.
@@ -12,11 +12,11 @@
 #     res = save_csv_file([{"a": "1"}], "data.csv")
 #
 # File: csv.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Утилиты чтения, записи и конвертации файлов CSV и JSON."""

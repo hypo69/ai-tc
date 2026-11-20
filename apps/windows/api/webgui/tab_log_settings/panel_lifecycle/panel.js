@@ -7,11 +7,11 @@
  *   события включения, входа, гибернации, выключения и аварийных падений (Crash).
  *
  * File: panel_lifecycle/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_log_settings/panel_lifecycle
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:40:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

@@ -48,11 +48,11 @@
 
 
 
-## 💡 Концепция проекта (AI Windows Admin)
+## 💡 Концепция проекта (ai-tc)
 
 
 
-**Назначение:** Интерактивный «макет» (ai-windows-admin) для тестирования, бенчмаркинга и бесшовной маршрутизации между различными провайдерами и средами выполнения ИИ (Windows AI APIs, Microsoft Foundry Local, Windows ML / ONNX Runtime, Ollama, Google Gemini, OpenAI-совместимые API и HuggingFace).
+**Назначение:** Интерактивный «макет» (ai-tc) для тестирования, бенчмаркинга и бесшовной маршрутизации между различными провайдерами и средами выполнения ИИ (Windows AI APIs, Microsoft Foundry Local, Windows ML / ONNX Runtime, Ollama, Google Gemini, OpenAI-совместимые API и HuggingFace).
 
 
 
@@ -351,8 +351,7 @@ pytest tests/ --cov                # Pytest с отчётом о покрыти�
 **Status:** ✅ Active (Русский стандарт)  
 
 **Version:** 3.8  
-
-**Updated:** 2026-11-10 14:12:00
+**Updated:** 2026-11-12 05:00:00
 
 **Author:** hypo69
 

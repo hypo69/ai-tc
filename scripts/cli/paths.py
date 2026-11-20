@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Cli - Paths
+# Process Name: ai-tc Scripts Cli - Paths
 # =============================================================================
 # Description:
 #   Кроссплатформенная система управления путями для Windows, Linux и macOS.
@@ -12,11 +12,11 @@
 #     service = CrossPlatformPaths()
 #
 # File: paths.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.cli
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 18:14:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Кроссплатформенная система управления путями.

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Common File Editor - FastAPI Router
+# Process Name: ai-tc Common File Editor - FastAPI Router
 # =============================================================================
 # Description:
 #   REST API маршрутизатор универсального редактора файлов Rust + WebAssembly.
@@ -9,11 +9,11 @@
 #   форматирование и вычисление построчного Unified Diff.
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.common.file_editor
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:31:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

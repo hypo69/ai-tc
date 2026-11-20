@@ -1,9 +1,9 @@
-# Document Generator Skill (AI-Windows-Admin)
+# Document Generator Skill (ai-tc)
 
 Automated documentation generation, validation, and synchronization toolkit.
 
 ## Overview
-This skill provides complete tooling and protocols for maintaining accurate, up-to-date documentation across AI-Windows-Admin.
+This skill provides complete tooling and protocols for maintaining accurate, up-to-date documentation across ai-tc.
 
 ## Capabilities
 - **API Documentation Generation:** Parses Python docstrings across core modules via AST and produces structured Markdown documentation in docs/ru/api/ and docs/en/api/.

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Startup - Router
+# Process Name: ai-tc Apps Windows Modules Startup - Router
 # =============================================================================
 # Description:
 #   FastAPI роутер для аудита и управления автозагрузкой Windows.
@@ -12,11 +12,11 @@
 #     res = init_router()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.startup
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 15:58:00
+# Updated: 2026-11-13 15:30:00
 # =============================================================================
 
 from __future__ import annotations
@@ -29,6 +29,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, Response, WebSocket, WebSocketDisconnect
 from fastapi.responses import PlainTextResponse
 from logger import logger
+from src.utils.jjson import j_dumps
 from apps.windows.telemetry.sqlite import TelemetryStorage
 from apps.windows.sdk.modules.startup.core.auditor import StartupAuditor
 from apps.windows.sdk.modules.startup.core.manager import StartupManager
@@ -243,12 +244,9 @@ def init_router() -> APIRouter:
             elif hasattr(llm, 'generate_response'):
                 resp_text = await llm.generate_response(prompt)
             if resp_text:
-                cleaned = resp_text.strip()
-                if cleaned.startswith('```'):
-                    cleaned = re.sub('^```(?:json)?\\s*', '', cleaned)
-                    cleaned = re.sub('\\s*```$', '', cleaned)
-                data = json.loads(cleaned)
-                return StartupExplainResponse(summary=data.get('summary', ''), developer=data.get('developer', req.publisher or 'Неизвестен'), category=data.get('category', 'Приложение'), security_verdict=data.get('security_verdict', 'Оценка безопасности завершена.'), boot_impact_analysis=data.get('boot_impact_analysis', 'Влияние на запуск в пределах нормы.'), startup_recommendation=data.get('startup_recommendation', 'Оставить как есть.'), action_steps=data.get('action_steps', ['Проверьте актуальность программы.']))
+                data = j_dumps(resp_text, exc_info=False)
+                if isinstance(data, dict):
+                    return StartupExplainResponse(summary=data.get('summary', ''), developer=data.get('developer', req.publisher or 'Неизвестен'), category=data.get('category', 'Приложение'), security_verdict=data.get('security_verdict', 'Оценка безопасности завершена.'), boot_impact_analysis=data.get('boot_impact_analysis', 'Влияние на запуск в пределах нормы.'), startup_recommendation=data.get('startup_recommendation', 'Оставить как есть.'), action_steps=data.get('action_steps', ['Проверьте актуальность программы.']))
         except Exception as e:
             logger.debug(f"AI LLM generation fallback triggered for startup entry '{req.name}': {e}")
         return _generate_heuristic_explanation(req)
@@ -306,7 +304,7 @@ def _generate_heuristic_explanation(req: StartupExplainRequest) -> StartupExplai
     if 'msedge' in name_lower or 'edge' in name_lower:
         return StartupExplainResponse(summary='Microsoft Edge AutoLaunch — фоновый процесс ускорения запуска и обновления браузера Microsoft Edge.', developer='Microsoft Corporation', category='Браузер / Фоновый агент', security_verdict='Официальный доверенный компонент операционной системы Windows.', boot_impact_analysis='Низкое/Среднее — резервирует память под предварительный запуск.', startup_recommendation='Можно безопасно отключить для минимизации фоновых процессов при входе в систему.', action_steps=['Отключите автозапуск, если открываете браузер вручную.'])
     if 'ollama' in name_lower or 'ollama' in path_lower:
-        return StartupExplainResponse(summary='Ollama — локальный сервер и среда выполнения больших языковых моделей (LLM) с REST API на порту 11434.', developer='Ollama / Community', category='AI Runtime / Сервер LLM', security_verdict='Безопасный инструмент разработки и запуска локальных нейросетей.', boot_impact_analysis='Среднее — запускает локальный HTTP-демон в фоновом режиме.', startup_recommendation='Оставить включенным, если вы используете AI Windows Admin или локальные модели постоянно.', action_steps=['Оставьте активным для постоянной готовности AI-сервисов.', 'Отключите, если запускаете модели только время от времени.'])
+        return StartupExplainResponse(summary='Ollama — локальный сервер и среда выполнения больших языковых моделей (LLM) с REST API на порту 11434.', developer='Ollama / Community', category='AI Runtime / Сервер LLM', security_verdict='Безопасный инструмент разработки и запуска локальных нейросетей.', boot_impact_analysis='Среднее — запускает локальный HTTP-демон в фоновом режиме.', startup_recommendation='Оставить включенным, если вы используете ai-tc или локальные модели постоянно.', action_steps=['Оставьте активным для постоянной готовности AI-сервисов.', 'Отключите, если запускаете модели только время от времени.'])
     if 'lm studio' in name_lower or 'lm studio' in path_lower:
         return StartupExplainResponse(summary='LM Studio — графическая среда и локальный инференс-сервер для моделей GGUF и MLX.', developer='LM Studio Community', category='AI Runtime', security_verdict='Доверенная локальная среда для работы с открытыми моделями.', boot_impact_analysis='Среднее — стартует фоновый сервис моделирования.', startup_recommendation='Оставить включенным при постоянной работе с моделями или отключить для экономии системных ресурсов.', action_steps=['Управляйте состоянием в зависимости от регулярности использования LM Studio.'])
     if 'p2p' in name_lower or 'downloader' in name_lower or 'download' in name_lower:

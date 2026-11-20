@@ -13,15 +13,15 @@
  *     <script src="/html/tab_user_environment/main.js?v=20261101_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_user_environment
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 17:30:00
+ * Updated: 2026-11-20 00:27:00
  * =============================================================================
  */
 
-import { loadSoundState, bindSoundEvents } from './panel_sound.js';
+import { loadSoundState, bindSoundEvents } from './panel_sound.js?v=20261120_v1';
 import {
   loadTaskbarSummary,
   loadTaskbarSettings,

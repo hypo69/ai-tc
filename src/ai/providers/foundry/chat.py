@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Chat Module
+# Process Name: ai-tc AI - Chat Module
 # =============================================================================
 # Description:
 #   Base class for chat interface with Foundry models.
@@ -14,11 +14,11 @@
 #     print(result)
 #
 # File: chat.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.providers.foundry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:52:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Base class for chat interface with Foundry models.

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Optimization Components Tests
+# Process Name: ai-tc Tests - Optimization Components Tests
 # =============================================================================
 # Description:
 #   Модульные тесты оптимизационных компонентов (src.utils.common,
 #   src.app AppContainer/AppRegistry, WikiLLMClient и AsyncTelemetryBatchClient).
 #
 # File: test_optimization_components.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-27 23:06:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

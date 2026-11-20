@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - Schema Security
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - Schema Security
 # =============================================================================
 # Description:
 #   DDL-определения сессий питания, перезагрузок, BSOD и простоев (1 из 12 таблиц):
 #   power_sessions.
 #
 # File: schema_security.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 12:55:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

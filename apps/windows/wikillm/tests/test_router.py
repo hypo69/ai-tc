@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm Tests - Test Router
+# Process Name: ai-tc Apps Windows Wikillm Tests - Test Router
 # =============================================================================
 # Description:
 #   Тесты для REST API эндпоинтов WikiLLM с использованием TestClient.
@@ -12,11 +12,11 @@
 #     res = client()
 #
 # File: test_router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.wikillm.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -57,9 +57,9 @@ def client() -> TestClient:
 
 
 def test_resolve_endpoint(client: TestClient) -> None:
-    """Проверка POST /api/windows/wikillm/resolve."""
+    """Проверка POST /api/v1/windows/wikillm/resolve."""
     response = client.post(
-        "/api/windows/wikillm/resolve",
+        "/api/v1/windows/wikillm/resolve",
         json={"raw_query": "0x80070005", "sync_gemini": False},
     )
     assert response.status_code == 200
@@ -71,8 +71,8 @@ def test_resolve_endpoint(client: TestClient) -> None:
 
 
 def test_get_entity_endpoint(client: TestClient) -> None:
-    """Проверка GET /api/windows/wikillm/entities/{key}."""
-    response = client.get("/api/windows/wikillm/entities/win32:0x80070005")
+    """Проверка GET /api/v1/windows/wikillm/entities/{key}."""
+    response = client.get("/api/v1/windows/wikillm/entities/win32:0x80070005")
     assert response.status_code == 200
     data = response.json()
     assert data["canonical_key"] == "win32:0x80070005"
@@ -80,16 +80,16 @@ def test_get_entity_endpoint(client: TestClient) -> None:
 
 
 def test_list_entities_endpoint(client: TestClient) -> None:
-    """Проверка GET /api/windows/wikillm/entities."""
-    response = client.get("/api/windows/wikillm/entities")
+    """Проверка GET /api/v1/windows/wikillm/entities."""
+    response = client.get("/api/v1/windows/wikillm/entities")
     assert response.status_code == 200
     data = response.json()
     assert len(data) >= 1
 
 
 def test_search_endpoint(client: TestClient) -> None:
-    """Проверка GET /api/windows/wikillm/search."""
-    response = client.get("/api/windows/wikillm/search", params={"q": "Access denied"})
+    """Проверка GET /api/v1/windows/wikillm/search."""
+    response = client.get("/api/v1/windows/wikillm/search", params={"q": "Access denied"})
     assert response.status_code == 200
     data = response.json()
     assert len(data) >= 1
@@ -97,8 +97,8 @@ def test_search_endpoint(client: TestClient) -> None:
 
 
 def test_stats_endpoint(client: TestClient) -> None:
-    """Проверка GET /api/windows/wikillm/stats."""
-    response = client.get("/api/windows/wikillm/stats")
+    """Проверка GET /api/v1/windows/wikillm/stats."""
+    response = client.get("/api/v1/windows/wikillm/stats")
     assert response.status_code == 200
     data = response.json()
     assert "lookup_stats" in data
@@ -106,7 +106,7 @@ def test_stats_endpoint(client: TestClient) -> None:
 
 
 def test_approve_endpoint(client: TestClient) -> None:
-    """Проверка POST /api/windows/wikillm/approve."""
+    """Проверка POST /api/v1/windows/wikillm/approve."""
     payload = {
         "table_type": "process",
         "title": "explorer.exe",
@@ -119,14 +119,14 @@ def test_approve_endpoint(client: TestClient) -> None:
         "action_steps": ["Перезапустить процесс при зависании панели задач."],
         "tags": ["process", "shell"]
     }
-    response = client.post("/api/windows/wikillm/approve", json=payload)
+    response = client.post("/api/v1/windows/wikillm/approve", json=payload)
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is True
     assert data["canonical_key"] == "process:explorer.exe"
 
     # Проверяем, что теперь сущность доступна через GET /entities/process:explorer.exe
-    get_res = client.get("/api/windows/wikillm/entities/process:explorer.exe")
+    get_res = client.get("/api/v1/windows/wikillm/entities/process:explorer.exe")
     assert get_res.status_code == 200
     ent = get_res.json()
     assert ent["name"] == "explorer.exe"

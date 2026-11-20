@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Codebase AST & Diagnostic RAG Engine
+# Process Name: ai-tc AI - Codebase AST & Diagnostic RAG Engine
 # =============================================================================
 # Description:
 #   Движок AST-индексации исходного кода Python и Markdown-документации,
@@ -37,11 +37,11 @@
 #     print(conclusion.root_cause)
 #
 # File: codebase_rag.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.rag
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 18:27:00
+# Updated: 2026-11-13 15:30:00
 # =============================================================================
 
 from __future__ import annotations
@@ -56,6 +56,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from pydantic import BaseModel, Field
 
 from logger import logger
+from src.utils.jjson import j_dumps
 from .text_rag import TextRAG
 
 
@@ -1087,7 +1088,7 @@ class CodebaseRAG:
         context_str = "\n\n".join(context_blocks) if context_blocks else "Контекст в базе знаний кода не найден."
 
         system_prompt = (
-            "Ты — главный архитектор и систему-диагност кода проекта AI Windows Admin. "
+            "Ты — главный архитектор и систему-диагност кода проекта ai-tc. "
             "На основе входных данных (вопрос, список логов, сообщение об ошибке) и найденных в базе знаний "
             "участков исходного кода сформируй техническое заключение строго в формате JSON без markdown-оберток:\n"
             "{\n"
@@ -1121,13 +1122,7 @@ class CodebaseRAG:
             if not raw_res:
                 return False
 
-            clean_json = raw_res.strip()
-            if "```" in clean_json:
-                m = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", clean_json)
-                if m:
-                    clean_json = m.group(1).strip()
-
-            parsed = json.loads(clean_json)
+            parsed = j_dumps(raw_res, exc_info=False)
             if not isinstance(parsed, dict):
                 return False
 

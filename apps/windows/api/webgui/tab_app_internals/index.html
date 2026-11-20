@@ -24,11 +24,11 @@ Usage Examples:
     /windows/api/webgui/tab_app_internals/index.html
 
 # File: index.html
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/tab_app_internals
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-11 23:20:00
+Updated: 2026-11-19 17:25:00
 =============================================================================
 -->
 <div class="container-fluid py-2 px-3" id="app-internals-container">
@@ -40,7 +40,7 @@ Updated: 2026-11-11 23:20:00
         <div class="d-flex align-items-center gap-2 flex-wrap">
           <h3 class="tab-header-title mb-0">Внутренняя архитектура (App Internals)</h3>
         </div>
-        <small class="tab-header-subtitle text-secondary">Инспекция внутренней архитектуры AI Windows Admin, активные фоновые задачи, базы знаний и инструменты агента</small>
+        <small class="tab-header-subtitle text-secondary">Инспекция внутренней архитектуры ai-tc, активные фоновые задачи, базы знаний и инструменты агента</small>
       </div>
     </div>
     <div class="d-flex align-items-center gap-2">
@@ -100,6 +100,10 @@ Updated: 2026-11-11 23:20:00
       <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-codebase-rag-btn" data-panel-id="codebase-rag" data-bs-toggle="pill" data-bs-target="#subpane-internals-codebase-rag" type="button" role="tab" data-i18n-title="internals.subtabCodebaseRagTitle" title="Управление базой знаний кода (Codebase AST & Diagnostic RAG): сборка индекса, поиск по AST и диагностика логов/ошибок">
         <i class="bi bi-code-square"></i>
         <span data-i18n="internals.subtabCodebaseRagLabel">RAG Кода и Диагностики</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" id="subtab-internals-db-manager-btn" data-panel-id="db-manager" data-bs-toggle="pill" data-bs-target="#subpane-internals-db-manager" type="button" role="tab" data-i18n-title="internals.subtabDbManagerTitle" title="Управление базами данных, хостингом, сжатием, бэкапами и прямой SQL-консолью">
+        <i class="bi bi-database-fill-gear"></i>
+        <span data-i18n="internals.subtabDbManagerLabel">Управление БД</span>
       </button>
     </div>
   </div>
@@ -399,7 +403,7 @@ Updated: 2026-11-11 23:20:00
                     </div>
                     <div class="col-md-8">
                       <label class="form-label form-label-sm fw-semibold">Имя базы данных (Database)</label>
-                      <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-api-name" value="u177424397_comp_knowledge"/>
+                      <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-api-name" value="u177424397_tool_chains"/>
                       <div class="form-text small text-secondary">БД инструментов на Hostinger (таблица: <code>ai_instruments</code>).</div>
                     </div>
                     <div class="col-md-4">
@@ -414,7 +418,7 @@ Updated: 2026-11-11 23:20:00
                   <div class="row g-2">
                     <div class="col-md-6">
                       <label class="form-label form-label-sm fw-semibold">Хост MariaDB</label>
-                      <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-host" value="srv1502.hstgr.io"/>
+                      <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-host" value="srv1373.hstgr.io"/>
                     </div>
                     <div class="col-md-2">
                       <label class="form-label form-label-sm fw-semibold">Порт</label>
@@ -422,11 +426,11 @@ Updated: 2026-11-11 23:20:00
                     </div>
                     <div class="col-md-4">
                       <label class="form-label form-label-sm fw-semibold">Имя базы данных</label>
-                      <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-direct-name" value="u177424397_comp_knowledge"/>
+                      <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-direct-name" value="u177424397_tool_chains"/>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label form-label-sm fw-semibold">Пользователь</label>
-                      <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-user" value="u177424397_davidka"/>
+                      <input type="text" class="form-control form-control-sm font-monospace" id="instruments-db-user" value="u177424397_ai_tc_admin"/>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label form-label-sm fw-semibold">Пароль</label>
@@ -532,7 +536,10 @@ Updated: 2026-11-11 23:20:00
                 <span class="ui-badge ui-badge-info" id="inst-catalog-counter">0 инструментов</span>
               </div>
               <div class="d-flex align-items-center gap-2">
-                <button type="button" class="btn btn-sm btn-primary" id="inst-catalog-btn-create">
+                <button type="button" class="btn btn-sm btn-primary" id="inst-catalog-btn-wizard" title="Интерактивный мастер создания команд для модели (парсер шаблонов и параметров)">
+                  <i class="bi bi-magic me-1"></i>Мастер команд для модели
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="inst-catalog-btn-create">
                   <i class="bi bi-plus-lg me-1"></i>Новый инструмент
                 </button>
                 <button type="button" class="btn btn-sm btn-outline-secondary" id="inst-catalog-btn-export-csv" title="Экспортировать каталог инструментов в CSV">
@@ -657,6 +664,9 @@ Updated: 2026-11-11 23:20:00
                     </div>
                     <div class="modal-footer d-flex justify-content-between align-items-center py-2" style="background: var(--surface-2); border-top: 1px solid var(--border-color);">
                       <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-info" id="inst-editor-btn-open-wizard" title="Открыть в мастере команд для модели">
+                          <i class="bi bi-magic me-1"></i>Мастер команд
+                        </button>
                         <button type="button" class="btn btn-sm btn-outline-primary" id="inst-editor-btn-test">
                           <i class="bi bi-play-fill me-1"></i>Протестировать
                         </button>
@@ -673,6 +683,192 @@ Updated: 2026-11-11 23:20:00
                     </div>
                   </div>
                 </div>
+
+              <!-- Модальное окно мастера создания команд для модели -->
+              <div class="modal fade" id="inst-command-wizard-modal" tabindex="-1" aria-labelledby="inst-command-wizard-modal-title" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                  <div class="modal-content" style="background: var(--surface-1); color: var(--text-color); border: 1px solid var(--border-color);">
+                    <div class="modal-header py-2" style="background: var(--surface-2); border-bottom: 1px solid var(--border-color);">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-magic fs-5 text-primary"></i>
+                        <div>
+                          <h6 class="modal-title fw-bold mb-0" id="inst-command-wizard-modal-title">
+                            Мастер создания команд для модели (Command Template Wizard)
+                          </h6>
+                          <small class="text-secondary">Парсер шаблонов параметров, генерация схемы для LLM и сохранение в u177424397_tool_chains (Hostinger MariaDB)</small>
+                        </div>
+                      </div>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body p-3">
+                      <!-- Верх: Поле ввода команды и пресеты -->
+                      <div class="card mb-3 p-3" style="background: var(--surface-2); border: 1px solid var(--border-color);">
+                        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                          <label class="form-label form-label-sm fw-bold mb-0" for="wizard-raw-command-input">
+                            <i class="bi bi-terminal me-1 text-primary"></i>Шаблон команды с параметрами
+                          </label>
+                          <div class="d-flex align-items-center gap-1 flex-wrap">
+                            <span class="small text-secondary me-1">Вставить токен:</span>
+                            <button type="button" class="btn btn-xs btn-outline-primary wizard-insert-token-btn" data-token="{user_name}">+ {user_name}</button>
+                            <button type="button" class="btn btn-xs btn-outline-info wizard-insert-token-btn" data-token="/active:{yes|no}">+ /active:{yes|no}</button>
+                            <button type="button" class="btn btn-xs btn-outline-warning wizard-insert-token-btn" data-token="{pid:int}">+ {pid:int}</button>
+                            <button type="button" class="btn btn-xs btn-outline-secondary wizard-insert-token-btn" data-token="{opt1|opt2}">+ {opt1|opt2}</button>
+                            <button type="button" class="btn btn-xs btn-outline-secondary wizard-insert-token-btn" data-token="{path:filepath}">+ {path}</button>
+                          </div>
+                        </div>
+                        <textarea class="form-control form-control-sm font-monospace fs-6 mb-2" id="wizard-raw-command-input" rows="2" placeholder="net user {user_name} /active:{yes|no}"></textarea>
+                        
+                        <!-- Быстрые примеры / Presets -->
+                        <div class="d-flex align-items-center gap-1.5 flex-wrap small">
+                          <span class="text-secondary fw-semibold">Примеры:</span>
+                          <button type="button" class="btn btn-xs btn-outline-secondary wizard-preset-btn" data-cmd="net user {user_name} /active:{yes|no}">net user {user_name} /active:{yes|no}</button>
+                          <button type="button" class="btn btn-xs btn-outline-secondary wizard-preset-btn" data-cmd="sc.exe config {service_name} start={auto|demand|disabled}">sc config {service_name} start={...}</button>
+                          <button type="button" class="btn btn-xs btn-outline-secondary wizard-preset-btn" data-cmd="taskkill.exe /PID {pid:int} /F">taskkill /PID {pid:int} /F</button>
+                          <button type="button" class="btn btn-xs btn-outline-secondary wizard-preset-btn" data-cmd="shutdown.exe /{s|r|a} /t {timeout:int} /f">shutdown /{s|r|a} /t {...} /f</button>
+                          <button type="button" class="btn btn-xs btn-outline-secondary wizard-preset-btn" data-cmd="Get-Service -Name {service_name} | Restart-Service -Force">PowerShell Restart-Service</button>
+                        </div>
+                      </div>
+
+                      <div class="row g-3">
+                        <!-- Левая колонка: Распарсенные параметры -->
+                        <div class="col-lg-7">
+                          <div class="card h-100 p-2" style="background: var(--surface-2); border: 1px solid var(--border-color);">
+                            <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                              <span class="fw-bold small"><i class="bi bi-sliders me-1 text-primary"></i>Извлеченные параметры команды</span>
+                              <span class="ui-badge ui-badge-info" id="wizard-params-count-badge">0 параметров</span>
+                            </div>
+
+                            <div class="table-responsive mb-2">
+                              <table class="table table-sm table-hover mb-0 align-middle">
+                                <thead>
+                                  <tr class="small text-secondary" style="border-bottom: 1px solid var(--border-color);">
+                                    <th>Имя / Токен</th>
+                                    <th>Тип</th>
+                                    <th>Варианты (Enum)</th>
+                                    <th>Описание для модели</th>
+                                    <th class="text-center">Статус</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="wizard-params-table-body">
+                                  <tr><td colspan="5" class="text-center text-secondary py-3">Введите команду</td></tr>
+                                </tbody>
+                              </table>
+                            </div>
+
+                            <div class="mt-auto pt-2 border-top border-secondary border-opacity-25">
+                              <div class="d-flex justify-content-between align-items-center small mb-1">
+                                <span class="text-secondary fw-semibold">Нормализованный шаблон команды для агента:</span>
+                              </div>
+                              <div class="p-2 rounded bg-black font-monospace small text-info text-break" id="wizard-normalized-template-preview">—</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Правая колонка: Метаданные инструмента -->
+                        <div class="col-lg-5">
+                          <div class="card h-100 p-2.5" style="background: var(--surface-2); border: 1px solid var(--border-color);">
+                            <span class="fw-bold small mb-2 d-block"><i class="bi bi-tag me-1 text-primary"></i>Метаданные для u177424397_tool_chains</span>
+                            
+                            <div class="mb-2">
+                              <label class="form-label form-label-sm fw-semibold mb-1" for="wizard-meta-name">Название инструмента</label>
+                              <input type="text" class="form-control form-control-sm" id="wizard-meta-name" placeholder="Название команды на русском языке" required/>
+                            </div>
+
+                            <div class="row g-2 mb-2">
+                              <div class="col-sm-6">
+                                <label class="form-label form-label-sm fw-semibold mb-1" for="wizard-meta-tool-id">Tool ID</label>
+                                <input type="text" class="form-control form-control-sm font-monospace" id="wizard-meta-tool-id" placeholder="inst_cmd_net_user"/>
+                              </div>
+                              <div class="col-sm-6">
+                                <label class="form-label form-label-sm fw-semibold mb-1" for="wizard-meta-type">Среда запуска</label>
+                                <select class="form-select form-select-sm" id="wizard-meta-type">
+                                  <option value="cmd">CMD</option>
+                                  <option value="powershell">PowerShell</option>
+                                  <option value="utility">Утилита / SDK</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="row g-2 mb-2">
+                              <div class="col-sm-6">
+                                <label class="form-label form-label-sm fw-semibold mb-1" for="wizard-meta-entity">Сущность</label>
+                                <select class="form-select form-select-sm" id="wizard-meta-entity">
+                                  <option value="user">user (Пользователи)</option>
+                                  <option value="service">service (Службы)</option>
+                                  <option value="process">process (Процессы)</option>
+                                  <option value="network">network (Сеть)</option>
+                                  <option value="storage">storage (Хранилище)</option>
+                                  <option value="system">system (Система)</option>
+                                </select>
+                              </div>
+                              <div class="col-sm-6">
+                                <label class="form-label form-label-sm fw-semibold mb-1" for="wizard-meta-risk">Риск SafeOps</label>
+                                <select class="form-select form-select-sm" id="wizard-meta-risk">
+                                  <option value="safe">safe (Безопасный)</option>
+                                  <option value="caution">caution (Внимание)</option>
+                                  <option value="danger">danger (Опасный)</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="mb-2">
+                              <label class="form-label form-label-sm fw-semibold mb-1" for="wizard-meta-desc">Описание для модели</label>
+                              <textarea class="form-control form-control-sm" id="wizard-meta-desc" rows="2" placeholder="Назначение инструмента и когда модель должна вызывать эту команду..."></textarea>
+                            </div>
+
+                            <div class="mb-1">
+                              <label class="form-label form-label-sm fw-semibold mb-1" for="wizard-meta-tags">Теги</label>
+                              <input type="text" class="form-control form-control-sm font-monospace" id="wizard-meta-tags" placeholder="#agent_tool, #cmd, #user"/>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Низ: Live Preview подстановки и тестовый запуск -->
+                      <div class="card mt-3 p-3" style="background: var(--surface-2); border: 1px solid var(--border-color);">
+                        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                          <span class="fw-bold small"><i class="bi bi-play-btn me-1 text-primary"></i>Тестирование подстановки параметров (Live Preview)</span>
+                          <span class="small text-secondary">Измените значения для проверки готовой команды:</span>
+                        </div>
+
+                        <!-- Динамические поля подстановки -->
+                        <div class="row g-2 mb-2" id="wizard-live-preview-controls">
+                          <div class="col-12 text-secondary small fst-italic">Параметры отсутствуют</div>
+                        </div>
+
+                        <!-- Готовая команда -->
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                          <div class="flex-grow-1 p-2 rounded bg-black font-monospace small text-success text-break" id="wizard-sample-command-preview">—</div>
+                          <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" id="wizard-btn-copy-sample" title="Скопировать подставленную команду">
+                            <i class="bi bi-clipboard"></i>Копировать
+                          </button>
+                          <button type="button" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" id="wizard-btn-execute-test" title="Выполнить команду на хосте Windows">
+                            <i class="bi bi-play-fill"></i>Тест на хосте
+                          </button>
+                        </div>
+
+                        <!-- Окно вывода теста -->
+                        <div id="wizard-exec-output-box" class="mt-2" style="display: none;"></div>
+
+                        <!-- Спойлер JSON Schema для LLM -->
+                        <details class="mt-2 small text-secondary">
+                          <summary class="cursor-pointer fw-semibold text-primary" style="cursor: pointer;">
+                            <i class="bi bi-braces me-1"></i>Показать JSON Schema для LLM (OpenAPI / Function Calling)
+                          </summary>
+                          <pre class="bg-black text-info p-2 rounded mt-1 font-monospace small mb-0" id="wizard-schema-json-preview" style="max-height: 150px; overflow-y: auto;">{}</pre>
+                        </details>
+                      </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between align-items-center py-2" style="background: var(--surface-2); border-top: 1px solid var(--border-color);">
+                      <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+                      <button type="button" class="btn btn-sm btn-primary fw-bold d-flex align-items-center gap-1.5" id="wizard-btn-save-to-db">
+                        <i class="bi bi-check-circle-fill"></i>Сохранить команду в базу данных (u177424397_tool_chains)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               </div>
             </div>
           </div>
@@ -727,7 +923,7 @@ Updated: 2026-11-11 23:20:00
           <div class="card mb-3 shadow-sm border" style="border-color: var(--border-color) !important;">
             <div class="panel-header py-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
               <span class="panel-title"><i class="bi bi-clipboard-pulse text-primary me-2"></i>Генератор диагностического заключения по коду</span>
-              <span class="small text-secondary">POST /api/rag/codebase/diagnose</span>
+              <span class="small text-secondary">POST /api/v1/rag/codebase/diagnose</span>
             </div>
             <div class="card-body p-3">
               <div class="row g-3">
@@ -869,6 +1065,296 @@ Updated: 2026-11-11 23:20:00
                 <div class="text-center text-secondary py-3 small">
                   Введите имя символа или поисковый запрос выше.
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subpane 10: Управление базами данных и хостингом (Database Manager Workbench) -->
+  <div class="tab-pane fade" id="subpane-internals-db-manager" role="tabpanel" data-panel-id="db-manager">
+    <div class="p-2">
+      <!-- Заголовок панели управления БД -->
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-database-fill-gear fs-4 text-primary"></i>
+          <div>
+            <h5 class="mb-0 fw-bold">Управление базами данных и хостингом (Database Workbench)</h5>
+            <small class="text-secondary">Просмотр параметров, прямое выполнение SQL команд (SELECT, INSERT, DELETE), сжатие хранилища, экспорт и резервное копирование</small>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="ui-badge ui-badge-info"><i class="bi bi-cloud-check-fill me-1"></i>Hostinger MariaDB</span>
+          <span class="ui-badge ui-badge-neutral"><i class="bi bi-hdd-fill me-1"></i>SQLite Local</span>
+          <span class="ui-badge ui-badge-success"><i class="bi bi-terminal-fill me-1"></i>SQL Console & Backups</span>
+        </div>
+      </div>
+
+      <!-- Подменю блоков внутри панели. Выбранный блок добавляется в URL как #block-<id> -->
+      <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
+        <div class="nav btn-group btn-group-sm" id="dbmanager-blocks-nav" role="tablist">
+          <button type="button" class="btn btn-outline-secondary active d-flex align-items-center gap-1"
+                  id="btn-block-db-overview" data-block-id="block-db-overview"
+                  data-bs-toggle="pill" data-bs-target="#subpane-block-db-overview"
+                  data-i18n-title="internals.blockDbOverviewTitle"
+                  title="Просмотр параметров, статуса, размера и схемы таблиц (SQLite и Hostinger MariaDB)">
+            <i class="bi bi-speedometer2"></i>
+            <span data-i18n="internals.blockDbOverviewLabel">Параметры и структура</span>
+          </button>
+          <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1"
+                  id="btn-block-db-console" data-block-id="block-db-console"
+                  data-bs-toggle="pill" data-bs-target="#subpane-block-db-console"
+                  data-i18n-title="internals.blockDbConsoleTitle"
+                  title="Прямой ввод и выполнение команд SQL (SELECT, INSERT, UPDATE, DELETE) с просмотром результатов">
+            <i class="bi bi-terminal"></i>
+            <span data-i18n="internals.blockDbConsoleLabel">SQL Консоль</span>
+          </button>
+          <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1"
+                  id="btn-block-db-compress" data-block-id="block-db-compress"
+                  data-bs-toggle="pill" data-bs-target="#subpane-block-db-compress"
+                  data-i18n-title="internals.blockDbCompressTitle"
+                  title="Инструменты сжатия хранилища SQLite (VACUUM) и оптимизации таблиц MariaDB на хостинге">
+            <i class="bi bi-file-earmark-zip"></i>
+            <span data-i18n="internals.blockDbCompressLabel">Сжатие и оптимизация</span>
+          </button>
+          <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1"
+                  id="btn-block-db-export" data-block-id="block-db-export"
+                  data-bs-toggle="pill" data-bs-target="#subpane-block-db-export"
+                  data-i18n-title="internals.blockDbExportTitle"
+                  title="Экспорт таблиц и данных из баз на Hostinger и SQLite в форматы SQL, JSON и CSV">
+            <i class="bi bi-box-arrow-up-right"></i>
+            <span data-i18n="internals.blockDbExportLabel">Экспорт с хостинга</span>
+          </button>
+          <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1"
+                  id="btn-block-db-backups" data-block-id="block-db-backups"
+                  data-bs-toggle="pill" data-bs-target="#subpane-block-db-backups"
+                  data-i18n-title="internals.blockDbBackupsTitle"
+                  title="Создание резервных копий с ZIP-сжатием, скачивание и безопасное восстановление">
+            <i class="bi bi-shield-check"></i>
+            <span data-i18n="internals.blockDbBackupsLabel">Бэкапы</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Содержимое блоков Database Manager -->
+      <div class="tab-content" id="dbmanager-blocks-content">
+        <!-- Блок 1: Параметры и структура баз данных -->
+        <div class="tab-pane fade show active" id="subpane-block-db-overview" role="tabpanel">
+          <div class="d-flex justify-content-between align-items-center mb-2.5 flex-wrap gap-2">
+            <div>
+              <h6 class="mb-0 fw-bold"><i class="bi bi-hdd-network text-primary me-1.5"></i>Конфигурация и статус подключений к базам данных</h6>
+              <small class="text-secondary">Сводные параметры, размеры на диске, схема таблиц и актуальный статус доступности</small>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" id="dbm-refresh-overview-btn">
+              <i class="bi bi-arrow-clockwise"></i>
+              <span>Обновить сводку</span>
+            </button>
+          </div>
+          <div id="dbm-targets-container">
+            <div class="text-center p-3 text-secondary">
+              <div class="spinner-border spinner-border-sm me-2"></div>Загрузка информации о базах данных...
+            </div>
+          </div>
+        </div>
+
+        <!-- Блок 2: SQL Консоль (Прямое выполнение команд) -->
+        <div class="tab-pane fade" id="subpane-block-db-console" role="tabpanel">
+          <div class="card mb-3 shadow-sm border" style="border-color: var(--border-color) !important;">
+            <div class="card-header py-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-terminal text-primary fs-5"></i>
+                <span class="fw-bold">Прямая SQL Консоль</span>
+                <span class="small text-secondary">(SELECT, INSERT, UPDATE, DELETE, SHOW, PRAGMA)</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span id="dbm-query-status-badge" class="ui-badge ui-badge-neutral">Готов к выполнению</span>
+              </div>
+            </div>
+            <div class="card-body p-3">
+              <!-- Выбор базы и быстрые сниппеты -->
+              <div class="row g-2 align-items-center mb-2">
+                <div class="col-md-5">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="bi bi-database me-1"></i>Целевая БД:</span>
+                    <select class="form-select" id="dbm-console-target-select">
+                      <option value="sqlite:knowledge">Загрузка...</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-7 d-flex justify-content-md-end gap-1 flex-wrap">
+                  <span class="small text-secondary align-self-center me-1">Шаблоны:</span>
+                  <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 dbm-sql-snippet-btn" data-sql-template="SELECT * FROM knowledge_entities LIMIT 20;">SELECT</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 dbm-sql-snippet-btn" data-sql-template="INSERT INTO table_name (col1, col2) VALUES ('val1', 'val2');">INSERT</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 dbm-sql-snippet-btn" data-sql-template="UPDATE table_name SET col1 = 'new_val' WHERE id = 1;">UPDATE</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 dbm-sql-snippet-btn" data-sql-template="DELETE FROM table_name WHERE id = 1;">DELETE</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 dbm-sql-snippet-btn" data-sql-template="SELECT name FROM sqlite_master WHERE type='table';">Таблицы</button>
+                </div>
+              </div>
+
+              <!-- Поле ввода SQL -->
+              <div class="mb-2">
+                <textarea class="form-control font-monospace" id="dbm-sql-input" rows="4" style="font-size: 0.9rem;"
+                  placeholder="Введите SQL запрос (например: SELECT canonical_key, title, category FROM knowledge_entities LIMIT 15;)"></textarea>
+                <div class="d-flex justify-content-between align-items-center mt-1">
+                  <small class="text-secondary">Подсказка: нажимайте <kbd>Ctrl+Enter</kbd> для быстрого выполнения запроса.</small>
+                  <div class="d-flex gap-1.5">
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2.5" id="dbm-clear-sql-btn">
+                      <i class="bi bi-eraser me-1"></i>Очистить
+                    </button>
+                    <button type="button" class="btn btn-sm btn-primary py-1 px-3 fw-semibold" id="dbm-run-sql-btn">
+                      <i class="bi bi-play-fill me-1 fs-6"></i>Выполнить SQL
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Контейнер результатов -->
+              <div class="border rounded bg-light bg-opacity-10 mt-3" style="border-color: var(--border-color) !important;">
+                <div class="py-1 px-2.5 border-bottom d-flex justify-content-between align-items-center bg-light bg-opacity-25">
+                  <span class="small fw-semibold text-secondary"><i class="bi bi-table me-1.5"></i>Результат выполнения</span>
+                </div>
+                <div id="dbm-query-result-container" class="p-2">
+                  <div class="text-center text-secondary py-3 small">
+                    Здесь отобразятся результаты выборки SELECT или количество затронутых строк при INSERT/UPDATE/DELETE.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Блок 3: Сжатие и оптимизация хранилища -->
+        <div class="tab-pane fade" id="subpane-block-db-compress" role="tabpanel">
+          <div class="card mb-3 shadow-sm border" style="border-color: var(--border-color) !important;">
+            <div class="card-header py-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <span class="fw-bold"><i class="bi bi-file-earmark-zip text-primary me-2"></i>Инструменты сжатия и дефрагментации баз</span>
+              <span class="small text-secondary">POST /api/v1/db-manager/compress</span>
+            </div>
+            <div class="card-body p-3">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label form-label-sm fw-semibold">1. Выберите базу для оптимизации</label>
+                  <select class="form-select form-select-sm" id="dbm-compress-target-select">
+                    <option value="sqlite:knowledge">WikiLLM Подсказки (SQLite)</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label form-label-sm fw-semibold">2. Действие по сжатию</label>
+                  <select class="form-select form-select-sm" id="dbm-compress-action-select">
+                    <option value="vacuum">VACUUM (Полное сжатие неиспользуемых страниц SQLite)</option>
+                    <option value="optimize">OPTIMIZE TABLE (Дефрагментация таблиц MariaDB / MySQL)</option>
+                    <option value="wal_checkpoint">WAL Checkpoint (Сброс журнала Write-Ahead Log)</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <div class="p-2.5 rounded bg-light bg-opacity-10 border small" style="border-color: var(--border-color) !important;">
+                    <div class="fw-semibold mb-1"><i class="bi bi-info-circle me-1 text-info"></i>Как работает сжатие:</div>
+                    <ul class="mb-0 ps-3 text-secondary">
+                      <li><strong>SQLite VACUUM:</strong> полностью перестраивает файл базы, очищая неиспользуемые страницы и уменьшая размер файла на диске до минимального физического объема.</li>
+                      <li><strong>MariaDB OPTIMIZE:</strong> реорганизует физическое хранение таблиц InnoDB и связанных индексов на сервере Hostinger, ускоряя операции I/O.</li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="col-12 d-flex justify-content-between align-items-center pt-2">
+                  <div id="dbm-compress-result-box" class="flex-grow-1 me-3"></div>
+                  <button type="button" class="btn btn-sm btn-primary px-3 text-nowrap" id="dbm-start-compress-btn">
+                    <i class="bi bi-lightning-charge me-1"></i>Запустить сжатие
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Блок 4: Экспорт из баз на хостинге -->
+        <div class="tab-pane fade" id="subpane-block-db-export" role="tabpanel">
+          <div class="card mb-3 shadow-sm border" style="border-color: var(--border-color) !important;">
+            <div class="card-header py-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <span class="fw-bold"><i class="bi bi-box-arrow-up-right text-primary me-2"></i>Мастер экспорта баз и таблиц</span>
+              <span class="small text-secondary">POST /api/v1/db-manager/export</span>
+            </div>
+            <div class="card-body p-3">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label form-label-sm fw-semibold">1. База данных (Источник)</label>
+                  <select class="form-select form-select-sm" id="dbm-export-target-select">
+                    <option value="hostinger:tool_chains">Hostinger: Tool Chains (MariaDB)</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label form-label-sm fw-semibold">2. Выберите таблицу</label>
+                  <select class="form-select form-select-sm" id="dbm-export-table-select">
+                    <option value="all">Все таблицы (All Tables)</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label form-label-sm fw-semibold">3. Формат экспорта</label>
+                  <select class="form-select form-select-sm" id="dbm-export-format-select">
+                    <option value="sql">SQL Dump (CREATE TABLE + INSERT Statements)</option>
+                    <option value="json">JSON Document (Массив объектов)</option>
+                    <option value="csv">CSV (Таблица с заголовками)</option>
+                  </select>
+                </div>
+                <div class="col-12 d-flex justify-content-between align-items-center pt-2">
+                  <div id="dbm-export-result-box" class="flex-grow-1 me-3"></div>
+                  <button type="button" class="btn btn-sm btn-primary px-3 text-nowrap" id="dbm-start-export-btn">
+                    <i class="bi bi-cloud-download me-1"></i>Экспортировать данные
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Блок 5: Управление резервными копиями (Backups) -->
+        <div class="tab-pane fade" id="subpane-block-db-backups" role="tabpanel">
+          <!-- Создание бэкапа -->
+          <div class="card mb-3 shadow-sm border" style="border-color: var(--border-color) !important;">
+            <div class="card-header py-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <span class="fw-bold"><i class="bi bi-shield-plus text-primary me-2"></i>Создание резервной копии базы</span>
+              <span class="small text-secondary">POST /api/v1/db-manager/backup</span>
+            </div>
+            <div class="card-body p-3">
+              <div class="row g-2 align-items-center">
+                <div class="col-md-5">
+                  <label class="form-label form-label-sm fw-semibold mb-1">Целевая база:</label>
+                  <select class="form-select form-select-sm" id="dbm-backup-target-select">
+                    <option value="sqlite:knowledge">WikiLLM Подсказки (SQLite)</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label form-label-sm fw-semibold mb-1">Сжатие архива:</label>
+                  <div class="form-check form-switch pt-1">
+                    <input class="form-check-input" type="checkbox" id="dbm-backup-zip-check" checked>
+                    <label class="form-check-label small" for="dbm-backup-zip-check">Сжать в ZIP архив (.zip)</label>
+                  </div>
+                </div>
+                <div class="col-md-3 text-md-end pt-3">
+                  <button type="button" class="btn btn-sm btn-primary px-3 text-nowrap" id="dbm-create-backup-btn">
+                    <i class="bi bi-save me-1"></i>Создать бэкап
+                  </button>
+                </div>
+                <div class="col-12 mt-2" id="dbm-backup-result-box"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Каталог существующих бэкапов -->
+          <div class="card shadow-sm border" style="border-color: var(--border-color) !important;">
+            <div class="card-header py-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-archive text-primary"></i>
+                <span class="fw-bold">Каталог резервных копий (data/backups)</span>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-secondary py-0.5 px-2" id="dbm-refresh-backups-btn">
+                <i class="bi bi-arrow-clockwise me-1"></i>Обновить
+              </button>
+            </div>
+            <div class="card-body p-0" id="dbm-backups-list-container">
+              <div class="text-center p-3 text-secondary">
+                <div class="spinner-border spinner-border-sm me-2"></div>Загрузка списка копий...
               </div>
             </div>
           </div>

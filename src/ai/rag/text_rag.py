@@ -2,7 +2,7 @@
 
 # =============================================================================
 
-# Process Name: AI-Windows-Admin AI - Text RAG Engine
+# Process Name: ai-tc AI - Text RAG Engine
 
 # =============================================================================
 
@@ -32,15 +32,14 @@
 
 # File: text_rag.py
 
-# Project: ai-windows-admin
+# Project: ai-tc
 
 # Package: src.ai.rag
 
 # Author: hypo69
 
 # Copyright: © 2026 hypo69
-
-# Updated: 2026-11-10 16:56:00
+# Updated: 2026-11-12 05:00:00
 
 # =============================================================================
 

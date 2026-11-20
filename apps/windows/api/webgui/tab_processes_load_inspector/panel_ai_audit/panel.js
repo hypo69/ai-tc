@@ -1,8 +1,8 @@
 /**
  * Модуль интеграции с универсальным модальным окном ИИ-ассистента (#universal-ai-table-modal / AIModalDialog).
- * Реализует паспорт процесса и форензику расследования повторяющихся вызовов PowerShell.
- * Файл: apps/windows/api/webgui/tab_processes_load_inspector/panel_ai_audit/panel.js?v=20261031_v2
- * Updated: 2026-10-31 19:16:00
+ * Реализует паспорт процесса и интеграцию с AIModalDialog.
+ * Файл: apps/windows/api/webgui/tab_processes_load_inspector/panel_ai_audit/panel.js?v=20261113_v1
+ * Updated: 2026-11-13 15:48:43
  */
 
 import { showToast } from '../common/ui_utils.js?v=20261031_v2';
@@ -220,90 +220,3 @@ export async function openProcessAiModal(item, type = 'group', parentGroup = nul
   }
 }
 
-/**
- * Запуск интеллектуального расследования повторяющихся запусков PowerShell.
- */
-export async function openPowerShellInvestigationModal() {
-  try {
-    showToast('Запуск расследования активности PowerShell...', 'info');
-    let invData = null;
-    try {
-      const res = await fetch('/api/v1/tab-processes-load-inspector/panel-ai-audit/powershell');
-      if (res.ok) {
-        invData = await res.json();
-      }
-    } catch (e) {
-      console.warn('[ProcessInspector] Не удалось получить /panel-ai-audit/powershell:', e);
-    }
-
-    const totalCount = invData ? invData.total_detected_sessions : '1800+';
-    const verdict = invData ? invData.verdict : 'Служба телеметрии AI-Windows-Admin (GPU Prober)';
-    const scriptLoc = invData && invData.code_location ? `${invData.code_location.file}:${invData.code_location.line}` : 'apps/windows/sdk/modules/hardware/gpu_prober.py:290';
-    const taskName = invData && invData.trigger ? invData.trigger.task_name : 'AI-Windows-Admin-Telemetry';
-
-    const globalModal = await resolveAIModal();
-    if (!globalModal || typeof globalModal.show !== 'function') {
-      showToast('Модуль AIModalDialog загружается, повторите попытку через секунду', 'warning');
-      return;
-    }
-
-    const badges = [
-      { text: 'Форензика: PowerShell', class: 'badge bg-warning text-dark' },
-      { text: `Сессий: ${totalCount}`, class: 'badge bg-danger' },
-      { text: 'Интервал: ~5 сек', class: 'badge bg-secondary' },
-      { text: 'Статус: Виновник найден', class: 'badge bg-success' }
-    ];
-
-    const metadata = [
-      { label: 'Симптом', value: 'Постоянные фоновые запуски powershell.exe каждые 5-10 секунд' },
-      { label: 'Выявленный виновник', value: verdict },
-      { label: 'Служба / Процесс-родитель', value: 'ai-telemetry.exe / pythonw.exe', isCode: true },
-      { label: 'Задача планировщика Windows', value: taskName, isCode: true },
-      { label: 'Файл запуска планировщика', value: 'C:\\Users\\onela\\AppData\\Local\\ai-tc\\tlm.ps1', isCode: true, fullWidth: true },
-      { label: 'Точка вызова в кодовой базе', value: scriptLoc, isCode: true, fullWidth: true },
-      { label: 'Выполняемые команды WMI', value: 'Get-CimInstance Win32_PerfFormattedData_GPUPerformanceCounters_... | ConvertTo-Json', isCode: true, fullWidth: true }
-    ];
-
-    globalModal.show({
-      icon: '🕵️',
-      title: 'Расследование: кто постоянно запускает PowerShell?',
-      subtitle: `Источник: ${verdict} | Вызовов зафиксировано: ${totalCount}`,
-      panelId: 'panel-process-manager-dispetcher-protsessov-i-prilozhen',
-      tableType: 'process',
-      badges: badges,
-      metadata: metadata,
-      rawTitle: 'Паспорт криминалистического расследования',
-      rawContent: JSON.stringify(invData || { status: 'detected', total_detected_sessions: totalCount }, null, 2),
-      requestData: {
-        table_type: 'process',
-        title: 'powershell.exe recurring executions investigation',
-        subtitle: `Выявлен виновник: ${verdict} в ${scriptLoc}`,
-        question: 'В данный момент времени в моей операционной системе кто-то постоянно запускает powershell. Найди виновника'
-      },
-      actions: [
-        {
-          label: 'Скопировать путь к источнику в коде',
-          icon: 'bi-clipboard',
-          class: 'btn-outline-info',
-          onClick: () => {
-            if (navigator.clipboard) {
-              navigator.clipboard.writeText(scriptLoc);
-              showToast('Путь скопирован в буфер обмена', 'success');
-            }
-          }
-        }
-      ]
-    });
-
-    setTimeout(() => {
-      const chatInput = document.getElementById('uai-chat-input');
-      if (chatInput && !chatInput.value) {
-        chatInput.value = 'В данный момент времени в моей операционной системе кто-то постоянно запускает powershell. Найди виновника';
-      }
-    }, 350);
-
-  } catch (err) {
-    console.error('[ProcessInspector] Ошибка открытия модального окна расследования:', err);
-    showToast(err.message, 'danger');
-  }
-}

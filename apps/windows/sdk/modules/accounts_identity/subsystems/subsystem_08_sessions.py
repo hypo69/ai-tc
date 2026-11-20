@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Subsystem 08 Sessions & Logon
+# Process Name: ai-tc Apps Windows - Subsystem 08 Sessions & Logon
 # =============================================================================
 # Description:
 #   Подсистема 08: Сессии входа WTS (Windows Terminal Services), инспекция
@@ -14,11 +14,11 @@
 #     sessions = subsys.list_sessions()
 #
 # File: subsystem_08_sessions.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.accounts_identity.subsystems
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Подсистема управления сессиями входа (WTS / Terminal Sessions)."""

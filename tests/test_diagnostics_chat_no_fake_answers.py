@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Diagnostics Chat No Fake Answers
+# Process Name: ai-tc Tests - Diagnostics Chat No Fake Answers
 # =============================================================================
 # Description:
 #   Тесты для эндпоинта /api/v1/diagnostics/chat:
@@ -13,11 +13,11 @@
 #   pytest tests/test_diagnostics_chat_no_fake_answers.py
 #
 # File: test_diagnostics_chat_no_fake_answers.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 19:55:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Dynamic Tool Runner v2 & Lifecycle
+# Process Name: ai-tc Tests - Dynamic Tool Runner v2 & Lifecycle
 # =============================================================================
 # Description:
 #   Тесты валидационного контура DynamicToolRunner v2 (AST, санитизация),
@@ -11,11 +11,11 @@
 #     pytest tests/test_dynamic_tool_runner_v2_and_lifecycle.py -v
 #
 # File: test_dynamic_tool_runner_v2_and_lifecycle.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 01:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

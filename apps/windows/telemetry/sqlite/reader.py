@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - Reader
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - Reader
 # =============================================================================
 # Description:
 #   Класс TelemetryReader для чтения и выборки данных телеметрии из SQLite.
@@ -13,11 +13,11 @@
 #     snapshots = reader.get_snapshots(limit=10)
 #
 # File: reader.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 20:33:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

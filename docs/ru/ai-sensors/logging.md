@@ -2,10 +2,10 @@
 
 ## 📋 Обзор системы логирования
 
-Логгирование сенсоров в AI-Windows-Admin спроектировано по стандартам высоконагруженных телеметрических систем и разделено на **два взаимодополняющих формата**:
+Логгирование сенсоров в ai-tc спроектировано по стандартам высоконагруженных телеметрических систем и разделено на **два взаимодополняющих формата**:
 
 1. 📊 **Табличные CSV-логи (`AppCsvLogger`):**
-   * Располагаются в системной директории `%APPDATA%/ai-tc/apps/windows/telemetry/logs/`.
+   * Располагаются в системной директории `%ProgramData%/ai-tc/telemetry/logs/`.
    * Обеспечивают мгновенную интеграцию с аналитическими инструментами (Excel, Pandas, Grafana, PowerBI).
    * Стандартизированы по 3 потокам: **Опросы (`*_polls.csv`)**, **События (`*_events.csv`)**, **Изменения параметров (`*_param_changes.csv`)**.
 2. 📄 **Потоковые JSON-Lines логи (`TelemetryJsonLogger`):**
@@ -37,7 +37,7 @@ flowchart TD
         SysLog["📝 logger<br/>(Консоль, Уровни логов)"]
     end
 
-    subgraph ХранилищеCSV["📁 CSV Каталог (%APPDATA%/AI-Windows-Admin/apps/windows/telemetry/logs/)"]
+    subgraph ХранилищеCSV["📁 CSV Каталог (%ProgramData%/ai-tc/telemetry/logs/)"]
         CsvPolls[("📊 *_polls.csv<br/>(sensors, hwinfo, gpuz, smart, audit)")]
         CsvEvents[("📋 *_events.csv<br/>(hardware_monitor, hwinfo_inventory, defender)")]
         CsvParams[("⚙️ *_param_changes.csv<br/>(admin, system_control, safeops)")]

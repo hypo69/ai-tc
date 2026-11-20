@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core Audits - Storage Collector
+# Process Name: ai-tc Apps Windows Core Audits - Storage Collector
 # =============================================================================
 # Description:
 #   Коллектор аудита дисковой подсистемы, VSS и файловых томов.
@@ -12,18 +12,18 @@
 #     service = StorageCollector()
 #
 # File: storage_collector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core.audits
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
 """Коллектор аудита дисковой подсистемы, VSS и файловых томов."""
 
 import time
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 import psutil
 from logger import logger
 from apps.windows.sdk.core.models import AuditFinding, DomainAuditResult, RiskLevel

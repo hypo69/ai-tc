@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Storage_Manager Core - Models
+# Process Name: ai-tc Apps Windows Modules Storage_Manager Core - Models
 # =============================================================================
 # Description:
 #   Pydantic-модели данных дисковых накопителей, прямого I/O, клонирования и бенчмарка DiskSpd.
@@ -12,11 +12,11 @@
 #     req = BenchmarkRequest(target_drive='C:', duration_sec=5)
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.storage_manager.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

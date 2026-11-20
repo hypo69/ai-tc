@@ -1,23 +1,24 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - TelemetrySnapshotWriterMixin
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - TelemetrySnapshotWriterMixin
 # =============================================================================
 # Description:
 #   Миксин записи снапшотов, процессов, сенсоров, событий, инцидентов и агрегатов
 #   в 12 консолидированных таблиц базы данных телеметрии SQLite.
 #
 # File: writer_snapshots.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 18:55:00
+# Updated: 2026-11-20 15:13:00
 # =============================================================================
 
 from __future__ import annotations
 
 """Миксин записи снапшотов, процессов, сенсоров, событий, инцидентов и агрегатов в 12 базовых таблиц."""
 
+import hashlib
 import json
 import sqlite3
 import uuid
@@ -1178,5 +1179,42 @@ class TelemetrySnapshotWriterMixin:
             )
             conn.commit()
         return len(rows)
+
+    def save_storage_sensor_snapshot(self, snapshot: Dict[str, Any]) -> bool:
+        """Атомарно сохраняет последний полный снимок WindowsStorageSensor в inventory_state (domain='storage_snapshot').
+
+        Заменяет файловый кэш storage_snapshot.json: хранится ровно одна актуальная запись
+        (entity_key='latest') в SQLite WAL без дублирования в state_json и inventory_changes.
+        """
+        if self._cm.read_only or not isinstance(snapshot, dict) or not snapshot:
+            return False
+
+        now_dt = datetime.now(timezone.utc)
+        ts_str = now_dt.isoformat()
+        now_epoch = now_dt.timestamp()
+        payload_json = json.dumps(snapshot, ensure_ascii=False, separators=(',', ':'), default=str)
+        payload_hash = hashlib.sha1(payload_json.encode('utf-8')).hexdigest()
+
+        with self._cm.lock, self._cm.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                '''
+                INSERT OR REPLACE INTO inventory_state (
+                    domain, entity_key, attrs_json, attrs_hash,
+                    first_seen, last_changed, removed_at, state_json, updated_at
+                ) VALUES (
+                    'storage_snapshot', 'latest', ?, ?,
+                    COALESCE(
+                        (SELECT first_seen FROM inventory_state WHERE domain = 'storage_snapshot' AND entity_key = 'latest'),
+                        ?
+                    ),
+                    ?, NULL, NULL, ?
+                );
+                ''',
+                (payload_json, payload_hash, ts_str, ts_str, now_epoch),
+            )
+            conn.commit()
+        return True
+
 
 

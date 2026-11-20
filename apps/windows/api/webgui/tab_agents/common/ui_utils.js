@@ -7,11 +7,11 @@
  *   и загрузка данных реестра ИИ-агентов, доступных инструментов и провайдеров.
  *
  * File: ui_utils.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_agents/common
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:37:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

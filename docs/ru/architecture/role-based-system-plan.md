@@ -1,4 +1,4 @@
-# План архитектуры ролевой системы AI-Windows-Admin
+# План архитектуры ролевой системы ai-tc
 
 ## Обзор
 
@@ -17,7 +17,7 @@
 ### Структура конфигов
 
 ```
-AI-Windows-Admin/
+ai-tc/
 ├── config.json              # Администратор (run.ps1)
 ├── config_tc.json           # Техник (tc.ps1)
 ├── config_secretary.json    # Секретарь (планируется)
@@ -157,7 +157,7 @@ AI-Windows-Admin/
         "user_assistant",
         "wikipedia_research",
         "helpdesk",
-        "ai_windows_admin_admin",
+        "ai_tc_admin",
         "research_and_statistic"
       ]
     },

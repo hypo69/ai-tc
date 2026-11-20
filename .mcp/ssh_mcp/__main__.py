@@ -7,11 +7,11 @@
 #   разделу 12 Технического задания.
 #
 # File: __main__.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:02:15
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import sys

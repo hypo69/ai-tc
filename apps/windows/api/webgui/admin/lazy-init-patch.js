@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/admin/lazy-init-patch.js?v=20261001_v1" type="module"></script>
  *
  * File: lazy-init-patch.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/admin
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-03 14:41:44
+ * Updated: 2026-11-20 16:40:00
  * =============================================================================
  */
 
@@ -118,13 +118,13 @@ window.addEventListener('load', async () => {
     // Микроприложения (с привязкой к ID приложения в конфиге профиля)
     { tabName: 'network', appId: 'network_terminal', htmlUrl: `/html/tab_network/index.html`, jsUrl: `/html/tab_network/main.js` },
     { tabName: 'system-inspector', appId: 'system_inspector', htmlUrl: `/html/tab_system_inspector/index.html`, jsUrl: `/html/tab_system_inspector/main.js` },
-    { tabName: 'about-system', appId: 'about_system', htmlUrl: `/html/tab_about_system/index.html?v=20261020_v10`, jsUrl: `/html/tab_about_system/main.js?v=20261020_v10` },
+    { tabName: 'about-system', appId: 'about_system', htmlUrl: `/html/tab_about_system/index.html?v=20261112_v3`, jsUrl: `/html/tab_about_system/main.js?v=20261112_v3` },
     { tabName: 'windows-admin', appId: 'windows_sysadmin', htmlUrl: `/html/tab_windows_admin/index.html`, jsUrl: `/html/tab_windows_admin/main.js` },
     { tabName: 'cloudflared', appId: 'cloudflared_monitor', htmlUrl: `/html/tab_cloudflared/index.html`, jsUrl: `/html/tab_cloudflared/main.js` },
     { tabName: 'user-assistant', appId: 'user_assistant', htmlUrl: `/html/tab_user_assistant/index.html`, jsUrl: `/html/tab_user_assistant/main.js` },
     { tabName: 'gcloud', appId: 'gcloud_monitor', htmlUrl: `/html/tab_gcloud/index.html`, jsUrl: `/html/tab_gcloud/main.js` },
     { tabName: 'website-monitor', appId: 'website_monitor', htmlUrl: `/html/tab_website_monitor/index.html`, jsUrl: `/html/tab_website_monitor/main.js` },
-    { tabName: 'system-control', appId: 'system_control_center', htmlUrl: `/html/tab_system_control/index.html?v=20261020_v4`, jsUrl: `/html/tab_system_control/main.js?v=20261020_v4` },
+    { tabName: 'system-control', appId: 'system_control_center', htmlUrl: `/html/tab_system_control/index.html?v=20261120_v3`, jsUrl: `/html/tab_system_control/main.js?v=20261120_v3` },
     { tabName: 'system-logs', appId: 'system_log_viewer', htmlUrl: `/html/tab_system_logs/index.html`, jsUrl: `/html/tab_system_logs/main.js` },
     { tabName: 'software-audit', appId: 'software_audit', htmlUrl: `/html/tab_software_audit/index.html`, jsUrl: `/html/tab_software_audit/main.js` },
     { tabName: 'registry-editor', appId: 'registry_editor', htmlUrl: `/html/tab_registry_editor/index.html`, jsUrl: `/html/tab_registry_editor/main.js` },
@@ -132,7 +132,7 @@ window.addEventListener('load', async () => {
     { tabName: 'windows-backup', appId: 'windows_backup_manager', htmlUrl: `/html/tab_windows_backup/index.html?v=20260924_v2`, jsUrl: `/html/tab_windows_backup/main.js?v=20260924_v2` },
     { tabName: 'wikipedia-research', appId: 'wikipedia_research', htmlUrl: `/html/tab_wikipedia_research/index.html`, jsUrl: `/html/tab_wikipedia_research/main.js` },
     { tabName: 'process-leaks', appId: 'process_leaks', htmlUrl: `/html/tab_process_leaks/index.html?v=20260924_v1`, jsUrl: `/html/tab_process_leaks/main.js?v=20260924_v1` },
-    { tabName: 'forensics', appId: 'forensics', htmlUrl: `/html/tab_forensics/index.html?v=20260924_v1`, jsUrl: `/html/tab_forensics/main.js?v=20260924_v1` },
+    { tabName: 'forensics', appId: 'forensics', htmlUrl: `/html/tab_forensics/index.html?v=20261112_v1`, jsUrl: `/html/tab_forensics/main.js?v=20261112_v1` },
     { tabName: 'throttling', appId: 'throttling', htmlUrl: `/html/tab_throttling/index.html?v=20260924_v1`, jsUrl: `/html/tab_throttling/main.js?v=20260924_v1` },
     { tabName: 'storage-wear', appId: 'storage_wear', htmlUrl: `/html/tab_storage_wear/index.html?v=20260924_v1`, jsUrl: `/html/tab_storage_wear/main.js?v=20260924_v1` },
     { tabName: 'peripherals', appId: 'peripherals', htmlUrl: `/html/tab_peripherals/index.html?v=20261016_v2`, jsUrl: `/html/tab_peripherals/main.js?v=20261016_v2` },

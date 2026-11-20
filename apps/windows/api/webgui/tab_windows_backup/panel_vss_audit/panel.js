@@ -8,11 +8,11 @@
  *   политик аудита и настройки списков системного контроля доступа SACL.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_windows_backup/panel_vss_audit
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:39:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
@@ -152,7 +152,7 @@ export async function enableFileSystemAudit() {
  * Настройка системного контроля доступа SACL для папки.
  */
 export async function configureFolderSacl() {
-  const targetPath = prompt('Укажите путь к папке для настройки SACL аудита удаления:', 'c:\\Users\\onela\\AppData\\Local\\AI-Windows-Admin');
+  const targetPath = prompt('Укажите путь к папке для настройки SACL аудита удаления:', 'c:\\Users\\onela\\AppData\\Local\\ai-tc');
   if (targetPath) {
     try {
       const res = await fetch('/api/v1/system/file-audit/folder-sacl', {

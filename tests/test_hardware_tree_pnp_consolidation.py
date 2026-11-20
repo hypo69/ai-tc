@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Hardware Tree PnP Consolidation
+# Process Name: ai-tc Tests - Hardware Tree PnP Consolidation
 # =============================================================================
 # Description:
 #   Модульные тесты для проверки консолидации множественных PnP-устройств
 #   (pnp_device) в единую группу «Устройства PnP» в иерархическом дереве оборудования.
 #
 # File: test_hardware_tree_pnp_consolidation.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
-# Updated: 2026-10-18 08:15:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from unittest.mock import MagicMock

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Router Process Activity
+# Process Name: ai-tc Apps Windows Api Routers - Router Process Activity
 # =============================================================================
 # Description:
 #   FastAPI REST эндпоинты для веб-вкладки «Отслеживание активности процесса»
@@ -15,11 +15,11 @@
 #     router = init_router()
 #
 # File: router_process_activity.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 09:41:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

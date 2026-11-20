@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Diagnostics Process WikiLLM & Telemetry
+# Process Name: ai-tc Tests - Diagnostics Process WikiLLM & Telemetry
 # =============================================================================
 # Description:
 #   Тесты обновленной логики WikiLLM для процессов:
@@ -9,11 +9,11 @@
 #   3. Проверка режима анализа текущего потребления и состояния ресурсов моделью.
 #
 # File: test_diagnostics_process_wikillm.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:10:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm Tests - Test Storage
+# Process Name: ai-tc Apps Windows Wikillm Tests - Test Storage
 # =============================================================================
 # Description:
 #   Тесты для SQLite хранилища, FTS5 поиска, наблюдений и связей сущностей.
@@ -12,11 +12,11 @@
 #     res = memory_storage()
 #
 # File: test_storage.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.wikillm.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

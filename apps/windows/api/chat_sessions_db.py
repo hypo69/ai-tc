@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows API - Chat Sessions DB
+# Process Name: ai-tc Apps Windows API - Chat Sessions DB
 # =============================================================================
 # Description:
 #   SQLite хранилище сессий чата для Windows API.
@@ -10,11 +10,11 @@
 #     from apps.windows.api.chat_sessions_db import get_db_connection, list_sessions
 #
 # File: chat_sessions_db.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 04:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Dev - Update Scripts Documentation
+# Process Name: ai-tc Scripts Dev - Update Scripts Documentation
 # =============================================================================
 # Description:
 #   Automatic scripts documentation generation and update script.
@@ -14,11 +14,11 @@
 #     res = get_script_info()
 #
 # File: update_scripts_documentation.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.dev
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Automatic scripts documentation generation and update script.
@@ -119,7 +119,7 @@ def generate_documentation():
     for category in categorized_scripts:
         categorized_scripts[category].sort(key=lambda x: x['name'].lower())
     md_content = []
-    md_content.append(f'# Scripts Documentation for ai-windows-admin project\n')
+    md_content.append(f'# Scripts Documentation for ai-tc project\n')
     md_content.append(f'**Version:** 1.0  \n')
     md_content.append(f"**Updated:** {datetime.now().strftime('%d %B %Y')}  \n")
     md_content.append(f'**Status:** Current (auto-updated)\n')
@@ -166,7 +166,7 @@ def generate_documentation():
     md_content.append('\n### 3. Dependency analysis\n')
     md_content.append('```bash\n# Analyze dependencies between scripts\npython analyze_dependencies.py\n```\n')
     md_content.append('\n## Contacts and Support\n')
-    md_content.append(f'**Project:** ai-windows-admin  \n')
+    md_content.append(f'**Project:** ai-tc  \n')
     md_content.append(f"**Last updated:** {datetime.now().strftime('%d %B %Y %H:%M')}  \n")
     md_content.append(f'**Update script:** `update_scripts_documentation.py`  \n')
     md_content.append('\n*Documentation automatically updates when repository changes.*\n')

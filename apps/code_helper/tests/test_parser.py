@@ -6,11 +6,11 @@
 #   Модульные тесты для AST-парсера исходного кода и секционного парсера Markdown.
 #
 # File: test_parser.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.code_helper.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 17:10:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

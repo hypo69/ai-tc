@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Common File Editor - WebAssembly Binary Builder
+# Process Name: ai-tc Common File Editor - WebAssembly Binary Builder
 # =============================================================================
 # Description:
 #   Генератор и менеджер бинарного модуля WebAssembly (file_editor_core.wasm)
@@ -9,11 +9,11 @@
 #   и расчёт контрольной суммы без копирования на сервер.
 #
 # File: wasm_compiler.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.common.file_editor
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:31:10
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

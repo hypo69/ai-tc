@@ -2,7 +2,7 @@
 
 ## 1. Overview & Architecture
 
-The **Versioned Document RAG** subsystem in AI Windows Admin provides incremental, temporal, and non-destructive document indexing. It allows the system to ingest documents from local user folders (e.g., `Documents` or Google Drive mounted at `G:\My Drive`), track document changes over time via SHA-256 content hashing, and maintain an immutable historical timeline of chunks and versions in the vector index.
+The **Versioned Document RAG** subsystem in ai-tc provides incremental, temporal, and non-destructive document indexing. It allows the system to ingest documents from local user folders (e.g., `Documents` or Google Drive mounted at `G:\My Drive`), track document changes over time via SHA-256 content hashing, and maintain an immutable historical timeline of chunks and versions in the vector index.
 
 ```
 User Directory (e.g., G:\My Drive or Documents)

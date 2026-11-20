@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Process_Manager - Router
+# Process Name: ai-tc Apps Windows Modules Process_Manager - Router
 # =============================================================================
 # Description:
 #   FastAPI роутер управления процессами Windows, категоризации (Apps,
@@ -13,11 +13,11 @@
 #     router = init_router()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.process_manager
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 20:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ from apps.windows.sdk.modules.process_manager.core.models import (
     ProcessReport,
 )
 
-router = APIRouter(prefix='/api/process-manager', tags=['Process Manager'])
+router = APIRouter(prefix='/api/v1/process-manager', tags=['Process Manager'])
 _manager = ProcessManager()
 
 
@@ -58,48 +58,63 @@ async def get_categorized_processes() -> CategorizedProcessReport:
 async def list_processes(
     name: Optional[str] = Query(None, description='Фильтр по имени процесса'),
     sort_by: str = Query('cpu_percent', description='Поле сортировки: cpu_percent, memory_mb, name, pid'),
-    limit: int = Query(0, description='Лимит возвращаемых процессов (0 = все)')
+    limit: int = Query(0, description='Лимит возвращаемых процессов (0 = все)'),
+    live: bool = Query(False, description='Запросить полный актуальный список всех активных процессов через psutil')
 ) -> List[ProcessItem]:
-    """Список всех активных процессов из SQLite (< 5 мс) или через psutil."""
-    try:
-        storage = TelemetryStorage.get_instance(read_only=True)
-        raw_list = storage.get_latest_processes(limit=limit, sort_by=sort_by)
-        if raw_list:
-            items: List[ProcessItem] = []
-            for p in raw_list:
-                mem_b = p.get('memory_rss_bytes') or 0
-                mem_mb = round(mem_b / (1024 * 1024), 2) if mem_b else float(p.get('memory_mb') or 0.0)
-                cmd_ = p.get('cmdline') or p.get('command_line')
-                p_name_ = str(p.get('name') or 'unknown')
-                items.append(
-                    ProcessItem(
-                        pid=int(p.get('pid', 0)),
-                        ppid=int(p['ppid']) if p.get('ppid') else None,
-                        name=p_name_,
-                        username=p.get('username'),
-                        cpu_percent=float(p.get('cpu_percent') or 0.0),
-                        memory_mb=mem_mb,
-                        num_threads=int(p.get('num_threads') or 1),
-                        create_time=str(p.get('created_at') or p.get('creation_time') or p.get('timestamp') or ''),
-                        exe_path=p.get('exe_path') or p.get('executable'),
-                        command_line=cmd_,
-                        launch_summary=ProcessClassifier._extract_launch_summary(p_name_, cmd_),
-                        parent_name=p.get('parent_name'),
-                        real_parent=p.get('parent_name'),
+    """Список активных процессов: при limit=0 или live=True возвращает все активные процессы через psutil."""
+    if not live and limit > 0:
+        try:
+            storage = TelemetryStorage.get_instance(read_only=True)
+            raw_list = storage.get_latest_processes(limit=limit, sort_by=sort_by)
+            if raw_list and len(raw_list) >= limit:
+                items: List[ProcessItem] = []
+                for p in raw_list:
+                    mem_b = p.get('memory_rss_bytes') or 0
+                    mem_mb = round(mem_b / (1024 * 1024), 2) if mem_b else float(p.get('memory_mb') or 0.0)
+                    cmd_ = p.get('cmdline') or p.get('command_line')
+                    p_name_ = str(p.get('name') or 'unknown')
+                    items.append(
+                        ProcessItem(
+                            pid=int(p.get('pid', 0)),
+                            ppid=int(p['ppid']) if p.get('ppid') else None,
+                            name=p_name_,
+                            username=p.get('username'),
+                            cpu_percent=float(p.get('cpu_percent') or 0.0),
+                            memory_mb=mem_mb,
+                            num_threads=int(p.get('num_threads') or 1),
+                            create_time=str(p.get('created_at') or p.get('creation_time') or p.get('timestamp') or ''),
+                            exe_path=p.get('exe_path') or p.get('executable'),
+                            command_line=cmd_,
+                            launch_summary=ProcessClassifier._extract_launch_summary(p_name_, cmd_),
+                            parent_name=p.get('parent_name'),
+                            real_parent=p.get('parent_name'),
+                        )
                     )
-                )
-            if name:
-                n_lower = name.lower()
-                items = [p for p in items if n_lower in p.name.lower()]
-            return items
-    except Exception as ex:
-        logger.debug(f'Ошибка извлечения процессов из SQLite: {ex}')
+                if name:
+                    n_lower = name.lower()
+                    items = [p for p in items if n_lower in p.name.lower()]
+                return items
+        except Exception as ex:
+            logger.debug(f'Ошибка извлечения процессов из SQLite: {ex}')
 
-    # Cold Start Fallback
-    processes = await asyncio.to_thread(_manager.list_processes)
+    # Полный список всех активных процессов хоста без ограничений SQLite
+    processes = await asyncio.to_thread(_manager.list_processes, False)
     if name:
         n_lower = name.lower()
         processes = [p for p in processes if n_lower in p.name.lower()]
+
+    sort_key = (sort_by or 'cpu_percent').lower()
+    if sort_key == 'name':
+        processes.sort(key=lambda p: (p.name.lower(), p.pid))
+    elif sort_key == 'pid':
+        processes.sort(key=lambda p: p.pid)
+    elif sort_key in ('memory', 'ram', 'memory_mb'):
+        processes.sort(key=lambda p: p.memory_mb, reverse=True)
+    else:
+        processes.sort(key=lambda p: (p.cpu_percent, p.memory_mb), reverse=True)
+
+    if limit > 0:
+        return processes[:limit]
     return processes
 
 
@@ -119,7 +134,7 @@ def _perform_powershell_investigation() -> Dict[str, Any]:
 
     # 1. Поиск исторических сессий в базе данных телеметрии
     programdata = os.environ.get('ProgramData', r'C:\ProgramData')
-    db_path = Path(programdata) / 'AI-Windows-Admin' / 'apps' / 'windows' / 'telemetry' / 'logs' / 'telemetry.db'
+    db_path = Path(programdata) / 'ai-tc' / 'apps' / 'windows' / 'telemetry' / 'logs' / 'telemetry.db'
 
     total_sessions = 0
     last_seen_ts = None
@@ -181,7 +196,7 @@ def _perform_powershell_investigation() -> Dict[str, Any]:
     # 3. Формирование паспорта расследования
     return {
         'status': 'detected',
-        'verdict': 'Служба телеметрии AI-Windows-Admin (GPU Prober)',
+        'verdict': 'Служба телеметрии ai-tc (GPU Prober)',
         'target': 'powershell.exe / pwsh.exe',
         'total_detected_sessions': total_sessions,
         'last_seen': last_seen_ts,
@@ -190,7 +205,7 @@ def _perform_powershell_investigation() -> Dict[str, Any]:
         'active_telemetry_instances': active_telemetry,
         'trigger': {
             'type': 'Windows Task Scheduler',
-            'task_name': 'AI-Windows-Admin-Telemetry',
+            'task_name': 'ai-tc-telemetry',
             'script_file': r'C:\Users\onela\AppData\Local\ai-tc\tlm.ps1',
             'parent_daemon': 'ai-telemetry.exe / pythonw.exe'
         },
@@ -207,7 +222,7 @@ def _perform_powershell_investigation() -> Dict[str, Any]:
         'recommendations': [
             'Объединить три вызова PowerShell в один батч-запрос JSON (сократит спавн процессов в 3 раза)',
             'Перевести сбор метрик видеокарты на прямой WMI через Python win32com (0 процессов PowerShell)',
-            'Временно отключить фоновую задачу: Disable-ScheduledTask -TaskName AI-Windows-Admin-Telemetry'
+            'Временно отключить фоновую задачу: Disable-ScheduledTask -TaskName ai-tc-telemetry'
         ],
         'default_dialog_prompt': 'В данный момент времени в моей операционной системе кто-то постоянно запускает powershell. Найди виновника'
     }

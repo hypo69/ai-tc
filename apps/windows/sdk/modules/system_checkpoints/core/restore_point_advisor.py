@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules System_Checkpoints Core - Restore Point Advisor
+# Process Name: ai-tc Apps Windows Modules System_Checkpoints Core - Restore Point Advisor
 # =============================================================================
 # Description:
 #   Интеллектуальный советник и контроллер точек восстановления Windows (RestorePointAdvisor).
@@ -17,11 +17,11 @@
 #     print(eval_result.decision, eval_result.summary)
 #
 # File: restore_point_advisor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.system_checkpoints.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 22:52:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -64,7 +64,7 @@ def get_default_state_journal_db_path() -> Path:
             base_dir = Path(appdata)
         else:
             base_dir = Path.home() / ".config"
-    return base_dir / "AI-Windows-Admin" / "apps" / "windows" / "telemetry" / "logs" / "state_journal.sqlite"
+    return base_dir / "ai-tc" / "apps" / "windows" / "telemetry" / "logs" / "state_journal.sqlite"
 
 
 class RestorePointStateJournal:
@@ -110,7 +110,7 @@ class RestorePointStateJournal:
 
         Args:
             db_path: Путь к файлу SQLite базы данных (по умолчанию
-                     %ProgramData%\\AI-Windows-Admin\\apps\\windows\\telemetry\\logs\\state_journal.sqlite).
+                     %ProgramData%\\ai-tc\\apps\\windows\\telemetry\\logs\\state_journal.sqlite).
         """
         self.db_path = Path(db_path) if db_path else get_default_state_journal_db_path()
         self.db_path.parent.mkdir(parents=True, exist_ok=True)

@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Sitemap Generator
+# Process Name: ai-tc Sitemap Generator
 # =============================================================================
 # Description:
 #   Генератор структурированной карты сайта и метаданных вкладок WebGUI.
 #
 # File: generate_sitemap_data.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.webgui.tab_sitemap
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:18:00
+# Updated: 2026-11-20 16:35:00
 # =============================================================================
 
 from __future__ import annotations
@@ -676,8 +676,8 @@ _TABS_METADATA: List[Dict[str, Any]] = [
     {
         "id": "ninite_updater",
         "tabId": "tab-ninite-updater",
-        "title": "Пакетный инсталлятор Ninite",
-        "icon": "bi-lightning-charge",
+        "title": "Установить Ninite",
+        "icon": "bi-cloud-arrow-down",
         "category": "software",
         "categoryTitle": "Программы и Задачи",
         "description": "Каталог популярных программ (браузеры, архиваторы, плееры, утилиты) с пакетной автоматической установкой без рекламы и тулбаров.",
@@ -1170,7 +1170,7 @@ _TABS_METADATA: List[Dict[str, Any]] = [
         "icon": "bi-gear-fill",
         "category": "admin",
         "categoryTitle": "Администрирование и Настройки",
-        "description": "Служебный дашборд внутренней архитектуры AI Windows Admin: состояние модулей бэкенда, маршрутизация, кэши, сессии и базы данных.",
+        "description": "Служебный дашборд внутренней архитектуры ai-tc: состояние модулей бэкенда, маршрутизация, кэши, сессии и базы данных.",
         "features": [
             "Инспекция зарегистрированных FastAPI роутеров и эндпоинтов",
             "Журнал внутренней активности и операций приложения/системы",
@@ -1187,7 +1187,7 @@ _TABS_METADATA: List[Dict[str, Any]] = [
         "icon": "bi-terminal",
         "category": "admin",
         "categoryTitle": "Администрирование и Настройки",
-        "description": "Консоль просмотра системных логов самого приложения AI Windows Admin (backend uvicorn, websocket, логи агентов и фоновых служб).",
+        "description": "Консоль просмотра системных логов самого приложения ai-tc (backend uvicorn, websocket, логи агентов и фоновых служб).",
         "features": [
             "Потоковый просмотр логов сервера в реальном времени",
             "Фильтрация сообщений по уровням DEBUG, INFO, WARNING, ERROR",

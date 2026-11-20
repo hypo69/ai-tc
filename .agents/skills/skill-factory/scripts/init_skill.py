@@ -63,7 +63,7 @@ def create_skill(name: str, description: str='', description_en: str='', descrip
 
 def main() -> int:
     """CLI entry point for skill initialization."""
-    parser = argparse.ArgumentParser(description='Create a new AI Windows Admin agent skill with multilingual support.')
+    parser = argparse.ArgumentParser(description='Create a new ai-tc agent skill with multilingual support.')
     parser.add_argument('name', help='Name of the skill in kebab-case (e.g. data-analyzer)')
     parser.add_argument('--description', '-d', default='', help='General description of the skill')
     parser.add_argument('--description-en', '-en', default='', help='English description (canonical)')

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows API - Server & Router Auto-Discovery
+# Process Name: ai-tc Apps Windows API - Server & Router Auto-Discovery
 # =============================================================================
 # Description:
 #   Слой 7: FastAPI сервер и механизм динамического Auto-Discovery роутеров.
@@ -10,11 +10,11 @@
 #     from apps.windows.api.server import create_app, discover_and_register_routers
 #
 # File: server.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:28:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -36,6 +36,7 @@ from fastapi.staticfiles import StaticFiles
 from logger import clear_trace_context, logger, set_trace_context
 from apps.common.webgui import SmartMultiDirStaticFiles, COMMON_WEBGUI_DIR
 from apps.windows.api.config_helper import save_ai_config, resolve_active_config_path
+from src.utils.asyncio_windows_patch import apply_windows_asyncio_patch
 from src.utils.system_engineering import (
     IdempotencyStore,
     REDMetricsCollector,
@@ -75,7 +76,7 @@ def load_tc_config(profile: Optional[str] = None) -> Dict[str, Any]:
     """
     candidates: List[Path] = []
 
-    env_cfg = os.getenv("AIWINDOWSADMIN_CONFIG") or os.getenv("CONFIG_FILE")
+    env_cfg = os.getenv("AITC_CONFIG") or os.getenv("AIWINDOWSADMIN_CONFIG") or os.getenv("CONFIG_FILE")
     if env_cfg:
         p = Path(env_cfg)
         candidates.append(p if p.is_absolute() else _PROJECT_ROOT / p)
@@ -207,11 +208,12 @@ def discover_and_register_routers(
 
 def create_app() -> FastAPI:
     """Создаёт и конфигурирует масштабируемый FastAPI-сервис Windows API с Auto-Discovery."""
+    apply_windows_asyncio_patch()
     config = load_config()
     server_cfg = config.get("server", {})
 
     app = FastAPI(
-        title=server_cfg.get("title", "AI-Windows-Admin Windows Internal API"),
+        title=server_cfg.get("title", "ai-tc Windows Internal API"),
         description=server_cfg.get("description", "Сервис TC/Windows: телеметрия, дашборды, диагностика."),
         version="2.0.0",
         docs_url="/docs",
@@ -381,9 +383,6 @@ def create_app() -> FastAPI:
                 router = getattr(mod, "router", None)
             if isinstance(router, APIRouter):
                 safe_include_router(app, router)
-                legacy_r = getattr(mod, "legacy_router", None)
-                if isinstance(legacy_r, APIRouter):
-                    safe_include_router(app, legacy_r)
                 registered_modules.add(module_path)
                 if module_path.startswith("apps.windows.sdk.modules."):
                     registered_modules.add(module_path.replace("apps.windows.sdk.modules.", "apps.windows."))
@@ -393,11 +392,23 @@ def create_app() -> FastAPI:
         except Exception as exc:
             logger.warning(f"[API Server] Ошибка регистрации роутера {module_path}: {exc}")
 
+    # Исключаем дочерние роутеры, уже смонтированные внутри apps.windows.router (/api/v1/windows/*)
+    registered_modules.update({
+        "apps.windows.personalization.router",
+        "apps.windows.sdk.modules.personalization.router",
+        "apps.windows.accounts_identity.router",
+        "apps.windows.sdk.modules.accounts_identity.router",
+        "apps.windows.programms_history_deep_researh.router",
+        "apps.windows.sdk.modules.programms_history_deep_researh.router",
+        "apps.windows.software_scanner.router",
+        "apps.windows.sdk.software_scanner.router",
+    })
+
     # 2. Затем выполняем динамическое обнаружение (Auto-Discovery) только для новых модулей, не вошедших в config.json
     discover_and_register_routers(app, "apps.windows", exclude_modules=registered_modules)
 
     # -------------------------------------------------------------------------
-    # Роутеры экосистемы ИИ и администрирования (/api/skills, /api/plugins, /api/mcp, /api/admin, /api/v1/admin)
+    # Роутеры экосистемы ИИ и администрирования (/api/v1/skills, /api/v1/plugins, /api/v1/mcp, /api/v1/admin)
     # -------------------------------------------------------------------------
     try:
         from apps.windows.api.routers.admin.routers import (
@@ -418,12 +429,12 @@ def create_app() -> FastAPI:
         logger.warning(f"[Bridge] Ошибка подключения роутеров экосистемы ИИ: {exc}")
 
     # -------------------------------------------------------------------------
-    # Роутер Unified RAG (/api/rag/*)
+    # Роутер Unified RAG (/api/v1/rag/*)
     # -------------------------------------------------------------------------
     try:
         from src.ai.rag.router import init_router as init_rag_router
         safe_include_router(app, init_rag_router())
-        logger.info("[Bridge] Роутер Unified RAG (/api/rag/*) успешно подключен")
+        logger.info("[Bridge] Роутер Unified RAG (/api/v1/rag/*) успешно подключен")
     except Exception as exc:
         logger.warning(f"[Bridge] Ошибка подключения роутера Unified RAG: {exc}")
 
@@ -434,6 +445,7 @@ def create_app() -> FastAPI:
     async def favicon() -> Response:
         """Отдача иконки favicon.ico."""
         fav_candidates = [
+            _WEBGUI_DIR / "assets" / "red_drill.ico",
             _WEBGUI_DIR / "favicon.ico",
             _WEBGUI_DIR / "assets" / "favicon.ico",
         ]
@@ -441,6 +453,14 @@ def create_app() -> FastAPI:
             if fav.exists() and fav.is_file():
                 return FileResponse(fav)
         return Response(status_code=204)
+
+    @app.get("/red_drill.png", include_in_schema=False)
+    async def red_drill_icon() -> Response:
+        """Отдача иконки red_drill.png."""
+        icon_path = _WEBGUI_DIR / "assets" / "red_drill.png"
+        if icon_path.exists() and icon_path.is_file():
+            return FileResponse(icon_path)
+        return Response(status_code=404)
 
     # TC UI точка входа
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
@@ -464,15 +484,14 @@ def create_app() -> FastAPI:
         return HTMLResponse("<h1>TC WebGUI (apps/index.html) not found</h1>", status_code=404)
 
     @app.get("/api/v1/bridge/status", tags=["bridge"])
-    @app.get("/api/bridge/status", tags=["bridge"])
     async def get_bridge_status() -> Dict[str, Any]:
         """Возвращает статус веб-интерфейса Windows API."""
         return {
             "status": "ok",
-            "service": "ai-windows-admin-bridge",
+            "service": "ai-tc-bridge",
             "apps": {
                 "windows": {
-                    "name": "AI Windows Admin (TC)",
+                    "name": "ai-tc (TC)",
                     "url": "/tc",
                     "webgui_exists": _TC_INDEX.exists(),
                 },
@@ -494,7 +513,6 @@ def create_app() -> FastAPI:
         }
 
     @app.get("/api/v1/observability/metrics", tags=["system"])
-    @app.get("/api/observability/metrics", tags=["system"])
     async def get_observability_metrics() -> Dict[str, Any]:
         """Возвращает метрики Google SRE RED (Rate, Errors, Duration по перцентилям p50/p95/p99)."""
         return {
@@ -507,7 +525,6 @@ def create_app() -> FastAPI:
     # Эндпоинты статусов приложений и настроек ИИ
     # -------------------------------------------------------------------------
     @app.get("/api/v1/apps/status", tags=["apps"])
-    @app.get("/api/apps/status", tags=["apps"])
     async def get_apps_status(profile: Optional[str] = None) -> Dict[str, Any]:
         """Возвращает статус доступности приложений для формирования меню."""
         cfg = load_tc_config(profile)
@@ -532,7 +549,6 @@ def create_app() -> FastAPI:
             "ai": ai_config,
         }
 
-    @app.get("/auth/settings", tags=["auth"])
     @app.get("/api/v1/auth/settings", tags=["auth"])
     async def get_user_settings(request: Request) -> Dict[str, Any]:
         """Чтение активных настроек системы и модели."""
@@ -550,7 +566,6 @@ def create_app() -> FastAPI:
         settings.setdefault("favorite_models", {})
         return settings
 
-    @app.post("/auth/settings", tags=["auth"])
     @app.post("/api/v1/auth/settings", tags=["auth"])
     async def update_user_settings(request: Request) -> Dict[str, Any]:
         """Сохранение активной конфигурации модели."""
@@ -563,7 +578,6 @@ def create_app() -> FastAPI:
         except Exception:
             return {"status": "ok"}
 
-    @app.get("/auth/check", tags=["auth"])
     @app.get("/api/v1/auth/check", tags=["auth"])
     async def check_user_auth(request: Request) -> Dict[str, Any]:
         """Проверка статуса текущей пользовательской сессии."""
@@ -577,8 +591,8 @@ def create_app() -> FastAPI:
             "oauth_enabled": False,
         }
 
-    @app.post("/auth/logout", tags=["auth"])
-    @app.get("/auth/logout", tags=["auth"])
+    @app.post("/api/v1/auth/logout", tags=["auth"])
+    @app.get("/api/v1/auth/logout", tags=["auth"])
     async def auth_logout() -> Dict[str, Any]:
         """Завершение пользовательской сессии."""
         return {"status": "ok"}
@@ -618,7 +632,6 @@ def create_app() -> FastAPI:
                 }
             }
 
-    @app.get("/api/admin/system_instruction", tags=["admin"])
     @app.get("/api/v1/admin/system_instruction", tags=["admin"])
     @app.get("/api/v1/tc/model-instruction", tags=["admin"])
     async def get_system_instruction_fallback() -> Dict[str, Any]:
@@ -631,9 +644,8 @@ def create_app() -> FastAPI:
                 return {"status": "success", "content": prompt_file.read_text(encoding="utf-8", errors="replace")}
             except Exception:
                 pass
-        return {"status": "success", "content": "Вы — интеллектуальный ассистент платформы AI Windows Admin."}
+        return {"status": "success", "content": "Вы — интеллектуальный ассистент платформы ai-tc."}
 
-    @app.post("/api/admin/system_instruction", tags=["admin"])
     @app.post("/api/v1/admin/system_instruction", tags=["admin"])
     @app.post("/api/v1/tc/model-instruction", tags=["admin"])
     async def set_system_instruction_fallback(request: Request) -> Dict[str, Any]:
@@ -672,7 +684,6 @@ def create_app() -> FastAPI:
             "scrollback": 5000
         }
 
-    @app.get("/api/themes", tags=["themes"])
     @app.get("/api/v1/themes", tags=["themes"])
     async def get_themes_catalog() -> Dict[str, Any]:
         """Возвращает каталог тем оформления, сканируя директории apps/windows/api/webgui/themes."""
@@ -698,6 +709,8 @@ def create_app() -> FastAPI:
 
         if (_WEBGUI_DIR / "apps").exists():
             app.mount("/apps/static", StaticFiles(directory=_WEBGUI_DIR / "apps"), name="tc-apps-static")
+        if (_WEBGUI_DIR / "assets").exists():
+            app.mount("/assets", StaticFiles(directory=_WEBGUI_DIR / "assets"), name="tc-assets")
         if (_WEBGUI_DIR / "static").exists():
             app.mount("/static", StaticFiles(directory=_WEBGUI_DIR / "static"), name="tc-static")
 

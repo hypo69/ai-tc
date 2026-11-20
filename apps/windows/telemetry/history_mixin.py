@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - History Mixin
+# Process Name: ai-tc Apps Windows Telemetry - History Mixin
 # =============================================================================
 # Description:
 #   Миксин истории и аудита телеметрии: аппаратный/стартовый аудит, снапшоты, перезагрузки, происхождение процессов.
@@ -17,11 +17,11 @@
 #     class SystemCollector(TelemetryHistoryMixin): ...
 #
 # File: history_mixin.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 08:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

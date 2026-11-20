@@ -20,11 +20,11 @@
 #     reg.load_default_catalog()
 #
 # File: command_registry.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:48:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from pathlib import Path

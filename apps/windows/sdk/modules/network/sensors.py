@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Network - Sensors
+# Process Name: ai-tc Apps Windows Modules Network - Sensors
 # =============================================================================
 # Description:
 #   Движок считывания показаний температурных датчиков, напряжений и вентиляторов.
@@ -12,11 +12,11 @@
 #     service = NetworkTerminalSensor()
 #
 # File: sensors.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.network
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 19:37:15
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Storage_Manager Tests - Test Storage Manager
+# Process Name: ai-tc Apps Windows Modules Storage_Manager Tests - Test Storage Manager
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     res = storage_manager()
 #
 # File: test_storage_manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.storage_manager.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -66,15 +66,15 @@ async def test_storage_operation_simulation(storage_manager: StorageManager):
 
 def test_storage_manager_endpoints(client: TestClient):
     """Проверка REST эндпоинтов модуля Storage Manager."""
-    resp = client.get('/api/storage-manager/report')
+    resp = client.get('/api/v1/storage-manager/report')
     assert resp.status_code == 200
     data = resp.json()
     assert 'volumes' in data
     assert 'disks' in data
 
-    resp_disks = client.get('/api/storage-manager/disks')
+    resp_disks = client.get('/api/v1/storage-manager/disks')
     assert resp_disks.status_code == 200
 
-    resp_vols = client.get('/api/storage-manager/volumes')
+    resp_vols = client.get('/api/v1/storage-manager/volumes')
     assert resp_vols.status_code == 200
 

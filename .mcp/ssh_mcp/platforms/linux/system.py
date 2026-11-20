@@ -9,11 +9,11 @@
 #   (Раздел 4.3 и 9 ТЗ).
 #
 # File: system.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.platforms.linux
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:54:45
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import re

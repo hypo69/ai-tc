@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Unified Knowledge Hub
+# Process Name: ai-tc AI - Unified Knowledge Hub
 # =============================================================================
 # Description:
 #   Единый координатор знаний ИИ, объединяющий WikiLLM, Text RAG,
@@ -14,11 +14,11 @@
 #     result = await hub.resolve_query("0x80070490")
 #
 # File: unified_hub.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.rag
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 18:12:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ from .log_rag import LogRAG
 
 
 class UnifiedKnowledgeHub:
-    """Единый координационный хаб знаний платформы AI Windows Admin.
+    """Единый координационный хаб знаний платформы ai-tc.
 
     Интегрирует детерминированную прогрессивную базу знаний WikiLLM ($O(1)$ кэш),
     векторный поиск документов TextRAG, визуальный мультимодальный поиск PixelRAG,

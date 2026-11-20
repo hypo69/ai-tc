@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Test Process Activity Readonly
+# Process Name: ai-tc Tests - Test Process Activity Readonly
 # =============================================================================
 # Description:
 #   Тесты на проверку строгого режима Read-Only для метода get_active_instances
@@ -8,11 +8,11 @@
 #   запись в SQLite при запросах от веб-интерфейса.
 #
 # File: test_process_activity_readonly.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 15:12:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from unittest.mock import MagicMock, patch

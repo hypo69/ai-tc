@@ -1,7 +1,7 @@
 /**
  * Модуль панели действий (Actions) выбранного плагина.
  * Файл: apps/windows/api/webgui/tab_plugins/panel_actions/panel.js
- * Updated: 2026-10-17 01:55:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { showPluginNotification } from '../common/ui_utils.js';
@@ -82,7 +82,7 @@ export async function executePluginAction(pluginName, actionId, actionLabel, loa
       }
     }
 
-    const endpoint = `/api/admin/plugins/${pluginName}/action/${actionId}`;
+    const endpoint = `/api/v1/admin/plugins/${pluginName}/action/${actionId}`;
     let res;
     if (window.api && typeof window.api.fetch === 'function') {
       res = await window.api.fetch(endpoint, {

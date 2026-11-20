@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Task_Scheduler Core - Models
+# Process Name: ai-tc Apps Windows Modules Task_Scheduler Core - Models
 # =============================================================================
 # Description:
 #   Модели данных для модуля планировщика задач Windows (Task Scheduler).
@@ -12,11 +12,11 @@
 #     service = ScheduledTaskItem()
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.task_scheduler.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 19:05:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Software Info Collector
+# Process Name: ai-tc Apps Windows Telemetry - Software Info Collector
 # =============================================================================
 # Description:
 #   Сборщик сведений об установленном ПО: Windows Update, Microsoft Office, OneDrive.
@@ -14,11 +14,11 @@
 #     component = SoftwareInfoCollector()
 #
 # File: software_info.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-11 10:55:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

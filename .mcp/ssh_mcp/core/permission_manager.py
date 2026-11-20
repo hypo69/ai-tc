@@ -19,11 +19,11 @@
 #     pm.check_access("srv-01", cmd_def)
 #
 # File: permission_manager.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:49:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from typing import Dict

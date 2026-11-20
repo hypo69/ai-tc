@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Png Module
+# Process Name: ai-tc UTILS - Png Module
 # =============================================================================
 # Description:
 #   Text to PNG image conversion utilities.
@@ -10,11 +10,11 @@
 #     import src.utils.convertors.png as png
 #
 # File: png.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils.convertors
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Text to PNG image conversion utilities."""

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm Resolvers - Exact
+# Process Name: ai-tc Apps Windows Wikillm Resolvers - Exact
 # =============================================================================
 # Description:
 #   Резолвер точного совпадения по каноническому ключу (canonical_key) в SQLite.
@@ -12,11 +12,11 @@
 #     service = ExactResolver()
 #
 # File: exact.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.wikillm.resolvers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

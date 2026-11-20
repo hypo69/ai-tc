@@ -1,7 +1,7 @@
 /**
  * Модуль каталога моделей ИИ, избранных чипов и переключения провайдеров.
  * Файл: apps/windows/api/webgui/tab_models/panel_models_catalog/panel.js
- * Updated: 2026-10-17 02:10:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { escapeHtml, showModelsNotification } from '../common/ui_utils.js';
@@ -35,7 +35,7 @@ export async function persistSelectedModelAndProvider(selectedModel, selectedPro
   try {
     const fetchFn = (window.api && window.api.fetch) || fetch;
     await Promise.allSettled([
-      fetchFn('/auth/settings', {
+      fetchFn('/api/v1/auth/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: selectedModel, provider: actualProvider })
@@ -262,7 +262,7 @@ export async function loadTabModels(modelSelect, saveBtn, forceRefresh = false) 
   }
 
   try {
-    const settingsData = await fetchFn('/auth/settings');
+    const settingsData = await fetchFn('/api/v1/auth/settings');
     const sData = typeof settingsData.json === 'function' ? await settingsData.json() : settingsData;
     if (sData && sData.favorite_models) {
       window.userFavoriteModels = sData.favorite_models;
@@ -360,7 +360,7 @@ export async function loadTabModels(modelSelect, saveBtn, forceRefresh = false) 
     } catch (_) {}
 
     if (!activeModel) {
-      const settingsData = await fetchFn('/auth/settings');
+      const settingsData = await fetchFn('/api/v1/auth/settings');
       const sData = typeof settingsData.json === 'function' ? await settingsData.json() : settingsData;
       if (sData && sData.model) {
         activeModel = sData.model;

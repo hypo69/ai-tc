@@ -1,6 +1,6 @@
 ﻿<#
 =============================================================================
-Process Name: AI-Windows-Admin Automation - Install TelemetryTask
+Process Name: ai-tc Automation - Install TelemetryTask
 =============================================================================
 Description:
   Установка, настройка и управление задачей сбора системной телеметрии (tlm.ps1)
@@ -31,11 +31,11 @@ Usage Examples:
     .\Install-TelemetryTask.ps1 -Uninstall
 
 File: Install-TelemetryTask.ps1
-Project: ai-windows-admin
+Project: ai-tc
 Package: apps/windows/telemetry/launchers
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-16 10:45:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 .SYNOPSIS
     Регистрация сценария телеметрии tlm.ps1 в Windows Task Scheduler при загрузке системы.
@@ -56,7 +56,7 @@ param (
     [Parameter(ParameterSetName = 'Status')]
     [Parameter(ParameterSetName = 'Start')]
     [Parameter(ParameterSetName = 'Stop')]
-    [string]$TaskName = 'AI-Windows-Admin-Telemetry',
+    [string]$TaskName = 'ai-tc-telemetry',
 
     [Parameter(ParameterSetName = 'Install')]
     [ValidateSet('hybrid', 'minimal', 'full')]
@@ -354,7 +354,7 @@ try {
         -Trigger $trigger `
         -Principal $principal `
         -Settings $settings `
-        -Description "AI-Windows-Admin Фоновый сервис системной телеметрии (запуск tlm.ps1 при старте компьютера с правами администратора)." `
+        -Description "ai-tc Фоновый сервис системной телеметрии (запуск tlm.ps1 при старте компьютера с правами администратора)." `
         -Force | Out-Null
 
     Write-Host "✅ Задание '$TaskName' успешно зарегистрировано в Task Scheduler!" -ForegroundColor Green

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Common File Editor - Supported File Catalog
+# Process Name: ai-tc Common File Editor - Supported File Catalog
 # =============================================================================
 # Description:
 #   Полный каталог поддерживаемых типов файлов в стиле Visual Studio Code.
@@ -9,11 +9,11 @@
 #   Image, PDF, Media, Hex) и возможность редактирования любого файла.
 #
 # File: catalog.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.common.file_editor
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:31:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

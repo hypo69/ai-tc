@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - query_diagnostics
+# Process Name: ai-tc Apps Windows Api Routers - query_diagnostics
 # =============================================================================
 # Description:
 #   Запросы диагностик (накопитель, троттлинг, утечки, дерево железа, бэкап, сетевой профиль).
 #   Исключительно чтение из telemetry.db без живых системных опросов.
 #
 # File: query_diagnostics.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.about_system
 # Author: hypo69
-# Updated: 2026-11-03 14:05:00
+# Updated: 2026-11-20 15:14:00
 # =============================================================================
 
 from __future__ import annotations
@@ -26,6 +26,7 @@ from typing import Any, Dict, List, Optional
 
 from logger import logger
 from apps.windows.telemetry.sqlite import TelemetryStorage
+from apps.windows.api.routers.about_system.helpers import get_windows_volume_labels
 
 
 def extract_power_on_hours(disk_dict: dict) -> float | None:
@@ -155,13 +156,24 @@ def resolve_disk_install_date(
     return None
 
 
+def _load_storage_snapshot_from_db(storage: Optional[TelemetryStorage] = None) -> Optional[Dict[str, Any]]:
+    """Пассивно загружает последний снимок WindowsStorageSensor из telemetry.db (inventory_state)."""
+    try:
+        st = storage if storage is not None else TelemetryStorage(read_only=True)
+        return st.get_latest_storage_sensor_snapshot()
+    except Exception as ex:
+        logger.debug(f"[_load_storage_snapshot_from_db] Ошибка чтения из telemetry.db: {ex}")
+        return None
+
+
 def _resolve_disk_num_to_letters_map(
     storage_data: Optional[Dict[str, Any]] = None,
     snap: Optional[Dict[str, Any]] = None,
+    storage: Optional[TelemetryStorage] = None,
 ) -> tuple[Dict[str, List[str]], Dict[str, Any]]:
     """Сопоставление номеров физических дисков (0, 1, 2...) с буквами томов из telemetry.db.
 
-    Исключительно пассивное чтение данных из среза storage_data / snap / storage_snapshot.json.
+    Исключительно пассивное чтение данных из среза storage_data / snap / inventory_state (telemetry.db).
     Никаких живых обращений к DeviceIoControl и внешним утилитам.
     """
     disk_num_to_letters: Dict[str, List[str]] = {}
@@ -178,33 +190,20 @@ def _resolve_disk_num_to_letters_map(
                     if dn not in disk_num_to_letters or let not in disk_num_to_letters[dn]:
                         disk_num_to_letters.setdefault(dn, []).append(let)
 
-    # 2. Пассивное чтение сохраненного storage_snapshot.json (если есть на диске)
+    # 2. Пассивное чтение последнего снимка WindowsStorageSensor из telemetry.db
     try:
-        import json
-        project_root = Path(__file__).resolve().parents[5]
-        program_data = Path(os.environ.get("ProgramData", "C:\\ProgramData")) / "ai-tc"
-
-        candidate_paths = [
-            project_root / "storage_snapshot.json",
-            Path.cwd() / "storage_snapshot.json",
-            program_data / "storage_snapshot.json",
-        ]
-
-        for cand in candidate_paths:
-            if cand.is_file():
-                with open(cand, "r", encoding="utf-8") as f:
-                    s_json = json.load(f)
-                    snap_sources = s_json.get("sources", {})
-                    raw_parts = snap_sources.get("partitions", [])
-                    for rp in raw_parts:
-                        if isinstance(rp, dict):
-                            dn = str(rp.get("DiskNumber")) if rp.get("DiskNumber") is not None else None
-                            dl = str(rp.get("DriveLetter") or "").strip().upper()
-                            if dn is not None and dl:
-                                let = f"{dl}:" if not dl.endswith(":") else dl
-                                if dn not in disk_num_to_letters or let not in disk_num_to_letters[dn]:
-                                    disk_num_to_letters.setdefault(dn, []).append(let)
-                break
+        s_json = _load_storage_snapshot_from_db(storage)
+        if s_json:
+            snap_sources = s_json.get("sources", {})
+            raw_parts = snap_sources.get("partitions", [])
+            for rp in raw_parts:
+                if isinstance(rp, dict):
+                    dn = str(rp.get("DiskNumber")) if rp.get("DiskNumber") is not None else None
+                    dl = str(rp.get("DriveLetter") or "").strip().upper()
+                    if dn is not None and dl:
+                        let = f"{dl}:" if not dl.endswith(":") else dl
+                        if dn not in disk_num_to_letters or let not in disk_num_to_letters[dn]:
+                            disk_num_to_letters.setdefault(dn, []).append(let)
     except Exception as ex_snap:
         logger.debug(f"[_resolve_disk_num_to_letters_map] snapshot mapping: {ex_snap}")
 
@@ -299,40 +298,35 @@ def query_disks_wear_from_db(storage: TelemetryStorage, force_refresh: bool = Fa
         except Exception as ex_sensor:
             logger.debug(f"[query_storage_battery_from_db] Fallback sensor: {ex_sensor}")
 
-    # 3. Пассивный fallback на сохраненный на диске снимок, если диски не получены
+    # 3. Пассивный fallback на сохраненный в telemetry.db снимок WindowsStorageSensor, если диски не получены
     if not phys_disks:
         try:
-            import json
-            project_root = Path(__file__).resolve().parents[5]
-            program_data = Path(os.environ.get("ProgramData", "C:\\ProgramData")) / "ai-tc"
-            for cand in [project_root / "storage_snapshot.json", Path.cwd() / "storage_snapshot.json", program_data / "storage_snapshot.json"]:
-                if cand.is_file():
-                    with open(cand, "r", encoding="utf-8") as f:
-                        cached_raw = json.load(f)
-                        raw_disks = cached_raw.get("physical_disks") or []
-                        if not raw_disks and "sources" in cached_raw:
-                            src_disks = cached_raw["sources"].get("physical_storage") or cached_raw["sources"].get("physical_disks") or []
-                            raw_reliabilities = {str(r.get("DeviceId", "") or r.get("DeviceID", "")): r for r in cached_raw["sources"].get("storage_reliability", [])}
-                            for sd in src_disks:
-                                d_id = str(sd.get("DeviceId", "") or sd.get("DeviceID", "") or sd.get("Index", ""))
-                                rel = raw_reliabilities.get(d_id, {})
-                                sz_bytes = int(sd.get("Size", 0) or 0)
-                                raw_disks.append({
-                                    "device_id": f"Disk {d_id}" if d_id else "Disk 0",
-                                    "model": sd.get("Model") or sd.get("FriendlyName") or sd.get("Caption"),
-                                    "serial_number": sd.get("SerialNumber"),
-                                    "size_gb": round(sz_bytes / (1024 ** 3), 1) if sz_bytes else 0.0,
-                                    "power_on_hours": rel.get("PowerOnHours"),
-                                    "temperature_c": rel.get("Temperature"),
-                                    "wear_percentage": rel.get("Wear"),
-                                })
-                        if raw_disks:
-                            phys_disks = raw_disks
-                    break
+            cached_raw = _load_storage_snapshot_from_db(storage)
+            if cached_raw:
+                raw_disks = cached_raw.get("physical_disks") or []
+                if not raw_disks and "sources" in cached_raw:
+                    src_disks = cached_raw["sources"].get("physical_storage") or cached_raw["sources"].get("physical_disks") or []
+                    raw_reliabilities = {str(r.get("DeviceId", "") or r.get("DeviceID", "")): r for r in cached_raw["sources"].get("storage_reliability", [])}
+                    for sd in src_disks:
+                        d_id = str(sd.get("DeviceId", "") or sd.get("DeviceID", "") or sd.get("Index", ""))
+                        rel = raw_reliabilities.get(d_id, {})
+                        sz_bytes = int(sd.get("Size", 0) or 0)
+                        raw_disks.append({
+                            "device_id": f"Disk {d_id}" if d_id else "Disk 0",
+                            "model": sd.get("Model") or sd.get("FriendlyName") or sd.get("Caption"),
+                            "serial_number": sd.get("SerialNumber"),
+                            "size_gb": round(sz_bytes / (1024 ** 3), 1) if sz_bytes else 0.0,
+                            "power_on_hours": rel.get("PowerOnHours"),
+                            "temperature_c": rel.get("Temperature"),
+                            "wear_percentage": rel.get("Wear"),
+                        })
+                if raw_disks:
+                    phys_disks = raw_disks
         except Exception as ex:
             logger.debug(f"[query_storage_battery_from_db] Пассивный fallback дисков: {ex}")
 
-    # Разделы и логические диски из БД
+    # Разделы и логические диски из БД, обогащенные именами (метками) томов
+    vol_labels = get_windows_volume_labels()
     partitions = storage_data.get("partitions") or snap.get("disks") or []
     part_info_by_letter: Dict[str, Dict[str, Any]] = {}
     for p in partitions:
@@ -345,8 +339,13 @@ def query_disks_wear_from_db(storage: TelemetryStorage, force_refresh: bool = Fa
                 free_g = float(p.get("free_gb") or 0.0)
                 tot_g = float(p.get("total_gb") or 0.0)
                 used_g = float(p.get("used_gb") or 0.0)
+                vol_name = str(p.get("volume_name") or vol_labels.get(dev) or "").strip()
+                if " - Google Drive" in vol_name:
+                    vol_name = vol_name.replace(" - Google Drive", "").strip()
+                label_display = f"{vol_name} ({dev}) [{fs}]" if vol_name else f"{dev} [{fs}]"
                 part_info_by_letter[dev] = {
-                    "label": f"{dev} [{fs}]",
+                    "label": label_display,
+                    "volume_name": vol_name,
                     "letter": dev,
                     "fs": fs,
                     "free_gb": free_g,
@@ -355,7 +354,7 @@ def query_disks_wear_from_db(storage: TelemetryStorage, force_refresh: bool = Fa
                 }
 
     # Маппинг DiskNumber -> Буквы томов исключительно из БД и кэша структуры дисков
-    disk_num_to_letters, snap_sources = _resolve_disk_num_to_letters_map(storage_data, snap)
+    disk_num_to_letters, snap_sources = _resolve_disk_num_to_letters_map(storage_data, snap, storage=storage)
 
     # Индивидуальные счетчики I/O по каждому физическому диску отдельно
     per_disk_io: Dict[str, Any] = {}
@@ -386,24 +385,34 @@ def query_disks_wear_from_db(storage: TelemetryStorage, force_refresh: bool = Fa
             # Сопоставление разделов
             letters = disk_num_to_letters.get(dev_digits, [])
             disk_parts_labels: List[str] = []
+            disk_vol_names: List[str] = []
             disk_free_gb = 0.0
             has_free = False
             accounted_letters = set()
 
             for let in letters:
                 clean_let = let.upper()
+                if not clean_let.endswith(":"):
+                    clean_let = f"{clean_let}:"
                 if clean_let in part_info_by_letter:
                     p_info = part_info_by_letter[clean_let]
                     # Исключаем виртуальные тома, чей размер превышает размер физического диска
                     if sz_gb > 0 and float(p_info.get("total_gb") or 0.0) > (sz_gb * 1.05):
                         continue
                     disk_parts_labels.append(p_info["label"])
+                    if p_info.get("volume_name"):
+                        disk_vol_names.append(p_info["volume_name"])
                     if clean_let not in accounted_letters:
                         disk_free_gb += p_info["free_gb"]
                         has_free = True
                         accounted_letters.add(clean_let)
                 else:
-                    disk_parts_labels.append(let)
+                    v_name = vol_labels.get(clean_let)
+                    if v_name:
+                        disk_parts_labels.append(f"{v_name} ({clean_let})")
+                        disk_vol_names.append(v_name)
+                    else:
+                        disk_parts_labels.append(let)
 
             # Fallback разделов, если в disk_num_to_letters не найдено
             if not disk_parts_labels and d.get("partitions"):
@@ -412,6 +421,21 @@ def query_disks_wear_from_db(storage: TelemetryStorage, force_refresh: bool = Fa
                     disk_parts_labels = [str(p) for p in raw_dp]
                 elif isinstance(raw_dp, str):
                     disk_parts_labels = [raw_dp]
+
+            # Обогащение fallback меток томов реальными именами
+            enriched_labels = []
+            for pl in disk_parts_labels:
+                m_let = re.search(r"([A-Za-z]:)", str(pl))
+                if m_let:
+                    drv = m_let.group(1).upper()
+                    v_name = vol_labels.get(drv)
+                    if v_name and v_name.lower() not in str(pl).lower():
+                        enriched_labels.append(f"{v_name} ({pl})")
+                        if v_name not in disk_vol_names:
+                            disk_vol_names.append(v_name)
+                        continue
+                enriched_labels.append(str(pl))
+            disk_parts_labels = enriched_labels
 
             # Расчет свободного места по найденным разделам из БД
             for pl in disk_parts_labels:
@@ -426,6 +450,7 @@ def query_disks_wear_from_db(storage: TelemetryStorage, force_refresh: bool = Fa
                             accounted_letters.add(drv)
 
             parts_str = ", ".join(disk_parts_labels) if disk_parts_labels else "—"
+            primary_vol_name = ", ".join(disk_vol_names) if disk_vol_names else None
 
             poh = extract_power_on_hours(d)
             wear_pct = float(d.get("wear_percentage") or 0.0)
@@ -506,6 +531,8 @@ def query_disks_wear_from_db(storage: TelemetryStorage, force_refresh: bool = Fa
                 "bus_type": bus_type,
                 "interface_type": bus_type,
                 "partitions": parts_str,
+                "volume_name": primary_vol_name,
+                "volume_names": disk_vol_names,
                 "total_gb": sz_gb if sz_gb > 0 else 0.0,
                 "size_gb": sz_gb if sz_gb > 0 else 0.0,
                 "free_gb": free_final,

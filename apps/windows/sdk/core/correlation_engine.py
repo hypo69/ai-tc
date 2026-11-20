@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Correlation Engine
+# Process Name: ai-tc Apps Windows Core - Correlation Engine
 # =============================================================================
 # Description:
 #   Correlation Engine for analyzing relationships between system components
@@ -12,11 +12,11 @@
 #     service = Correlation()
 #
 # File: correlation_engine.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Движок корреляции для анализа взаимосвязей между системными компонентами."""

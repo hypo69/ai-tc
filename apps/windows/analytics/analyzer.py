@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry_Research - Analyzer
+# Process Name: ai-tc Apps Windows Telemetry_Research - Analyzer
 # =============================================================================
 # Description:
 #   Аналитический движок исследования логов телеметрии.
@@ -12,11 +12,11 @@
 #     service = TelemetryResearcher()
 #
 # File: analyzer.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.analytics
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 07:18:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

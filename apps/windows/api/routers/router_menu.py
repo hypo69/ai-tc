@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Router Menu
+# Process Name: ai-tc Apps Windows Api Routers - Router Menu
 # =============================================================================
 # Description:
 #   Предоставляет эндпоинты FastAPI для чтения и сохранения конфигурации меню
@@ -12,11 +12,11 @@
 #     service = MenuItem()
 #
 # File: router_menu.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 18:05:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

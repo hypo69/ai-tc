@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - TelemetrySecurityStorageMixin
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - TelemetrySecurityStorageMixin
 # =============================================================================
 # Description:
 #   Миксин фасада хранилища: события безопасности, питание, PID-снимки и файловые события процессов.
@@ -14,11 +14,11 @@
 #     class TelemetryStorage(TelemetrySecurityStorageMixin): ...
 #
 # File: storage_security.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-11 11:30:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

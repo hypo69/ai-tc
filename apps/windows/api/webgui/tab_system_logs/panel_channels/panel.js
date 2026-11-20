@@ -9,7 +9,7 @@
  * Файл: apps/windows/api/webgui/tab_system_logs/panel_channels/panel.js
  * Пакет: windows/api/webgui/tab_system_logs
  * Автор: hypo69
- * Updated: 2026-10-31 18:33:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
@@ -178,7 +178,7 @@ export function renderChannelsTree(onChannelSelect) {
     'Windows Event Log': '🛡️',
     'Windows OS Logs': '📁',
     'Application Logs': '💻',
-    'AI-Windows-Admin Logs': '🤖',
+    'ai-tc Logs': '🤖',
   };
 
   Object.keys(grouped).forEach((catName) => {

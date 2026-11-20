@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Kernel Protection - Router
+# Process Name: ai-tc Apps Windows Modules Kernel Protection - Router
 # =============================================================================
 # Description:
 #   FastAPI REST API роутер для инвентаризации системных драйверов Windows,
@@ -13,11 +13,11 @@
 #     app.include_router(router)
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.kernel_protection
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 14:40:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -51,7 +51,7 @@ from apps.windows.sdk.modules.kernel_protection.core.ucpd_manager import (
     UcpdSystemManager,
 )
 
-router = APIRouter(prefix='/api/kernel-protection', tags=['Kernel & Protection Manager'])
+router = APIRouter(prefix='/api/v1/kernel-protection', tags=['Kernel & Protection Manager'])
 
 _inventory = DriverInventoryManager()
 _mechanisms = ProtectionMechanismsAuditor()

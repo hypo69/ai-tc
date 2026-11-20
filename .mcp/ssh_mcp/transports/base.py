@@ -18,11 +18,11 @@
 #     from ssh_mcp.transports.base import BaseTransport, RawExecutionResult
 #
 # File: base.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.transports
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:45:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from abc import ABC, abstractmethod

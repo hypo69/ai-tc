@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Accounts & Identity Win32 Bridge
+# Process Name: ai-tc Apps Windows - Accounts & Identity Win32 Bridge
 # =============================================================================
 # Description:
 #   Низкоуровневый мост взаимодействия с Windows API (Advapi32, Netapi32,
@@ -14,11 +14,11 @@
 #     sid_str = bridge.lookup_name_to_sid("Administrator")
 #
 # File: win32_bridge.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.accounts_identity
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Низкоуровневый Win32/NetAPI/LSA мост для Accounts & Identity."""

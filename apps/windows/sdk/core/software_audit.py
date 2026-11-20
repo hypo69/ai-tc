@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Software Audit
+# Process Name: ai-tc Apps Windows Core - Software Audit
 # =============================================================================
 # Description:
 #   Модуль аудита установленного ПО Windows, истории запусков и анализа назначения приложений.
@@ -12,11 +12,11 @@
 #     service = SoftwareCategorizer()
 #
 # File: software_audit.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 17:56:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -429,12 +429,12 @@ class SoftwareAuditEngine:
             return False
 
     def _save_to_csv(self, report: SoftwareAuditReport) -> Optional[Path]:
-        """Экспортировать отчет в CSV файл в %APPDATA%/AI-Windows-Admin/apps/logs при явном запросе."""
+        """Экспортировать отчет в CSV файл в %APPDATA%/ai-tc/apps/logs при явном запросе."""
         appdata = os.environ.get('APPDATA')
         if not appdata:
             logger.warning('Переменная среды APPDATA не найдена, экспорт в CSV отменен.')
             return None
-        log_dir = Path(appdata) / 'AI-Windows-Admin' / 'apps' / 'logs'
+        log_dir = Path(appdata) / 'ai-tc' / 'apps' / 'logs'
         log_dir.mkdir(parents=True, exist_ok=True)
         log_file = log_dir / 'software_audit.csv'
         try:

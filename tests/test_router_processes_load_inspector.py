@@ -6,17 +6,17 @@
 #   Модульные тесты для проверки REST API эндпоинтов вкладки
 #   «Инспектор нагрузки процессов» (/api/v1/tab-processes-load-inspector/*).
 #   Проверяет топ процессов, категоризированный диспетчер задач, сетевую и файловую
-#   активность, аудит утечек, Deep Dive инстансы и расследование PowerShell.
+#   активность, аудит утечек и Deep Dive инстансы.
 #
 # Usage Examples:
 #   pytest tests/test_router_processes_load_inspector.py
 #
 # File: test_router_processes_load_inspector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 18:59:00
+# Updated: 2026-11-13 15:48:43
 # =============================================================================
 
 from __future__ import annotations
@@ -82,6 +82,14 @@ def test_network_and_files_endpoints(client: TestClient):
     assert resp_files.status_code == 200
     assert isinstance(resp_files.json(), list)
 
+    with client.stream("GET", "/api/v1/tab-processes-load-inspector/panel-file-watcher/stream?limit=5") as stream_resp:
+        assert stream_resp.status_code == 200
+        assert "text/event-stream" in stream_resp.headers.get("content-type", "")
+        for chunk in stream_resp.iter_lines():
+            if chunk:
+                assert "data:" in chunk or "ping" in chunk
+                break
+
 
 def test_leak_hunter_endpoints(client: TestClient):
     """Проверка эндпоинтов аудита утечек ресурсов."""
@@ -120,12 +128,4 @@ def test_deep_dive_endpoints(client: TestClient):
     assert resp_samples_pid.status_code == 200
     assert isinstance(resp_samples_pid.json(), list)
 
-
-def test_ai_audit_powershell_endpoint(client: TestClient):
-    """Проверка эндпоинта ИИ-расследования вызовов PowerShell."""
-    resp = client.get("/api/v1/tab-processes-load-inspector/panel-ai-audit/powershell")
-    assert resp.status_code == 200
-    data = resp.json()
-    assert "status" in data
-    assert "verdict" in data
 

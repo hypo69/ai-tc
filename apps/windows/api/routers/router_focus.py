@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Router Focus
+# Process Name: ai-tc Apps Windows Api Routers - Router Focus
 # =============================================================================
 # Description:
 #   API роутер управления сессиями фокусировки внимания (Windows Focus Sessions),
@@ -14,11 +14,11 @@
 #     router = init_router()
 #
 # File: router_focus.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -296,7 +296,7 @@ def init_router() -> APIRouter:
     Returns:
         APIRouter: Экземпляр настроенного роутера.
     """
-    router = APIRouter(prefix="/api/windows/focus", tags=["Windows Focus Sessions"])
+    router = APIRouter(prefix="/api/v1/windows/focus", tags=["Windows Focus Sessions"])
 
     @router.get("/state", response_model=FocusSessionStateDTO)
     async def get_focus_state() -> FocusSessionStateDTO:

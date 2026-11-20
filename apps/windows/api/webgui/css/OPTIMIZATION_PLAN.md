@@ -1,4 +1,4 @@
-# План оптимизации CSS - AI-Windows-Admin WebGUI
+# План оптимизации CSS - ai-tc WebGUI
 
 ## Текущая проблема
 

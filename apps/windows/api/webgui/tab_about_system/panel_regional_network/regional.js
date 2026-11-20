@@ -1,18 +1,18 @@
 /**
  * Модуль региональных настроек, локализации, часовых поясов и учетных записей.
  * Файл: apps/windows/api/webgui/tab_about_system/panel_regional_network/regional.js
- * Updated: 2026-11-01 15:30:00
+ * Updated: 2026-11-16 05:48:00
  */
 
-import { apiFetch, escapeHtml, setText } from '../common/ui_utils.js?v=20261028_v4';
+import { apiFetch, escapeHtml, setText } from '../common/ui_utils.js?v=20261116_v1';
 import {
   changeNetworkCategory,
   toggleNetworkDiscovery,
   updateNetworkProfileUI,
   setNetworkInterfaceIndex,
   isDiscoveryEnabled
-} from './network.js?v=20261028_v4';
-import { renderTimezonesList, renderLanguagePacksList, formatActivePacksSummary } from './localization.js?v=20261028_v4';
+} from './network.js?v=20261116_v1';
+import { renderTimezonesList, renderLanguagePacksList, formatActivePacksSummary } from './localization.js?v=20261116_v1';
 
 let cachedRegionalData = null;
 let regionalCallbacks = {};
@@ -55,6 +55,36 @@ export function showRegModalAlert(msg, type = 'success') {
   setTimeout(() => {
     alertBox.classList.add('d-none');
   }, 6000);
+}
+
+/**
+ * Обновляет состояние тумблера и бейджей обязательности пароля (net user /passwordreq:no|yes).
+ * @param {boolean} isRequired - Требуется ли пароль.
+ */
+export function updatePasswordRequiredUI(isRequired) {
+  const pwdNotReqInput = document.getElementById('reg-usr-pwd-not-required');
+  const reqStatusEl = document.getElementById('reg-usr-pwd-req-status');
+  const reqBadgeEl = document.getElementById('reg-usr-pwd-req-badge');
+
+  if (pwdNotReqInput) {
+    pwdNotReqInput.checked = !isRequired;
+  }
+  if (reqStatusEl) {
+    reqStatusEl.innerHTML = isRequired
+      ? '<span class="text-success fw-bold"><i class="bi bi-shield-check me-1"></i>Требуется (/passwordreq:yes)</span>'
+      : '<span class="text-warning fw-bold"><i class="bi bi-unlock me-1"></i>Не требуется (/passwordreq:no)</span>';
+  }
+  if (reqBadgeEl) {
+    if (isRequired) {
+      reqBadgeEl.className = 'badge bg-success font-monospace';
+      reqBadgeEl.textContent = 'Обязателен';
+      reqBadgeEl.title = 'net user <user> /passwordreq:yes';
+    } else {
+      reqBadgeEl.className = 'badge bg-warning text-dark font-monospace';
+      reqBadgeEl.textContent = 'Не требуется';
+      reqBadgeEl.title = 'net user <user> /passwordreq:no';
+    }
+  }
 }
 
 /**
@@ -186,9 +216,14 @@ export async function loadRegionalOptions(targetPaneId = null) {
     if (Array.isArray(data.locales) && data.locales.length > 0) {
       const sysLocSelect = document.getElementById('reg-loc-sys-select');
       const usrLocSelect = document.getElementById('reg-loc-usr-select');
-      const optionsHtml = data.locales.map(loc => 
-        `<option value="${escapeHtml(loc.code)}">${escapeHtml(loc.name)} [${escapeHtml(loc.code)}]</option>`
-      ).join('');
+      const optionsHtml = data.locales.map(loc => {
+        const code = loc.code || '';
+        let name = loc.name || code;
+        if (!name.includes(`[${code}]`)) {
+          name = `${name} [${code}]`;
+        }
+        return `<option value="${escapeHtml(code)}">${escapeHtml(name)}</option>`;
+      }).join('');
       
       if (sysLocSelect) {
         sysLocSelect.innerHTML = optionsHtml;
@@ -226,7 +261,7 @@ export async function loadRegionalOptions(targetPaneId = null) {
     const pwdBadCountEl = document.getElementById('reg-usr-pwd-badcount');
     const pwdNeverExpInput = document.getElementById('reg-usr-pwd-never-expires');
     const pwdCannotChgInput = document.getElementById('reg-usr-pwd-cannot-change');
-    const pwdReqInput = document.getElementById('reg-usr-pwd-required');
+    const pwdNotReqInput = document.getElementById('reg-usr-pwd-not-required');
     const polMinLenInput = document.getElementById('reg-pol-min-len');
     const polMaxAgeInput = document.getElementById('reg-pol-max-age');
     const polLockoutInput = document.getElementById('reg-pol-lockout');
@@ -236,7 +271,7 @@ export async function loadRegionalOptions(targetPaneId = null) {
     if (pwdBadCountEl) pwdBadCountEl.textContent = data.bad_password_count ?? 0;
     if (pwdNeverExpInput) pwdNeverExpInput.checked = !!data.password_never_expires;
     if (pwdCannotChgInput) pwdCannotChgInput.checked = !!data.cannot_change_password;
-    if (pwdReqInput) pwdReqInput.checked = data.password_required !== false;
+    updatePasswordRequiredUI(data.password_required !== false);
     if (polMinLenInput) polMinLenInput.value = data.min_password_length ?? 0;
     if (polMaxAgeInput) polMaxAgeInput.value = data.max_password_age_days ?? 42;
     if (polLockoutInput) polLockoutInput.value = data.lockout_threshold ?? 0;
@@ -543,6 +578,47 @@ export function bindRegionalEvents(callbacks = {}) {
     };
   }
 
+  // Интерактивный тумблер: «Не требовать пароль» (net user <user> /passwordreq:no|yes)
+  const pwdNotReqToggle = document.getElementById('reg-usr-pwd-not-required');
+  if (pwdNotReqToggle) {
+    pwdNotReqToggle.onchange = async () => {
+      const isNotRequired = pwdNotReqToggle.checked;
+      const usrName = document.getElementById('reg-usr-name-input')?.value.trim();
+      if (!usrName) {
+        showRegModalAlert('Имя учетной записи не указано', 'warning');
+        return;
+      }
+      pwdNotReqToggle.disabled = true;
+      const flagStr = isNotRequired ? '/passwordreq:no' : '/passwordreq:yes';
+      try {
+        const res = await apiFetch('/api/v1/system/update-user-profile', {
+          method: 'POST',
+          body: JSON.stringify({
+            username: usrName,
+            password_required: !isNotRequired,
+          }),
+        });
+        if (res.status === 'ok') {
+          updatePasswordRequiredUI(!isNotRequired);
+          const desc = isNotRequired ? 'пароль больше не требуется для входа' : 'пароль теперь обязателен';
+          showRegModalAlert(`✅ Команда «<strong>net user ${escapeHtml(usrName)} ${flagStr}</strong>» выполнена успешно (${desc})`, 'success');
+          if (window.showToast) window.showToast(`net user ${usrName} ${flagStr}: ${desc}`, 'success');
+          if (callbacks.refreshAll) callbacks.refreshAll();
+        } else {
+          pwdNotReqToggle.checked = !isNotRequired;
+          updatePasswordRequiredUI(isNotRequired);
+          showRegModalAlert(`Ошибка: ${escapeHtml(res.message || 'Не удалось обновить статус обязательности пароля')}`, 'danger');
+        }
+      } catch (err) {
+        pwdNotReqToggle.checked = !isNotRequired;
+        updatePasswordRequiredUI(isNotRequired);
+        showRegModalAlert(`Ошибка выполнения net user: ${escapeHtml(err.message || String(err))}`, 'danger');
+      } finally {
+        pwdNotReqToggle.disabled = false;
+      }
+    };
+  }
+
   const btnSaveUsr = document.getElementById('btn-reg-save-usr');
   if (btnSaveUsr) {
     btnSaveUsr.onclick = async () => {
@@ -551,7 +627,8 @@ export function bindRegionalEvents(callbacks = {}) {
       const desc = document.getElementById('reg-usr-desc-input')?.value.trim();
       const pwdNeverExpires = document.getElementById('reg-usr-pwd-never-expires')?.checked;
       const cannotChangePwd = document.getElementById('reg-usr-pwd-cannot-change')?.checked;
-      const pwdRequired = document.getElementById('reg-usr-pwd-required')?.checked;
+      const pwdNotRequired = document.getElementById('reg-usr-pwd-not-required')?.checked;
+      const pwdRequired = !pwdNotRequired;
 
       if (!usrName) {
         showRegModalAlert('Имя учетной записи не указано', 'warning');

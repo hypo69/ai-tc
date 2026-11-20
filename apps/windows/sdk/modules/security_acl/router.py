@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Security_Acl - Router
+# Process Name: ai-tc Apps Windows Modules Security_Acl - Router
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     res = init_router()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.security_acl
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ from apps.windows.sdk.modules.security_acl.core.models import (
     SecurityAclReport,
 )
 
-router = APIRouter(prefix='/api/security-acl', tags=['Security & ACL Manager'])
+router = APIRouter(prefix='/api/v1/security-acl', tags=['Security & ACL Manager'])
 _manager = SecurityAclManager()
 
 

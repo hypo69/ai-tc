@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Registry - Router
+# Process Name: ai-tc Apps Windows Modules Registry - Router
 # =============================================================================
 # Description:
 #   FastAPI роутер для приложения Windows Registry Viewer.
@@ -12,11 +12,11 @@
 #     res = init_router()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.registry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 19:37:55
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ from apps.common.telemetry_logger import AppTelemetryLogger
 def init_router(viewer: Optional[RegistryViewer]=None) -> APIRouter:
     """Инициализировать и вернуть FastAPI роутер Registry Viewer."""
     registry_engine = viewer or RegistryViewer()
-    router = APIRouter(prefix='/api/registry', tags=['registry-viewer'])
+    router = APIRouter(prefix='/api/v1/registry', tags=['registry-viewer'])
     telemetry_logger = AppTelemetryLogger('registry_viewer')
 
     @router.get('/bookmarks')

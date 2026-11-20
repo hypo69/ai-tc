@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Security_Acl Tests - Test Security Acl
+# Process Name: ai-tc Apps Windows Modules Security_Acl Tests - Test Security Acl
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     res = manager()
 #
 # File: test_security_acl.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.security_acl.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -67,15 +67,15 @@ async def test_acl_modify_simulation(manager: SecurityAclManager):
 
 def test_security_acl_endpoints(client: TestClient):
     """Проверка REST эндпоинтов security_acl."""
-    resp = client.get('/api/security-acl/report')
+    resp = client.get('/api/v1/security-acl/report')
     assert resp.status_code == 200
     data = resp.json()
     assert 'bitlocker_volumes' in data
 
-    resp_bitlocker = client.get('/api/security-acl/bitlocker')
+    resp_bitlocker = client.get('/api/v1/security-acl/bitlocker')
     assert resp_bitlocker.status_code == 200
 
-    resp_acl = client.get('/api/security-acl/acl?path=C:\\Windows')
+    resp_acl = client.get('/api/v1/security-acl/acl?path=C:\\Windows')
     assert resp_acl.status_code == 200
     assert len(resp_acl.json()) > 0
 

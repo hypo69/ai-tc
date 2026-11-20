@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Models Module
+# Process Name: ai-tc AI - Models Module
 # =============================================================================
 # Description:
 #   Модуль основной системы (`models`).
@@ -10,11 +10,11 @@
 #     import src.ai.gemini.models as models
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Модуль основной системы (`models`)."""

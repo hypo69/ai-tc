@@ -1,7 +1,7 @@
 # Windows AI Provider (`core/ai/providers/windows_ai`)
 
 ## Overview
-The `windows_ai` provider integrates **Windows AI APIs** and system-managed AI components (such as **Phi Silica**, **Windows OCR**, and **Imaging APIs**) directly into the AI-Windows-Admin orchestration framework.
+The `windows_ai` provider integrates **Windows AI APIs** and system-managed AI components (such as **Phi Silica**, **Windows OCR**, and **Imaging APIs**) directly into the ai-tc orchestration framework.
 
 ---
 
@@ -24,7 +24,7 @@ This provider encapsulates layer 1 (Windows AI APIs) with automatic host probing
 ---
 
 ## Graceful Fallback
-If the host machine lacks preinstalled AI components (e.g. `Settings > System > AI components` reports no components installed), `WindowsAIChatBase.is_available()` returns `False`. The AI-Windows-Admin Router automatically degrades to **Foundry Local**, **Ollama**, **ONNX DirectML**, or **Cloud Gemini** without breaking application flow.
+If the host machine lacks preinstalled AI components (e.g. `Settings > System > AI components` reports no components installed), `WindowsAIChatBase.is_available()` returns `False`. The ai-tc Router automatically degrades to **Foundry Local**, **Ollama**, **ONNX DirectML**, or **Cloud Gemini** without breaking application flow.
 
 ---
 
@@ -39,5 +39,5 @@ print("Windows AI Available:", status["available"])
 # Initialize provider
 provider = WindowsAIChatBase(model_id="phi-silica")
 if provider.is_available():
-    response = await provider.ask("Hello from AI Windows Admin")
+    response = await provider.ask("Hello from ai-tc")
 ```

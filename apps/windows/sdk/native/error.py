@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Native - Error Handling & Decoder
+# Process Name: ai-tc Apps Windows Native - Error Handling & Decoder
 # =============================================================================
 # Description:
 #   Win32/NTSTATUS/HRESULT обработка ошибок, декоратор win32_error_check и декодер кодов.
@@ -10,11 +10,11 @@
 #     from apps.windows.sdk.native.error import win32_error_check, WindowsErrorDecoder, Win32Error
 #
 # File: error.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.native
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

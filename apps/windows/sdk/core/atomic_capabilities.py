@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Atomic Capabilities
+# Process Name: ai-tc Apps Windows Core - Atomic Capabilities
 # =============================================================================
 # Description:
 #   Реестр атомарных возможностей и операций утилит Windows.
@@ -12,11 +12,11 @@
 #     instance = WindowsAtomicCapabilitiesRegistry.get_instance()
 #
 # File: atomic_capabilities.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

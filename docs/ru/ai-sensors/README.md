@@ -2,7 +2,7 @@
 
 ## 📋 Обзор
 
-Подсистема **AI Sensors & Telemetry** в AI-Windows-Admin обеспечивает комплексный сбор, агрегацию, структурированное хранение и анализ телеметрических данных операционной системы Windows и физического аппаратного обеспечения компьютера.
+Подсистема **AI Sensors & Telemetry** в ai-tc обеспечивает комплексный сбор, агрегацию, структурированное хранение и анализ телеметрических данных операционной системы Windows и физического аппаратного обеспечения компьютера.
 
 ---
 
@@ -39,7 +39,7 @@ flowchart TD
         SysLog["📝 logger<br/>(Консоль, Системный журнал)"]
     end
 
-    subgraph ХранилищеCSV["📁 CSV Каталог (%APPDATA%/AI-Windows-Admin/apps/windows/telemetry/logs/)"]
+    subgraph ХранилищеCSV["📁 CSV Каталог (%ProgramData%/ai-tc/telemetry/logs/)"]
         CsvPolls[("📊 *_polls.csv<br/>(sensors, hwinfo, gpuz, smart, audit)")]
         CsvEvents[("📋 *_events.csv<br/>(hardware_monitor, hwinfo_inventory, defender)")]
         CsvParams[("⚙️ *_param_changes.csv<br/>(admin, system_control, safeops)")]
@@ -80,7 +80,7 @@ flowchart TD
 ## 📑 Разделы документации
 
 1. 📊 **Централизованное CSV-логгирование (CSV Telemetry & App Logs)**
-   * Полный реестр CSV-файлов, форматы колонок (`*_polls.csv`, `*_events.csv`, `*_param_changes.csv`), пути `%APPDATA%/AI-Windows-Admin/apps/logs/`.
+   * Полный реестр CSV-файлов, форматы колонок (`*_polls.csv`, `*_events.csv`, `*_param_changes.csv`), пути `%ProgramData%/ai-tc/telemetry/logs/`.
 2. 🔌 [**Сенсор мониторинга периферии и дребезга (Device Flapping Sensor)**](device_flapping_sensor.md)
    * Контроль USB, накопителей (флешек), клавиатур, мышей, Wacom pen/планшетов, HDMI/DP мониторов, Bluetooth, принтеров.
    * Детекция отключений, аптайма, сбоев драйвера (Code 43/10/28) и алертов дребезга.

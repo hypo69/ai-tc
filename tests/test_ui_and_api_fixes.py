@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - UI and API Fixes Suite (TZ v3)
+# Process Name: ai-tc Tests - UI and API Fixes Suite (TZ v3)
 # =============================================================================
 # Description:
 #   Комплексный автоматический тестовый набор для проверки 16 исправлений
@@ -11,11 +11,11 @@
 #     python -m unittest tests/test_ui_and_api_fixes.py
 #
 # File: test_ui_and_api_fixes.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 14:23:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

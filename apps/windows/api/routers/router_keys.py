@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin API - Router Keys Module
+# Process Name: ai-tc API - Router Keys Module
 # =============================================================================
 # Description:
 #   Router для управления API ключами.
@@ -12,11 +12,11 @@
 #     service = KeyCreateRequest()
 #
 # File: router_keys.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 15:42:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 """Router для управления API ключами."""
@@ -33,7 +33,6 @@ from logger import logger
 from src.ai.gemini.gemini_api_key_state import reset_all_quotas, reset_quota, mark_exhausted, load_api_keys
 
 router = APIRouter(prefix="/api/v1/keys", tags=["router_keys"])
-legacy_router = APIRouter(prefix="/api/keys", tags=["router_keys_legacy"])
 
 class KeyCreateRequest(BaseModel):
     """Запрос на создание нового API‑ключа."""
@@ -98,8 +97,6 @@ class KeyEntry(BaseModel):
 
 @router.get("", response_model=List[KeyEntry])
 @router.get("/", response_model=List[KeyEntry])
-@legacy_router.get("", response_model=List[KeyEntry])
-@legacy_router.get("/", response_model=List[KeyEntry])
 async def list_keys() -> List[KeyEntry]:
     from src.ai.gemini.gemini_api_key_state import get_active_key_name
     keys = _load_keys_from_file()
@@ -118,8 +115,6 @@ async def list_keys() -> List[KeyEntry]:
 
 @router.post("", response_model=KeyEntry)
 @router.post("/", response_model=KeyEntry)
-@legacy_router.post("", response_model=KeyEntry)
-@legacy_router.post("/", response_model=KeyEntry)
 async def create_key(req: KeyCreateRequest) -> KeyEntry:
     try:
         from src.ai.gemini.gemini_api_key_state import save_api_key
@@ -143,7 +138,6 @@ async def create_key(req: KeyCreateRequest) -> KeyEntry:
         raise HTTPException(status_code=500, detail=f"Ошибка создания ключа: {str(e)}")
 
 @router.put("/{key_name}", response_model=KeyEntry)
-@legacy_router.put("/{key_name}", response_model=KeyEntry)
 async def update_key(key_name: str, req: KeyUpdateRequest) -> KeyEntry:
     try:
         from src.ai.gemini.gemini_api_key_state import _load_keys_file, _save_keys_file, _sync_environment
@@ -176,7 +170,6 @@ async def update_key(key_name: str, req: KeyUpdateRequest) -> KeyEntry:
         raise HTTPException(status_code=500, detail=f"Ошибка обновления ключа: {str(e)}")
 
 @router.delete("/{key_name}")
-@legacy_router.delete("/{key_name}")
 async def delete_key(key_name: str) -> dict:
     try:
         from src.ai.gemini.gemini_api_key_state import delete_api_key
@@ -191,7 +184,6 @@ async def delete_key(key_name: str) -> dict:
         raise HTTPException(status_code=500, detail=f"Ошибка удаления ключа: {str(e)}")
 
 @router.post("/reset-all", response_model=dict)
-@legacy_router.post("/reset-all", response_model=dict)
 async def reset_all_keys_quota() -> dict:
     """Сбросить квоты для всех ключей."""
     try:
@@ -203,13 +195,11 @@ async def reset_all_keys_quota() -> dict:
 
 
 @router.post("/actualize-all", response_model=dict)
-@legacy_router.post("/actualize-all", response_model=dict)
 async def actualize_all_keys() -> dict:
     """Синхронизация и актуализация ключей."""
     return {"status": "success", "message": "Ключи успешно актуализированы"}
 
 @router.post("/{key_name}/reset-quota", response_model=dict)
-@legacy_router.post("/{key_name}/reset-quota", response_model=dict)
 async def reset_key_quota(key_name: str) -> dict:
     """Сбросить квоту для конкретного ключа."""
     try:
@@ -225,7 +215,6 @@ async def reset_key_quota(key_name: str) -> dict:
         raise HTTPException(status_code=500, detail=f"Ошибка сброса квоты: {str(e)}")
 
 @router.patch("/{key_name}", response_model=dict)
-@legacy_router.patch("/{key_name}", response_model=dict)
 async def toggle_key_status(key_name: str, req: dict) -> dict:
     """Переключить статус ключа (active/disabled)."""
     try:
@@ -276,8 +265,6 @@ async def toggle_key_status(key_name: str, req: dict) -> dict:
 
 @router.post("/{key_name}/activate", response_model=dict)
 @router.post("/{key_name}/set-active", response_model=dict)
-@legacy_router.post("/{key_name}/activate", response_model=dict)
-@legacy_router.post("/{key_name}/set-active", response_model=dict)
 async def activate_key(key_name: str) -> dict:
     """Назначить конкретный API-ключ активным по умолчанию."""
     try:
@@ -299,7 +286,6 @@ class KeyTestPayload(BaseModel):
 
 
 @router.post("/{key_name}/test", response_model=dict)
-@legacy_router.post("/{key_name}/test", response_model=dict)
 async def test_api_key(key_name: str, payload: KeyTestPayload = None) -> dict:
     """Проверка валидности конкретного API-ключа Gemini отправкой тестового запроса (hello world)."""
     import time
@@ -590,8 +576,6 @@ class AGYKeyPayload(BaseModel):
 
 @router.get("/agy")
 @router.get("/agy/")
-@legacy_router.get("/agy")
-@legacy_router.get("/agy/")
 async def list_agy_keys() -> List[KeyEntry]:
     """Возвращает пул ключей Google Antigravity (AGY)."""
     keys = _agy_manager.list_keys()
@@ -618,8 +602,6 @@ async def list_agy_keys() -> List[KeyEntry]:
 
 @router.post("/agy")
 @router.post("/agy/")
-@legacy_router.post("/agy")
-@legacy_router.post("/agy/")
 async def add_agy_key(payload: AGYKeyPayload) -> Dict[str, Any]:
     """Добавляет или обновляет ключ в пуле Google Antigravity (AGY)."""
     key_val = (payload.key or payload.api_key or payload.value or "").strip()
@@ -630,7 +612,6 @@ async def add_agy_key(payload: AGYKeyPayload) -> Dict[str, Any]:
 
 
 @router.delete("/agy/{key_name}")
-@legacy_router.delete("/agy/{key_name}")
 async def delete_agy_key(key_name: str) -> Dict[str, Any]:
     """Удаляет ключ из пула Google Antigravity (AGY)."""
     success = _agy_manager.remove_key(key_name)
@@ -641,8 +622,6 @@ async def delete_agy_key(key_name: str) -> Dict[str, Any]:
 
 @router.post("/agy/reset")
 @router.post("/agy/reset-all")
-@legacy_router.post("/agy/reset")
-@legacy_router.post("/agy/reset-all")
 async def reset_agy_keys() -> Dict[str, Any]:
     """Сбрасывает квоты и статусы всех ключей AGY."""
     count = _agy_manager.reset_quotas()
@@ -650,7 +629,6 @@ async def reset_agy_keys() -> Dict[str, Any]:
 
 
 @router.post("/agy/{key_name}/reset-quota")
-@legacy_router.post("/agy/{key_name}/reset-quota")
 async def reset_agy_key_quota(key_name: str) -> Dict[str, Any]:
     """Сбросить квоту для конкретного ключа AGY."""
     success = _agy_manager.reset_quota(key_name)
@@ -660,7 +638,6 @@ async def reset_agy_key_quota(key_name: str) -> Dict[str, Any]:
 
 
 @router.patch("/agy/{key_name}")
-@legacy_router.patch("/agy/{key_name}")
 async def toggle_agy_key_status(key_name: str, req: Dict[str, Any]) -> Dict[str, Any]:
     """Переключить статус ключа AGY (active/disabled)."""
     new_status = req.get("status", "active")
@@ -674,8 +651,6 @@ async def toggle_agy_key_status(key_name: str, req: Dict[str, Any]) -> Dict[str,
 
 @router.post("/agy/{key_name}/activate")
 @router.post("/agy/{key_name}/set-active")
-@legacy_router.post("/agy/{key_name}/activate")
-@legacy_router.post("/agy/{key_name}/set-active")
 async def activate_agy_key(key_name: str) -> Dict[str, Any]:
     """Назначить конкретный API-ключ AGY активным."""
     success = _agy_manager.set_active(key_name)
@@ -685,7 +660,6 @@ async def activate_agy_key(key_name: str) -> Dict[str, Any]:
 
 
 @router.post("/agy/{key_name}/test")
-@legacy_router.post("/agy/{key_name}/test")
 async def test_agy_key_endpoint(key_name: str, payload: Optional[KeyTestPayload] = None) -> Dict[str, Any]:
     """Проверка валидности API-ключа AGY отправкой тестового запроса."""
     import time

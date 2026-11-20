@@ -14,11 +14,11 @@
 #     print(answer)
 #
 # File: ollama.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.chat
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Клиент взаимодействия с локальным инстансом Ollama."""

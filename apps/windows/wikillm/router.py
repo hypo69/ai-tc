@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm - Router
+# Process Name: ai-tc Apps Windows Wikillm - Router
 # =============================================================================
 # Description:
 #   REST API эндпоинты для разрешения артефактов, поиска по базе знаний WikiLLM,
@@ -12,11 +12,11 @@
 #     service = ResolveRequest()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 17:29:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ from .models import (
 )
 
 
-router = APIRouter(prefix="/api/windows/wikillm", tags=["windows-wikillm"])
+router = APIRouter(prefix="/api/v1/windows/wikillm", tags=["windows-wikillm"])
 _engine_instance: Optional[WikiLLMEngine] = None
 
 

@@ -1,20 +1,20 @@
 <!--
 File: README.md
 Path: README.md
-Description: Главный файл описания проекта AI Windows Admin (ai-tc) для GitHub.
+Description: Главный файл описания проекта ai-tc (ai-tc) для GitHub.
 Author: hypo69
 Created: 2026-10-10
-Updated: 2026-11-01 12:17:00
+Updated: 2026-11-12 05:00:00
 -->
 
-# 🖥️ AI Windows Admin (ai-tc)
+# 🖥️ ai-tc (ai-tc)
 
-[![Documentation Status](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://hypo69.github.io/aiwindowsadmin/)
+[![Documentation Status](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://hypo69.github.io/aitc/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10–3.14](https://img.shields.io/badge/python-3.10--3.14-blue.svg)](https://www.python.org/downloads/)
 [![Platform: Windows | Linux | macOS](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/hypo69/ai-tc)
 
-**AI Windows Admin (`ai-tc`)** — модульная интерактивная платформа администрирования ОС Windows, аппаратной телеметрии, диагностики и бесшовной маршрутизации между облачными и локальными языковыми моделями искусственного интеллекта.
+**ai-tc (`ai-tc`)** — модульная интерактивная платформа администрирования ОС Windows, аппаратной телеметрии, диагностики и бесшовной маршрутизации между облачными и локальными языковыми моделями искусственного интеллекта.
 
 Название отсылает к концепции «макетной платы» и командного центра (`Total Control` / `Telemetry Center`): различные ИИ-провайдеры, системные коллекторы, навыки (`Skills`), плагины (`Plugins`) и MCP-серверы подключаются как сменные компоненты через единую шину без переписывания кода.
 

@@ -8,11 +8,11 @@
 #   пользователя, CPU, RAM и времени запуска (Раздел 4.4 ТЗ).
 #
 # File: processes.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.platforms.windows
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:52:45
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from typing import Any, Dict, List

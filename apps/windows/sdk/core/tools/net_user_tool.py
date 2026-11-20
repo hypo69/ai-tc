@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core Tools - Net User Tool
+# Process Name: ai-tc Apps Windows Core Tools - Net User Tool
 # =============================================================================
 # Description:
 #   Инструмент прямого управления локальными учетными записями Windows через net user.
@@ -15,11 +15,11 @@
 #     res = await tool.execute(action="get", username="user")
 #
 # File: net_user_tool.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core.tools
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 17:15:00
+# Updated: 2026-11-12 12:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -63,6 +63,12 @@ class NetUserTool(BaseTool):
                     "set_password",
                     "set_password_required",
                     "set_active",
+                    "set_password_changeable",
+                    "set_logon_password_change",
+                    "set_expires",
+                    "set_fullname",
+                    "set_comment",
+                    "modify",
                     "create",
                     "delete",
                     "group_add",
@@ -72,9 +78,11 @@ class NetUserTool(BaseTool):
                 "description": (
                     "Действие для выполнения: list (список всех пользователей), get (детальные свойства), "
                     "set_password (задать пароль), set_password_required (установить требование пароля), "
-                    "set_active (активировать или заблокировать), create (создать пользователя), "
-                    "delete (безвозвратно удалить пользователя), group_add/group_delete (членство в группе), "
-                    "raw (произвольные аргументы для net user)."
+                    "set_active (активировать или заблокировать), set_password_changeable (разрешить/запретить смену пароля), "
+                    "set_logon_password_change (требовать смену пароля при следующем входе), set_expires (срок действия), "
+                    "set_fullname (полное имя), set_comment (описание), modify (пакетное изменение параметров net user), "
+                    "create (создать пользователя), delete (безвозвратно удалить пользователя), "
+                    "group_add/group_delete (членство в группе), raw (произвольные аргументы для net user)."
                 ),
             },
             "username": {
@@ -92,6 +100,59 @@ class NetUserTool(BaseTool):
             "active": {
                 "type": "boolean",
                 "description": "Флаг активности учетной записи (/active:yes|no). True = yes, False = no.",
+            },
+            "password_changeable": {
+                "type": "boolean",
+                "description": "Флаг разрешения пользователю менять пароль (/passwordchg:yes|no). True = yes, False = no.",
+            },
+            "logon_password_change": {
+                "type": "boolean",
+                "description": "Требовать смену пароля при следующем входе (/logonpasswordchg:yes|no). True = yes, False = no.",
+            },
+            "expires": {
+                "type": "string",
+                "description": "Срок действия учетной записи (/expires:never или дата MM/DD/YYYY).",
+            },
+            "full_name": {
+                "type": "string",
+                "description": "Полное имя пользователя (/fullname:\"...\").",
+            },
+            "comment": {
+                "type": "string",
+                "description": "Описание / комментарий к учетной записи (/comment:\"...\").",
+            },
+            "user_comment": {
+                "type": "string",
+                "description": "Пользовательский служебный комментарий (/usercomment:\"...\").",
+            },
+            "homedir": {
+                "type": "string",
+                "description": "Путь к домашней директории пользователя (/homedir:\"...\").",
+            },
+            "profilepath": {
+                "type": "string",
+                "description": "Путь к сетевому профилю пользователя (/profilepath:\"...\").",
+            },
+            "scriptpath": {
+                "type": "string",
+                "description": "Путь к скрипту входа (/scriptpath:\"...\").",
+            },
+            "times": {
+                "type": "string",
+                "description": "Часы разрешенного входа (/times:all или M-F,8am-5pm).",
+            },
+            "workstations": {
+                "type": "string",
+                "description": "Список разрешенных рабочих станций (/workstations:... или *).",
+            },
+            "countrycode": {
+                "type": "integer",
+                "description": "Числовой код страны для локализации сообщений (/countrycode:nnn).",
+            },
+            "domain": {
+                "type": "boolean",
+                "default": False,
+                "description": "Выполнить операцию на контроллере домена (/domain).",
             },
             "group_name": {
                 "type": "string",
@@ -175,6 +236,19 @@ class NetUserTool(BaseTool):
         password: Optional[str] = None,
         password_required: Optional[bool] = None,
         active: Optional[bool] = None,
+        password_changeable: Optional[bool] = None,
+        logon_password_change: Optional[bool] = None,
+        expires: Optional[str] = None,
+        full_name: Optional[str] = None,
+        comment: Optional[str] = None,
+        user_comment: Optional[str] = None,
+        homedir: Optional[str] = None,
+        profilepath: Optional[str] = None,
+        scriptpath: Optional[str] = None,
+        times: Optional[str] = None,
+        workstations: Optional[str] = None,
+        countrycode: Optional[int] = None,
+        domain: bool = False,
         group_name: Optional[str] = None,
         raw_args: Optional[str] = None,
         confirm_destructive: bool = True,
@@ -183,11 +257,24 @@ class NetUserTool(BaseTool):
         """Исполнение команды net user на хосте.
 
         Args:
-            action: Тип действия (list, get, set_password, set_password_required, set_active, create, delete, etc.).
+            action: Тип действия (list, get, modify, set_password, set_password_required, set_active, etc.).
             username: Имя учетной записи.
             password: Новый пароль.
-            password_required: Требовать ли пароль.
-            active: Активна ли учетная запись.
+            password_required: Требовать ли пароль (/passwordreq:yes|no).
+            active: Активна ли учетная запись (/active:yes|no).
+            password_changeable: Разрешить смену пароля (/passwordchg:yes|no).
+            logon_password_change: Требовать смену пароля при входе (/logonpasswordchg:yes|no).
+            expires: Срок действия (/expires:never|date).
+            full_name: Полное имя (/fullname:"...").
+            comment: Описание (/comment:"...").
+            user_comment: Служебный комментарий (/usercomment:"...").
+            homedir: Домашний каталог (/homedir:"...").
+            profilepath: Сетевой профиль (/profilepath:"...").
+            scriptpath: Скрипт входа (/scriptpath:"...").
+            times: Часы входа (/times:...|all).
+            workstations: Список рабочих станций (/workstations:...|*).
+            countrycode: Код страны (/countrycode:nnn).
+            domain: Выполнять на контроллере домена (/domain).
             group_name: Имя группы.
             raw_args: Дополнительные аргументы.
             confirm_destructive: Подтверждение опасной операции.
@@ -202,6 +289,8 @@ class NetUserTool(BaseTool):
 
         if action == "list":
             cmd = ["net", "user"]
+            if domain:
+                cmd.append("/domain")
 
         elif action == "get":
             if not username:
@@ -212,6 +301,8 @@ class NetUserTool(BaseTool):
                     message="Для действия 'get' необходимо указать параметр username.",
                 )
             cmd = ["net", "user", username]
+            if domain:
+                cmd.append("/domain")
 
         elif action == "set_password":
             if not username or password is None:
@@ -222,6 +313,8 @@ class NetUserTool(BaseTool):
                     message="Для 'set_password' требуются параметры username и password.",
                 )
             cmd = ["net", "user", username, password]
+            if domain:
+                cmd.append("/domain")
             op_risk = RiskLevel.HIGH
 
         elif action == "set_password_required":
@@ -234,6 +327,8 @@ class NetUserTool(BaseTool):
                 )
             flag_val = "yes" if password_required else "no"
             cmd = ["net", "user", username, f"/passwordreq:{flag_val}"]
+            if domain:
+                cmd.append("/domain")
             op_risk = RiskLevel.HIGH
 
         elif action == "set_active":
@@ -246,6 +341,139 @@ class NetUserTool(BaseTool):
                 )
             flag_val = "yes" if active else "no"
             cmd = ["net", "user", username, f"/active:{flag_val}"]
+            if domain:
+                cmd.append("/domain")
+            op_risk = RiskLevel.HIGH
+
+        elif action == "set_password_changeable":
+            if not username or password_changeable is None:
+                return ToolExecutionResult(
+                    tool_name=self.name,
+                    status="error",
+                    data=None,
+                    message="Для 'set_password_changeable' требуются username и password_changeable (True/False).",
+                )
+            flag_val = "yes" if password_changeable else "no"
+            cmd = ["net", "user", username, f"/passwordchg:{flag_val}"]
+            if domain:
+                cmd.append("/domain")
+            op_risk = RiskLevel.HIGH
+
+        elif action == "set_logon_password_change":
+            if not username or logon_password_change is None:
+                return ToolExecutionResult(
+                    tool_name=self.name,
+                    status="error",
+                    data=None,
+                    message="Для 'set_logon_password_change' требуются username и logon_password_change (True/False).",
+                )
+            flag_val = "yes" if logon_password_change else "no"
+            cmd = ["net", "user", username, f"/logonpasswordchg:{flag_val}"]
+            if domain:
+                cmd.append("/domain")
+            op_risk = RiskLevel.HIGH
+
+        elif action == "set_expires":
+            if not username or expires is None:
+                return ToolExecutionResult(
+                    tool_name=self.name,
+                    status="error",
+                    data=None,
+                    message="Для 'set_expires' требуются username и expires ('never' или дата MM/DD/YYYY).",
+                )
+            cmd = ["net", "user", username, f"/expires:{expires}"]
+            if domain:
+                cmd.append("/domain")
+            op_risk = RiskLevel.HIGH
+
+        elif action == "set_fullname":
+            if not username or full_name is None:
+                return ToolExecutionResult(
+                    tool_name=self.name,
+                    status="error",
+                    data=None,
+                    message="Для 'set_fullname' требуются username и full_name.",
+                )
+            cmd = ["net", "user", username, f'/fullname:"{full_name}"']
+            if domain:
+                cmd.append("/domain")
+            op_risk = RiskLevel.MEDIUM
+
+        elif action == "set_comment":
+            if not username or comment is None:
+                return ToolExecutionResult(
+                    tool_name=self.name,
+                    status="error",
+                    data=None,
+                    message="Для 'set_comment' требуются username и comment.",
+                )
+            cmd = ["net", "user", username, f'/comment:"{comment}"']
+            if domain:
+                cmd.append("/domain")
+            op_risk = RiskLevel.MEDIUM
+
+        elif action in ("modify", "configure"):
+            if not username:
+                return ToolExecutionResult(
+                    tool_name=self.name,
+                    status="error",
+                    data=None,
+                    message="Для действия 'modify' необходимо указать username.",
+                )
+            cmd = ["net", "user", username]
+            opts_count = 0
+            if active is not None:
+                cmd.append(f"/active:{'yes' if active else 'no'}")
+                opts_count += 1
+            if password_required is not None:
+                cmd.append(f"/passwordreq:{'yes' if password_required else 'no'}")
+                opts_count += 1
+            if password_changeable is not None:
+                cmd.append(f"/passwordchg:{'yes' if password_changeable else 'no'}")
+                opts_count += 1
+            if logon_password_change is not None:
+                cmd.append(f"/logonpasswordchg:{'yes' if logon_password_change else 'no'}")
+                opts_count += 1
+            if expires is not None:
+                cmd.append(f"/expires:{expires}")
+                opts_count += 1
+            if full_name is not None:
+                cmd.append(f'/fullname:"{full_name}"')
+                opts_count += 1
+            if comment is not None:
+                cmd.append(f'/comment:"{comment}"')
+                opts_count += 1
+            if user_comment is not None:
+                cmd.append(f'/usercomment:"{user_comment}"')
+                opts_count += 1
+            if homedir is not None:
+                cmd.append(f'/homedir:"{homedir}"')
+                opts_count += 1
+            if profilepath is not None:
+                cmd.append(f'/profilepath:"{profilepath}"')
+                opts_count += 1
+            if scriptpath is not None:
+                cmd.append(f'/scriptpath:"{scriptpath}"')
+                opts_count += 1
+            if times is not None:
+                cmd.append(f"/times:{times}")
+                opts_count += 1
+            if workstations is not None:
+                cmd.append(f"/workstations:{workstations}")
+                opts_count += 1
+            if countrycode is not None:
+                cmd.append(f"/countrycode:{countrycode}")
+                opts_count += 1
+            if domain:
+                cmd.append("/domain")
+
+            if opts_count == 0 and not domain:
+                return ToolExecutionResult(
+                    tool_name=self.name,
+                    status="error",
+                    data=None,
+                    message="Для 'modify' не передано ни одного параметра для изменения (/active, /passwordreq, /passwordchg и др.).",
+                )
             op_risk = RiskLevel.HIGH
 
         elif action == "create":
@@ -260,6 +488,20 @@ class NetUserTool(BaseTool):
             if password:
                 cmd.append(password)
             cmd.append("/add")
+            if active is not None:
+                cmd.append(f"/active:{'yes' if active else 'no'}")
+            if password_required is not None:
+                cmd.append(f"/passwordreq:{'yes' if password_required else 'no'}")
+            if password_changeable is not None:
+                cmd.append(f"/passwordchg:{'yes' if password_changeable else 'no'}")
+            if full_name is not None:
+                cmd.append(f'/fullname:"{full_name}"')
+            if comment is not None:
+                cmd.append(f'/comment:"{comment}"')
+            if expires is not None:
+                cmd.append(f"/expires:{expires}")
+            if domain:
+                cmd.append("/domain")
             op_risk = RiskLevel.HIGH
 
         elif action == "delete":
@@ -282,6 +524,8 @@ class NetUserTool(BaseTool):
                     risk_level=RiskLevel.CRITICAL,
                 )
             cmd = ["net", "user", username, "/delete"]
+            if domain:
+                cmd.append("/domain")
             op_risk = RiskLevel.CRITICAL
 
         elif action == "group_add":

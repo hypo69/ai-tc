@@ -3,24 +3,26 @@
 Process Name: Windows Web Interface - Index View
 =============================================================================
 Description:
-  Шаблон клиентского веб-интерфейса вкладки Forensics с переключателями суб-вкладок:
-  Хронологический таймлайн активности (Telemetry Timeline) и
-  Форензика запуска программ из реестра Windows (UserAssist ROT13).
+  Клиентский веб-интерфейс цифровой криминалистики (Digital Forensics & Incident Response):
+  - Интеллектуальное расследование инцидентов (AI Incident Reconstruction & Root Cause)
+  - Единый супер-таймлайн доказательств (Super-Timeline)
+  - Артефакты исполнения программ (Prefetch & UserAssist)
+  - Аппаратные артефакты внешних накопителей (USBSTOR Registry)
+  - Жизненный цикл ОС, сбои и перезагрузки (Reboots, Crashes, BSOD)
+  - Оперативный радар активности и звук (Live Telemetry, WASAPI, Camera & Mic)
+  - Цепочка сохранности доказательств (Chain of Custody с хэшированием SHA-256)
 
 Usage Examples:
     Web Route:
       /windows/api/webgui/tab_forensics/index.html
 
-    Tab Frame Integration:
-      <iframe src="/windows/api/webgui/tab_forensics/index.html" class="w-100 h-100 border-0"></iframe>
-
  * File: index.html
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_forensics
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 12:50:00
- * =============================================================================
+ * Updated: 2026-11-12 12:45:00
+=============================================================================
 -->
 <style>
   .forensics-tab-wrapper {
@@ -34,197 +36,420 @@ Usage Examples:
     overflow: hidden;
   }
   .about-ai-pulse-icon {
-    width: 42px;
-    height: 42px;
+    width: 38px;
+    height: 38px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(56, 189, 248, 0.3);
+    border: 1px solid var(--border-color);
+    background: var(--surface-2);
   }
   #forensics-subtabs-nav .nav-link {
     font-weight: 500;
+    font-size: 0.85rem;
     transition: all 0.15s ease-in-out;
+  }
+  .live-meter-bar {
+    width: 60px;
+    height: 8px;
+    background: var(--surface-3, rgba(255, 255, 255, 0.1));
+    border-radius: 4px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .live-meter-fill {
+    height: 100%;
+    background: var(--status-success, #198754);
+    width: 0%;
+    transition: width 0.2s ease-in-out;
   }
 </style>
 <div class="forensics-tab-wrapper">
   <!-- Заголовок вкладки -->
   <div class="tab-header d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
     <div class="d-flex align-items-center gap-2">
-      <span class="tab-header-icon fs-4 text-warning">🛡️</span>
+      <span class="tab-header-icon fs-3 text-warning">🛡️</span>
       <div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <h3 class="tab-header-title mb-0">Цифровая криминалистика и Форензика</h3>
-          
+          <h3 class="tab-header-title mb-0">Цифровая криминалистика и расследование (Digital Forensics)</h3>
+          <span class="badge bg-primary-subtle text-primary border border-primary font-monospace" style="font-size: 0.72rem;">Chain of Custody · SHA-256</span>
         </div>
-        <small class="tab-header-subtitle text-secondary">Анализ артефактов Windows, хронология запусков UserAssist, анализ Prefetch, Shimcache и активности USB</small>
+        <small class="tab-header-subtitle text-secondary">Исследование цифровых доказательств: Prefetch, USBSTOR, Event Logs, супер-таймлайн и реконструкция инцидентов</small>
       </div>
     </div>
-    
-  </div>
-<div class="d-flex align-items-center gap-2 flex-wrap">
-          <select class="form-select form-select-sm poll-freq-select" data-poll-id="forensics" id="diag-forensics-poll-freq" title="Частота опроса: Форензика активности">
-            <option value="start">Только при старте</option>
-            <option selected="" value="manual">По запросу</option>
-            <option value="3">Каждые 3 сек</option>
-            <option value="5">Каждые 5 сек</option>
-            <option value="10">Каждые 10 сек</option>
-            <option value="30">Каждые 30 сек</option>
-            <option value="60">Каждые 60 сек</option>
-            <option value="120">Каждые 120 сек</option>
-          </select>
-          <button class="btn btn-sm btn-outline-info rounded-pill px-3 py-1 fw-semibold d-flex align-items-center gap-1" id="btn-diag-forensics-refresh">
-            <i class="bi bi-arrow-clockwise"></i> Обновить
-          </button>
-        </div>
-      </div>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <select class="form-select form-select-sm poll-freq-select" data-poll-id="forensics" id="diag-forensics-poll-freq" title="Частота обновления">
+        <option value="start">Только при старте</option>
+        <option selected="" value="manual">По запросу</option>
+        <option value="5">Каждые 5 сек</option>
+        <option value="15">Каждые 15 сек</option>
+        <option value="30">Каждые 30 сек</option>
+        <option value="60">Каждые 60 сек</option>
+      </select>
+      <button class="btn btn-sm btn-outline-info rounded-pill px-3 py-1 fw-semibold d-flex align-items-center gap-1" id="btn-diag-forensics-refresh">
+        <i class="bi bi-arrow-clockwise"></i> Обновить артефакты
+      </button>
     </div>
   </div>
 
-  <!-- Active Foreground Window & Privacy Radar -->
-  <div class="row g-2 mb-3">
-    <!-- Active Foreground Window Card -->
-    <div class="col-12 col-lg-6">
-      <div class="diag-panel h-100" data-panel-id="panel-forensics-1" id="panel-forensics-1">
-        <div class="panel-header d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-window-stack text-primary"></i>
-            <span class="panel-title">Текущее активное окно в фокусе (Foreground Window)</span>
-          </div>
-          <span class="badge bg-success-subtle text-success border border-success" id="diag-forensics-live-badge">Live Focus</span>
-        </div>
-        <div class="p-3">
-          <div class="d-flex align-items-center gap-3 mb-2">
-            <div class="about-ai-pulse-icon" style="background: rgba(14, 165, 233, 0.15); border-color: rgba(14, 165, 233, 0.4);">
-              <i class="bi bi-cursor-fill text-info fs-5"></i>
-            </div>
-            <div class="flex-grow-1 overflow-hidden">
-              <div class="fw-bold text-body text-truncate" id="diag-fg-title" style="font-size: 0.95rem;">Рабочий стол Windows</div>
-              <div class="small text-muted font-monospace" id="diag-fg-proc">Процесс: explorer.exe (PID: 0)</div>
-            </div>
-          </div>
-          <div class="border-top border-secondary-subtle pt-2 mt-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div>
-              <span class="text-muted small">Время бездействия пользователя (Idle Time):</span>
-              <strong class="text-warning font-monospace ms-1" id="diag-user-idle-time">0.0 сек</strong>
-            </div>
-            <span class="badge bg-body-secondary border border-secondary text-body" id="diag-user-status-badge">Пользователь активен</span>
-          </div>
-        </div>
-      </div>
+  <!-- Архитектурный индикатор 3 уровней форензики -->
+  <div class="d-flex align-items-center justify-content-between p-2 mb-3 rounded border border-secondary-subtle flex-wrap gap-2" style="background: var(--surface-2); font-size: 0.80rem;">
+    <div class="d-flex align-items-center gap-1.5">
+      <span class="badge bg-info text-dark fw-bold">1. Acquisition Layer</span>
+      <span class="text-body small">Prefetch · USBSTOR · Event Logs · Registry · WASAPI</span>
     </div>
-
-    <!-- Privacy Sensors (Camera & Mic Radar) -->
-    <div class="col-12 col-lg-6">
-      <div class="diag-panel h-100" data-panel-id="panel-forensics-2" id="panel-forensics-2">
-        <div class="panel-header d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-camera-video-fill text-danger"></i>
-            <span class="panel-title">Контроль доступа к камере и микрофону (Privacy Radar)</span>
-          </div>
-          <span class="badge bg-body-secondary border border-secondary text-body">ConsentStore</span>
-        </div>
-        <div class="p-3">
-          <div class="row g-2">
-            <div class="col-6">
-              <div class="p-2 rounded border border-secondary-subtle" style="background: var(--surface-2);">
-                <div class="small text-muted mb-1"><i class="bi bi-camera-video me-1 text-danger"></i>Камера:</div>
-                <div class="small text-body" id="diag-cam-access-list" style="max-height: 90px; overflow-y: auto;">
-                  <span class="text-muted">Нет активных обращений</span>
-                </div>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="p-2 rounded border border-secondary-subtle" style="background: var(--surface-2);">
-                <div class="small text-muted mb-1"><i class="bi bi-mic me-1 text-info"></i>Микрофон:</div>
-                <div class="small text-body" id="diag-mic-access-list" style="max-height: 90px; overflow-y: auto;">
-                  <span class="text-muted">Нет активных обращений</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="d-flex align-items-center gap-1.5">
+      <span class="badge bg-primary fw-bold">2. Analysis Layer</span>
+      <span class="text-body small">Super-Timeline · Корреляция · Хеширование SHA-256</span>
+    </div>
+    <div class="d-flex align-items-center gap-1.5">
+      <span class="badge bg-success fw-bold">3. Intelligence Layer</span>
+      <span class="text-body small">Реконструкция инцидентов · Root Cause · Anomaly AI</span>
     </div>
   </div>
 
-  <!-- Блок меню переключения панелей на вкладке. Выбранная панель добавляется в url -->
-  <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
+  <!-- Меню переключения суб-вкладок -->
+  <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-1.5">
     <ul class="nav nav-pills" id="forensics-subtabs-nav" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active btn-sm rounded-pill px-3 d-flex align-items-center gap-1.5" id="subtab-forensics-timeline-btn" data-panel-id="timeline" data-bs-toggle="pill" data-bs-target="#subpane-forensics-timeline" type="button" role="tab" aria-selected="true">
-          <i class="bi bi-clock-history text-info"></i>
-          <span>Хронологический таймлайн активности (Telemetry Timeline)</span>
-          <span class="badge bg-secondary ms-1" id="subtab-forensics-timeline-badge">0</span>
+        <button class="nav-link active rounded-pill px-3 d-flex align-items-center gap-1.5" id="subtab-forensics-investigation-btn" data-panel-id="investigation" data-bs-toggle="pill" data-bs-target="#subpane-forensics-investigation" type="button" role="tab" aria-selected="true">
+          <i class="bi bi-search text-warning"></i>
+          <span>Расследование инцидента (Incident AI)</span>
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link btn-sm rounded-pill px-3 d-flex align-items-center gap-1.5" id="subtab-forensics-userassist-btn" data-panel-id="userassist" data-bs-toggle="pill" data-bs-target="#subpane-forensics-userassist" type="button" role="tab" aria-selected="false">
-          <i class="bi bi-archive text-warning"></i>
-          <span>Запуск программ из реестра (UserAssist ROT13)</span>
-          <span class="badge bg-secondary ms-1" id="subtab-forensics-userassist-badge">0</span>
+        <button class="nav-link rounded-pill px-3 d-flex align-items-center gap-1.5" id="subtab-forensics-supertimeline-btn" data-panel-id="supertimeline" data-bs-toggle="pill" data-bs-target="#subpane-forensics-supertimeline" type="button" role="tab" aria-selected="false">
+          <i class="bi bi-clock-history text-info"></i>
+          <span>Супер-таймлайн (Super-Timeline)</span>
+          <span class="badge bg-secondary ms-1" id="subtab-supertimeline-badge">0</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-pill px-3 d-flex align-items-center gap-1.5" id="subtab-forensics-execution-btn" data-panel-id="execution" data-bs-toggle="pill" data-bs-target="#subpane-forensics-execution" type="button" role="tab" aria-selected="false">
+          <i class="bi bi-file-earmark-binary text-primary"></i>
+          <span>Запуск программ (Prefetch & UserAssist)</span>
+          <span class="badge bg-secondary ms-1" id="subtab-execution-badge">0</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-pill px-3 d-flex align-items-center gap-1.5" id="subtab-forensics-usb-btn" data-panel-id="usb" data-bs-toggle="pill" data-bs-target="#subpane-forensics-usb" type="button" role="tab" aria-selected="false">
+          <i class="bi bi-usb-symbol text-info"></i>
+          <span>Накопители (USBSTOR)</span>
+          <span class="badge bg-secondary ms-1" id="subtab-usb-badge">0</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-pill px-3 d-flex align-items-center gap-1.5" id="subtab-forensics-reboots-btn" data-panel-id="reboots" data-bs-toggle="pill" data-bs-target="#subpane-forensics-reboots" type="button" role="tab" aria-selected="false">
+          <i class="bi bi-power text-danger"></i>
+          <span>Перезагрузки и сбои (Reboots & BSOD)</span>
+          <span class="badge bg-secondary ms-1" id="subtab-reboots-badge">0</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-pill px-3 d-flex align-items-center gap-1.5" id="subtab-forensics-live-btn" data-panel-id="live" data-bs-toggle="pill" data-bs-target="#subpane-forensics-live" type="button" role="tab" aria-selected="false">
+          <i class="bi bi-broadcast text-success"></i>
+          <span>Телеметрия и Звук (Live Monitor)</span>
         </button>
       </li>
     </ul>
   </div>
 
-  <!-- Subtabs Content Panes -->
+  <!-- Содержимое суб-вкладок -->
   <div class="tab-content" id="forensics-subtabs-content">
-    <!-- Subpane 1: Хронологический таймлайн активности и переключения окон -->
-    <div class="tab-pane fade show active" id="subpane-forensics-timeline" role="tabpanel" aria-labelledby="subtab-forensics-timeline-btn">
-      <div class="diag-panel mb-3" data-panel-id="panel-forensics-timeline" id="panel-forensics-timeline">
-        <div class="panel-header d-flex justify-content-between align-items-center">
+
+    <!-- Subpane 1: Интеллектуальное расследование инцидентов -->
+    <div class="tab-pane fade show active" id="subpane-forensics-investigation" role="tabpanel" aria-labelledby="subtab-forensics-investigation-btn">
+      <div class="diag-panel p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 border-bottom border-secondary-subtle pb-2">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-search text-warning fs-5"></i>
+            <div>
+              <strong class="text-body">Мастер интеллектуального расследования инцидентов (Incident Investigation Engine)</strong>
+              <div class="small text-secondary">Реконструкция событий, определение первопричины (Root Cause) и фиксация доказательств</div>
+            </div>
+          </div>
+          <span class="badge bg-success-subtle text-success border border-success" id="investigation-status-badge">Ready for Investigation</span>
+        </div>
+
+        <!-- Форма параметров расследования -->
+        <div class="row g-2 mb-3">
+          <div class="col-12 col-md-4">
+            <label class="form-label small text-secondary mb-1">Сценарий расследования:</label>
+            <select class="form-select form-select-sm" id="investigation-scenario-select">
+              <option value="reboot_crash" selected>Сбой или внезапная перезагрузка (Reboot & Crash)</option>
+              <option value="usb_device">Подключение подозрительных USB-накопителей</option>
+              <option value="time_window">Реконструкция событий во временном окне</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label small text-secondary mb-1">Ориентир времени инцидента (ISO или пусто для последнего):</label>
+            <input type="text" class="form-control form-control-sm font-monospace" id="investigation-target-time" placeholder="Текущее / Последний инцидент">
+          </div>
+          <div class="col-12 col-md-2">
+            <label class="form-label small text-secondary mb-1">Временное окно:</label>
+            <select class="form-select form-select-sm" id="investigation-window-minutes">
+              <option value="15">± 15 минут</option>
+              <option value="30" selected>± 30 минут</option>
+              <option value="60">± 1 час</option>
+              <option value="180">± 3 часа</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-2 d-flex align-items-end">
+            <button class="btn btn-sm btn-warning w-100 fw-bold d-flex align-items-center justify-content-center gap-1.5" id="btn-run-investigation">
+              <i class="bi bi-play-circle-fill"></i> Расследовать
+            </button>
+          </div>
+        </div>
+
+        <!-- Результаты расследования -->
+        <div id="investigation-results-box" class="p-3 rounded border border-secondary-subtle" style="background: var(--surface-2);">
+          <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-secondary font-monospace" id="rep-case-id">CASE-ID: --</span>
+              <span class="badge bg-info-subtle text-info border border-info" id="rep-confidence">Достоверность: --%</span>
+            </div>
+            <span class="small text-secondary" id="rep-target-time">Время: --</span>
+          </div>
+
+          <div class="alert alert-info py-2 px-3 mb-2" id="rep-root-cause-alert">
+            <strong>Экспертное заключение (Root Cause):</strong>
+            <div id="rep-root-cause-text" class="mt-1 small">Выберите сценарий и нажмите «Расследовать» для реконструкции инцидента по журналам и артефактам ОС.</div>
+          </div>
+
+          <div class="mb-2">
+            <strong class="small text-body d-block mb-1">Установленные факты расследования:</strong>
+            <ul class="small text-secondary ps-3 mb-0" id="rep-findings-list">
+              <li>Ожидание запуска сценария расследования...</li>
+            </ul>
+          </div>
+
+          <div class="border-top border-secondary-subtle pt-2 mt-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="small fw-semibold text-body"><i class="bi bi-shield-check text-success me-1"></i>Цепочка сохранности доказательств (Chain of Custody SHA-256):</span>
+              <span class="badge bg-body-secondary text-secondary" id="rep-coc-count">0 записей</span>
+            </div>
+            <div class="small font-monospace text-secondary" id="rep-coc-list" style="max-height: 80px; overflow-y: auto;">
+              <!-- CoC items -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subpane 2: Единый супер-таймлайн артефактов -->
+    <div class="tab-pane fade" id="subpane-forensics-supertimeline" role="tabpanel" aria-labelledby="subtab-forensics-supertimeline-btn">
+      <div class="diag-panel mb-3">
+        <div class="panel-header d-flex justify-content-between align-items-center p-2 px-3 border-bottom border-secondary-subtle flex-wrap gap-2">
           <div class="d-flex align-items-center gap-2">
             <i class="bi bi-clock-history text-info"></i>
-            <span class="panel-title">Хронологический таймлайн активности и переключения окон (Telemetry Timeline)</span>
+            <span class="panel-title fw-semibold">Единый супер-таймлайн цифровых доказательств (Super-Timeline)</span>
           </div>
-          <span class="badge bg-primary" id="diag-timeline-count">0 записей</span>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <select class="form-select form-select-sm" id="supertimeline-cat-filter" style="width: 170px;">
+              <option value="">Все категории</option>
+              <option value="execution">Запуск программ</option>
+              <option value="usb">USB-устройства</option>
+              <option value="system_lifecycle">События ОС / Сбои</option>
+              <option value="security">Аутентификация</option>
+            </select>
+            <input type="text" class="form-control form-control-sm" id="supertimeline-search" placeholder="Поиск по сущности..." style="width: 180px;">
+          </div>
         </div>
-        <div class="table-responsive" style="max-height: 440px; overflow-y: auto;">
-          <table class="table table-hover table-sm mb-0" style="font-size: 0.80rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+        <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+          <table class="table table-hover table-sm mb-0" style="font-size: 0.81rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
             <thead>
               <tr class="text-secondary border-secondary">
-                <th style="width: 170px;">Время фиксации</th>
-                <th style="width: 160px;">Процесс (PID)</th>
-                <th>Активное окно в фокусе (Window Title)</th>
-                <th style="width: 130px; text-align: right;">Idle Time</th>
-                <th style="width: 120px; text-align: center;">Сенсоры</th>
+                <th style="width: 160px;">Время (UTC)</th>
+                <th style="width: 120px;">Категория</th>
+                <th style="width: 170px;">Источник</th>
+                <th style="width: 180px;">Действие</th>
+                <th>Объект / Сущность</th>
+                <th>Детали артефакта</th>
+                <th style="width: 120px; text-align: center;">SHA-256</th>
               </tr>
             </thead>
-            <tbody id="diag-timeline-tbody">
-              <tr><td class="text-center py-4 text-muted" colspan="5">Загрузка хронологии активности из базы телеметрии...</td></tr>
+            <tbody id="supertimeline-tbody">
+              <tr><td class="text-center py-4 text-muted" colspan="7">Формирование супер-таймлайна из артефактов ОС...</td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- Subpane 2: Форензика запуска программ из реестра Windows (UserAssist ROT13) -->
-    <div class="tab-pane fade" id="subpane-forensics-userassist" role="tabpanel" aria-labelledby="subtab-forensics-userassist-btn">
-      <div class="diag-panel" data-panel-id="panel-forensics-3" id="panel-forensics-3">
-        <div class="panel-header d-flex justify-content-between align-items-center">
+    <!-- Subpane 3: Артефакты запусков (Prefetch & UserAssist) -->
+    <div class="tab-pane fade" id="subpane-forensics-execution" role="tabpanel" aria-labelledby="subtab-forensics-execution-btn">
+      <div class="diag-panel mb-3">
+        <div class="panel-header d-flex justify-content-between align-items-center p-2 px-3 border-bottom border-secondary-subtle">
           <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-archive text-secondary"></i>
-            <span class="panel-title">Форензика запуска программ из реестра Windows (UserAssist ROT13)</span>
+            <i class="bi bi-file-earmark-binary text-primary"></i>
+            <span class="panel-title fw-semibold">Артефакты запуска программ (C:\Windows\Prefetch и UserAssist ROT13)</span>
           </div>
-          <span class="badge bg-secondary" id="diag-userassist-count">0 записей</span>
+          <span class="badge bg-primary" id="exec-count-badge">0 артефактов</span>
         </div>
-        <div class="table-responsive" style="max-height: 440px; overflow-y: auto;">
-          <table class="table table-hover table-sm mb-0" style="font-size: 0.80rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+        <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+          <table class="table table-hover table-sm mb-0" style="font-size: 0.81rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
             <thead>
               <tr class="text-secondary border-secondary">
-                <th>Приложение / Программа</th>
-                <th style="width: 140px; text-align: right;">Счетчик запусков</th>
-                <th style="width: 180px; text-align: right;">Время в фокусе</th>
-                <th>Полный путь / Идентификатор</th>
+                <th>Исполняемый файл</th>
+                <th style="width: 120px;">Источник</th>
+                <th style="width: 110px; text-align: right;">Запусков</th>
+                <th style="width: 160px;">Последний запуск</th>
+                <th>Путь / Хэш артефакта</th>
               </tr>
             </thead>
-            <tbody id="diag-userassist-tbody">
-              <tr><td class="text-center py-4 text-muted" colspan="4">Загрузка истории активности UserAssist...</td></tr>
+            <tbody id="exec-tbody">
+              <tr><td class="text-center py-4 text-muted" colspan="5">Опрос Prefetch и UserAssist...</td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
+
+    <!-- Subpane 4: Накопители (USBSTOR Registry) -->
+    <div class="tab-pane fade" id="subpane-forensics-usb" role="tabpanel" aria-labelledby="subtab-forensics-usb-btn">
+      <div class="diag-panel mb-3">
+        <div class="panel-header d-flex justify-content-between align-items-center p-2 px-3 border-bottom border-secondary-subtle">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-usb-symbol text-info"></i>
+            <span class="panel-title fw-semibold">Аппаратные доказательства: внешние накопители (HKLM\SYSTEM\CurrentControlSet\Enum\USBSTOR)</span>
+          </div>
+          <span class="badge bg-info text-dark" id="usb-count-badge">0 устройств</span>
+        </div>
+        <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+          <table class="table table-hover table-sm mb-0" style="font-size: 0.81rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+            <thead>
+              <tr class="text-secondary border-secondary">
+                <th>Устройство / Модель</th>
+                <th style="width: 130px;">Производитель</th>
+                <th style="width: 220px;">Серийный номер (S/N)</th>
+                <th style="width: 100px;">Ревизия</th>
+                <th>Device ID реестра</th>
+              </tr>
+            </thead>
+            <tbody id="usb-tbody">
+              <tr><td class="text-center py-4 text-muted" colspan="5">Чтение реестра USBSTOR...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subpane 5: Жизненный цикл ОС, сбои и перезагрузки -->
+    <div class="tab-pane fade" id="subpane-forensics-reboots" role="tabpanel" aria-labelledby="subtab-forensics-reboots-btn">
+      <div class="diag-panel mb-3">
+        <div class="panel-header d-flex justify-content-between align-items-center p-2 px-3 border-bottom border-secondary-subtle">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-power text-danger"></i>
+            <span class="panel-title fw-semibold">Хронология жизненного цикла ОС, перезагрузок и сбоев (System Event Log)</span>
+          </div>
+          <span class="badge bg-danger" id="reboots-count-badge">0 событий</span>
+        </div>
+        <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+          <table class="table table-hover table-sm mb-0" style="font-size: 0.81rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+            <thead>
+              <tr class="text-secondary border-secondary">
+                <th style="width: 160px;">Время события</th>
+                <th style="width: 90px; text-align: center;">Event ID</th>
+                <th style="width: 140px;">Тип события</th>
+                <th style="width: 180px;">Источник / Инициатор</th>
+                <th>Расшифрованная причина и подробности</th>
+              </tr>
+            </thead>
+            <tbody id="reboots-tbody">
+              <tr><td class="text-center py-4 text-muted" colspan="5">Опрос журнала System.evtx...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subpane 6: Оперативная телеметрия и Звук (Live Monitor) -->
+    <div class="tab-pane fade" id="subpane-forensics-live" role="tabpanel" aria-labelledby="subtab-forensics-live-btn">
+      <div class="row g-2 mb-3">
+        <!-- Foreground Window -->
+        <div class="col-12 col-xl-5">
+          <div class="diag-panel h-100">
+            <div class="panel-header d-flex justify-content-between align-items-center p-2 px-3 border-bottom border-secondary-subtle">
+              <span class="fw-semibold small"><i class="bi bi-window-stack text-primary me-1"></i>Окно в фокусе (Foreground Window)</span>
+              <span class="badge bg-success-subtle text-success border border-success">Live Focus</span>
+            </div>
+            <div class="p-3">
+              <div class="fw-bold text-body text-truncate" id="diag-fg-title">Рабочий стол Windows</div>
+              <div class="small text-muted font-monospace" id="diag-fg-proc">Процесс: explorer.exe (PID: 0)</div>
+              <div class="border-top border-secondary-subtle pt-2 mt-2 d-flex justify-content-between align-items-center">
+                <span class="text-muted small">Время бездействия: <strong class="text-warning font-monospace" id="diag-user-idle-time">0.0 с</strong></span>
+                <span class="badge bg-body-secondary border border-secondary text-body" id="diag-user-status-badge">Пользователь активен</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Privacy & Sound Radar -->
+        <div class="col-12 col-xl-7">
+          <div class="diag-panel h-100">
+            <div class="panel-header d-flex justify-content-between align-items-center p-2 px-3 border-bottom border-secondary-subtle">
+              <span class="fw-semibold small"><i class="bi bi-broadcast text-danger me-1"></i>Радар сенсоров и звука (WASAPI Live Radar)</span>
+              <span class="badge bg-body-secondary border border-secondary text-body">WASAPI Core Audio</span>
+            </div>
+            <div class="p-3">
+              <div class="row g-2">
+                <div class="col-4">
+                  <div class="p-2 rounded border border-secondary-subtle h-100" style="background: var(--surface-2);">
+                    <div class="small text-muted mb-1"><i class="bi bi-headphones me-1 text-success"></i>Наушники/Звук:</div>
+                    <div class="small text-body" id="diag-sound-access-list" style="max-height: 80px; overflow-y: auto;">
+                      <span class="text-muted small">Нет активного звука</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="p-2 rounded border border-secondary-subtle h-100" style="background: var(--surface-2);">
+                    <div class="small text-muted mb-1"><i class="bi bi-mic me-1 text-warning"></i>Микрофон:</div>
+                    <div class="small text-body" id="diag-mic-access-list" style="max-height: 80px; overflow-y: auto;">
+                      <span class="text-muted small">Нет записи</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="p-2 rounded border border-secondary-subtle h-100" style="background: var(--surface-2);">
+                    <div class="small text-muted mb-1"><i class="bi bi-camera-video me-1 text-danger"></i>Камера:</div>
+                    <div class="small text-body" id="diag-cam-access-list" style="max-height: 80px; overflow-y: auto;">
+                      <span class="text-muted small">Нет обращений</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Звуковые сессии WASAPI таблица -->
+      <div class="diag-panel mb-3">
+        <div class="panel-header d-flex justify-content-between align-items-center p-2 px-3 border-bottom border-secondary-subtle">
+          <span class="fw-semibold small"><i class="bi bi-music-note-beamed text-success me-1"></i>Звуковые сессии процессов (WASAPI Audio Streams)</span>
+          <span class="badge bg-primary" id="diag-sound-streams-count">0 сессий</span>
+        </div>
+        <div class="table-responsive" style="max-height: 280px; overflow-y: auto;">
+          <table class="table table-hover table-sm mb-0" style="font-size: 0.81rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+            <thead>
+              <tr class="text-secondary border-secondary">
+                <th style="width: 140px;">Поток / Тип</th>
+                <th style="width: 200px;">Процесс (PID)</th>
+                <th>Аудиоустройство</th>
+                <th style="width: 140px; text-align: center;">Статус потока</th>
+                <th style="width: 100px; text-align: right;">Громкость</th>
+                <th style="width: 120px; text-align: center;">Уровень сигнала</th>
+              </tr>
+            </thead>
+            <tbody id="diag-sound-sessions-tbody">
+              <tr><td class="text-center py-3 text-muted" colspan="6">Опрос звуковых сессий...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>

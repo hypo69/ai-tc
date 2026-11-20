@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Analytics - Hardware Auditor
+# Process Name: ai-tc Apps Windows Analytics - Hardware Auditor
 # =============================================================================
 # Description:
 #   Аналитический движок аудита аппаратного обеспечения, оценки рисков драйверов
@@ -14,11 +14,11 @@
 #     report = auditor.audit_hardware()
 #
 # File: hardware_auditor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.analytics
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 08:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Telemetry SQLite Schema
+# Process Name: ai-tc Tests - Telemetry SQLite Schema
 # =============================================================================
 # Description:
 #   Тесты схемы SQLite телеметрии: идентичность эталону, снятому до декомпозиции
 #   schema.py (этап 4 ТЗ оптимизации), и идемпотентность init_database_schema.
 #
 # File: test_telemetry_schema.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 20:45:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

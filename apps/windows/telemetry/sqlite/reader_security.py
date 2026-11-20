@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - TelemetrySecurityReaderMixin
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - TelemetrySecurityReaderMixin
 # =============================================================================
 # Description:
 #   Миксин чтения событий безопасности и питания: журнал Security (в таблице incidents),
 #   неудачные входы, создание процессов, сессии и события питания (в единой таблице power_sessions).
 #
 # File: reader_security.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 13:06:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

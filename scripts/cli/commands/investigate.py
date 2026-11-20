@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Cli Commands - Investigate
+# Process Name: ai-tc Scripts Cli Commands - Investigate
 # =============================================================================
 # Description:
 #   Команды CLI для расследования системных инцидентов и запуска универсального
@@ -13,11 +13,11 @@
 #     py manage_tools.py investigate interactive "Установить на рабочие столы в сети ссылки на Demo"
 #
 # File: investigate.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.cli.commands
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-17 00:57:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

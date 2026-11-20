@@ -17,11 +17,11 @@
  *     await initDesktopDisplays();
  *
  * File: desktop_displays.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_windows_settings
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-15 13:05:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

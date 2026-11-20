@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm - Client & Batch Cache
+# Process Name: ai-tc Apps Windows Wikillm - Client & Batch Cache
 # =============================================================================
 # Description:
 #   Асинхронный клиент WikiLLM с локальным SQLite-кешированием (TTL 24ч),
 #   пакетными запросами (bulk_query) и отказоустойчивым fallback.
 #
 # File: client.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 17:29:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

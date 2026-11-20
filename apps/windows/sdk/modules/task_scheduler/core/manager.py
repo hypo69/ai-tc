@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Task_Scheduler Core - Manager
+# Process Name: ai-tc Apps Windows Modules Task_Scheduler Core - Manager
 # =============================================================================
 # Description:
 #   Менеджер управления и сбора телеметрии задач Windows Task Scheduler.
@@ -13,11 +13,11 @@
 #     report = service.generate_report()
 #
 # File: manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.task_scheduler.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 19:05:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

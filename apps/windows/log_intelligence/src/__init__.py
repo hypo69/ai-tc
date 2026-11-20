@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Log_Intelligence Src -   Init  
+# Process Name: ai-tc Apps Windows Log_Intelligence Src -   Init  
 # =============================================================================
 # Description:
-#   Модуль реализации компонентов подсистемы Windows AI-Windows-Admin (__init__).
+#   Модуль реализации компонентов подсистемы Windows ai-tc (__init__).
 #
 # Usage Examples:
 #
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.log_intelligence.src
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
-"""Модуль реализации компонентов подсистемы Windows AI-Windows-Admin (__init__)."""
+"""Модуль реализации компонентов подсистемы Windows ai-tc (__init__)."""
 
 from .models import DataProfileReport, IngestionDecision, IngestionStrategy, LogEntry, LogSeverity, TimeBurst
 from .data_researcher import LogDataResearcher

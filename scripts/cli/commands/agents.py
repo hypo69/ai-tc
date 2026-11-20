@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Cli Commands - Agents
+# Process Name: ai-tc Scripts Cli Commands - Agents
 # =============================================================================
 # Description:
-#   Команды управления и запуска AI-агентов платформы AI Windows Admin из каталога .agents.
+#   Команды управления и запуска AI-агентов платформы ai-tc из каталога .agents.
 #
 # Usage Examples:
 #   CLI:
@@ -11,11 +11,11 @@
 #     py manage_tools.py agents run --name windows_controller_agent --query "Проверь диски"
 #
 # File: agents.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.cli.commands
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:44
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

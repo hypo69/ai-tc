@@ -17,7 +17,8 @@
         "icon": "bi-graph-up-arrow",
         "tab": "tab-hardware-load-inspector",
         "order": 2,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.systemInspector"
       },
       {
         "id": "processes_load_inspector",
@@ -25,7 +26,8 @@
         "icon": "bi-activity",
         "tab": "tab-processes-load-inspector",
         "order": 3,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.processesLoadInspector"
       },
       {
         "id": "system_control_center",
@@ -42,15 +44,17 @@
         "icon": "bi-box-seam",
         "tab": "tab-software-monitor",
         "order": 5,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.softwareMonitor"
       },
       {
-        "id": "windows_defender",
-        "label": "Defender & Firewall",
-        "icon": "bi-shield-lock",
-        "tab": "tab-defender-firewall",
+        "id": "user_environment",
+        "label": "Окружение пользователя",
+        "icon": "bi-person-workspace",
+        "tab": "tab-user-environment",
         "order": 6,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.userEnvironment"
       },
       {
         "id": "windows_sysadmin",
@@ -58,15 +62,17 @@
         "icon": "bi-server",
         "tab": "tab-windows-admin",
         "order": 7,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.windowsAdmin"
       },
       {
-        "id": "user_environment",
-        "label": "Окружение пользователя",
-        "icon": "bi-person-workspace",
-        "tab": "tab-user-environment",
+        "id": "windows_defender",
+        "label": "Defender & Firewall",
+        "icon": "bi-shield-lock",
+        "tab": "tab-defender-firewall",
         "order": 8,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.defenderFirewall"
       },
       {
         "id": "scenarios",
@@ -83,33 +89,28 @@
         "icon": "bi-cloud-arrow-down",
         "tab": "tab-ninite-updater",
         "order": 10,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.niniteUpdater"
       }
     ],
     "sidebarItems": [
-      {
-        "id": "kernel_protection",
-        "label": "Защита ядра и драйверы",
-        "icon": "bi-shield-shaded",
-        "tab": "tab-kernel-protection",
-        "order": 1,
-        "visible": true
-      },
       {
         "id": "registry_editor",
         "label": "Редактор реестра",
         "icon": "bi-key",
         "tab": "tab-registry-editor",
-        "order": 2,
-        "visible": true
+        "order": 1,
+        "visible": true,
+        "i18n": "tabs.registryEditor"
       },
       {
         "id": "peripherals",
         "label": "5. Сеть и периферия",
         "icon": "bi-plug",
         "tab": "tab-peripherals",
-        "order": 3,
-        "visible": true
+        "order": 2,
+        "visible": true,
+        "i18n": "tabs.peripherals"
       },
       {
         "id": "network_terminal",
@@ -117,8 +118,17 @@
         "i18n": "tabs.network",
         "icon": "bi-globe2",
         "tab": "tab-network",
-        "order": 4,
+        "order": 3,
         "visible": true
+      },
+      {
+        "id": "kernel_protection",
+        "label": "Защита ядра и драйверы",
+        "icon": "bi-shield-shaded",
+        "tab": "tab-kernel-protection",
+        "order": 4,
+        "visible": true,
+        "i18n": "tabs.kernelProtection"
       },
       {
         "id": "windows_startup_auditor",
@@ -144,7 +154,8 @@
         "icon": "bi-image",
         "tab": "tab-pixelrag",
         "order": 7,
-        "visible": false
+        "visible": false,
+        "i18n": "tabs.pixelrag"
       },
       {
         "id": "file_history_ai_search",
@@ -161,7 +172,8 @@
         "icon": "bi-hdd",
         "tab": "tab-storage-management",
         "order": 9,
-        "visible": false
+        "visible": false,
+        "i18n": "tabs.storageManagement"
       },
       {
         "id": "software_transparency_scanner",
@@ -178,7 +190,8 @@
         "icon": "bi-box-seam",
         "tab": "tab-software-manager",
         "order": 11,
-        "visible": false
+        "visible": false,
+        "i18n": "tabs.softwareManager"
       },
       {
         "id": "power_lifecycle",
@@ -186,7 +199,8 @@
         "icon": "bi-power",
         "tab": "tab-power-lifecycle",
         "order": 12,
-        "visible": false
+        "visible": false,
+        "i18n": "tabs.powerLifecycle"
       },
       {
         "id": "telemetry_research",
@@ -194,7 +208,8 @@
         "icon": "bi-binoculars",
         "tab": "tab-telemetry-research",
         "order": 13,
-        "visible": false
+        "visible": false,
+        "i18n": "tabs.telemetryResearch"
       },
       {
         "id": "process_leaks",
@@ -202,7 +217,8 @@
         "icon": "bi-search",
         "tab": "tab-process-leaks",
         "order": 14,
-        "visible": false
+        "visible": false,
+        "i18n": "tabs.processLeaks"
       },
       {
         "id": "smart_restore",
@@ -210,7 +226,8 @@
         "icon": "bi-shield-check",
         "tab": "tab-smart-restore",
         "order": 15,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.smartRestore"
       },
       {
         "id": "boot_and_servicing",
@@ -218,7 +235,8 @@
         "icon": "bi-rocket-takeoff",
         "tab": "tab-boot-recovery",
         "order": 16,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.bootRecovery"
       },
       {
         "id": "services_manager",
@@ -226,7 +244,8 @@
         "icon": "bi-gear",
         "tab": "tab-services-manager",
         "order": 17,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.servicesManager"
       },
       {
         "id": "task_scheduler",
@@ -234,7 +253,8 @@
         "icon": "bi-calendar3",
         "tab": "tab-task-scheduler",
         "order": 18,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.taskScheduler"
       },
       {
         "id": "taskbar_controller",
@@ -242,7 +262,8 @@
         "icon": "bi-pin-angle",
         "tab": "tab-taskbar",
         "order": 19,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.taskbar"
       },
       {
         "id": "process_manager",
@@ -250,7 +271,8 @@
         "icon": "bi-cpu",
         "tab": "tab-processes-load-inspector#manager",
         "order": 20,
-        "visible": false
+        "visible": false,
+        "i18n": "tabs.processManager"
       },
       {
         "id": "theme_editor",
@@ -258,7 +280,8 @@
         "icon": "bi-palette2",
         "tab": "tab-theme-editor",
         "order": 21,
-        "visible": false
+        "visible": false,
+        "i18n": "tabs.themeEditor"
       },
       {
         "id": "forensics",
@@ -266,7 +289,8 @@
         "icon": "bi-stopwatch",
         "tab": "tab-forensics",
         "order": 22,
-        "visible": false
+        "visible": false,
+        "i18n": "tabs.forensics"
       },
       {
         "id": "throttling",
@@ -274,7 +298,8 @@
         "icon": "bi-lightning-charge",
         "tab": "tab-throttling",
         "order": 23,
-        "visible": false
+        "visible": false,
+        "i18n": "tabs.throttling"
       },
       {
         "id": "sound_settings",
@@ -282,7 +307,8 @@
         "icon": "bi-volume-up",
         "tab": "tab-sound-settings",
         "order": 24,
-        "visible": false
+        "visible": false,
+        "i18n": "tabs.soundSettings"
       },
       {
         "id": "system32_commands",
@@ -299,7 +325,8 @@
         "icon": "bi-cloud-check",
         "tab": "tab-cloudflared",
         "order": 26,
-        "visible": false
+        "visible": false,
+        "i18n": "tabs.cloudflared"
       },
       {
         "id": "user_directories",
@@ -317,39 +344,43 @@
         "icon": "bi-archive",
         "tab": "tab-file-recovery",
         "order": 28,
-        "visible": true
-      },
-      {
-        "id": "post_install_wizard",
-        "label": "Post-Install Wizard",
-        "icon": "bi-magic",
-        "tab": "tab-post-install-wizard",
-        "order": 29,
-        "visible": true
-      },
-      {
-        "id": "app_internals",
-        "label": "Внутренняя кухня (App Internals)",
-        "icon": "bi-code-square",
-        "tab": "tab-app-internals",
-        "order": 30,
-        "visible": true
+        "visible": false
       },
       {
         "id": "sitemap",
         "label": "Карта сайта (Sitemap)",
         "icon": "bi-diagram-3-fill",
         "tab": "tab-sitemap",
-        "order": 31,
-        "visible": true
+        "order": 29,
+        "visible": false,
+        "i18n": "tabs.sitemap"
+      },
+      {
+        "id": "post_install_wizard",
+        "label": "Post-Install Wizard",
+        "icon": "bi-magic",
+        "tab": "tab-post-install-wizard",
+        "order": 30,
+        "visible": true,
+        "i18n": "tabs.postInstallWizard"
       },
       {
         "id": "ai_ecosystem",
         "label": "Экосистема ИИ (Агенты, Навыки, MCP)",
         "icon": "bi-robot",
         "tab": "tab-ai-ecosystem",
+        "order": 31,
+        "visible": true,
+        "i18n": "tabs.aiEcosystem"
+      },
+      {
+        "id": "app_internals",
+        "label": "Внутренняя кухня (App Internals)",
+        "icon": "bi-code-square",
+        "tab": "tab-app-internals",
         "order": 32,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.appInternals"
       }
     ]
   },

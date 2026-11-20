@@ -18,11 +18,11 @@
 #     clean = redactor.redact_text("password=MySecret123")
 #
 # File: secret_redactor.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.security
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 16:42:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import re

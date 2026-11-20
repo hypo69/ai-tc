@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Servicing_Integrity Tests - Test Servicing Integrity
+# Process Name: ai-tc Apps Windows Modules Servicing_Integrity Tests - Test Servicing Integrity
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     res = manager()
 #
 # File: test_servicing_integrity.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.servicing_integrity.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -66,13 +66,13 @@ async def test_servicing_action_simulation(manager: ServicingIntegrityManager):
 
 def test_servicing_endpoints(client: TestClient):
     """Проверка REST эндпоинтов servicing_integrity."""
-    resp = client.get('/api/servicing-integrity/report')
+    resp = client.get('/api/v1/servicing-integrity/report')
     assert resp.status_code == 200
     data = resp.json()
     assert 'sfc_status' in data
     assert 'features' in data
 
-    resp_feat = client.get('/api/servicing-integrity/features')
+    resp_feat = client.get('/api/v1/servicing-integrity/features')
     assert resp_feat.status_code == 200
     assert len(resp_feat.json()) > 0
 

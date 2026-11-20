@@ -12,11 +12,11 @@
 #   if result.status == 'ok': print(len(result.items))
 #
 # File: collectors_basic.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.network.infra
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 16:00:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

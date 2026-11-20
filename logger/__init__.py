@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Logger - Init
+# Process Name: ai-tc Logger - Init
 # =============================================================================
 # Description:
 #   Инициализация пакета централизованного логирования logger.
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: logger
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:16:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
-"""Пакет централизованного логирования AI-Windows-Admin."""
+"""Пакет централизованного логирования ai-tc."""
 
 from .logger import (
     CONSOLE_LEVEL,

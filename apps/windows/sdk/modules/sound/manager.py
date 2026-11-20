@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Audio Module - Sound Manager
+# Process Name: ai-tc Audio Module - Sound Manager
 # =============================================================================
 # Description:
 #   Диспетчер управления звуковой подсистемой Windows на базе Core Audio WASAPI
@@ -15,11 +15,11 @@
 #     mgr.set_system_sounds_volume(75)
 #
 # File: manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.sound
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-27 12:05:00
+# Updated: 2026-11-12 12:35:00
 # =============================================================================
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ import ctypes
 import os
 import subprocess
 from ctypes import HRESULT, POINTER, byref, c_bool, c_float, c_int, c_void_p, wintypes
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Any
 
 import psutil
 from logger import logger
@@ -488,4 +488,9 @@ class SoundManager:
             return dev_list
 
         return _scan_flow("Render", "render"), _scan_flow("Capture", "capture")
+
+    def get_realtime_audio_sessions(self) -> List[SoundSessionDTO]:
+        """Возвращает актуальный список аудиосессий WASAPI для устройств вывода и ввода в реальном времени."""
+        from .session_scanner import AudioSessionScanner
+        return AudioSessionScanner.scan_sessions()
 

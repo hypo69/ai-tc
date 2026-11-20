@@ -7,7 +7,7 @@
 
 ## 📋 Overview
 
-The `/apps` directory hosts standalone domain applications, interactive terminal desks, and specialized monitoring workspaces that run natively on the host system and integrate seamlessly with the AI Windows Admin ecosystem and FastAPI backend.
+The `/apps` directory hosts standalone domain applications, interactive terminal desks, and specialized monitoring workspaces that run natively on the host system and integrate seamlessly with the ai-tc ecosystem and FastAPI backend.
 
 ---
 
@@ -35,7 +35,7 @@ apps/
 ├── windows_backup_manager/    # 💾 Windows Backup, Libraries & File History Manager
 ├── windows_defender/          # 🛡️ Microsoft Defender & AI Security Diagnostic Center
 ├── dashboard/                 # 🖥️ Interactive System Dashboard
-└── ai_windows_admin_admin/       # ⚙️ Platform Administration Workspace
+└── ai_tc_admin/       # ⚙️ Platform Administration Workspace
 ```
 
 ---

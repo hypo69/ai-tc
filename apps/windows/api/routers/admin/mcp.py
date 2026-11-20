@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - MCP Management
+# Process Name: ai-tc Apps Windows Api Routers - MCP Management
 # =============================================================================
 # Description:
 #   Эндпойнты управления серверами Model Context Protocol (MCP):
@@ -8,11 +8,11 @@
 #   активности, тестирование соединений и обнаружение инструментов.
 #
 # File: mcp.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.admin
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 11:15:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -27,8 +27,8 @@ from pydantic import BaseModel, Field
 from header import __root__
 from logger import logger
 
-admin_mcp_router = APIRouter(prefix="/api/admin/mcp", tags=["mcp"])
-mcp_router = APIRouter(prefix="/api/mcp", tags=["mcp"])
+admin_mcp_router = APIRouter(prefix="/api/v1/admin/mcp", tags=["mcp"])
+mcp_router = APIRouter(prefix="/api/v1/mcp", tags=["mcp"])
 
 _CONFIG_PATH = __root__ / "config.json"
 

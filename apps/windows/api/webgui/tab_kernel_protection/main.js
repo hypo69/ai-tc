@@ -11,11 +11,11 @@
  *     <script type="module" src="/html/tab_kernel_protection/main.js?v=20261101_v1"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_kernel_protection
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 14:40:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -121,7 +121,7 @@ function setupEventHandlers() {
  */
 async function loadSummary() {
   try {
-    const res = await fetch('/api/kernel-protection/summary');
+    const res = await fetch('/api/v1/kernel-protection/summary');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
@@ -180,7 +180,7 @@ function renderMechanismsGrid(mechanisms) {
  */
 async function loadDrivers() {
   try {
-    const res = await fetch('/api/kernel-protection/drivers');
+    const res = await fetch('/api/v1/kernel-protection/drivers');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     cachedDrivers = await res.json();
     renderDriversTable();
@@ -284,7 +284,7 @@ async function loadMinifilters() {
   if (!tbody) return;
 
   try {
-    const res = await fetch('/api/kernel-protection/minifilters');
+    const res = await fetch('/api/v1/kernel-protection/minifilters');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const filters = await res.json();
 
@@ -372,7 +372,7 @@ async function runBlockerInvestigation() {
   if (btn) btn.disabled = true;
 
   try {
-    const res = await fetch('/api/kernel-protection/investigate-blocker', {
+    const res = await fetch('/api/v1/kernel-protection/investigate-blocker', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -464,7 +464,7 @@ async function handleSafeOpsAction(action, componentName, confirmRisk) {
   appendSafeOpsLog(`[${new Date().toLocaleTimeString()}] Запуск действия ${action}...`);
 
   try {
-    const res = await fetch('/api/kernel-protection/safe-action', {
+    const res = await fetch('/api/v1/kernel-protection/safe-action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

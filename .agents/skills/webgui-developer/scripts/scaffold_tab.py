@@ -12,11 +12,11 @@ Usage Examples:
   py .agents/skills/webgui-developer/scripts/scaffold_tab.py my_feature --title "Моя функция" --icon "bi-stars"
 
 File: scaffold_tab.py
-Project: ai-windows-admin
+Project: ai-tc
 Package: .agents/skills/webgui-developer/scripts
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-20 10:55:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 """
 
@@ -38,7 +38,7 @@ def to_kebab_case(snake_str: str) -> str:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Генератор новой вкладки WebGUI AI Windows Admin")
+    parser = argparse.ArgumentParser(description="Генератор новой вкладки WebGUI ai-tc")
     parser.add_argument("name", help="Имя вкладки в формате snake_case (без суффикса _tab, например: security_audit)")
     parser.add_argument("--title", default=None, help="Отображаемый заголовок на русском языке")
     parser.add_argument("--icon", default="bi-grid", help="CSS класс иконки Bootstrap (например: bi-shield-check, bi-cpu)")
@@ -83,7 +83,7 @@ Usage Examples:
     /html/{tab_folder_name}/index.html?v={version_tag}
 
 File: index.html
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/{tab_folder_name}
 Author: hypo69
 Copyright: © 2026 hypo69
@@ -204,7 +204,7 @@ Updated: {now_str}
  *   Обеспечивает опрос через tab-core.js и вызов ИИ-модального окна AIModalDialog.
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/{tab_folder_name}
  * Author: hypo69
  * Copyright: © 2026 hypo69

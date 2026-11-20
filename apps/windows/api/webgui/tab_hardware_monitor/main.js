@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/tab_hardware_monitor/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_hardware_monitor
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-16 16:16:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -124,7 +124,7 @@
 
   async function loadSnapshot() {
     try {
-      const res = await fetch('/api/windows/hardware/monitor?include_smart=false');
+      const res = await fetch('/api/v1/windows/hardware/monitor?include_smart=false');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
@@ -226,7 +226,7 @@
 
   async function loadSensors() {
     try {
-      const res = await fetch('/api/windows/hardware/sensors');
+      const res = await fetch('/api/v1/windows/hardware/sensors');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const sensors = data.sensors || [];
@@ -280,7 +280,7 @@
   async function loadSmart() {
     const container = document.getElementById('hw-smart-container');
     try {
-      const res = await fetch('/api/windows/hardware/smart');
+      const res = await fetch('/api/v1/windows/hardware/smart');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const drives = data.drives || data.devices || [];

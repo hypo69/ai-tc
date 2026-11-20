@@ -1,8 +1,8 @@
-# Приложения AI Windows Admin
+# Приложения ai-tc
 
 Список доступных микроприложений:
 
-- AI Windows Admin Admin
+- ai-tc Admin
 - Baseline Detector
 - [Cloudflared Monitor](cloudflared_monitor.md)
 - [Dashboard](dashboard.md)

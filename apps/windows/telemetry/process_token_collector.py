@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Process Token Collector
+# Process Name: ai-tc Apps Windows Telemetry - Process Token Collector
 # =============================================================================
 # Description:
 #   Коллектор токенов процессов, уровней целостности, прав UAC, SID и Session ID.
@@ -13,11 +13,11 @@
 #     tokens = collector.collect()
 #
 # File: process_token_collector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Коллектор токенов процессов, уровней целостности, прав UAC, SID и Session ID."""
@@ -27,7 +27,7 @@ from __future__ import annotations
 import ctypes
 import ctypes.wintypes as wtypes
 import os
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 try:
     import psutil
     PSUTIL_AVAILABLE = True

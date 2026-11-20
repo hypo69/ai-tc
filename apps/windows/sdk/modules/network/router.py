@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Network - Router
+# Process Name: ai-tc Apps Windows Modules Network - Router
 # =============================================================================
 # Description:
 #   FastAPI router integration for Network Terminal.
@@ -12,11 +12,11 @@
 #     res = get_state()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.network
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 18:35:00
+# Updated: 2026-11-20 17:16:00
 # =============================================================================
 
 from __future__ import annotations
@@ -40,14 +40,16 @@ try:
 except ImportError:
     AIDetector, TSharkWrapper, TrafficAnalyzer = None, None, None
 from .lan_scanner import WindowsLanScanner
+from .remote_auth import RemoteLoginRequest, WindowsRemoteAuthenticator
 from .sensors import NetworkTerminalSensor
 from .speedtest import NetworkSpeedTester
 from .tui import NetworkTerminalState
-router = APIRouter(prefix='/api/network', tags=['network'])
+router = APIRouter(prefix='/api/v1/network', tags=['network'])
 _telemetry_logger = AppTelemetryLogger('network_terminal')
 _sensor = NetworkTerminalSensor()
 _speedtester = NetworkSpeedTester()
 _lan_scanner = WindowsLanScanner()
+_remote_auth = WindowsRemoteAuthenticator()
 _state: NetworkTerminalState | None = None
 _latest_speedtest: Dict[str, Any] | None = None
 
@@ -329,6 +331,34 @@ async def probe_device(request: Request, ip: str) -> dict:
         'details': port_status,
         'timestamp': time.time(),
     }
+
+
+@router.post('/devices/login')
+async def login_remote_device(request: Request, payload: RemoteLoginRequest) -> dict:
+    """Выполняет попытку аутентификации на удалённом компьютере в локальной сети (SMB / WinRM)."""
+    try:
+        result = await asyncio.to_thread(
+            _remote_auth.authenticate,
+            ip=payload.ip,
+            username=payload.username,
+            password=payload.password,
+            protocol=payload.protocol,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    _telemetry_logger.log_event(
+        event_type='lan_remote_login',
+        status='SUCCESS' if result.success else 'FAILED',
+        details={
+            'ip': result.ip,
+            'username': result.username,
+            'protocol': result.protocol_used,
+            'error_code': result.error_code,
+        },
+    )
+    return result.model_dump()
+
 
 def init_router() -> APIRouter:
     """Initialize the FastAPI router for Network Terminal."""

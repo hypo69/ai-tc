@@ -9,11 +9,11 @@ Description:
   оберток tab-pane и генерацию JS-хелпера с поддержкой URL маршрутизации.
 
 File: test_subtabs_builder.py
-Project: ai-windows-admin
+Project: ai-tc
 Package: tests
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-28 16:40:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 """
 

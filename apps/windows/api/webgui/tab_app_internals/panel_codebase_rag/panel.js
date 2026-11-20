@@ -8,11 +8,11 @@
  *   по вопросам, спискам логов и сообщениям об ошибках.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_app_internals/panel_codebase_rag
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-31 18:36:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -31,7 +31,7 @@ export async function loadCodebaseIndexes() {
   const badgeTotal = document.getElementById('code-rag-total-indexes-badge');
 
   try {
-    const res = await fetch('/api/rag/codebase/indexes');
+    const res = await fetch('/api/v1/rag/codebase/indexes');
     if (!res.ok) return;
     const data = await res.json();
     cachedIndexes = data.indexes || [];
@@ -128,7 +128,7 @@ export async function executeBuildIndex() {
   }
 
   try {
-    const res = await fetch('/api/rag/codebase/build', {
+    const res = await fetch('/api/v1/rag/codebase/build', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -202,7 +202,7 @@ export async function executeDiagnose() {
   }
 
   try {
-    const res = await fetch('/api/rag/codebase/diagnose', {
+    const res = await fetch('/api/v1/rag/codebase/diagnose', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -378,7 +378,7 @@ export async function executeSymbolSearch() {
   }
 
   try {
-    const res = await fetch('/api/rag/codebase/symbols', {
+    const res = await fetch('/api/v1/rag/codebase/symbols', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ symbol: query, index_name: indexName, limit: 12 }),
@@ -437,7 +437,7 @@ export async function executeCodeSearch() {
   }
 
   try {
-    const res = await fetch('/api/rag/codebase/search', {
+    const res = await fetch('/api/v1/rag/codebase/search', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query, index_name: indexName, top_k: 6 }),

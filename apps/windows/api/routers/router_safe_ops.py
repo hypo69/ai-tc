@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - SafeOps Executor
+# Process Name: ai-tc Apps Windows Api Routers - SafeOps Executor
 # =============================================================================
 # Description:
 #   FastAPI REST эндпоинты для симуляции (Dry-Run), валидации и безопасного
@@ -11,11 +11,11 @@
 #     from apps.windows.api.routers.router_safe_ops import router
 #
 # File: router_safe_ops.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 13:42:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

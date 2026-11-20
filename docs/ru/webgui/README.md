@@ -1,4 +1,4 @@
-# Документация веб-интерфейса AI-Windows-Admin
+# Документация веб-интерфейса ai-tc
 
 > **Версия:** 3.1  
 > **Последнее обновление:** 24 сентября 2026
@@ -185,7 +185,7 @@ localStorage.setItem('DEBUG_API_CACHE', 'true');
 
 1. Откройте DevTools (F12)
 2. Перейдите в **Application → Storage → IndexedDB**
-3. Найдите **AI_Windows_Admin_DB → api_cache**
+3. Найдите **ai_tc_db → api_cache**
 
 ---
 
@@ -202,10 +202,10 @@ localStorage.setItem('DEBUG_API_CACHE', 'true');
 
 ## 📧 Контакты
 
-- **GitHub:** [AI-Windows-Admin Repository](https://github.com/hypo69/hypo)
+- **GitHub:** [ai-tc Repository](https://github.com/hypo69/hypo)
 - **Документация:** [docs/ru/webgui/](.)
 - **Issues:** [GitHub Issues](https://github.com/hypo69/hypo/issues)
 
 ---
 
-**© 2026 AI-Windows-Admin Team. MIT License.**
+**© 2026 ai-tc Team. MIT License.**

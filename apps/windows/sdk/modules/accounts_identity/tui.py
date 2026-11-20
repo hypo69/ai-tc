@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Accounts & Identity TUI Formatter
+# Process Name: ai-tc Apps Windows - Accounts & Identity TUI Formatter
 # =============================================================================
 # Description:
 #   Консольный форматировщик и визуализатор досье субъектов безопасности
@@ -11,11 +11,11 @@
 #     from apps.windows.sdk.modules.accounts_identity.tui import print_principal_dossier, print_pid_dossier
 #
 # File: tui.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.accounts_identity
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Форматирование и визуализация Identity Graph и процессов в терминале."""

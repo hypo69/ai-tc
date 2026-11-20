@@ -8,11 +8,11 @@
  *   инкрементального сбора событий в telemetry.db.
  *
  * File: panel_security/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_log_settings/panel_security
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:40:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

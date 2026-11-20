@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 =============================================================================
 Process Name: Windows Web Interface - Index View
 =============================================================================
@@ -13,11 +13,11 @@ Usage Examples:
       <iframe src="/windows/api/webgui/index.html" class="w-100 h-100 border-0"></iframe>
 
 File: index.html
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui
 # Author: hypo69
 # Copyright: © 2026 hypo69
-Updated: 2026-11-03 14:48:00
+Updated: 2026-11-20 15:45:00
 =============================================================================
 -->
 <!DOCTYPE html>
@@ -26,7 +26,10 @@ Updated: 2026-11-03 14:48:00
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>AI Assistant</title>
+<title>ai-tc</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/red_drill.png?v=20261112_v1"/>
+<link rel="icon" type="image/x-icon" href="/favicon.ico?v=20261112_v1"/>
+<link rel="apple-touch-icon" href="/assets/red_drill.png?v=20261112_v1"/>
 <script>
   (function() {
     try {
@@ -84,17 +87,17 @@ Updated: 2026-11-03 14:48:00
 </script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet"/>
-<link href="/html/css/main.css?v=20261031_v1" rel="stylesheet"/>
+<link href="/html/css/main.css?v=20261120_v2" rel="stylesheet"/>
 <script src="/html/js/toast.js?v=20261008_v1"></script>
 <script src="/html/js/panel-loader.js?v=20261010_v1" type="module"></script>
 <script src="https://cdn.jsdelivr.net/npm/i18next@23.11.5/i18next.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="/html/js/global-i18n.js?v=20261013_v1"></script>
+<script src="/html/js/global-i18n.js?v=20261120_v1"></script>
 <script src="/html/js/global-tooltips-i18n.js?v=20261031_v2"></script>
 </head>
 <body>
 <div class="container-fluid mt-1">
-<div class="d-flex align-items-center justify-content-between mb-1 main-nav-container rounded px-2 py-1">
+<div class="d-flex align-items-center justify-content-between mb-1 main-nav-container rounded px-2 py-1 sticky-top">
 <!-- Левая часть: кнопка меню, брендинг и индикатор активного раздела -->
 <div class="d-flex align-items-center gap-2">
 <!-- Кнопка открытия левого выдвижного меню -->
@@ -104,8 +107,8 @@ Updated: 2026-11-03 14:48:00
 </button>
 <!-- Брендинг -->
 <span class="fw-bold d-flex align-items-center gap-1.5 text-primary fs-6 user-select-none" style="letter-spacing: 0.3px;">
-<i class="bi bi-cpu-fill fs-5"></i>
-<span class="d-none d-sm-inline">AI Windows Admin</span>
+<img src="/assets/red_drill.png?v=20261113_v1" alt="ai-tc" title="" width="22" height="22" class="me-1" style="object-fit: contain; vertical-align: middle;"/>
+<span class="d-none d-sm-inline">ai-tc</span>
 </span>
 </div>
 <!-- Правая часть панели: статусы, профиль и настройки -->
@@ -272,7 +275,7 @@ Updated: 2026-11-03 14:48:00
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-telemetry-research" data-tab="tab-telemetry-research" type="button">
 <i class="bi bi-binoculars-fill text-primary fs-6"></i>
-<span class="fw-medium">Исследования телеметрии</span>
+<span class="fw-medium" data-i18n="tabs.telemetryResearch">Исследования телеметрии</span>
 </button>
 </div>
 </div>
@@ -285,11 +288,11 @@ Updated: 2026-11-03 14:48:00
 <div class="list-group list-group-flush rounded border">
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-storage-management" data-tab="tab-storage-management" type="button">
 <i class="bi bi-hdd-fill text-warning fs-6"></i>
-<span class="fw-medium">Накопители и Ресурс Дисков</span>
+<span class="fw-medium" data-i18n="tabs.storageManagement">Накопители и Ресурс Дисков</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-disk-speed" data-tab="tab-disk-speed" type="button">
 <i class="bi bi-speedometer2 text-danger fs-6"></i>
-<span class="fw-medium">Скорость дисков (DiskSpd)</span>
+<span class="fw-medium" data-i18n="tabs.diskSpeed">Скорость дисков (DiskSpd)</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-file-recovery" data-tab="tab-file-recovery" type="button">
 <i class="bi bi-archive-fill text-secondary fs-6"></i>
@@ -310,19 +313,19 @@ Updated: 2026-11-03 14:48:00
 <div class="list-group list-group-flush rounded border">
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-process-leaks" data-tab="tab-process-leaks" type="button">
 <i class="bi bi-search text-danger fs-6"></i>
-<span class="fw-medium">1. Утечки и микрофризы</span>
+<span class="fw-medium" data-i18n="tabs.processLeaks">1. Утечки и микрофризы</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-forensics" data-tab="tab-forensics" type="button">
 <i class="bi bi-stopwatch-fill text-warning fs-6"></i>
-<span class="fw-medium">2. Поведенческая форензика</span>
+<span class="fw-medium" data-i18n="tabs.forensics">2. Поведенческая форензика</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-throttling" data-tab="tab-throttling" type="button">
 <i class="bi bi-lightning-charge-fill text-warning fs-6"></i>
-<span class="fw-medium">3. Качество ядра и Троттлинг</span>
+<span class="fw-medium" data-i18n="tabs.throttling">3. Качество ядра и Троттлинг</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-peripherals" data-tab="tab-peripherals" type="button">
 <i class="bi bi-plug-fill text-success fs-6"></i>
-<span class="fw-medium">4. Сеть и периферия</span>
+<span class="fw-medium" data-i18n="tabs.peripherals">4. Сеть и периферия</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-software-transparency" data-tab="tab-software-transparency" type="button">
 <i class="bi bi-eye-fill text-info fs-6"></i>
@@ -330,7 +333,7 @@ Updated: 2026-11-03 14:48:00
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-software-monitor" data-tab="tab-software-monitor" type="button">
 <i class="bi bi-box-seam-fill text-primary fs-6"></i>
-<span class="fw-medium">Установленные программы</span>
+<span class="fw-medium" data-i18n="tabs.softwareMonitor">Установленные программы</span>
 </button>
 </div>
 </div>
@@ -350,23 +353,23 @@ Updated: 2026-11-03 14:48:00
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-system-control" data-tab="tab-system-control" type="button">
 <i class="bi bi-journal-text text-info fs-6"></i>
-<span class="fw-medium">System Logs &amp; Activity</span>
+<span class="fw-medium" data-i18n="tabs.systemControl">System Logs &amp; Activity</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-post-install-wizard" data-tab="tab-post-install-wizard" type="button">
 <i class="bi bi-magic text-primary fs-6"></i>
-<span class="fw-medium">Post-Install Wizard</span>
+<span class="fw-medium" data-i18n="tabs.postInstallWizard">Post-Install Wizard</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-windows-admin" data-tab="tab-windows-admin" type="button">
 <i class="bi bi-display-fill text-primary fs-6"></i>
-<span class="fw-medium">Windows Sysadmin</span>
+<span class="fw-medium" data-i18n="tabs.windowsAdmin">Windows Sysadmin</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-focus-settings" data-tab="tab-focus-settings" type="button">
 <i class="bi bi-sliders text-secondary fs-6"></i>
-<span class="fw-medium">Настройки Focus</span>
+<span class="fw-medium" data-i18n="tabs.focusSettings">Настройки Focus</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-sound-settings" data-tab="tab-sound-settings" type="button">
 <i class="bi bi-volume-up-fill text-primary fs-6"></i>
-<span class="fw-medium">Звук и громкость</span>
+<span class="fw-medium" data-i18n="tabs.soundSettings">Звук и громкость</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-startup-auditor" data-tab="tab-startup-auditor" type="button">
 <i class="bi bi-rocket-takeoff-fill text-danger fs-6"></i>
@@ -374,23 +377,23 @@ Updated: 2026-11-03 14:48:00
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-services-manager" data-tab="tab-services-manager" type="button">
 <i class="bi bi-gear-fill text-secondary fs-6"></i>
-<span class="fw-medium">Службы Windows</span>
+<span class="fw-medium" data-i18n="tabs.servicesManager">Службы Windows</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-task-scheduler" data-tab="tab-task-scheduler" type="button">
 <i class="bi bi-calendar-event-fill text-success fs-6"></i>
-<span class="fw-medium">Планировщик задач</span>
+<span class="fw-medium" data-i18n="tabs.taskScheduler">Планировщик задач</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-process-manager" data-tab="tab-process-manager" type="button">
 <i class="bi bi-cpu-fill text-danger fs-6"></i>
-<span class="fw-medium">Диспетчер процессов</span>
+<span class="fw-medium" data-i18n="tabs.processManager">Диспетчер процессов</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-registry-editor" data-tab="tab-registry-editor" type="button">
 <i class="bi bi-key-fill text-warning fs-6"></i>
-<span class="fw-medium">Редактор реестра</span>
+<span class="fw-medium" data-i18n="tabs.registryEditor">Редактор реестра</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-software-manager" data-tab="tab-software-manager" type="button">
 <i class="bi bi-box-seam-fill text-primary fs-6"></i>
-<span class="fw-medium">Пакетный менеджер Winget</span>
+<span class="fw-medium" data-i18n="tabs.softwareManager">Пакетный менеджер Winget</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-user-directories" data-tab="tab-user-directories" type="button">
 <i class="bi bi-folder-fill text-warning fs-6"></i>
@@ -407,11 +410,11 @@ Updated: 2026-11-03 14:48:00
 <div class="list-group list-group-flush rounded border">
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-defender-firewall" data-tab="tab-defender-firewall" type="button">
 <i class="bi bi-shield-lock-fill text-danger fs-6"></i>
-<span class="fw-medium">Defender &amp; Firewall</span>
+<span class="fw-medium" data-i18n="tabs.defenderFirewall">Defender &amp; Firewall</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-boot-recovery" data-tab="tab-boot-recovery" type="button">
 <i class="bi bi-wrench-adjustable-circle-fill text-info fs-6"></i>
-<span class="fw-medium">Загрузка, WinRE и умное восстановление</span>
+<span class="fw-medium" data-i18n="tabs.bootRecovery">Загрузка, WinRE и умное восстановление</span>
 </button>
 </div>
 </div>
@@ -424,7 +427,7 @@ Updated: 2026-11-03 14:48:00
 <div class="list-group list-group-flush rounded border">
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-app-internals" data-tab="tab-app-internals" type="button">
 <i class="bi bi-code-square text-info fs-6"></i>
-<span class="fw-medium">Внутренняя кухня (App Internals)</span>
+<span class="fw-medium" data-i18n="tabs.appInternals">Внутренняя кухня (App Internals)</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-network" data-tab="tab-network" type="button">
 <i class="bi bi-globe2 text-primary fs-6"></i>
@@ -432,7 +435,7 @@ Updated: 2026-11-03 14:48:00
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-power-lifecycle" data-tab="tab-power-lifecycle" type="button">
 <i class="bi bi-power text-danger fs-6"></i>
-<span class="fw-medium">Сессии питания и перезагрузки</span>
+<span class="fw-medium" data-i18n="tabs.powerLifecycle">Сессии питания и перезагрузки</span>
 </button>
 </div>
 </div>
@@ -445,7 +448,7 @@ Updated: 2026-11-03 14:48:00
 <div class="list-group list-group-flush rounded border">
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-ai-ecosystem" data-tab="tab-ai-ecosystem" type="button">
 <i class="bi bi-robot text-primary fs-6"></i>
-<span class="fw-medium">Экосистема ИИ (Агенты, Навыки, MCP)</span>
+<span class="fw-medium" data-i18n="tabs.aiEcosystem">Экосистема ИИ (Агенты, Навыки, MCP)</span>
 </button>
 <button class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2 px-3" data-bs-target="#tab-rag" data-tab="tab-rag" type="button">
 <i class="bi bi-cpu-fill text-info fs-6"></i>
@@ -484,7 +487,7 @@ Updated: 2026-11-03 14:48:00
 </div>
 <!-- Footer Drawer -->
 <div class="nav-drawer-footer border-top pt-2 mt-auto d-flex align-items-center justify-content-between text-muted small">
-<span class="fw-semibold">AI Windows Admin</span>
+<span class="fw-semibold">ai-tc</span>
 <span>v3.1</span>
 </div>
 </div>
@@ -552,11 +555,12 @@ Updated: 2026-11-03 14:48:00
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <link href="/html/ai_modal_dialog/style.css?v=20261031_v1" rel="stylesheet"/>
-<script src="/html/ai_modal_dialog/main.js?v=20261031_v2"></script>
+<script src="/html/ai_modal_dialog/main.js?v=20261120_v1"></script>
 <script src="/html/js/chatService.js?v=20261008_v2"></script>
 <script src="/html/js/window-api.js?v=20261008_v3"></script>
 <script src="/html/js/help-modal.js?v=20261031_v1"></script>
-<script src="/html/js/table-resizer.js?v=20261103_v1"></script>
+<script src="/html/js/table-sorter.js?v=20261120_v1"></script>
+<script src="/html/js/table-resizer.js?v=20261120_v1"></script>
 <script src="/html/js/table-template.js?v=20261103_v1"></script>
 <script src="/html/js/main.js?v=20261103_v1" type="module"></script>
 <!-- HELP Modal -->
@@ -584,41 +588,81 @@ Updated: 2026-11-03 14:48:00
 <div class="d-flex align-items-center gap-2 flex-wrap min-w-0">
 <h5 class="modal-title d-flex align-items-center gap-2 mb-0" id="userSettingsModalLabel">
 <i class="bi bi-person-gear text-primary"></i>
-<span data-i18n="userSettings.title" id="user-settings-modal-header-title">Пользовательские настройки</span>
+<span data-i18n="userSettings.title" id="user-settings-modal-header-title">{{userSettings.title}}</span>
 </h5>
-<span class="badge bg-primary-subtle text-primary border border-primary-subtle d-inline-flex align-items-center gap-1.5 cursor-pointer user-settings-model-badge ms-1" data-bs-dismiss="modal" data-i18n-title="userSettings.activeModelBadgeTitle" data-tab="tab-models" id="user-settings-active-model-badge-top" onclick="if(window.openModelsTab){window.openModelsTab();}else if(window.switchTab){window.switchTab('tab-models');}else if(window.switchToTab){window.switchToTab('tab-models');}" title="Активная модель: нажмите для выбора">
+<span class="badge bg-primary-subtle text-primary border border-primary-subtle d-inline-flex align-items-center gap-1.5 cursor-pointer user-settings-model-badge ms-1" data-bs-dismiss="modal" data-i18n-title="userSettings.activeModelBadgeTitle" data-tab="tab-models" id="user-settings-active-model-badge-top" onclick="if(window.openModelsTab){window.openModelsTab();}else if(window.switchTab){window.switchTab('tab-models');}else if(window.switchToTab){window.switchToTab('tab-models');}" title="{{userSettings.activeModelBadgeTitle}}">
 <i class="bi bi-cpu text-primary"></i>
 <span class="user-settings-model-val" id="modal-header-active-model-name">...</span>
 <i class="bi bi-box-arrow-up-right font-size-75 ms-1"></i>
 </span>
+<!-- Статус рантайма Electron Shell (бейдж в шапке) -->
+<span class="badge bg-secondary-subtle text-body border border-secondary-subtle d-inline-flex align-items-center gap-1.5 cursor-pointer user-settings-electron-badge ms-1" data-bs-target="#user-settings-pane-electron" data-bs-toggle="tab" data-i18n-title="userSettings.electronStatusTitle" id="user-settings-electron-badge-top" onclick="const t = document.getElementById('user-settings-tab-btn-electron'); if(t){ if(window.bootstrap?.Tab){bootstrap.Tab.getOrCreateInstance(t).show();}else{t.click();} }" title="{{userSettings.electronStatusTitle}}">
+<i class="bi bi-lightning-charge-fill text-warning"></i>
+<span class="user-settings-electron-val" id="modal-header-electron-status-name">Web GUI</span>
+</span>
 </div>
 <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
 </div>
-
 <!-- Тело модального окна настроек интерфейса -->
 <div class="modal-body p-3" id="modal-user-settings-body">
-
 <!-- Навигация по вкладкам модального окна -->
 <ul class="nav nav-tabs mb-3 border-secondary-subtle" id="user-settings-nav-tabs" role="tablist">
-  <li class="nav-item" role="presentation">
-    <button class="nav-link active d-flex align-items-center gap-1.5" id="user-settings-tab-btn-general" data-bs-toggle="tab" data-bs-target="#user-settings-pane-general" type="button" role="tab" aria-selected="true">
-      <i class="bi bi-sliders text-primary"></i>
-      <span data-i18n="userSettings.tabGeneral">Основные настройки</span>
-    </button>
-  </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link d-flex align-items-center gap-1.5" id="user-settings-tab-btn-connections" data-bs-toggle="tab" data-bs-target="#user-settings-pane-connections" type="button" role="tab" aria-selected="false">
-      <i class="bi bi-hdd-network text-info"></i>
-      <span data-i18n="userSettings.tabConnections">Сетевые подключения и БД</span>
-    </button>
-  </li>
+<li class="nav-item" role="presentation">
+<button aria-selected="true" class="nav-link active d-flex align-items-center gap-1.5" data-bs-target="#user-settings-pane-general" data-bs-toggle="tab" id="user-settings-tab-btn-general" role="tab" type="button">
+<i class="bi bi-sliders text-primary"></i>
+<span data-i18n="userSettings.tabGeneral" id="spn-user-settings-tab-general">{{userSettings.tabGeneral}}</span>
+</button>
+</li>
+<li class="nav-item" role="presentation">
+<button aria-selected="false" class="nav-link d-flex align-items-center gap-1.5" data-bs-target="#user-settings-pane-connections" data-bs-toggle="tab" id="user-settings-tab-btn-connections" role="tab" type="button">
+<i class="bi bi-hdd-network text-info"></i>
+<span data-i18n="userSettings.tabConnections" id="spn-user-settings-tab-connections">{{userSettings.tabConnections}}</span>
+</button>
+</li>
+<li class="nav-item" role="presentation">
+<button aria-selected="false" class="nav-link d-flex align-items-center gap-1.5" data-bs-target="#user-settings-pane-electron" data-bs-toggle="tab" id="user-settings-tab-btn-electron" role="tab" type="button">
+<i class="bi bi-lightning-charge-fill text-warning"></i>
+<span data-i18n="userSettings.tabElectron" id="spn-user-settings-tab-electron">{{userSettings.tabElectron}}</span>
+</button>
+</li>
 </ul>
-
 <div class="tab-content" id="user-settings-tab-content">
-
 <!-- Вкладка 1: Основные настройки -->
-<div class="tab-pane fade show active" id="user-settings-pane-general" role="tabpanel" aria-labelledby="user-settings-tab-btn-general">
-
+<div aria-labelledby="user-settings-tab-btn-general" class="tab-pane fade show active" id="user-settings-pane-general" role="tabpanel">
+<!-- Навигация по панелям общих настроек (Subtabs / Blocks) -->
+<!-- Блок меню переключения панелей на вкладке. Выбранная панель добавляется в url -->
+<div class="d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2 mb-3">
+<ul class="nav nav-pills gap-1.5 flex-wrap" id="general-subtabs-nav" role="tablist">
+<li class="nav-item" role="presentation">
+<button aria-controls="general-subpane-profile" aria-selected="true" class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-bs-target="#general-subpane-profile" data-bs-toggle="pill" data-i18n-title="userSettings.subtabProfileTitle" data-panel-id="panel-general-profile" id="general-subtab-profile-tab" role="tab" title="{{userSettings.subtabProfileTitle}}" type="button">
+<i class="bi bi-person-circle text-primary"></i>
+<span data-i18n="userSettings.subtabProfileLabel" id="spn-general-subtabs-profile-label">{{userSettings.subtabProfileLabel}}</span>
+</button>
+</li>
+<li class="nav-item" role="presentation">
+<button aria-controls="general-subpane-appearance" aria-selected="false" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-bs-target="#general-subpane-appearance" data-bs-toggle="pill" data-i18n-title="userSettings.subtabAppearanceTitle" data-panel-id="panel-general-appearance" id="general-subtab-appearance-tab" role="tab" title="{{userSettings.subtabAppearanceTitle}}" type="button">
+<i class="bi bi-palette text-warning"></i>
+<span data-i18n="userSettings.subtabAppearanceLabel" id="spn-general-subtabs-appearance-label">{{userSettings.subtabAppearanceLabel}}</span>
+</button>
+</li>
+<li class="nav-item" role="presentation">
+<button aria-controls="general-subpane-model" aria-selected="false" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-bs-target="#general-subpane-model" data-bs-toggle="pill" data-i18n-title="userSettings.subtabModelTitle" data-panel-id="panel-general-model" id="general-subtab-model-tab" role="tab" title="{{userSettings.subtabModelTitle}}" type="button">
+<i class="bi bi-cpu text-info"></i>
+<span data-i18n="userSettings.subtabModelLabel" id="spn-general-subtabs-model-label">{{userSettings.subtabModelLabel}}</span>
+</button>
+</li>
+<li class="nav-item" role="presentation">
+<button aria-controls="general-subpane-system" aria-selected="false" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-bs-target="#general-subpane-system" data-bs-toggle="pill" data-i18n-title="userSettings.subtabSystemTitle" data-panel-id="panel-general-system" id="general-subtab-system-tab" role="tab" title="{{userSettings.subtabSystemTitle}}" type="button">
+<i class="bi bi-gear-wide-connected text-secondary"></i>
+<span data-i18n="userSettings.subtabSystemLabel" id="spn-general-subtabs-system-label">{{userSettings.subtabSystemLabel}}</span>
+</button>
+</li>
+</ul>
+</div>
+<!-- Контент панелей общих настроек -->
+<div class="tab-content mb-3" id="general-subtabs-content">
+<!-- Панель 1: Профиль и Авторизация -->
+<div aria-labelledby="general-subtab-profile-tab" class="tab-pane fade show active" data-panel-id="panel-general-profile" id="general-subpane-profile" role="tabpanel">
 <!-- Карточка авторизованного пользователя Google OAuth -->
 <div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3 d-none" data-panel-id="panel-webgui-1" id="user-settings-auth-card">
 <!-- Строка профиля с аватаром и информацией о пользователе -->
@@ -634,55 +678,131 @@ Updated: 2026-11-03 14:48:00
 <!-- Строка имени пользователя и бейджа роли -->
 <div class="d-flex align-items-center gap-2" id="user-settings-name-badge-row">
 <!-- Отображаемое имя пользователя -->
-<strong class="text-truncate" data-i18n="userSettings.userDefault" id="user-settings-name">Пользователь</strong>
+<strong class="text-truncate" data-i18n="userSettings.userDefault" id="user-settings-name">{{userSettings.userDefault}}</strong>
 <!-- Бейдж системной роли пользователя -->
-<span class="badge bg-primary" data-i18n="ui.ide.txt_e3afed00" id="user-settings-role-badge">Admin</span>
+<span class="badge bg-primary" data-i18n="ui.ide.txt_e3afed00" id="user-settings-role-badge">{{ui.ide.txt_e3afed00}}</span>
 </div>
 <!-- Электронная почта пользователя -->
-<div class="small text-muted text-truncate" data-i18n="ui.ide.txt_1919bfc4" id="user-settings-email">email@gmail.com</div>
+<div class="small text-muted text-truncate" data-i18n="ui.ide.txt_1919bfc4" id="user-settings-email">{{ui.ide.txt_1919bfc4}}</div>
 <!-- Индикатор статуса синхронизации с Google OAuth -->
 <div class="small mt-1 text-muted" id="user-settings-google-badge">
-<i class="bi bi-google text-danger me-1"></i><span data-i18n="userSettings.googleOAuth" id="user-settings-google-oauth-label">Google OAuth:</span> <span class="text-success fw-bold" data-i18n="userSettings.googleSynced" id="user-settings-google-status">Синхронизирован</span>
+<i class="bi bi-google text-danger me-1"></i><span data-i18n="userSettings.googleOAuth" id="user-settings-google-oauth-label">{{userSettings.googleOAuth}}</span> <span class="text-success fw-bold" data-i18n="userSettings.googleSynced" id="user-settings-google-status">{{userSettings.googleSynced}}</span>
 </div>
 </div>
 <!-- Кнопка выхода из учётной записи -->
-<button class="btn btn-outline-danger btn-sm btn-user-logout" data-i18n-title="userSettings.logout" id="user-settings-logout-btn" title="Выйти" type="button">
+<button class="btn btn-outline-danger btn-sm btn-user-logout" data-i18n-title="userSettings.logout" id="user-settings-logout-btn" title="{{userSettings.logout}}" type="button">
 <i class="bi bi-box-arrow-right"></i>
 </button>
+</div>
+<!-- Расширенные сведения о профиле пользователя из data/users.db -->
+<div class="mt-3 pt-2.5 border-top border-secondary-subtle" id="user-settings-extended-profile">
+<div class="d-flex align-items-center justify-content-between mb-2">
+<span class="small fw-semibold text-secondary d-flex align-items-center gap-1.5" id="user-settings-details-title">
+<i class="bi bi-person-vcard text-primary"></i>
+<span data-i18n="userSettings.profileDetails" id="spn-user-settings-profile-details">{{userSettings.profileDetails}}</span>
+</span>
+<button class="btn btn-sm btn-outline-secondary py-0 px-2 font-size-80 d-flex align-items-center gap-1" id="user-settings-toggle-edit-btn" type="button">
+<i class="bi bi-pencil-square"></i>
+<span data-i18n="userSettings.editProfile" id="spn-user-settings-edit-profile">{{userSettings.editProfile}}</span>
+</button>
+</div>
+<!-- Сетка параметров пользователя -->
+<div class="row g-2 font-size-85" id="user-settings-details-grid">
+<div class="col-sm-6">
+<div class="p-2 rounded bg-body border border-secondary-subtle">
+<span class="text-secondary small d-block" data-i18n="userSettings.lblUsername" id="spn-lbl-username">{{userSettings.lblUsername}}</span>
+<strong class="text-body font-monospace" id="user-settings-val-username">—</strong>
+</div>
+</div>
+<div class="col-sm-6">
+<div class="p-2 rounded bg-body border border-secondary-subtle">
+<span class="text-secondary small d-block" data-i18n="userSettings.lblProvider" id="spn-lbl-provider">{{userSettings.lblProvider}}</span>
+<span class="badge bg-primary-subtle text-primary border border-primary-subtle" id="user-settings-val-provider">Google OAuth</span>
+</div>
+</div>
+<div class="col-sm-6">
+<div class="p-2 rounded bg-body border border-secondary-subtle">
+<span class="text-secondary small d-block" data-i18n="userSettings.lblUserId" id="spn-lbl-userid">{{userSettings.lblUserId}}</span>
+<span class="text-body font-monospace small text-truncate d-block" id="user-settings-val-id" title="">—</span>
+</div>
+</div>
+<div class="col-sm-6">
+<div class="p-2 rounded bg-body border border-secondary-subtle">
+<span class="text-secondary small d-block" data-i18n="userSettings.lblLastLogin" id="spn-lbl-lastlogin">{{userSettings.lblLastLogin}}</span>
+<span class="text-body small" id="user-settings-val-last-login">—</span>
+</div>
+</div>
+<div class="col-12">
+<div class="p-2 rounded bg-body border border-secondary-subtle">
+<span class="text-secondary small d-block mb-1" data-i18n="userSettings.lblStorage" id="spn-lbl-storage">{{userSettings.lblStorage}}</span>
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-1 small">
+<span class="text-body font-monospace">data/users.db (SQLite WAL)</span>
+<span class="badge bg-success-subtle text-success border border-success-subtle" data-i18n="userSettings.statusConnected" id="spn-val-users-db-status">{{userSettings.statusConnected}}</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Блок редактирования профиля (скрыт по умолчанию) -->
+<div class="mt-2.5 p-2.5 rounded bg-body border border-primary-subtle d-none" id="user-settings-edit-box">
+<div class="d-flex align-items-center justify-content-between mb-2">
+<span class="small fw-semibold text-primary d-flex align-items-center gap-1" id="user-settings-edit-title">
+<i class="bi bi-pencil"></i>
+<span data-i18n="userSettings.editProfileTitle" id="spn-user-settings-edit-title">{{userSettings.editProfileTitle}}</span>
+</span>
+<button aria-label="Close" class="btn-close font-size-75" id="user-settings-edit-cancel-btn" type="button"></button>
+</div>
+<div class="row g-2">
+<div class="col-sm-6">
+<label class="form-label small text-secondary mb-1" data-i18n="userSettings.lblFullName" for="user-settings-input-fullname" id="lbl-input-fullname">{{userSettings.lblFullName}}</label>
+<input class="form-control form-control-sm" data-i18n-placeholder="userSettings.phFullName" id="user-settings-input-fullname" placeholder="{{userSettings.phFullName}}" type="text"/>
+</div>
+<div class="col-sm-6">
+<label class="form-label small text-secondary mb-1" data-i18n="userSettings.lblAvatarUrl" for="user-settings-input-avatar" id="lbl-input-avatar">{{userSettings.lblAvatarUrl}}</label>
+<input class="form-control form-control-sm" data-i18n-placeholder="userSettings.phAvatarUrl" id="user-settings-input-avatar" placeholder="{{userSettings.phAvatarUrl}}" type="text"/>
+</div>
+<div class="col-12 d-flex justify-content-end gap-2 mt-2">
+<button class="btn btn-sm btn-primary px-3 d-flex align-items-center gap-1.5" id="user-settings-save-profile-btn" type="button">
+<i class="bi bi-check2"></i>
+<span data-i18n="userSettings.saveProfile" id="spn-user-settings-save-profile">{{userSettings.saveProfile}}</span>
+</button>
+</div>
+</div>
+</div>
 </div>
 </div>
 <!-- Карточка гостевого режима и входа через Google OAuth -->
 <div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3 text-center" data-panel-id="panel-webgui-2" id="user-settings-guest-card">
 <!-- Описание авторизации и доступа к сервисам Google -->
 <div class="text-muted small mb-2" id="user-settings-auth-desc">
-<i class="bi bi-shield-lock me-1"></i> <span data-i18n="userSettings.authDesc" id="user-settings-auth-desc-text">Авторизация и синхронизация аккаунта</span>
+<i class="bi bi-shield-lock me-1"></i> <span data-i18n="userSettings.authDesc" id="user-settings-auth-desc-text">{{userSettings.authDesc}}</span>
 </div>
 <!-- Кнопка входа через Google OAuth 2.0 -->
 <button class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2 btn-google-login" id="user-settings-google-btn" type="button">
 <i class="bi bi-google"></i>
-<span data-i18n="userSettings.signInGoogle" id="user-settings-google-btn-text">Войти через Google (OAuth 2.0)</span>
+<span data-i18n="userSettings.signInGoogle" id="user-settings-google-btn-text">{{userSettings.signInGoogle}}</span>
 </button>
-<div class="small text-muted mt-2 font-size-75" data-i18n="userSettings.googleSyncServicesHint" id="user-settings-google-sync-hint">
-  Синхронизация с Google Drive, Docs, Calendar и Contacts
+<div class="small text-muted mt-2 font-size-75" data-i18n="userSettings.googleSyncServicesHint" id="user-settings-google-sync-hint">{{userSettings.googleSyncServicesHint}}</div>
 </div>
 </div>
+<!-- Панель 2: Внешний вид и язык -->
+<div aria-labelledby="general-subtab-appearance-tab" class="tab-pane fade" data-panel-id="panel-general-appearance" id="general-subpane-appearance" role="tabpanel">
 <!-- Контейнер выбора языка интерфейса (i18n) -->
 <div class="mb-3" id="modal-lang-container">
 <!-- Заголовок поля выбора языка интерфейса -->
 <label class="form-label fw-semibold small d-flex align-items-center gap-2" for="modal-lang-selector" id="modal-lang-selector-label">
 <i class="bi bi-translate text-info"></i>
-<span data-i18n="userSettings.language" id="modal-lang-selector-text">Язык интерфейса</span>
+<span data-i18n="userSettings.language" id="modal-lang-selector-text">{{userSettings.language}}</span>
 </label>
 <!-- Выпадающий список выбора языка интерфейса -->
-<select class="form-select lang-selector" data-i18n-title="userSettings.languageSelectTitle" id="modal-lang-selector" title="Выбор языка интерфейса">
+<select class="form-select lang-selector" data-i18n-title="userSettings.languageSelectTitle" id="modal-lang-selector" title="{{userSettings.languageSelectTitle}}">
 <!-- Опция русского языка (ru-RU) -->
-<option data-i18n="ui.ide.txt_051d7ea9" id="opt-lang-ru" value="ru-RU">Русский (ru-RU)</option>
+<option data-i18n="ui.ide.txt_051d7ea9" id="opt-lang-ru" value="ru-RU">{{ui.ide.txt_051d7ea9}}</option>
 <!-- Опция английского языка (en-US) -->
-<option data-i18n="ui.ide.txt_a44c7293" id="opt-lang-en" value="en-US">English (en-US)</option>
+<option data-i18n="ui.ide.txt_a44c7293" id="opt-lang-en" value="en-US">{{ui.ide.txt_a44c7293}}</option>
 <!-- Опция иврита (he-IL) -->
-<option data-i18n="ui.ide.txt_da0ae119" id="opt-lang-he" value="he-IL">עברית (he-IL)</option>
+<option data-i18n="ui.ide.txt_da0ae119" id="opt-lang-he" value="he-IL">{{ui.ide.txt_da0ae119}}</option>
 <!-- Опция украинского языка (uk-UA) -->
-<option data-i18n="ui.ide.txt_ceae3e80" id="opt-lang-uk" value="uk-UA">Українська (uk-UA)</option>
+<option data-i18n="ui.ide.txt_ceae3e80" id="opt-lang-uk" value="uk-UA">{{ui.ide.txt_ceae3e80}}</option>
 </select>
 </div>
 <!-- Контейнер выбора темы оформления интерфейса -->
@@ -690,66 +810,69 @@ Updated: 2026-11-03 14:48:00
 <!-- Заголовок поля выбора темы оформления -->
 <label class="form-label fw-semibold small d-flex align-items-center gap-2" for="modal-theme-selector" id="modal-theme-selector-label">
 <i class="bi bi-palette text-warning"></i>
-<span data-i18n="userSettings.theme" id="modal-theme-selector-text">Тема оформления</span>
+<span data-i18n="userSettings.theme" id="modal-theme-selector-text">{{userSettings.theme}}</span>
 </label>
 <!-- Выпадающий список тем оформления -->
-<select class="form-select theme-selector" data-i18n-title="userSettings.themeSelectTitle" id="modal-theme-selector" title="Выбор темы оформления">
+<select class="form-select theme-selector" data-i18n-title="userSettings.themeSelectTitle" id="modal-theme-selector" title="{{userSettings.themeSelectTitle}}">
 <!-- Системная адаптивная тема -->
-<option data-i18n="userSettings.themeSystem" id="opt-theme-system" value="system">🌓 Системная</option>
+<option data-i18n="userSettings.themeSystem" id="opt-theme-system" value="system">{{userSettings.themeSystem}}</option>
 <!-- Группа тёмных тем интерфейса -->
-<optgroup data-i18n-label="userSettings.themeGroupDark" id="optgroup-themes-dark" label="🌙 Тёмные темы">
+<optgroup data-i18n-label="userSettings.themeGroupDark" id="optgroup-themes-dark" label="{{userSettings.themeGroupDark}}">
 <!-- Стандартная тёмная тема -->
-<option data-i18n="userSettings.themeDark" id="opt-theme-dark" value="dark">🌙 Стандартная тёмная</option>
+<option data-i18n="userSettings.themeDark" id="opt-theme-dark" value="dark">{{userSettings.themeDark}}</option>
 <!-- Тёмная сланцевая тема Dark Slate -->
-<option data-i18n="userSettings.themeDarkSlate" id="opt-theme-dark-slate" selected="" value="theme-dark-slate">🌑 Dark Slate (Тёмный сланец)</option>
+<option data-i18n="userSettings.themeDarkSlate" id="opt-theme-dark-slate" selected="" value="theme-dark-slate">{{userSettings.themeDarkSlate}}</option>
 <!-- Неоновая киберпанк тема Cyberpunk Neon -->
-<option data-i18n="userSettings.themeCyberpunk" id="opt-theme-cyberpunk" value="theme-cyberpunk">⚡ Cyberpunk Neon (Киберпанк неон)</option>
+<option data-i18n="userSettings.themeCyberpunk" id="opt-theme-cyberpunk" value="theme-cyberpunk">{{userSettings.themeCyberpunk}}</option>
 <!-- Консольная тема Terminal (Matrix / CRT) -->
-<option data-i18n="userSettings.themeTerminal" id="opt-theme-terminal" value="terminal">📟 Терминал (Matrix / CRT)</option>
+<option data-i18n="userSettings.themeTerminal" id="opt-theme-terminal" value="terminal">{{userSettings.themeTerminal}}</option>
 <!-- Скандинавская морозная тема Nordic Frost -->
-<option data-i18n="userSettings.themeNordicFrost" id="opt-theme-nordic-frost" value="nordic-frost">❄️ Nordic Frost (Скандинавский морозный)</option>
+<option data-i18n="userSettings.themeNordicFrost" id="opt-theme-nordic-frost" value="nordic-frost">{{userSettings.themeNordicFrost}}</option>
 <!-- Глубокая сине-зеленая тема Solarized Deep -->
-<option data-i18n="userSettings.themeSolarizedDark" id="opt-theme-solarized-dark" value="solarized-dark">🌲 Solarized Deep (Глубокий сине-зеленый)</option>
+<option data-i18n="userSettings.themeSolarizedDark" id="opt-theme-solarized-dark" value="solarized-dark">{{userSettings.themeSolarizedDark}}</option>
 <!-- Тема высокой контрастности High Contrast -->
-<option data-i18n="userSettings.themeHighContrast" id="opt-theme-high-contrast" value="theme-high-contrast">👁️ High Contrast (Высокая контрастность)</option>
+<option data-i18n="userSettings.themeHighContrast" id="opt-theme-high-contrast" value="theme-high-contrast">{{userSettings.themeHighContrast}}</option>
 </optgroup>
 <!-- Группа светлых тем интерфейса -->
-<optgroup data-i18n-label="userSettings.themeGroupLight" id="optgroup-themes-light" label="☀️ Светлые темы">
+<optgroup data-i18n-label="userSettings.themeGroupLight" id="optgroup-themes-light" label="{{userSettings.themeGroupLight}}">
 <!-- Кирпичная тема Terracotta Brick -->
-<option data-i18n="userSettings.themeBrick" id="opt-theme-brick" value="brick">🧱 Кирпичная (Терракота)</option>
+<option data-i18n="userSettings.themeBrick" id="opt-theme-brick" value="brick">{{userSettings.themeBrick}}</option>
 <!-- Стандартная светлая тема Light / NightView -->
-<option data-i18n="userSettings.themeLight" id="opt-theme-light" value="light">🪟 Windows System Light</option>
+<option data-i18n="userSettings.themeLight" id="opt-theme-light" value="light">{{userSettings.themeLight}}</option>
 <!-- Тёплая бумажная тема NightView -->
-<option data-i18n="userSettings.themeNightview" id="opt-theme-nightview" value="nightview">📖 NightView (Тёплая бумага)</option>
+<option data-i18n="userSettings.themeNightview" id="opt-theme-nightview" value="nightview">{{userSettings.themeNightview}}</option>
 <!-- Тёплая бумажная тема NightView 70% со 100% стилем NightView и масштабом 70% -->
-<option data-i18n="userSettings.themeNightview70" id="opt-theme-nightview-70" value="nightview-70">📖 NightView 70% (Тёплая бумага 70%)</option>
+<option data-i18n="userSettings.themeNightview70" id="opt-theme-nightview-70" value="nightview-70">{{userSettings.themeNightview70}}</option>
 <!-- Корпоративная светлая тема Light Enterprise -->
-<option data-i18n="userSettings.themeLightEnterprise" id="opt-theme-light-enterprise" value="theme-light-enterprise">🏢 Light Enterprise (Светлый корпоративный)</option>
+<option data-i18n="userSettings.themeLightEnterprise" id="opt-theme-light-enterprise" value="theme-light-enterprise">{{userSettings.themeLightEnterprise}}</option>
 </optgroup>
 </select>
 </div>
+</div>
+<!-- Панель 3: Модель ИИ -->
+<div aria-labelledby="general-subtab-model-tab" class="tab-pane fade" data-panel-id="panel-general-model" id="general-subpane-model" role="tabpanel">
 <!-- Секция быстрой проверки доступности активной AI-модели -->
 <div class="pt-2 border-top border-secondary-subtle mt-3" id="modal-model-ping-section">
 <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2" id="modal-model-ping-header">
 <span class="fw-semibold small d-flex align-items-center gap-2 text-body" id="modal-model-ping-title">
 <i class="bi bi-cpu text-primary"></i>
-<span data-i18n="userSettings.modelPingTitle" id="modal-model-ping-title-text">Проверка доступности модели</span>
+<span data-i18n="userSettings.modelPingTitle" id="modal-model-ping-title-text">{{userSettings.modelPingTitle}}</span>
 </span>
-<span class="badge bg-primary-subtle text-primary border border-primary-subtle d-inline-flex align-items-center gap-1.5 cursor-pointer user-settings-model-badge" data-bs-dismiss="modal" data-i18n-title="userSettings.activeModelBadgeTitle" data-tab="tab-models" id="user-settings-active-model-badge" onclick="if(window.openModelsTab){window.openModelsTab();}else if(window.switchTab){window.switchTab('tab-models');}else if(window.switchToTab){window.switchToTab('tab-models');}" title="Активная модель: нажмите для выбора">
+<span class="badge bg-primary-subtle text-primary border border-primary-subtle d-inline-flex align-items-center gap-1.5 cursor-pointer user-settings-model-badge" data-bs-dismiss="modal" data-i18n-title="userSettings.activeModelBadgeTitle" data-tab="tab-models" id="user-settings-active-model-badge" onclick="if(window.openModelsTab){window.openModelsTab();}else if(window.switchTab){window.switchTab('tab-models');}else if(window.switchToTab){window.switchToTab('tab-models');}" title="{{userSettings.activeModelBadgeTitle}}">
 <i class="bi bi-stars text-warning"></i>
 <span class="user-settings-model-val" id="user-settings-active-model-name">...</span>
 <i class="bi bi-box-arrow-up-right font-size-75 ms-1"></i>
 </span>
 </div>
 <div class="input-group input-group-sm mb-2" id="model-ping-input-group">
-<input class="form-control form-control-sm" data-i18n-placeholder="userSettings.modelPingPlaceholder" id="model-ping-input" placeholder="Введите сообщение..." type="text" value="Проверка доступности модели"/>
+<input class="form-control form-control-sm" data-i18n-placeholder="userSettings.modelPingPlaceholder" id="model-ping-input" placeholder="{{userSettings.modelPingPlaceholder}}" type="text" value="Проверка доступности модели"/>
 <button class="btn btn-sm btn-primary d-flex align-items-center gap-1.5 px-3" id="btn-model-ping-send" type="button">
 <i class="bi bi-send-fill" id="model-ping-btn-icon"></i>
-<span data-i18n="userSettings.modelPingSendBtn" id="model-ping-btn-text">Отправить</span>
+<span data-i18n="userSettings.modelPingSendBtn" id="model-ping-btn-text">{{userSettings.modelPingSendBtn}}</span>
 </button>
 </div>
 <div class="d-none" id="model-ping-response-container">
-<label class="form-label small text-muted mb-1 fw-semibold" data-i18n="userSettings.modelPingResponseLabel" id="model-ping-response-label">Ответ модели:</label>
+<label class="form-label small text-muted mb-1 fw-semibold" data-i18n="userSettings.modelPingResponseLabel" id="model-ping-response-label">{{userSettings.modelPingResponseLabel}}</label>
 <div class="small p-2 rounded bg-body-tertiary border text-break font-monospace pre-scrollable-220" id="model-ping-response"></div>
 </div>
 </div>
@@ -758,309 +881,433 @@ Updated: 2026-11-03 14:48:00
 <!-- Кнопка перехода в Редактор тем оформления -->
 <button class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2" data-bs-dismiss="modal" data-tab="tab-theme-editor" id="modal-btn-open-theme-editor" type="button">
 <i class="bi bi-palette2 text-primary"></i>
-<span data-i18n="userSettings.themeEditorBtn" id="modal-btn-open-theme-editor-label">Редактор тем оформления</span>
+<span data-i18n="userSettings.themeEditorBtn" id="modal-btn-open-theme-editor-label">{{userSettings.themeEditorBtn}}</span>
 </button>
 <!-- Описание возможностей редактора тем -->
-<div class="text-muted small text-center mt-1 font-size-75" data-i18n="userSettings.themeEditorDesc" id="modal-theme-editor-desc">
-              Размеры, цвета, скругления, типографика и элементы
-            </div>
+<div class="text-muted small text-center mt-1 font-size-75" data-i18n="userSettings.themeEditorDesc" id="modal-theme-editor-desc">{{userSettings.themeEditorDesc}}</div>
 </div>
+</div>
+<!-- Панель 4: Система и подсказки -->
+<div aria-labelledby="general-subtab-system-tab" class="tab-pane fade" data-panel-id="panel-general-system" id="general-subpane-system" role="tabpanel">
 <!-- Секция диспетчера кеша браузера -->
 <div class="pt-2 border-top border-secondary-subtle mt-3" id="modal-cache-manager-section">
 <!-- Кнопка открытия диалога управления кешем браузера -->
-<button class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2" data-ai-tooltip="true" data-bs-target="#cacheManagerModal" data-bs-toggle="modal" data-i18n-title="cacheManager.title" data-term="clear_cache" id="btn-open-cache-manager" title="Кеш браузера" type="button">
+<button class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2" data-ai-tooltip="true" data-bs-target="#cacheManagerModal" data-bs-toggle="modal" data-i18n-title="cacheManager.title" data-term="clear_cache" id="btn-open-cache-manager" title="{{cacheManager.title}}" type="button">
 <i class="bi bi-hdd-stack text-secondary"></i>
-<span data-i18n="userSettings.cacheManagerBtn" id="modal-cache-manager-btn-label">Кеш браузера и хранилище данных</span>
+<span data-i18n="userSettings.cacheManagerBtn" id="modal-cache-manager-btn-label">{{userSettings.cacheManagerBtn}}</span>
 </button>
 <!-- Описание функций управления локальными данными и дисковой квотой -->
-<div class="text-muted small text-center mt-1 font-size-75" data-i18n="userSettings.cacheManagerDesc" id="modal-cache-manager-desc">
-              Управление локальными данными, IndexedDB и дисковой квотой
-            </div>
+<div class="text-muted small text-center mt-1 font-size-75" data-i18n="userSettings.cacheManagerDesc" id="modal-cache-manager-desc">{{userSettings.cacheManagerDesc}}</div>
 </div>
-
+<!-- Секция интерактивного тура по возможностям системы -->
+<div class="pt-2 border-top border-secondary-subtle mt-3" id="modal-system-tour-section">
+<!-- Кнопка запуска интерактивного тура -->
+<button class="btn btn-outline-info btn-sm w-100 d-flex align-items-center justify-content-center gap-2" data-ai-tooltip="true" data-bs-dismiss="modal" data-i18n-title="userSettings.systemTourBtnTitle" data-term="system_tour" id="modal-btn-start-system-tour" title="{{userSettings.systemTourBtnTitle}}" type="button">
+<i class="bi bi-compass text-info"></i>
+<span data-i18n="userSettings.systemTourBtn" id="modal-btn-start-system-tour-label">{{userSettings.systemTourBtn}}</span>
+</button>
+<!-- Описание возможностей интерактивного тура -->
+<div class="text-muted small text-center mt-1 font-size-75" data-i18n="userSettings.systemTourDesc" id="modal-system-tour-desc">{{userSettings.systemTourDesc}}</div>
 </div>
-
-
+<!-- Настройка задержки всплывающих подсказок -->
+<div class="pt-2 border-top border-secondary-subtle mt-3" id="modal-tooltips-config-section">
+<div class="d-flex align-items-center justify-content-between mb-1">
+<label class="form-label fw-semibold small d-flex align-items-center gap-2 mb-0" for="user-settings-tooltip-delay-input">
+<i class="bi bi-stopwatch text-warning"></i>
+<span data-i18n="userSettings.tooltipDelayLabel" id="user-settings-tooltip-delay-label">{{userSettings.tooltipDelayLabel}}</span>
+</label>
+<span class="badge bg-secondary-subtle text-body border border-secondary-subtle small" data-i18n="userSettings.tooltipDelayValDefault" id="user-settings-tooltip-delay-val">{{userSettings.tooltipDelayValDefault}}</span>
+</div>
+<div class="d-flex align-items-center gap-2">
+<input class="form-range" id="user-settings-tooltip-delay-input" max="2000" min="0" step="50" type="range" value="500"/>
+</div>
+<div class="form-text small text-muted font-size-75" data-i18n="userSettings.tooltipDelayHint" id="user-settings-tooltip-delay-hint">{{userSettings.tooltipDelayHint}}</div>
+</div>
+<!-- Редактор подсказок -->
+<div class="pt-2 border-top border-secondary-subtle mt-3" id="modal-tooltips-editor-section">
+<button class="btn btn-outline-info btn-sm w-100 d-flex align-items-center justify-content-center gap-2" data-bs-dismiss="modal" data-tab="tab-tooltips" id="modal-btn-open-tooltips-editor" type="button">
+<i class="bi bi-chat-square-quote text-info"></i>
+<span data-i18n="userSettings.tooltipsEditorBtn" id="modal-btn-open-tooltips-editor-label">{{userSettings.tooltipsEditorBtn}}</span>
+</button>
+<div class="text-muted small text-center mt-1 font-size-75" data-i18n="userSettings.tooltipsEditorDesc" id="modal-tooltips-editor-desc">{{userSettings.tooltipsEditorDesc}}</div>
+</div>
+</div>
+</div>
+</div>
 <!-- Вкладка 2: Сетевые подключения и БД -->
-<div class="tab-pane fade" id="user-settings-pane-connections" role="tabpanel" aria-labelledby="user-settings-tab-btn-connections">
-
+<div aria-labelledby="user-settings-tab-btn-connections" class="tab-pane fade" id="user-settings-pane-connections" role="tabpanel">
 <!-- Баннер заголовка соединений -->
 <div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3" id="conn-settings-header-card">
-  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-    <div>
-      <h6 class="fw-bold mb-1 d-flex align-items-center gap-2">
-        <i class="bi bi-hdd-network text-info"></i>
-        <span data-i18n="userSettings.connectionsTitle">Конфигурация баз данных и внешних сервисов</span>
-      </h6>
-      <div class="small text-muted" data-i18n="userSettings.connectionsDesc">
-        Управление реквизитами доступа к Hostinger MariaDB, SQLite, FTP, SSH, SMTP и IMAP
-      </div>
-    </div>
-    <div class="d-flex align-items-center gap-2">
-      <span class="badge bg-body-secondary text-body border border-secondary-subtle px-2 py-1.5" id="conn-active-status-badge">
-        <i class="bi bi-shield-check text-success me-1"></i> <span id="conn-status-summary-text">Готов к работе</span>
-      </span>
-    </div>
-  </div>
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+<div>
+<h6 class="fw-bold mb-1 d-flex align-items-center gap-2">
+<i class="bi bi-hdd-network text-info"></i>
+<span data-i18n="userSettings.connectionsTitle" id="spn-user-settings-connections-title">{{userSettings.connectionsTitle}}</span>
+</h6>
+<div class="small text-muted" data-i18n="userSettings.connectionsDesc" id="blk-user-settings-connections-desc">{{userSettings.connectionsDesc}}</div>
 </div>
-
+<div class="d-flex align-items-center gap-2">
+<span class="badge bg-body-secondary text-body border border-secondary-subtle px-2 py-1.5" id="conn-active-status-badge">
+<i class="bi bi-shield-check text-success me-1"></i> <span data-i18n="ui.common.txt_8d2291b8" id="conn-status-summary-text">{{ui.common.txt_8d2291b8}}</span>
+</span>
+</div>
+</div>
+</div>
+<!-- Навигация по панелям подключений (Subtabs) -->
+<!-- Блок меню переключения панелей на вкладке. Выбранная панель добавляется в url -->
+<div class="d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-2 mb-3">
+<ul class="nav nav-pills gap-1.5" id="conn-subtabs-nav" role="tablist">
+<li class="nav-item" role="presentation">
+<button aria-controls="conn-subpane-database" aria-selected="true" class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-bs-target="#conn-subpane-database" data-bs-toggle="pill" data-i18n-title="userSettings.subtabDbTitle" data-panel-id="panel-conn-database" id="conn-subtab-database-tab" role="tab" title="{{userSettings.subtabDbTitle}}" type="button">
+<i class="bi bi-database text-warning"></i>
+<span data-i18n="userSettings.subtabDbLabel" id="spn-conn-subtabs-database-label">{{userSettings.subtabDbLabel}}</span>
+</button>
+</li>
+<li class="nav-item" role="presentation">
+<button aria-controls="conn-subpane-ftp" aria-selected="false" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-bs-target="#conn-subpane-ftp" data-bs-toggle="pill" data-i18n-title="userSettings.subtabFtpTitle" data-panel-id="panel-conn-ftp" id="conn-subtab-ftp-tab" role="tab" title="{{userSettings.subtabFtpTitle}}" type="button">
+<i class="bi bi-folder-symlink text-success"></i>
+<span data-i18n="userSettings.subtabFtpLabel" id="spn-conn-subtabs-ftp-label">{{userSettings.subtabFtpLabel}}</span>
+</button>
+</li>
+<li class="nav-item" role="presentation">
+<button aria-controls="conn-subpane-ssh" aria-selected="false" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-bs-target="#conn-subpane-ssh" data-bs-toggle="pill" data-i18n-title="userSettings.subtabSshTitle" data-panel-id="panel-conn-ssh" id="conn-subtab-ssh-tab" role="tab" title="{{userSettings.subtabSshTitle}}" type="button">
+<i class="bi bi-terminal text-info"></i>
+<span data-i18n="userSettings.subtabSshLabel" id="spn-conn-subtabs-ssh-label">{{userSettings.subtabSshLabel}}</span>
+</button>
+</li>
+<li class="nav-item" role="presentation">
+<button aria-controls="conn-subpane-mail" aria-selected="false" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-bs-target="#conn-subpane-mail" data-bs-toggle="pill" data-i18n-title="userSettings.subtabMailTitle" data-panel-id="panel-conn-mail" id="conn-subtab-mail-tab" role="tab" title="{{userSettings.subtabMailTitle}}" type="button">
+<i class="bi bi-envelope-at text-danger"></i>
+<span data-i18n="userSettings.subtabMailLabel" id="spn-conn-subtabs-mail-label">{{userSettings.subtabMailLabel}}</span>
+</button>
+</li>
+</ul>
+</div>
+<!-- Контент панелей подключений -->
+<div class="tab-content mb-3" id="conn-subtabs-content">
+<!-- Панель 1: Базы данных (MariaDB / Hostinger / SQLite) -->
+<div aria-labelledby="conn-subtab-database-tab" class="tab-pane fade show active" data-panel-id="panel-conn-database" id="conn-subpane-database" role="tabpanel">
 <!-- Секция 1: Hostinger MariaDB & Базы инструментов -->
-<div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3" id="conn-sec-hostinger-card">
-  <div class="d-flex align-items-center justify-content-between mb-2">
-    <div class="fw-semibold small d-flex align-items-center gap-2">
-      <i class="bi bi-database text-warning"></i>
-      <span data-i18n="userSettings.connHostingerTitle">Hostinger MariaDB & Базы инструментов</span>
-    </div>
-    <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-size-75" id="test-db-result-badge">Не проверено</span>
-  </div>
-  <div class="small text-muted mb-3 font-size-75" data-i18n="userSettings.connHostingerDesc">
-    Удаленная MariaDB на сервере Hostinger и локальный кэш SQLite
-  </div>
-
-  <div class="row g-2 mb-2">
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connEngine">Движок хранения</label>
-      <select class="form-select form-select-sm" id="conn-db-engine">
-        <option value="mariadb" data-i18n="userSettings.connEngineDirect">MariaDB (Hostinger Direct TCP)</option>
-        <option value="hostinger" data-i18n="userSettings.connEngineApi">Hostinger PHP REST API шлюз</option>
-        <option value="sqlite" data-i18n="userSettings.connEngineSqlite">Локальный SQLite</option>
-      </select>
-    </div>
-    <div class="col-12 col-md-5">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connHost">Хост сервера</label>
-      <input class="form-control form-control-sm" id="conn-hostinger-host" placeholder="srv1502.hstgr.io" type="text" value="srv1502.hstgr.io"/>
-    </div>
-    <div class="col-12 col-md-3">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connPort">Порт</label>
-      <input class="form-control form-control-sm" id="conn-hostinger-port" placeholder="3306" type="number" value="3306"/>
-    </div>
-  </div>
-
-  <div class="row g-2 mb-2">
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connDatabase">Имя базы данных</label>
-      <input class="form-control form-control-sm" id="conn-hostinger-db" placeholder="u177424397_comp_knowledge" type="text" value="u177424397_comp_knowledge"/>
-    </div>
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connUser">Пользователь</label>
-      <input class="form-control form-control-sm" id="conn-hostinger-user" placeholder="u177424397_davidka" type="text" value="u177424397_davidka"/>
-    </div>
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connPassword">Пароль</label>
-      <input class="form-control form-control-sm" id="conn-hostinger-pass" placeholder="••••••••" type="password" value="@Davidka#1969"/>
-    </div>
-  </div>
-
-  <div class="row g-2 mb-3">
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connFallbackIp">Резервный IP</label>
-      <input class="form-control form-control-sm" id="conn-hostinger-fallback-ip" placeholder="77.37.35.16" type="text" value="77.37.35.16"/>
-    </div>
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connApiUrl">URL PHP API шлюза</label>
-      <input class="form-control form-control-sm" id="conn-hostinger-api-url" placeholder="https://srv1502.hstgr.io/wikillm_hostinger.php" type="text" value="https://srv1502.hstgr.io/wikillm_hostinger.php"/>
-    </div>
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connSqlitePath">Путь к файлу SQLite</label>
-      <input class="form-control form-control-sm" id="conn-sqlite-path" placeholder="data/ai_instruments/ai_instruments.db" type="text" value="data/ai_instruments/ai_instruments.db"/>
-    </div>
-  </div>
-
-  <div class="d-flex align-items-center justify-content-end">
-    <button class="btn btn-outline-warning btn-sm d-flex align-items-center gap-1.5" id="btn-test-db-conn" type="button">
-      <i class="bi bi-lightning-charge"></i>
-      <span data-i18n="userSettings.btnTestDb">Проверить БД</span>
-    </button>
-  </div>
+<div class="card bg-body-tertiary border-secondary-subtle mb-0 p-3" id="conn-sec-hostinger-card">
+<div class="d-flex align-items-center justify-content-between mb-2">
+<div class="fw-semibold small d-flex align-items-center gap-2">
+<i class="bi bi-database text-warning"></i>
+<span data-i18n="userSettings.connHostingerTitle" id="spn-user-settings-conn-hostinger-title">{{userSettings.connHostingerTitle}}</span>
 </div>
-
+<span class="badge bg-primary-subtle text-primary border border-primary-subtle font-size-75" data-i18n="ui.common.txt_6e641b4a" id="test-db-result-badge">{{ui.common.txt_6e641b4a}}</span>
+</div>
+<div class="small text-muted mb-3 font-size-75" data-i18n="userSettings.connHostingerDesc" id="blk-user-settings-conn-hostinger-desc">{{userSettings.connHostingerDesc}}</div>
+<div class="row g-2 mb-2">
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connEngine" id="lbl-user-settings-conn-engine">{{userSettings.connEngine}}</label>
+<select class="form-select form-select-sm" id="conn-db-engine">
+<option data-i18n="userSettings.connEngineDirect" id="opt-user-settings-conn-engine-direct" value="mariadb">{{userSettings.connEngineDirect}}</option>
+<option data-i18n="userSettings.connEngineApi" id="opt-user-settings-conn-engine-api" value="hostinger">{{userSettings.connEngineApi}}</option>
+<option data-i18n="userSettings.connEngineSqlite" id="opt-user-settings-conn-engine-sqlite" value="sqlite">{{userSettings.connEngineSqlite}}</option>
+</select>
+</div>
+<div class="col-12 col-md-5">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connHost" id="lbl-user-settings-conn-host">{{userSettings.connHost}}</label>
+<input class="form-control form-control-sm" id="conn-hostinger-host" placeholder="srv1502.hstgr.io" type="text" value="srv1502.hstgr.io"/>
+</div>
+<div class="col-12 col-md-3">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connPort" id="lbl-user-settings-conn-port">{{userSettings.connPort}}</label>
+<input class="form-control form-control-sm" id="conn-hostinger-port" placeholder="3306" type="number" value="3306"/>
+</div>
+</div>
+<div class="row g-2 mb-2">
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connDatabase" id="lbl-user-settings-conn-database">{{userSettings.connDatabase}}</label>
+<input class="form-control form-control-sm" id="conn-hostinger-db" placeholder="u177424397_comp_knowledge" type="text" value="u177424397_comp_knowledge"/>
+</div>
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connUser" id="lbl-user-settings-conn-user">{{userSettings.connUser}}</label>
+<input class="form-control form-control-sm" id="conn-hostinger-user" placeholder="u177424397_davidka" type="text" value="u177424397_davidka"/>
+</div>
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connPassword" id="lbl-user-settings-conn-password">{{userSettings.connPassword}}</label>
+<input class="form-control form-control-sm" id="conn-hostinger-pass" placeholder="••••••••" type="password" value="@Davidka#1969"/>
+</div>
+</div>
+<div class="row g-2 mb-3">
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connFallbackIp" id="lbl-user-settings-conn-fallback-ip">{{userSettings.connFallbackIp}}</label>
+<input class="form-control form-control-sm" id="conn-hostinger-fallback-ip" placeholder="77.37.35.16" type="text" value="77.37.35.16"/>
+</div>
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connApiUrl" id="lbl-user-settings-conn-api-url">{{userSettings.connApiUrl}}</label>
+<input class="form-control form-control-sm" id="conn-hostinger-api-url" placeholder="https://srv1502.hstgr.io/wikillm_hostinger.php" type="text" value="https://srv1502.hstgr.io/wikillm_hostinger.php"/>
+</div>
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connSqlitePath" id="lbl-user-settings-conn-sqlite-path">{{userSettings.connSqlitePath}}</label>
+<input class="form-control form-control-sm" id="conn-sqlite-path" placeholder="data/ai_instruments/ai_instruments.db" type="text" value="data/ai_instruments/ai_instruments.db"/>
+</div>
+</div>
+<div class="d-flex align-items-center justify-content-end">
+<button class="btn btn-outline-warning btn-sm d-flex align-items-center gap-1.5" id="btn-test-db-conn" type="button">
+<i class="bi bi-lightning-charge"></i>
+<span data-i18n="userSettings.btnTestDb" id="spn-user-settings-btn-test-db">{{userSettings.btnTestDb}}</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Панель 2: FTP / SFTP -->
+<div aria-labelledby="conn-subtab-ftp-tab" class="tab-pane fade" data-panel-id="panel-conn-ftp" id="conn-subpane-ftp" role="tabpanel">
 <!-- Секция 2: FTP / SFTP -->
-<div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3" id="conn-sec-ftp-card">
-  <div class="d-flex align-items-center justify-content-between mb-2">
-    <div class="fw-semibold small d-flex align-items-center gap-2">
-      <i class="bi bi-folder-symlink text-success"></i>
-      <span data-i18n="userSettings.connFtpTitle">FTP / SFTP подключение</span>
-    </div>
-    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle font-size-75" id="test-ftp-result-badge">Не проверено</span>
-  </div>
-  <div class="small text-muted mb-3 font-size-75" data-i18n="userSettings.connFtpDesc">
-    Файловый доступ для резервного копирования и синхронизации
-  </div>
-
-  <div class="row g-2 mb-2">
-    <div class="col-12 col-md-3">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connProtocol">Протокол</label>
-      <select class="form-select form-select-sm" id="conn-ftp-protocol">
-        <option value="ftp">FTP</option>
-        <option value="ftps">FTPS (Explicit TLS)</option>
-        <option value="sftp">SFTP (SSH File Transfer)</option>
-      </select>
-    </div>
-    <div class="col-12 col-md-6">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connHost">Хост сервера</label>
-      <input class="form-control form-control-sm" id="conn-ftp-host" placeholder="ftp.hostinger.com" type="text"/>
-    </div>
-    <div class="col-12 col-md-3">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connPort">Порт</label>
-      <input class="form-control form-control-sm" id="conn-ftp-port" placeholder="21" type="number" value="21"/>
-    </div>
-  </div>
-
-  <div class="row g-2 mb-3">
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connUser">Пользователь</label>
-      <input class="form-control form-control-sm" id="conn-ftp-user" placeholder="ftp_user" type="text"/>
-    </div>
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connPassword">Пароль</label>
-      <input class="form-control form-control-sm" id="conn-ftp-pass" placeholder="••••••••" type="password"/>
-    </div>
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connRemoteDir">Удаленный каталог</label>
-      <input class="form-control form-control-sm" id="conn-ftp-remote-dir" placeholder="/public_html" type="text" value="/"/>
-    </div>
-  </div>
-
-  <div class="d-flex align-items-center justify-content-end">
-    <button class="btn btn-outline-success btn-sm d-flex align-items-center gap-1.5" id="btn-test-ftp-conn" type="button">
-      <i class="bi bi-lightning-charge"></i>
-      <span data-i18n="userSettings.btnTestFtp">Проверить FTP</span>
-    </button>
-  </div>
+<div class="card bg-body-tertiary border-secondary-subtle mb-0 p-3" id="conn-sec-ftp-card">
+<div class="d-flex align-items-center justify-content-between mb-2">
+<div class="fw-semibold small d-flex align-items-center gap-2">
+<i class="bi bi-folder-symlink text-success"></i>
+<span data-i18n="userSettings.connFtpTitle" id="spn-user-settings-conn-ftp-title">{{userSettings.connFtpTitle}}</span>
 </div>
-
+<span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle font-size-75" data-i18n="ui.common.txt_6e641b4a" id="test-ftp-result-badge">{{ui.common.txt_6e641b4a}}</span>
+</div>
+<div class="small text-muted mb-3 font-size-75" data-i18n="userSettings.connFtpDesc" id="blk-user-settings-conn-ftp-desc">{{userSettings.connFtpDesc}}</div>
+<div class="row g-2 mb-2">
+<div class="col-12 col-md-3">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connProtocol" id="lbl-user-settings-conn-protocol">{{userSettings.connProtocol}}</label>
+<select class="form-select form-select-sm" id="conn-ftp-protocol">
+<option value="ftp">FTP</option>
+<option value="ftps">FTPS (Explicit TLS)</option>
+<option value="sftp">SFTP (SSH File Transfer)</option>
+</select>
+</div>
+<div class="col-12 col-md-6">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connHost" id="lbl-user-settings-conn-host-2">{{userSettings.connHost}}</label>
+<input class="form-control form-control-sm" id="conn-ftp-host" placeholder="ftp.hostinger.com" type="text"/>
+</div>
+<div class="col-12 col-md-3">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connPort" id="lbl-user-settings-conn-port-2">{{userSettings.connPort}}</label>
+<input class="form-control form-control-sm" id="conn-ftp-port" placeholder="21" type="number" value="21"/>
+</div>
+</div>
+<div class="row g-2 mb-3">
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connUser" id="lbl-user-settings-conn-user-2">{{userSettings.connUser}}</label>
+<input class="form-control form-control-sm" id="conn-ftp-user" placeholder="ftp_user" type="text"/>
+</div>
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connPassword" id="lbl-user-settings-conn-password-2">{{userSettings.connPassword}}</label>
+<input class="form-control form-control-sm" id="conn-ftp-pass" placeholder="••••••••" type="password"/>
+</div>
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connRemoteDir" id="lbl-user-settings-conn-remote-dir">{{userSettings.connRemoteDir}}</label>
+<input class="form-control form-control-sm" id="conn-ftp-remote-dir" placeholder="/public_html" type="text" value="/"/>
+</div>
+</div>
+<div class="d-flex align-items-center justify-content-end">
+<button class="btn btn-outline-success btn-sm d-flex align-items-center gap-1.5" id="btn-test-ftp-conn" type="button">
+<i class="bi bi-lightning-charge"></i>
+<span data-i18n="userSettings.btnTestFtp" id="spn-user-settings-btn-test-ftp">{{userSettings.btnTestFtp}}</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Панель 3: SSH -->
+<div aria-labelledby="conn-subtab-ssh-tab" class="tab-pane fade" data-panel-id="panel-conn-ssh" id="conn-subpane-ssh" role="tabpanel">
 <!-- Секция 3: SSH -->
-<div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3" id="conn-sec-ssh-card">
-  <div class="d-flex align-items-center justify-content-between mb-2">
-    <div class="fw-semibold small d-flex align-items-center gap-2">
-      <i class="bi bi-terminal text-info"></i>
-      <span data-i18n="userSettings.connSshTitle">SSH доступ</span>
-    </div>
-    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle font-size-75" id="test-ssh-result-badge">Не проверено</span>
-  </div>
-  <div class="small text-muted mb-3 font-size-75" data-i18n="userSettings.connSshDesc">
-    Удаленное терминальное управление и безопасные туннели
-  </div>
-
-  <div class="row g-2 mb-2">
-    <div class="col-12 col-md-6">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connHost">Хост сервера</label>
-      <input class="form-control form-control-sm" id="conn-ssh-host" placeholder="ssh.hostinger.com" type="text"/>
-    </div>
-    <div class="col-12 col-md-2">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connPort">Порт</label>
-      <input class="form-control form-control-sm" id="conn-ssh-port" placeholder="22" type="number" value="22"/>
-    </div>
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connUser">Пользователь</label>
-      <input class="form-control form-control-sm" id="conn-ssh-user" placeholder="root" type="text"/>
-    </div>
-  </div>
-
-  <div class="row g-2 mb-3">
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connAuthType">Тип аутентификации</label>
-      <select class="form-select form-select-sm" id="conn-ssh-auth-type">
-        <option value="password" data-i18n="userSettings.connAuthPassword">По паролю</option>
-        <option value="key" data-i18n="userSettings.connAuthKey">По приватному ключу</option>
-      </select>
-    </div>
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connPassword">Пароль</label>
-      <input class="form-control form-control-sm" id="conn-ssh-pass" placeholder="••••••••" type="password"/>
-    </div>
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connKeyPath">Путь к ключу (.pem / .ppk)</label>
-      <input class="form-control form-control-sm" id="conn-ssh-key-path" placeholder="~/.ssh/id_rsa" type="text"/>
-    </div>
-  </div>
-
-  <div class="d-flex align-items-center justify-content-end">
-    <button class="btn btn-outline-info btn-sm d-flex align-items-center gap-1.5" id="btn-test-ssh-conn" type="button">
-      <i class="bi bi-lightning-charge"></i>
-      <span data-i18n="userSettings.btnTestSsh">Проверить SSH</span>
-    </button>
-  </div>
+<div class="card bg-body-tertiary border-secondary-subtle mb-0 p-3" id="conn-sec-ssh-card">
+<div class="d-flex align-items-center justify-content-between mb-2">
+<div class="fw-semibold small d-flex align-items-center gap-2">
+<i class="bi bi-terminal text-info"></i>
+<span data-i18n="userSettings.connSshTitle" id="spn-user-settings-conn-ssh-title">{{userSettings.connSshTitle}}</span>
 </div>
-
+<span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle font-size-75" data-i18n="ui.common.txt_6e641b4a" id="test-ssh-result-badge">{{ui.common.txt_6e641b4a}}</span>
+</div>
+<div class="small text-muted mb-3 font-size-75" data-i18n="userSettings.connSshDesc" id="blk-user-settings-conn-ssh-desc">{{userSettings.connSshDesc}}</div>
+<div class="row g-2 mb-2">
+<div class="col-12 col-md-6">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connHost" id="lbl-user-settings-conn-host-3">{{userSettings.connHost}}</label>
+<input class="form-control form-control-sm" id="conn-ssh-host" placeholder="ssh.hostinger.com" type="text"/>
+</div>
+<div class="col-12 col-md-2">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connPort" id="lbl-user-settings-conn-port-3">{{userSettings.connPort}}</label>
+<input class="form-control form-control-sm" id="conn-ssh-port" placeholder="22" type="number" value="22"/>
+</div>
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connUser" id="lbl-user-settings-conn-user-3">{{userSettings.connUser}}</label>
+<input class="form-control form-control-sm" id="conn-ssh-user" placeholder="root" type="text"/>
+</div>
+</div>
+<div class="row g-2 mb-3">
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connAuthType" id="lbl-user-settings-conn-auth-type">{{userSettings.connAuthType}}</label>
+<select class="form-select form-select-sm" id="conn-ssh-auth-type">
+<option data-i18n="userSettings.connAuthPassword" id="opt-user-settings-conn-auth-password" value="password">{{userSettings.connAuthPassword}}</option>
+<option data-i18n="userSettings.connAuthKey" id="opt-user-settings-conn-auth-key" value="key">{{userSettings.connAuthKey}}</option>
+</select>
+</div>
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connPassword" id="lbl-user-settings-conn-password-3">{{userSettings.connPassword}}</label>
+<input class="form-control form-control-sm" id="conn-ssh-pass" placeholder="••••••••" type="password"/>
+</div>
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connKeyPath" id="lbl-user-settings-conn-key-path">{{userSettings.connKeyPath}}</label>
+<input class="form-control form-control-sm" id="conn-ssh-key-path" placeholder="~/.ssh/id_rsa" type="text"/>
+</div>
+</div>
+<div class="d-flex align-items-center justify-content-end">
+<button class="btn btn-outline-info btn-sm d-flex align-items-center gap-1.5" id="btn-test-ssh-conn" type="button">
+<i class="bi bi-lightning-charge"></i>
+<span data-i18n="userSettings.btnTestSsh" id="spn-user-settings-btn-test-ssh">{{userSettings.btnTestSsh}}</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Панель 4: Почта (SMTP / IMAP) -->
+<div aria-labelledby="conn-subtab-mail-tab" class="tab-pane fade" data-panel-id="panel-conn-mail" id="conn-subpane-mail" role="tabpanel">
 <!-- Секция 4: Почта (SMTP / IMAP) -->
-<div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3" id="conn-sec-mail-card">
-  <div class="d-flex align-items-center justify-content-between mb-2">
-    <div class="fw-semibold small d-flex align-items-center gap-2">
-      <i class="bi bi-envelope-at text-danger"></i>
-      <span data-i18n="userSettings.connMailTitle">Почтовые соединения (SMTP / IMAP)</span>
-    </div>
-    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle font-size-75" id="test-mail-result-badge">Не проверено</span>
-  </div>
-  <div class="small text-muted mb-3 font-size-75" data-i18n="userSettings.connMailDesc">
-    Отправка уведомлений и чтение почтовой корреспонденции
-  </div>
-
-  <div class="row g-2 mb-2">
-    <div class="col-12 col-md-4">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connSmtpHost">SMTP хост</label>
-      <input class="form-control form-control-sm" id="conn-smtp-host" placeholder="smtp.gmail.com" type="text" value="smtp.gmail.com"/>
-    </div>
-    <div class="col-12 col-md-2">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connSmtpPort">SMTP порт</label>
-      <input class="form-control form-control-sm" id="conn-smtp-port" placeholder="587" type="number" value="587"/>
-    </div>
-    <div class="col-12 col-md-3">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connImapHost">IMAP хост</label>
-      <input class="form-control form-control-sm" id="conn-imap-host" placeholder="imap.gmail.com" type="text" value="imap.gmail.com"/>
-    </div>
-    <div class="col-12 col-md-3">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connImapPort">IMAP порт</label>
-      <input class="form-control form-control-sm" id="conn-imap-port" placeholder="993" type="number" value="993"/>
-    </div>
-  </div>
-
-  <div class="row g-2 mb-3">
-    <div class="col-12 col-md-6">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connUser">Пользователь / Email</label>
-      <input class="form-control form-control-sm" id="conn-mail-user" placeholder="user@gmail.com" type="email"/>
-    </div>
-    <div class="col-12 col-md-6">
-      <label class="form-label small text-muted mb-1" data-i18n="userSettings.connPassword">Пароль приложения</label>
-      <input class="form-control form-control-sm" id="conn-mail-pass" placeholder="••••••••" type="password"/>
-    </div>
-  </div>
-
-  <div class="d-flex align-items-center justify-content-end">
-    <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1.5" id="btn-test-mail-conn" type="button">
-      <i class="bi bi-lightning-charge"></i>
-      <span data-i18n="userSettings.btnTestMail">Проверить почту</span>
-    </button>
-  </div>
+<div class="card bg-body-tertiary border-secondary-subtle mb-0 p-3" id="conn-sec-mail-card">
+<div class="d-flex align-items-center justify-content-between mb-2">
+<div class="fw-semibold small d-flex align-items-center gap-2">
+<i class="bi bi-envelope-at text-danger"></i>
+<span data-i18n="userSettings.connMailTitle" id="spn-user-settings-conn-mail-title">{{userSettings.connMailTitle}}</span>
 </div>
-
+<span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle font-size-75" data-i18n="ui.common.txt_6e641b4a" id="test-mail-result-badge">{{ui.common.txt_6e641b4a}}</span>
+</div>
+<div class="small text-muted mb-3 font-size-75" data-i18n="userSettings.connMailDesc" id="blk-user-settings-conn-mail-desc">{{userSettings.connMailDesc}}</div>
+<div class="row g-2 mb-2">
+<div class="col-12 col-md-4">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connSmtpHost" id="lbl-user-settings-conn-smtp-host">{{userSettings.connSmtpHost}}</label>
+<input class="form-control form-control-sm" id="conn-smtp-host" placeholder="smtp.gmail.com" type="text" value="smtp.gmail.com"/>
+</div>
+<div class="col-12 col-md-2">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connSmtpPort" id="lbl-user-settings-conn-smtp-port">{{userSettings.connSmtpPort}}</label>
+<input class="form-control form-control-sm" id="conn-smtp-port" placeholder="587" type="number" value="587"/>
+</div>
+<div class="col-12 col-md-3">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connImapHost" id="lbl-user-settings-conn-imap-host">{{userSettings.connImapHost}}</label>
+<input class="form-control form-control-sm" id="conn-imap-host" placeholder="imap.gmail.com" type="text" value="imap.gmail.com"/>
+</div>
+<div class="col-12 col-md-3">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connImapPort" id="lbl-user-settings-conn-imap-port">{{userSettings.connImapPort}}</label>
+<input class="form-control form-control-sm" id="conn-imap-port" placeholder="993" type="number" value="993"/>
+</div>
+</div>
+<div class="row g-2 mb-3">
+<div class="col-12 col-md-6">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connUser" id="lbl-user-settings-conn-user-4">{{userSettings.connUser}}</label>
+<input class="form-control form-control-sm" id="conn-mail-user" placeholder="user@gmail.com" type="email"/>
+</div>
+<div class="col-12 col-md-6">
+<label class="form-label small text-muted mb-1" data-i18n="userSettings.connPassword" id="lbl-user-settings-conn-password-4">{{userSettings.connPassword}}</label>
+<input class="form-control form-control-sm" id="conn-mail-pass" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<div class="d-flex align-items-center justify-content-end">
+<button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1.5" id="btn-test-mail-conn" type="button">
+<i class="bi bi-lightning-charge"></i>
+<span data-i18n="userSettings.btnTestMail" id="spn-user-settings-btn-test-mail">{{userSettings.btnTestMail}}</span>
+</button>
+</div>
+</div>
+</div>
+</div>
 <!-- Панель сохранения подключений -->
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-2 border-top border-secondary-subtle">
-  <div class="d-flex align-items-center gap-2">
-    <button class="btn btn-primary btn-sm d-flex align-items-center gap-1.5 px-3" id="btn-save-connections" type="button">
-      <i class="bi bi-check2-circle"></i>
-      <span data-i18n="userSettings.btnSaveConnections">Сохранить подключения</span>
-    </button>
-    <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5" id="btn-reset-connections" type="button">
-      <i class="bi bi-arrow-counterclockwise"></i>
-      <span data-i18n="userSettings.btnResetConnections">Сбросить</span>
-    </button>
-  </div>
-  <div class="small text-muted" id="conn-save-feedback"></div>
+<div class="d-flex align-items-center gap-2">
+<button class="btn btn-primary btn-sm d-flex align-items-center gap-1.5 px-3" id="btn-save-connections" type="button">
+<i class="bi bi-check2-circle"></i>
+<span data-i18n="userSettings.btnSaveConnections" id="spn-user-settings-btn-save-connections">{{userSettings.btnSaveConnections}}</span>
+</button>
+<button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5" id="btn-reset-connections" type="button">
+<i class="bi bi-arrow-counterclockwise"></i>
+<span data-i18n="userSettings.btnResetConnections" id="spn-user-settings-btn-reset-connections">{{userSettings.btnResetConnections}}</span>
+</button>
 </div>
-
-</div>
-
-
+<div class="small text-muted" id="conn-save-feedback"></div>
 </div>
 </div>
-
+<!-- Вкладка 3: Среда выполнения (Electron Shell) -->
+<div aria-labelledby="user-settings-tab-btn-electron" class="tab-pane fade" id="user-settings-pane-electron" role="tabpanel">
+<!-- Заголовок и описание среды Electron Shell -->
+<div class="card bg-body-tertiary border-secondary-subtle mb-3 p-3" id="electron-runtime-card">
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+<div>
+<h6 class="fw-bold mb-1 d-flex align-items-center gap-2">
+<i class="bi bi-cpu-fill text-primary"></i>
+<span data-i18n="userSettings.electronRuntimeTitle" id="spn-user-settings-electron-title">{{userSettings.electronRuntimeTitle}}</span>
+</h6>
+<div class="small text-muted" data-i18n="userSettings.electronRuntimeDesc" id="blk-user-settings-electron-desc">{{userSettings.electronRuntimeDesc}}</div>
+</div>
+</div>
+</div>
+<!-- Содержимое статуса среды Electron и Obsidian Vault -->
+<div id="electron-status-content">
+<!-- Баннер активного режима (Electron Desktop vs Web GUI) -->
+<div class="d-flex align-items-center gap-3 p-3 mb-3 rounded border bg-body-secondary border-secondary-subtle" id="electron-mode-banner">
+<div class="rounded-circle p-2 d-flex align-items-center justify-content-center bg-primary text-white icon-box-44" id="electron-mode-icon-box">
+<i class="bi bi-browser-edge fs-4" id="electron-mode-icon"></i>
+</div>
+<div>
+<div class="fw-bold fs-6" data-i18n="userSettings.electronModeWeb" id="electron-mode-title">{{userSettings.electronModeWeb}}</div>
+<div class="small text-muted" data-i18n="userSettings.electronModeWebDesc" id="electron-mode-desc">{{userSettings.electronModeWebDesc}}</div>
+</div>
+</div>
+<!-- Карточка 1: Параметры среды выполнения -->
+<div class="card border-secondary-subtle mb-3" id="electron-params-card">
+<div class="card-header py-1.5 px-3 small fw-bold bg-body-tertiary d-flex align-items-center gap-2">
+<i class="bi bi-info-circle text-primary"></i>
+<span data-i18n="userSettings.electronParamsTitle" id="spn-electron-params-title">{{userSettings.electronParamsTitle}}</span>
+</div>
+<div class="card-body p-3 font-size-85">
+<div class="row g-2">
+<div class="col-sm-6">
+<span class="text-muted" data-i18n="userSettings.electronEngineLabel" id="lbl-electron-engine">{{userSettings.electronEngineLabel}}</span>:
+<strong class="ms-1 text-secondary" id="electron-val-ver">...</strong>
+</div>
+<div class="col-sm-6">
+<span class="text-muted" data-i18n="userSettings.electronNodeLabel" id="lbl-electron-node">{{userSettings.electronNodeLabel}}</span>:
+<strong class="ms-1" id="electron-node-ver">...</strong>
+</div>
+<div class="col-sm-6">
+<span class="text-muted" data-i18n="userSettings.electronChromeLabel" id="lbl-electron-chrome">{{userSettings.electronChromeLabel}}</span>:
+<strong class="ms-1" id="electron-chrome-ver">...</strong>
+</div>
+<div class="col-sm-6">
+<span class="text-muted" data-i18n="userSettings.electronPriorityLabel" id="lbl-electron-priority">{{userSettings.electronPriorityLabel}}</span>:
+<strong class="ms-1 text-primary" id="electron-engine-priority-val">electron</strong>
+</div>
+</div>
+</div>
+</div>
+<!-- Карточка 2: Интеграция с Obsidian Vault -->
+<div class="card border-secondary-subtle mb-3" id="electron-obsidian-card">
+<div class="card-header py-1.5 px-3 small fw-bold bg-body-tertiary d-flex align-items-center gap-2">
+<i class="bi bi-journal-code text-success"></i>
+<span data-i18n="userSettings.obsidianCardTitle" id="spn-obsidian-card-title">{{userSettings.obsidianCardTitle}}</span>
+</div>
+<div class="card-body p-3 font-size-85">
+<p class="text-muted mb-2" data-i18n="userSettings.obsidianCardDesc" id="blk-obsidian-card-desc">{{userSettings.obsidianCardDesc}}</p>
+<div class="d-flex flex-wrap gap-2">
+<button class="btn btn-sm btn-outline-success d-flex align-items-center gap-1.5" id="btn-ide-open-obsidian" type="button">
+<i class="bi bi-box-arrow-up-right"></i>
+<span data-i18n="userSettings.obsidianOpenBtn" id="spn-obsidian-open-btn">{{userSettings.obsidianOpenBtn}}</span>
+</button>
+<button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1.5" id="btn-ide-open-folder" type="button">
+<i class="bi bi-folder2-open"></i>
+<span data-i18n="userSettings.obsidianOpenFolderBtn" id="spn-obsidian-open-folder-btn">{{userSettings.obsidianOpenFolderBtn}}</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Информационный баннер запуска через CLI в режиме Electron -->
+<div class="alert alert-info py-2 px-3 small mb-0 d-flex align-items-center gap-2" id="electron-cli-hint">
+<i class="bi bi-terminal fs-5"></i>
+<div>
+<strong data-i18n="userSettings.electronRunCliTitle" id="spn-electron-run-cli-title">{{userSettings.electronRunCliTitle}}</strong>
+<code class="d-block mt-0.5 user-select-all font-monospace" id="code-electron-run-cli">py -m apps.ai_assistant.main --engine electron</code>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 <!-- Подвал модального окна настроек с кнопкой закрытия -->
 <div class="modal-footer py-2" id="modal-user-settings-footer">
 <!-- Кнопка закрытия модального окна настроек -->
-<button class="btn btn-secondary btn-sm" data-bs-dismiss="modal" data-i18n="userSettings.close" id="modal-user-settings-close-btn" type="button">Закрыть</button>
+<button class="btn btn-secondary btn-sm" data-bs-dismiss="modal" data-i18n="userSettings.close" id="modal-user-settings-close-btn" type="button">{{userSettings.close}}</button>
 </div>
-
 </div>
 </div>
 </div>

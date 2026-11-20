@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Cli - Config
+# Process Name: ai-tc Scripts Cli - Config
 # =============================================================================
 # Description:
 #   Cross-platform configuration management utilities.
@@ -12,11 +12,11 @@
 #     service = ConfigManager()
 #
 # File: config.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.cli
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Cross-platform configuration management utilities.
@@ -179,7 +179,7 @@ class ConfigManager:
             Configuration dictionary.
         """
         if filepath is None:
-            cfg_env = os.getenv('AIWINDOWSADMIN_CONFIG') or os.getenv('CONFIG_FILE')
+            cfg_env = os.getenv('AITC_CONFIG') or os.getenv('AIWINDOWSADMIN_CONFIG') or os.getenv('CONFIG_FILE')
             if cfg_env:
                 cfg_path = Path(cfg_env)
                 filepath = cfg_path if cfg_path.is_absolute() else self.paths.project_root / cfg_env

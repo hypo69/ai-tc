@@ -1,7 +1,7 @@
 # Вкладка настройки звука (Sound Settings Tab)
 
 ## Назначение
-Вкладка `tab_sound_settings` предоставляет графический веб-интерфейс для управления звуковой подсистемой Windows в рамках AI Windows Admin (`tc.ps1`):
+Вкладка `tab_sound_settings` предоставляет графический веб-интерфейс для управления звуковой подсистемой Windows в рамках ai-tc (`tc.ps1`):
 - Регулировка громкости системных звуков Windows (System Sounds) и Mute.
 - Проверка звуковых сигналов Windows (Asterisk, Exclamation, Beep, Question).
 - Переключение звука запуска Windows (Startup Boot Sound).

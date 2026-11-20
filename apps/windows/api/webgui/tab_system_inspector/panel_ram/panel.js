@@ -8,11 +8,11 @@
  *   Gauge-индикаторов и SVG-спарклайна с историей потребления.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_system_inspector/panel_ram
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 16:10:00
+ * Updated: 2026-11-13 13:25:00
  * =============================================================================
  */
 
@@ -52,6 +52,34 @@ export function initRamPanel() {
   if (btnLin) btnLin.onclick = () => setRamSparkScale('lin');
 
   window.setRamSparkScale = setRamSparkScale;
+  window.inspectRamSpecsWithAi = () => {
+    if (window.AITableModal) {
+      const ramModel = document.getElementById('sys-metric-ram-model')?.innerText || 'RAM';
+      const pct = document.getElementById('sys-memio-pct')?.innerText || '0%';
+      const used = document.getElementById('sys-memio-used')?.innerText || '';
+      const swap = document.getElementById('sys-memio-swap')?.innerText || '';
+      window.AITableModal.show({
+        icon: '🧠',
+        title: ramModel,
+        subtitle: 'Оперативная память и файл подкачки Windows',
+        panelId: 'ram',
+        tableType: 'hardware',
+        badges: [
+          { text: 'RAM', class: 'badge bg-success' },
+          { text: pct, class: 'badge bg-primary' }
+        ],
+        metadata: [
+          { label: 'Память', value: ramModel },
+          { label: 'Загрузка', value: pct },
+          { label: 'Использование', value: used },
+          { label: 'Файл подкачки', value: swap }
+        ],
+        rawTitle: 'JSON Телеметрии RAM',
+        rawContent: JSON.stringify(lastMemIoSparkData || {}, null, 2),
+        requestData: lastMemIoSparkData || {}
+      });
+    }
+  };
 }
 
 /**
@@ -139,7 +167,7 @@ export function updateRamTelemetry(memoryData) {
   const memioPct = document.getElementById('sys-memio-pct');
   if (memioPct) memioPct.innerText = `${pct.toFixed(1)}%`;
   const memioUsed = document.getElementById('sys-memio-used');
-  if (memioUsed) memioUsed.innerText = `${usedGb.toFixed(1)} / ${totalGb.toFixed(1)} GB (свободно ${Number(memoryData.available_gb || (totalGb - usedGb)).toFixed(1)} GB)`;
+  if (memioUsed) memioUsed.innerText = `${usedGb.toFixed(1)} / ${totalGb.toFixed(1)} GB`;
   const memioSwap = document.getElementById('sys-memio-swap');
   if (memioSwap) memioSwap.innerText = `Файл подкачки: ${swapPct.toFixed(1)}%`;
 
@@ -150,9 +178,11 @@ export function updateRamTelemetry(memoryData) {
   set('sys-ram-kpi-swap', `${swapPct.toFixed(1)}%`);
 
   const ramGauge = document.getElementById('sys-metric-ram-gauge');
-  if (ramGauge) ramGauge.innerHTML = createGaugeSvg(pct, 130, 74);
+  if (ramGauge) ramGauge.innerHTML = createGaugeSvg(pct, 120, 68);
   const ramSlider = document.getElementById('sys-metric-ram-slider');
-  if (ramSlider) ramSlider.innerHTML = createPercentSliderHtml(pct, true, `${usedGb.toFixed(1)} / ${totalGb.toFixed(1)} GB`);
+  if (ramSlider) ramSlider.innerHTML = createPercentSliderHtml(pct, false, `${usedGb.toFixed(1)} / ${totalGb.toFixed(1)} GB`);
+  set('sys-ram-spec-total', `${totalGb.toFixed(1)} GB`);
+  set('sys-ram-spec-free', `${freeGb.toFixed(1)} GB`);
   const ramSubGauge = document.getElementById('sys-ram-sub-gauge');
   if (ramSubGauge) ramSubGauge.innerHTML = createGaugeSvg(pct, 100, 56);
 }
@@ -176,7 +206,7 @@ function updateRamUi(data) {
     ramModel.innerText = data.name || (m.name || (m.total_gb ? `${Math.round(m.total_gb)} GB RAM` : 'RAM'));
   }
   set('sys-memio-pct', `${pct.toFixed(1)}%`);
-  set('sys-memio-used', `${usedGb.toFixed(1)} / ${totalGb.toFixed(1)} GB (свободно ${freeGb.toFixed(1)} GB)`);
+  set('sys-memio-used', `${usedGb.toFixed(1)} / ${totalGb.toFixed(1)} GB`);
   set('sys-memio-swap', `Файл подкачки: ${swapPct.toFixed(1)}%`);
   set('sys-memio-ts', data.timestamp ? new Date(data.timestamp).toLocaleTimeString() : '--');
 
@@ -186,10 +216,13 @@ function updateRamUi(data) {
   set('sys-ram-kpi-io', formatBytesPerSec((Number(io.read_bytes_sec || 0)) + (Number(io.write_bytes_sec || 0))));
 
   const ramGauge = document.getElementById('sys-metric-ram-gauge');
-  if (ramGauge) ramGauge.innerHTML = createGaugeSvg(pct, 130, 74);
+  if (ramGauge) ramGauge.innerHTML = createGaugeSvg(pct, 120, 68);
 
   const ramSlider = document.getElementById('sys-metric-ram-slider');
-  if (ramSlider) ramSlider.innerHTML = createPercentSliderHtml(pct, true, `${usedGb.toFixed(1)} / ${totalGb.toFixed(1)} GB`);
+  if (ramSlider) ramSlider.innerHTML = createPercentSliderHtml(pct, false, `${usedGb.toFixed(1)} / ${totalGb.toFixed(1)} GB`);
+
+  set('sys-ram-spec-total', `${totalGb.toFixed(1)} GB`);
+  set('sys-ram-spec-free', `${freeGb.toFixed(1)} GB`);
 
   // Блок 1: Физическая RAM
   set('sys-ram-sub-badge', `${pct.toFixed(0)}%`);

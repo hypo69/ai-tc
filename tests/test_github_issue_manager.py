@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - GitHub Issue Manager Unit Tests
+# Process Name: ai-tc Tests - GitHub Issue Manager Unit Tests
 # =============================================================================
 # Description:
 #   Модульные тесты для моделей данных, парсера задач, клиента и сервиса GitHub.
@@ -9,11 +9,11 @@
 #   pytest tests/test_github_issue_manager.py -v
 #
 # File: test_github_issue_manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:48:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

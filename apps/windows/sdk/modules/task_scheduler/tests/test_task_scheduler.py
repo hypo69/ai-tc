@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Task_Scheduler Tests - Test Task Scheduler
+# Process Name: ai-tc Apps Windows Modules Task_Scheduler Tests - Test Task Scheduler
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     res = manager()
 #
 # File: test_task_scheduler.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.task_scheduler.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 19:05:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -64,12 +64,12 @@ async def test_task_action_simulation(manager: TaskSchedulerManager):
 
 def test_task_scheduler_endpoints(client: TestClient):
     """Проверка REST эндпоинтов task_scheduler."""
-    resp = client.get('/api/task-scheduler/report')
+    resp = client.get('/api/v1/task-scheduler/report')
     assert resp.status_code == 200
     data = resp.json()
     assert 'tasks' in data
 
-    resp_tasks = client.get('/api/task-scheduler/tasks')
+    resp_tasks = client.get('/api/v1/task-scheduler/tasks')
     assert resp_tasks.status_code == 200
 
 
@@ -100,14 +100,14 @@ def test_history_status(manager: TaskSchedulerManager):
 def test_history_status_endpoints(client: TestClient):
     """Проверка эндпоинтов получения и изменения статуса истории задач."""
     # GET запрос статуса
-    resp_get = client.get('/api/task-scheduler/history-status')
+    resp_get = client.get('/api/v1/task-scheduler/history-status')
     assert resp_get.status_code == 200
     data_get = resp_get.json()
     assert 'enabled' in data_get
     assert data_get['channel'] == 'Microsoft-Windows-TaskScheduler/Operational'
 
     # Проверка отчета на наличие поля history_enabled
-    resp_rep = client.get('/api/task-scheduler/report')
+    resp_rep = client.get('/api/v1/task-scheduler/report')
     assert resp_rep.status_code == 200
     assert 'history_enabled' in resp_rep.json()
 

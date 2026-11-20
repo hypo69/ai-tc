@@ -3,7 +3,7 @@
 # Process Name: Network Infra - FastAPI Router
 # =============================================================================
 # Description:
-#   REST API диагностики сетевой инфраструктуры Windows (/api/network/infra/*).
+#   REST API диагностики сетевой инфраструктуры Windows (/api/v1/network/infra/*).
 #   Только чтение состояния ОС. Записи выполняются исключительно в собственную
 #   БД истории (снимки, очистка). Подключается существующим механизмом
 #   регистрации роутеров ai-tc (config.json / автообнаружение *.router).
@@ -23,11 +23,11 @@
 #   возвращаются в теле ответа (поле status), а не HTTP-ошибкой.
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.network.infra
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 16:00:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ from .service import NetworkInfraService
 from .settings import load_settings
 from .store import NetworkInfraStore, SnapshotNotFound
 
-router = APIRouter(prefix='/api/network/infra', tags=['network-infra'])
+router = APIRouter(prefix='/api/v1/network/infra', tags=['network-infra'])
 
 _service: Optional[NetworkInfraService] = None
 _service_lock = threading.Lock()

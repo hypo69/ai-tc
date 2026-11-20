@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Features - Manager
+# Process Name: ai-tc Apps Windows Features - Manager
 # =============================================================================
 # Description:
 #   Управление Windows Optional Features через PowerShell/DISM.
@@ -8,11 +8,11 @@
 #   компонентов Windows. Используется FastAPI-роутером.
 #
 # File: manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.features
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Модуль менеджера Windows Optional Features.

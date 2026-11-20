@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Diagnostics Explain Error Handling & No Timeout
+# Process Name: ai-tc Tests - Diagnostics Explain Error Handling & No Timeout
 # =============================================================================
 # Description:
 #   Тесты обработки ошибок модели AI в роутере диагностики: отсутствие таймаутов,
@@ -10,11 +10,11 @@
 #   pytest tests/test_diagnostics_explain_errors_and_no_timeout.py
 #
 # File: test_diagnostics_explain_errors_and_no_timeout.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 14:15:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows SDK - Security AST & Input Sanity
+# Process Name: ai-tc Apps Windows SDK - Security AST & Input Sanity
 # =============================================================================
 # Description:
 #   Статический анализатор синтаксического дерева (AST) и санитизатор аргументов
@@ -13,11 +13,11 @@
 #     is_safe, violations = validate_code_security("import os")
 #
 # File: security_ast.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-22 13:30:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

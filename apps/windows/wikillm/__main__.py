@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Wikillm -   Main  
+# Process Name: ai-tc Apps Windows Wikillm -   Main  
 # =============================================================================
 # Description:
 #   Точка входа для вызова модуля через py -m apps.windows.wikillm.
@@ -12,11 +12,11 @@
 #     import apps.windows.wikillm.__main__ as __main__
 #
 # File: __main__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.wikillm
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Точка входа для вызова модуля через py -m apps.windows.wikillm."""

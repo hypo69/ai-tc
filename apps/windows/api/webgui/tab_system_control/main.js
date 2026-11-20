@@ -11,12 +11,12 @@
  * - panel_forensics: поведенческая форензика, UserAssist ROT13, активность окон, микрофон/камера
  * - panel_throttling: детекция термального троттлинга (PROCHOT), Power Limit (PL1/PL2), задержки DPC/ISR, шина GPU PCIe, дампы BSOD
  * 
- * Updated: 2026-11-12 02:30:00
+ * Updated: 2026-11-20 16:40:00
  */
 
 import { adjustMainStreamHeight, initTableResizers, t } from './common/ui_utils.js';
 import { initSummaryDashboard, loadFailuresSummary } from './panel_summary/panel.js';
-import { initEventLogsPanel, scanChannels, loadEvents, getCurrentChannel, getCurrentFilePath, getCachedEvents, getCachedChannels } from './panel_event_logs/panel.js';
+import { initEventLogsPanel, scanChannels, loadEvents, getCurrentChannel, getCurrentFilePath, getCachedChannels } from './panel_event_logs/panel.js';
 import { showEventDetails } from './panel_event_logs/modal.js';
 import { initRagPanel, fetchRagStatus, setRagEventDetailsCallback } from './panel_rag/panel.js';
 import { initPowerLifecyclePanel, loadPowerData, stopPowerUptimeCounter as stopPowerLifecycleUptimeCounter } from './panel_power_lifecycle/panel.js?v=20261101_v2';
@@ -137,10 +137,6 @@ function stopPolling() {
 
 function startPolling() {
   stopPolling();
-  const liveSwitch = document.getElementById('slc-live-switch');
-  if (liveSwitch && !liveSwitch.checked) {
-    return;
-  }
   const intervalMs = 3000;
   liveIntervalTimer = setInterval(() => {
     if (!isSystemControlTabActive()) return;
@@ -186,13 +182,20 @@ function setSource(source, updateUrl = true, subtab = null) {
   });
 
   const modeTabs = document.getElementById('slc-mode-tabs');
+  const modeTabsWrapper = document.getElementById('slc-mode-tabs-wrapper');
+  const sumSubtabsToolbar = document.getElementById('sum-subtabs-toolbar');
   const panelControl1 = document.getElementById('panel-system-control-1');
+  if (sumSubtabsToolbar) {
+    sumSubtabsToolbar.classList.toggle('d-none', canonical !== 'summary-dashboard');
+  }
   if (canonical === 'event-logs') {
     if (modeTabs) modeTabs.classList.remove('d-none');
+    if (modeTabsWrapper) modeTabsWrapper.classList.remove('d-none');
     if (panelControl1) panelControl1.classList.remove('d-none');
     applySourceAndMode(canonical, activeMode, true);
   } else {
     if (modeTabs) modeTabs.classList.add('d-none');
+    if (modeTabsWrapper) modeTabsWrapper.classList.add('d-none');
     if (panelControl1) panelControl1.classList.add('d-none');
     applySourceAndMode(canonical, 'live', true);
   }
@@ -323,38 +326,6 @@ function applySourceAndMode(source, mode, forceRefresh = false) {
   setTimeout(adjustMainStreamHeight, 10);
 }
 
-function exportEvents(format = 'json') {
-  const cachedEvents = getCachedEvents();
-  if (!cachedEvents || cachedEvents.length === 0) {
-    if (window.toast) {
-      window.toast.warning('Экспорт', 'Нет загруженных событий для экспорта.');
-    }
-    return;
-  }
-  let content = '';
-  let mime = 'application/json';
-  let ext = 'json';
-
-  if (format === 'json') {
-    content = JSON.stringify(cachedEvents, null, 2);
-  } else {
-    mime = 'text/csv';
-    ext = 'csv';
-    const headers = ['timestamp', 'level', 'event_id', 'provider', 'process_id', 'message'];
-    const rows = cachedEvents.map(e => headers.map(h => `"${String(e[h] || '').replace(/"/g, '""')}"`).join(','));
-    content = [headers.join(','), ...rows].join('\n');
-  }
-
-  const cleanChan = getCurrentChannel().replace(/^evt:/i, '').replace(/[^a-zA-Z0-9_-]/g, '_');
-  const blob = new Blob([content], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `system_logs_${cleanChan}_${Date.now()}.${ext}`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 export function initSystemControlTab() {
   if (isSCCInitialized) return;
   isSCCInitialized = true;
@@ -392,38 +363,6 @@ export function initSystemControlTab() {
       if (mode) setMode(mode);
     });
   });
-
-  const btnExportJson = document.getElementById('btn-slc-export-json');
-  if (btnExportJson) btnExportJson.addEventListener('click', () => exportEvents('json'));
-
-  const btnExportCsv = document.getElementById('btn-slc-export-csv');
-  if (btnExportCsv) btnExportCsv.addEventListener('click', () => exportEvents('csv'));
-
-  const btnRefresh = document.getElementById('btn-slc-refresh');
-  if (btnRefresh && !btnRefresh._bound) {
-    btnRefresh._bound = true;
-    btnRefresh.addEventListener('click', () => {
-      fetchActiveSourceData(true);
-    });
-  }
-
-  const btnScan = document.getElementById('btn-slc-scan');
-  if (btnScan && !btnScan._bound) {
-    btnScan._bound = true;
-    btnScan.addEventListener('click', () => {
-      const canonical = normalizeSystemControlSource(activeSource);
-      if (canonical === 'power-lifecycle') {
-        const pwrRebuild = document.getElementById('pwr-rebuild-btn');
-        if (pwrRebuild) pwrRebuild.click();
-      } else if (canonical === 'event-logs') {
-        scanChannels(true);
-      } else if (canonical === 'throttling') {
-        loadThrottlingData(true, isSystemControlTabActive);
-      } else {
-        fetchActiveSourceData(true);
-      }
-    });
-  }
 
   const hashData = getSystemControlPanelFromHash();
   const initialSource = (hashData && hashData.source) ? hashData.source : 'summary-dashboard';

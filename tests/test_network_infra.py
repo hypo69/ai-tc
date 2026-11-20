@@ -8,11 +8,11 @@
 #   классификация, диагностические правила, сравнение и хранение снимков, сервис.
 #
 # File: test_network_infra.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 16:10:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import json

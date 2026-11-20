@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Software Transparency Analyzers
+# Process Name: ai-tc Apps Windows Core - Software Transparency Analyzers
 # =============================================================================
 # Description:
 #   Модели данных и анализаторы прозрачности ПО: инвентаризация, места хранения,
@@ -13,11 +13,11 @@
 #     )
 #
 # File: software_transparency_analyzers.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 17:58:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Native - Package Root
+# Process Name: ai-tc Apps Windows Native - Package Root
 # =============================================================================
 # Description:
 #   Единый C-FFI слой (Слой 2) для низкоуровневых Win32 API вызовов.
@@ -10,11 +10,11 @@
 #     from apps.windows.sdk.native import win32_error_check, WindowsErrorDecoder, PDHManager
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.native
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 16:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

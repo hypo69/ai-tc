@@ -11,11 +11,11 @@ Usage Examples:
     /html/tab_system_control/index.html
 
  * File: index.html
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_system_control
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-11 23:20:00
+ * Updated: 2026-11-20 16:40:00
  * =============================================================================
 -->
 <!-- Windows System Logs & Activity Center Web Tab -->
@@ -61,25 +61,6 @@ Usage Examples:
     border-radius: var(--radius-md, 8px);
     padding: 0.75rem 1rem;
     margin-bottom: 0.75rem;
-    color: var(--text-color);
-  }
-  .slc-compact-header {
-    background: var(--surface-2);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md, 8px);
-    padding: 0.5rem 0.75rem;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
-  }
-  .slc-metric-pill {
-    background: var(--surface-1);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 0.25rem 0.6rem;
-    font-size: 0.75rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
     color: var(--text-color);
   }
   .slc-subtabs-nav {
@@ -507,59 +488,9 @@ Usage Examples:
 
 <!-- Main System Logs Section -->
 <div>
-<!-- Compact Header Bar with Inline Stats & Actions -->
-<div class="slc-compact-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-<!-- Title & Inline Metrics -->
-<div class="d-flex align-items-center gap-2 flex-wrap">
-<div class="d-flex align-items-center gap-1.5 me-1">
-<span class="fs-6">🛡️</span>
-<span class="fw-bold small" data-i18n="systemControl.centerTitle">Windows OS &amp; System Log Center</span>
-</div>
-<!-- Quick Metrics Pills -->
-<div class="slc-metric-pill" data-i18n-title="systemControl.statSourcesTitle" title="Источники журналов">
-<span class="text-muted small"><i class="bi bi-diagram-3 me-1"></i><span data-i18n="systemControl.statSources">Источники:</span></span>
-<span class="fw-bold text-info font-monospace" id="slc-stat-sources">1,247</span>
-</div>
-<div class="slc-metric-pill" data-i18n-title="systemControl.statChannelTitle" title="Активный канал логов">
-<span class="text-muted small"><i class="bi bi-folder-fill me-1"></i><span data-i18n="systemControl.statChannel">Канал:</span></span>
-<span class="fw-bold text-warning font-monospace text-truncate" id="slc-stat-channel" style="max-width: 140px;">System</span>
-</div>
-<div class="slc-metric-pill" data-i18n-title="systemControl.statLoadedTitle" title="Загружено событий">
-<span class="text-muted small"><i class="bi bi-list-ol me-1"></i><span data-i18n="systemControl.statLoaded">Загружено:</span></span>
-<span class="fw-bold text-primary font-monospace" id="slc-stat-events">0</span>
-</div>
-<div class="slc-metric-pill" data-i18n-title="systemControl.statErrorsTitle" title="Ошибки и инциденты">
-<span class="text-muted small"><i class="bi bi-exclamation-triangle-fill me-1"></i><span data-i18n="systemControl.statErrors">Ошибки:</span></span>
-<span class="fw-bold text-danger font-monospace" id="slc-stat-incidents">0</span>
-</div>
-</div>
-<!-- Actions Toolbar & Source Selector (Верхняя панель выбора журнала) -->
-<div class="d-flex align-items-center gap-2 flex-wrap">
-
-<button class="btn btn-outline-info rounded px-2.5 py-1 small d-flex align-items-center gap-1" id="btn-slc-scan" data-term="slc-scan" data-ai-tooltip="true" style="font-size: 0.78rem;">
-<i class="bi bi-radar"></i> <span data-i18n="systemControl.btnScan">Сканировать</span>
-</button>
-<div class="form-check form-switch mb-0 d-inline-flex align-items-center" style="font-size: 0.78rem; min-height: auto;">
-<input class="form-check-input me-1" id="slc-live-switch" role="switch" style="cursor: pointer;" type="checkbox"/>
-<label class="form-check-label text-muted small user-select-none" data-i18n="systemControl.live" for="slc-live-switch">Live</label>
-</div>
-<button class="btn btn-primary rounded px-2.5 py-1 small d-flex align-items-center gap-1" id="btn-slc-refresh" data-term="slc-refresh" data-ai-tooltip="true" style="font-size: 0.78rem;">
-<i class="bi bi-arrow-clockwise"></i> <span data-i18n="systemControl.btnRefresh">Обновить</span>
-</button>
-<div class="dropdown">
-<button class="btn btn-sm btn-outline-secondary dropdown-toggle rounded px-2.5 py-1 small d-flex align-items-center gap-1" data-bs-toggle="dropdown" style="font-size: 0.78rem;" type="button">
-<i class="bi bi-download"></i> <span data-i18n="systemControl.btnExport">Экспорт</span>
-</button>
-<ul class="dropdown-menu dropdown-menu-end shadow" style="font-size: 0.8rem;">
-<li><a class="dropdown-item" href="#" id="btn-slc-export-json"><i class="bi bi-filetype-json me-2"></i><span data-i18n="systemControl.exportJson">JSON</span></a></li>
-<li><a class="dropdown-item" href="#" id="btn-slc-export-csv"><i class="bi bi-filetype-csv me-2"></i><span data-i18n="systemControl.exportCsv">CSV</span></a></li>
-</ul>
-</div>
-</div>
-</div>
 <!-- Search & View Mode Navigation (Нижняя панель аналитики и режимов) -->
 <div class="slc-panel mb-2 p-2" data-panel-id="panel-system-control-1" id="panel-system-control-1">
-<div class="d-flex justify-content-between align-items-center flex-wrap gap-1 mb-2 pb-1 border-bottom" style="border-color: var(--border-color) !important;">
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-1 mb-2 pb-1 border-bottom" id="slc-mode-tabs-wrapper" style="border-color: var(--border-color) !important;">
 <!-- Mode Tabs -->
 <div class="d-flex align-items-center gap-1 flex-wrap" id="slc-mode-tabs" role="tablist">
 <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-placement="top" data-ai-tooltip="true" data-term="mode-live" data-i18n="systemControl.modeLive" data-mode="live" type="button" role="tab" title="Отображение событий выбранного журнала в реальном времени (как есть)"><span>● Live Events</span></button>
@@ -570,12 +501,27 @@ Usage Examples:
 <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-placement="top" data-ai-tooltip="true" data-term="mode-errors" data-i18n="systemControl.modeErrors" data-mode="errors" type="button" role="tab" title="Фильтрация потока: скрывать информационные сообщения"><span>⚠️ Только ошибки</span></button>
 <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-placement="top" data-ai-tooltip="true" data-term="mode-raw" data-i18n="systemControl.modeRaw" data-mode="raw" type="button" role="tab" title="Сырой поток событий"><span>📄 Raw Data</span></button>
 </div>
-<!-- Action AI Button -->
-<div class="d-flex align-items-center gap-2">
-<button class="btn btn-sm btn-outline-warning rounded-pill px-2.5 py-1 small d-flex align-items-center gap-1" id="btn-slc-ask-ai" data-term="ask-ai" data-ai-tooltip="true" data-placement="top" style="font-size: 0.78rem;">
-<i class="bi bi-robot"></i> <span data-i18n="systemControl.btnAskAi">Спросить ИИ</span>
-</button>
 </div>
+<!-- Блок суб-вкладок сводки сбоев (Subtabs Navigation Bar) -->
+<div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2" id="sum-subtabs-toolbar">
+  <!-- Subtab Selector Buttons -->
+  <div class="d-flex align-items-center gap-1 flex-wrap" id="sum-subtabs-nav" role="tablist">
+    <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-target="power" data-term="sum-power" data-ai-tooltip="true" id="btn-sum-tab-power" type="button" role="tab">
+      <i class="bi bi-lightning-charge text-danger"></i><span>Сбои питания (<span id="badge-cnt-power">0</span>)</span>
+    </button>
+    <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-target="bsod" data-term="sum-bsod" data-ai-tooltip="true" id="btn-sum-tab-bsod" type="button" role="tab">
+      <i class="bi bi-display text-danger"></i><span>BSOD / BugCheck (<span id="badge-cnt-bsod">0</span>)</span>
+    </button>
+    <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-target="drivers" data-term="sum-drivers" data-ai-tooltip="true" id="btn-sum-tab-drivers" type="button" role="tab">
+      <i class="bi bi-cpu text-warning"></i><span>Ошибки драйверов (<span id="badge-cnt-drivers">0</span>)</span>
+    </button>
+    <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-target="suspicious" data-term="sum-suspicious" data-ai-tooltip="true" id="btn-sum-tab-suspicious" type="button" role="tab">
+      <i class="bi bi-shield-exclamation text-warning"></i><span>Подозрительная активность (<span id="badge-cnt-suspicious">0</span>)</span>
+    </button>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <span class="badge bg-secondary-subtle text-secondary border px-2.5 py-1" id="sum-table-counter">Загрузка...</span>
+  </div>
 </div>
 <!-- Filter Inputs Grid -->
 <div class="row g-1.5 align-items-center" id="slc-filter-row">
@@ -749,28 +695,6 @@ Usage Examples:
           Всплески / Defender: <span class="text-body font-monospace" id="sum-susp-spikes">0</span>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Блок суб-вкладок сводки сбоев (Subtabs Navigation Bar) -->
-  <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-secondary border-opacity-25 flex-wrap gap-2" id="sum-subtabs-toolbar">
-    <!-- Subtab Selector Buttons -->
-    <div class="d-flex align-items-center gap-1 flex-wrap" id="sum-subtabs-nav" role="tablist">
-        <button class="btn btn-sm btn-outline-primary active d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-target="power" data-term="sum-power" data-ai-tooltip="true" id="btn-sum-tab-power" type="button" role="tab">
-          <i class="bi bi-lightning-charge text-danger"></i><span>Сбои питания (<span id="badge-cnt-power">0</span>)</span>
-        </button>
-        <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-target="bsod" data-term="sum-bsod" data-ai-tooltip="true" id="btn-sum-tab-bsod" type="button" role="tab">
-          <i class="bi bi-display text-danger"></i><span>BSOD / BugCheck (<span id="badge-cnt-bsod">0</span>)</span>
-        </button>
-        <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-target="drivers" data-term="sum-drivers" data-ai-tooltip="true" id="btn-sum-tab-drivers" type="button" role="tab">
-          <i class="bi bi-cpu text-warning"></i><span>Ошибки драйверов (<span id="badge-cnt-drivers">0</span>)</span>
-        </button>
-        <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1.5 py-1 px-2.5 rounded" data-target="suspicious" data-term="sum-suspicious" data-ai-tooltip="true" id="btn-sum-tab-suspicious" type="button" role="tab">
-          <i class="bi bi-shield-exclamation text-warning"></i><span>Подозрительная активность (<span id="badge-cnt-suspicious">0</span>)</span>
-        </button>
-      </div>
-    <div class="d-flex align-items-center gap-2">
-      <span class="badge bg-secondary-subtle text-secondary border px-2.5 py-1" id="sum-table-counter">Загрузка...</span>
     </div>
   </div>
 

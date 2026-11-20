@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Network -   Main  
+# Process Name: ai-tc Apps Windows Modules Network -   Main  
 # =============================================================================
 # Description:
 #   CLI entry point for the Network Analyzer Terminal dashboard.
@@ -14,11 +14,11 @@
 #     res = main()
 #
 # File: __main__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.network
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """CLI entry point for the Network Analyzer Terminal dashboard."""
@@ -68,7 +68,7 @@ def _get_server_mode(config: SimpleNamespace) -> str:
 
 def main() -> None:
     """Parse CLI arguments and launch interactive network terminal dashboard."""
-    parser = argparse.ArgumentParser(description='AI Windows Admin Network Analyzer Terminal')
+    parser = argparse.ArgumentParser(description='ai-tc Network Analyzer Terminal')
     parser.add_argument('--mode', '-m', type=str, choices=['dashboard', 'server'], default='dashboard', help='Operation mode (default: dashboard)')
     parser.add_argument('--interface', '-i', type=str, default='1', help='Capture interface index or name (default: 1)')
     parser.add_argument('--filter', '-f', type=str, default='', help="Wireshark display filter string (e.g. 'tcp or udp', 'http', 'tls')")

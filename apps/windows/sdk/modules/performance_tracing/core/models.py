@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Performance_Tracing Core - Models
+# Process Name: ai-tc Apps Windows Modules Performance_Tracing Core - Models
 # =============================================================================
 # Description:
 #   # Description:
@@ -12,11 +12,11 @@
 #     service = PerformanceCounterSample()
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.performance_tracing.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:34:00
 # =============================================================================
 
 from __future__ import annotations
@@ -55,8 +55,8 @@ class PerformanceTracingReport(BaseModel):
 
 class CollectorActionRequest(BaseModel):
     """Запрос на запуск или остановку сборщика трассировки."""
-    collector_name: str
-    action: str  # start, stop, create, delete
+    collector_name: str = 'default'
+    action: str = 'typeperf_cpu_sample'  # start, stop, create, delete, typeperf_*, logman_*
     dry_run: bool = True
     confirmed_by_user: bool = False
 

@@ -3,7 +3,7 @@
  * @description Панель генерации навыков с помощью ИИ (Natural Language to Skill)
  * @author hypo69
  * @version 1.0.0
- * Updated: 2026-10-17 01:19:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { apiFetch } from '../common/ui_utils.js';
@@ -41,7 +41,7 @@ export async function generateSkillWithAi() {
     const category = document.getElementById('ai-skill-category')?.value || 'general';
     const targetDir = document.getElementById('ai-skill-dir')?.value || '.agents/skills';
 
-    const res = await apiFetch('/api/skills/generate-ai', {
+    const res = await apiFetch('/api/v1/skills/generate-ai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt, category, target_dir: targetDir })
@@ -121,7 +121,7 @@ export async function saveAiSkillDirectly(onSuccess) {
   const g = aiGeneratedData;
 
   try {
-    const res = await apiFetch('/api/skills', {
+    const res = await apiFetch('/api/v1/skills', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

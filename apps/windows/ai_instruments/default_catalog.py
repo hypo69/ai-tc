@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI Instruments - Built-in SDK & Skills Catalog
+# Process Name: ai-tc AI Instruments - Built-in SDK & Skills Catalog
 # =============================================================================
 # Description:
 #   Полный каталог проверенных инструментов ИИ-агента, синтезированных из:
@@ -17,11 +17,11 @@
 #     from apps.windows.ai_instruments.default_catalog import DEFAULT_AGENT_INSTRUMENTS
 #
 # File: default_catalog.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.ai_instruments
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:00:00
+# Updated: 2026-11-12 12:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -688,5 +688,360 @@ DEFAULT_AGENT_INSTRUMENTS: List[Dict[str, Any]] = [
         "risk_level": "safe",
         "author_agent": "skill_system_control",
         "tags": ["#sdk", "#safeops", "#parameters", "#security"],
+    },
+    {
+        "tool_id": "inst_task_scheduler_autostart_register",
+        "name": "Регистрация автозапуска и обновления ПО в Windows Task Scheduler",
+        "tool_type": "powershell",
+        "command": "$tr = '\"' + '{executable_path}' + '\" {arguments}'; schtasks.exe /Create /TN {task_name} /TR $tr /SC WEEKLY /MO {interval_weeks} /ST {start_time} /RU SYSTEM /RL HIGHEST /F",
+        "description": "Создание регламентного задания в Windows Task Scheduler для автоматического фонового запуска/обновления ПО с наивысшими правами SYSTEM и записью отчета в лог-файл.",
+        "target_entity": "system",
+        "parameters_schema": {
+            "task_name": {"type": "string", "default": "NiniteAutoUpdate", "description": "Имя задачи в Task Scheduler"},
+            "executable_path": {"type": "string", "default": "C:\\Program Files\\Ninite\\ninite.exe", "description": "Путь к исполняемому файлу программы"},
+            "arguments": {"type": "string", "default": "/silent C:\\ProgramData\\ai-tc\\ninite_update.log", "description": "Аргументы запуска и путь к файлу лога"},
+            "interval_weeks": {"type": "integer", "default": 2, "description": "Интервал запуска задачи в неделях"},
+            "start_time": {"type": "string", "default": "20:00", "description": "Время запуска ЧЧ:ММ"},
+        },
+        "risk_level": "caution",
+        "author_agent": "reasoning_chain",
+        "tags": ["#taskscheduler", "#autostart", "#ninite", "#schtasks", "#automation"],
+    },
+    {
+        "tool_id": "inst_task_scheduler_run_task",
+        "name": "Принудительный запуск регламентной задачи Windows Task Scheduler",
+        "tool_type": "powershell",
+        "command": "schtasks.exe /Run /TN {task_name}",
+        "description": "Немедленная фоновая инициация выполнения регламентной задачи Windows Task Scheduler.",
+        "target_entity": "system",
+        "parameters_schema": {
+            "task_name": {"type": "string", "default": "NiniteAutoUpdate", "description": "Имя запускаемой задачи"},
+        },
+        "risk_level": "safe",
+        "author_agent": "reasoning_chain",
+        "tags": ["#taskscheduler", "#run", "#schtasks", "#execution"],
+    },
+    # =========================================================================
+    # 6. УЧЕТНЫЕ ЗАПИСИ И ПОЛЬЗОВАТЕЛИ WINDOWS (target_entity: user, net user)
+    # =========================================================================
+    {
+        "tool_id": "inst_net_user_list",
+        "name": "Список всех локальных пользователей (net user)",
+        "tool_type": "cmd",
+        "command": "net user",
+        "description": "Вывод перечня всех локальных учетных записей пользователей операционной системы Windows.",
+        "target_entity": "user",
+        "risk_level": "safe",
+        "author_agent": "system32_catalog",
+        "tags": ["#net_user", "#user", "#accounts", "#audit"],
+    },
+    {
+        "tool_id": "inst_net_user_get",
+        "name": "Свойства и параметры пользователя (net user {username})",
+        "tool_type": "cmd",
+        "command": "net user {username}",
+        "description": "Получение подробных атрибутов учетной записи: активность, срок действия пароля, членство в локальных группах и дата последнего входа.",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "default": "User", "description": "Имя учетной записи пользователя"},
+            },
+            "required": ["username"],
+        },
+        "risk_level": "safe",
+        "author_agent": "system32_catalog",
+        "tags": ["#net_user", "#user", "#identity", "#properties"],
+    },
+    {
+        "tool_id": "inst_net_user_passwordreq",
+        "name": "Обязательность пароля (net user {username} /passwordreq:{yes|no})",
+        "tool_type": "cmd",
+        "command": "net user {username} /passwordreq:{passwordreq}",
+        "description": "Управление обязательностью наличия пароля для учетной записи (yes — пароль обязателен, no — разрешен вход без пароля).",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "default": "User", "description": "Имя учетной записи пользователя"},
+                "passwordreq": {
+                    "type": "string",
+                    "enum": ["yes", "no"],
+                    "default": "no",
+                    "description": "Флаг обязательности пароля: yes или no",
+                },
+            },
+            "required": ["username", "passwordreq"],
+        },
+        "risk_level": "caution",
+        "author_agent": "command_wizard",
+        "tags": ["#net_user", "#user", "#password", "#security", "#autologon"],
+    },
+    {
+        "tool_id": "inst_net_user_active",
+        "name": "Активация/блокировка пользователя (net user {username} /active:{yes|no})",
+        "tool_type": "cmd",
+        "command": "net user {username} /active:{active}",
+        "description": "Активирует (yes) или блокирует/отключает (no) учетную запись Windows.",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "default": "User", "description": "Имя учетной записи пользователя"},
+                "active": {
+                    "type": "string",
+                    "enum": ["yes", "no"],
+                    "default": "yes",
+                    "description": "Статус учетной записи: yes (активна) или no (заблокирована)",
+                },
+            },
+            "required": ["username", "active"],
+        },
+        "risk_level": "caution",
+        "author_agent": "command_wizard",
+        "tags": ["#net_user", "#user", "#active", "#lockout"],
+    },
+    {
+        "tool_id": "inst_net_user_passwordchg",
+        "name": "Разрешение смены пароля пользователем (net user {username} /passwordchg:{yes|no})",
+        "tool_type": "cmd",
+        "command": "net user {username} /passwordchg:{passwordchg}",
+        "description": "Определяет право пользователя самостоятельно изменять собственный пароль.",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "default": "User", "description": "Имя учетной записи пользователя"},
+                "passwordchg": {
+                    "type": "string",
+                    "enum": ["yes", "no"],
+                    "default": "yes",
+                    "description": "Разрешить (yes) или запретить (no) пользователю менять пароль",
+                },
+            },
+            "required": ["username", "passwordchg"],
+        },
+        "risk_level": "caution",
+        "author_agent": "command_wizard",
+        "tags": ["#net_user", "#user", "#passwordchg", "#policy"],
+    },
+    {
+        "tool_id": "inst_net_user_logonpasswordchg",
+        "name": "Требовать смену пароля при входе (net user {username} /logonpasswordchg:{yes|no})",
+        "tool_type": "cmd",
+        "command": "net user {username} /logonpasswordchg:{logonpasswordchg}",
+        "description": "Принуждает пользователя сменить пароль при следующем интерактивном входе в систему.",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "default": "User", "description": "Имя учетной записи пользователя"},
+                "logonpasswordchg": {
+                    "type": "string",
+                    "enum": ["yes", "no"],
+                    "default": "yes",
+                    "description": "Требовать смену пароля при следующем входе: yes или no",
+                },
+            },
+            "required": ["username", "logonpasswordchg"],
+        },
+        "risk_level": "caution",
+        "author_agent": "command_wizard",
+        "tags": ["#net_user", "#user", "#logonpasswordchg", "#security"],
+    },
+    {
+        "tool_id": "inst_net_user_expires",
+        "name": "Срок действия учетной записи (net user {username} /expires:{expires})",
+        "tool_type": "cmd",
+        "command": "net user {username} /expires:{expires}",
+        "description": "Установка даты окончания срока действия аккаунта (формат MM/DD/YYYY) или 'never' для бессрочного действия.",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "default": "User", "description": "Имя учетной записи пользователя"},
+                "expires": {
+                    "type": "string",
+                    "default": "never",
+                    "description": "Дата истечения срока (MM/DD/YYYY) или 'never'",
+                },
+            },
+            "required": ["username", "expires"],
+        },
+        "risk_level": "caution",
+        "author_agent": "command_wizard",
+        "tags": ["#net_user", "#user", "#expires", "#lifecycle"],
+    },
+    {
+        "tool_id": "inst_net_user_fullname",
+        "name": "Полное имя пользователя (net user {username} /fullname:\"{fullname}\")",
+        "tool_type": "cmd",
+        "command": "net user {username} /fullname:\"{fullname}\"",
+        "description": "Установка полного отображаемого имени (Full Name) локального пользователя.",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "default": "User", "description": "Имя учетной записи"},
+                "fullname": {"type": "string", "default": "Администратор Хоста", "description": "Полное имя пользователя"},
+            },
+            "required": ["username", "fullname"],
+        },
+        "risk_level": "safe",
+        "author_agent": "command_wizard",
+        "tags": ["#net_user", "#user", "#fullname"],
+    },
+    {
+        "tool_id": "inst_net_user_comment",
+        "name": "Описание пользователя (net user {username} /comment:\"{comment}\")",
+        "tool_type": "cmd",
+        "command": "net user {username} /comment:\"{comment}\"",
+        "description": "Установка описания или комментария к учетной записи пользователя.",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "default": "User", "description": "Имя учетной записи"},
+                "comment": {"type": "string", "default": "Основная учетная запись администратора", "description": "Описание назначения учетной записи"},
+            },
+            "required": ["username", "comment"],
+        },
+        "risk_level": "safe",
+        "author_agent": "command_wizard",
+        "tags": ["#net_user", "#user", "#comment"],
+    },
+    {
+        "tool_id": "inst_net_user_homedir",
+        "name": "Домашняя директория пользователя (net user {username} /homedir:\"{homedir}\")",
+        "tool_type": "cmd",
+        "command": "net user {username} /homedir:\"{homedir}\"",
+        "description": "Назначение пути к домашней папке пользователя (каталог должен существовать).",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "default": "User", "description": "Имя учетной записи"},
+                "homedir": {"type": "string", "default": "C:\\Users\\User", "description": "Путь к домашней директории"},
+            },
+            "required": ["username", "homedir"],
+        },
+        "risk_level": "caution",
+        "author_agent": "command_wizard",
+        "tags": ["#net_user", "#user", "#homedir"],
+    },
+    {
+        "tool_id": "inst_net_user_workstations",
+        "name": "Ограничение рабочих станций (net user {username} /workstations:{workstations})",
+        "tool_type": "cmd",
+        "command": "net user {username} /workstations:{workstations}",
+        "description": "Установка списка рабочих станций (до 8 через запятую или *), с которых разрешен вход в сеть.",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "default": "User", "description": "Имя учетной записи"},
+                "workstations": {"type": "string", "default": "*", "description": "Список имен рабочих станций через запятую или *"},
+            },
+            "required": ["username", "workstations"],
+        },
+        "risk_level": "caution",
+        "author_agent": "command_wizard",
+        "tags": ["#net_user", "#user", "#workstations", "#security"],
+    },
+    {
+        "tool_id": "inst_net_user_times",
+        "name": "Расписание разрешенного входа (net user {username} /times:{times})",
+        "tool_type": "cmd",
+        "command": "net user {username} /times:{times}",
+        "description": "Установка разрешенных дней и часов для входа в систему (например: 'M-F,08:00-18:00' или 'all').",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "default": "User", "description": "Имя учетной записи"},
+                "times": {"type": "string", "default": "all", "description": "Дни и часы входа или 'all'"},
+            },
+            "required": ["username", "times"],
+        },
+        "risk_level": "caution",
+        "author_agent": "command_wizard",
+        "tags": ["#net_user", "#user", "#times", "#logon_hours"],
+    },
+    {
+        "tool_id": "inst_net_user_set_password",
+        "name": "Смена пароля пользователя (net user {username} {password})",
+        "tool_type": "cmd",
+        "command": "net user {username} {password}",
+        "description": "Установка нового пароля локального пользователя без запроса текущего пароля.",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "default": "User", "description": "Имя учетной записи"},
+                "password": {"type": "string", "description": "Новый пароль"},
+            },
+            "required": ["username", "password"],
+        },
+        "risk_level": "high",
+        "author_agent": "command_wizard",
+        "tags": ["#net_user", "#user", "#password", "#credentials"],
+    },
+    {
+        "tool_id": "inst_net_user_create",
+        "name": "Создание локального пользователя (net user {username} {password} /add)",
+        "tool_type": "cmd",
+        "command": "net user {username} {password} /add",
+        "description": "Создание новой локальной учетной записи пользователя с указанным паролем.",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "default": "NewUser", "description": "Имя нового пользователя"},
+                "password": {"type": "string", "default": "Pass@2026!", "description": "Пароль нового пользователя"},
+            },
+            "required": ["username", "password"],
+        },
+        "risk_level": "high",
+        "author_agent": "command_wizard",
+        "tags": ["#net_user", "#user", "#create", "#add"],
+    },
+    {
+        "tool_id": "inst_net_user_delete",
+        "name": "Удаление пользователя (net user {username} /delete)",
+        "tool_type": "cmd",
+        "command": "net user {username} /delete",
+        "description": "Безвозвратное удаление локальной учетной записи пользователя из операционной системы.",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "description": "Имя удаляемой учетной записи"},
+            },
+            "required": ["username"],
+        },
+        "risk_level": "critical",
+        "author_agent": "command_wizard",
+        "tags": ["#net_user", "#user", "#delete"],
+    },
+    {
+        "tool_id": "inst_net_user_configure",
+        "name": "Комплексная настройка пользователя (net user {username} /active:{active} /passwordreq:{passwordreq} /passwordchg:{passwordchg})",
+        "tool_type": "cmd",
+        "command": "net user {username} /active:{active} /passwordreq:{passwordreq} /passwordchg:{passwordchg}",
+        "description": "Пакетная установка основных параметров безопасности: активности, обязательности пароля и права смены пароля.",
+        "target_entity": "user",
+        "parameters_schema": {
+            "type": "object",
+            "properties": {
+                "username": {"type": "string", "default": "User", "description": "Имя учетной записи"},
+                "active": {"type": "string", "enum": ["yes", "no"], "default": "yes", "description": "Активность аккаунта"},
+                "passwordreq": {"type": "string", "enum": ["yes", "no"], "default": "no", "description": "Обязательность пароля"},
+                "passwordchg": {"type": "string", "enum": ["yes", "no"], "default": "yes", "description": "Право смены пароля"},
+            },
+            "required": ["username", "active", "passwordreq", "passwordchg"],
+        },
+        "risk_level": "caution",
+        "author_agent": "command_wizard",
+        "tags": ["#net_user", "#user", "#configure", "#policy"],
     },
 ]

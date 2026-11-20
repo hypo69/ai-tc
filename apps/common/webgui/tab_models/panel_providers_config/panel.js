@@ -2,7 +2,7 @@
  * Модуль конфигурации локальных и облачных провайдеров (Foundry, Ollama, AGY, ONNX)
  * и управления системной инструкцией ИИ.
  * Файл: apps/ai_assistant/api/webgui/tab_models/panel_providers_config/panel.js
- * Updated: 2026-11-01 17:37:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { showModelsNotification } from '../common/ui_utils.js';
@@ -140,7 +140,7 @@ export async function loadSystemInstruction() {
     const endpoints = [
       '/api/v1/tc/model-instruction',
       '/api/v1/chat/model-instruction',
-      '/api/admin/system_instruction',
+      '/api/v1/admin/system_instruction',
       '/api/v1/admin/system_instruction'
     ];
 
@@ -204,7 +204,7 @@ export async function saveSystemInstruction() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ instruction: textVal, content: textVal, system_instruction: textVal, save_to_disk: true })
       }),
-      fetchFn('/api/admin/system_instruction', {
+      fetchFn('/api/v1/admin/system_instruction', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: textVal })

@@ -39,7 +39,7 @@ def package_skill(skill_target: str) -> Path:
 
 def main() -> int:
     """CLI Entry point for pack utility."""
-    parser = argparse.ArgumentParser(description='Package an AI Windows Admin agent skill.')
+    parser = argparse.ArgumentParser(description='Package an ai-tc agent skill.')
     parser.add_argument('skill', help='Name or path to skill folder (e.g. project-installer)')
     args = parser.parse_args()
     try:

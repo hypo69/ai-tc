@@ -1,12 +1,12 @@
 //! =============================================================================
-//! Process Name: AI-Windows-Admin Common File Editor - Rust Syntax & Outline
+//! Process Name: ai-tc Common File Editor - Rust Syntax & Outline
 //! =============================================================================
 //! Description:
 //!   Модуль быстрого извлечения дерева символов (Outline: функции, классы,
 //!   структуры, заголовки Markdown, ключи JSON/YAML) и метрик текста в Wasm.
 //!
 //! File: syntax_analyzer.rs
-//! Project: ai-windows-admin
+//! Project: ai-tc
 //! Package: apps.common.file_editor.rust_engine
 //! Author: hypo69
 //! Copyright: © 2026 hypo69

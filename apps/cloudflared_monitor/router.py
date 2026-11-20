@@ -14,11 +14,11 @@
 #   >>> app.include_router(init_router())
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.cloudflared_monitor
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 14:00:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 """FastAPI роутер для мониторинга и управления Cloudflare Tunnel."""
@@ -32,7 +32,7 @@ from apps.windows.api.auth import require_admin_user
 from apps.common.csv_logger import AppCsvLogger
 from .src.state import CloudflaredState
 
-router = APIRouter(prefix="/api/cloudflared", tags=["cloudflared"])
+router = APIRouter(prefix="/api/v1/cloudflared", tags=["cloudflared"])
 _state: Optional[CloudflaredState] = None
 _csv_logger = AppCsvLogger("cloudflared_monitor")
 

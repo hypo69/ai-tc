@@ -7,11 +7,11 @@
  *   асинхронной подгрузки HTML-фрагментов и безопасного экранирования HTML.
  *
  * File: common/ui_utils.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_software_scanner/common
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-20 15:50:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

@@ -1,20 +1,20 @@
 <#
 =============================================================================
-Process Name: AI-Windows-Admin Automation - Start Gemini CLI
+Process Name: ai-tc Automation - Start Gemini CLI
 =============================================================================
 Description:
-  Быстрый запуск сессии Google Gemini CLI в контексте проекта AI Windows Admin.
+  Быстрый запуск сессии Google Gemini CLI в контексте проекта ai-tc.
 
   Зачем нужен этот скрипт:
     1. Автоматическая изоляция среды: активирует виртуальное окружение venv перед запуском.
     2. Вызов интерактивной консоли: стартует утилиту gemini с предустановленной быстрой моделью gemini-3.1-flash-lite.
 
 File: Start-GeminiCli.ps1
-Project: ai-windows-admin
+Project: ai-tc
 Package: root
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-10 17:35:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 
 .SYNOPSIS

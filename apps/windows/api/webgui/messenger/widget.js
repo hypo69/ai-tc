@@ -10,16 +10,16 @@
  *     <script src="/windows/api/webgui/messenger/widget.js?v=20261001_v1" type="module"></script>
  *
  * File: widget.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/messenger
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
 /**
- * AI Windows Admin Floating Messenger Widget
+ * ai-tc Floating Messenger Widget
  * Zero-dependency embeddable script for any website or WordPress.
  */
 

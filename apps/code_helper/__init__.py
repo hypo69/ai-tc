@@ -7,11 +7,11 @@
 #   семантический поиск и диагностика с базой данных на Hostinger.
 #
 # File: __init__.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.code_helper
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 17:10:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

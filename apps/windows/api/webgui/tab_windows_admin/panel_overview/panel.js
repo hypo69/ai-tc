@@ -9,7 +9,7 @@
  * Файл: apps/windows/api/webgui/tab_windows_admin/panel_overview/panel.js
  * Пакет: windows/api/webgui/tab_windows_admin
  * Автор: hypo69
- * Updated: 2026-10-20 18:30:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -22,7 +22,7 @@ import { isPanelActive } from '../../js/tab-core.js';
 export async function loadCurrentToken() {
   const badgeEl = document.getElementById('ai-current-token-badge');
   try {
-    const res = await fetch('/api/windows/identity/current');
+    const res = await fetch('/api/v1/windows/identity/current');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     const isElevated = data.is_elevated
@@ -42,7 +42,7 @@ export async function loadCurrentToken() {
  */
 export async function fetchStatus() {
   try {
-    const res = await fetch('/api/sysadmin/status');
+    const res = await fetch('/api/v1/sysadmin/status');
     if (!res.ok) return;
     const data = await res.json();
 

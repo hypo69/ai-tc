@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows API - Router Procedural Tools
+# Process Name: ai-tc Apps Windows API - Router Procedural Tools
 # =============================================================================
 # Description:
 #   REST API эндпоинты для управления динамическими инструментами и процедурной
@@ -13,11 +13,11 @@
 #     router = init_router()
 #
 # File: router_procedural_tools.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-14 03:33:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

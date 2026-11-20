@@ -3,7 +3,7 @@
  * @description Вспомогательные утилиты для интерфейса управления навыками (экранирование, байты, API fetch)
  * @author hypo69
  * @version 1.0.0
- * Updated: 2026-10-17 01:15:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 /**
@@ -39,8 +39,8 @@ export function formatBytes(bytes) {
 export async function apiFetch(endpoint, options = {}) {
   let url = endpoint;
   let res = await fetch(url, options);
-  if (!res.ok && url.startsWith('/api/skills')) {
-    const fallbackUrl = url.replace('/api/skills', '/api/admin/skills');
+  if (!res.ok && url.startsWith('/api/v1/skills')) {
+    const fallbackUrl = url.replace('/api/v1/skills', '/api/v1/admin/skills');
     const fallbackRes = await fetch(fallbackUrl, options);
     if (fallbackRes.ok) {
       return fallbackRes;

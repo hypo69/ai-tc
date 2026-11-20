@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - TelemetrySnapshotStorageMixin
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - TelemetrySnapshotStorageMixin
 # =============================================================================
 # Description:
 #   Миксин фасада хранилища: сохранение и чтение снапшотов, сенсоров, событий, процессов, инцидентов и аудитов.
@@ -14,10 +14,10 @@
 #     class TelemetryStorage(TelemetrySnapshotStorageMixin): ...
 #
 # File: storage_snapshots.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
-# Updated: 2026-10-16 23:05:00
+# Updated: 2026-11-20 15:13:00
 # =============================================================================
 
 from __future__ import annotations
@@ -251,6 +251,14 @@ class TelemetrySnapshotStorageMixin:
 
     def get_latest_storage_data(self) -> Dict[str, Any]:
         return self._reader.get_latest_storage_data()
+
+    def save_storage_sensor_snapshot(self, snapshot: Dict[str, Any]) -> bool:
+        """Сохраняет полный снимок WindowsStorageSensor в telemetry.db (inventory_state)."""
+        return self._writer.save_storage_sensor_snapshot(snapshot)
+
+    def get_latest_storage_sensor_snapshot(self) -> Optional[Dict[str, Any]]:
+        """Возвращает последний снимок WindowsStorageSensor из telemetry.db (inventory_state)."""
+        return self._reader.get_latest_storage_sensor_snapshot()
 
     def get_snapshot_processes(self, snapshot_id: int) -> List[Dict[str, Any]]:
         return self._reader.get_snapshot_processes(snapshot_id=snapshot_id)

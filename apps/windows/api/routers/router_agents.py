@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Router Agents
+# Process Name: ai-tc Apps Windows Api Routers - Router Agents
 # =============================================================================
 # Description:
 #   Предоставляет полнофункциональные эндпойнты для управления автономными
@@ -13,11 +13,11 @@
 #     router = init_router()
 #
 # File: router_agents.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 11:15:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -26,11 +26,12 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from header import __root__
 from logger import logger
+from .agents_executor import execute_agent_sandbox
 
 _AGENTS_DIR = __root__ / ".agents"
 _CONFIG_PATH = __root__ / "config.json"
@@ -50,6 +51,7 @@ _DEFAULT_SYSTEM_AGENTS: List[Dict[str, Any]] = [
         "is_system": True,
         "tools": ["system_diagnostics", "event_logs_inspector", "services_manager", "safeops_executor"],
         "system_prompt": "Вы — системный администратор и контроллер ОС Windows. Выполняйте безопасную диагностику и аудит.",
+        "sandbox_default_query": "Проверь текущую загрузку CPU, оперативной памяти и статус критических служб Windows",
     },
     {
         "id": "system_logs_agent",
@@ -64,6 +66,7 @@ _DEFAULT_SYSTEM_AGENTS: List[Dict[str, Any]] = [
         "is_system": True,
         "tools": ["event_logs_inspector", "system_diagnostics"],
         "system_prompt": "Вы — эксперт по анализу журналов Windows. Находите аномалии и критические сбои.",
+        "sandbox_default_query": "Проанализируй критические ошибки и предупреждения в журналах событий Windows (System и Application) за последние 24 часа",
     },
     {
         "id": "chat_agent",
@@ -78,6 +81,7 @@ _DEFAULT_SYSTEM_AGENTS: List[Dict[str, Any]] = [
         "is_system": True,
         "tools": ["search_web", "wikillm_search"],
         "system_prompt": "Вы — умный персональный помощник пользователя Windows.",
+        "sandbox_default_query": "Найди в базе знаний WikiLLM краткую справку по диагностике и настройке системы",
     },
 ]
 
@@ -98,11 +102,11 @@ _DEFAULT_PROVIDERS: Dict[str, Any] = {
     "gemini": {
         "id": "gemini",
         "name": "Google Gemini",
-        "default_model": "gemini-3.1-flash",
+        "default_model": "gemini-3.5-flash-lite",
         "models": [
-            {"id": "gemini-3.1-flash", "name": "Gemini 3.1 Flash (Рекомендуется)"},
-            {"id": "gemini-3.1-flash-lite", "name": "Gemini 3.1 Flash Lite (Быстрый)"},
-            {"id": "gemini-3.1-pro", "name": "Gemini 3.1 Pro (Глубокий анализ)"},
+            {"id": "gemini-3.5-flash-lite", "name": "Gemini 3.5 Flash Lite (Рекомендуется)"},
+            {"id": "gemini-3.5-flash", "name": "Gemini 3.5 Flash"},
+            {"id": "gemini-3.1-flash-lite", "name": "Gemini 3.1 Flash Lite"},
             {"id": "gemini-2.5-flash", "name": "Gemini 2.5 Flash"},
         ],
     },
@@ -151,6 +155,7 @@ class AgentPayload(BaseModel):
     is_system: Optional[bool] = False
     tools: Optional[List[str]] = Field(default_factory=list)
     system_prompt: Optional[str] = ""
+    sandbox_default_query: Optional[str] = None
 
 
 class AgentTestPayload(BaseModel):
@@ -159,6 +164,7 @@ class AgentTestPayload(BaseModel):
     agent_id: Optional[str] = None
     prompt: str = ""
     query: Optional[str] = None
+    test_message: Optional[str] = None
 
 
 class GeneratePromptPayload(BaseModel):
@@ -169,6 +175,32 @@ class GeneratePromptPayload(BaseModel):
     role: Optional[str] = ""
     provider: Optional[str] = "gemini"
     model: Optional[str] = "gemini-3.1-flash"
+
+
+def _resolve_sandbox_default_query(agent: Dict[str, Any]) -> str:
+    """Подбирает релевантный тестовый запрос для песочницы на основе профиля агента."""
+    explicit = str(agent.get("sandbox_default_query") or "").strip()
+    if explicit:
+        return explicit
+
+    agent_id = str(agent.get("id") or "").lower()
+    tools = [str(t).lower() for t in (agent.get("tools") or [])]
+    description = str(agent.get("description") or "").strip()
+    name = str(agent.get("name") or agent_id or "агент").strip()
+
+    if "github" in agent_id or any("github" in t for t in tools):
+        return "Покажи список открытых GitHub Issues в репозитории и предложи приоритетный план их выполнения"
+    if "log" in agent_id or any("event_log" in t for t in tools):
+        return "Проанализируй критические ошибки и предупреждения в журналах событий Windows (System и Application) за последние 24 часа"
+    if "windows" in agent_id or any(t.startswith("windows_") or t in ("system_diagnostics", "services_manager") for t in tools):
+        return "Проверь текущую загрузку CPU, оперативной памяти и статус критических служб Windows"
+    if "chat" in agent_id or any(t in ("wikillm_search", "rag_search", "search_web") for t in tools):
+        return "Найди в базе знаний WikiLLM краткую справку по диагностике и настройке системы"
+    if any(t in ("python_eval", "run_command") for t in tools):
+        return "Выполни быструю диагностическую проверку окружения и выведи краткий отчёт"
+    if description:
+        return f"Выполни тестовую задачу по профилю агента «{name}»: {description}"
+    return f"Выполни диагностический тест возможностей агента «{name}»"
 
 
 def _get_agents() -> List[Dict[str, Any]]:
@@ -192,6 +224,9 @@ def _get_agents() -> List[Dict[str, Any]]:
                     agents_map[a_id] = item
             except Exception as exc:
                 logger.warning(f"[AgentsRouter] Ошибка чтения {manifest_file.name}: {exc}")
+
+    for item in agents_map.values():
+        item["sandbox_default_query"] = _resolve_sandbox_default_query(item)
 
     return list(agents_map.values())
 
@@ -229,8 +264,8 @@ def _get_providers() -> Dict[str, Any]:
 
 
 def init_router() -> APIRouter:
-    """Инициализирует полнофункциональный роутер ``/api/agents``."""
-    router = APIRouter(prefix="/api/agents", tags=["agents"])
+    """Инициализирует полнофункциональный роутер ``/api/v1/agents``."""
+    router = APIRouter(prefix="/api/v1/agents", tags=["agents"])
 
     @router.get("", summary="Получить список агентов")
     @router.get("/", summary="Получить список агентов (со слешем)")
@@ -289,24 +324,25 @@ def init_router() -> APIRouter:
 
     @router.post("/test", summary="Тестовый запуск агента в Sandbox")
     async def test_agent(payload: AgentTestPayload):
-        query = payload.query or payload.prompt or "Диагностический тест связи с агентом."
+        query = (payload.test_message or payload.query or payload.prompt or "").strip()
+        if not query:
+            query = "Диагностический тест связи с агентом."
         a_id = payload.agent_id or "generic_agent"
         agents = _get_agents()
         agent_data = next((a for a in agents if a["id"] == a_id), None)
-        sys_prompt = agent_data.get("system_prompt", "") if agent_data else ""
-        
-        reply_text = (
-            f"Тестовый ответ от агента [{agent_data.get('name', a_id) if agent_data else a_id}]:\n"
-            f"Запрос успешно получен: '{query}'.\n"
-            f"Модель: {agent_data.get('model', 'gemini-3.1-flash') if agent_data else 'gemini-3.1-flash'}. "
-            f"Инструменты подключены: {len(agent_data.get('tools', [])) if agent_data else 0}."
-        )
-        return {
-            "status": "success",
-            "agent_id": a_id,
-            "response": reply_text,
-            "output": reply_text,
-        }
+        if not agent_data:
+            agent_data = {
+                "id": a_id,
+                "name": a_id,
+                "provider": "gemini",
+                "model": "gemini-3.5-flash-lite",
+                "temperature": 0.1,
+                "max_steps": 10,
+                "timeout_seconds": 60,
+                "tools": [],
+                "system_prompt": "",
+            }
+        return await execute_agent_sandbox(agent_data, query)
 
     @router.post("/generate-prompt", summary="AI-генерация системного промпта")
     async def generate_prompt(payload: GeneratePromptPayload):

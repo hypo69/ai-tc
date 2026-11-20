@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - helpers
+# Process Name: ai-tc Apps Windows Api Routers - helpers
 # =============================================================================
 # Description:
 #   Вспомогательные функции панели «О системе».
 #   Вынесено из router_about_system.py (этап 4 оптимизации).
 #
 # File: helpers.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.about_system
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-11-01 15:25:00
+# Updated: 2026-11-12 12:40:00
 # =============================================================================
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ import os
 import platform
 import re
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 
 from logger import logger
@@ -261,6 +261,32 @@ def set_password_policy_helper(
     except Exception as exc:
         logger.error(f"[router_about_system] Ошибка изменения политики паролей: {exc}", exc_info=True)
         return {"status": "error", "message": f"Внутренняя ошибка: {exc}"}
+
+
+def get_windows_volume_labels() -> Dict[str, str]:
+    """Возвращает словарь соответствия букв дисков (C:, D:) их именам/меткам томов (OS, Data).
+
+    Использует прямой Win32 API вызов GetVolumeInformationW для быстрого (O(1)) определения
+    пользовательских меток томов всех смонтированных логических дисков Windows.
+
+    Returns:
+        Dict[str, str]: Словарь вида {'C:': 'OS', 'D:': 'Data', 'R:': 'Диск 12'}.
+    """
+    labels: Dict[str, str] = {}
+    if os.name == "nt":
+        try:
+            import ctypes
+            buf = ctypes.create_unicode_buffer(1024)
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                root = f"{letter}:\\"
+                if ctypes.windll.kernel32.GetVolumeInformationW(root, buf, 1024, None, None, None, None, 0):
+                    val = buf.value.strip()
+                    if val:
+                        labels[f"{letter}:"] = val
+        except Exception as ex:
+            logger.debug(f"[helpers] Ошибка получения меток томов через GetVolumeInformationW: {ex}")
+    return labels
+
 
 
 

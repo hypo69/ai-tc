@@ -8,11 +8,11 @@
 #   Windows/Linux адаптерами.
 #
 # File: test_core_and_tools.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp.tests.unit
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:07:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from pathlib import Path

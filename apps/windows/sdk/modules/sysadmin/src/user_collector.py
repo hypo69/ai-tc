@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Sysadmin Src - User Collector
+# Process Name: ai-tc Apps Windows Modules Sysadmin Src - User Collector
 # =============================================================================
 # Description:
 #   Модуль сбора детальных метрик и аудита учетных записей Windows.
@@ -12,11 +12,11 @@
 #     service = WindowsAccountDetails()
 #
 # File: user_collector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.sysadmin.src
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-20 10:41:30
 # =============================================================================
 
 from __future__ import annotations
@@ -116,10 +116,10 @@ class WindowsUserCollector:
         users_map: Dict[str, WindowsAccountDetails] = {}
         hidden_accounts = self._get_hidden_accounts_registry()
         groups_by_user = self._get_user_groups_map()
-        ps_script = "\n        Get-LocalUser | Select-Object Name, FullName, Description, Enabled,\n            @{Name='SID';Expression={$_.SID.Value}},\n            @{Name='PasswordRequired';Expression={$_.PasswordRequired}},\n            @{Name='PasswordLastSet';Expression={$_.PasswordLastSet}},\n            @{Name='PasswordExpires';Expression={$_.PasswordExpires}},\n            @{Name='AccountExpires';Expression={$_.AccountExpires}},\n            @{Name='LastLogon';Expression={$_.LastLogon}},\n            @{Name='BadPasswordCount';Expression={$_.BadPasswordCount}} |\n        ConvertTo-Json -Depth 3\n        "
+        ps_script = "\n        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8;\n        Get-LocalUser | Select-Object Name, FullName, Description, Enabled,\n            @{Name='SID';Expression={$_.SID.Value}},\n            @{Name='PasswordRequired';Expression={$_.PasswordRequired}},\n            @{Name='PasswordLastSet';Expression={$_.PasswordLastSet}},\n            @{Name='PasswordExpires';Expression={$_.PasswordExpires}},\n            @{Name='AccountExpires';Expression={$_.AccountExpires}},\n            @{Name='LastLogon';Expression={$_.LastLogon}},\n            @{Name='BadPasswordCount';Expression={$_.BadPasswordCount}} |\n        ConvertTo-Json -Depth 3\n        "
         raw_users_data: List[Dict[str, Any]] = []
         try:
-            res = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command', ps_script], capture_output=True, text=True, timeout=15)
+            res = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command', ps_script], capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=15)
             if res.returncode == 0 and res.stdout.strip():
                 data = json.loads(res.stdout)
                 if isinstance(data, list):
@@ -166,9 +166,9 @@ class WindowsUserCollector:
     def _get_user_groups_map(self) -> Dict[str, List[str]]:
         """Получить сопоставление пользователей и групп через PowerShell."""
         groups_map: Dict[str, List[str]] = {}
-        ps_script = '\n        $res = @{}\n        Get-LocalGroup | ForEach-Object {\n            $grp = $_.Name\n            Get-LocalGroupMember -Group $grp -ErrorAction SilentlyContinue | ForEach-Object {\n                $m = $_.Name\n                # Убираем имя машины из COMPUTER\\User\n                if ($m -like "*\\*") { $m = $m.Split(\'\\\')[-1] }\n                if (-not $res.ContainsKey($m)) { $res[$m] = @() }\n                $res[$m] += $grp\n            }\n        }\n        $res | ConvertTo-Json -Depth 3\n        '
+        ps_script = '\n        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8;\n        $res = @{}\n        Get-LocalGroup | ForEach-Object {\n            $grp = $_.Name\n            Get-LocalGroupMember -Group $grp -ErrorAction SilentlyContinue | ForEach-Object {\n                $m = $_.Name\n                # Убираем имя машины из COMPUTER\\User\n                if ($m -like "*\\*") { $m = $m.Split(\'\\\')[-1] }\n                if (-not $res.ContainsKey($m)) { $res[$m] = @() }\n                $res[$m] += $grp\n            }\n        }\n        $res | ConvertTo-Json -Depth 3\n        '
         try:
-            res = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command', ps_script], capture_output=True, text=True, timeout=15)
+            res = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command', ps_script], capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=15)
             if res.returncode == 0 and res.stdout.strip():
                 data = json.loads(res.stdout)
                 if isinstance(data, dict):

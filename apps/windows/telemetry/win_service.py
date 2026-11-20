@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Windows Service Entry
+# Process Name: ai-tc Apps Windows Telemetry - Windows Service Entry
 # =============================================================================
 # Description:
 #   Точка входа и обертка Windows Service для фоновой службы AITelemetry.
@@ -17,15 +17,15 @@
 #     AITelemetry.exe --mode hybrid
 #
 # File: win_service.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:25:00
 # =============================================================================
 
 from __future__ import annotations
-"""Windows Service реализация для фонового демона сбора телеметрии AI-Windows-Admin."""
+"""Windows Service реализация для фонового демона сбора телеметрии ai-tc."""
 
 import logging
 import os
@@ -51,7 +51,9 @@ def _setup_service_logging() -> None:
         appdata = os.environ.get('APPDATA') or os.environ.get('LOCALAPPDATA')
         base_dir = Path(appdata) if appdata and os.path.exists(appdata) else Path.home()
 
-    log_dir = base_dir / 'AITelemetry' / 'logs'
+    app_name = os.environ.get('APP_NAME') or 'ai-tc'
+    ai_tel_logs = base_dir / 'AITelemetry' / 'logs'
+    log_dir = ai_tel_logs if (base_dir / 'AITelemetry').is_dir() else (base_dir / app_name / 'telemetry' / 'logs')
     try:
         log_dir.mkdir(parents=True, exist_ok=True)
         log_file = log_dir / 'telemetry.log'
@@ -96,10 +98,10 @@ except ImportError:
 
 if PYWIN32_AVAILABLE:
     class AITelemetryWindowsService(win32serviceutil.ServiceFramework):
-        """Windows Service адаптер для службы сбора системной телеметрии AI-Windows-Admin."""
+        """Windows Service адаптер для службы сбора системной телеметрии ai-tc."""
         _svc_name_ = 'AITelemetry'
-        _svc_display_name_ = 'AI-Windows-Admin Telemetry Service'
-        _svc_description_ = 'Фоновая служба мониторинга, сбора телеметрии и аналитики метрик AI-Windows-Admin'
+        _svc_display_name_ = 'ai-tc Telemetry Service'
+        _svc_description_ = 'Фоновая служба мониторинга, сбора телеметрии и аналитики метрик ai-tc'
 
         def __init__(self, args: List[str]) -> None:
             """Инициализирует экземпляр службы Windows Service."""

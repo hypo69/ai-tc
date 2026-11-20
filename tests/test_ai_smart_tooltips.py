@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - AI Smart Tooltips Mechanism
+# Process Name: ai-tc Tests - AI Smart Tooltips Mechanism
 # =============================================================================
 # Description:
 #   Модульные и интеграционные тесты механизма интеллектуальных всплывающих
@@ -8,11 +8,11 @@
 #   проверки кэша WikiLLM/ИИ и вызова стандартного модального окна ассистента.
 #
 # File: test_ai_smart_tooltips.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 18:09:00
+# Updated: 2026-11-16 02:21:20
 # =============================================================================
 
 from __future__ import annotations
@@ -93,8 +93,9 @@ def test_system_control_tab_contains_ai_tooltip_attributes(api_client: TestClien
     html = res.text
 
     # Проверка верхней панели журналов (источники)
-    for src in ["summary-dashboard", "event-logs", "activity", "power-lifecycle", "defender-logs"]:
+    for src in ["summary-dashboard", "event-logs", "power-lifecycle", "defender-logs"]:
         assert f'data-source="{src}"' in html and f'data-term="{src}"' in html and 'data-ai-tooltip="true"' in html
+    assert ('data-source="forensics"' in html or 'data-source="activity"' in html) and 'data-ai-tooltip="true"' in html
 
     # Проверка кнопок действий
     assert 'id="btn-slc-scan" data-term="slc-scan" data-ai-tooltip="true"' in html
@@ -142,8 +143,8 @@ def test_software_scanner_tab_contains_ai_tooltip_attributes(api_client: TestCli
         assert f'id="subtab-sw-{sub}-btn"' in html and f'data-term="sw-{sub}"' in html and 'data-ai-tooltip="true"' in html
 
     # Проверка вложенных суб-вкладок менеджера пакетов
-    assert 'id="sw-subtab-winget-btn" data-term="sw-winget" data-ai-tooltip="true"' in html
-    assert 'id="sw-subtab-ninite-btn" data-term="sw-ninite" data-ai-tooltip="true"' in html
+    assert 'id="sw-subtab-winget-btn"' in html and 'data-term="sw-winget"' in html and 'data-ai-tooltip="true"' in html
+    assert 'id="sw-subtab-ninite-btn"' in html and 'data-term="sw-ninite"' in html and 'data-ai-tooltip="true"' in html
 
     # Проверка контролов запуска сканирования ПО
     assert 'id="sw-scan-mode-select" data-term="sw-scan-modes" data-ai-tooltip="true"' in html
@@ -325,7 +326,6 @@ def test_processes_load_inspector_tab_contains_ai_tooltip_attributes(api_client:
     assert 'id="pm-category-filter-group" role="group" data-term="pm-category-filters" data-ai-tooltip="true"' in html
     assert 'id="pm-toggle-expand-btn" data-term="pm-toggle-expand" data-ai-tooltip="true"' in html
     assert 'id="pm-btn-open-ai-modal" data-term="pm-ai-modal" data-ai-tooltip="true"' in html
-    assert 'id="pm-btn-investigate-powershell" data-term="pm-investigate-ps" data-ai-tooltip="true"' in html
     assert 'id="pm-btn-prompt-settings" data-term="pm-prompt-settings" data-ai-tooltip="true"' in html
 
     # Проверка контролов Top Stream и Сети

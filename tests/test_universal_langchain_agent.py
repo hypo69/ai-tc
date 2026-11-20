@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - UniversalLangChainAgent
+# Process Name: ai-tc Tests - UniversalLangChainAgent
 # =============================================================================
 # Description:
 #   Модульные тесты для UniversalLangChainAgent: проверка наличия и активации
@@ -12,11 +12,11 @@
 #     pytest tests/test_universal_langchain_agent.py -v
 #
 # File: test_universal_langchain_agent.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-11 23:39:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

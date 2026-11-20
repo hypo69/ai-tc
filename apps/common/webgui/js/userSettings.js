@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Process Name: Common WebGUI - User Settings Script
+ * Process Name: AI Assistant WebGUI - User Settings Script
  * =============================================================================
  * Description:
  *   Клиентский скрипт управления интерфейсом модуля userSettings.
@@ -11,17 +11,17 @@
  *
  * Usage Examples:
  *   HTML Integration:
- *     <script src="/html/js/userSettings.js?v=20261103_v2" type="module"></script>
+ *     <script src="/html/js/userSettings.js?v=20261116_v2" type="module"></script>
  *
  *   JavaScript Import:
  *     import { initUserSettings, ensureUserSettingsModal, executeUserAction, isUserAdmin } from '/html/js/userSettings.js';
  *
  * File: userSettings.js
  * Project: ai-assistant
- * Package: apps.common.webgui.js
+ * Package: apps.ai_assistant.api.webgui.js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-03 16:38:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -131,6 +131,18 @@ export function openModelsTab() {
 }
 
 /**
+ * Активирует вкладку статуса рантайма Electron Shell в модальном окне настроек.
+ */
+export function openElectronTab() {
+  const tabBtn = document.getElementById('user-settings-tab-btn-electron');
+  if (tabBtn && window.bootstrap?.Tab) {
+    bootstrap.Tab.getOrCreateInstance(tabBtn).show();
+  } else if (tabBtn) {
+    tabBtn.click();
+  }
+}
+
+/**
  * Опрашивает сервер и обновляет бейдж активной модели ИИ в модальном окне настроек.
  * @returns {Promise<void>}
  */
@@ -145,7 +157,7 @@ export async function refreshActiveModelBadge() {
       }
     } catch (_) {
       try {
-        const authRes = await fetch('/auth/settings');
+        const authRes = await fetch('/api/v1/auth/settings');
         if (authRes.ok) {
           const authData = await authRes.json();
           if (authData.model_name) modelName = authData.model_name;
@@ -433,6 +445,28 @@ export function bindConnectionsEvents() {
       loadConnectionsSettings();
     });
   }
+
+  const subtabsNav = document.getElementById('conn-subtabs-nav');
+  if (subtabsNav && !subtabsNav._bound) {
+    subtabsNav._bound = true;
+    subtabsNav.querySelectorAll('button[data-bs-toggle="pill"]').forEach((btn) => {
+      btn.addEventListener('shown.bs.tab', (e) => {
+        subtabsNav.querySelectorAll('button[data-bs-toggle="pill"]').forEach((b) => b.classList.remove('active'));
+        e.target.classList.add('active');
+      });
+    });
+  }
+
+  const generalSubtabsNav = document.getElementById('general-subtabs-nav');
+  if (generalSubtabsNav && !generalSubtabsNav._bound) {
+    generalSubtabsNav._bound = true;
+    generalSubtabsNav.querySelectorAll('button[data-bs-toggle="pill"]').forEach((btn) => {
+      btn.addEventListener('shown.bs.tab', (e) => {
+        generalSubtabsNav.querySelectorAll('button[data-bs-toggle="pill"]').forEach((b) => b.classList.remove('active'));
+        e.target.classList.add('active');
+      });
+    });
+  }
 }
 
 export async function initUserSettings() {
@@ -494,7 +528,7 @@ export async function initUserSettings() {
     btn.addEventListener('click', async (e) => {
       e.preventDefault();
       try {
-        await fetch('/auth/logout', { method: 'POST' });
+        await fetch('/api/v1/auth/logout', { method: 'POST' });
       } catch (err) {
         console.error('Logout error:', err);
       } finally {
@@ -578,6 +612,157 @@ export async function initUserSettings() {
       }
     });
   }
+
+  // Handle Open Tooltips Editor click
+  const openTooltipsEditorBtn = document.getElementById('modal-btn-open-tooltips-editor');
+  if (openTooltipsEditorBtn) {
+    openTooltipsEditorBtn.addEventListener('click', () => {
+      if (typeof window.switchMainTab === 'function') {
+        window.switchMainTab('tab-tooltips');
+      } else if (typeof window.switchTab === 'function') {
+        window.switchTab('tab-tooltips');
+      } else if (typeof window.switchToTab === 'function') {
+        window.switchToTab('tab-tooltips');
+      }
+    });
+  }
+
+  // Handle Tooltips Delay input (0.5s / 500ms default, configurable via localStorage)
+  const tooltipDelayInput = document.getElementById('user-settings-tooltip-delay-input');
+  const tooltipDelayVal = document.getElementById('user-settings-tooltip-delay-val');
+  if (tooltipDelayInput) {
+    const currentDelay = (window.AISmartTooltip && typeof window.AISmartTooltip.getShowDelay === 'function')
+      ? window.AISmartTooltip.getShowDelay()
+      : (parseInt(localStorage.getItem('ai_tooltip_delay_ms') || '500', 10) || 500);
+    tooltipDelayInput.value = currentDelay;
+    if (tooltipDelayVal) tooltipDelayVal.textContent = `${currentDelay} мс (${(currentDelay / 1000).toFixed(1)} сек)`;
+
+    tooltipDelayInput.addEventListener('input', (e) => {
+      const ms = parseInt(e.target.value, 10) || 0;
+      if (tooltipDelayVal) tooltipDelayVal.textContent = `${ms} мс (${(ms / 1000).toFixed(1)} сек)`;
+      if (window.AISmartTooltip && typeof window.AISmartTooltip.setShowDelay === 'function') {
+        window.AISmartTooltip.setShowDelay(ms);
+      } else {
+        localStorage.setItem('ai_tooltip_delay_ms', String(ms));
+      }
+    });
+  }
+
+  // Инициализация тумблеров Watchdog (автотранскрибация медиа и авто-коммиты Git)
+  async function syncWatchdogToggles() {
+    const autoTranscribeEl = document.getElementById('user-settings-auto-transcribe-toggle');
+    const autoGitEl = document.getElementById('user-settings-auto-git-commit-toggle');
+    if (!autoTranscribeEl && !autoGitEl) return;
+    try {
+      const res = await fetch('/api/v1/watchdog/config');
+      if (!res.ok) return;
+      const data = await res.json();
+      const cfg = (data && data.config) || {};
+      if (autoTranscribeEl) autoTranscribeEl.checked = cfg.auto_transcribe_media !== false;
+      if (autoGitEl) autoGitEl.checked = cfg.auto_git_commit !== false;
+    } catch (err) {
+      console.debug('[UserSettings] Ошибка загрузки настроек watchdog:', err);
+    }
+  }
+
+  async function saveWatchdogPatch(patch) {
+    try {
+      const res = await fetch('/api/v1/watchdog/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && data.config) {
+        window.dispatchEvent(new CustomEvent('watchdog:configChanged', { detail: data.config }));
+      }
+    } catch (err) {
+      console.warn('[UserSettings] Ошибка сохранения настроек watchdog:', err);
+    }
+  }
+
+  const autoTranscribeToggle = document.getElementById('user-settings-auto-transcribe-toggle');
+  if (autoTranscribeToggle) {
+    autoTranscribeToggle.addEventListener('change', () => {
+      saveWatchdogPatch({ auto_transcribe_media: Boolean(autoTranscribeToggle.checked) });
+    });
+  }
+
+  const autoGitToggle = document.getElementById('user-settings-auto-git-commit-toggle');
+  if (autoGitToggle) {
+    autoGitToggle.addEventListener('change', () => {
+      saveWatchdogPatch({ auto_git_commit: Boolean(autoGitToggle.checked) });
+    });
+  }
+
+  window.addEventListener('watchdog:configChanged', (e) => {
+    const cfg = e.detail || {};
+    if (autoTranscribeToggle && typeof cfg.auto_transcribe_media === 'boolean') {
+      autoTranscribeToggle.checked = cfg.auto_transcribe_media;
+    }
+    if (autoGitToggle && typeof cfg.auto_git_commit === 'boolean') {
+      autoGitToggle.checked = cfg.auto_git_commit;
+    }
+  });
+
+  await syncWatchdogToggles();
+
+  // Синхронизация полей при открытии модального окна
+  const modalEl = document.getElementById('userSettingsModal');
+  if (modalEl) {
+    modalEl.addEventListener('show.bs.modal', async () => {
+      await refreshUserProfile();
+      await refreshActiveModelBadge();
+      await syncWatchdogToggles();
+      if (window.loadElectronStatus) {
+        window.loadElectronStatus();
+      }
+      const savedLang = localStorage.getItem('app_locale') || localStorage.getItem('app_language') || 'ru-RU';
+      document.querySelectorAll('.lang-selector').forEach((s) => {
+        const opt = Array.from(s.options).find(o => 
+          o.value.toLowerCase() === savedLang.toLowerCase() || 
+          o.value.toLowerCase().startsWith(savedLang.toLowerCase()) ||
+          savedLang.toLowerCase().startsWith(o.value.toLowerCase())
+        );
+        if (opt) s.value = opt.value;
+      });
+      const savedTheme = localStorage.getItem('theme') || 'system';
+      document.querySelectorAll('.theme-selector').forEach((s) => {
+        s.value = savedTheme;
+      });
+      if (window.themeEngine) {
+        window.themeEngine.syncSelectInputs(savedTheme);
+      }
+    });
+  }
+
+  // Обработка вкладки статуса Electron Shell
+  const electronTabBtn = document.getElementById('user-settings-tab-btn-electron');
+  if (electronTabBtn && !electronTabBtn._bound) {
+    electronTabBtn._bound = true;
+    electronTabBtn.addEventListener('shown.bs.tab', () => {
+      if (window.loadElectronStatus) {
+        window.loadElectronStatus();
+      }
+    });
+  }
+
+  // Обработка кнопки запуска интерактивного тура из модального окна настроек
+  const tourModalBtn = document.getElementById('modal-btn-start-system-tour');
+  if (tourModalBtn && !tourModalBtn._bound) {
+    tourModalBtn._bound = true;
+    tourModalBtn.addEventListener('click', () => {
+      setTimeout(() => {
+        if (window.SystemTour && typeof window.SystemTour.show === 'function') {
+          window.SystemTour.show(0);
+        } else {
+          const mainTourBtn = document.getElementById('btn-start-system-tour');
+          if (mainTourBtn) mainTourBtn.click();
+        }
+      }, 250);
+    });
+  }
 }
 
 export function isUserAdmin() {
@@ -587,7 +772,7 @@ export function isUserAdmin() {
 
 export async function refreshUserProfile() {
   try {
-    const res = await fetch('/auth/check');
+    const res = await fetch('/api/v1/auth/check');
     if (!res.ok) return;
     const data = await res.json();
     window.currentUser = data;
@@ -729,6 +914,7 @@ export async function refreshUserProfile() {
 }
 
 window.openModelsTab = openModelsTab;
+window.openElectronTab = openElectronTab;
 window.refreshActiveModelBadge = refreshActiveModelBadge;
 window.initUserSettings = initUserSettings;
 window.refreshUserProfile = refreshUserProfile;

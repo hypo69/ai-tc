@@ -13,11 +13,11 @@ Usage Examples:
       <iframe src="/windows/api/webgui/remote_mic/index.html" class="w-100 h-100 border-0"></iframe>
 
 File: index.html
-Project: ai-windows-admin
+Project: ai-tc
 Package: windows/api/webgui/remote_mic
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-15 19:30:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 -->
 
@@ -26,7 +26,7 @@ Updated: 2026-10-15 19:30:00
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Голосовой Пульт - AI Windows Admin</title>
+  <title>Голосовой Пульт - ai-tc</title>
   
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -658,7 +658,7 @@ Updated: 2026-10-15 19:30:00
       auth: {
         async check() {
           try {
-            const res = await fetch('/auth/check');
+            const res = await fetch('/api/v1/auth/check');
             return await res.json();
           } catch {
             return { authenticated: false };
@@ -1093,7 +1093,7 @@ Updated: 2026-10-15 19:30:00
           generation_config: { is_rc: true }
         };
 
-        const response = await fetch('/api/chat', {
+        const response = await fetch('/api/v1/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -1258,7 +1258,7 @@ Updated: 2026-10-15 19:30:00
           // Request AI analysis of the uploaded document/media
           const prompt = `Пользователь загрузил файл ${fileName} (${file.type || 'документ'}). Подтверди получение и опиши дальнейшие действия.`;
           
-          const chatRes = await fetch('/api/chat', {
+          const chatRes = await fetch('/api/v1/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

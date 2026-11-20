@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Extended Inspectors - SRUM & Power Analytics
+# Process Name: ai-tc Apps Windows Modules Extended Inspectors - SRUM & Power Analytics
 # =============================================================================
 # Description:
 #   Анализ базы данных SRUM (System Resource Usage Monitor SRUDB.dat) и энергопотребления powercfg.
@@ -13,11 +13,11 @@
 #     report = service.analyze_power_and_resource_usage()
 #
 # File: srum_power_analytics.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.extended_inspectors
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

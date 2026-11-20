@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Process_Manager Tests - Test Process Manager
+# Process Name: ai-tc Apps Windows Modules Process_Manager Tests - Test Process Manager
 # =============================================================================
 # Description:
 #   Тесты для проверки функционала диспетчера процессов, категоризации
@@ -10,11 +10,11 @@
 #   pytest apps/windows/modules/process_manager/tests/test_process_manager.py
 #
 # File: test_process_manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.process_manager.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 20:35:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -85,7 +85,7 @@ async def test_process_kill_simulation(manager: ProcessManager):
 
 def test_process_manager_endpoints(client: TestClient):
     """Проверка REST эндпоинтов process_manager."""
-    resp = client.get('/api/process-manager/report')
+    resp = client.get('/api/v1/process-manager/report')
     assert resp.status_code == 200
     data = resp.json()
     assert 'total_processes' in data
@@ -93,7 +93,7 @@ def test_process_manager_endpoints(client: TestClient):
     assert 'apps' in data
     assert 'background_processes' in data
 
-    resp_cat = client.get('/api/process-manager/categorized')
+    resp_cat = client.get('/api/v1/process-manager/categorized')
     assert resp_cat.status_code == 200
     cat_data = resp_cat.json()
     assert 'apps' in cat_data
@@ -101,11 +101,11 @@ def test_process_manager_endpoints(client: TestClient):
     assert 'windows_processes' in cat_data
     assert 'apps_count' in cat_data
 
-    resp_list = client.get('/api/process-manager/list')
+    resp_list = client.get('/api/v1/process-manager/list')
     assert resp_list.status_code == 200
     assert len(resp_list.json()) > 0
 
-    resp_inv = client.get('/api/process-manager/investigate/powershell')
+    resp_inv = client.get('/api/v1/process-manager/investigate/powershell')
     assert resp_inv.status_code == 200
     inv_data = resp_inv.json()
     assert inv_data.get('status') == 'detected'

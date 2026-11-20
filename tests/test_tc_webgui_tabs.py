@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - TC WebGUI Tabs Registration
+# Process Name: ai-tc Tests - TC WebGUI Tabs Registration
 # =============================================================================
 # Description:
 #   Интеграционные тесты регистрации и доступности консолидированных вкладок
@@ -9,11 +9,11 @@
 #   «Мониторинг ПО» (tab-software-monitor).
 #
 # File: test_tc_webgui_tabs.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 15:25:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -169,7 +169,7 @@ def test_tc_menu_config_contains_installed_software(api_client: TestClient) -> N
 
 def test_telemetry_config_api_available(api_client: TestClient) -> None:
     """Проверяет работоспособность эндпоинта конфигурации телеметрии для суб-панели Телеметрия."""
-    res = api_client.get("/api/windows/telemetry/config")
+    res = api_client.get("/api/v1/windows/telemetry/config")
     assert res.status_code == 200
     data = res.json()
     assert data.get("success") is True
@@ -350,11 +350,15 @@ def test_sitemap_tab_and_metadata_registration(api_client: TestClient) -> None:
     assert html_res.status_code == 200
     assert "Карта сайта (Sitemap)" in html_res.text
     assert "<script" not in html_res.text, "В index.html вкладки не должно быть тегов <script>"
+    assert "sitemap-stat-hidden" not in html_res.text, "Счетчик скрытых вкладок должен быть удален"
+    assert "sitemap-refresh-btn" not in html_res.text, "Кнопка обновления должна быть удалена"
 
     js_res = api_client.get("/html/tab_sitemap/main.js")
     assert js_res.status_code == 200
     assert "initSitemapTab" in js_res.text
     assert "deactivateSitemapTab" in js_res.text
+    assert "sitemap-stat-hidden" not in js_res.text, "Ссылки на sitemap-stat-hidden должны быть удалены из main.js"
+    assert "sitemap-refresh-btn" not in js_res.text, "Ссылки на sitemap-refresh-btn должны быть удалены из main.js"
 
     # 4. Проверяем отдачу sitemap_data.json и полноту метаданных
     data_res = api_client.get("/html/tab_sitemap/sitemap_data.json")
@@ -405,7 +409,7 @@ def test_defender_firewall_tab_registration(api_client: TestClient) -> None:
     assert "initFirewallSubtab" in js_res.text
 
     # 4. Проверяем работу API эндпоинта сводки брандмауэра
-    fw_res = api_client.get("/api/firewall-manager/summary")
+    fw_res = api_client.get("/api/v1/firewall-manager/summary")
     assert fw_res.status_code == 200
     fw_data = fw_res.json()
     assert "profiles" in fw_data

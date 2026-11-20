@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Contracts - Enums
+# Process Name: ai-tc Apps Windows Contracts - Enums
 # =============================================================================
 # Description:
-#   Zero-dependency перечисления и константы для Windows подсистем AI-Windows-Admin.
+#   Zero-dependency перечисления и константы для Windows подсистем ai-tc.
 #
 # Usage Examples:
 #   Python API:
 #     from apps.windows.contracts.enums import RiskLevel, TelemetryTier
 #
 # File: enums.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.contracts
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

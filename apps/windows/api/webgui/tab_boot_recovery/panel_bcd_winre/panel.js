@@ -6,11 +6,11 @@
  *   Модуль управления параметрами загрузчика BCD и среды восстановления WinRE.
  *
  * File: panel_bcd_winre/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_boot_recovery/panel_bcd_winre
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 02:11:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -19,7 +19,7 @@
  */
 export async function fetchBootRecoverySummary() {
   try {
-    const res = await fetch('/api/boot-recovery/summary');
+    const res = await fetch('/api/v1/boot-recovery/summary');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderBootSummary(data);
@@ -82,7 +82,7 @@ export async function executeBootAction(customAction = null) {
   if (output) output.textContent = `[${new Date().toLocaleTimeString()}] Выполнение команды: ${op} (DryRun: ${dryRun})...\n`;
 
   try {
-    const res = await fetch('/api/boot-recovery/action', {
+    const res = await fetch('/api/v1/boot-recovery/action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: op, dry_run: dryRun })

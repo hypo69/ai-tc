@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry_Research - Server
+# Process Name: ai-tc Apps Windows Telemetry_Research - Server
 # =============================================================================
 # Description:
 #   FastAPI сервер и веб-интерфейс для исследования телеметрии с поддержкой AI-чата.
@@ -12,11 +12,11 @@
 #     service = TelemetryChatRequest()
 #
 # File: server.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.analytics
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:28:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -114,14 +114,14 @@ async def get_index() -> HTMLResponse:
     return HTMLResponse(content=index_file.read_text(encoding="utf-8"))
 
 
-@router.get("/api/health")
+@router.get("/api/v1/health")
 @router.get("/apps/telemetry_research/health")
 async def health_check() -> Dict[str, str]:
     """Проверка доступности сервиса."""
     return {"status": "ok", "service": "telemetry_research"}
 
 
-@router.post("/api/chat")
+@router.post("/api/v1/chat")
 @router.post("/apps/telemetry_research/chat")
 async def chat_endpoint(request: TelemetryChatRequest) -> Dict[str, Any]:
     """Диалоговый эндпоинт AI-ассистента для аналитики и визуализации телеметрии."""
@@ -147,7 +147,7 @@ async def chat_endpoint(request: TelemetryChatRequest) -> Dict[str, Any]:
         }
 
 
-@router.get("/api/telemetry-sql/power")
+@router.get("/api/v1/telemetry-sql/power")
 @router.get("/apps/telemetry_research/tools/power")
 async def get_power_data_endpoint(
     db_path: Optional[str] = Query(None),
@@ -161,7 +161,7 @@ async def get_power_data_endpoint(
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@router.get("/api/telemetry-sql/cpu-timeline")
+@router.get("/api/v1/telemetry-sql/cpu-timeline")
 @router.get("/apps/telemetry_research/tools/cpu-timeline")
 async def get_cpu_timeline_endpoint(
     db_path: Optional[str] = Query(None),
@@ -175,7 +175,7 @@ async def get_cpu_timeline_endpoint(
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@router.post("/api/telemetry-sql/query")
+@router.post("/api/v1/telemetry-sql/query")
 @router.post("/apps/telemetry_research/tools/query")
 async def execute_sql_endpoint(request: SqlQueryRequest) -> Dict[str, Any]:
     """Выполняет безопасный SELECT SQL-запрос к базе telemetry.db."""
@@ -188,7 +188,7 @@ async def execute_sql_endpoint(request: SqlQueryRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@router.get("/api/sources")
+@router.get("/api/v1/sources")
 @router.get("/apps/telemetry_research/sources")
 async def get_sources() -> List[Dict[str, Any]]:
     """Возвращает список обнаруженных файлов и баз данных телеметрии."""
@@ -211,7 +211,7 @@ async def get_sources() -> List[Dict[str, Any]]:
     return result
 
 
-@router.get("/api/current-state")
+@router.get("/api/v1/current-state")
 @router.get("/apps/telemetry_research/current-state")
 async def get_current_state_endpoint(
     db_path: Optional[str] = Query(None),
@@ -226,7 +226,7 @@ async def get_current_state_endpoint(
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@router.post("/api/run-research", response_model=DeepResearchReport)
+@router.post("/api/v1/run-research", response_model=DeepResearchReport)
 @router.post("/apps/telemetry_research/run-research", response_model=DeepResearchReport)
 async def run_research_endpoint(request: Optional[ResearchScenarioRequest] = None) -> DeepResearchReport:
     """Запускает глубокое аналитическое исследование телеметрии и проверку гипотез."""
@@ -238,7 +238,7 @@ async def run_research_endpoint(request: Optional[ResearchScenarioRequest] = Non
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@router.get("/api/records")
+@router.get("/api/v1/records")
 @router.get("/apps/telemetry_research/records")
 async def get_records_endpoint(
     source_path: Optional[str] = Query(None),
@@ -269,7 +269,7 @@ async def get_records_endpoint(
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@router.get("/api/dashboard", response_class=HTMLResponse)
+@router.get("/api/v1/dashboard", response_class=HTMLResponse)
 @router.get("/apps/telemetry_research/dashboard", response_class=HTMLResponse)
 async def get_dashboard_html(source_path: Optional[str] = Query(None)) -> HTMLResponse:
     """Генерирует и возвращает автономный HTML-отчет с графиками."""
@@ -285,7 +285,7 @@ async def get_dashboard_html(source_path: Optional[str] = Query(None)) -> HTMLRe
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@router.get("/api/client-resources", response_model=ClientResourceSummary)
+@router.get("/api/v1/client-resources", response_model=ClientResourceSummary)
 @router.get("/apps/telemetry_research/client-resources", response_model=ClientResourceSummary)
 async def get_client_resources_endpoint(
     db_path: Optional[str] = Query(None),
@@ -303,7 +303,7 @@ async def get_client_resources_endpoint(
         raise HTTPException(status_code=500, detail=str(ex))
 
 
-@router.post("/api/client-resources/evaluate", response_model=UnknownProgramEvaluation)
+@router.post("/api/v1/client-resources/evaluate", response_model=UnknownProgramEvaluation)
 @router.post("/apps/telemetry_research/client-resources/evaluate", response_model=UnknownProgramEvaluation)
 async def evaluate_program_endpoint(program: ClientProgramResource) -> UnknownProgramEvaluation:
     """Запрашивает экспертную оценку неизвестной ресурсоемкой программы у модели Gemini."""

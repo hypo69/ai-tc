@@ -3,7 +3,7 @@
  * @description Панель отображения и группировки процессов Task Manager (приложения, фоновые, системные)
  * @author hypo69
  * @version 1.0.0
- * Updated: 2026-10-17 01:10:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { escapeHtml } from '../common/ui_utils.js';
@@ -265,7 +265,7 @@ export async function killProcess(pid, name, killTree = false, onSuccess = null)
   if (!confirm(`Вы действительно хотите завершить ${name} [PID: ${pid}]${treeMsg}?`)) return;
 
   try {
-    const res = await fetch('/api/process-manager/action', {
+    const res = await fetch('/api/v1/process-manager/action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pid: parseInt(pid, 10), kill_tree: killTree, dry_run: false, confirmed_by_user: true })

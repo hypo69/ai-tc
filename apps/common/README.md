@@ -11,7 +11,7 @@
 
 ### 1. SQLite как Single Source of Truth
 Все телеметрические данные приложений сохраняются напрямую в единую базу данных SQLite:
-`%APPDATA%\AI-Breadboard\apps\windows\telemetry\logs\telemetry.db`
+`%ProgramData%\ai-tc\telemetry\telemetry.db`
 
 Таблицы приложений:
 - **`app_polls`** — регулярные замеры датчиков и метрик приложений (`app`, `poll_type`, `metric_name`, `value`, `unit`, `tags`, `timestamp`).

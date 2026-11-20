@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin User Telegram Link Service
+# Process Name: ai-tc User Telegram Link Service
 # =============================================================================
 # Description:
 #   Сервис привязки Telegram-аккаунтов к локальным пользователям платформы.
@@ -8,11 +8,11 @@
 #   Telegram ID с учетными записями в SQLite.
 #
 # File: user_telegram.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:21:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

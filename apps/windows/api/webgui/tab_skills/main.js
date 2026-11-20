@@ -3,7 +3,7 @@
  * @description Корневой модуль-оркестратор вкладки управления навыками (Skills Tab Orchestrator)
  * @author hypo69
  * @version 2.0.0
- * Updated: 2026-10-17 01:21:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { apiFetch, formatBytes } from './common/ui_utils.js';
@@ -102,7 +102,7 @@ export class SkillsTabManager {
   async refresh() {
     this.showLoading(true);
     try {
-      const response = await apiFetch('/api/skills');
+      const response = await apiFetch('/api/v1/skills');
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }

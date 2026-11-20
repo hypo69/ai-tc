@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules System_Checkpoints Tests - Test Router
+# Process Name: ai-tc Apps Windows Modules System_Checkpoints Tests - Test Router
 # =============================================================================
 # Description:
 #   Тесты FastAPI REST API для приложения контрольных точек Windows.
@@ -12,11 +12,11 @@
 #     res = test_get_health_endpoint()
 #
 # File: test_router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.system_checkpoints.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 22:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Тесты FastAPI REST API для приложения контрольных точек Windows."""

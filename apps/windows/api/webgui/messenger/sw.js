@@ -10,15 +10,15 @@
  *     <script src="/windows/api/webgui/messenger/sw.js?v=20261001_v1" type="module"></script>
  *
  * File: sw.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/messenger
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
-const CACHE_NAME = 'ai-windows-admin-messenger-v1';
+const CACHE_NAME = 'ai-tc-messenger-v1';
 const ASSETS = [
   './',
   './index.html',

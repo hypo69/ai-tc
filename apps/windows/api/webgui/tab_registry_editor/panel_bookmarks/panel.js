@@ -1,7 +1,7 @@
 /**
  * Модуль панели закладок часто используемых веток реестра.
  * Файл: apps/windows/api/webgui/tab_registry_editor/panel_bookmarks/panel.js
- * Updated: 2026-11-01 14:38:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 /**
@@ -13,7 +13,7 @@ export async function loadBookmarks(onNavigate) {
   if (!container) return;
 
   try {
-    const res = await fetch('/api/registry/bookmarks');
+    const res = await fetch('/api/v1/registry/bookmarks');
     if (!res.ok) throw new Error('Bookmarks API error');
     const data = await res.json();
     const bookmarks = data?.bookmarks || [];

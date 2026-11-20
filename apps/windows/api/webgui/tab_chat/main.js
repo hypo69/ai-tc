@@ -11,11 +11,11 @@
  *     <script src="/windows/api/webgui/tab_chat/main.js?v=20261017_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_chat
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:25:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
@@ -83,7 +83,7 @@ if (typeof window !== 'undefined') {
 
   if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
     chrome.runtime.onMessage.addListener((msg) => {
-      if (msg && msg.action === 'ai_windows_admin_external_chat_prompt') {
+      if (msg && msg.action === 'ai_tc_external_chat_prompt') {
         handleExternalChatPrompt(msg, sendMessage);
       }
     });

@@ -1,6 +1,6 @@
 <#
 =============================================================================
-Process Name: AI-Windows-Admin Automation - Warn On Save
+Process Name: ai-tc Automation - Warn On Save
 =============================================================================
 Description:
   PowerShell-сценарий автоматизации и системного обслуживания (warn-on-save).
@@ -10,11 +10,11 @@ Usage Examples:
     .\warn-on-save.ps1
 
 File: warn-on-save.ps1
-Project: ai-windows-admin
+Project: ai-tc
 Package: .kiro/hooks
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-10 17:35:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 #>
 

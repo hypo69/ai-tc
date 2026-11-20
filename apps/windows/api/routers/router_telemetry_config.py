@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - Router Telemetry Config
+# Process Name: ai-tc Apps Windows Api Routers - Router Telemetry Config
 # =============================================================================
 # Description:
 #   FastAPI REST эндпоинты для чтения, редактирования, валидации и сохранения
-#   файла конфигурации телеметрии (%APPDATA%\AI-Windows-Admin\apps\windows\telemetry\config.json)
+#   файла конфигурации телеметрии (%ProgramData%\ai-tc\telemetry\config.json)
 #   с мгновенным применением изменений на лету.
 #
 # Usage Examples:
@@ -14,11 +14,11 @@
 #     router = init_router()
 #
 # File: router_telemetry_config.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-11 20:36:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ from pydantic import BaseModel, Field
 from logger import logger
 from apps.windows.telemetry.telemetry_config import TelemetryConfigManager, get_default_telemetry_config_path
 
-TELEMETRY_TASK_NAME = "AI-Windows-Admin-Telemetry"
+TELEMETRY_TASK_NAME = "ai-tc-telemetry"
 
 
 class TelemetryConfigUpdateRequest(BaseModel):
@@ -86,11 +86,11 @@ def init_router() -> APIRouter:
     Returns:
         APIRouter: Сконфигурированный FastAPI роутер.
     """
-    router = APIRouter(prefix="/api/windows/telemetry/config", tags=["windows-telemetry-config"])
+    router = APIRouter(prefix="/api/v1/windows/telemetry/config", tags=["windows-telemetry-config"])
 
     @router.get("")
     async def get_telemetry_config() -> Dict[str, Any]:
-        """Получает текущую активную конфигурацию телеметрии из %APPDATA%.
+        """Получает текущую активную конфигурацию телеметрии из %ProgramData%.
 
         Returns:
             Dict[str, Any]: Словарь с конфигурацией, путем к файлу и временем изменения.
@@ -149,7 +149,7 @@ def init_router() -> APIRouter:
     @router.post("")
     @router.put("")
     async def save_telemetry_config(payload: TelemetryConfigUpdateRequest) -> Dict[str, Any]:
-        """Сохраняет структурированную конфигурацию в файл %APPDATA% и инициирует горячую перезагрузку.
+        """Сохраняет структурированную конфигурацию в файл %ProgramData% и инициирует горячую перезагрузку.
 
         Args:
             payload: Данные новой конфигурации.
@@ -193,7 +193,7 @@ def init_router() -> APIRouter:
 
     @router.post("/raw")
     async def save_raw_telemetry_config(payload: TelemetryRawConfigUpdateRequest) -> Dict[str, Any]:
-        """Валидирует и сохраняет сырой текст JSON конфигурации в %APPDATA%.
+        """Валидирует и сохраняет сырой текст JSON конфигурации в %ProgramData%.
 
         Args:
             payload: Сырой текст JSON.
@@ -297,9 +297,9 @@ def init_router() -> APIRouter:
 
     router.post("/collect-heavy-sequentially")(collect_heavy_sequentially)
 
-    # Прямой алиас по корневому пути /api/windows/telemetry/collect-heavy-sequentially
+    # Прямой алиас по корневому пути /api/v1/windows/telemetry/collect-heavy-sequentially
     direct_alias_router = APIRouter()
-    direct_alias_router.post("/api/windows/telemetry/collect-heavy-sequentially", include_in_schema=False)(collect_heavy_sequentially)
+    direct_alias_router.post("/api/v1/windows/telemetry/collect-heavy-sequentially", include_in_schema=False)(collect_heavy_sequentially)
 
     router.include_router(direct_alias_router)
     return router

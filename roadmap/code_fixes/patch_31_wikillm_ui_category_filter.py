@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Roadmap - WikiLLM Articles & Category Filter
+# Process Name: ai-tc Roadmap - WikiLLM Articles & Category Filter
 # =============================================================================
 # Description:
 #   Фильтрация статей базы знаний WikiLLM по категориям, тегам и поисковому запросу.
 #
 # File: patch_31_wikillm_ui_category_filter.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: roadmap.code_fixes
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-28 14:31:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

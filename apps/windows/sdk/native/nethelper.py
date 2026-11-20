@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Win32_Ffi - Nethelper
+# Process Name: ai-tc Apps Windows Telemetry Win32_Ffi - Nethelper
 # =============================================================================
 # Description:
 #   Низкоуровневый интерфейс к IP Helper API (iphlpapi.dll) Windows.
@@ -12,11 +12,11 @@
 #     service = MIB_TCPROW_OWNER_PID()
 #
 # File: nethelper.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.win32_ffi
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 00:17:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

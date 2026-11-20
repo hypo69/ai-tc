@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules System_Checkpoints Tests - Test Restore Point Advisor
+# Process Name: ai-tc Apps Windows Modules System_Checkpoints Tests - Test Restore Point Advisor
 # =============================================================================
 # Description:
 #   Модульные тесты для RestorePointAdvisor (интеллектуальный советник контрольных точек).
@@ -9,11 +9,11 @@
 #   pytest apps/windows/sdk/modules/system_checkpoints/tests/test_restore_point_advisor.py
 #
 # File: test_restore_point_advisor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.system_checkpoints.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 22:18:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -233,7 +233,7 @@ def test_default_journal_db_path():
     """Проверка стандартного расположения SQLite базы данных журнала в %ProgramData%."""
     from apps.windows.system_checkpoints.core.restore_point_advisor import get_default_state_journal_db_path
     path = get_default_state_journal_db_path()
-    assert "AI-Windows-Admin" in str(path)
+    assert "ai-tc" in str(path)
     assert "telemetry" in str(path)
     assert "logs" in str(path)
     assert path.name == "state_journal.sqlite"

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Tests - Process Lifecycle & Initiators
+# Process Name: ai-tc Apps Windows Telemetry Tests - Process Lifecycle & Initiators
 # =============================================================================
 # Description:
 #   Модульные и интеграционные тесты отслеживания жизненного цикла процессов:
@@ -8,11 +8,11 @@
 #   инициаторов (родительских процессов), пользователей и ресурсного следа.
 #
 # File: test_process_lifecycle_tracker.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 01:04:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 import gc
@@ -172,13 +172,13 @@ def test_api_lifecycle_endpoints():
     app.include_router(windows_router)
     client = TestClient(app)
 
-    # 1. GET /api/windows/telemetry/lifecycle/sessions
-    resp = client.get("/api/windows/telemetry/lifecycle/sessions?limit=5")
+    # 1. GET /api/v1/windows/telemetry/lifecycle/sessions
+    resp = client.get("/api/v1/windows/telemetry/lifecycle/sessions?limit=5")
     assert resp.status_code == 200
     assert isinstance(resp.json(), list)
 
-    # 2. GET /api/windows/telemetry/lifecycle/summary
-    resp = client.get("/api/windows/telemetry/lifecycle/summary")
+    # 2. GET /api/v1/windows/telemetry/lifecycle/summary
+    resp = client.get("/api/v1/windows/telemetry/lifecycle/summary")
     assert resp.status_code == 200
     data = resp.json()
     assert "total_launches" in data
@@ -313,7 +313,7 @@ def test_storage_and_api_incident_timeline(temp_telemetry_storage):
     app.include_router(windows_router)
     client = TestClient(app)
 
-    resp = client.get(f"/api/windows/telemetry/incident/{current_pid}")
+    resp = client.get(f"/api/v1/windows/telemetry/incident/{current_pid}")
     assert resp.status_code == 200
     data = resp.json()
     assert data["pid"] == current_pid

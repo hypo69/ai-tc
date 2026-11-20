@@ -18,7 +18,7 @@
 
 1. В верхней части нажать на селектор проектов
 2. Нажать "Новый проект"
-3. Ввести имя: `AI-Windows-Admin-Sync`
+3. Ввести имя: `ai-tc-sync`
 4. Нажать "Создать"
 5. Дождаться создания проекта
 
@@ -35,8 +35,8 @@
    - Путь: Меню ☰ → IAM и администратор → Service Accounts
 2. Нажать кнопку "Создать сервис-аккаунт"
 3. Заполнить форму:
-   - **Идентификатор сервис-аккаунта**: `ai-windows-admin-sync`
-   - **Отображаемое имя**: `AI Windows Admin Sync`
+   - **Идентификатор сервис-аккаунта**: `ai-tc-sync`
+   - **Отображаемое имя**: `ai-tc Sync`
    - **Описание**: `Service account for syncing data to Google Drive`
 4. Нажать "Создать и продолжить"
 
@@ -62,7 +62,7 @@
 ### Шаг 7: Скопировать JSON ключ
 
 1. Скопируйте скачанный JSON файл:
-   - Имя файла будет похоже: `ai-windows-admin-sync-XXXXXXX.json`
+   - Имя файла будет похоже: `ai-tc-sync-XXXXXXX.json`
 
 2. Переместите его в проект в папку `src/secrets/`:
    ```
@@ -78,10 +78,10 @@ JSON файл должен содержать:
 ```json
 {
   "type": "service_account",
-  "project_id": "ai-windows-admin-sync",
+  "project_id": "ai-tc-sync",
   "private_key_id": "...",
   "private_key": "...",
-  "client_email": "ai-windows-admin-sync@ai-windows-admin-sync.iam.gserviceaccount.com",
+  "client_email": "ai-tc-sync@ai-tc-sync.iam.gserviceaccount.com",
   "client_id": "...",
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
   "token_uri": "https://oauth2.googleapis.com/token",
@@ -107,7 +107,7 @@ python scripts/setup_google_drive_sync.py --init
 
 1. ✓ Проверка JSON ключа
 2. ✓ Проверка подключения к Google Drive API
-3. ✓ Создание папки `AI-Windows-Admin-Sync` в вашем Google Drive
+3. ✓ Создание папки `ai-tc-sync` в вашем Google Drive
 4. ✓ Готовность к синхронизации
 
 ## 🔗 Доступ к папке синхронизации
@@ -164,7 +164,7 @@ Folder ID можно получить командой:
 
 Если у вас уже есть папка на Google Drive, которую вы хотите использовать:
 
-1. Создайте в ней подпапку `AI-Windows-Admin-Sync`
+1. Создайте в ней подпапку `ai-tc-sync`
 2. Получите ID этой папки
 3. Отредактируйте конфиг (если нужно)
 

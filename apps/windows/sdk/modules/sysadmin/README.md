@@ -23,7 +23,7 @@
 - **Инспекция и настройка SACL** — проверка наличия правил аудита удаления (`Delete`, `DeleteSubdirectoriesAndFiles`) для целевых каталогов и их автоматическая установка.
 - **Мониторинг пользовательских сессий** — просмотр активных пользователей, времени входа, IP-адресов, количества процессов и отключение сессий.
 - **Статус Active Directory** — проверка подключения к домену и контроллеру.
-- **FastAPI REST API & Web GUI Tab** — полная интеграция в панель System Inspector AI Windows Admin (`system_inspector_tab`).
+- **FastAPI REST API & Web GUI Tab** — полная интеграция в панель System Inspector ai-tc (`system_inspector_tab`).
 
 ---
 
@@ -48,7 +48,7 @@ python -m apps.windows.sysadmin --file-audit-status
 python -m apps.windows.sysadmin --set-audit-policy
 
 # Настроить SACL аудита удаления на целевой каталог
-python -m apps.windows.sysadmin --configure-sacl "C:\Users\onela\AppData\Local\AI-Windows-Admin"
+python -m apps.windows.sysadmin --configure-sacl "C:\Users\onela\AppData\Local\ai-tc"
 
 # Посмотреть список удалений за последние 24 часа
 python -m apps.windows.sysadmin --deletions --hours 24

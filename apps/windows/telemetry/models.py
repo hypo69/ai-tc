@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Models
+# Process Name: ai-tc Apps Windows Telemetry - Models
 # =============================================================================
 # Description:
 #   Data models for system metrics, hardware specs, sensors, and telemetry.
@@ -12,11 +12,11 @@
 #     service = TelemetryProvider()
 #
 # File: models.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 16:01:00
+# Updated: 2026-11-12 12:35:00
 # =============================================================================
 
 from __future__ import annotations
@@ -764,6 +764,7 @@ class ForensicsActivityReport(BaseModel):
     user_idle_seconds: float = Field(default=0.0, description='Время бездействия пользователя (без ввода с клавиатуры/мыши)')
     camera_active_apps: List[Dict[str, Any]] = Field(default_factory=list, description='Приложения, использующие или недавно вызывавшие камеру')
     microphone_active_apps: List[Dict[str, Any]] = Field(default_factory=list, description='Приложения, использующие микрофон')
+    audio_sessions: List[Dict[str, Any]] = Field(default_factory=list, description='Звуковые сессии приложений (колонки, наушники, микрофон)')
     userassist_top_apps: List[Dict[str, Any]] = Field(default_factory=list, description='История запусков из реестра UserAssist (счетчик и фокусное время)')
 
 class KernelThrottlingReport(BaseModel):

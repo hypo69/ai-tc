@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Unified Chat Module
+# Process Name: ai-tc AI - Unified Chat Module
 # =============================================================================
 # Description:
 #   Thin wrapper module to preserve backward‑compatible import path.
@@ -10,11 +10,11 @@
 #     import src.ai.unified_chat as unified_chat
 #
 # File: unified_chat.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Thin wrapper module to preserve backward‑compatible import path.

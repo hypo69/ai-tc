@@ -7,10 +7,10 @@
 #   завершения процессов, изоляции в брандмауэре и интервалов телеметрии.
 #
 # File: test_software_ai_and_hardening.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 18:03:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import pytest

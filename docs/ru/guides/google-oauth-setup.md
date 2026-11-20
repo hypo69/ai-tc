@@ -17,7 +17,7 @@
 
 ## 1. Введение и архитектурный принцип
 
-В AI Windows Admin авторизация через Google OAuth используется для:
+В ai-tc авторизация через Google OAuth используется для:
 - Идентификации пользователя и разграничения сессий (выдача JWT токена).
 - Персональной синхронизации с сервисами Google Workspace (Google Drive, Docs, Calendar, Contacts).
 - Сохранения персональных токенов (`access_token`, `refresh_token`) в локальной базе данных `user_manager.db`.
@@ -62,17 +62,17 @@
 
 ## 3. Настройка Google Cloud Console
 
-Чтобы Google принимал запросы авторизации от вашего экземпляра AI Windows Admin:
+Чтобы Google принимал запросы авторизации от вашего экземпляра ai-tc:
 
 ### Шаг 1. Переход в Google Cloud Console
 1. Откройте [Google Cloud Console](https://console.cloud.google.com/).
-2. Выберите или создайте проект (например, `AI-Windows-Admin`).
+2. Выберите или создайте проект (например, `ai-tc`).
 
 ### Шаг 2. Экран согласия (OAuth consent screen)
 1. Откройте **APIs & Services ➔ OAuth consent screen**.
 2. Выберите тип пользователя: **External** (Внешний).
 3. Заполните обязательные поля:
-   - **App name**: Имя вашего приложения (например, `davidka.net` или `AI Windows Admin`).
+   - **App name**: Имя вашего приложения (например, `davidka.net` или `ai-tc`).
    - **User support email**: ваш контактный email.
    - **Developer contact information**: ваш email.
 4. **Test users (Тестовые пользователи)**:
@@ -105,7 +105,7 @@
 
 ## 4. Динамическая маршрутизация redirect_uri
 
-В AI Windows Admin реализовано автоматическое переключение адреса возврата в зависимости от того, откуда пришел пользователь (`src/fastapi/router_auth.py` -> `get_oauth_redirect_uri`):
+В ai-tc реализовано автоматическое переключение адреса возврата в зависимости от того, откуда пришел пользователь (`src/fastapi/router_auth.py` -> `get_oauth_redirect_uri`):
 
 ```mermaid
 flowchart TD

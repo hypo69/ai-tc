@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - Incident Detector
+# Process Name: ai-tc Apps Windows Telemetry - Incident Detector
 # =============================================================================
 # Description:
 #   Модуль непрерывного анализа аномалий и автоматического выявления сбоев системы.
@@ -10,11 +10,11 @@
 #     from apps.windows.telemetry.incident_detector import IncidentDetector
 #
 # File: incident_detector.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 09:14:30
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Модуль `IncidentDetector`.

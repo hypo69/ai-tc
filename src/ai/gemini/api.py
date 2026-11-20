@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Api Module
+# Process Name: ai-tc AI - Api Module
 # =============================================================================
 # Description:
-#   Модуль реализации компонента `GoogleGenerativeAI` системы AI-Windows-Admin.
+#   Модуль реализации компонента `GoogleGenerativeAI` системы ai-tc.
 #
 # Usage Examples:
 #   Python API:
@@ -12,14 +12,14 @@
 #     service = GoogleGenerativeAI()
 #
 # File: api.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.gemini
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:46:00
+# Updated: 2026-11-20 17:09:00
 # =============================================================================
 
-"""Модуль реализации компонента `GoogleGenerativeAI` системы AI-Windows-Admin."""
+"""Модуль реализации компонента `GoogleGenerativeAI` системы ai-tc."""
 
 import asyncio
 import json
@@ -75,7 +75,12 @@ class GoogleGenerativeAI(
         for attempt in range(attempts):
             try:
                 config = self._build_content_config(generation_config=generation_config)
-                response = self._client.models.generate_content(model=self.model_name, contents=q, config=config)
+                response = await asyncio.to_thread(
+                    self._client.models.generate_content,
+                    model=self.model_name,
+                    contents=q,
+                    config=config,
+                )
                 if response and response.text:
                     response_text: str = self._normalize_text(response.text)
                     response_text = self._remove_html_blocks(response_text)
@@ -148,7 +153,12 @@ class GoogleGenerativeAI(
             try:
                 if not self.save_history_chat:
                     config = self._build_content_config(instruction)
-                    response = self._client.models.generate_content(model=active_model, contents=q, config=config)
+                    response = await asyncio.to_thread(
+                        self._client.models.generate_content,
+                        model=active_model,
+                        contents=q,
+                        config=config,
+                    )
                     if response and response.text:
                         response_text: str = self._normalize_text(response.text)
                         response_text = self._remove_html_blocks(response_text)
@@ -185,12 +195,17 @@ class GoogleGenerativeAI(
                         async_chat = self._start_async_chat(history=history_contents, config=config, model_name=active_model)
                         response = await async_chat.send_message(q)
                     except Exception:
-                        response = self._chat.send_message(q) if self._chat else None
+                        response = await asyncio.to_thread(self._chat.send_message, q) if self._chat else None
                 elif self._chat:
-                    response = self._chat.send_message(q)
+                    response = await asyncio.to_thread(self._chat.send_message, q)
                 else:
                     config = self._build_content_config(instruction)
-                    response = self._client.models.generate_content(model=active_model, contents=self._prepare_contents(q, self.chat_history), config=config)
+                    response = await asyncio.to_thread(
+                        self._client.models.generate_content,
+                        model=active_model,
+                        contents=self._prepare_contents(q, self.chat_history),
+                        config=config,
+                    )
 
                 if response and response.text:
                     response_text = self._normalize_text(response.text)
@@ -396,7 +411,12 @@ class GoogleGenerativeAI(
         self._log_request_details(method='ask_with_tools', model=active_model, q=q, system_instruction=instruction, tools=tools)
         for _ in range(10):
             try:
-                response = self._client.models.generate_content(model=active_model, contents=contents, config=config)
+                response = await asyncio.to_thread(
+                    self._client.models.generate_content,
+                    model=active_model,
+                    contents=contents,
+                    config=config,
+                )
             except Exception as ex:
                 should_retry: bool = await self._handle_api_error(ex, active_model, 0, 3)
                 if should_retry:

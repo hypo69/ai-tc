@@ -3,7 +3,7 @@
  * Process Name: Windows Web Styles - Theme Engine
  * =============================================================================
  * Description:
- *   Шаблонизатор и менеджер тем оформления для веб-интерфейса AI Windows Admin.
+ *   Шаблонизатор и менеджер тем оформления для веб-интерфейса ai-tc.
  *   Поддерживает светлые темы (Light, Brick), тёмные темы (Dark Contrast, Terminal),
  *   системный режим, динамическую регистрацию и шаблонизацию UI-селекторов.
  *
@@ -13,11 +13,11 @@
  *   themeEngine.registerTheme({ id: 'custom', name: 'Custom Theme', category: 'dark' });
  *
  * File: theme-engine.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps.windows.api.webgui.js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-28 20:34:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -267,6 +267,8 @@ export const BUILTIN_THEMES = [
       '--bs-offcanvas-bg': '#f6f1e8',
       '--panel-bg': '#f6f1e8',
       '--panel-header-bg': '#e2dac9',
+      '--panel-header-color': '#1d4ed8',
+      '--panel-header-font-size': '1.75rem',
       'color-scheme': 'light',
     },
   },
@@ -529,12 +531,12 @@ export class ThemeEngine {
   }
 
   /**
-   * Асинхронно запрашивает актуальный каталог тем с бэкенда (/api/themes) или статического JSON.
+   * Асинхронно запрашивает актуальный каталог тем с бэкенда (/api/v1/themes) или статического JSON.
    */
   async fetchThemesCatalog() {
     if (typeof window === 'undefined' || typeof fetch !== 'function') return;
     try {
-      let res = await fetch('/api/themes').catch(() => null);
+      let res = await fetch('/api/v1/themes').catch(() => null);
       if (!res || !res.ok) {
         res = await fetch('/html/themes/themes_catalog.json').catch(() => null);
       }

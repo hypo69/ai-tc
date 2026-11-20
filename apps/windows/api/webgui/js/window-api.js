@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/js/window-api.js?v=20261001_v1" type="module"></script>
  *
  * File: window-api.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-03 15:51:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -55,44 +55,44 @@ if (!window.api.fetch) {
 window.api.users = window.api.users || {
   async list(params = {}) {
     const q = new URLSearchParams(params).toString();
-    return window.api.fetch(`/api/admin/users${q ? '?' + q : ''}`);
+    return window.api.fetch(`/api/v1/admin/users${q ? '?' + q : ''}`);
   },
   async get(userId) {
-    return window.api.fetch(`/api/admin/users/${userId}`);
+    return window.api.fetch(`/api/v1/admin/users/${userId}`);
   },
   async create(data) {
-    return window.api.fetch('/api/admin/users', {
+    return window.api.fetch('/api/v1/admin/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
   },
   async update(userId, data) {
-    return window.api.fetch(`/api/admin/users/${userId}`, {
+    return window.api.fetch(`/api/v1/admin/users/${userId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
   },
   async setPassword(userId, password) {
-    return window.api.fetch(`/api/admin/users/${userId}/password`, {
+    return window.api.fetch(`/api/v1/admin/users/${userId}/password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password })
     });
   },
   async toggleActive(userId) {
-    return window.api.fetch(`/api/admin/users/${userId}/toggle-active`, {
+    return window.api.fetch(`/api/v1/admin/users/${userId}/toggle-active`, {
       method: 'POST'
     });
   },
   async toggleRole(userId) {
-    return window.api.fetch(`/api/admin/users/${userId}/toggle-role`, {
+    return window.api.fetch(`/api/v1/admin/users/${userId}/toggle-role`, {
       method: 'POST'
     });
   },
   async delete(userId) {
-    return window.api.fetch(`/api/admin/users/${userId}`, {
+    return window.api.fetch(`/api/v1/admin/users/${userId}`, {
       method: 'DELETE'
     });
   }
@@ -102,32 +102,32 @@ window.api.users = window.api.users || {
 window.api.skills = window.api.skills || {
   async list(params = {}) {
     const q = new URLSearchParams(params).toString();
-    return window.api.fetch(`/api/admin/skills${q ? '?' + q : ''}`);
+    return window.api.fetch(`/api/v1/admin/skills${q ? '?' + q : ''}`);
   },
   async get(name) {
-    return window.api.fetch(`/api/admin/skills/${encodeURIComponent(name)}`);
+    return window.api.fetch(`/api/v1/admin/skills/${encodeURIComponent(name)}`);
   },
   async create(data) {
-    return window.api.fetch('/api/admin/skills', {
+    return window.api.fetch('/api/v1/admin/skills', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
   },
   async update(name, data) {
-    return window.api.fetch(`/api/admin/skills/${encodeURIComponent(name)}`, {
+    return window.api.fetch(`/api/v1/admin/skills/${encodeURIComponent(name)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
   },
   async delete(name) {
-    return window.api.fetch(`/api/admin/skills/${encodeURIComponent(name)}`, {
+    return window.api.fetch(`/api/v1/admin/skills/${encodeURIComponent(name)}`, {
       method: 'DELETE'
     });
   },
   async package(name) {
-    return window.api.fetch(`/api/admin/skills/${encodeURIComponent(name)}/package`, {
+    return window.api.fetch(`/api/v1/admin/skills/${encodeURIComponent(name)}/package`, {
       method: 'POST'
     });
   }
@@ -136,49 +136,49 @@ window.api.skills = window.api.skills || {
 // MCP Servers management API
 window.api.mcp = window.api.mcp || {
   async list() {
-    return window.api.fetch('/api/admin/mcp/servers');
+    return window.api.fetch('/api/v1/admin/mcp/servers');
   },
   async get(id) {
-    return window.api.fetch(`/api/admin/mcp/servers/${encodeURIComponent(id)}`);
+    return window.api.fetch(`/api/v1/admin/mcp/servers/${encodeURIComponent(id)}`);
   },
   async create(data) {
-    return window.api.fetch('/api/admin/mcp/servers', {
+    return window.api.fetch('/api/v1/admin/mcp/servers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
   },
   async update(id, data) {
-    return window.api.fetch(`/api/admin/mcp/servers/${encodeURIComponent(id)}`, {
+    return window.api.fetch(`/api/v1/admin/mcp/servers/${encodeURIComponent(id)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
   },
   async delete(id) {
-    return window.api.fetch(`/api/admin/mcp/servers/${encodeURIComponent(id)}`, {
+    return window.api.fetch(`/api/v1/admin/mcp/servers/${encodeURIComponent(id)}`, {
       method: 'DELETE'
     });
   },
   async toggle(id) {
-    return window.api.fetch(`/api/admin/mcp/servers/${encodeURIComponent(id)}/toggle`, {
+    return window.api.fetch(`/api/v1/admin/mcp/servers/${encodeURIComponent(id)}/toggle`, {
       method: 'POST'
     });
   },
   async test(id) {
-    return window.api.fetch(`/api/admin/mcp/servers/${encodeURIComponent(id)}/test`, {
+    return window.api.fetch(`/api/v1/admin/mcp/servers/${encodeURIComponent(id)}/test`, {
       method: 'POST'
     });
   },
   async testAdhoc(data) {
-    return window.api.fetch('/api/admin/mcp/test', {
+    return window.api.fetch('/api/v1/admin/mcp/test', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
   },
   async getTools() {
-    return window.api.fetch('/api/admin/mcp/tools');
+    return window.api.fetch('/api/v1/admin/mcp/tools');
   }
 };
 

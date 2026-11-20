@@ -11,11 +11,11 @@
  *     initFocusSettingsTab();
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_focus_settings
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -103,7 +103,7 @@ function updateDurationLabel() {
  */
 async function loadFocusState() {
   try {
-    const res = await fetch('/api/windows/focus/state');
+    const res = await fetch('/api/v1/windows/focus/state');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderState(data);
@@ -213,7 +213,7 @@ async function toggleFocusSession() {
     // Сохраняем текущие выбранные чекбоксы перед стартом
     await saveFocusSettings();
 
-    const endpoint = isFocusActive ? '/api/windows/focus/session/stop' : `/api/windows/focus/session/start?duration_minutes=${durationMinutes}`;
+    const endpoint = isFocusActive ? '/api/v1/windows/focus/session/stop' : `/api/v1/windows/focus/session/start?duration_minutes=${durationMinutes}`;
     const res = await fetch(endpoint, { method: 'POST' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -239,7 +239,7 @@ async function saveFocusSettings() {
   };
 
   try {
-    const res = await fetch('/api/windows/focus/settings', {
+    const res = await fetch('/api/v1/windows/focus/settings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(settings)
@@ -259,7 +259,7 @@ async function saveFocusSettings() {
  */
 async function openWindowsSettings() {
   try {
-    await fetch('/api/windows/focus/open-settings', { method: 'POST' });
+    await fetch('/api/v1/windows/focus/open-settings', { method: 'POST' });
   } catch (err) {
     console.warn('[FocusSettingsTab] Ошибка вызова параметров Windows:', err);
   }
@@ -270,7 +270,7 @@ async function openWindowsSettings() {
  */
 async function openClockApp() {
   try {
-    await fetch('/api/windows/focus/open-clock', { method: 'POST' });
+    await fetch('/api/v1/windows/focus/open-clock', { method: 'POST' });
   } catch (err) {
     console.warn('[FocusSettingsTab] Ошибка вызова Windows Clock:', err);
   }

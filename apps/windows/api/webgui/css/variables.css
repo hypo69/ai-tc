@@ -15,7 +15,7 @@
  * Package: apps/common/webgui/css
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-03 14:11:00
+ * Updated: 2026-11-16 05:48:00
  * =============================================================================
  */
 
@@ -32,6 +32,11 @@
 body.theme-dark-slate {
   color-scheme: dark;
   --color-scheme: dark;
+  /* Регулируемый масштаб и размер бейджей (+8%) */
+  --badge-scale: 1.08;
+  --badge-font-size: calc((0.75rem + 1pt) * var(--badge-scale, 1.08));
+  --badge-padding-y: calc(0.24em * var(--badge-scale, 1.08));
+  --badge-padding-x: calc(0.55em * var(--badge-scale, 1.08));
   /* Фоны (глубокие контрастные поверхности тёмной темы по умолчанию) */
   --bg-color:        #0b0f19;   /* глубокий темный сланец фон страницы */
   --surface-1:       #111827;   /* контрастные карточки, панели */
@@ -343,9 +348,10 @@ body.theme-light-enterprise {
   --status-info-border:    #7dd3fc;
 }
 
-/* Переопределения типографики для светлой темы Windows System Light (увеличение бейджей на 1pt) */
+/* Переопределения типографики для светлой темы Windows System Light (увеличение бейджей на 1pt + масштаб) */
 [data-theme="light"] {
-  --badge-font-size: calc(0.72rem + 1pt);
+  --badge-scale: 1.08;
+  --badge-font-size: calc((0.72rem + 1pt) * var(--badge-scale, 1.08));
 }
 
 /* ── 1b. Аутентичная светлая тема NightView (Тёплая бумага) и NightView 70% ─── */
@@ -382,6 +388,11 @@ body.theme-light-enterprise {
   --ui-accent:       #1d4ed8;
   --ui-accent-hover: #1e40af;
   --nav-hover-bg:    #eae4d8;
+
+  /* Панели и заголовки NightView (синий акцент меню) */
+  --panel-header-color:     #1d4ed8;
+  --panel-header-bg:        #e2dac9;
+  --panel-header-font-size: 1.75rem;
 
   /* Линии и границы */
   --border-color:    #cfc5b4;   /* четкий теплый контур */
@@ -445,7 +456,29 @@ body.theme-light-enterprise {
   --ui-info:               #184674;
 
   --about-card-bg: linear-gradient(135deg, #f6f1e8 0%, #ede6d9 100%);
-  --badge-font-size: calc(0.72rem + 1pt);
+  --badge-scale: 1.08;
+  --badge-font-size: calc((0.72rem + 1pt) * var(--badge-scale, 1.08));
+  --badge-padding-y: calc(0.24em * var(--badge-scale, 1.08));
+  --badge-padding-x: calc(0.55em * var(--badge-scale, 1.08));
+  --bs-info: #184674;
+  --bs-info-rgb: 24, 70, 116;
+
+  /* Бейджи статусов и нейтральные бейджи NightView */
+  --badge-neutral-bg:      #e2dac9;
+  --badge-neutral-text:    #18181b;
+  --badge-neutral-border:  #cfc5b4;
+  --badge-success-bg:      #e7f2e9;
+  --badge-success-text:    #185223;
+  --badge-success-border:  #98c9a0;
+  --badge-warning-bg:      #f8f0dd;
+  --badge-warning-text:    #704705;
+  --badge-warning-border:  #dfc279;
+  --badge-danger-bg:       #f6e6e6;
+  --badge-danger-text:     #7e1f1f;
+  --badge-danger-border:   #e19f9d;
+  --badge-info-bg:         #e5eef7;
+  --badge-info-text:       #184674;
+  --badge-info-border:     #97bcdb;
 }
 
 /* ── 2. Светлая кирпичная тема (Brick / Terracotta) ────────────────────────── */

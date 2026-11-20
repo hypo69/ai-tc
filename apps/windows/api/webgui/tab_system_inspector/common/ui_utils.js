@@ -7,11 +7,11 @@
  *   безопасное экранирование HTML, селекторы интервалов) для панелей вкладки tab_system_inspector.
  *
  * File: ui_utils.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_system_inspector/common
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 00:15:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

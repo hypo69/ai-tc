@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - query_about
+# Process Name: ai-tc Apps Windows Api Routers - query_about
 # =============================================================================
 # Description:
 #   Запросы к telemetry.db для обзора и истории панели «О системе».
 #   Исключительно чтение из базы данных telemetry.db без внешних опросов.
 #
 # File: query_about.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.about_system
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 19:14:00
+# Updated: 2026-11-12 12:40:00
 # =============================================================================
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ from logger import logger
 from apps.windows.telemetry.sqlite import TelemetryStorage
 from .helpers import _format_uptime_human
 from .helpers import _get_cpu_brand_name
-from .helpers import get_windows_workgroup, get_windows_install_date
+from .helpers import get_windows_workgroup, get_windows_install_date, get_windows_volume_labels
 from .models import AboutSystemHistoryItem
 from .models import AboutSystemHistoryResponse
 from .models import AboutSystemPanelOverviewResponse
@@ -254,6 +254,11 @@ def query_about_system_from_db(storage: TelemetryStorage) -> AboutSystemPanelOve
     if not c_disk and disks:
         c_disk = disks[0]
 
+    vol_labels = get_windows_volume_labels()
+    c_vol = (c_disk.get("volume_name") if isinstance(c_disk, dict) else getattr(c_disk, "volume_name", "")) or vol_labels.get("C:", "")
+    c_vol = str(c_vol).strip()
+    drive_label = f"{c_vol} (C:)" if c_vol else "C:"
+
     tot_gb = float((c_disk.get("total_gb") if isinstance(c_disk, dict) else getattr(c_disk, "total_gb", 0.0)) or 0.0) if c_disk else 0.0
     free_gb = float((c_disk.get("free_gb") if isinstance(c_disk, dict) else getattr(c_disk, "free_gb", 0.0)) or 0.0) if c_disk else 0.0
     used_gb = float((c_disk.get("used_gb") if isinstance(c_disk, dict) else getattr(c_disk, "used_gb", 0.0)) or 0.0) if c_disk else 0.0
@@ -264,14 +269,15 @@ def query_about_system_from_db(storage: TelemetryStorage) -> AboutSystemPanelOve
 
     storage_res = StoragePanelResponse(
         status="ok",
-        drive="C:",
+        drive=drive_label,
+        volume_name=c_vol or None,
         total_gb=round(tot_gb, 1),
         free_gb=round(free_gb, 1),
         used_gb=round(used_gb, 1),
         percent_used=round(pct_used, 1),
         cleanable_mb=round(cleanable_mb, 1),
         display_title=f"{free_gb:.1f} GB Free",
-        display_subtitle=f"Cleanable: {clean_str}",
+        display_subtitle=f"Drive {drive_label} • Cleanable: {clean_str}",
         timestamp=snap_row.get("timestamp") if snap_row else now_ts,
     )
 

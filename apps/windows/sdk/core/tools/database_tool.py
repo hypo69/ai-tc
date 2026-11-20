@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core Tools - Database Instrument Tool
+# Process Name: ai-tc Apps Windows Core Tools - Database Instrument Tool
 # =============================================================================
 # Description:
 #   Адаптер инструментов, сохраненных в изолированной базе данных ai_instruments
@@ -18,11 +18,11 @@
 #     print(f"Загружено инструментов: {count}")
 #
 # File: database_tool.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core.tools
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 18:56:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

@@ -18,11 +18,11 @@
  *     await loadPanelData('panel-cpu-load');
  *
  * File: panel-loader.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-11-01 17:30:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

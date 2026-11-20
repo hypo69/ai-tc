@@ -10,11 +10,11 @@
  *     <script src="/html/tab_process_leaks/main.js?v=20261013_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_process_leaks
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-13 08:50:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

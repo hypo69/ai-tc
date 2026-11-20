@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Safe Executor
+# Process Name: ai-tc Apps Windows Core - Safe Executor
 # =============================================================================
 # Description:
 #   Слой безопасного выполнения и симуляции действий (SafeOps).
@@ -12,11 +12,11 @@
 #     service = SafeExecutor()
 #
 # File: safe_executor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ class SafeExecutor:
             backup_dir: Директория для создания резервных копий перед изменениями.
         """
         if backup_dir is None:
-            self.backup_dir = Path(os.environ.get('TEMP', 'C:/Temp')) / 'ai_windows_admin_backups'
+            self.backup_dir = Path(os.environ.get('TEMP', 'C:/Temp')) / 'ai_tc_backups'
         else:
             self.backup_dir = backup_dir
         self.backup_dir.mkdir(parents=True, exist_ok=True)

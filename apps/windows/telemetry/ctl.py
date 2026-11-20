@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry - CLI Controller
+# Process Name: ai-tc Apps Windows Telemetry - CLI Controller
 # =============================================================================
 # Description:
 #   Консольный контроллер AITelemetryCtl для мониторинга, управления службой
@@ -16,11 +16,11 @@
 #     AITelemetryCtl.exe database
 #
 # File: ctl.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 23:58:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

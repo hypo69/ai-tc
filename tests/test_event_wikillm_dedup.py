@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Event WikiLLM Deduplication
+# Process Name: ai-tc Tests - Event WikiLLM Deduplication
 # =============================================================================
 # Description:
 #   Тестирование дедупликации одинаковых событий аудита Windows (Event ID 4624),
 #   нормализации канонических ключей и кэширования в WikiLLM.
 #
 # File: test_event_wikillm_dedup.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 19:50:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Тесты дедупликации событий аудита безопасности в WikiLLM."""

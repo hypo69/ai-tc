@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/user/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/user
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-30 13:25:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -244,7 +244,41 @@ function setupDropdownTabs() {
   const mainTabs = document.getElementById('mainTabs');
   if (!mainTabs) return;
 
-  // 1. Dropdown Toggle Buttons
+  // 1. Поддержка onover (hover) для выпадающих меню навбара
+  mainTabs.querySelectorAll('.dropdown').forEach((dropdownEl) => {
+    let hideTimer = null;
+
+    const showDropdown = () => {
+      clearTimeout(hideTimer);
+      const menu = dropdownEl.querySelector('.dropdown-menu');
+      const toggle = dropdownEl.querySelector('.dropdown-toggle');
+      if (!menu) return;
+
+      document.querySelectorAll('#mainTabs .dropdown-menu.show').forEach((otherMenu) => {
+        if (otherMenu !== menu) {
+          otherMenu.classList.remove('show');
+          otherMenu.closest('.dropdown')?.querySelector('.dropdown-toggle')?.classList.remove('show');
+        }
+      });
+
+      menu.classList.add('show');
+      if (toggle) toggle.classList.add('show');
+    };
+
+    const hideDropdown = () => {
+      hideTimer = setTimeout(() => {
+        const menu = dropdownEl.querySelector('.dropdown-menu');
+        const toggle = dropdownEl.querySelector('.dropdown-toggle');
+        if (menu) menu.classList.remove('show');
+        if (toggle) toggle.classList.remove('show');
+      }, 200);
+    };
+
+    dropdownEl.addEventListener('mouseenter', showDropdown);
+    dropdownEl.addEventListener('mouseleave', hideDropdown);
+  });
+
+  // Dropdown Toggle Buttons (клик)
   mainTabs.querySelectorAll('.dropdown-toggle').forEach((btn) => {
     btn.onclick = (e) => {
       e.preventDefault();
@@ -270,13 +304,22 @@ function setupDropdownTabs() {
 
   // 2. Dropdown Item Buttons (Tab Switchers & Action Buttons)
   mainTabs.querySelectorAll('.dropdown-item').forEach((item) => {
+    item.addEventListener('mouseenter', () => {
+      item.focus({ preventScroll: true });
+    });
+
     item.onclick = async (e) => {
-      const targetId = item.getAttribute('data-tab') || item.getAttribute('data-bs-target')?.replace('#', '');
-      const pluginName = item.getAttribute('data-plugin');
+      const button = e.target.closest('.dropdown-item') || item;
+      const targetId = button.getAttribute('data-tab') || button.getAttribute('data-bs-target')?.replace('#', '') ||
+                      item.getAttribute('data-tab') || item.getAttribute('data-bs-target')?.replace('#', '');
+      const pluginName = button.getAttribute('data-plugin') || item.getAttribute('data-plugin');
 
       // Close dropdown menu
-      item.closest('.dropdown-menu')?.classList.remove('show');
-      item.closest('.dropdown')?.querySelector('.dropdown-toggle')?.classList.remove('show');
+      const menu = button.closest('.dropdown-menu') || item.closest('.dropdown-menu');
+      if (menu) {
+        menu.classList.remove('show');
+        menu.closest('.dropdown')?.querySelector('.dropdown-toggle')?.classList.remove('show');
+      }
 
       if (pluginName && typeof window.openPluginFromDropdown === 'function') {
         e.preventDefault();
@@ -354,9 +397,9 @@ async function initInterface() {
 
   // Synchronize plugin tabs visibility
   try {
-    let pluginsResp = await fetch('/api/plugins?scope=user');
+    let pluginsResp = await fetch('/api/v1/plugins?scope=user');
     if (!pluginsResp.ok) {
-      pluginsResp = await fetch('/api/admin/plugins?scope=user');
+      pluginsResp = await fetch('/api/v1/admin/plugins?scope=user');
     }
     if (pluginsResp.ok) {
       const pluginsData = await pluginsResp.json();

@@ -15,11 +15,11 @@
 #     mcp_srv, modules = build_mcp_server(runtime)
 #
 # File: server.py
-# Project: AI Windows Admin (ai-tc)
+# Project: ai-tc (ai-tc)
 # Package: ssh_mcp
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 17:01:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import os

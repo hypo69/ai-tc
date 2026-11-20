@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Process Name: AI-Windows-Admin UI - Main Script
+ * Process Name: ai-tc UI - Main Script
  * =============================================================================
  * Description:
  *   Клиентский веб-скрипт модуля main.
@@ -10,16 +10,16 @@
  *     <script src="/src/api/webgui/google_desktop_tab/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: src/api/webgui/google_desktop_tab
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 
 /**
- * google_desktop_tab/main.js — Веб-модуль управления Google User Desktop в AI Windows Admin.
+ * google_desktop_tab/main.js — Веб-модуль управления Google User Desktop в ai-tc.
  */
 
 (function () {

@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/js/appConfigEditor.js?v=20261001_v1" type="module"></script>
  *
  * File: appConfigEditor.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 19:41:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -23,10 +23,10 @@
 // =============================================================================
 // Description:
 //   Reusable client-side controller for inspecting and modifying config.json
-//   across /apps microservices in the AI-Windows-Admin web administrative panel.
+//   across /apps microservices in the ai-tc web administrative panel.
 //
 // File: appConfigEditor.js
-// Project: ai-windows-admin
+// Project: ai-tc
 // Package: src.api.webinterface.js
 // Author: hypo69
 // Copyright: © 2026 hypo69
@@ -45,12 +45,12 @@
     let res;
     if (window.api && typeof window.api.fetch === 'function') {
       try {
-        return await window.api.fetch(`/api/admin/apps/${appName}/config`);
+        return await window.api.fetch(`/api/v1/admin/apps/${appName}/config`);
       } catch (e) {
         // fallback
       }
     }
-    res = await fetch(`/api/admin/apps/${appName}/config`);
+    res = await fetch(`/api/v1/admin/apps/${appName}/config`);
     if (!res.ok) {
       throw new Error(`Failed to load config: HTTP ${res.status}`);
     }
@@ -65,7 +65,7 @@
    */
   async function saveAppConfig(appName, configObj) {
     const payload = { config: configObj };
-    const res = await fetch(`/api/admin/apps/${appName}/config`, {
+    const res = await fetch(`/api/v1/admin/apps/${appName}/config`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

@@ -11,9 +11,11 @@
  *
  * File: panel.js
  * Package: apps/windows/api/webgui/tab_network/panel_discovery
- * Updated: 2026-10-28 19:04:00
+ * Updated: 2026-11-20 17:18:00
  * =============================================================================
  */
+
+import { openRemoteLoginModal, getAuthenticatedDevicesMap } from './remote_login_modal.js?v=20261120_v1';
 
 let discoveredDevices = [];
 let activeFilter = 'all';
@@ -64,7 +66,7 @@ export async function fetchSubnets() {
   if (!select) return;
 
   try {
-    const res = await fetch('/api/network/subnets');
+    const res = await fetch('/api/v1/network/subnets');
     if (!res.ok) return;
     const data = await res.json();
     const subnets = data.subnets || [];
@@ -159,7 +161,7 @@ export async function fetchDiscoveredDevices(fullScan = false) {
   }
 
   try {
-    const url = `/api/network/devices?scan=${fullScan ? 'true' : 'false'}${selectedSubnet ? `&subnet=${encodeURIComponent(selectedSubnet)}` : ''}`;
+    const url = `/api/v1/network/devices?scan=${fullScan ? 'true' : 'false'}${selectedSubnet ? `&subnet=${encodeURIComponent(selectedSubnet)}` : ''}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -255,6 +257,10 @@ export function renderDiscoveryTable() {
     } else if (d.is_local) {
       roleBadge = '<span class="badge bg-info-subtle text-info border border-info ms-1.5" style="font-size: 0.65rem;">Этот ПК</span>';
     }
+    const authInfo = getAuthenticatedDevicesMap().get(d.ip);
+    const authBadge = authInfo
+      ? `<span class="badge bg-success-subtle text-success border border-success ms-1" style="font-size: 0.65rem;" title="Вход выполнен: ${escapeHtml(authInfo.username)}"><i class="bi bi-key-fill me-1"></i>${escapeHtml(authInfo.username)}</span>`
+      : '';
 
     const displayName = d.hostname || d.ip;
     const hostSubtitle = d.hostname ? d.ip : 'Имя хоста не разрешено';
@@ -286,12 +292,12 @@ export function renderDiscoveryTable() {
     }
 
     return `
-      <tr data-ip="${escapeHtml(d.ip)}">
+      <tr data-ip="${escapeHtml(d.ip)}" title="ПКМ — войти на удалённый компьютер" style="cursor: context-menu;">
         <td>
           <div class="d-flex align-items-center gap-2">
             <span class="fs-5 ${cat.type === 'gateway' ? 'text-warning' : (d.is_local ? 'text-info' : 'text-primary')}"><i class="bi ${cat.icon}"></i></span>
             <div>
-              <div class="fw-bold text-body d-flex align-items-center"><span>${escapeHtml(displayName)}</span>${roleBadge}</div>
+              <div class="fw-bold text-body d-flex align-items-center flex-wrap"><span>${escapeHtml(displayName)}</span>${roleBadge}${authBadge}</div>
               <div class="text-muted small font-monospace" style="font-size: 0.72rem;">${escapeHtml(hostSubtitle)}</div>
             </div>
           </div>
@@ -314,6 +320,18 @@ export function renderDiscoveryTable() {
         </td>
       </tr>`;
   }).join('');
+
+  // Навешиваем обработчик ПКМ (контекстное окно удалённого входа на компьютер)
+  tbody.querySelectorAll('tr[data-ip]').forEach((row) => {
+    row.oncontextmenu = (e) => {
+      e.preventDefault();
+      const ip = row.getAttribute('data-ip');
+      const dev = discoveredDevices.find((item) => item.ip === ip);
+      if (dev) {
+        openRemoteLoginModal(dev, () => renderDiscoveryTable());
+      }
+    };
+  });
 
   // Навешиваем обработчики кнопок таблицы
   tbody.querySelectorAll('.btn-device-ai').forEach((btn) => {
@@ -353,7 +371,7 @@ export async function probeHostPorts(ip, btn) {
   }
 
   try {
-    const res = await fetch(`/api/network/devices/probe?ip=${encodeURIComponent(ip)}`);
+    const res = await fetch(`/api/v1/network/devices/probe?ip=${encodeURIComponent(ip)}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 

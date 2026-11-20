@@ -1,15 +1,15 @@
 ---
 name: cert-installer
-description: Automates generation and installation of trusted SSL certificates for local ai-windows-admin environment.
+description: Automates generation and installation of trusted SSL certificates for local ai-tc environment.
 description_i18n:
-  en: Automates generation and installation of trusted SSL certificates for local ai-windows-admin environment.
-  ru: Автоматизирует генерацию и установку доверенных SSL-сертификатов для локального окружения AI Windows Admin.
+  en: Automates generation and installation of trusted SSL certificates for local ai-tc environment.
+  ru: Автоматизирует генерацию и установку доверенных SSL-сертификатов для локального окружения ai-tc.
 ---
 
 # Cert Installer Skill
 
 ## 🎯 Purpose
-Automates generation and installation of trusted SSL certificates for local ai-windows-admin environment
+Automates generation and installation of trusted SSL certificates for local ai-tc environment
 
 ## 🚀 Usage & Protocol
 Describe how AI agents should execute this skill and what triggers its activation.

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry_Research - Charts
+# Process Name: ai-tc Apps Windows Telemetry_Research - Charts
 # =============================================================================
 # Description:
 #   Генератор графиков и HTML/SVG визуализаций телеметрии.
@@ -12,11 +12,11 @@
 #     service = TelemetryChartGenerator()
 #
 # File: charts.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.analytics
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 16:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -271,7 +271,7 @@ class TelemetryChartGenerator:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-Windows-Admin: Исследование телеметрии #{report.report_id}</title>
+    <title>ai-tc: Исследование телеметрии #{report.report_id}</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {{

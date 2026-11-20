@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/tab_instructions/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_instructions
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -67,7 +67,7 @@ function switchMode(mode) {
 // ── Instructions API ──────────────────────────────────────────────────────
 async function loadInstruction() {
   try {
-    const data = await adminFetch(`/api/admin/instructions?mode=${currentMode}`);
+    const data = await adminFetch(`/api/v1/admin/instructions?mode=${currentMode}`);
     const editor = document.getElementById('instruction-editor');
     if (data && data.content !== undefined) {
       editor.value = data.content;
@@ -98,7 +98,7 @@ async function saveInstruction() {
   btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Сохранение...';
 
   try {
-    const data = await adminFetch('/api/admin/instructions/save', {
+    const data = await adminFetch('/api/v1/admin/instructions/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode: currentMode, content })
@@ -123,7 +123,7 @@ async function checkInModel() {
   btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Проверка...';
 
   try {
-    const result = await adminFetch('/api/admin/instructions/check', {
+    const result = await adminFetch('/api/v1/admin/instructions/check', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode: currentMode, prompt, instruction: content })
@@ -156,7 +156,7 @@ async function refreshVersions() {
   list.innerHTML = '<div class="list-group-item text-muted"><i class="bi bi-hourglass-split"></i> Загрузка...</div>';
 
   try {
-    const data = await adminFetch(`/api/admin/instructions/versions?mode=${currentMode}`);
+    const data = await adminFetch(`/api/v1/admin/instructions/versions?mode=${currentMode}`);
 
     if (!data.versions || !data.versions.length) {
       list.innerHTML = '<div class="list-group-item text-muted">Нет сохранённых версий</div>';
@@ -185,7 +185,7 @@ async function refreshVersions() {
 
 async function useVersion(filename, mode) {
   try {
-    await adminFetch('/api/admin/instructions/activate', {
+    await adminFetch('/api/v1/admin/instructions/activate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode, filename })

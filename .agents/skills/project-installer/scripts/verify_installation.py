@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Installer - Verification Utility
+# Process Name: ai-tc Installer - Verification Utility
 # =============================================================================
 # Description:
 #   Автоматическая утилита проверки целостности структуры директорий,
 #   файлов конфигурации, виртуального окружения и ключевых зависимостей
-#   проекта AI Windows Admin (ai-tc).
+#   проекта ai-tc (ai-tc).
 #
 # Usage Examples:
 #   CLI:
@@ -13,15 +13,15 @@
 #     python .agents/skills/project-installer/scripts/verify_installation.py --json
 #
 # File: verify_installation.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: .agents.skills.project-installer.scripts
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-31 19:10:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
-"""Автоматическая утилита проверки целостности установки AI Windows Admin."""
+"""Автоматическая утилита проверки целостности установки ai-tc."""
 
 import argparse
 import importlib
@@ -76,7 +76,7 @@ class VerificationResult:
 
 
 class InstallationVerifier:
-    """Валидатор целостности файловой структуры и готовности среды AI Windows Admin."""
+    """Валидатор целостности файловой структуры и готовности среды ai-tc."""
 
     REQUIRED_DIRECTORIES: List[str] = [
         'apps', 'src', 'scripts', 'launchers', 'docs', 'tests',
@@ -229,8 +229,8 @@ def main() -> int:
     Returns:
         int: Код возврата 0 при успешной валидации, 1 при ошибках.
     """
-    parser = argparse.ArgumentParser(description="Проверка целостности установки и директорий AI Windows Admin.")
-    parser.add_argument('--project-root', type=str, default='', help="Путь к корню проекта AI Windows Admin")
+    parser = argparse.ArgumentParser(description="Проверка целостности установки и директорий ai-tc.")
+    parser.add_argument('--project-root', type=str, default='', help="Путь к корню проекта ai-tc")
     parser.add_argument('--json', action='store_true', help="Вывод в структурированном формате JSON")
     args = parser.parse_args()
 
@@ -242,7 +242,7 @@ def main() -> int:
         logger.console(json.dumps(asdict(result), indent=2, ensure_ascii=False))
     else:
         logger.console('=' * 65)
-        logger.console('🔍 Проверка целостности установки AI Windows Admin (ai-tc)')
+        logger.console('🔍 Проверка целостности установки ai-tc (ai-tc)')
         logger.console('=' * 65)
         logger.console(f'Корень проекта: {result.project_root}')
         logger.console(f'Платформа:      {result.os_name}')

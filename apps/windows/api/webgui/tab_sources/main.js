@@ -10,11 +10,11 @@
  *     <script src="/windows/api/webgui/tab_sources/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_sources
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -38,7 +38,7 @@ async function loadSourcesRaw() {
     }
 
     try {
-        const response = await window.api.fetch('/api/admin/sources/raw');
+        const response = await window.api.fetch('/api/v1/admin/sources/raw');
         const rawContent = response.content || '{}';
         
         if (editor) editor.value = rawContent;
@@ -79,7 +79,7 @@ async function saveSourcesRaw(content) {
 
     try {
         if (editor) editor.disabled = true;
-        const response = await window.api.fetch('/api/admin/sources/raw', {
+        const response = await window.api.fetch('/api/v1/admin/sources/raw', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ content: content })

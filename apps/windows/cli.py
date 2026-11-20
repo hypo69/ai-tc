@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Cli
+# Process Name: ai-tc Apps Windows - Cli
 # =============================================================================
 # Description:
 #   CLI интерфейс для Windows AI Diagnostic & Administration Center.
@@ -14,11 +14,11 @@
 #     res = print_banner()
 #
 # File: cli.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 13:00:00
+# Updated: 2026-11-16 05:40:00
 # =============================================================================
 
 from __future__ import annotations
@@ -107,7 +107,53 @@ def main() -> None:
     parser.add_argument('--power-lifecycle', action='store_true', help='Реконструировать таймлайн жизненного цикла ОС (Boot -> Sleep -> Wake -> Shutdown -> Crash)')
     parser.add_argument('--sysmon-status', action='store_true', help='Проверить статус и конфигурацию Sysmon Observability Layer')
     parser.add_argument('--event-limit', type=int, default=25, help='Лимит событий для выборки (по умолчанию: 25)')
+    # WinRT & UWP Modern Subsystem
+    parser.add_argument('--winrt', action='store_true', help='Опросить современный адаптер WinRTProvider (питание, сеть, медиа, графика, устройства, UWP)')
+    parser.add_argument('--winrt-subsystem', choices=['power', 'network', 'media', 'graphics', 'devices', 'appmodel'], help='Выбрать конкретную подсистему WinRT')
     args = parser.parse_args()
+
+    if args.winrt or args.winrt_subsystem:
+        from apps.windows.sdk.winrt import WinRTProvider
+        provider = WinRTProvider()
+        if args.winrt_subsystem:
+            sub = args.winrt_subsystem
+            if sub == 'power':
+                res = provider.power.get_power_telemetry_sync()
+            elif sub == 'network':
+                res = provider.network.get_network_telemetry_sync()
+            elif sub == 'media':
+                res = provider.media.get_media_telemetry_sync()
+            elif sub == 'graphics':
+                res = provider.graphics.get_graphics_telemetry_sync()
+            elif sub == 'devices':
+                res = provider.devices.get_devices_telemetry_sync()
+            else:
+                res = provider.appmodel.get_appmodel_telemetry_sync()
+            if args.json:
+                logger.console(json.dumps(res.model_dump(), ensure_ascii=False, indent=2))
+            else:
+                logger.console(f"\n=== WINRT ПОДСИСТЕМА: {sub.upper()} ===")
+                for k, v in res.model_dump().items():
+                    logger.console(f"  {k}: {v}")
+            return
+
+        snap = provider.probe_snapshot_sync()
+        if args.json:
+            logger.console(json.dumps(snap.model_dump(mode='json'), ensure_ascii=False, indent=2))
+        else:
+            logger.console("\n=== СВОДКА СИСТЕМНОГО ПРОВАЙДЕРА WINRT (WINDOWS RUNTIME / UWP) ===")
+            logger.console(f"Статус WinRT:         {'🟢 Доступен' if snap.status.is_available else '🔴 Недоступен'}")
+            logger.console(f"Движок:               {snap.status.runtime_engine}")
+            logger.console(f"ОС:                   {snap.status.os_version}")
+            logger.console(f"Питание (Power):      Батарея: {snap.power.battery_status} | Заряд: {snap.power.remaining_charge_percent}% | Сеть: {snap.power.power_supply_status}")
+            logger.console(f"Сеть (Network):       Профиль: {snap.network.profile_name} | Статус: {snap.network.connectivity_level} | Домен: {snap.network.domain_connectivity}")
+            logger.console(f"Медиасессия (Media):  Активна: {'Да' if snap.media.has_active_session else 'Нет'} | Приложение: {snap.media.source_app_user_model_id} | Статус: {snap.media.playback_status}")
+            logger.console(f"Графика (Graphics):   Захват экрана WinRT: {'🟢 Поддерживается' if snap.graphics.capture_supported else '⚪ Нет'} | Декодеров WIC: {len(snap.graphics.supported_imaging_decoders)}")
+            logger.console(f"Устройства (Devices): Всего: {snap.devices.total_devices_count} | Камер: {snap.devices.cameras_count} | Аудио-выход: {snap.devices.audio_render_count} | Микрофонов: {snap.devices.audio_capture_count}")
+            logger.console(f"UWP / Phone Link:     UWP пакетов: {snap.appmodel.total_uwp_packages} | Phone Link: {'🟢 Установлен' if snap.appmodel.phone_link_installed else '⚪ Отсутствует'} (v{snap.appmodel.phone_link_version})")
+            if snap.appmodel.phone_link_capabilities:
+                logger.console(f"Разрешения Phone Link: {', '.join(snap.appmodel.phone_link_capabilities[:6])}...")
+        return
 
     if args.security_status or args.security_tail or args.security_search or args.security_user or args.security_process or args.security_failed_logons or args.security_collect or args.security_correlate:
         from apps.windows.telemetry.security_collector import WindowsSecurityCollector

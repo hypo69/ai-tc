@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - endpoints_sessions
+# Process Name: ai-tc Apps Windows Api Routers - endpoints_sessions
 # =============================================================================
 # Description:
 #   Эндпойнты сохранения в RAG и сессий чата.
 #   Вынесено из router_chat.py (этап 4 оптимизации).
 #
 # File: endpoints_sessions.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.chat
 # Author: hypo69
 # Copyright: c 2026 hypo69
-# Updated: 2026-10-12 06:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

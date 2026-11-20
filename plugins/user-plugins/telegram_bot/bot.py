@@ -11,7 +11,7 @@
 # Package: plugins.telegram_bot
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 16:45:00
+# Updated: 2026-11-20 02:31:00
 # =============================================================================
 
 """Модуль сервиса и диспетчера команд Telegram-бота.
@@ -28,6 +28,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, WebAppInfo
+from telegram.error import Conflict, NetworkError, TelegramError
 from telegram.ext import (
     Application,
     ApplicationBuilder,
@@ -39,7 +40,7 @@ from telegram.ext import (
 )
 
 from logger import logger
-from plugins.telegram_bot import user_auth as user_manager
+from plugins.telegram_bot import user_auth
 from plugins.telegram_bot.tts import handle_telegram_voiceover_request
 
 _HEX_TOKEN_8_RE = re.compile(r"^[A-F0-9]{8}$")
@@ -74,10 +75,26 @@ class TelegramBotEngine:
         self.is_running: bool = False
         self._bot_info: Dict[str, Any] = {}
         self._workspace_manager: Any = None
+        self._qa_engine: Any = None
+        self._chat_service: Any = None
+        self._conflict_count: int = 0
+        self._conflict_stop_task: Optional[asyncio.Task[Any]] = None
 
     def is_configured(self) -> bool:
         """Проверяет наличие валидного токена Telegram API."""
         return bool(self.token and len(self.token) > 10 and ":" in self.token)
+
+    def attach_services(self, workspace_manager: Any = None, qa_engine: Any = None) -> None:
+        """Привязывает общие экземпляры WorkspaceManager и KnowledgeQAEngine приложения."""
+        if workspace_manager is not None:
+            self._workspace_manager = workspace_manager
+        if qa_engine is not None:
+            self._qa_engine = qa_engine
+        if self._chat_service is not None:
+            if workspace_manager is not None:
+                self._chat_service.wm = workspace_manager
+            if qa_engine is not None:
+                self._chat_service.qa_engine = qa_engine
 
     def _get_workspace_manager(self) -> Any:
         """Возвращает кэшированный экземпляр WorkspaceManager."""
@@ -85,6 +102,19 @@ class TelegramBotEngine:
             from apps.ai_assistant.core.workspace_manager import WorkspaceManager
             self._workspace_manager = WorkspaceManager()
         return self._workspace_manager
+
+    def _get_chat_service(self) -> Any:
+        """Возвращает кэшированный экземпляр TelegramChatService."""
+        if self._chat_service is None:
+            from plugins.telegram_bot.chat_handler import TelegramChatService
+            self._chat_service = TelegramChatService(
+                workspace_manager=self._get_workspace_manager(),
+                qa_engine=self._qa_engine,
+                ai_model=self.ai_model,
+            )
+        else:
+            self._chat_service.ai_model = self.ai_model
+        return self._chat_service
 
     async def initialize(self) -> bool:
         """Конфигурирует и инициализирует Application python-telegram-bot."""
@@ -111,6 +141,8 @@ class TelegramBotEngine:
             self.app.add_handler(CommandHandler("link", self._cmd_link))
             self.app.add_handler(CommandHandler("tts", self._cmd_tts))
             self.app.add_handler(CommandHandler(["workspace", "ws", "w"], self._cmd_workspace))
+            self.app.add_handler(CommandHandler("mode", self._cmd_mode))
+            self.app.add_handler(CommandHandler(["clear", "reset"], self._cmd_clear))
 
             # Callback queries и медиа
             self.app.add_handler(CallbackQueryHandler(self._handle_callback_query))
@@ -140,9 +172,14 @@ class TelegramBotEngine:
                 raise RuntimeError("Не удалось запустить Telegram-бота: инициализация не выполнена.")
 
         try:
+            self._conflict_count = 0
+            self._conflict_stop_task = None
             await self.app.start()
             if self.app.updater:
-                await self.app.updater.start_polling(allowed_updates=Update.ALL_TYPES)
+                await self.app.updater.start_polling(
+                    allowed_updates=Update.ALL_TYPES,
+                    error_callback=self._on_polling_error,
+                )
             self.is_running = True
 
             bot_user = await self.app.bot.get_me()
@@ -193,6 +230,16 @@ class TelegramBotEngine:
         from plugins.telegram_bot.workspace_handler import handle_workspace_command
         await handle_workspace_command(update, context, self._get_workspace_manager())
 
+    async def _cmd_mode(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        """Обрабатывает команду /mode [auto|chat|rag] для настройки режима диалога с моделью."""
+        from plugins.telegram_bot.chat_handler import handle_mode_command
+        await handle_mode_command(update, context, self._get_chat_service())
+
+    async def _cmd_clear(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        """Обрабатывает команду /clear (/reset) для очистки истории чата."""
+        from plugins.telegram_bot.chat_handler import handle_clear_command
+        await handle_clear_command(update, context, self._get_chat_service())
+
     async def _cmd_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Обрабатывает команду /start, включая Deep Linking (/start <TOKEN>)."""
         if not update.effective_chat or not update.effective_user or not update.message:
@@ -206,7 +253,7 @@ class TelegramBotEngine:
         if args:
             token = args[0].strip().upper()
             if len(token) == 8 and _HEX_TOKEN_8_RE.match(token):
-                if user_manager.link_telegram_account(token, tg_id, tg_username or user_name):
+                if user_auth.link_telegram_account(token, tg_id, tg_username or user_name):
                     await update.message.reply_text(
                         f"🎉 <b>Telegram-аккаунт успешно привязан!</b>\n🆔 ID: <code>{tg_id}</code>",
                         parse_mode="HTML",
@@ -218,7 +265,7 @@ class TelegramBotEngine:
                 )
                 return
 
-        user = user_manager.get_user_by_telegram_id(tg_id, admin_ids=self.admin_ids)
+        user = user_auth.get_user_by_telegram_id(tg_id, admin_ids=self.admin_ids)
         api_base = self.config.get("api_base_url", "").rstrip("/")
         rc_url = f"{api_base}/rc" if api_base else ""
 
@@ -235,7 +282,10 @@ class TelegramBotEngine:
             welcome = (
                 f"👋 <b>Здравствуйте, {name}!</b> Добро пожаловать в <b>AI-Assistant</b>.\n\n"
                 f"🆔 <b>Telegram ID:</b> <code>{tg_id}</code>\n\n"
-                "• <code>/workspace &lt;имя&gt;</code> — переключить область (например <code>/w דוד משה</code>)\n"
+                "💬 <b>Просто напишите любой вопрос</b> — я отвечу с помощью активной модели ИИ и базы знаний.\n\n"
+                "• <code>/mode</code> — режим чата (гибридный / модель / база знаний)\n"
+                "• <code>/clear</code> — очистить историю диалога\n"
+                "• <code>/workspace &lt;имя&gt;</code> — переключить область (например <code>/w my_workspace</code>)\n"
                 "• <code>/dialogs</code> — список файлов\n• <code>/status</code> — статус системы\n"
                 "• <code>/tts &lt;текст&gt;</code> — озвучить текст\n\n"
                 "🎙 Отправляйте голосовые или *.mp3 файлы для распознавания речи и индексации в базе знаний."
@@ -265,7 +315,7 @@ class TelegramBotEngine:
         tg_id = update.effective_user.id
         tg_username = update.effective_user.username or ""
         name = update.effective_user.first_name or "Пользователь"
-        if user_manager.link_telegram_account(token, tg_id, tg_username or name):
+        if user_auth.link_telegram_account(token, tg_id, tg_username or name):
             await update.message.reply_text(
                 f"🎉 <b>Telegram-аккаунт успешно привязан!</b> (ID: <code>{tg_id}</code>)",
                 parse_mode="HTML",
@@ -277,12 +327,12 @@ class TelegramBotEngine:
         """Обрабатывает команду /dialogs для просмотра аудиофайлов."""
         if not update.message or not update.effective_user:
             return
-        user = user_manager.get_user_by_telegram_id(update.effective_user.id, admin_ids=self.admin_ids)
+        user = user_auth.get_user_by_telegram_id(update.effective_user.id, admin_ids=self.admin_ids)
         if not user:
             await update.message.reply_text("🔒 <b>Сначала привяжите аккаунт:</b> <code>/link &lt;КОД&gt;</code>", parse_mode="HTML")
             return
         user_id = user.get("id", 1)
-        audio_dir = user_manager.get_user_directory(user_id, "audio", create=True)
+        audio_dir = user_auth.get_user_directory(user_id, "audio", create=True)
         files = sorted([f for f in audio_dir.glob("*") if f.is_file()], key=lambda p: p.stat().st_mtime, reverse=True)
         if not files:
             await update.message.reply_text("📂 В папке аудиофайлов пока нет записей.", parse_mode="HTML")
@@ -359,6 +409,10 @@ class TelegramBotEngine:
             from plugins.telegram_bot.workspace_handler import handle_workspace_callback
             await handle_workspace_callback(update, context, self._get_workspace_manager())
             return
+        if data.startswith("chat_mode:"):
+            from plugins.telegram_bot.chat_handler import handle_mode_callback
+            await handle_mode_callback(update, context, self._get_chat_service())
+            return
 
         await query.answer()
         if data == "btn_status":
@@ -366,9 +420,9 @@ class TelegramBotEngine:
         elif data == "btn_help":
             await query.edit_message_text(self._get_help_text(), parse_mode="HTML")
         elif data == "btn_dialogs" and update.effective_user:
-            user = user_manager.get_user_by_telegram_id(update.effective_user.id, admin_ids=self.admin_ids)
+            user = user_auth.get_user_by_telegram_id(update.effective_user.id, admin_ids=self.admin_ids)
             if user:
-                files = list(user_manager.get_user_directory(user.get("id", 1), "audio", create=True).glob("*"))
+                files = list(user_auth.get_user_directory(user.get("id", 1), "audio", create=True).glob("*"))
                 await query.edit_message_text(f"📂 <b>Ваши аудиозаписи:</b> {len(files)} шт.", parse_mode="HTML")
             else:
                 await query.edit_message_text("🔒 Сначала привяжите аккаунт через <code>/link &lt;КОД&gt;</code>.", parse_mode="HTML")
@@ -390,14 +444,14 @@ class TelegramBotEngine:
         token_match = _LINK_CODE_RE.match(user_text)
         if token_match:
             token = token_match.group(1).upper()
-            if user_manager.link_telegram_account(token, tg_id, tg_username or user_name):
+            if user_auth.link_telegram_account(token, tg_id, tg_username or user_name):
                 await update.message.reply_text(f"🎉 <b>Telegram-аккаунт успешно привязан!</b> (ID: <code>{tg_id}</code>)", parse_mode="HTML")
             else:
                 await update.message.reply_text("❌ <b>Код недействителен или истек.</b>", parse_mode="HTML")
             return
 
         # 2. Проверяем авторизацию
-        user = user_manager.get_user_by_telegram_id(tg_id, admin_ids=self.admin_ids)
+        user = user_auth.get_user_by_telegram_id(tg_id, admin_ids=self.admin_ids)
         if not user:
             await update.message.reply_text(
                 "🔒 <b>Доступ ограничен!</b>\nОтправьте команду <code>/link &lt;КОД&gt;</code> для авторизации.",
@@ -415,21 +469,14 @@ class TelegramBotEngine:
             await update.message.reply_text(f"⚙️ Событие <b>{user_text}</b> принято для рабочей области «{ws_name}».", parse_mode="HTML")
             return
 
-        # 4. Ответ через модель ИИ
-        if not self.ai_model:
-            await update.message.reply_text(f"🤖 Сообщение получено: «{user_text}»\nОтправьте аудиофайл для транскрибации.")
-            return
-
+        # 4. Ответ через гибридный сервис чата (база знаний рабочей области + активная модель ИИ)
         try:
             await update.message.chat.send_action("typing")
-            if hasattr(self.ai_model, "chat") and callable(self.ai_model.chat):
-                res = self.ai_model.chat(user_text) if asyncio.iscoroutinefunction(self.ai_model.chat) else await asyncio.to_thread(self.ai_model.chat, user_text)
-            elif hasattr(self.ai_model, "generate") and callable(self.ai_model.generate):
-                res = self.ai_model.generate(user_text) if asyncio.iscoroutinefunction(self.ai_model.generate) else await asyncio.to_thread(self.ai_model.generate, user_text)
-            else:
-                res = f"Ответ: {user_text}"
-            reply = await res if asyncio.iscoroutine(res) else str(res)
-            await update.message.reply_text(reply)
+            from plugins.telegram_bot.chat_handler import send_chat_reply
+            chat_service = self._get_chat_service()
+            result = await chat_service.generate_reply(tg_id=tg_id, user_text=user_text)
+            reply_text = str(result.get("text") or "").strip() or "Модель вернула пустой ответ."
+            await send_chat_reply(update.message, reply_text)
         except Exception as exc:
             logger.error(f"[TelegramBotEngine] Ошибка генерации ответа модели: {exc}", exc_info=True)
             await update.message.reply_text(f"⚠️ Ошибка при обращении к ИИ: {exc}")
@@ -440,7 +487,7 @@ class TelegramBotEngine:
 
     def _build_status_message(self) -> str:
         """Формирует текстовое сообщение о статусе бота."""
-        model_name = getattr(self.ai_model, "model_name", type(self.ai_model).__name__) if self.ai_model else "Не подключена"
+        model_name = self._get_chat_service().get_active_model_label()
         bot_uname = self._bot_info.get("username", "Неизвестно")
         running_icon = "🟢 Онлайн" if self.is_running else "🔴 Остановлен"
         return (
@@ -456,13 +503,44 @@ class TelegramBotEngine:
         return (
             "📖 <b>Справка по командам:</b>\n\n"
             "• <code>/start</code> — Главное меню\n"
+            "• <code>/mode [auto|chat|rag]</code> — Режим чата с моделью ИИ\n"
+            "• <code>/clear</code> (<code>/reset</code>) — Очистить историю диалога\n"
             "• <code>/workspace &lt;имя&gt;</code> (алиасы: <code>/w</code>, <code>/ws</code>) — Переключить область\n"
             "• <code>/link &lt;КОД&gt;</code> — Привязать Telegram к веб-профилю\n"
             "• <code>/dialogs</code> — Список аудиофайлов\n"
-            "• <code>/status</code> — Статус бота\n"
+            "• <code>/status</code> — Статус бота и активной модели\n"
             "• <code>/tts &lt;текст&gt;</code> — Озвучить текст\n\n"
+            "💬 Напишите любое текстовое сообщение для диалога с моделью ИИ.\n"
             "🎙 Отправляйте аудиофайлы (*.mp3, голосовые) для сохранения в <code>assets/</code> и транскрибации."
         )
+
+    def _on_polling_error(self, error: TelegramError) -> None:
+        """Обрабатывает ошибки цикла getUpdates без спама стектрейсов при конфликте экземпляров."""
+        if isinstance(error, Conflict):
+            self._conflict_count += 1
+            if self._conflict_count < 3:
+                logger.warning(
+                    f"Telegram-бот: Конфликт getUpdates ({self._conflict_count}/3) — "
+                    "вероятно, запущен другой экземпляр с тем же токеном."
+                )
+                return
+            logger.error(
+                "Telegram-бот: Обнаружен постоянный конфликт getUpdates (запущен другой экземпляр бота). "
+                "Останавливаю локальный polling во избежание зацикливания."
+            )
+            if self._conflict_stop_task is None or self._conflict_stop_task.done():
+                try:
+                    loop = asyncio.get_running_loop()
+                    self._conflict_stop_task = loop.create_task(self.stop())
+                except RuntimeError:
+                    pass
+            return
+
+        self._conflict_count = 0
+        if isinstance(error, NetworkError):
+            logger.warning(f"Telegram-бот: Сетевой сбой polling ({error}). Автоповтор...")
+        else:
+            logger.error(f"Telegram-бот: Ошибка polling: {error}")
 
     async def _handle_error(self, update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Обрабатывает исключения polling-цикла и сетевые сбои Telegram API."""

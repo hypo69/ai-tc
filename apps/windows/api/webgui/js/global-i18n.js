@@ -9,11 +9,11 @@
  *   и автоматическое обновление вновь добавляемых элементов через MutationObserver.
  *
  * File: global-i18n.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-13 11:20:00
+ * Updated: 2026-11-20 15:45:00
  * =============================================================================
  */
 
@@ -32,6 +32,7 @@
 
     init() {
       this.detectLanguage();
+      this.syncRtlDirection();
       this.loadTranslations(this.lang).then(() => {
         this.applyTranslations(document);
         this.startObserver();
@@ -43,6 +44,15 @@
           this.setLanguage(e.newValue);
         }
       });
+    },
+
+    /**
+     * Синхронизирует атрибут dir (ltr/rtl) и lang на корневом элементе документа.
+     */
+    syncRtlDirection() {
+      const isRtl = (this.lang === 'he' || this.lang === 'ar');
+      document.documentElement.setAttribute('dir', isRtl ? 'rtl' : 'ltr');
+      document.documentElement.setAttribute('lang', this.lang);
     },
 
     detectLanguage() {
@@ -129,6 +139,7 @@
     async setLanguage(newLang) {
       if (!SUPPORTED_LANGS.includes(newLang)) return;
       this.lang = newLang;
+      this.syncRtlDirection();
       try {
         localStorage.setItem('app_language', newLang);
       } catch (e) {}

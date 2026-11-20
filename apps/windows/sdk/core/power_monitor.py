@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows SDK Core - Power Monitor
+# Process Name: ai-tc Apps Windows SDK Core - Power Monitor
 # =============================================================================
 # Description:
 #   Модуль отслеживания состояний питания (Power-Aware Monitoring) для Windows.
@@ -15,11 +15,11 @@
 #     status = monitor.get_system_power_status()
 #
 # File: power_monitor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 13:13:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

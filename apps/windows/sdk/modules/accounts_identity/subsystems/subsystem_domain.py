@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows - Subsystem Domain & Directory
+# Process Name: ai-tc Apps Windows - Subsystem Domain & Directory
 # =============================================================================
 # Description:
 #   Подсистема доменной и облачной идентификации: Active Directory, Entra ID (AAD),
@@ -14,11 +14,11 @@
 #     info = subsys.get_domain_info()
 #
 # File: subsystem_domain.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.accounts_identity.subsystems
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Подсистема информации о домене, Active Directory и Entra ID."""

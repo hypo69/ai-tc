@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Diagnostics JSON Parser
+# Process Name: ai-tc Tests - Diagnostics JSON Parser
 # =============================================================================
 # Description:
 #   Модульные тесты для надежного парсинга JSON ответов моделей ИИ,
 #   включая обработку неэкранированных управляющих символов и сценарии исправления.
 #
 # File: test_diagnostics_json_parser.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-16 19:15:00
+# Updated: 2026-11-13 13:45:00
 # =============================================================================
 
 import pytest
@@ -82,6 +82,38 @@ def test_parse_invalid_json_returns_error():
     data, err = _extract_and_parse_json(raw)
     assert data is None
     assert err is not None
+
+
+def test_parse_json_with_nested_markdown_code_blocks():
+    """Проверка парсинга JSON, содержащего вложенные блоки кода (например, powershell внутри developer_advice)."""
+    raw = (
+        "```json\n"
+        "{\n"
+        '  "summary": "### Аудит дисковой подсистемы Windows\\nУтилизация: 81.6%",\n'
+        '  "developer": "DevOps Team",\n'
+        '  "developer_advice": "### Рекомендации\\n\\n```powershell\\nGet-CimInstance Win32_LogicalDisk\\n```"\n'
+        "}\n"
+        "```"
+    )
+    data, err = _extract_and_parse_json(raw)
+    assert err is None, f"Ошибка парсинга: {err}"
+    assert isinstance(data, dict)
+    assert "Get-CimInstance Win32_LogicalDisk" in data["developer_advice"]
+    assert data["developer"] == "DevOps Team"
+
+
+def test_parse_json_with_windows_paths():
+    """Проверка парсинга JSON с неэкранированными путями Windows (C:\\Reports)."""
+    raw = (
+        '{\n'
+        '  "summary": "Диагностика",\n'
+        '  "file_path": "C:\\Reports\\DiskAudit_KB.json"\n'
+        '}'
+    )
+    data, err = _extract_and_parse_json(raw)
+    assert err is None, f"Ошибка парсинга путей Windows: {err}"
+    assert isinstance(data, dict)
+    assert "DiskAudit_KB.json" in data["file_path"]
 
 
 @pytest.mark.asyncio

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Scripts Cli - Installer
+# Process Name: ai-tc Scripts Cli - Installer
 # =============================================================================
 # Description:
-#   Cross-platform installation system for AI Windows Admin.
+#   Cross-platform installation system for ai-tc.
 #
 # Usage Examples:
 #   CLI:
@@ -14,14 +14,14 @@
 #     service = Language()
 #
 # File: installer.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: scripts.cli
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-11 23:37:00
+# Updated: 2026-11-15 18:55:00
 # =============================================================================
 
-"""Cross-platform installation system for AI Windows Admin.
+"""Cross-platform installation system for ai-tc.
 
 Ported from legacy install.ps1 to work on Windows, Linux, and macOS.
 
@@ -51,7 +51,7 @@ class Language(Enum):
     RU = 'ru'
     ES = 'es'
     HE = 'he'
-MESSAGES = {'en': {'welcome': '🎯 AI Windows Admin Installation', 'step_venv': '[1/6] Creating Python virtual environment...', 'step_deps': '[2/6] Installing dependencies...', 'step_certs': '[3/6] Setting up SSL certificates...', 'step_cli': '[4/6] Configuring CLI assistant...', 'step_user': 'Configuring default administrator account...', 'step_verify': '[5/6] Verifying installation...', 'step_models': '[6/6] Downloading AI models (optional)...', 'success': '✅ Installation completed successfully!', 'error': '❌ Installation failed:', 'abort': '⚠️  Installation aborted by user'}, 'ru': {'welcome': '🎯 AI Windows Admin Installation', 'step_venv': '[1/6] Creating Python virtual environment...', 'step_deps': '[2/6] Installing dependencies...', 'step_certs': '[3/6] Setting up SSL certificates...', 'step_cli': '[4/6] Configuring CLI assistant...', 'step_user': 'Настройка учетной записи администратора по умолчанию...', 'step_verify': '[5/6] Verifying installation...', 'step_models': '[6/6] Downloading AI models (optional)...', 'success': '✅ Installation completed successfully!', 'error': '❌ Installation failed:', 'abort': '⚠️  Installation aborted by user'}}
+MESSAGES = {'en': {'welcome': '🎯 ai-tc Installation', 'step_venv': '[1/6] Creating Python virtual environment...', 'step_deps': '[2/6] Installing dependencies...', 'step_certs': '[3/6] Setting up SSL certificates...', 'step_cli': '[4/6] Configuring CLI assistant...', 'step_user': 'Configuring default administrator account...', 'step_verify': '[5/6] Verifying installation...', 'step_models': '[6/6] Downloading AI models (optional)...', 'success': '✅ Installation completed successfully!', 'error': '❌ Installation failed:', 'abort': '⚠️  Installation aborted by user'}, 'ru': {'welcome': '🎯 ai-tc Installation', 'step_venv': '[1/6] Creating Python virtual environment...', 'step_deps': '[2/6] Installing dependencies...', 'step_certs': '[3/6] Setting up SSL certificates...', 'step_cli': '[4/6] Configuring CLI assistant...', 'step_user': 'Настройка учетной записи администратора по умолчанию...', 'step_verify': '[5/6] Verifying installation...', 'step_models': '[6/6] Downloading AI models (optional)...', 'success': '✅ Installation completed successfully!', 'error': '❌ Installation failed:', 'abort': '⚠️  Installation aborted by user'}}
 
 class Installer:
     """Main installer class"""
@@ -255,18 +255,9 @@ class Installer:
     def setup_initial_user(self) -> bool:
         """Configure initial default administrator user"""
         logger.console(self.msg('step_user'))
-        try:
-            python_exe = self.venv_dir / ('Scripts/python.exe' if sys.platform == 'win32' else 'bin/python')
-            user_script = self.install_dir / 'scripts' / 'create_initial_user.py'
-            if user_script.exists():
-                subprocess.run([str(python_exe), str(user_script), '--non-interactive'], capture_output=True, text=True, timeout=30)
-                logger.console('  Administrator account initialized [OK]')
-            logger.console()
-            return True
-        except Exception as e:
-            logger.console(f'  [WARN] Failed to setup initial user: {e}')
-            logger.console()
-            return True
+        logger.console('  Single-user desktop mode initialized [OK]')
+        logger.console()
+        return True
 
     def run(self, skip_models: bool=False, skip_venv: bool=False, skip_deps: bool=False, skip_certs: bool=False) -> int:
         """Run installation"""
@@ -306,7 +297,7 @@ class Installer:
 
 def main():
     """Main function"""
-    parser = argparse.ArgumentParser(description='AI Windows Admin installer', formatter_class=argparse.RawDescriptionHelpFormatter, epilog='\nExamples:\n  python scripts/cli/installer.py\n  python scripts/cli/installer.py --install-light-version\n  python scripts/cli/installer.py --lang en\n  python scripts/cli/installer.py --install-dir /path/to/install\n  python scripts/cli/installer.py --skip-models\n        ')
+    parser = argparse.ArgumentParser(description='ai-tc installer', formatter_class=argparse.RawDescriptionHelpFormatter, epilog='\nExamples:\n  python scripts/cli/installer.py\n  python scripts/cli/installer.py --install-light-version\n  python scripts/cli/installer.py --lang en\n  python scripts/cli/installer.py --install-dir /path/to/install\n  python scripts/cli/installer.py --skip-models\n        ')
     parser.add_argument('--lang', choices=['en', 'ru', 'es', 'he'], default='en', help='Installation language (default: en)')
     parser.add_argument('--install-dir', type=Path, default=None, help='Installation directory')
     parser.add_argument('--install-light-version', '--light', dest='install_light_version', action='store_true', help='Install lightweight version (Gemini/AGY only, no local heavy AI models/providers)')

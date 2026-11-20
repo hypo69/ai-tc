@@ -337,11 +337,11 @@ active_connections = set()
 #     connector.verify_status()
 #
 # File: foundry_connector.py
-# Project: AI Windows Admin
+# Project: ai-tc
 # Package: src.ai.providers.foundry
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 ```
 
@@ -375,7 +375,7 @@ Updated: 2026-10-10 17:35:00
 =============================================================================
 
 .SYNOPSIS
-    Запуск FastAPI-сервера AI Windows Admin с проверкой портов и venv.
+    Запуск FastAPI-сервера ai-tc с проверкой портов и venv.
 
 .DESCRIPTION
     Подготавливает окружение, считывает конфигурацию из config.json/dashboard.json,

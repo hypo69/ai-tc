@@ -12,7 +12,7 @@
  * Файл: apps/windows/api/webgui/tab_windows_admin/panel_users/security_modal.js
  * Пакет: windows/api/webgui/tab_windows_admin
  * Автор: hypo69
- * Updated: 2026-11-01 15:48:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -88,7 +88,7 @@ export async function openUserSecurityModal(username, initialTab = 'security') {
   }
 
   try {
-    const res = await fetch(`/api/sysadmin/accounts/${encodeURIComponent(username)}/uac`);
+    const res = await fetch(`/api/v1/sysadmin/accounts/${encodeURIComponent(username)}/uac`);
     if (!res.ok) throw new Error(`Ошибка ${res.status}: не удалось загрузить параметры пользователя`);
     const cfg = await res.json();
     _currentSecConfig = cfg;
@@ -223,7 +223,7 @@ export async function handleSaveSecurityPolicies() {
       saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Сохранение...';
     }
 
-    const res = await fetch(`/api/sysadmin/accounts/${encodeURIComponent(username)}/uac`, {
+    const res = await fetch(`/api/v1/sysadmin/accounts/${encodeURIComponent(username)}/uac`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -288,7 +288,7 @@ export async function handleSaveUserUac() {
       saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Сохранение...';
     }
 
-    const res = await fetch(`/api/sysadmin/accounts/${encodeURIComponent(username)}/uac`, {
+    const res = await fetch(`/api/v1/sysadmin/accounts/${encodeURIComponent(username)}/uac`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -357,7 +357,7 @@ export async function handleChangePassword() {
       msgEl.innerText = '';
     }
 
-    const res = await fetch(`/api/sysadmin/accounts/${encodeURIComponent(username)}/password`, {
+    const res = await fetch(`/api/v1/sysadmin/accounts/${encodeURIComponent(username)}/password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ new_password: newPwd }),
@@ -395,7 +395,7 @@ export async function handleChangePassword() {
 export async function launchWindowsSetting(target) {
   if (!target) return;
   try {
-    const res = await fetch('/api/sysadmin/launch-setting', {
+    const res = await fetch('/api/v1/sysadmin/launch-setting', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ target }),

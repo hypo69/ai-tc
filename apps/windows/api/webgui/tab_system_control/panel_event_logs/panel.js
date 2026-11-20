@@ -7,7 +7,7 @@
  * - Фильтрацию по уровню важности, Event ID и поисковой строке
  * - Интеллектуальный профиль канала (Log Intelligence)
  * 
- * Updated: 2026-10-31 18:31:00
+ * Updated: 2026-11-20 15:59:00
  */
 
 import { escapeHtml, formatTime, getSeverityClass, adjustMainStreamHeight, initTableResizers, t } from '../common/ui_utils.js';
@@ -65,7 +65,6 @@ export function filterChannels() {
 export async function scanChannels(force = false) {
   const treeEl = document.getElementById('slc-channel-tree-container');
   const countBadge = document.getElementById('slc-channel-count-badge');
-  const sourcesStat = document.getElementById('slc-stat-sources');
 
   if (treeEl && (!cachedChannels || cachedChannels.length === 0)) {
     treeEl.innerHTML = `<div class="text-muted p-2 small"><div class="spinner-border spinner-border-sm text-info me-1"></div>${t('systemControl.searchingChannels', 'Поиск каналов...')}</div>`;
@@ -87,7 +86,6 @@ export async function scanChannels(force = false) {
     });
 
     if (countBadge) countBadge.textContent = cachedChannels.length;
-    if (sourcesStat) sourcesStat.textContent = cachedChannels.length.toLocaleString();
 
     filterChannels();
   } catch (err) {
@@ -165,9 +163,6 @@ export function renderChannelTree(channels) {
       currentFilePath = el.getAttribute('data-path') || '';
       const dispName = el.getAttribute('data-display-name') || currentChannel;
 
-      const statChan = document.getElementById('slc-stat-channel');
-      if (statChan) statChan.textContent = dispName;
-
       const mainTitle = document.getElementById('slc-main-view-title');
       if (mainTitle) mainTitle.innerHTML = `<i class="bi bi-list-columns-reverse me-2 text-primary"></i>${t('systemControl.channelEventsTitle', 'События канала:')} <span class="text-info">${escapeHtml(dispName)}</span>`;
 
@@ -183,11 +178,8 @@ export function renderChannelTree(channels) {
  */
 export async function loadEvents(forceRefresh = false, mode = 'live') {
   const tbody = document.getElementById('slc-table-body');
-  const statEvents = document.getElementById('slc-stat-events');
-  const statIncidents = document.getElementById('slc-stat-incidents');
   const streamBadge = document.getElementById('slc-stream-count-badge');
   const panelRefreshBtn = document.getElementById('btn-slc-panel-refresh');
-  const topRefreshBtn = document.getElementById('btn-slc-refresh');
 
   const cleanChan = currentChannel.replace(/^evt:/, '').split(' (')[0].trim();
 
@@ -212,14 +204,7 @@ export async function loadEvents(forceRefresh = false, mode = 'live') {
       cachedEvents = cached.events;
       updateCacheDateUI(cached.cachedAtFormatted);
 
-      if (statEvents) statEvents.textContent = cachedEvents.length.toLocaleString();
       if (streamBadge) streamBadge.textContent = `${cachedEvents.length} записей`;
-
-      const faults = cachedEvents.filter(e => {
-        const l = (e.level || '').toLowerCase();
-        return l.includes('err') || l.includes('crit');
-      }).length;
-      if (statIncidents) statIncidents.textContent = faults;
 
       renderEventsTable(cachedEvents, mode);
       return;
@@ -232,10 +217,6 @@ export async function loadEvents(forceRefresh = false, mode = 'live') {
 
   if (panelRefreshBtn) {
     const icon = panelRefreshBtn.querySelector('i');
-    if (icon) icon.classList.add('spinner-border', 'spinner-border-sm');
-  }
-  if (topRefreshBtn) {
-    const icon = topRefreshBtn.querySelector('i');
     if (icon) icon.classList.add('spinner-border', 'spinner-border-sm');
   }
 
@@ -278,14 +259,7 @@ export async function loadEvents(forceRefresh = false, mode = 'live') {
     }
     cachedEvents = freshEvents;
 
-    if (statEvents) statEvents.textContent = cachedEvents.length.toLocaleString();
     if (streamBadge) streamBadge.textContent = `${cachedEvents.length} записей`;
-
-    const faults = cachedEvents.filter(e => {
-      const l = (e.level || '').toLowerCase();
-      return l.includes('err') || l.includes('crit');
-    }).length;
-    if (statIncidents) statIncidents.textContent = faults;
 
     renderEventsTable(cachedEvents, mode);
   } catch (err) {
@@ -294,10 +268,6 @@ export async function loadEvents(forceRefresh = false, mode = 'live') {
     isLogRequestInProgress = false;
     if (panelRefreshBtn) {
       const icon = panelRefreshBtn.querySelector('i');
-      if (icon) icon.classList.remove('spinner-border', 'spinner-border-sm');
-    }
-    if (topRefreshBtn) {
-      const icon = topRefreshBtn.querySelector('i');
       if (icon) icon.classList.remove('spinner-border', 'spinner-border-sm');
     }
   }

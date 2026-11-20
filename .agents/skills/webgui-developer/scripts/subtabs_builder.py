@@ -22,11 +22,11 @@ Usage Examples:
      py .agents/skills/webgui-developer/scripts/subtabs_builder.py config-template --out config.json
 
 File: subtabs_builder.py
-Project: ai-windows-admin
+Project: ai-tc
 Package: .agents/skills/webgui-developer/scripts
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-10-28 16:35:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 """
 

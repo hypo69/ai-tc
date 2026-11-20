@@ -1,14 +1,14 @@
 ---
 name: webgui-developer
-description: Архитектурный стандарт, шаблоны, кодогенератор и пошаговые протоколы для разработки, модификации и отладки веб-интерфейсов, вкладок (*_tab) и интеграции с AIModalDialog и tab-core в AI Windows Admin.
+description: Архитектурный стандарт, шаблоны, кодогенератор и пошаговые протоколы для разработки, модификации и отладки веб-интерфейсов, вкладок (*_tab) и интеграции с AIModalDialog и tab-core в ai-tc.
 description_i18n:
-  en: Architectural standards, templates, scaffolding CLI, and step-by-step protocols for developing, modifying, and debugging WebGUI tabs (*_tab) with AIModalDialog and tab-core integration in AI Windows Admin.
-  ru: Архитектурный стандарт, шаблоны, кодогенератор и пошаговые протоколы для разработки, модификации и отладки веб-интерфейсов, вкладок (*_tab) и интеграции с AIModalDialog и tab-core в AI Windows Admin.
+  en: Architectural standards, templates, scaffolding CLI, and step-by-step protocols for developing, modifying, and debugging WebGUI tabs (*_tab) with AIModalDialog and tab-core integration in ai-tc.
+  ru: Архитектурный стандарт, шаблоны, кодогенератор и пошаговые протоколы для разработки, модификации и отладки веб-интерфейсов, вкладок (*_tab) и интеграции с AIModalDialog и tab-core в ai-tc.
 ---
 
 # 🌐 Навык: Разработчик WebGUI (WebGUI Developer)
 
-Этот навык предназначен для проектирования, создания, модификации и поддержки вкладок (`*_tab`) и веб-интерфейсов в экосистеме **AI Windows Admin** (`apps/windows/api/webgui`).
+Этот навык предназначен для проектирования, создания, модификации и поддержки вкладок (`*_tab`) и веб-интерфейсов в экосистеме **ai-tc** (`apps/windows/api/webgui`).
 
 ---
 

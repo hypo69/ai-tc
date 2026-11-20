@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Tshark - Traffic Analyzer
+# Process Name: ai-tc Apps Tshark - Traffic Analyzer
 # =============================================================================
 # Description:
 #   Модуль эвристического анализа сетевого трафика и подсчета статистики пакетов.
@@ -14,11 +14,11 @@
 #     heuristics = analyzer.detect_heuristics(packets)
 #
 # File: analyzer.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.tshark
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 13:22:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

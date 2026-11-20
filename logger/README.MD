@@ -194,7 +194,7 @@ except Exception as ex:
 
 ## Log File Organization
 
-Logs are stored in the system temporary directory (`%TEMP%/ai-windows-admin/logs/` on Windows):
+Logs are stored in the system temporary directory (`%TEMP%/ai-tc/logs/` on Windows):
 
 ```
 logs/
@@ -590,6 +590,6 @@ When adding new features to the logger:
 
 ## License
 
-Part of the AI-Windows-Admin project. © 2026 Development Team.
+Part of the ai-tc project. © 2026 Development Team.
 
 For support and contributions, refer to the main project documentation.

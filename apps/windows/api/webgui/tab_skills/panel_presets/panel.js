@@ -3,7 +3,7 @@
  * @description Панель готовых шаблонов навыков (CLI, REST API, парсер данных, AI-персона, мониторинг, генератор отчетов)
  * @author hypo69
  * @version 1.0.0
- * Updated: 2026-10-17 01:16:00
+ * Updated: 2026-11-12 05:00:00
  */
 
 export const SKILL_PRESETS = [
@@ -38,7 +38,7 @@ export const SKILL_PRESETS = [
     protocol: '1. Parse endpoint parameters and auth tokens.\n2. Send HTTP request with exponential retry.\n3. Parse JSON response and summarize.',
     rules: '- Protect sensitive secrets and auth tokens.\n- Handle rate limits and connection timeouts gracefully.',
     hasScript: true,
-    scriptCode: `# -*- coding: utf-8 -*-\n"""REST API client script."""\nimport os, urllib.request, json\n\ndef query_api(url: str):\n    req = urllib.request.Request(url, headers={"User-Agent": "AI-Windows-Admin/1.0"})\n    with urllib.request.urlopen(req, timeout=10) as resp:\n        return json.loads(resp.read().decode("utf-8"))\n`,
+    scriptCode: `# -*- coding: utf-8 -*-\n"""REST API client script."""\nimport os, urllib.request, json\n\ndef query_api(url: str):\n    req = urllib.request.Request(url, headers={"User-Agent": "ai-tc/1.0"})\n    with urllib.request.urlopen(req, timeout=10) as resp:\n        return json.loads(resp.read().decode("utf-8"))\n`,
     hasRef: true,
     refContent: `# REST API Protocol Guidelines\n\n- Standard timeout: 10s\n- Required headers: User-Agent, Accept\n`,
   },

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Diagnostics Quick Questions & WikiLLM Enrichment
+# Process Name: ai-tc Tests - Diagnostics Quick Questions & WikiLLM Enrichment
 # =============================================================================
 # Description:
 #   Комплексные тесты динамической генерации трех вопросов по теме промпта
@@ -10,11 +10,11 @@
 #   pytest tests/test_diagnostics_quick_questions.py
 #
 # File: test_diagnostics_quick_questions.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 13:16:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

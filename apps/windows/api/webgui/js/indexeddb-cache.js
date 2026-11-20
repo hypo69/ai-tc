@@ -8,11 +8,11 @@
  *   тяжелых системных журналов и отмену сетевых запросов при смене вкладок.
  *
  * File: indexeddb-cache.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/js
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-15 01:42:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

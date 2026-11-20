@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Utils - Common Helpers
+# Process Name: ai-tc Utils - Common Helpers
 # =============================================================================
 # Description:
 #   Общие вспомогательные функции (чтение конфигурации, вывод в консоль
 #   через logger.console, форматирование и безопасная работа с JSON).
 #
 # File: common.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 20:42:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

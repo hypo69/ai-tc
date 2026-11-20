@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Network Discovery SDK & API
+# Process Name: ai-tc Tests - Network Discovery SDK & API
 # =============================================================================
 # Description:
 #   Модульные тесты функциональности сетевого обнаружения Windows,
@@ -8,11 +8,11 @@
 #   REST API эндпоинтов.
 #
 # File: test_network_discovery_sdk.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-15 05:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import json

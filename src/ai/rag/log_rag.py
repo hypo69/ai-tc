@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin AI - Adaptive Log RAG
+# Process Name: ai-tc AI - Adaptive Log RAG
 # =============================================================================
 # Description:
 #   Адаптивный RAG-движок для структурирования, семантического поиска
@@ -14,11 +14,11 @@
 #     results = log_rag.search_chunks(query="DistributedCOM 10016", top_k=5)
 #
 # File: log_rag.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.ai.rag
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 18:12:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

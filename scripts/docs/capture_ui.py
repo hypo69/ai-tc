@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin - UI Capture Tool
+# Process Name: ai-tc - UI Capture Tool
 # =============================================================================
 # Description:
 #   Автоматический обход веб-интерфейса и сохранение скриншотов в PNG.
@@ -13,11 +13,11 @@
 #   py manage_tools.py ui capture http://127.0.0.1:8001/tc --wait 10000 --debug
 #
 # File: tools/capture_ui.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tools
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 22:22:44
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -51,7 +51,7 @@ def build_parser() -> argparse.ArgumentParser:
     :returns: Настроенный парсер аргументов.
     """
     parser = argparse.ArgumentParser(
-        description='Автоматический обход веб-интерфейса AI Windows Admin и сохранение состояний в PNG.'
+        description='Автоматический обход веб-интерфейса ai-tc и сохранение состояний в PNG.'
     )
 
     parser.add_argument(
@@ -221,7 +221,7 @@ async def collect_navigation(
     try:
         drawer_btn = page.locator('#apps-drawer-toggle-btn, .left-drawer-tab-trigger').first
         if await drawer_btn.count() > 0:
-            debug('Открытие боковой панели навигации AI Windows Admin...', debug_enabled)
+            debug('Открытие боковой панели навигации ai-tc...', debug_enabled)
             await drawer_btn.click(timeout=2000)
             await page.wait_for_timeout(800)
     except Exception as exc:

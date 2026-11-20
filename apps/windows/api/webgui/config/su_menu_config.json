@@ -27,7 +27,8 @@
         "icon": "bi-image",
         "tab": "tab-pixelrag",
         "order": 4,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.pixelrag"
       },
       {
         "id": "ai_ecosystem",
@@ -35,7 +36,8 @@
         "icon": "bi-robot",
         "tab": "tab-ai-ecosystem",
         "order": 5,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.aiEcosystem"
       },
       {
         "id": "app_internals",
@@ -43,7 +45,8 @@
         "icon": "bi-code-square",
         "tab": "tab-app-internals",
         "order": 6,
-        "visible": true
+        "visible": true,
+        "i18n": "tabs.appInternals"
       }
     ]
   },

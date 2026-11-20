@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Process Name: AI-Windows-Admin UI - Main Script
+ * Process Name: ai-tc UI - Main Script
  * =============================================================================
  * Description:
  *   Клиентский веб-скрипт модуля main.
@@ -10,11 +10,11 @@
  *     <script src="/src/api/webgui/file_history_ai_search_tab/main.js?v=20261001_v1" type="module"></script>
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: src/api/webgui/file_history_ai_search_tab
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-10 17:35:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -93,7 +93,7 @@
     }
 
     try {
-      const resp = await fetch('/api/windows/file-history/scani18n.t('auto__if_resp_ok_throw_new_error_http_resp_status_currentitems_await_resp_json_renderitemstable_currentitems_if_window_showtoast_window_showtoast_currentitems_length__a2f871')info');
+      const resp = await fetch('/api/v1/windows/file-history/scani18n.t('auto__if_resp_ok_throw_new_error_http_resp_status_currentitems_await_resp_json_renderitemstable_currentitems_if_window_showtoast_window_showtoast_currentitems_length__a2f871')info');
       }
     } catch (err) {
       console.error(i18n.t('auto__filehistoryui__c71a7b'), err);
@@ -170,7 +170,7 @@
     }
 
     try {
-      const resp = await fetch('/api/windows/file-history/index', { method: 'POSTi18n.t('auto__if_resp_ok_throw_new_error_http_resp_status_const_data_await_resp_json_if_window_showtoast_window_showtoast_rag_data_indexed_count__d44568')success');
+      const resp = await fetch('/api/v1/windows/file-history/index', { method: 'POSTi18n.t('auto__if_resp_ok_throw_new_error_http_resp_status_const_data_await_resp_json_if_window_showtoast_window_showtoast_rag_data_indexed_count__d44568')success');
       }
       loadStatus();
     } catch (err) {
@@ -195,7 +195,7 @@
     if (container) container.innerHTML = '';
 
     try {
-      const resp = await fetch('/api/windows/file-history/search', {
+      const resp = await fetch('/api/v1/windows/file-history/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Kernel Protection - UCPD Tests
+# Process Name: ai-tc Apps Windows Modules Kernel Protection - UCPD Tests
 # =============================================================================
 # Description:
 #   Комплексные тесты системного менеджера UCPD (User Choice Protection Driver):
@@ -11,11 +11,11 @@
 #   pytest apps/windows/sdk/modules/kernel_protection/tests/test_ucpd_manager.py -v
 #
 # File: test_ucpd_manager.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.kernel_protection.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 14:40:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 import pytest
@@ -164,7 +164,7 @@ def test_taskbarda_experiment():
 def test_api_ucpd_endpoints(ucpd_client):
     """Проверка REST API эндпоинтов UCPD."""
     # GET status
-    resp = ucpd_client.get("/api/kernel-protection/ucpd/status")
+    resp = ucpd_client.get("/api/v1/kernel-protection/ucpd/status")
     assert resp.status_code == 200
     data = resp.json()
     assert "overall_state" in data
@@ -172,7 +172,7 @@ def test_api_ucpd_endpoints(ucpd_client):
     assert "task" in data
 
     # POST test-taskbarda
-    resp_exp = ucpd_client.post("/api/kernel-protection/ucpd/test-taskbarda")
+    resp_exp = ucpd_client.post("/api/v1/kernel-protection/ucpd/test-taskbarda")
     assert resp_exp.status_code == 200
     exp_data = resp_exp.json()
     assert "is_blocked" in exp_data

@@ -8,11 +8,11 @@
  *   настройку исключений, аудит безопасности и ресайзер таблицы событий.
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_system_inspector/panel_watcher
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 00:21:00
+ * Updated: 2026-11-12 05:00:00
  * =============================================================================
  */
 

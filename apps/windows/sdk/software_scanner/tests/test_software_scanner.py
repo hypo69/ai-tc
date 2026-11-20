@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Software Scanner - Unit Tests
+# Process Name: ai-tc Software Scanner - Unit Tests
 # =============================================================================
 # Description:
 #   Модульные тесты для подсистемы глубокого сканирования ПО: проверка моделей,
@@ -8,11 +8,11 @@
 #   и генератора отчетов.
 #
 # File: test_software_scanner.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.software_scanner.tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 19:20:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 import os

@@ -1,24 +1,24 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Api Routers - endpoints_overview
+# Process Name: ai-tc Apps Windows Api Routers - endpoints_overview
 # =============================================================================
 # Description:
 #   Эндпойнты сводки и диагностик.
 #   Исключительно чтение из базы данных telemetry.db без внешних опросов.
 #
 # File: endpoints_overview.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.api.routers.about_system
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-20 10:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
 
 import asyncio
 from datetime import datetime, timezone
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 

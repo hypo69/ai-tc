@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin UTILS - Image Module
+# Process Name: ai-tc UTILS - Image Module
 # =============================================================================
 # Description:
 #   Утилиты загрузки, сохранения, конвертации и наложения водяных знаков на изображения.
@@ -12,11 +12,11 @@
 #     from src.utils.image import ImageError, save_image
 #
 # File: image.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: src.utils
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:40:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 """Утилиты загрузки, сохранения, конвертации и наложения водяных знаков на изображения."""

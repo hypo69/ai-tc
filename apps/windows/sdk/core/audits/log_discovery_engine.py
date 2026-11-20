@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core Audits - Log Discovery Engine
+# Process Name: ai-tc Apps Windows Core Audits - Log Discovery Engine
 # =============================================================================
 # Description:
 #   Движок обнаружения и классификации всех источников журналов и логов в системе.
@@ -12,11 +12,11 @@
 #     service = LogSource()
 #
 # File: log_discovery_engine.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core.audits
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-13 16:25:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -95,13 +95,13 @@ class LogDiscoveryEngine:
         if 'netsetup' in name_lower:
             return 'Журнал сетевых подключений: настройка сетевых адаптеров и присоединение к домену.'
         if 'fastapi' in name_lower:
-            return 'Внутренний журнал FastAPI веб-сервера AI-Windows-Admin: HTTP маршрутизация, запросы и ответы API.'
+            return 'Внутренний журнал FastAPI веб-сервера ai-tc: HTTP маршрутизация, запросы и ответы API.'
         if 'gemini' in name_lower:
             return 'Журнал AI провайдера Google Gemini: генерации, обращения к моделям и стриминг токенов.'
         if 'errors' in name_lower:
-            return 'Сводный журнал критических ошибок и трейсбеков приложения AI-Windows-Admin.'
+            return 'Сводный журнал критических ошибок и трейсбеков приложения ai-tc.'
         if 'debug' in name_lower:
-            return 'Детальный отладочный журнал низкоуровневых операций ядра AI-Windows-Admin.'
+            return 'Детальный отладочный журнал низкоуровневых операций ядра ai-tc.'
         if 'vscode' in parent_lower or 'code' in parent_lower:
             return f'Журнал среды разработки Visual Studio Code ({file_path.name}): логи расширений и ядра редактора.'
         if 'docker' in parent_lower or 'docker' in name_lower:
@@ -136,12 +136,12 @@ class LogDiscoveryEngine:
             if d.exists() and d.is_dir():
                 all_sources.extend(self._scan_directory(d, category='Application Logs', source_type='app_file', max_depth=3, limit=200))
         try:
-            proj_logs = Path('.').resolve() / 'ai-windows-admin' / 'logs'
+            proj_logs = Path('.').resolve() / 'ai-tc' / 'logs'
             if proj_logs.exists():
-                all_sources.extend(self._scan_directory(proj_logs, category='AI-Windows-Admin Logs', source_type='project_file', max_depth=2, limit=50))
+                all_sources.extend(self._scan_directory(proj_logs, category='ai-tc Logs', source_type='project_file', max_depth=2, limit=50))
             root_logs = Path('.').resolve() / 'logs'
             if root_logs.exists():
-                all_sources.extend(self._scan_directory(root_logs, category='AI-Windows-Admin Logs', source_type='project_file', max_depth=2, limit=50))
+                all_sources.extend(self._scan_directory(root_logs, category='ai-tc Logs', source_type='project_file', max_depth=2, limit=50))
         except Exception:
             pass
         return all_sources

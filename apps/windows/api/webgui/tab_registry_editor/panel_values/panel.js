@@ -1,7 +1,7 @@
 /**
  * Модуль параметров (values) реестра, их редактирования и интеграции с ИИ-диагностикой.
  * Файл: apps/windows/api/webgui/tab_registry_editor/panel_values/panel.js
- * Updated: 2026-11-01 14:38:00
+ * Updated: 2026-11-20 16:45:00
  */
 
 import { escapeHtml } from '../common/ui_utils.js';
@@ -223,7 +223,7 @@ export async function saveModalValue(currentHive, currentPath, onReload) {
       create_backup: create_backup
     };
 
-    const res = await fetch('/api/registry/value', {
+    const res = await fetch('/api/v1/registry/value', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -260,7 +260,7 @@ export async function confirmDeleteValue(name, currentHive, currentPath, onReloa
   }
 
   try {
-    const res = await fetch('/api/registry/value', {
+    const res = await fetch('/api/v1/registry/value', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

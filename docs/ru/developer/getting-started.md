@@ -24,8 +24,8 @@ tests/                   # 80+ test files
 ## Setup
 
 ```powershell
-git clone https://github.com/hypo69/ai-windows-admin.git
-cd ai-windows-admin
+git clone https://github.com/hypo69/ai-tc.git
+cd ai-tc
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt

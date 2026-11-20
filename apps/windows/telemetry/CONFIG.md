@@ -1,6 +1,6 @@
 # Конфигурация подсистемы телеметрии Windows (`config.json`)
 
-Файл `config.json` (по умолчанию располагающийся в `%ProgramData%/AI-Windows-Admin/apps/windows/telemetry/config.json` для всей системы) является центральным конфигурационным файлом для системы сбора, буферизации, аудита и мониторинга телеметрии Windows в проекте AI-Windows-Admin.
+Файл `config.json` (по умолчанию располагающийся в `%ProgramData%/ai-tc/telemetry/config.json` для всей системы) является центральным конфигурационным файлом для системы сбора, буферизации, аудита и мониторинга телеметрии Windows в проекте ai-tc.
 
 Управление загрузкой, валидацией и модификацией параметров осуществляется модулем [`telemetry_config.py`](file:///c:/Users/onela/AppData/Local/ai-tc/apps/windows/telemetry/telemetry_config.py) (класс `TelemetryConfigManager`).
 
@@ -25,8 +25,8 @@
 
 | Параметр | Тип | Значение по умолчанию | Описание |
 |---|---|---|---|
-| `storage.data_path` | `string` | `"%ProgramData%/AI-Windows-Admin/apps/windows/telemetry/logs"` | Путь к каталогу хранения файлов и логов общесистемной телеметрии. |
-| `storage.db_path` | `string` | `"%ProgramData%/AI-Windows-Admin/apps/windows/telemetry/logs/telemetry.db"` | Путь к основной базе данных SQLite телеметрии. |
+| `storage.data_path` | `string` | `"%ProgramData%/ai-tc/telemetry"` | Путь к каталогу хранения файлов и базы данных общесистемной телеметрии. |
+| `storage.db_path` | `string` | `"%ProgramData%/ai-tc/telemetry/telemetry.db"` | Путь к основной базе данных SQLite телеметрии. |
 | `mode` | `string` | `"hybrid"` | Общий режим работы: `"minimal"`, `"hybrid"`, `"full"`. |
 | `buffer_mode` | `string` | `"memory"` | Режим накопления данных: `"memory"`, `"file"`, `"direct"`. |
 | `buffer_size` | `integer` | `50` | Максимальное количество записей в буфере перед автоматическим сбросом в БД. |
@@ -195,8 +195,7 @@
 |---|---|---|
 | `telemetry_mode` | `audit` | `audit` / `live_stream` / `both` / `tc` (см. раздел 2) |
 | `light_poll_interval_seconds` / `heavy_poll_interval_seconds` | `6.0` / `90.0` | Лёгкий и тяжёлый опрос |
-| `heavy_polls_intervals.*` | см. файл | Интервалы отдельных тяжёлых проб: `hardware_audit`, `startup_audit`, `extended_audit`, `defender_audit`, `process_activity_sync`, `software_audit`, `wmi`, `smart`, `handles`, `network_ports`, `network_activity`, `disk_scan` (`0` — отключено) |
+| `heavy_polls_intervals.*` | см. файл | Интервалы отдельных тяжёлых проб: `hardware_audit`, `startup_audit`, `extended_audit`, `defender_audit`, `process_activity_sync`, `software_audit`, `wmi`, `smart`, `handles`, `network_ports`, `network_activity`, `disk_scan`, `internet_speed` (`0` — отключено) |
 
 ---
-
-**Updated:** 2026-10-31 16:25:00
+**Updated:** 2026-11-12 05:00:00

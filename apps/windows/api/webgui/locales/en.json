@@ -36,14 +36,54 @@
     "googleAccounts": "🌐 Google Accounts",
     "helpdesk": "🛟 Helpdesk",
     "network": "🌐 Network Terminal",
-    "systemInspector": "🖥️ System Inspector",
+    "systemInspector": "Hardware Load",
     "aboutSystem": "ℹ️ About System",
     "scenarios": "💬🎬 Chat & Scenarios",
     "userDirectories": "📁 User Directories",
     "userDirectoriesLong": "📁 User Directories & Storage",
     "fileRecovery": "🗂️ File Recovery",
     "startupAuditor": "🚀 Startup Auditor",
-    "system32Commands": "🛠️ System32 Commands"
+    "system32Commands": "🛠️ System32 Commands",
+    "processesLoadInspector": "Process Activity",
+    "softwareMonitor": "Installed Software",
+    "defenderFirewall": "Defender & Firewall",
+    "windowsAdmin": "Windows Sysadmin",
+    "userEnvironment": "User Environment",
+    "niniteUpdater": "Install Ninite",
+    "registryEditor": "Registry Editor",
+    "peripherals": "5. Network & Peripherals",
+    "kernelProtection": "Kernel Protection & Drivers",
+    "pixelrag": "PixelRAG",
+    "fileHistorySearch": "File History AI Search",
+    "storageManagement": "Storage & Drive Wear",
+    "softwareTransparency": "Software Transparency",
+    "softwareManager": "Package Manager (Winget)",
+    "powerLifecycle": "Power Sessions",
+    "telemetryResearch": "Telemetry Research",
+    "processLeaks": "1. Leaks & Micro-freezes",
+    "smartRestore": "Smart Restore (Advisor)",
+    "bootRecovery": "Boot, WinRE & SFC/DISM Maintenance",
+    "servicesManager": "Windows Services",
+    "taskScheduler": "Task Scheduler",
+    "taskbar": "Taskbar & Windows",
+    "processManager": "Process Manager",
+    "themeEditor": "Theme Editor",
+    "forensics": "2. Behavioral Forensics",
+    "throttling": "3. Core Quality & Throttling",
+    "soundSettings": "Sound & Volume",
+    "cloudflared": "Cloudflare Tunnel (kino)",
+    "postInstallWizard": "Post-Install Wizard",
+    "sitemap": "Sitemap",
+    "aiEcosystem": "AI Ecosystem (Agents, Skills, MCP)",
+    "appInternals": "App Internals",
+    "diskSpeed": "Disk Speed (DiskSpd)",
+    "focusSettings": "Focus Settings",
+    "storageWear": "Storage & Battery Wear",
+    "userAssistant": "User Assistant",
+    "windowsBackup": "Windows Backup",
+    "issues": "🐙 GitHub Issues",
+    "gcloud": "☁️ Google Cloud Monitor",
+    "websiteMonitor": "📊 Website Intelligence"
   },
   "tracing": {
     "refresh": "Refresh active ETW sessions and counters",
@@ -126,7 +166,19 @@
     "themeDark": "🌙 Dark",
     "themeTerminal": "📟 Terminal",
     "themeSystem": "🌓 System",
-    "close": "Close"
+    "close": "Close",
+    "tooltipDelayLabel": "Tooltip Delay Interval",
+    "tooltipDelayHint": "Delay interval before custom tooltip appears (default 500 ms / 0.5 sec)",
+    "tooltipsEditorBtn": "Tooltips Editor",
+    "tooltipsEditorDesc": "View, edit, and audit interface tooltips and knowledge base",
+    "subtabProfileLabel": "Profile & Account",
+    "subtabProfileTitle": "Manage Google account and user profile",
+    "subtabAppearanceLabel": "Appearance & Language",
+    "subtabAppearanceTitle": "Choose theme, interface language and theme editor",
+    "subtabModelLabel": "AI Model",
+    "subtabModelTitle": "Check availability and status of active AI model",
+    "subtabSystemLabel": "System & Tooltips",
+    "subtabSystemTitle": "Browser cache manager, interactive tour and tooltip delay settings"
   },
   "auth": {
     "googleSignIn": "Sign in with Google",
@@ -388,11 +440,11 @@
     "defLoading": "Loading Windows Defender events...",
     "defNoEvents": "No Windows Defender events found."
   },
-  "app_title": "AI-Windows-Admin",
+  "app_title": "ai-tc",
   "wizard": {
     "enabled": true,
     "title": "Interactive Navigation Wizard",
-    "description": "Detailed guides and panel tooltips across all hubs in AI-Windows-Admin.",
+    "description": "Detailed guides and panel tooltips across all hubs in ai-tc.",
     "tabs": {
       "tab-about-system": {
         "title": "About System",
@@ -703,7 +755,19 @@
     "subtabTooltipsEditorLabel": "Tooltips Editor",
     "subtabTooltipsEditorTitle": "Editor for system smart tooltips and knowledge base hints",
     "subtabHelpPagesEditorLabel": "Help Pages Editor",
-    "subtabHelpPagesEditorTitle": "Editor for atomic help blocks and composite pages"
+    "subtabHelpPagesEditorTitle": "Editor for atomic help blocks and composite pages",
+    "subtabDbManagerLabel": "DB Manager",
+    "subtabDbManagerTitle": "Database Workbench, hosting tools, compression, backups and SQL console",
+    "blockDbOverviewLabel": "Parameters & Overview",
+    "blockDbOverviewTitle": "View parameters, connectivity status, size, and table schemas (SQLite & Hostinger MariaDB)",
+    "blockDbConsoleLabel": "SQL Console",
+    "blockDbConsoleTitle": "Direct execution of SQL statements (SELECT, INSERT, UPDATE, DELETE) with results viewer",
+    "blockDbCompressLabel": "Compression & Optim.",
+    "blockDbCompressTitle": "Storage compression for SQLite (VACUUM) and table optimization for Hostinger MariaDB",
+    "blockDbExportLabel": "Hosting Export",
+    "blockDbExportTitle": "Export tables and data from Hostinger MariaDB and SQLite in SQL, JSON, and CSV formats",
+    "blockDbBackupsLabel": "Backups",
+    "blockDbBackupsTitle": "Create atomic backups with ZIP compression, download, and safe restore"
   },
   "tooltips": {
     "workspace": {
@@ -1655,6 +1719,92 @@
       "summary": "Inspect ai-tc internal application logs",
       "category": "Logging",
       "icon": "📜"
+    },
+    "create_workspace": {
+      "title": "Create New Workspace",
+      "summary": "Creates an isolated workspace with Git tracking in-place without moving files.",
+      "category": "Workspace",
+      "icon": "➕"
+    },
+    "diff": {
+      "title": "Version Diff",
+      "summary": "Intelligent visualizer of diffs between commits, snapshots, and branches with Smart Blame analysis.",
+      "category": "Versioning",
+      "icon": "⚖️"
+    },
+    "git_engine": {
+      "title": "Git Engine",
+      "summary": "High-speed local Git engine for in-place file tracking and snapshot management without moving assets.",
+      "category": "Versioning",
+      "icon": "🌿"
+    },
+    "gmail": {
+      "title": "Gmail Manager",
+      "summary": "Integration with Gmail infrastructure: message search, categorizing, fact extraction, and report dispatch.",
+      "category": "Communications",
+      "icon": "📧"
+    },
+    "graph": {
+      "title": "Temporal Graph",
+      "summary": "Interactive temporal knowledge graph of architectural entities, file dependencies, and knowledge links.",
+      "category": "Analytics",
+      "icon": "🕸️"
+    },
+    "models": {
+      "title": "AI Models & Providers",
+      "summary": "Registry and dispatcher for AI models: Google Gemini, Foundry Local, Ollama, ONNX/DirectML.",
+      "category": "AI Environment",
+      "icon": "🧠"
+    },
+    "obsidian": {
+      "title": "Obsidian Vault",
+      "summary": "Exports documents, entities, and workspace links into Obsidian note vault format with Markdown and graph support.",
+      "category": "Integration",
+      "icon": "💎"
+    },
+    "plugins": {
+      "title": "Plugin Manager",
+      "summary": "Manager for extension plugins and assistant enhancement modules with isolated lifecycles.",
+      "category": "Extensions",
+      "icon": "🧩"
+    },
+    "rag": {
+      "title": "RAG Search",
+      "summary": "Global five-stage RAG search based on FAISS vector embeddings, fact retrieval, and semantic documentation analysis.",
+      "category": "Knowledge Base",
+      "icon": "🔍"
+    },
+    "timeline": {
+      "title": "Project Timeline",
+      "summary": "Chronological timeline of codebase evolution, tracking key architectural decisions and milestones.",
+      "category": "Timeline",
+      "icon": "⏱️"
+    },
+    "verification": {
+      "title": "Verification Circuit",
+      "summary": "Automated two-step verification circuit checking integrity, architectural invariants, and contracts.",
+      "category": "Verification",
+      "icon": "✅"
+    },
+    "subtabs": {
+      "catalogLabel": "Catalog",
+      "catalogTitle": "Interface Tooltips Catalog",
+      "editorLabel": "Editor",
+      "editorTitle": "Selected Tooltip Editor",
+      "kbLabel": "Knowledge Base",
+      "kbTitle": "Manage Tooltips Knowledge Base (SQLite)",
+      "auditLabel": "Audit",
+      "auditTitle": "Interface Tooltips Coverage Audit",
+      "panel-editor-lang-ruTitle": "Russian language",
+      "panel-editor-lang-enTitle": "English language",
+      "panel-editor-lang-heTitle": "Hebrew language",
+      "panel-editor-lang-ukTitle": "Ukrainian language"
+    },
+    "editor": {
+      "btnAutoTranslate": "Auto-Translate",
+      "btnAutoTranslateTitle": "Translate tooltip to all languages using local dictionary",
+      "btnSave": "Save",
+      "btnSaveTitle": "Save tooltip changes"
     }
   },
   "logSettingsHelp": {
@@ -2006,5 +2156,51 @@
       "w6Title": "Widgets 6 & 7: Sockets & File Feed",
       "w6Desc": "Network connections (TCP/UDP, remote host, port, state) and feed of recent file I/O operations."
     }
+  },
+  "aboutSystem": {
+    "title": "Windows System Information",
+    "subtitle": "OS, motherboard, CPU, BIOS, Windows build specifications and hardware telemetry",
+    "kpiPlatformOs": "Platform & OS",
+    "kpiSecurity": "System Security",
+    "kpiRestorePoints": "Restore Points",
+    "kpiStorageC": "System Storage (C:)",
+    "hardwareOsTitle": "Hardware & OS Configuration",
+    "userEnvSecurityTitle": "User Environment, Network & Security",
+    "storageVolumesTitle": "Storage Volumes & Partitions",
+    "disksWearTitle": "SSD/NVMe Storage Health & Wear (Wear & SMART)",
+    "batteryWearTitle": "Battery Health & Degradation",
+    "hardwareSpecTitle": "Full Hardware Specification",
+    "thVolumeDisk": "Volume / Drive (Label)",
+    "thFs": "FS",
+    "thTotal": "Total",
+    "thUsed": "Used",
+    "thFree": "Free",
+    "thUsage": "Usage",
+    "thSmart": "SMART",
+    "loadingDisks": "Loading storage volumes...",
+    "noDisksFound": "No storage volumes detected",
+    "drivesSuffix": "Drives",
+    "btnHistoryRefresh": "Refresh history from database",
+    "btnDisksWearRefresh": "Refresh drives",
+    "btnDisksWearRefreshTitle": "Refresh storage telemetry",
+    "btnBatteryRefresh": "Refresh battery",
+    "btnBatteryRefreshTitle": "Refresh battery deep telemetry and power state",
+    "btnOpenRegionalTitle": "Configure network, timezone, language, locale and user",
+    "btnRegionalSettings": "Configure",
+    "netProfilePrivate": "Private",
+    "netProfilePublic": "Public",
+    "netProfilePrivateTitle": "Make network trusted (private)",
+    "netProfilePublicTitle": "Restrict PC visibility (public)",
+    "netDiscoveryOn": "On",
+    "netDiscoveryOff": "Off",
+    "netDiscoveryOnTitle": "Enable network discovery",
+    "netDiscoveryOffTitle": "Disable network discovery",
+    "toggleTreeCategories": "Expand all / Collapse all categories",
+    "searchComponentsPlaceholder": "Search components...",
+    "loadingSpec": "Loading hardware specification..."
+  },
+  "fileEditor": {
+    "directionLtrTitle": "Left-to-right text direction (LTR)",
+    "directionRtlTitle": "Right-to-left text direction (RTL)"
   }
 }

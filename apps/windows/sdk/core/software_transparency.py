@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Core - Software Transparency
+# Process Name: ai-tc Apps Windows Core - Software Transparency
 # =============================================================================
 # Description:
 #   Модуль инспекции прозрачности ПО, анализа конфигураций, мест хранения и сетевых доменов.
@@ -10,11 +10,11 @@
 #     from apps.windows.sdk.core.software_transparency import init_software_transparency_router
 #
 # File: software_transparency.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 17:59:00
+# Updated: 2026-11-13 15:30:00
 # =============================================================================
 
 from __future__ import annotations
@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query
 from logger import logger
+from src.utils.jjson import j_dumps
 from apps.windows.telemetry.sqlite import TelemetryStorage
 from apps.windows.sdk.core.software_transparency_analyzers import (
     ConfigFile,
@@ -69,8 +70,9 @@ class GeminiResearcher:
 
     def _parse_json(self, text: str, app_name: str) -> Optional[GeminiAppResearch]:
         try:
-            clean = text.strip().strip('`').replace('json', '').strip()
-            data = json.loads(clean)
+            data = j_dumps(text, exc_info=False)
+            if not isinstance(data, dict):
+                return None
             return GeminiAppResearch(
                 app_name=app_name,
                 summary=data.get('summary', ''),

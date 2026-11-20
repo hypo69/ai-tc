@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules Taskbar - Router
+# Process Name: ai-tc Apps Windows Modules Taskbar - Router
 # =============================================================================
 # Description:
 #   FastAPI REST API маршрутизатор для управления панелью задач, окнами
@@ -13,11 +13,11 @@
 #     router = init_router()
 #
 # File: router.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.taskbar
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-01 14:22:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

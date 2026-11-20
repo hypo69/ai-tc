@@ -7,11 +7,11 @@
 #   Позволяет запускать микроприложение изолированно на выделенном порту.
 #
 # File: server.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.code_helper
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 14:28:00
+# Updated: 2026-11-20 16:45:00
 # =============================================================================
 
 from __future__ import annotations
@@ -61,7 +61,7 @@ def create_app() -> FastAPI:
             "version": "1.0.0",
             "status": "ready",
             "docs": "/docs",
-            "api_prefix": "/api/code-helper",
+            "api_prefix": "/api/v1/code-helper",
         }
 
     return app

@@ -1,10 +1,10 @@
 /**
  * Вспомогательные утилиты интерфейса конфигуратора телеметрии.
  * Файл: apps/windows/api/webgui/tab_telemetry_config/common/ui_utils.js
- * Updated: 2026-10-17 01:55:00
+ * Updated: 2026-11-20 16:45:00
  */
 
-export const API_BASE = '/api/windows/telemetry/config';
+export const API_BASE = '/api/v1/windows/telemetry/config';
 
 export const SENSOR_META = {
   cpu: { name: 'Процессор (CPU)', icon: 'bi-cpu', defaultInterval: 5.0, defaultMetrics: ['temperature', 'load', 'clocks'] },

@@ -7,11 +7,11 @@
  *   установленными через Microsoft Store (AppX/MSIX/msstore).
  *
  * File: panel_store/panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: apps/windows/api/webgui/tab_software_monitor/panel_store
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-18 09:30:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -142,7 +142,7 @@ export async function fetchStorePackages(forceRefresh = false) {
   }
 
   try {
-    const url = forceRefresh ? '/api/software-manager/store?refresh=true' : '/api/software-manager/store';
+    const url = forceRefresh ? '/api/v1/software-manager/store?refresh=true' : '/api/v1/software-manager/store';
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -243,7 +243,7 @@ function applyStoreFilter() {
       const act = btn.dataset.action;
       if (window.toast) window.toast.info('Microsoft Store', `${act}: ${pkgId}`);
       try {
-        const res = await fetch('/api/software-manager/action', {
+        const res = await fetch('/api/v1/software-manager/action', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ package_id: pkgId, action: act, dry_run: false, confirmed_by_user: true })

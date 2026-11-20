@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Modules System_Checkpoints Core - Freshness Auditor
+# Process Name: ai-tc Apps Windows Modules System_Checkpoints Core - Freshness Auditor
 # =============================================================================
 # Description:
 #   Модуль аудита актуальности образов восстановления и системного дрейфа (System Drift).
@@ -12,11 +12,11 @@
 #     service = FreshnessAuditor()
 #
 # File: freshness_auditor.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.sdk.modules.system_checkpoints.core
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-10 17:35:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

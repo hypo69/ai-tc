@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Apps Windows Telemetry Sqlite - TelemetryInventoryReaderMixin
+# Process Name: ai-tc Apps Windows Telemetry Sqlite - TelemetryInventoryReaderMixin
 # =============================================================================
 # Description:
 #   Миксин чтения инвентаризации и сэмплов оборудования из консолидированных
@@ -8,11 +8,11 @@
 #   process_file_events, incidents и system_snapshots.
 #
 # File: reader_inventory.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: apps.windows.telemetry.sqlite
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-03 14:05:00
+# Updated: 2026-11-20 15:05:00
 # =============================================================================
 
 from __future__ import annotations
@@ -549,13 +549,20 @@ class TelemetryInventoryReaderMixin:
                     "production_date": it.get("production_date"),
                 })
             if monitors:
-                monitors.reverse()
-                return monitors
+                # Игнорируем фиктивную заглушку Primary Monitor: если в инвентаре только она,
+                # продолжаем поиск реальных дисплеев в system_snapshots и живом SystemCollector
+                non_dummy = [
+                    m for m in monitors
+                    if not (m.get("name") == "Primary Monitor" and m.get("adapter") in ("", "Display Adapter"))
+                ]
+                if non_dummy:
+                    non_dummy.reverse()
+                    return non_dummy
 
         with self._cm.lock, self._cm.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT monitors_json FROM system_snapshots WHERE monitors_json IS NOT NULL ORDER BY id DESC LIMIT 5;"
+                "SELECT monitors_json FROM system_snapshots WHERE monitors_json IS NOT NULL ORDER BY id DESC LIMIT 10;"
             )
             rows = cursor.fetchall()
             for row in rows:
@@ -567,10 +574,41 @@ class TelemetryInventoryReaderMixin:
                                 m for m in loaded
                                 if isinstance(m, dict) and "windisc" not in str(m.get("device", "")).lower()
                             ]
-                            if valid:
-                                return valid
+                            non_dummy_snap = [
+                                m for m in valid
+                                if not (m.get("name") == "Primary Monitor" and m.get("adapter") in ("", "Display Adapter"))
+                            ]
+                            if non_dummy_snap:
+                                return non_dummy_snap
                     except Exception:
                         pass
+
+        # Живой fallback через SystemCollector, если в БД нет записей или только заглушка
+        try:
+            from apps.windows.telemetry.collector import SystemCollector
+            live_mons = SystemCollector().get_monitors()
+            valid_live = [
+                {
+                    "device": m.device,
+                    "name": m.name,
+                    "vendor": m.vendor,
+                    "adapter": m.adapter,
+                    "width": m.width,
+                    "height": m.height,
+                    "frequency_hz": m.frequency_hz,
+                    "bits_per_pixel": m.bits_per_pixel,
+                    "is_primary": m.is_primary,
+                    "orientation": m.orientation,
+                    "serial_number": m.serial_number,
+                    "production_date": None,
+                }
+                for m in live_mons
+                if "windisc" not in str(m.device).lower() and m.name != "Primary Monitor"
+            ]
+            if valid_live:
+                return valid_live
+        except Exception:
+            pass
         return []
 
     def get_hardware_components(

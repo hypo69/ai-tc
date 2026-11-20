@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Root - Manage Tools CLI
+# Process Name: ai-tc Root - Manage Tools CLI
 # =============================================================================
 # Description:
-#   Универсальный диспетчер командной строки (CLI) для администрирования AI Windows Admin.
+#   Универсальный диспетчер командной строки (CLI) для администрирования ai-tc.
 #
 #   Зачем нужен этот модуль:
 #     1. Единый CLI-интерфейс: консолидация управления навыками (skills), базой знаний (rag),
@@ -28,11 +28,11 @@
 #     py manage_tools.py docs generate
 #
 # File: manage_tools.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: root
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-10 18:24:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations
@@ -85,7 +85,7 @@ def main() -> int:
     """
     parser = argparse.ArgumentParser(
         prog='manage_tools.py',
-        description='Universal CLI for managing ai-windows-admin project tools and agents',
+        description='Universal CLI for managing ai-tc project tools and agents',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Examples:

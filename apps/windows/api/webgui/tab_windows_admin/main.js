@@ -11,7 +11,7 @@
  * Файл: apps/windows/api/webgui/tab_windows_admin/main.js
  * Пакет: windows/api/webgui/tab_windows_admin
  * Автор: hypo69
- * Updated: 2026-11-12 02:30:00
+ * Updated: 2026-11-20 15:51:00
  * =============================================================================
  */
 
@@ -34,15 +34,17 @@ import {
   deleteUserAction,
   setCurrentUserFilter,
   getCurrentUserFilter
-} from './panel_users/panel.js';
+} from './panel_users/panel.js?v=20261120_v1';
 import { initUserResourcesModalEvents } from './panel_users/resources_modal.js';
 import { initUserSecurityModalEvents } from './panel_users/security_modal.js';
 import {
   loadGroups,
   filterGroupsTable,
   handleGroupRollover,
-  viewGroupMembers
-} from './panel_groups/panel.js';
+  viewGroupMembers,
+  openGroupMembersModal,
+  bindGroupsEvents
+} from './panel_groups/panel.js?v=20261120_v2';
 import {
   loadSecurityEvents,
   applyEventsFilter,
@@ -56,12 +58,12 @@ import {
   runServiceLogonCheck,
   runRdpCheck,
   runOrphanedCheck
-} from './panel_audit_sam/panel.js';
+} from './panel_audit_sam/panel.js?v=20261120_v1';
 import {
   handleExplainPid,
   initPidInspector,
   loadProcessesList
-} from './panel_pid_inspector/panel.js';
+} from './panel_pid_inspector/panel.js?v=20261120_v1';
 import { loadCatalog, filterCatalogTable } from './panel_catalog/panel.js';
 import {
   inspectAcl,
@@ -109,8 +111,8 @@ export function normalizeSubTabId(rawId) {
   if (s.includes('user') || s.includes('account')) return 'users';
   if (s.includes('group')) return 'groups';
   if (s.includes('event') || s.includes('log')) return 'events';
-  if (s.includes('secur') || s.includes('policy') || s.includes('audit')) return 'security';
-  if (s.includes('pid') || s.includes('proc') || s.includes('инспецтор') || s.includes('инспектор')) return 'pid-инспецтор';
+  if (s.includes('secur') || s.includes('policy') || s.includes('audit') || s.includes('sam')) return 'security';
+  if (s.includes('pid') || s.includes('proc') || s.includes('inspector') || s.includes('инспектор')) return 'pid-inspector';
   if (s.includes('cat') || s.includes('soft')) return 'catalog';
   if (s.includes('acl') || s.includes('perm')) return 'acl';
   if (s.includes('ucpd')) return 'ucpd';
@@ -195,7 +197,7 @@ export async function fetchActiveSubTabOnly(subtabId) {
     case 'security':
       await loadPasswordPolicy();
       break;
-    case 'pid-инспецтор':
+    case 'pid-inspector':
     case 'pid':
       await initPidInspector();
       break;
@@ -220,8 +222,8 @@ export function switchWindowsAdminSubTab(subtabName, updateUrl = true) {
   const norm = normalizeSubTabId(subtabName);
   const btnId = `subtab-winadmin-${norm}-btn`;
   let btn = document.getElementById(btnId);
-  if (!btn && (norm === 'pid-инспецтор' || norm === 'pid')) {
-    btn = document.getElementById('subtab-winadmin-pid-btn') || document.getElementById('subtab-winadmin-pid-инспецтор-btn');
+  if (!btn && (norm === 'pid-inspector' || norm === 'pid')) {
+    btn = document.getElementById('subtab-winadmin-pid-btn') || document.getElementById('subtab-winadmin-pid-inspector-btn');
   }
   if (btn && window.bootstrap) {
     new window.bootstrap.Tab(btn).show();
@@ -350,6 +352,9 @@ function bindEvents() {
   const btnOrphaned = document.getElementById('btn-check-orphaned');
   if (btnOrphaned) btnOrphaned.onclick = runOrphanedCheck;
 
+  const btnRefreshSamPolicy = document.getElementById('btn-refresh-sam-policy');
+  if (btnRefreshSamPolicy) btnRefreshSamPolicy.onclick = () => loadPasswordPolicy();
+
   initPidInspector();
 
   // Инициализация событий модального окна ресурсов пользователя
@@ -413,6 +418,7 @@ export async function initWindowsAdminTab() {
 
   if (!isWinAdminInitialized) {
     bindEvents();
+    bindGroupsEvents();
     bindAclEvents();
     bindUcpdEvents();
     isWinAdminInitialized = true;
@@ -458,6 +464,7 @@ window.openUserSecurityModal = openUserSecurityModal;
 window._deleteUserAction = deleteUserAction;
 window._handleGroupRollover = handleGroupRollover;
 window._viewGroupMembers = viewGroupMembers;
+window.openGroupMembersModal = openGroupMembersModal;
 window._showEventDetail = showEventDetail;
 window.applyAclTemplate = applyAclTemplate;
 window.inspectAcl = inspectAcl;

@@ -13,11 +13,11 @@
  *     import { initSecurityAclTab } from '/windows/api/webgui/tab_security_acl/main.js';
  *
  * File: main.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_security_acl
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-16 14:55:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -35,7 +35,7 @@ export async function inspectPathAcl() {
   const path = pathInput ? pathInput.value.trim() : 'C:\\Windows\\System32';
 
   try {
-    const res = await fetch(`/api/security-acl/summary?path=${encodeURIComponent(path)}`);
+    const res = await fetch(`/api/v1/security-acl/summary?path=${encodeURIComponent(path)}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderAclSummary(data);
@@ -91,7 +91,7 @@ async function executeAclAction(customAction = null) {
   if (output) output.textContent = `[${new Date().toLocaleTimeString()}] Выполнение ${action} для "${path}"...\n`;
 
   try {
-    const res = await fetch('/api/security-acl/action', {
+    const res = await fetch('/api/v1/security-acl/action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: path, user: user, permission: perm, action: action, dry_run: dryRun })

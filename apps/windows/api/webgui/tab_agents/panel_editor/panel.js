@@ -8,11 +8,11 @@
  *   ползунка температуры и вставки типовых шаблонов промптов (ReAct / JSON).
  *
  * File: panel.js
- * Project: ai-windows-admin
+ * Project: ai-tc
  * Package: windows/api/webgui/tab_agents/panel_editor
  * Author: hypo69
  * Copyright: © 2026 hypo69
- * Updated: 2026-10-17 01:37:00
+ * Updated: 2026-11-20 16:45:00
  * =============================================================================
  */
 
@@ -232,14 +232,14 @@ export async function handleSaveAgent() {
 
   try {
     if (mode === 'create') {
-      await fetchJson('/api/agents', {
+      await fetchJson('/api/v1/agents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       showToast(`Агент "${name}" успешно создан!`, 'success');
     } else {
-      await fetchJson(`/api/agents/${id}`, {
+      await fetchJson(`/api/v1/agents/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

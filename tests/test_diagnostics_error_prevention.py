@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# Process Name: AI-Windows-Admin Tests - Diagnostics Error Prevention
+# Process Name: ai-tc Tests - Diagnostics Error Prevention
 # =============================================================================
 # Description:
 #   Тесты предотвращения сохранения ошибок языковых моделей и потоковых сбоев
 #   в локальную базу знаний WikiLLM при автообогащении и интерактивном диалоге.
 #
 # File: test_diagnostics_error_prevention.py
-# Project: ai-windows-admin
+# Project: ai-tc
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-18 23:05:00
+# Updated: 2026-11-12 05:00:00
 # =============================================================================
 
 from __future__ import annotations

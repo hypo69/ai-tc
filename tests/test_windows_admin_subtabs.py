@@ -11,11 +11,11 @@ Description:
     - Контроль размеров и стилизации иконки дрели (red_drill.png) в пользователях
 
 File: test_windows_admin_subtabs.py
-Project: ai-windows-admin
+Project: ai-tc
 Package: tests
 Author: hypo69
 Copyright: © 2026 hypo69
-Updated: 2026-11-12 01:25:00
+Updated: 2026-11-12 05:00:00
 =============================================================================
 """
 

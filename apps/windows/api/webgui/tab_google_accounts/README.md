@@ -1,7 +1,7 @@
 # Google Accounts Management Tab (`google_accounts_tab`)
 
 ## Overview
-Web interface component for managing the Google Workspace account pool (OAuth 2.0 and Service Accounts) in the AI Windows Admin administrator panel.
+Web interface component for managing the Google Workspace account pool (OAuth 2.0 and Service Accounts) in the ai-tc administrator panel.
 
 ## Features
 - Overview of all configured Google accounts (name, type, email, token status, quota status, default indicator).
