@@ -19,7 +19,7 @@
 # Package: src
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-20 21:08:00
+# Updated: 2026-11-20 22:05:00
 # =============================================================================
 
 """Менеджер версий, обновлений и релизов на базе Git-тегов (SemVer 2.0)."""
@@ -55,6 +55,10 @@ DEFAULT_UPDATE_CONFIG: Dict[str, Any] = {
     'release_branch': 'release',
     'dev_branch': 'master',
     'tag_prefix': 'v',
+    'auto_check_on_startup': True,
+    'auto_apply_on_startup': True,
+    'restart_after_update': True,
+    'startup_timeout_sec': 8,
     'auto_install_deps': True,
     'keep_backups': 5,
     'backup_items': ['config.json', '.env', 'requirements.txt', 'pyproject.toml'],
@@ -235,9 +239,9 @@ class VersionManager:
         raw_tags = [line.strip() for line in stdout.splitlines() if line.strip()]
         return sort_tags(raw_tags, allow_prerelease=self._allow_prerelease(allow_prerelease), prefix=self.tag_prefix)
 
-    def _fetch_remote_tag_map(self) -> Dict[str, str]:
+    def _fetch_remote_tag_map(self, timeout: int = 30) -> Dict[str, str]:
         """Получает отображение `{tag: commit_hash}` из удалённого репозитория."""
-        rc, stdout, stderr = self._run_git_command(['git', 'ls-remote', '--tags', self.remote_url])
+        rc, stdout, stderr = self._run_git_command(['git', 'ls-remote', '--tags', self.remote_url], timeout=timeout)
         if rc != 0:
             logger.error(f'Не удалось получить список тегов из {self.remote_url}: {stderr}')
             return {}
@@ -268,13 +272,13 @@ class VersionManager:
         best = choose_best_tag(tags, allow_prerelease=self._allow_prerelease(allow_prerelease))
         return best or None
 
-    def check_updates(self, allow_prerelease: Optional[bool] = None) -> Dict[str, Any]:
+    def check_updates(self, allow_prerelease: Optional[bool] = None, timeout: int = 30) -> Dict[str, Any]:
         """Проверяет наличие новых релизных тегов в удалённом репозитории."""
         try:
             allow_pre = self._allow_prerelease(allow_prerelease)
             current = self.get_current_version() or 'unknown'
             state = self._get_git_state()
-            tag_map = self._fetch_remote_tag_map()
+            tag_map = self._fetch_remote_tag_map(timeout=timeout)
             remote_tags = sort_tags(list(tag_map.keys()), allow_prerelease=allow_pre, prefix=self.tag_prefix)
 
             if not remote_tags:

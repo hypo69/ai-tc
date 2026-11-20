@@ -22,7 +22,7 @@
 # Package: apps.windows.sdk.modules.network
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-12 05:00:00
+# Updated: 2026-11-20 21:50:00
 # =============================================================================
 
 from __future__ import annotations
@@ -30,10 +30,13 @@ from __future__ import annotations
 
 import json
 import subprocess
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from logger import logger
 from apps.common.telemetry_logger import AppTelemetryLogger
+
+
+PsRunnerFn = Callable[[str], Tuple[int, str, str]]
 
 
 class NetworkDiscoveryManager:
@@ -42,10 +45,23 @@ class NetworkDiscoveryManager:
     FIREWALL_GROUP_INVARIANT: str = "@FirewallAPI.dll,-32752"
     SERVICE_FDRESPUB: str = "FDResPub"
     SERVICE_FDPHOST: str = "fdPHost"
+    SERVICE_SSDPSRV: str = "SSDPSRV"
+    SERVICE_UPNPHOST: str = "upnphost"
+    TRACKED_SERVICES: Tuple[str, ...] = (
+        SERVICE_FDRESPUB,
+        SERVICE_FDPHOST,
+        SERVICE_SSDPSRV,
+        SERVICE_UPNPHOST,
+    )
 
-    def __init__(self) -> None:
-        """Инициализация менеджера сетевого обнаружения и регистратора телеметрии."""
+    def __init__(self, ps_runner: Optional[PsRunnerFn] = None) -> None:
+        """Инициализация менеджера сетевого обнаружения и регистратора телеметрии.
+
+        Args:
+            ps_runner: Опциональная функция запуска PowerShell (для DI и тестирования).
+        """
         self._telemetry_logger = AppTelemetryLogger("network_discovery")
+        self._custom_ps_runner = ps_runner
 
     def _run_ps_command(self, script: str) -> Tuple[int, str, str]:
         """Безопасный запуск PowerShell-команды в неинтерактивном режиме.
@@ -56,15 +72,24 @@ class NetworkDiscoveryManager:
         Returns:
             Tuple[int, str, str]: Код возврата, stdout и stderr.
         """
+        if self._custom_ps_runner is not None:
+            return self._custom_ps_runner(script)
         try:
             res = subprocess.run(
-                ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script],
+                [
+                    "powershell.exe",
+                    "-NoProfile",
+                    "-NonInteractive",
+                    "-Command",
+                    f"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; {script}",
+                ],
                 capture_output=True,
                 text=True,
                 encoding="utf-8",
                 errors="replace",
                 check=False,
                 timeout=25,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
             return res.returncode, (res.stdout or "").strip(), (res.stderr or "").strip()
         except Exception as exc:
@@ -106,13 +131,14 @@ class NetworkDiscoveryManager:
         return []
 
     def get_services_state(self) -> Dict[str, Dict[str, Any]]:
-        """Опрос состояния служб обнаружения ресурсов (FDResPub и fdPHost).
+        """Опрос состояния служб сетевого обнаружения (FDResPub, fdPHost, SSDPSRV, upnphost).
 
         Returns:
             Dict[str, Dict[str, Any]]: Состояние служб, включая статус работы и тип запуска.
         """
+        names_arg = ", ".join(self.TRACKED_SERVICES)
         ps_cmd = (
-            "Get-Service -Name FDResPub, fdPHost -ErrorAction SilentlyContinue | ForEach-Object { "
+            f"Get-Service -Name {names_arg} -ErrorAction SilentlyContinue | ForEach-Object {{ "
             "[PSCustomObject]@{ "
             "Name=$_.Name; "
             "DisplayName=$_.DisplayName; "
@@ -203,11 +229,15 @@ class NetworkDiscoveryManager:
             current_category = str(primary_profile.get("NetworkCategory", "Public"))
             primary_index = primary_profile.get("InterfaceIndex")
 
-        # Проверка служб
+        # Проверка служб сетевого обнаружения (FDResPub, fdPHost, SSDPSRV, upnphost)
         fdres = services.get(self.SERVICE_FDRESPUB, {})
         fdphost = services.get(self.SERVICE_FDPHOST, {})
+        ssdp = services.get(self.SERVICE_SSDPSRV, {})
+        upnp = services.get(self.SERVICE_UPNPHOST, {})
         fdres_running = str(fdres.get("Status", "")).lower() == "running"
         fdphost_running = str(fdphost.get("Status", "")).lower() == "running"
+        ssdp_running = str(ssdp.get("Status", "")).lower() == "running"
+        upnp_running = str(upnp.get("Status", "")).lower() == "running"
 
         fw_enabled = firewall.get("is_enabled", False)
         # Обнаружение сети считается включенным, если правила активны и FDResPub запущен
@@ -223,8 +253,12 @@ class NetworkDiscoveryManager:
             "services": {
                 self.SERVICE_FDRESPUB: fdres,
                 self.SERVICE_FDPHOST: fdphost,
+                self.SERVICE_SSDPSRV: ssdp,
+                self.SERVICE_UPNPHOST: upnp,
                 "fdres_running": fdres_running,
                 "fdphost_running": fdphost_running,
+                "ssdp_running": ssdp_running,
+                "upnp_running": upnp_running,
             },
             "firewall": firewall,
         }

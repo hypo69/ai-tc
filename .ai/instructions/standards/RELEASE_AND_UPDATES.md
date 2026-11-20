@@ -1,6 +1,6 @@
 # Стратегия релизов и обновлений (Git Tags / SemVer 2.0)
 
-**Updated:** 2026-11-20 21:12:00
+**Updated:** 2026-11-20 22:08:00
 
 ## 1. Архитектурный принцип
 
@@ -38,6 +38,10 @@
     "release_branch": "release",
     "dev_branch": "master",
     "tag_prefix": "v",
+    "auto_check_on_startup": true,
+    "auto_apply_on_startup": true,
+    "restart_after_update": true,
+    "startup_timeout_sec": 8,
     "auto_install_deps": true,
     "keep_backups": 5,
     "backup_items": [
@@ -90,3 +94,16 @@ py manage_tools.py release create --bump minor --prerelease rc.1 --push
 ```
 
 При отправке тега `v*.*.*` в GitHub автоматически запускается workflow [`.github/workflows/release.yml`](../../../.github/workflows/release.yml), создающий GitHub Release с автогенерацией Release Notes.
+
+---
+
+## 6. Автообновление при старте приложения (`StartupUpdater`)
+
+Модуль реализации: [`src/startup_updater.py`](../../../src/startup_updater.py). Подключён в самом начале `main.py` и `tc.py` до поднятия сервера и импорта модулей WebGUI/API:
+
+1. При запуске проверяет наличие новых тегов с коротким таймаутом (`startup_timeout_sec: 8`).
+2. Если доступен новый стабильный тег и рабочее дерево чистое — создаёт резервную копию, переключает ветку `release` на новый тег, при необходимости доустанавливает `requirements.txt` и выполняет миграции БД.
+3. Автоматически перезапускает процесс с выставленным маркером окружения `AITC_SKIP_STARTUP_UPDATE=1` (защита от цикла перезапуска).
+4. При отсутствии интернета, ошибке Git, отсутствии тегов или незакоммиченных изменениях — не прерывает запуск приложения.
+5. Для разового отключения используется флаг `--no-update` (`.\tc.ps1 --no-update`, `py main.py --no-update`, `py tc.py --no-update`).
+

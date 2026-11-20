@@ -16,7 +16,7 @@
 # Package: apps.windows.sdk.modules.network
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-20 20:42:00
+# Updated: 2026-11-20 21:56:00
 # =============================================================================
 
 from __future__ import annotations
@@ -40,9 +40,11 @@ try:
 except ImportError:
     AIDetector, TSharkWrapper, TrafficAnalyzer = None, None, None
 from .lan_scanner import WindowsLanScanner
+from .lan_visibility_diagnostics import LanVisibilityDiagnostics
 from .remote_access_settings import RemoteAccessApplyRequest, WindowsRemoteAccessManager
 from .remote_auth import RemoteLoginRequest, WindowsRemoteAuthenticator
 from .sensors import NetworkTerminalSensor
+from .smb_sharing import SmbCreateShareRequest, SmbToggleRequest, WindowsSmbSharingManager
 from .speedtest import NetworkSpeedTester
 from .tui import NetworkTerminalState
 router = APIRouter(prefix='/api/v1/network', tags=['network'])
@@ -52,6 +54,8 @@ _speedtester = NetworkSpeedTester()
 _lan_scanner = WindowsLanScanner()
 _remote_auth = WindowsRemoteAuthenticator()
 _remote_access = WindowsRemoteAccessManager()
+_smb_sharing = WindowsSmbSharingManager()
+_visibility_diag = LanVisibilityDiagnostics(smb_manager=_smb_sharing)
 _state: NetworkTerminalState | None = None
 _latest_speedtest: Dict[str, Any] | None = None
 
@@ -382,6 +386,91 @@ async def apply_remote_access_setting(request: Request, payload: RemoteAccessApp
             'message': result.message,
         },
     )
+    return result.model_dump()
+
+
+@router.get('/sharing/status')
+async def get_smb_sharing_status(request: Request) -> dict:
+    """Возвращает состояние SMB1/2/3, служб, правил @FirewallAPI.dll,-28502 и списка шар."""
+    status = await asyncio.to_thread(_smb_sharing.get_status)
+    return status.model_dump()
+
+
+@router.get('/sharing/sessions')
+async def get_smb_sharing_sessions(request: Request) -> dict:
+    """Возвращает список активных входящих SMB-сессий (Get-SmbSession)."""
+    sessions = await asyncio.to_thread(_smb_sharing.get_sessions)
+    return {'sessions': [s.model_dump() for s in sessions], 'total': len(sessions)}
+
+
+@router.get('/sharing/shares/{share_name}/access')
+async def get_smb_share_access(request: Request, share_name: str) -> dict:
+    """Возвращает таблицу прав доступа к указанной общей папке Windows."""
+    try:
+        entries = await asyncio.to_thread(_smb_sharing.get_share_access, share_name)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {'share_name': share_name, 'access': [e.model_dump() for e in entries]}
+
+
+@router.post('/sharing/toggle')
+async def toggle_smb_file_sharing(request: Request, payload: SmbToggleRequest) -> dict:
+    """Включает или отключает File and Printer Sharing с предварительным снимком для отката."""
+    snap = await asyncio.to_thread(
+        _visibility_diag.create_snapshot,
+        f"before_sharing_{'enable' if payload.enable else 'disable'}",
+    )
+    result = await asyncio.to_thread(
+        _smb_sharing.toggle_file_sharing,
+        enable=payload.enable,
+        profiles=list(payload.profiles),
+        start_server_service=payload.start_server_service,
+        snapshot_id=snap.snapshot_id,
+    )
+    return result.model_dump()
+
+
+@router.post('/sharing/shares')
+async def create_smb_share(request: Request, payload: SmbCreateShareRequest) -> dict:
+    """Публикует новую общую папку Windows (New-SmbShare)."""
+    result = await asyncio.to_thread(_smb_sharing.create_share, payload)
+    return result.model_dump()
+
+
+@router.delete('/sharing/shares/{share_name}')
+async def remove_smb_share(request: Request, share_name: str) -> dict:
+    """Удаляет пользовательскую общую папку Windows (Remove-SmbShare)."""
+    result = await asyncio.to_thread(_smb_sharing.remove_share, share_name)
+    return result.model_dump()
+
+
+@router.get('/visibility/diagnose')
+async def diagnose_lan_visibility(request: Request) -> dict:
+    """Выполняет 4-уровневую диагностику видимости ПК в локальной сети (L1..L4)."""
+    report = await asyncio.to_thread(_visibility_diag.diagnose)
+    return report.model_dump()
+
+
+@router.get('/visibility/snapshots')
+async def list_visibility_snapshots(request: Request, limit: int = 20) -> dict:
+    """Возвращает историю снимков сетевых настроек для отката."""
+    snaps = await asyncio.to_thread(_visibility_diag.list_snapshots, limit)
+    return {'snapshots': [s.model_dump() for s in snaps], 'total': len(snaps)}
+
+
+@router.post('/visibility/snapshots')
+async def create_visibility_snapshot(request: Request, reason: str = 'manual') -> dict:
+    """Создаёт снимок текущего состояния сетевых настроек."""
+    snap = await asyncio.to_thread(_visibility_diag.create_snapshot, reason)
+    return snap.model_dump()
+
+
+@router.post('/visibility/rollback/{snapshot_id}')
+async def rollback_visibility_snapshot(request: Request, snapshot_id: str) -> dict:
+    """Восстанавливает сетевые профили и правила Discovery/Sharing из снимка."""
+    result = await asyncio.to_thread(_visibility_diag.rollback, snapshot_id)
+    if not result.success and 'не найден' in result.message:
+        raise HTTPException(status_code=404, detail=result.message)
     return result.model_dump()
 
 

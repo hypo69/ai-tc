@@ -17,7 +17,7 @@
 # Project: ai-tc
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-20 19:50:00
+# Updated: 2026-11-20 22:06:00
 # =============================================================================
 
 from __future__ import annotations
@@ -515,6 +515,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('--no-ssl', dest='ssl', action='store_false', help='Принудительно отключить HTTPS (SSL)')
     parser.add_argument('--ssl-cert', dest='ssl_cert', type=str, default=None, help='Путь к сертификату SSL (.pem)')
     parser.add_argument('--ssl-key', dest='ssl_key', type=str, default=None, help='Путь к приватному ключу SSL (.pem)')
+    parser.add_argument('--no-update', dest='no_update', action='store_true', help='Пропустить автопроверку и установку обновлений при старте')
     return parser.parse_args()
 
 
@@ -526,6 +527,14 @@ def main() -> int:
     """
     apply_windows_asyncio_patch()
     args = parse_arguments()
+
+    # Автоматическая проверка и установка релизных обновлений по Git-тегам до подъёма сервисов
+    if not args.connect:
+        from src.startup_updater import run_startup_update
+        upd_res = run_startup_update(skip=args.no_update)
+        if upd_res.should_exit:
+            return upd_res.exit_code
+
     cfg, config_path = load_config(args.config)
 
     server_cfg = cfg.get("server", {})

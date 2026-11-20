@@ -15,7 +15,7 @@ Usage Examples:
 File: index.html
 Project: ai-tc
 Package: windows/api/webgui/tab_network
-Updated: 2026-11-20 20:46:00
+Updated: 2026-11-20 22:04:00
 =============================================================================
 -->
 <!-- Windows Network Terminal Tab (/apps/windows/network) -->
@@ -892,6 +892,145 @@ Updated: 2026-11-20 20:46:00
 
       <!-- Лог последней операции -->
       <div class="mt-3 d-none" id="ra-action-log"></div>
+    </div>
+  </div>
+
+  <!-- 4-уровневая диагностика видимости в LAN, 6 служб, SMB1/2/3, общие папки и Rollback -->
+  <div class="net-panel mb-3" id="vis-sharing-section">
+    <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="panel-title">
+          <i class="bi bi-diagram-3 text-info me-1"></i>
+          Видимость в локальной сети (L1–L4) и Общий доступ к файлам (SMB)
+        </span>
+        <span class="small text-muted" id="vis-status-hint">Ожидание диагностики...</span>
+      </div>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <button class="btn btn-sm btn-outline-info rounded-pill px-3" id="btn-vis-diagnose" type="button">
+          <i class="bi bi-clipboard2-pulse me-1"></i>Диагностика L1–L4
+        </button>
+        <button class="btn btn-sm btn-outline-success rounded-pill px-3" id="btn-vis-sharing-on" type="button">
+          <i class="bi bi-folder-check me-1"></i>Включить File Sharing
+        </button>
+        <button class="btn btn-sm btn-outline-danger rounded-pill px-3" id="btn-vis-sharing-off" type="button">
+          <i class="bi bi-folder-x me-1"></i>Отключить File Sharing
+        </button>
+        <button class="btn btn-sm btn-outline-warning rounded-pill px-3" id="btn-vis-rollback" type="button" disabled>
+          <i class="bi bi-arrow-counterclockwise me-1"></i>Откатить снимок
+        </button>
+      </div>
+    </div>
+
+    <div class="p-3">
+      <!-- Бейджи SMB 1.0 / SMB 2-3 / Firewall / Rollback -->
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span id="vis-smb1-badge"><span class="badge bg-secondary">SMB 1.0: --</span></span>
+          <span id="vis-smb2-badge"><span class="badge bg-secondary">SMB 2/3: --</span></span>
+          <span id="vis-sharing-fw-badge"><span class="badge bg-secondary">Firewall: --</span></span>
+        </div>
+        <span class="small text-muted" id="vis-snapshot-info">Снимков для отката пока нет</span>
+      </div>
+
+      <!-- 4 уровня диагностики -->
+      <div class="row g-2 mb-3" id="vis-levels-grid"></div>
+
+      <!-- Находки диагностики (VIS001..VIS010) -->
+      <div class="mb-3" id="vis-findings-list"></div>
+
+      <div class="row g-3">
+        <!-- Таблица 6 служб Windows -->
+        <div class="col-12">
+          <div class="net-panel h-100">
+            <div class="panel-header">
+              <span class="panel-title"><i class="bi bi-gear-wide-connected text-primary me-1"></i>Службы обнаружения и SMB (6)</span>
+            </div>
+            <div class="table-responsive">
+              <table class="net-table">
+                <thead>
+                  <tr>
+                    <th>Служба</th>
+                    <th>Назначение</th>
+                    <th>Статус</th>
+                    <th>Запуск</th>
+                  </tr>
+                </thead>
+                <tbody id="vis-services-tbody">
+                  <tr><td colspan="4" class="text-center text-muted py-2">Загрузка...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Таблица опубликованных папок (Get-SmbShare) и активные сессии -->
+        <div class="col-12">
+          <div class="net-panel h-100">
+            <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <span class="panel-title"><i class="bi bi-folder2-open text-warning me-1"></i>Опубликованные общие папки (Get-SmbShare)</span>
+              <button class="btn btn-xs btn-outline-success py-0 px-2" id="btn-vis-toggle-share-form" type="button">
+                <i class="bi bi-plus-circle me-1"></i>Опубликовать папку
+              </button>
+            </div>
+            <!-- Форма создания общей папки -->
+            <form class="p-2 border-bottom border-secondary border-opacity-25 d-none" id="vis-create-share-form">
+              <div class="row g-2 align-items-end small">
+                <div class="col-sm-4">
+                  <label class="form-label mb-1 text-muted" for="vis-share-name">Имя ресурса</label>
+                  <input class="form-control form-control-sm" id="vis-share-name" placeholder="PublicDocs" required type="text" />
+                </div>
+                <div class="col-sm-5">
+                  <label class="form-label mb-1 text-muted" for="vis-share-path">Локальный путь</label>
+                  <input class="form-control form-control-sm" id="vis-share-path" placeholder="D:\SharedFolder" required type="text" />
+                </div>
+                <div class="col-sm-3">
+                  <label class="form-label mb-1 text-muted" for="vis-share-access-mode">Доступ</label>
+                  <select class="form-select form-select-sm" id="vis-share-access-mode">
+                    <option value="read">Чтение (Authenticated Users)</option>
+                    <option value="full">Полный (Authenticated Users)</option>
+                    <option value="everyone_read">Чтение (Everyone)</option>
+                  </select>
+                </div>
+                <div class="col-sm-8">
+                  <input class="form-control form-control-sm" id="vis-share-desc" placeholder="Описание (необязательно)" type="text" />
+                </div>
+                <div class="col-sm-4 text-end">
+                  <button class="btn btn-sm btn-success py-0 px-3" id="btn-vis-create-share-submit" type="submit">Создать</button>
+                  <button class="btn btn-sm btn-outline-secondary py-0 px-2" id="btn-vis-cancel-share-form" type="button">Отмена</button>
+                </div>
+              </div>
+            </form>
+            <div class="table-responsive">
+              <table class="net-table">
+                <thead>
+                  <tr>
+                    <th>Имя</th>
+                    <th>Локальный путь</th>
+                    <th>Тип</th>
+                    <th>Описание</th>
+                    <th class="text-end">Действия</th>
+                  </tr>
+                </thead>
+                <tbody id="vis-shares-tbody">
+                  <tr><td colspan="5" class="text-center text-muted py-2">Загрузка...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- Просмотр прав доступа выбранной общей папки (Get-SmbShareAccess) -->
+            <div class="p-2 border-top border-secondary border-opacity-25 d-none" id="vis-share-access-box">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small fw-semibold" id="vis-share-access-title">Права доступа</span>
+                <button class="btn btn-xs btn-outline-secondary py-0 px-2" id="btn-vis-close-access" type="button">Скрыть</button>
+              </div>
+              <div class="small" id="vis-share-access-list"></div>
+            </div>
+            <div class="p-2 border-top border-secondary border-opacity-25">
+              <div class="small text-muted mb-1"><i class="bi bi-people me-1"></i>Активные входящие SMB-сессии:</div>
+              <div id="vis-sessions-list"><span class="text-muted small">Проверка...</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
