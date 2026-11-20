@@ -19,7 +19,7 @@
 # Package: apps.windows.api
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-16 05:37:00
+# Updated: 2026-11-20 19:50:00
 # =============================================================================
 
 from __future__ import annotations
@@ -40,10 +40,9 @@ from src.utils.asyncio_windows_patch import apply_windows_asyncio_patch
 # =============================================================================
 # Глобальные константы конфигурации
 # =============================================================================
-DEFAULT_HOST: str = '127.0.0.1'
+DEFAULT_HOST: str = '0.0.0.0'
 DEFAULT_PORT: int = 8001
 DEFAULT_LOG_LEVEL: str = 'info'
-ALLOWED_HOSTS: tuple[str, ...] = ('127.0.0.1', 'localhost', '::1')
 INTERNAL_APP_FACTORY: str = 'apps.windows.api.internal_app:create_internal_app'
 
 
@@ -60,7 +59,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         '--host',
         default=DEFAULT_HOST,
-        help='IP-адрес для прослушивания (только localhost)',
+        help='IP-адрес для прослушивания (по умолчанию 0.0.0.0 — все интерфейсы)',
     )
     parser.add_argument(
         '--port',
@@ -84,20 +83,9 @@ def _parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    """Запускает uvicorn с внутренним FastAPI-сервисом.
-
-    Принудительно ограничивает bind только на localhost.
-    """
+    """Запускает uvicorn с внутренним FastAPI-сервисом."""
     apply_windows_asyncio_patch()
     args = _parse_args()
-
-    # Защита: запрещаем bind на 0.0.0.0 или внешние адреса
-    if args.host not in ALLOWED_HOSTS:
-        logger.warning(
-            f'  [WARN] Внутренний сервис не может слушать на {args.host}. '
-            f'Принудительно используется {DEFAULT_HOST}.'
-        )
-        args.host = DEFAULT_HOST
 
     try:
         import uvicorn
@@ -105,10 +93,11 @@ def main() -> None:
         logger.error('[ERROR] uvicorn не установлен. Установите: pip install uvicorn')
         sys.exit(1)
 
+    display_host = 'localhost' if args.host == '0.0.0.0' else args.host
     logger.info(f'  [Windows Internal API] Запуск на http://{args.host}:{args.port}')
-    logger.info(f'  [Windows Internal API] TC UI: http://{args.host}:{args.port}/tc')
-    logger.info(f'  [Windows Internal API] Health: http://{args.host}:{args.port}/health')
-    logger.info(f'  [Windows Internal API] Docs:   http://{args.host}:{args.port}/docs')
+    logger.info(f'  [Windows Internal API] TC UI: http://{display_host}:{args.port}/tc')
+    logger.info(f'  [Windows Internal API] Health: http://{display_host}:{args.port}/health')
+    logger.info(f'  [Windows Internal API] Docs:   http://{display_host}:{args.port}/docs')
 
     uvicorn.run(
         INTERNAL_APP_FACTORY,
