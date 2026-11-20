@@ -16,7 +16,7 @@
 #   CLI:
 #     py tc.py
 #     py tc.py --region ru-ru
-#     py tc.py --port 8001 --host 127.0.0.1
+#     py tc.py --port 8001 --host 0.0.0.0
 #   Python API:
 #     from tc import run_tc
 #
@@ -27,7 +27,7 @@
 # Package: root
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-12 05:00:00
+# Updated: 2026-11-20 19:50:00
 # =============================================================================
 
 from __future__ import annotations
@@ -57,10 +57,9 @@ from scripts.cli.utils import get_process_on_port, kill_process
 # =============================================================================
 # Глобальные константы конфигурации
 # =============================================================================
-DEFAULT_HOST: str = '127.0.0.1'
+DEFAULT_HOST: str = '0.0.0.0'
 DEFAULT_PORT: int = 8001
 DEFAULT_LOG_LEVEL: str = 'info'
-ALLOWED_HOSTS: tuple[str, ...] = ('127.0.0.1', 'localhost', '::1')
 WINDOWS_CONFIG_REL_PATH: Path = Path('apps') / 'windows' / 'config.json'
 INTERNAL_APP_MODULE: str = 'apps.windows.api.internal_app:create_internal_app'
 
@@ -140,7 +139,7 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
     parser.add_argument(
         '--host', '-H',
         default=DEFAULT_HOST,
-        help='IP-адрес для прослушивания (только localhost)',
+        help='IP-адрес для прослушивания (по умолчанию 0.0.0.0 — все интерфейсы)',
     )
     parser.add_argument(
         '--port', '-P',
@@ -227,15 +226,7 @@ def run_tc(
     Returns:
         int: Код возврата процесса (0 - успех, 1 - ошибка).
     """
-    # 1. Принудительное ограничение хоста на localhost
-    if host not in ALLOWED_HOSTS:
-        logger.warning(
-            f'  [WARN] Внутренний сервис не может слушать на {host}. '
-            f'Принудительно используется {DEFAULT_HOST}.'
-        )
-        host = DEFAULT_HOST
-
-    # 2. Настройка профиля конфигурации
+    # 1. Настройка профиля конфигурации
     windows_config = __root__ / WINDOWS_CONFIG_REL_PATH
     if windows_config.exists():
         os.environ['AITC_CONFIG'] = str(windows_config)
@@ -298,10 +289,11 @@ def run_tc(
 
     # 5. Информационный баннер
     proto = 'https' if use_ssl else 'http'
+    display_host = 'localhost' if host == '0.0.0.0' else host
     logger.info(f'  [Windows Internal API] Запуск на {proto}://{host}:{port}')
-    logger.info(f'  [Windows Internal API] TC UI: {proto}://{host}:{port}/tc{region_query}')
-    logger.info(f'  [Windows Internal API] Health: {proto}://{host}:{port}/health')
-    logger.info(f'  [Windows Internal API] Docs:   {proto}://{host}:{port}/docs')
+    logger.info(f'  [Windows Internal API] TC UI: {proto}://{display_host}:{port}/tc{region_query}')
+    logger.info(f'  [Windows Internal API] Health: {proto}://{display_host}:{port}/health')
+    logger.info(f'  [Windows Internal API] Docs:   {proto}://{display_host}:{port}/docs')
 
     if dry_run:
         return 0

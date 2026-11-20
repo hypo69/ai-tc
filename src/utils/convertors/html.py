@@ -1,9 +1,11 @@
+
 # -*- coding: utf-8 -*-
 # =============================================================================
 # Process Name: ai-tc UTILS - Html Module
 # =============================================================================
 # Description:
-#   HTML conversion utilities.
+#   HTML conversion utilities. The module provides HTML escaping, parsing and namespace conversion
+#   without requiring external HTML rendering libraries.
 #
 # Usage Examples:
 #   Python API:
@@ -11,138 +13,122 @@
 #
 #     res = html2escape()
 #     print(res)
+# Example:
+#    >>> from src.utils.convertors.html import html2escape
+#    >>> html2escape('<p>Hello</p>')
+#    '&lt;p&gt;Hello&lt;/p&gt;'
+#
 #
 # File: html.py
 # Project: ai-tc
 # Package: src.utils.convertors
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-12 05:00:00
+# Updated: 2026-11-20
 # =============================================================================
 
-"""HTML conversion utilities.
+from __future__ import annotations
+"""HTML conversion utilities.1"""
 
-Functions:
-    - `html2escape`: Convert HTML to escape sequences.
-    - `escape2html`: Convert escape sequences to HTML.
-    - `html2dict`: Convert HTML to dictionaries.
-    - `html2ns`: Convert HTML to SimpleNamespace objects."""
-
-import re
 import html
-from typing import Dict
-from pathlib import Path
-from logger import logger
-from types import SimpleNamespace
 from html.parser import HTMLParser
-try:
-    from xhtml2pdf import pisa
-except Exception as ex:
-    logger.error(ex)
-try:
-    from weasyprint import HTML
-except Exception as ex:
-    logger.error(ex)
+from pathlib import Path
+from types import SimpleNamespace
+
+from logger import logger
+
 
 def html2escape(input_str: str) -> str:
-    """
-    Convert HTML to escape sequences.
+    """Convert HTML markup into escaped HTML entities.
 
-    Args:
-        input_str (str): The HTML code.
-
-    Returns:
-        str: HTML converted into escape sequences.
-
-    Example:
-        >>> html = "<p>Hello, world!</p>"
-        >>> result = html2escape(html)
-        >>> print(result)
-        &lt;p&gt;Hello, world!&lt;/p&gt;
+    :param input_str: HTML source string.
+    :return: HTML string with escaped entities.
     """
     return html.escape(input_str)
 
+
 def escape2html(input_str: str) -> str:
-    """
-    Convert escape sequences to HTML.
+    """Decode HTML entities into ordinary HTML markup.
 
-    Args:
-        input_str (str): The string with escape sequences.
-
-    Returns:
-        str: The escape sequences converted back into HTML.
-
-    Example:
-        >>> escaped = "&lt;p&gt;Hello, world!&lt;/p&gt;"
-        >>> result = escape2html(escaped)
-        >>> print(result)
-        <p>Hello, world!</p>
+    :param input_str: String containing escaped HTML entities.
+    :return: Decoded HTML string.
     """
     return html.unescape(input_str)
 
-def html2dict(html_str: str) -> Dict[str, str]:
-    """
-    Convert HTML to a dictionary where tags are keys and content are values.
 
-    Args:
-        html_str (str): The HTML string to convert.
+def html2dict(html_str: str) -> dict[str, str]:
+    """Convert HTML elements into a dictionary of tag names and text.
 
-    Returns:
-        dict: A dictionary with HTML tags as keys and their content as values.
+    :param html_str: HTML source string.
+    :return: Dictionary containing tag names and their text content.
 
-    Example:
-        >>> html = "<p>Hello</p><a href='link'>World</a>"
-        >>> result = html2dict(html)
-        >>> print(result)
-        {'p': 'Hello', 'a': 'World'}
+    .. note::
+        When multiple elements use the same tag, the last parsed value
+        replaces the previous value.
     """
 
     class HTMLToDictParser(HTMLParser):
+        """Parse HTML elements into a dictionary."""
 
-        def __init__(self):
+        def __init__(self) -> None:
             super().__init__()
-            self.result = {}
-            self.current_tag = None
+            self.result: dict[str, str] = {}
+            self.current_tag: str | None = None
 
-        def handle_starttag(self, tag, attrs):
+        def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
             self.current_tag = tag
 
-        def handle_endtag(self, tag):
+        def handle_endtag(self, tag: str) -> None:
             self.current_tag = None
 
-        def handle_data(self, data):
+        def handle_data(self, data: str) -> None:
             if self.current_tag:
-                self.result[self.current_tag] = data.strip()
+                value = data.strip()
+                if value:
+                    self.result[self.current_tag] = value
+
     parser = HTMLToDictParser()
     parser.feed(html_str)
+    parser.close()
+
     return parser.result
 
+
 def html2ns(html_str: str) -> SimpleNamespace:
-    """
-    Convert HTML to a SimpleNamespace object where tags are attributes and content are values.
+    """Convert HTML elements into a SimpleNamespace object.
 
-    Args:
-        html_str (str): The HTML string to convert.
-
-    Returns:
-        SimpleNamespace: A SimpleNamespace object with HTML tags as attributes and their content as values.
-
-    Example:
-        >>> html = "<p>Hello</p><a href='link'>World</a>"
-        >>> result = html2ns(html)
-        >>> print(result.p)
-        Hello
-        >>> print(result.a)
-        World
+    :param html_str: HTML source string.
+    :return: Namespace with HTML tag names as attributes.
     """
     html_dict = html2dict(html_str)
     return SimpleNamespace(**html_dict)
 
+
 def html2pdf(html_str: str, pdf_file: str | Path) -> bool | None:
-    """Converts HTML content to a PDF file using WeasyPrint."""
+    """Convert HTML content into a PDF file using an optional backend.
+
+    WeasyPrint is deliberately not imported during module initialization.
+
+    :param html_str: HTML source string.
+    :param pdf_file: Destination PDF file path.
+    :return: True on success, None when the converter is unavailable
+        or PDF generation fails.
+    """
     try:
-        HTML(string=html_str).write_pdf(pdf_file)
+        from weasyprint import HTML
+
+    except (ImportError, OSError) as ex:
+        logger.warning(
+            f'HTML to PDF conversion is unavailable: {ex}'
+        )
+        return None
+
+    try:
+        HTML(string=html_str).write_pdf(str(pdf_file))
+
+        logger.info(f'PDF generated: {pdf_file}')
         return True
-    except Exception as e:
-        logger.console(f'Error during PDF generation: {e}')
-        return
+
+    except Exception as ex:
+        logger.error(f'Error during PDF generation: {ex}')
+        return None

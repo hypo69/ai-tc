@@ -10,14 +10,14 @@
 # Usage Examples:
 #   CLI:
 #     python main.py
-#     python main.py --host 127.0.0.1 --port 8000
+#     python main.py --host 0.0.0.0 --port 8001
 #     python main.py --no-browser
 #
 # File: main.py
 # Project: ai-tc
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-11-16 05:37:00
+# Updated: 2026-11-20 19:50:00
 # =============================================================================
 
 from __future__ import annotations
@@ -495,8 +495,8 @@ def parse_arguments() -> argparse.Namespace:
         description="ai-tc WebGUI & API Server Entrypoint",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument('-H', '--host', '--address', dest='host', type=str, default=None, help='Хост веб-сервера (по умолчанию 127.0.0.1)')
-    parser.add_argument('-P', '--port', dest='port', type=int, default=None, help='Порт веб-сервера (по умолчанию 8000)')
+    parser.add_argument('-H', '--host', '--address', dest='host', type=str, default=None, help='Хост веб-сервера (по умолчанию 0.0.0.0)')
+    parser.add_argument('-P', '--port', dest='port', type=int, default=None, help='Порт веб-сервера (по умолчанию 8001)')
     parser.add_argument('-C', '--config', type=str, default=None, help='Путь к конфигурационному файлу config.json')
     parser.add_argument('--engine', type=str, default='electron', choices=['electron', 'webview2', 'browser', 'headless'], help='Движок GUI (по умолчанию electron)')
     parser.add_argument('--browser', action='store_true', help='Запуск в системном браузере (shortcut для --engine browser)')
@@ -529,8 +529,8 @@ def main() -> int:
     cfg, config_path = load_config(args.config)
 
     server_cfg = cfg.get("server", {})
-    host = args.host or server_cfg.get("host", "127.0.0.1")
-    port = args.port or int(server_cfg.get("port", 8000))
+    host = args.host or server_cfg.get("host", "0.0.0.0")
+    port = args.port or int(server_cfg.get("port", 8001))
     if args.ssl is not None:
         use_ssl = bool(args.ssl)
     else:

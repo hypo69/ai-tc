@@ -11,7 +11,7 @@
 # Package: tests
 # Author: hypo69
 # Copyright: © 2026 hypo69
-# Updated: 2026-10-30 19:46:00
+# Updated: 2026-11-20 19:50:00
 # =============================================================================
 
 from __future__ import annotations
@@ -75,13 +75,14 @@ def test_parse_args_defaults() -> None:
     assert args.dry_run is False
 
 
-def test_run_tc_dry_run_replaces_foreign_host(monkeypatch: pytest.MonkeyPatch) -> None:
-    """dry-run возвращает 0 и не запускает uvicorn; внешний хост подменяется на localhost."""
+def test_run_tc_dry_run_broadcast_host(monkeypatch: pytest.MonkeyPatch) -> None:
+    """dry-run возвращает 0 и не запускает uvicorn; хост 0.0.0.0 используется напрямую."""
     monkeypatch.setattr(tc, 'free_port_if_occupied', lambda port: True)
     messages: list[str] = []
     monkeypatch.setattr(tc.logger, 'info', lambda msg, *a, **k: messages.append(str(msg)))
     assert tc.run_tc(host='0.0.0.0', port=8123, region='ru-ru', dry_run=True, ssl=False) == 0
-    assert any(f'http://{tc.DEFAULT_HOST}:8123/tc?region=ru-RU' in m for m in messages)
+    assert any('http://0.0.0.0:8123' in m for m in messages)
+    assert any('http://localhost:8123/tc?region=ru-RU' in m for m in messages)
 
 
 def test_run_tc_ssl_configuration(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -89,7 +90,8 @@ def test_run_tc_ssl_configuration(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(tc, 'free_port_if_occupied', lambda port: True)
     messages: list[str] = []
     monkeypatch.setattr(tc.logger, 'info', lambda msg, *a, **k: messages.append(str(msg)))
-    assert tc.run_tc(host='127.0.0.1', port=8001, dry_run=True, ssl=True) == 0
-    assert any(f'https://{tc.DEFAULT_HOST}:8001/tc' in m for m in messages)
+    assert tc.run_tc(host='0.0.0.0', port=8001, dry_run=True, ssl=True) == 0
+    assert any('https://0.0.0.0:8001' in m for m in messages)
+    assert any('https://localhost:8001/tc' in m for m in messages)
 
 
