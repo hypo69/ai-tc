@@ -49,17 +49,16 @@ def _get_app_name() -> str:
 
 
 def get_default_log_dir() -> Path:
-    """Возвращает целевую директорию логов."""
+    """Возвращает целевую директорию логов (%ProgramData%/ai-tc/logs)."""
     env_dir = (
         os.environ.get('AITC_LOGS_DIR')
-        or os.environ.get('AI_TC_LOGS_DIR')
         or os.environ.get('AI_TC_LOGS_DIR')
         or os.environ.get('LOG_DIR')
     )
     if env_dir:
         return Path(env_dir)
-    appdata = os.environ.get('APPDATA') or os.environ.get('LOCALAPPDATA')
-    base_dir = Path(appdata) if appdata and os.path.exists(appdata) else Path.home() / '.config'
+    base_env = os.environ.get('ProgramData') or os.environ.get('ALLUSERSPROFILE') or os.environ.get('APPDATA') or os.environ.get('LOCALAPPDATA')
+    base_dir = Path(base_env) if base_env and os.path.exists(base_env) else Path.home() / '.config'
     return base_dir / _get_app_name() / 'logs'
 
 
